@@ -1,558 +1,763 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>メニュー（パンフレット準拠・提案版） | ワンヒッター株式会社</title>
-<style>body{margin:0;background:#faf7f2;}
-/* ONE HITTER menu page — scoped to .oh-menu-root so it cannot collide with site CSS */
+<title>メニュー・料金 | ワンヒッター株式会社</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Shippori+Mincho+B1:wght@500;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+body{margin:0;background:#FBF8F3;}
+
+/* ===========================================================
+   ONE HITTER — メニュー・料金
+   すべて .oh-menu-root 配下にスコープ。既存サイトのCSSと衝突しない。
+   =========================================================== */
 .oh-menu-root{
-  --ohm-ink:#202223; --ohm-ink2:#5e6368; --ohm-ink3:#7a8087;
-  --ohm-accent:#d94739; --ohm-cream:#faf7f2; --ohm-cream2:#f6efe6;
-  --ohm-band:#f1e7dd; --ohm-line:#eee1d3; --ohm-white:#fff;
-  box-sizing:border-box; color:var(--ohm-ink);
-  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,sans-serif;
-  line-height:1.9; letter-spacing:.02em;
-  max-width:1080px; margin:0 auto; padding:0 clamp(16px,4vw,32px) 64px;
-  overflow-wrap:break-word; word-break:normal;
+  --ohm-ink:#1A1A18;
+  --ohm-ink2:#57544E;
+  --ohm-ink3:#8C877D;
+  --ohm-paper:#FBF8F3;
+  --ohm-paper2:#F4EEE4;
+  --ohm-white:#FFFFFF;
+  --ohm-rule:#E4DBCC;
+  --ohm-rule2:#D3C7B3;
+  --ohm-accent:#C0402E;
+  --ohm-accent2:#8E2C1F;
+  --ohm-accent-soft:#F7E7E2;
+
+  --ohm-serif:"Shippori Mincho B1","Yu Mincho","YuMincho","Hiragino Mincho ProN",serif;
+  --ohm-sans:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,sans-serif;
+  --ohm-num:"Jost","Zen Kaku Gothic New",system-ui,sans-serif;
+
+  box-sizing:border-box;
+  color:var(--ohm-ink);
+  background:var(--ohm-paper);
+  font-family:var(--ohm-sans);
+  font-size:16px;
+  line-height:1.95;
+  letter-spacing:.02em;
+  max-width:960px;
+  margin:0 auto;
+  padding:0 clamp(18px,5vw,40px) clamp(64px,10vw,110px);
+  overflow-wrap:break-word;
+  -webkit-font-smoothing:antialiased;
 }
 .oh-menu-root *,.oh-menu-root *::before,.oh-menu-root *::after{box-sizing:inherit;}
+.oh-menu-root p{margin:0;}
+.oh-menu-root ul,.oh-menu-root ol,.oh-menu-root dl{list-style:none;margin:0;padding:0;}
+.oh-menu-root h1,.oh-menu-root h2,.oh-menu-root h3,.oh-menu-root h4{margin:0;font-weight:600;line-height:1.5;}
 .oh-menu-root img{max-width:100%;height:auto;}
-.oh-menu-root ul{list-style:none;margin:0;padding:0;}
-.oh-menu-root p{margin:0 0 1em;}
-.oh-menu-root h1,.oh-menu-root h2,.oh-menu-root h3,.oh-menu-root h4{margin:0 0 .6em;line-height:1.5;font-weight:700;}
 
-/* hero */
-.oh-menu-hero{text-align:center;padding:clamp(32px,7vw,64px) 0 clamp(24px,5vw,40px);}
-.oh-menu-hero__en{font-size:.75rem;letter-spacing:.32em;color:var(--ohm-accent);font-weight:700;margin:0 0 .8em;text-transform:uppercase;}
-.oh-menu-hero__ttl{font-size:clamp(1.5rem,5vw,2.25rem);letter-spacing:.06em;}
-.oh-menu-hero__lead{font-size:clamp(.875rem,2.4vw,1rem);color:var(--ohm-ink2);max-width:44em;margin:1.2em auto;}
-.oh-menu-hero__vision{display:inline-block;font-weight:700;font-size:clamp(.9rem,2.6vw,1.05rem);
-  border-top:1px solid var(--ohm-line);border-bottom:1px solid var(--ohm-line);padding:.5em 1.4em;margin:0;}
-
-/* 共通注記 */
-.oh-menu-notice{background:var(--ohm-accent);color:#fff;border-radius:10px;
-  padding:clamp(14px,3vw,20px) clamp(16px,4vw,28px);text-align:center;margin:0 0 clamp(40px,8vw,72px);}
-.oh-menu-notice__main{font-size:clamp(.95rem,2.9vw,1.15rem);font-weight:700;margin:0;}
-.oh-menu-notice__sub{font-size:clamp(.75rem,2.2vw,.85rem);margin:.5em 0 0;opacity:.92;}
-
-/* section header */
-.oh-menu-sec{margin:0 0 clamp(48px,9vw,88px);}
-.oh-menu-sec__en{font-size:.7rem;letter-spacing:.3em;color:var(--ohm-accent);font-weight:700;margin:0 0 .5em;text-transform:uppercase;}
-.oh-menu-sec__ttl{font-size:clamp(1.25rem,4vw,1.75rem);letter-spacing:.05em;
-  border-bottom:2px solid var(--ohm-ink);display:inline-block;padding-bottom:.25em;margin-bottom:1.4em;}
-
-/* 早見表 */
-.oh-menu-tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px;border:1px solid var(--ohm-line);}
-.oh-menu-table{width:100%;border-collapse:collapse;min-width:0;font-size:clamp(.8rem,2.5vw,.95rem);background:var(--ohm-white);}
-.oh-menu-table th,.oh-menu-table td{padding:.85em .9em;border-bottom:1px solid var(--ohm-line);text-align:left;vertical-align:middle;}
-.oh-menu-table thead th{background:var(--ohm-ink);color:#fff;font-size:.85em;letter-spacing:.08em;white-space:nowrap;}
-.oh-menu-table tbody th{font-weight:600;}
-.oh-menu-table tbody tr:nth-child(even){background:var(--ohm-cream);}
-.oh-menu-table tbody tr:last-child th,.oh-menu-table tbody tr:last-child td{border-bottom:0;}
-.oh-menu-table td{white-space:nowrap;font-variant-numeric:tabular-nums;}
-.oh-menu-table td:first-of-type{font-weight:700;color:var(--ohm-accent);}
-.oh-menu-table__note{display:block;font-size:.8em;font-weight:400;color:var(--ohm-ink3);}
-.oh-menu-tablenote{font-size:clamp(.75rem,2.2vw,.85rem);color:var(--ohm-ink2);margin:.9em 0 0;}
-
-/* メニュー詳細カード */
-.oh-menu-card{background:var(--ohm-white);border:1px solid var(--ohm-line);border-radius:14px;
-  padding:clamp(20px,4.5vw,36px);margin:0 0 clamp(24px,5vw,40px);}
-.oh-menu-card__head{display:flex;flex-wrap:wrap;gap:clamp(12px,3vw,28px);
-  align-items:flex-start;justify-content:space-between;
-  border-bottom:1px solid var(--ohm-line);padding-bottom:1.2em;margin-bottom:1.4em;}
-.oh-menu-card__headL{flex:1 1 15em;min-width:0;}
-.oh-menu-card__ttl{font-size:clamp(1.15rem,4vw,1.6rem);letter-spacing:.04em;margin-bottom:.5em;}
-.oh-menu-kw{display:flex;flex-wrap:wrap;gap:.4em;}
-.oh-menu-kw li{background:var(--ohm-band);color:var(--ohm-ink2);font-size:clamp(.7rem,2.2vw,.78rem);
-  font-weight:700;border-radius:999px;padding:.3em 1em;}
-.oh-menu-card__price{flex:0 1 auto;min-width:0;text-align:left;}
-.oh-menu-price{margin:0 0 .25em;display:flex;flex-wrap:wrap;align-items:baseline;gap:.15em .4em;}
-.oh-menu-price__v{font-size:clamp(1.35rem,5vw,2rem);font-weight:700;color:var(--ohm-accent);
-  font-variant-numeric:tabular-nums;line-height:1.2;}
-.oh-menu-price__t{font-size:clamp(.8rem,2.4vw,.95rem);font-weight:700;color:var(--ohm-ink2);}
-.oh-menu-price__k{font-size:clamp(.7rem,2.2vw,.78rem);color:var(--ohm-ink3);width:100%;}
-.oh-menu-price__season{font-size:clamp(.7rem,2.2vw,.78rem);color:var(--ohm-ink3);margin:.5em 0 0;}
-
-/* お悩み */
-.oh-menu-worry{background:var(--ohm-cream2);border-radius:10px;padding:clamp(14px,3.5vw,22px);margin:0 0 1.6em;}
-.oh-menu-worry__ttl{font-weight:700;text-align:center;margin:0 0 .8em;font-size:clamp(.9rem,2.8vw,1.05rem);}
-.oh-menu-worry__list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15em),1fr));gap:.5em .9em;}
-.oh-menu-worry__list li{position:relative;padding-left:1.5em;font-size:clamp(.82rem,2.5vw,.92rem);}
-.oh-menu-worry__list li::before{content:"✓";position:absolute;left:0;color:var(--ohm-accent);font-weight:700;}
-
-.oh-menu-catch{font-size:clamp(1rem,3.2vw,1.2rem);color:var(--ohm-accent);
-  border-left:4px solid var(--ohm-accent);padding-left:.7em;margin-bottom:.9em;}
-.oh-menu-body{font-size:clamp(.85rem,2.5vw,.95rem);color:var(--ohm-ink2);}
-
-/* オプション */
-.oh-menu-opt{background:var(--ohm-cream);border-radius:10px;padding:clamp(14px,3.5vw,22px);margin:0 0 1.4em;}
-.oh-menu-opt__ttl{font-weight:700;font-size:clamp(.85rem,2.6vw,.95rem);margin:0 0 .7em;
-  letter-spacing:.08em;color:var(--ohm-ink);}
-.oh-menu-opt__list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16em),1fr));gap:.45em .9em;}
-.oh-menu-opt__list li{display:flex;justify-content:space-between;align-items:baseline;gap:.6em;
-  border-bottom:1px dotted var(--ohm-line);padding:.35em 0;font-size:clamp(.8rem,2.4vw,.9rem);}
-.oh-menu-opt__n{min-width:0;}
-.oh-menu-opt__n small{display:block;font-size:.8em;color:var(--ohm-ink3);}
-.oh-menu-opt__p{font-weight:700;color:var(--ohm-accent);white-space:nowrap;font-variant-numeric:tabular-nums;}
-.oh-menu-opt__p--ask{color:var(--ohm-ink3);font-size:.85em;}
-
-/* お客様の声 */
-.oh-menu-voice{margin:0;background:var(--ohm-band);border-radius:10px;padding:clamp(14px,3.5vw,22px);}
-.oh-menu-voice blockquote{margin:0;font-size:clamp(.82rem,2.4vw,.92rem);color:var(--ohm-ink2);position:relative;padding-left:1.6em;}
-.oh-menu-voice blockquote::before{content:"“";position:absolute;left:0;top:-.1em;font-size:2.2em;line-height:1;color:var(--ohm-accent);opacity:.4;}
-.oh-menu-voice figcaption{margin-top:.7em;text-align:right;font-weight:700;font-size:clamp(.75rem,2.2vw,.85rem);color:var(--ohm-ink);}
-
-/* grid tiles */
-.oh-menu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15em),1fr));gap:clamp(12px,2.5vw,20px);}
-.oh-menu-tile{background:var(--ohm-white);border:1px solid var(--ohm-line);border-radius:12px;
-  padding:clamp(16px,3.5vw,24px);text-align:center;}
-.oh-menu-tile__ttl{font-size:clamp(.95rem,2.9vw,1.05rem);margin-bottom:.4em;}
-.oh-menu-tile__price{font-size:clamp(1.3rem,4.5vw,1.7rem);font-weight:700;color:var(--ohm-accent);
-  margin:0;font-variant-numeric:tabular-nums;}
-.oh-menu-tile__price span{font-size:.55em;color:var(--ohm-ink2);font-weight:700;}
-.oh-menu-tile__note{font-size:clamp(.72rem,2.2vw,.8rem);color:var(--ohm-ink3);margin:.5em 0 0;}
-.oh-menu-tile--set{background:var(--ohm-cream2);border-color:transparent;}
-
-/* オプションカード */
-.oh-menu-optcard{background:var(--ohm-white);border:1px solid var(--ohm-line);border-radius:12px;padding:clamp(16px,3.5vw,22px);}
-.oh-menu-optcard__cat{display:inline-block;background:var(--ohm-ink);color:#fff;font-size:.68rem;
-  letter-spacing:.1em;font-weight:700;border-radius:4px;padding:.2em .8em;margin:0 0 .7em;}
-.oh-menu-optcard__ttl{font-size:clamp(.95rem,2.8vw,1.05rem);margin-bottom:.2em;}
-.oh-menu-optcard__price{font-size:clamp(1.2rem,4vw,1.5rem);font-weight:700;color:var(--ohm-accent);
-  margin:0 0 .5em;font-variant-numeric:tabular-nums;}
-.oh-menu-optcard__txt{font-size:clamp(.75rem,2.2vw,.85rem);color:var(--ohm-ink2);margin:0;}
-
-/* はじめての方へ */
-.oh-menu-first{background:var(--ohm-ink);color:#fff;border-radius:14px;
-  padding:clamp(24px,5vw,44px);margin:0 0 clamp(48px,9vw,88px);}
-.oh-menu-first__ttl{font-size:clamp(1.1rem,3.6vw,1.5rem);text-align:center;letter-spacing:.05em;margin-bottom:1em;}
-.oh-menu-first__body{font-size:clamp(.85rem,2.5vw,.95rem);color:#e6e3df;margin:0;}
-.oh-menu-first__body strong{color:#fff;}
-.oh-menu-first__disc{font-size:clamp(.7rem,2.1vw,.78rem);color:#a9a6a2;margin:1em 0 0;}
-
-/* 法人 */
-.oh-menu-biz__lead{font-size:clamp(.85rem,2.5vw,.95rem);color:var(--ohm-ink2);margin-bottom:1.6em;}
-.oh-menu-bizcard{background:var(--ohm-cream2);border-radius:12px;padding:clamp(18px,4vw,26px);}
-.oh-menu-bizcard__ttl{font-size:clamp(1rem,3.2vw,1.2rem);margin-bottom:.2em;}
-.oh-menu-bizcard__price{font-size:clamp(1.35rem,4.5vw,1.8rem);font-weight:700;color:var(--ohm-accent);
-  margin:0 0 .6em;font-variant-numeric:tabular-nums;}
-.oh-menu-bizcard__price span{font-size:.5em;color:var(--ohm-ink2);}
-.oh-menu-bizcard__txt{font-size:clamp(.78rem,2.3vw,.88rem);color:var(--ohm-ink2);margin:0;}
-.oh-menu-alliance{margin-top:clamp(24px,5vw,40px);border:1px solid var(--ohm-line);border-radius:12px;padding:clamp(18px,4vw,28px);}
-.oh-menu-alliance__ttl{font-size:clamp(1rem,3.2vw,1.15rem);margin-bottom:.6em;}
-.oh-menu-alliance__txt{font-size:clamp(.8rem,2.4vw,.9rem);color:var(--ohm-ink2);}
-.oh-menu-alliance__txt small{color:var(--ohm-ink3);}
-.oh-menu-alliance__list{display:flex;flex-wrap:wrap;gap:.5em;}
-.oh-menu-alliance__list li{background:var(--ohm-band);border-radius:999px;padding:.35em 1.1em;
-  font-size:clamp(.75rem,2.2vw,.85rem);font-weight:700;}
-
-/* footer */
-.oh-menu-foot{border-top:2px solid var(--ohm-ink);padding-top:clamp(16px,3.5vw,24px);text-align:center;}
-.oh-menu-foot__notice{font-weight:700;color:var(--ohm-accent);font-size:clamp(.9rem,2.8vw,1.05rem);margin:0 0 .4em;}
-.oh-menu-foot__sub{font-size:clamp(.72rem,2.2vw,.82rem);color:var(--ohm-ink3);margin:0;}
-
-@media (max-width:600px){
-  .oh-menu-card__head{flex-direction:column;}
-  .oh-menu-card__price{width:100%;}
-  .oh-menu-table td{white-space:normal;}
+/* --- 共通パーツ --- */
+.oh-menu-eyebrow{
+  font-family:var(--ohm-num);font-weight:400;font-size:.68rem;
+  letter-spacing:.34em;text-transform:uppercase;color:var(--ohm-accent);
 }
+.oh-menu-num{font-family:var(--ohm-num);font-variant-numeric:tabular-nums lining-nums;}
+.oh-menu-serif{font-family:var(--ohm-serif);}
+
+/* --- HERO --- */
+.oh-menu-hero{
+  text-align:center;
+  padding:clamp(44px,9vw,92px) 0 clamp(32px,6vw,56px);
+}
+.oh-menu-hero__en{margin-bottom:1.4em;}
+.oh-menu-hero__ttl{
+  font-family:var(--ohm-serif);font-weight:600;
+  font-size:clamp(1.7rem,5.6vw,2.7rem);letter-spacing:.1em;line-height:1.45;
+}
+.oh-menu-hero__rule{
+  width:34px;height:1px;background:var(--ohm-accent);
+  margin:clamp(20px,4vw,30px) auto;border:0;
+}
+.oh-menu-hero__lead{
+  font-size:clamp(.86rem,2.4vw,.96rem);color:var(--ohm-ink2);
+  max-width:34em;margin:0 auto;
+}
+.oh-menu-hero__vision{
+  font-family:var(--ohm-serif);font-weight:600;
+  font-size:clamp(.95rem,2.8vw,1.1rem);letter-spacing:.14em;
+  margin-top:clamp(26px,5vw,40px);color:var(--ohm-ink);
+}
+
+/* --- 注記プレート --- */
+.oh-menu-plate{
+  display:grid;grid-template-columns:auto 1fr;gap:clamp(14px,3vw,22px);
+  align-items:start;
+  background:var(--ohm-white);
+  border:1px solid var(--ohm-rule);
+  border-left:3px solid var(--ohm-accent);
+  padding:clamp(16px,3.4vw,24px) clamp(18px,4vw,28px);
+  margin:0 0 clamp(56px,10vw,96px);
+}
+.oh-menu-plate__mark{
+  font-family:var(--ohm-num);font-size:1.1rem;color:var(--ohm-accent);line-height:1.6;
+}
+.oh-menu-plate__ttl{font-size:clamp(.92rem,2.6vw,1.02rem);font-weight:700;font-family:var(--ohm-sans);margin-bottom:.3em;}
+.oh-menu-plate__sub{font-size:clamp(.76rem,2.2vw,.84rem);color:var(--ohm-ink2);line-height:1.9;}
+
+/* --- セクション見出し --- */
+.oh-menu-sec{margin:0 0 clamp(64px,11vw,120px);}
+.oh-menu-sec__head{
+  display:flex;align-items:baseline;gap:clamp(12px,3vw,20px);
+  border-bottom:1px solid var(--ohm-rule2);
+  padding-bottom:.7em;margin-bottom:clamp(28px,5vw,48px);
+}
+.oh-menu-sec__ttl{
+  font-family:var(--ohm-serif);font-weight:600;
+  font-size:clamp(1.15rem,3.6vw,1.55rem);letter-spacing:.1em;
+}
+.oh-menu-sec__en{margin-left:auto;white-space:nowrap;}
+
+/* --- 料金一覧（リーダー罫のメニュー組み） --- */
+.oh-menu-list{display:flex;flex-direction:column;}
+.oh-menu-row{
+  display:flex;align-items:baseline;gap:.6em;
+  padding:clamp(11px,2.4vw,15px) 0;
+  border-bottom:1px solid var(--ohm-rule);
+}
+.oh-menu-row:first-child{border-top:1px solid var(--ohm-rule);}
+.oh-menu-row__n{font-size:clamp(.86rem,2.5vw,.98rem);font-weight:500;}
+.oh-menu-row__n small{
+  display:block;font-size:.78em;font-weight:400;color:var(--ohm-ink3);
+  letter-spacing:0;line-height:1.7;
+}
+.oh-menu-row__lead{
+  flex:1 1 auto;min-width:1.5em;
+  border-bottom:1px dotted var(--ohm-rule2);
+  transform:translateY(-.28em);
+}
+.oh-menu-row__p{
+  font-family:var(--ohm-num);font-variant-numeric:tabular-nums lining-nums;
+  font-weight:500;font-size:clamp(1.02rem,3vw,1.2rem);
+  color:var(--ohm-accent);white-space:nowrap;
+}
+.oh-menu-row__t{
+  font-family:var(--ohm-num);font-size:.78rem;color:var(--ohm-ink3);
+  white-space:nowrap;min-width:3.6em;text-align:right;
+}
+.oh-menu-foot-note{
+  font-size:clamp(.74rem,2.1vw,.82rem);color:var(--ohm-ink3);
+  margin-top:1.2em;
+}
+
+/* --- メニュー詳細 --- */
+.oh-menu-detail{
+  display:grid;
+  grid-template-columns:minmax(0,17.5em) minmax(0,1fr);
+  gap:clamp(20px,4vw,48px);
+  padding:clamp(32px,6vw,56px) 0;
+  border-top:1px solid var(--ohm-rule);
+}
+.oh-menu-detail:first-of-type{border-top:0;padding-top:0;}
+@media (max-width:720px){
+  .oh-menu-detail{grid-template-columns:1fr;gap:clamp(16px,4vw,24px);}
+}
+.oh-menu-detail__rail{align-self:start;}
+@media (min-width:721px){
+  .oh-menu-detail__rail{position:sticky;top:24px;}
+}
+.oh-menu-detail__no{
+  font-family:var(--ohm-num);font-weight:300;font-size:.8rem;letter-spacing:.24em;
+  color:var(--ohm-ink3);display:block;margin-bottom:.9em;
+}
+.oh-menu-detail__ttl{
+  font-family:var(--ohm-serif);font-weight:600;
+  font-size:clamp(1.1rem,3.4vw,1.32rem);letter-spacing:.03em;margin-bottom:.7em;
+}
+.oh-menu-price{margin-bottom:.5em;}
+.oh-menu-price__v{
+  font-family:var(--ohm-num);font-variant-numeric:tabular-nums lining-nums;
+  font-weight:500;font-size:clamp(1.5rem,4.6vw,1.9rem);color:var(--ohm-accent);
+  line-height:1.25;
+}
+.oh-menu-price__t{font-family:var(--ohm-num);font-size:.86rem;color:var(--ohm-ink2);margin-left:.35em;}
+.oh-menu-price__k{display:block;font-size:.74rem;color:var(--ohm-ink3);letter-spacing:.04em;}
+.oh-menu-detail__season{
+  font-size:.72rem;color:var(--ohm-ink3);line-height:1.8;
+  padding-top:.8em;margin-top:.4em;border-top:1px solid var(--ohm-rule);
+}
+.oh-menu-kw{display:flex;flex-wrap:wrap;gap:.4em;margin-top:1em;}
+.oh-menu-kw li{
+  font-size:.7rem;font-weight:500;letter-spacing:.06em;
+  color:var(--ohm-ink2);border:1px solid var(--ohm-rule2);
+  border-radius:2px;padding:.15em .7em;
+}
+
+.oh-menu-detail__body{min-width:0;}
+.oh-menu-worry{
+  background:var(--ohm-paper2);
+  padding:clamp(14px,3vw,20px) clamp(16px,3.4vw,24px);
+  margin-bottom:clamp(20px,4vw,28px);
+}
+.oh-menu-worry__ttl{
+  font-size:.78rem;font-weight:700;letter-spacing:.1em;
+  color:var(--ohm-ink2);margin-bottom:.7em;
+}
+.oh-menu-worry__list{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,14em),1fr));
+  gap:.2em 1.4em;
+}
+.oh-menu-worry__list li{
+  position:relative;padding-left:1.2em;
+  font-size:clamp(.8rem,2.4vw,.88rem);line-height:1.9;
+}
+.oh-menu-worry__list li::before{
+  content:"";position:absolute;left:0;top:.85em;
+  width:5px;height:5px;border-radius:50%;background:var(--ohm-accent);
+}
+.oh-menu-catch{
+  font-family:var(--ohm-serif);font-weight:600;
+  font-size:clamp(1rem,3vw,1.15rem);line-height:1.75;letter-spacing:.03em;
+  margin-bottom:.9em;
+}
+.oh-menu-body{font-size:clamp(.82rem,2.4vw,.9rem);color:var(--ohm-ink2);line-height:2.1;}
+
+.oh-menu-sub{margin-top:clamp(20px,4vw,28px);}
+.oh-menu-sub__ttl{
+  font-size:.72rem;font-weight:700;letter-spacing:.14em;color:var(--ohm-ink3);
+  padding-bottom:.5em;border-bottom:1px solid var(--ohm-rule);margin-bottom:.4em;
+}
+.oh-menu-sub .oh-menu-row{padding:.5em 0;border-bottom:0;}
+.oh-menu-sub .oh-menu-row:first-child{border-top:0;}
+.oh-menu-sub .oh-menu-row__n{font-size:.84rem;font-weight:400;}
+.oh-menu-sub .oh-menu-row__p{font-size:.92rem;}
+.oh-menu-sub .oh-menu-row__p--ask{color:var(--ohm-ink3);font-size:.78rem;font-family:var(--ohm-sans);}
+
+.oh-menu-voice{
+  margin-top:clamp(20px,4vw,28px);
+  border-left:1px solid var(--ohm-rule2);
+  padding:.2em 0 .2em clamp(14px,3vw,22px);
+}
+.oh-menu-voice blockquote{
+  margin:0;font-family:var(--ohm-serif);font-size:clamp(.82rem,2.4vw,.9rem);
+  line-height:2.1;color:var(--ohm-ink2);
+}
+.oh-menu-voice figcaption{
+  font-family:var(--ohm-num);font-size:.72rem;letter-spacing:.1em;
+  color:var(--ohm-ink3);margin-top:.8em;
+}
+
+/* --- タイル --- */
+.oh-menu-tiles{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,13em),1fr));
+  border-top:1px solid var(--ohm-rule);border-left:1px solid var(--ohm-rule);
+}
+.oh-menu-tile{
+  border-right:1px solid var(--ohm-rule);border-bottom:1px solid var(--ohm-rule);
+  padding:clamp(20px,4vw,30px) clamp(14px,3vw,22px);
+  text-align:center;background:var(--ohm-white);
+}
+.oh-menu-tile__ttl{font-size:.9rem;font-weight:500;margin-bottom:.6em;}
+.oh-menu-tile__p{
+  font-family:var(--ohm-num);font-variant-numeric:tabular-nums lining-nums;
+  font-weight:500;font-size:clamp(1.25rem,4vw,1.5rem);color:var(--ohm-accent);
+}
+.oh-menu-tile__p span{font-size:.58em;color:var(--ohm-ink2);margin-left:.2em;}
+.oh-menu-tile__note{font-size:.7rem;color:var(--ohm-ink3);margin-top:.5em;line-height:1.7;}
+
+/* --- オプション（カテゴリ別リーダー組み） --- */
+.oh-menu-optgrid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,20em),1fr));
+  gap:clamp(24px,5vw,44px);
+}
+.oh-menu-optcat__ttl{
+  font-family:var(--ohm-num);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--ohm-accent);padding-bottom:.6em;border-bottom:1px solid var(--ohm-accent);
+  margin-bottom:.4em;
+}
+.oh-menu-optcat .oh-menu-row{padding:.7em 0;}
+.oh-menu-optcat .oh-menu-row:first-child{border-top:0;}
+.oh-menu-optcat .oh-menu-row:last-child{border-bottom:0;}
+.oh-menu-optcat .oh-menu-row__n{font-size:.86rem;font-weight:400;}
+.oh-menu-optcat .oh-menu-row__p{font-size:.98rem;}
+
+/* --- はじめての方へ --- */
+.oh-menu-first{
+  background:var(--ohm-white);border:1px solid var(--ohm-rule);
+  padding:clamp(28px,6vw,56px);
+  margin:0 0 clamp(64px,11vw,120px);
+  display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);
+  gap:clamp(24px,5vw,48px);align-items:center;
+}
+@media (max-width:720px){.oh-menu-first{grid-template-columns:1fr;gap:clamp(20px,4vw,28px);}}
+.oh-menu-first__stat{text-align:center;}
+.oh-menu-first__v{
+  font-family:var(--ohm-num);font-weight:300;
+  font-size:clamp(3rem,11vw,4.6rem);line-height:.95;color:var(--ohm-accent);
+  font-variant-numeric:tabular-nums lining-nums;
+}
+.oh-menu-first__l{
+  font-size:.76rem;color:var(--ohm-ink2);line-height:1.85;margin-top:.8em;
+  padding-top:.8em;border-top:1px solid var(--ohm-rule);
+}
+.oh-menu-first__ttl{
+  font-family:var(--ohm-serif);font-weight:600;
+  font-size:clamp(1.05rem,3.2vw,1.3rem);letter-spacing:.06em;margin-bottom:.8em;
+}
+.oh-menu-first__txt{font-size:clamp(.82rem,2.4vw,.9rem);color:var(--ohm-ink2);line-height:2.1;}
+.oh-menu-first__txt strong{color:var(--ohm-ink);font-weight:700;}
+.oh-menu-first__disc{font-size:.7rem;color:var(--ohm-ink3);margin-top:1em;line-height:1.8;}
+
+/* --- 法人 --- */
+.oh-menu-biz{background:var(--ohm-ink);color:#EAE5DC;padding:clamp(28px,6vw,60px);}
+.oh-menu-biz .oh-menu-sec__head{border-bottom-color:#3B3934;}
+.oh-menu-biz .oh-menu-sec__ttl{color:#fff;}
+.oh-menu-biz .oh-menu-eyebrow{color:#D98A78;}
+.oh-menu-biz__lead{font-size:clamp(.82rem,2.4vw,.9rem);color:#B9B2A6;line-height:2.1;margin-bottom:clamp(24px,5vw,40px);}
+.oh-menu-bizlist{display:flex;flex-direction:column;}
+.oh-menu-bizitem{
+  display:grid;grid-template-columns:minmax(0,12em) minmax(0,1fr);
+  gap:clamp(12px,3vw,32px);
+  padding:clamp(20px,4vw,28px) 0;border-top:1px solid #3B3934;
+}
+@media (max-width:640px){.oh-menu-bizitem{grid-template-columns:1fr;gap:.6em;}}
+.oh-menu-bizitem__ttl{font-family:var(--ohm-serif);font-weight:600;font-size:1.02rem;color:#fff;margin-bottom:.3em;}
+.oh-menu-bizitem__p{
+  font-family:var(--ohm-num);font-variant-numeric:tabular-nums lining-nums;
+  font-weight:500;font-size:clamp(1.3rem,4vw,1.6rem);color:#E8A08D;
+}
+.oh-menu-bizitem__p span{font-size:.5em;color:#B9B2A6;margin-left:.15em;}
+.oh-menu-bizitem__txt{font-size:clamp(.78rem,2.3vw,.86rem);color:#B9B2A6;line-height:2.05;}
+.oh-menu-alliance{margin-top:clamp(28px,5vw,44px);padding-top:clamp(24px,5vw,36px);border-top:1px solid #3B3934;}
+.oh-menu-alliance__ttl{font-family:var(--ohm-serif);font-weight:600;font-size:1rem;color:#fff;margin-bottom:.7em;}
+.oh-menu-alliance__txt{font-size:clamp(.78rem,2.3vw,.86rem);color:#B9B2A6;line-height:2.05;}
+.oh-menu-alliance__txt small{color:#8C8579;}
+.oh-menu-alliance__list{display:flex;flex-wrap:wrap;gap:.5em;margin-top:1.2em;}
+.oh-menu-alliance__list li{
+  font-family:var(--ohm-num);font-size:.76rem;letter-spacing:.06em;
+  border:1px solid #4A4740;color:#D6CFC3;padding:.3em 1em;
+}
+
+/* --- 末尾 --- */
+.oh-menu-close{
+  text-align:center;padding-top:clamp(32px,6vw,52px);
+  border-top:1px solid var(--ohm-rule2);
+}
+.oh-menu-close__ttl{
+  font-family:var(--ohm-serif);font-weight:600;
+  font-size:clamp(1rem,3vw,1.2rem);letter-spacing:.08em;margin-bottom:.9em;
+}
+.oh-menu-close__txt{font-size:clamp(.78rem,2.3vw,.86rem);color:var(--ohm-ink2);line-height:2.05;}
+.oh-menu-close__fine{font-size:.72rem;color:var(--ohm-ink3);line-height:1.95;margin-top:1.6em;}
 </style></head><body>
+
 <div class="oh-menu-root">
 
   <!-- ===== HERO ===== -->
   <header class="oh-menu-hero">
-    <p class="oh-menu-hero__en">Services &amp; Price</p>
-    <h1 class="oh-menu-hero__ttl">ハウスクリーニングメニュー</h1>
+    <p class="oh-menu-eyebrow oh-menu-hero__en">Services &amp; Price</p>
+    <h1 class="oh-menu-hero__ttl">メニュー・料金</h1>
+    <hr class="oh-menu-hero__rule">
     <p class="oh-menu-hero__lead">
-      日常のお手入れでは落としきれない頑固な汚れを、プロの技術で徹底的に洗浄いたします。<br>
+      日常のお手入れでは落としきれない頑固な汚れを、プロの技術で徹底的に洗浄いたします。
       水まわりや換気扇、エアコンクリーニングはもちろん、メニューに記載のない箇所のお掃除も柔軟に対応。
     </p>
     <p class="oh-menu-hero__vision">手が届く、理想の生活を実現する</p>
   </header>
 
   <!-- ===== 共通注記 ===== -->
-  <aside class="oh-menu-notice" role="note">
-    <p class="oh-menu-notice__main">※ <strong>5〜7月・12月</strong>は、各料金に <strong>¥3,300</strong> が加算されます</p>
-    <p class="oh-menu-notice__sub">表示価格はすべて税込です。／ お見積り以上の追加請求は一切ありません（完全明朗会計）。</p>
+  <aside class="oh-menu-plate" role="note">
+    <span class="oh-menu-plate__mark oh-menu-num">※</span>
+    <div>
+      <p class="oh-menu-plate__ttl">5〜7月・12月は、各料金に ¥3,300 が加算されます</p>
+      <p class="oh-menu-plate__sub">
+        表示価格はすべて税込です。お見積り以上の追加請求は一切ありません。<br>
+        加算の対象は下記の本メニューのみで、オプション・セットメニュー・法人向けメニューには加算されません。
+      </p>
+    </div>
   </aside>
 
-  <!-- ===== 料金一覧（早見表） ===== -->
+  <!-- ===== 料金一覧 ===== -->
   <section class="oh-menu-sec">
-    <p class="oh-menu-sec__en">Price List</p>
-    <h2 class="oh-menu-sec__ttl">料金一覧</h2>
-    <div class="oh-menu-tablewrap">
-      <table class="oh-menu-table">
-        <thead>
-          <tr><th scope="col">メニュー</th><th scope="col">料金</th><th scope="col">所要時間</th></tr>
-        </thead>
-        <tbody>
-          <tr><th scope="row">エアコンクリーニング（ノーマル）</th><td>¥9,800</td><td>60分</td></tr>
-          <tr><th scope="row">エアコンクリーニング（お掃除機能付き）</th><td>¥15,800</td><td>120分</td></tr>
-          <tr><th scope="row">洗濯機クリーニング</th><td>¥15,800</td><td>120分</td></tr>
-          <tr><th scope="row">レンジフードクリーニング</th><td>¥16,800</td><td>90分</td></tr>
-          <tr><th scope="row">レンジフードクリーニング（プロペラ式）</th><td>¥9,800</td><td>—</td></tr>
-          <tr><th scope="row">キッチンクリーニング</th><td>¥16,800</td><td>120分</td></tr>
-          <tr><th scope="row">浴室クリーニング</th><td>¥16,800</td><td>120分</td></tr>
-          <tr><th scope="row">追い焚き配管クリーニング</th><td>¥18,100</td><td>90分</td></tr>
-          <tr><th scope="row">コンロクリーニング<span class="oh-menu-table__note">※キッチンとセットの場合 ¥5,500</span></th><td>¥9,800</td><td>60分</td></tr>
-          <tr><th scope="row">トイレクリーニング</th><td>¥9,800</td><td>60分</td></tr>
-          <tr><th scope="row">洗面台クリーニング</th><td>¥9,800</td><td>60分</td></tr>
-          <tr><th scope="row">お掃除時短コーティング</th><td>¥19,800</td><td>60分</td></tr>
-        </tbody>
-      </table>
+    <div class="oh-menu-sec__head">
+      <h2 class="oh-menu-sec__ttl">料金一覧</h2>
+      <span class="oh-menu-eyebrow oh-menu-sec__en">Price List</span>
     </div>
-    <p class="oh-menu-tablenote">※ 5〜7月・12月は、上記各料金に ¥3,300 が加算されます</p>
+
+    <ul class="oh-menu-list">
+      <li class="oh-menu-row"><span class="oh-menu-row__n">エアコンクリーニング<small>ノーマルエアコン</small></span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥9,800</span><span class="oh-menu-row__t">60分</span></li>
+      <li class="oh-menu-row"><span class="oh-menu-row__n">エアコンクリーニング<small>お掃除機能付きエアコン</small></span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥15,800</span><span class="oh-menu-row__t">120分</span></li>
+      <li class="oh-menu-row"><span class="oh-menu-row__n">洗濯機クリーニング</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥15,800</span><span class="oh-menu-row__t">120分</span></li>
+      <li class="oh-menu-row"><span class="oh-menu-row__n">レンジフードクリーニング</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥16,800</span><span class="oh-menu-row__t">90分</span></li>
+      <li class="oh-menu-row"><span class="oh-menu-row__n">レンジフードクリーニング<small>プロペラ式</small></span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥9,800</span><span class="oh-menu-row__t">—</span></li>
+      <li class="oh-menu-row"><span class="oh-menu-row__n">キッチンクリーニング</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥16,800</span><span class="oh-menu-row__t">120分</span></li>
+      <li class="oh-menu-row"><span class="oh-menu-row__n">浴室クリーニング</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥16,800</span><span class="oh-menu-row__t">120分</span></li>
+      <li class="oh-menu-row"><span class="oh-menu-row__n">追い焚き配管クリーニング</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥18,100</span><span class="oh-menu-row__t">90分</span></li>
+      <li class="oh-menu-row"><span class="oh-menu-row__n">コンロクリーニング<small>キッチンとセットの場合 ¥5,500</small></span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥9,800</span><span class="oh-menu-row__t">60分</span></li>
+      <li class="oh-menu-row"><span class="oh-menu-row__n">トイレクリーニング</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥9,800</span><span class="oh-menu-row__t">60分</span></li>
+      <li class="oh-menu-row"><span class="oh-menu-row__n">洗面台クリーニング</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥9,800</span><span class="oh-menu-row__t">60分</span></li>
+      <li class="oh-menu-row"><span class="oh-menu-row__n">お掃除時短コーティング</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥19,800</span><span class="oh-menu-row__t">60分</span></li>
+    </ul>
+    <p class="oh-menu-foot-note">※ 5〜7月・12月は、上記各料金に ¥3,300 が加算されます。／ 表示価格はすべて税込です。</p>
   </section>
 
-  <!-- ===== 各メニュー詳細 ===== -->
+  <!-- ===== メニュー詳細 ===== -->
   <section class="oh-menu-sec">
-    <p class="oh-menu-sec__en">Menu Details</p>
-    <h2 class="oh-menu-sec__ttl">メニュー詳細</h2>
+    <div class="oh-menu-sec__head">
+      <h2 class="oh-menu-sec__ttl">メニュー詳細</h2>
+      <span class="oh-menu-eyebrow oh-menu-sec__en">Details</span>
+    </div>
 
-    <!-- エアコン -->
-    <article class="oh-menu-card">
-      <div class="oh-menu-card__head">
-        <div class="oh-menu-card__headL">
-          <h3 class="oh-menu-card__ttl">エアコンクリーニング</h3>
-          <ul class="oh-menu-kw">
-            <li>ニオイ</li><li>ホコリ</li><li>カビ</li><li>異音</li>
+    <!-- 01 エアコン -->
+    <article class="oh-menu-detail">
+      <div class="oh-menu-detail__rail">
+        <span class="oh-menu-detail__no">01</span>
+        <h3 class="oh-menu-detail__ttl">エアコンクリーニング</h3>
+        <p class="oh-menu-price"><span class="oh-menu-price__v">¥9,800</span><span class="oh-menu-price__t">／60分</span><span class="oh-menu-price__k">ノーマルエアコン</span></p>
+        <p class="oh-menu-price"><span class="oh-menu-price__v">¥15,800</span><span class="oh-menu-price__t">／120分</span><span class="oh-menu-price__k">お掃除機能付きエアコン</span></p>
+        <p class="oh-menu-detail__season">※5〜7月・12月は各料金に¥3,300が加算されます</p>
+        <ul class="oh-menu-kw"><li>ニオイ</li><li>ホコリ</li><li>カビ</li><li>異音</li></ul>
+      </div>
+      <div class="oh-menu-detail__body">
+        <div class="oh-menu-worry">
+          <p class="oh-menu-worry__ttl">こんなお悩みありませんか？</p>
+          <ul class="oh-menu-worry__list">
+            <li>エアコンの効きが悪くなった</li>
+            <li>カビの嫌なニオイがする</li>
+            <li>送風口から黒カビが見える</li>
+            <li>アレルギー体質の方がいる</li>
           </ul>
         </div>
-        <div class="oh-menu-card__price">
-          <p class="oh-menu-price"><span class="oh-menu-price__v">¥9,800</span><span class="oh-menu-price__t">／60分</span><span class="oh-menu-price__k">ノーマルエアコン</span></p>
-          <p class="oh-menu-price"><span class="oh-menu-price__v">¥15,800</span><span class="oh-menu-price__t">／120分</span><span class="oh-menu-price__k">お掃除機能付きエアコン</span></p>
-          <p class="oh-menu-price__season">※5〜7月・12月は各料金に¥3,300の追加となります</p>
+        <h4 class="oh-menu-catch">見えない内部の徹底洗浄で、不快なニオイを絶ち本来の空調性能を取り戻す</h4>
+        <p class="oh-menu-body">「フィルターを掃除してもカビ臭い」。そのお悩みの原因は、手の届かない内部に潜むカビやホコリです。ONE HITTERのエアコンクリーニングは、本体を丁寧に分解し、ニオイの根源となる深部の汚れを専用機材で徹底的に洗浄します。内部が綺麗になることで熱交換効率が上がり、冷暖房の効きの改善が期待できます。さらに、カビやホコリを取り除くことで、室内の空気環境をクリーンに保ちます。一年中稼働するエアコンだからこそ、プロの技術で健やかな住環境を整えませんか。</p>
+        <div class="oh-menu-sub">
+          <p class="oh-menu-sub__ttl">利用可能オプション</p>
+          <ul class="oh-menu-list">
+            <li class="oh-menu-row"><span class="oh-menu-row__n">室外機セット</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥5,500</span></li>
+            <li class="oh-menu-row"><span class="oh-menu-row__n">防カビコート</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥3,300</span></li>
+            <li class="oh-menu-row"><span class="oh-menu-row__n">防虫キャップ</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥1,100</span></li>
+          </ul>
         </div>
+        <figure class="oh-menu-voice">
+          <blockquote>クリーニング後のエアコンの効き具合に驚きました！風の爽やかさが全く違います。自分では絶対に手の届かない奥の汚れを、あっという間に綺麗にしていただき大満足。プロの手際の良さと仕上がりに感動したので、次はぜひキッチンの換気扇もお願いしたいです！</blockquote>
+          <figcaption>40代 女性</figcaption>
+        </figure>
       </div>
-
-      <div class="oh-menu-worry">
-        <p class="oh-menu-worry__ttl">こんなお悩みありませんか？</p>
-        <ul class="oh-menu-worry__list">
-          <li>エアコンの効きが悪くなった</li>
-          <li>カビの嫌なニオイがする</li>
-          <li>送風口から黒カビが見える</li>
-          <li>アレルギー体質の方がいる</li>
-        </ul>
-      </div>
-
-      <h4 class="oh-menu-catch">見えない内部の徹底洗浄で、不快なニオイを絶ち本来の空調性能を取り戻す</h4>
-      <p class="oh-menu-body">「フィルターを掃除してもカビ臭い」。そのお悩みの原因は、手の届かない内部に潜むカビやホコリです。ONE HITTERのエアコンクリーニングは、本体を丁寧に分解し、ニオイの根源となる深部の汚れを専用機材で徹底的に洗浄します。内部が綺麗になることで熱交換効率が上がり、冷暖房の効きの改善が期待できます。さらに、カビやホコリを取り除くことで、室内の空気環境をクリーンに保ちます。一年中稼働するエアコンだからこそ、プロの技術で健やかな住環境を整えませんか。</p>
-
-      <div class="oh-menu-opt">
-        <p class="oh-menu-opt__ttl">利用可能オプション</p>
-        <ul class="oh-menu-opt__list">
-          <li><span class="oh-menu-opt__n">室外機セット</span><span class="oh-menu-opt__p">¥5,500</span></li>
-          <li><span class="oh-menu-opt__n">防カビコート</span><span class="oh-menu-opt__p">¥3,300</span></li>
-          <li><span class="oh-menu-opt__n">防虫キャップ</span><span class="oh-menu-opt__p">¥1,100</span></li>
-        </ul>
-      </div>
-
-      <figure class="oh-menu-voice">
-        <blockquote>クリーニング後のエアコンの効き具合に驚きました！風の爽やかさが全く違います。自分では絶対に手の届かない奥の汚れを、あっという間に綺麗にしていただき大満足。プロの手際の良さと仕上がりに感動したので、次はぜひキッチンの換気扇もお願いしたいです！</blockquote>
-        <figcaption>40代 女性</figcaption>
-      </figure>
     </article>
 
-    <!-- 洗濯機 -->
-    <article class="oh-menu-card">
-      <div class="oh-menu-card__head">
-        <div class="oh-menu-card__headL">
-          <h3 class="oh-menu-card__ttl">洗濯機クリーニング</h3>
-          <ul class="oh-menu-kw"><li>皮脂汚れ</li><li>石鹸カス</li><li>カビ</li><li>水垢</li></ul>
+    <!-- 02 洗濯機 -->
+    <article class="oh-menu-detail">
+      <div class="oh-menu-detail__rail">
+        <span class="oh-menu-detail__no">02</span>
+        <h3 class="oh-menu-detail__ttl">洗濯機クリーニング</h3>
+        <p class="oh-menu-price"><span class="oh-menu-price__v">¥15,800</span><span class="oh-menu-price__t">／120分</span></p>
+        <p class="oh-menu-detail__season">※5〜7月・12月は各料金に¥3,300が加算されます</p>
+        <ul class="oh-menu-kw"><li>皮脂汚れ</li><li>石鹸カス</li><li>カビ</li><li>水垢</li></ul>
+      </div>
+      <div class="oh-menu-detail__body">
+        <div class="oh-menu-worry">
+          <p class="oh-menu-worry__ttl">こんなお悩みありませんか？</p>
+          <ul class="oh-menu-worry__list">
+            <li>洗濯物からイヤな臭いがする</li>
+            <li>洗濯物に黒いカスがついている</li>
+            <li>洗濯機の掃除方法がわからない</li>
+            <li>排水溝からイヤな臭いがする</li>
+          </ul>
         </div>
-        <div class="oh-menu-card__price">
-          <p class="oh-menu-price"><span class="oh-menu-price__v">¥15,800</span><span class="oh-menu-price__t">／120分</span></p>
-          <p class="oh-menu-price__season">※5〜7月・12月は各料金に¥3,300の追加となります</p>
+        <h4 class="oh-menu-catch">洗濯槽クリーナーでは落としきれない「裏側の黒カビ」。プロの分解クリーニングで衣類と家族の健康を守る</h4>
+        <p class="oh-menu-body">市販の洗濯槽クリーナーで定期的に掃除をしていても、実は汚れのごく一部しか落とせていないことをご存知でしょうか。プロが洗濯機を分解してみると、クリーナー成分が届ききらない洗濯槽の裏側に、黒カビや石鹸カスがびっしりと増殖しているケースがほとんどです。カビだらけの洗濯機を放置したまま使い続けることは、綺麗にしているつもりが、衣類にカビの胞子や雑菌をなすりつけているのと同じ状態です。洗ったはずなのに発生する「生乾きの嫌なニオイ」の原因になるだけでなく、肌荒れやアレルギー性皮膚炎、喘息といった健康被害の引き金になるリスクも潜んでいます。ご家庭のお手入れでは決して届かない根本の汚れは、プロによる本格的な「分解クリーニング」で徹底的に除去。毎日素肌に触れる衣類だからこそ、安心できる清潔な洗濯環境を取り戻しませんか。</p>
+        <div class="oh-menu-sub">
+          <p class="oh-menu-sub__ttl">利用可能オプション</p>
+          <ul class="oh-menu-list">
+            <li class="oh-menu-row"><span class="oh-menu-row__n">設置枠（防水パン）</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥3,300</span></li>
+            <li class="oh-menu-row"><span class="oh-menu-row__n">排水溝クリーニング</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥3,300</span></li>
+          </ul>
         </div>
+        <figure class="oh-menu-voice">
+          <blockquote>作業中、取り外した洗濯槽の裏側を見せていただき思わず絶句しました。びっしりこびりついた黒カビを見て「今までこんな状態で家族の服を洗っていたなんて…」とゾッとしましたが、プロの素早く丁寧な作業であっという間に新品のようにピカピカに！仕上がりの美しさに心から感動しました。これからは毎日安心して洗濯ができます。本当にありがとうございました。今後は定期的にクリーニングをお願いしようと思います！</blockquote>
+          <figcaption>40代 女性</figcaption>
+        </figure>
       </div>
-
-      <div class="oh-menu-worry">
-        <p class="oh-menu-worry__ttl">こんなお悩みありませんか？</p>
-        <ul class="oh-menu-worry__list">
-          <li>洗濯物からイヤな臭いがする</li>
-          <li>洗濯物に黒いカスがついている</li>
-          <li>洗濯機の掃除方法がわからない</li>
-          <li>排水溝からイヤな臭いがする</li>
-        </ul>
-      </div>
-
-      <h4 class="oh-menu-catch">洗濯槽クリーナーでは落としきれない「裏側の黒カビ」。プロの分解クリーニングで衣類と家族の健康を守る</h4>
-      <p class="oh-menu-body">市販の洗濯槽クリーナーで定期的に掃除をしていても、実は汚れのごく一部しか落とせていないことをご存知でしょうか。プロが洗濯機を分解してみると、クリーナー成分が届ききらない洗濯槽の裏側に、黒カビや石鹸カスがびっしりと増殖しているケースがほとんどです。カビだらけの洗濯機を放置したまま使い続けることは、綺麗にしているつもりが、衣類にカビの胞子や雑菌をなすりつけているのと同じ状態です。洗ったはずなのに発生する「生乾きの嫌なニオイ」の原因になるだけでなく、肌荒れやアレルギー性皮膚炎、喘息といった健康被害の引き金になるリスクも潜んでいます。ご家庭のお手入れでは決して届かない根本の汚れは、プロによる本格的な「分解クリーニング」で徹底的に除去。毎日素肌に触れる衣類だからこそ、安心できる清潔な洗濯環境を取り戻しませんか。</p>
-
-      <div class="oh-menu-opt">
-        <p class="oh-menu-opt__ttl">利用可能オプション</p>
-        <ul class="oh-menu-opt__list">
-          <li><span class="oh-menu-opt__n">洗濯機設置枠（防水パン）</span><span class="oh-menu-opt__p">¥3,300</span></li>
-          <li><span class="oh-menu-opt__n">排水溝クリーニング</span><span class="oh-menu-opt__p">¥3,300</span></li>
-        </ul>
-      </div>
-
-      <figure class="oh-menu-voice">
-        <blockquote>作業中、取り外した洗濯槽の裏側を見せていただき思わず絶句しました。びっしりこびりついた黒カビを見て「今までこんな状態で家族の服を洗っていたなんて…」とゾッとしましたが、プロの素早く丁寧な作業であっという間に新品のようにピカピカに！仕上がりの美しさに心から感動しました。これからは毎日安心して洗濯ができます。本当にありがとうございました。今後は定期的にクリーニングをお願いしようと思います！</blockquote>
-        <figcaption>40代 女性</figcaption>
-      </figure>
     </article>
 
-    <!-- レンジフード -->
-    <article class="oh-menu-card">
-      <div class="oh-menu-card__head">
-        <div class="oh-menu-card__headL">
-          <h3 class="oh-menu-card__ttl">レンジフードクリーニング</h3>
-          <ul class="oh-menu-kw"><li>油汚れ</li><li>ニオイ</li><li>カビ</li><li>ホコリ</li></ul>
+    <!-- 03 レンジフード -->
+    <article class="oh-menu-detail">
+      <div class="oh-menu-detail__rail">
+        <span class="oh-menu-detail__no">03</span>
+        <h3 class="oh-menu-detail__ttl">レンジフードクリーニング</h3>
+        <p class="oh-menu-price"><span class="oh-menu-price__v">¥16,800</span><span class="oh-menu-price__t">／90分</span></p>
+        <p class="oh-menu-price"><span class="oh-menu-price__v">¥9,800</span><span class="oh-menu-price__k">プロペラ式</span></p>
+        <p class="oh-menu-detail__season">※5〜7月・12月は各料金に¥3,300が加算されます</p>
+        <ul class="oh-menu-kw"><li>油汚れ</li><li>ニオイ</li><li>カビ</li><li>ホコリ</li></ul>
+      </div>
+      <div class="oh-menu-detail__body">
+        <div class="oh-menu-worry">
+          <p class="oh-menu-worry__ttl">こんなお悩みありませんか？</p>
+          <ul class="oh-menu-worry__list">
+            <li>換気扇の汚れが目立ってきた</li>
+            <li>掃除しても落ちない汚れがある</li>
+            <li>ギトギトの汚れを触りたくない</li>
+            <li>煙・ニオイの吸い込みが悪くなった</li>
+          </ul>
         </div>
-        <div class="oh-menu-card__price">
-          <p class="oh-menu-price"><span class="oh-menu-price__v">¥16,800</span><span class="oh-menu-price__t">／90分</span></p>
-          <p class="oh-menu-price"><span class="oh-menu-price__v">¥9,800</span><span class="oh-menu-price__k">プロペラ式</span></p>
-          <p class="oh-menu-price__season">※5〜7月・12月は各料金に¥3,300の追加となります</p>
+        <h4 class="oh-menu-catch">半日がかりの油汚れ掃除から解放。プロの分解クリーニングで、あなたの貴重な時間を守ります</h4>
+        <p class="oh-menu-body">油でベタつく換気扇（レンジフード）のお手入れ。ご自身で頑張って掃除される方も多いですが、内部を分解し、頑固な油と格闘していると、気づけば3時間から丸1日もかかってしまう大変な重労働です。お客様のせっかくの休日を、そんなお掃除の苦労で無駄にしてほしくありません。また、汚れを放置して換気扇の吸い込み力が弱まると、無駄な電気代がかかるだけでなく、吸い込みきれなかった油煙が回ってキッチン全体のベタつきの原因にもなってしまいます。ONE HITTERでは、ご自身では手のつけにくい内部のファンまでしっかりと分解。専用洗剤による「浸け置き」とプロの「磨き上げ」で、こびりついた油汚れを根本から一掃し、本来の換気能力を復活させます。面倒な重労働はプロにお任せいただき、ゆとりのある充実した時間をお過ごしください。</p>
+        <div class="oh-menu-sub">
+          <p class="oh-menu-sub__ttl">利用可能オプション</p>
+          <ul class="oh-menu-list">
+            <li class="oh-menu-row"><span class="oh-menu-row__n">コンロセット</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥5,500</span></li>
+            <li class="oh-menu-row"><span class="oh-menu-row__n">キッチンセット<small>キッチン全体の施工</small></span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥13,800</span></li>
+          </ul>
         </div>
+        <figure class="oh-menu-voice">
+          <blockquote>最近換気扇の吸い込みが悪い気がして、初めてクリーニングをお願いしました。結果は大正解でした！作業後に換気扇を回してみて、「本来はこんなにパワフルだったの!?」と驚くほど吸い込みが違い、料理のあとに家全体にこもっていた油やご飯の匂いもスッキリ解消されて感動しています。長時間の作業にもかかわらず、終始とても丁寧に対応していただき本当にお任せして良かったです。心から感謝しています！</blockquote>
+          <figcaption>50代 女性</figcaption>
+        </figure>
       </div>
-
-      <div class="oh-menu-worry">
-        <p class="oh-menu-worry__ttl">こんなお悩みありませんか？</p>
-        <ul class="oh-menu-worry__list">
-          <li>換気扇の汚れが目立ってきた</li>
-          <li>掃除しても落ちない汚れがある</li>
-          <li>ギトギトの汚れを触りたくない</li>
-          <li>煙・ニオイの吸い込みが悪くなった</li>
-        </ul>
-      </div>
-
-      <h4 class="oh-menu-catch">半日がかりの油汚れ掃除から解放。プロの分解クリーニングで、あなたの貴重な時間を守ります</h4>
-      <p class="oh-menu-body">油でベタつく換気扇（レンジフード）のお手入れ。ご自身で頑張って掃除される方も多いですが、内部を分解し、頑固な油と格闘していると、気づけば3時間から丸1日もかかってしまう大変な重労働です。お客様のせっかくの休日を、そんなお掃除の苦労で無駄にしてほしくありません。また、汚れを放置して換気扇の吸い込み力が弱まると、無駄な電気代がかかるだけでなく、吸い込みきれなかった油煙が回ってキッチン全体のベタつきの原因にもなってしまいます。ONE HITTERでは、ご自身では手のつけにくい内部のファンまでしっかりと分解。専用洗剤による「浸け置き」とプロの「磨き上げ」で、こびりついた油汚れを根本から一掃し、本来の換気能力を復活させます。面倒な重労働はプロにお任せいただき、ゆとりのある充実した時間をお過ごしください。</p>
-
-      <div class="oh-menu-opt">
-        <p class="oh-menu-opt__ttl">利用可能オプション</p>
-        <ul class="oh-menu-opt__list">
-          <li><span class="oh-menu-opt__n">コンロセット</span><span class="oh-menu-opt__p">¥5,500</span></li>
-          <li><span class="oh-menu-opt__n">キッチンセット<small>※キッチン全体の施工</small></span><span class="oh-menu-opt__p">¥13,800</span></li>
-        </ul>
-      </div>
-
-      <figure class="oh-menu-voice">
-        <blockquote>最近換気扇の吸い込みが悪い気がして、初めてクリーニングをお願いしました。結果は大正解でした！作業後に換気扇を回してみて、「本来はこんなにパワフルだったの!?」と驚くほど吸い込みが違い、料理のあとに家全体にこもっていた油やご飯の匂いもスッキリ解消されて感動しています。長時間の作業にもかかわらず、終始とても丁寧に対応していただき本当にお任せして良かったです。心から感謝しています！</blockquote>
-        <figcaption>50代 女性</figcaption>
-      </figure>
     </article>
 
-    <!-- キッチン -->
-    <article class="oh-menu-card">
-      <div class="oh-menu-card__head">
-        <div class="oh-menu-card__headL">
-          <h3 class="oh-menu-card__ttl">キッチンクリーニング</h3>
-          <ul class="oh-menu-kw"><li>水垢</li><li>コゲ</li><li>カビ</li><li>油汚れ</li></ul>
+    <!-- 04 キッチン -->
+    <article class="oh-menu-detail">
+      <div class="oh-menu-detail__rail">
+        <span class="oh-menu-detail__no">04</span>
+        <h3 class="oh-menu-detail__ttl">キッチンクリーニング</h3>
+        <p class="oh-menu-price"><span class="oh-menu-price__v">¥16,800</span><span class="oh-menu-price__t">／120分</span></p>
+        <p class="oh-menu-detail__season">※5〜7月・12月は各料金に¥3,300が加算されます</p>
+        <ul class="oh-menu-kw"><li>水垢</li><li>コゲ</li><li>カビ</li><li>油汚れ</li></ul>
+      </div>
+      <div class="oh-menu-detail__body">
+        <div class="oh-menu-worry">
+          <p class="oh-menu-worry__ttl">こんなお悩みありませんか？</p>
+          <ul class="oh-menu-worry__list">
+            <li>蛇口周りの白い水垢が気になる</li>
+            <li>キッチンの排水溝が臭い</li>
+            <li>天板が油でベタベタ</li>
+            <li>くすみが落ちずでお手上げ状態</li>
+          </ul>
         </div>
-        <div class="oh-menu-card__price">
-          <p class="oh-menu-price"><span class="oh-menu-price__v">¥16,800</span><span class="oh-menu-price__t">／120分</span></p>
-          <p class="oh-menu-price__season">※5〜7月・12月は各料金に¥3,300の追加となります</p>
+        <h4 class="oh-menu-catch">しつこい水垢や油汚れを徹底除去。毎日の料理が楽しくなる、清潔で輝くキッチンへ</h4>
+        <p class="oh-menu-body">毎日お料理をするキッチンは、性質の異なるさまざまな汚れが日々蓄積していく場所です。シンクや蛇口周りに白く固まった「水垢」や、壁面・収納扉に飛び散ってこびりついた「油汚れ」など、ご家庭のお手入れだけではなかなか落としきれない頑固な汚れにお悩みではありませんか？ そんなご自身では落とすのが難しいしつこい汚れは、プロのクリーニングにぜひお任せください。ONE HITTERでは、汚れの特性を的確に見極め、キッチン素材を傷めることなく徹底的に洗浄・除去いたします。長年蓄積した汚れをクリーンにリセットし、より一層気持ちよく日々の炊事に向かえる、清潔で明るいキッチン空間をお届けします。</p>
+        <div class="oh-menu-sub">
+          <p class="oh-menu-sub__ttl">利用可能オプション</p>
+          <ul class="oh-menu-list">
+            <li class="oh-menu-row"><span class="oh-menu-row__n">コンロセット</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥5,500</span></li>
+            <li class="oh-menu-row"><span class="oh-menu-row__n">お掃除時短コーティング</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥19,800</span></li>
+            <li class="oh-menu-row"><span class="oh-menu-row__n">レンジフード</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p oh-menu-row__p--ask">お問い合わせください</span></li>
+          </ul>
         </div>
+        <figure class="oh-menu-voice">
+          <blockquote>毎日スポンジでこすってもビクともしないシンクの頑固な白い水垢に限界を感じ、思い切ってキッチンのクリーニングをお願いしました。仕上がりを見てびっくり！諦めていたくすみが跡形もなく消え、まるで新築の頃のようにピカピカと輝きを取り戻していて感動しました。さすがプロの技術ですね。一緒にお願いした「時短コーティング」のおかげで、今はサッと拭くだけで汚れがスルッと落ちるようになり、毎日の後片付けが劇的にラクになりました。</blockquote>
+          <figcaption>30代 女性</figcaption>
+        </figure>
       </div>
-
-      <div class="oh-menu-worry">
-        <p class="oh-menu-worry__ttl">こんなお悩みありませんか？</p>
-        <ul class="oh-menu-worry__list">
-          <li>蛇口周りの白い水垢が気になる</li>
-          <li>キッチンの排水溝が臭い</li>
-          <li>天板が油でベタベタ</li>
-          <li>くすみが落ちずでお手上げ状態</li>
-        </ul>
-      </div>
-
-      <h4 class="oh-menu-catch">しつこい水垢や油汚れを徹底除去。毎日の料理が楽しくなる、清潔で輝くキッチンへ</h4>
-      <p class="oh-menu-body">毎日お料理をするキッチンは、性質の異なるさまざまな汚れが日々蓄積していく場所です。シンクや蛇口周りに白く固まった「水垢」や、壁面・収納扉に飛び散ってこびりついた「油汚れ」など、ご家庭のお手入れだけではなかなか落としきれない頑固な汚れにお悩みではありませんか？ そんなご自身では落とすのが難しいしつこい汚れは、プロのクリーニングにぜひお任せください。ONE HITTERでは、汚れの特性を的確に見極め、キッチン素材を傷めることなく徹底的に洗浄・除去いたします。長年蓄積した汚れをクリーンにリセットし、より一層気持ちよく日々の炊事に向かえる、清潔で明るいキッチン空間をお届けします。</p>
-
-      <div class="oh-menu-opt">
-        <p class="oh-menu-opt__ttl">利用可能オプション</p>
-        <ul class="oh-menu-opt__list">
-          <li><span class="oh-menu-opt__n">レンジフード</span><span class="oh-menu-opt__p oh-menu-opt__p--ask">要お問い合わせ</span></li>
-          <li><span class="oh-menu-opt__n">コンロセット</span><span class="oh-menu-opt__p">¥5,500</span></li>
-          <li><span class="oh-menu-opt__n">お掃除時短コーティング</span><span class="oh-menu-opt__p">¥19,800</span></li>
-        </ul>
-      </div>
-
-      <figure class="oh-menu-voice">
-        <blockquote>毎日スポンジでこすってもビクともしないシンクの頑固な白い水垢に限界を感じ、思い切ってキッチンのクリーニングをお願いしました。仕上がりを見てびっくり！諦めていたくすみが跡形もなく消え、まるで新築の頃のようにピカピカと輝きを取り戻していて感動しました。さすがプロの技術ですね。一緒にお願いした「時短コーティング」のおかげで、今はサッと拭くだけで汚れがスルッと落ちるようになり、毎日の後片付けが劇的にラクになりました。キッチンに立つのが楽しくなり、本当にお願いして良かったです。ありがとうございました！</blockquote>
-        <figcaption>30代 女性</figcaption>
-      </figure>
     </article>
 
-    <!-- 浴室 -->
-    <article class="oh-menu-card">
-      <div class="oh-menu-card__head">
-        <div class="oh-menu-card__headL">
-          <h3 class="oh-menu-card__ttl">浴室クリーニング</h3>
-          <ul class="oh-menu-kw"><li>ニオイ</li><li>ヌメリ</li><li>カビ</li><li>水垢</li></ul>
+    <!-- 05 浴室 -->
+    <article class="oh-menu-detail">
+      <div class="oh-menu-detail__rail">
+        <span class="oh-menu-detail__no">05</span>
+        <h3 class="oh-menu-detail__ttl">浴室クリーニング</h3>
+        <p class="oh-menu-price"><span class="oh-menu-price__v">¥16,800</span><span class="oh-menu-price__t">／120分</span></p>
+        <p class="oh-menu-detail__season">※5〜7月・12月は各料金に¥3,300が加算されます</p>
+        <ul class="oh-menu-kw"><li>ニオイ</li><li>ヌメリ</li><li>カビ</li><li>水垢</li></ul>
+      </div>
+      <div class="oh-menu-detail__body">
+        <div class="oh-menu-worry">
+          <p class="oh-menu-worry__ttl">こんなお悩みありませんか？</p>
+          <ul class="oh-menu-worry__list">
+            <li>浴室内のピンクぬめりが気になる</li>
+            <li>パッキンの黒カビが目に付く</li>
+            <li>カビがとれない</li>
+            <li>床の汚れが落ちない</li>
+          </ul>
         </div>
-        <div class="oh-menu-card__price">
-          <p class="oh-menu-price"><span class="oh-menu-price__v">¥16,800</span><span class="oh-menu-price__t">／120分</span></p>
-          <p class="oh-menu-price__season">※5〜7月・12月は各料金に¥3,300の追加となります</p>
+        <h4 class="oh-menu-catch">天井から換気扇内部まで徹底洗浄。長年蓄積した浴室の汚れをリセット</h4>
+        <p class="oh-menu-body">「市販の洗剤では落ちない頑固な汚れがある」「天井や高所のお掃除は負担が大きい」。そんなお悩みはプロにお任せください。浴室は、蓄積した皮脂や石鹸カス、水垢などが複雑に絡み合うお手入れの難しい空間です。ONE HITTERの浴室クリーニングでは、ご家庭では落としきれない床の汚れや、普段は開けることのない換気扇の内部まで、プロの技術で丁寧に洗浄いたします。清潔で明るさを取り戻した浴室で、一日の疲れをゆったりと癒やす至福のバスタイムをお楽しみください。</p>
+        <div class="oh-menu-sub">
+          <p class="oh-menu-sub__ttl">利用可能オプション</p>
+          <ul class="oh-menu-list">
+            <li class="oh-menu-row"><span class="oh-menu-row__n">追い焚き配管クリーニング</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥15,100</span></li>
+            <li class="oh-menu-row"><span class="oh-menu-row__n">浴室乾燥機洗浄</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥7,800</span></li>
+            <li class="oh-menu-row"><span class="oh-menu-row__n">エプロン内部高圧洗浄</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥7,700</span></li>
+            <li class="oh-menu-row"><span class="oh-menu-row__n">浴室換気扇洗浄</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥3,300</span></li>
+            <li class="oh-menu-row"><span class="oh-menu-row__n">鏡の水垢除去</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥3,300</span></li>
+            <li class="oh-menu-row"><span class="oh-menu-row__n">お掃除時短コーティング</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥19,800</span></li>
+          </ul>
         </div>
+        <figure class="oh-menu-voice">
+          <blockquote>どうしても自力では落とせなかった浴室扉やタイルのしつこい黒カビに悩み、今回クリーニングをお願いしました。結果は、期待を遥かに超えるピカピカな仕上がりで大感動です！さらに、今後のキレイを保てるよう、水回りの場所ごとに効果的な洗剤の選び方やお手入れのコツまで親身に教えていただき、本当に感謝しています。プロにお願いして心から良かったです。毎日のお風呂がとても楽しみになりました。</blockquote>
+          <figcaption>30代 女性</figcaption>
+        </figure>
       </div>
-
-      <div class="oh-menu-worry">
-        <p class="oh-menu-worry__ttl">こんなお悩みありませんか？</p>
-        <ul class="oh-menu-worry__list">
-          <li>浴室内のピンクぬめりが気になる</li>
-          <li>パッキンの黒カビが目に付く</li>
-          <li>カビがとれない</li>
-          <li>床の汚れが落ちない</li>
-        </ul>
-      </div>
-
-      <h4 class="oh-menu-catch">天井から換気扇内部まで徹底洗浄。長年蓄積した浴室の汚れをリセット</h4>
-      <p class="oh-menu-body">「市販の洗剤では落ちない頑固な汚れがある」「天井や高所のお掃除は負担が大きい」。そんなお悩みはプロにお任せください。浴室は、蓄積した皮脂や石鹸カス、水垢などが複雑に絡み合うお手入れの難しい空間です。ONE HITTERの浴室クリーニングでは、ご家庭では落としきれない床の汚れや、普段は開けることのない換気扇の内部まで、プロの技術で丁寧に洗浄いたします。清潔で明るさを取り戻した浴室で、一日の疲れをゆったりと癒やす至福のバスタイムをお楽しみください。</p>
-
-      <div class="oh-menu-opt">
-        <p class="oh-menu-opt__ttl">利用可能オプション</p>
-        <ul class="oh-menu-opt__list">
-          <li><span class="oh-menu-opt__n">浴室乾燥機洗浄</span><span class="oh-menu-opt__p">¥7,800</span></li>
-          <li><span class="oh-menu-opt__n">浴室換気扇洗浄</span><span class="oh-menu-opt__p">¥3,300</span></li>
-          <li><span class="oh-menu-opt__n">追い焚き配管クリーニング</span><span class="oh-menu-opt__p">¥15,100</span></li>
-          <li><span class="oh-menu-opt__n">鏡の水垢除去</span><span class="oh-menu-opt__p">¥3,300</span></li>
-          <li><span class="oh-menu-opt__n">お掃除時短コーティング</span><span class="oh-menu-opt__p">¥19,800</span></li>
-        </ul>
-      </div>
-
-      <figure class="oh-menu-voice">
-        <blockquote>どうしても自力では落とせなかった浴室扉やタイルのしつこい黒カビに悩み、今回クリーニングをお願いしました。結果は、期待を遥かに超えるピカピカな仕上がりで大感動です！さらに、今後のキレイを保てるよう、水回りの場所ごとに効果的な洗剤の選び方やお手入れのコツまで親身に教えていただき、本当に感謝しています。プロにお願いして心から良かったです。毎日のお風呂がとても楽しみになりました。</blockquote>
-        <figcaption>30代 女性</figcaption>
-      </figure>
     </article>
 
-    <!-- 追い焚き配管 -->
-    <article class="oh-menu-card">
-      <div class="oh-menu-card__head">
-        <div class="oh-menu-card__headL">
-          <h3 class="oh-menu-card__ttl">追い焚き配管クリーニング</h3>
-          <ul class="oh-menu-kw"><li>ニオイ</li><li>水垢</li><li>カビ</li><li>汚れ</li></ul>
+    <!-- 06 追い焚き配管 -->
+    <article class="oh-menu-detail">
+      <div class="oh-menu-detail__rail">
+        <span class="oh-menu-detail__no">06</span>
+        <h3 class="oh-menu-detail__ttl">追い焚き配管クリーニング</h3>
+        <p class="oh-menu-price"><span class="oh-menu-price__v">¥18,100</span><span class="oh-menu-price__t">／90分</span></p>
+        <p class="oh-menu-detail__season">※5〜7月・12月は各料金に¥3,300が加算されます</p>
+        <ul class="oh-menu-kw"><li>ニオイ</li><li>水垢</li><li>カビ</li><li>汚れ</li></ul>
+      </div>
+      <div class="oh-menu-detail__body">
+        <div class="oh-menu-worry">
+          <p class="oh-menu-worry__ttl">こんなお悩みありませんか？</p>
+          <ul class="oh-menu-worry__list">
+            <li>黒いカスが湯舟に浮かぶ</li>
+            <li>全身浸かる水質が気になる</li>
+            <li>お風呂は綺麗なお湯に入りたい</li>
+            <li>赤ちゃんの健康にカビの影響が不安</li>
+          </ul>
         </div>
-        <div class="oh-menu-card__price">
-          <p class="oh-menu-price"><span class="oh-menu-price__v">¥18,100</span><span class="oh-menu-price__t">／90分</span></p>
-          <p class="oh-menu-price__season">※5〜7月・12月は各料金に¥3,300の追加となります</p>
+        <h4 class="oh-menu-catch">見えない「追い焚き配管」の奥まで徹底洗浄。数値で証明する、安心でクリーンなバスタイム</h4>
+        <p class="oh-menu-body">一日の疲れをゆったりと癒やすバスタイム。全身を包み込む浴槽のお湯は、常に清潔な状態を保ちたいものです。しかし、一見綺麗に見えるお湯でも、目に見えない配管内部の汚れが溶け出しているケースが少なくありません。お湯が循環する「追い焚き配管」は、使用後に水分が残りやすく、雑菌やカビにとって絶好の繁殖環境となります。さらに、身体から落ちた皮脂汚れや洗剤カスなども、知らず知らずのうちに配管内に蓄積していきます。ONE HITTERでは、専用の測定器「ルミテスター（©キッコーマンバイオケミファ株式会社）」を導入し、配管内の見えない汚れを客観的な数値で測定しています。多くのお客様が、クリーニング前後の数値の変化に驚かれます。プロの技術で配管内を根本からクリーンにリセットし、ご家族全員が心からリラックスできる清潔なお湯をお届けします。</p>
+        <div class="oh-menu-sub">
+          <p class="oh-menu-sub__ttl">利用可能オプション</p>
+          <ul class="oh-menu-list">
+            <li class="oh-menu-row"><span class="oh-menu-row__n">浴室クリーニング</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥13,800</span></li>
+            <li class="oh-menu-row"><span class="oh-menu-row__n">エプロン内部高圧洗浄</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥7,700</span></li>
+            <li class="oh-menu-row"><span class="oh-menu-row__n">鏡の水垢除去</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥3,300</span></li>
+            <li class="oh-menu-row"><span class="oh-menu-row__n">お掃除時短コーティング</span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥19,800</span></li>
+          </ul>
         </div>
+        <figure class="oh-menu-voice">
+          <blockquote>ずっと気になってはいたものの、目に見えない場所だからとつい放置していました。今回初めてお願いし、専用の機械で作業前の汚れ数値を見せていただいて唖然…。さらに清掃中、配管からドロドロと溢れ出てくる湯垢や汚れを目の当たりにして、「今までこんなお湯に家族で浸かっていたなんて！」と本気でゾッとしました。ですが、作業後に劇的に下がったクリーンな数値を見て、心の底からホッとしました。こんなに安心できるなら、もっと早く頼めばよかったです。</blockquote>
+          <figcaption>40代 男性</figcaption>
+        </figure>
       </div>
-
-      <div class="oh-menu-worry">
-        <p class="oh-menu-worry__ttl">こんなお悩みありませんか？</p>
-        <ul class="oh-menu-worry__list">
-          <li>黒いカスが湯舟に浮かぶ</li>
-          <li>全身浸かる水質が気になる</li>
-          <li>お風呂は綺麗なお湯に入りたい</li>
-          <li>赤ちゃんの健康にカビの影響が不安</li>
-        </ul>
-      </div>
-
-      <h4 class="oh-menu-catch">見えない「追い焚き配管」の奥まで徹底洗浄。数値で証明する、安心でクリーンなバスタイム</h4>
-      <p class="oh-menu-body">一日の疲れをゆったりと癒やすバスタイム。全身を包み込む浴槽のお湯は、常に清潔な状態を保ちたいものです。しかし、一見綺麗に見えるお湯でも、目に見えない配管内部の汚れが溶け出しているケースが少なくありません。お湯が循環する「追い焚き配管」は、使用後に水分が残りやすく、雑菌やカビにとって絶好の繁殖環境となります。さらに、身体から落ちた皮脂汚れや洗剤カスなども、知らず知らずのうちに配管内に蓄積していきます。ONE HITTERでは、専用の測定器「ルミテスター（©キッコーマンバイオケミファ株式会社）」を導入し、配管内の見えない汚れを客観的な数値で測定しています。多くのお客様が、クリーニング前後の数値の変化に驚かれます。プロの技術で配管内を根本からクリーンにリセットし、ご家族全員が心からリラックスできる清潔なお湯をお届けします。</p>
-
-      <div class="oh-menu-opt">
-        <p class="oh-menu-opt__ttl">利用可能オプション</p>
-        <ul class="oh-menu-opt__list">
-          <li><span class="oh-menu-opt__n">浴室クリーニング</span><span class="oh-menu-opt__p">¥13,800</span></li>
-          <li><span class="oh-menu-opt__n">エプロン内部高圧洗浄</span><span class="oh-menu-opt__p">¥7,700</span></li>
-          <li><span class="oh-menu-opt__n">鏡の水垢除去</span><span class="oh-menu-opt__p">¥3,300</span></li>
-          <li><span class="oh-menu-opt__n">お掃除時短コーティング</span><span class="oh-menu-opt__p">¥19,800</span></li>
-        </ul>
-      </div>
-
-      <figure class="oh-menu-voice">
-        <blockquote>ずっと気になってはいたものの、目に見えない場所だからとつい放置していました。今回初めてお願いし、専用の機械で作業前の汚れ数値を見せていただいて唖然…。さらに清掃中、配管からドロドロと溢れ出てくる湯垢や汚れを目の当たりにして、「今までこんなお湯に家族で浸かっていたなんて！」と本気でゾッとしました。ですが、作業後に劇的に下がったクリーンな数値を見て、心の底からホッとしました。こんなに安心できるなら、もっと早く頼めばよかったです。丁寧なご説明と確かな作業で気持ちのいいお風呂を取り戻してくださり、本当にありがとうございました！</blockquote>
-        <figcaption>40代 男性</figcaption>
-      </figure>
     </article>
   </section>
 
-  <!-- ===== その他メニュー ===== -->
+  <!-- ===== その他 ===== -->
   <section class="oh-menu-sec">
-    <p class="oh-menu-sec__en">Other Menu</p>
-    <h2 class="oh-menu-sec__ttl">その他の箇所もお任せください！</h2>
-    <ul class="oh-menu-grid">
+    <div class="oh-menu-sec__head">
+      <h2 class="oh-menu-sec__ttl">その他の箇所も承ります</h2>
+      <span class="oh-menu-eyebrow oh-menu-sec__en">Other</span>
+    </div>
+    <ul class="oh-menu-tiles">
       <li class="oh-menu-tile">
         <h3 class="oh-menu-tile__ttl">コンロクリーニング</h3>
-        <p class="oh-menu-tile__price">¥9,800<span>／60分</span></p>
-        <p class="oh-menu-tile__note">※キッチンとセットの場合 ¥5,500</p>
+        <p class="oh-menu-tile__p">¥9,800<span>／60分</span></p>
+        <p class="oh-menu-tile__note">キッチンとセットの場合 ¥5,500</p>
       </li>
       <li class="oh-menu-tile">
         <h3 class="oh-menu-tile__ttl">トイレクリーニング</h3>
-        <p class="oh-menu-tile__price">¥9,800<span>／60分</span></p>
+        <p class="oh-menu-tile__p">¥9,800<span>／60分</span></p>
       </li>
       <li class="oh-menu-tile">
         <h3 class="oh-menu-tile__ttl">洗面台クリーニング</h3>
-        <p class="oh-menu-tile__price">¥9,800<span>／60分</span></p>
+        <p class="oh-menu-tile__p">¥9,800<span>／60分</span></p>
       </li>
       <li class="oh-menu-tile">
         <h3 class="oh-menu-tile__ttl">お掃除時短コーティング</h3>
-        <p class="oh-menu-tile__price">¥19,800<span>／60分</span></p>
+        <p class="oh-menu-tile__p">¥19,800<span>／60分</span></p>
       </li>
     </ul>
-    <p class="oh-menu-tablenote">※ 5〜7月・12月は、各料金に ¥3,300 が加算されます</p>
+    <p class="oh-menu-foot-note">※ 5〜7月・12月は、各料金に ¥3,300 が加算されます。</p>
   </section>
 
   <!-- ===== はじめての方へ ===== -->
   <section class="oh-menu-first">
-    <h2 class="oh-menu-first__ttl">「はじめて」の方にこそ ONE HITTER</h2>
-    <p class="oh-menu-first__body">「プロに頼みたいけれどお金や手間が不安」そんな想いを解決するため、ONE HITTERは生まれました。従来の業者にはない<strong>適正料金・時間・手軽さ</strong>を「スマホひとつ」でお届けします。お見積り以上の追加請求は一切ない<strong>完全明朗会計</strong>をお約束。確かな技術と安心感で、ご利用者の<strong>98.6%</strong>から「他の人に勧めたい」と高評価をいただきました。はじめての方こそ、ぜひお任せください。メニューに掲載されていない場所のお掃除についても、お気軽にご相談ください。</p>
-      <p class="oh-menu-first__disc">※「98.6%」は自社実施のご利用者アンケートの結果です（実施期間：2023年1月〜2025年12月／回答209名中206名）。</p>
+    <div class="oh-menu-first__stat">
+      <p class="oh-menu-first__v">98.6<span style="font-size:.4em">%</span></p>
+      <p class="oh-menu-first__l">が「他の人に勧めたい」<br>と回答</p>
+    </div>
+    <div>
+      <h2 class="oh-menu-first__ttl">「はじめて」の方にこそ、ONE HITTER</h2>
+      <p class="oh-menu-first__txt">「プロに頼みたいけれど、お金や手間が不安」。そんな想いを解決するために ONE HITTER は生まれました。従来の業者にはない<strong>適正料金・時間・手軽さ</strong>を、スマホひとつでお届けします。お見積り以上の追加請求は一切ない<strong>完全明朗会計</strong>をお約束。メニューに掲載されていない場所のお掃除についても、お気軽にご相談ください。</p>
+      <p class="oh-menu-first__disc">※ 自社実施のご利用者アンケートの結果です（実施期間：2023年1月〜2025年12月／回答209名中206名）。</p>
+    </div>
   </section>
 
-  <!-- ===== オプションメニュー ===== -->
+  <!-- ===== オプション一覧 ===== -->
   <section class="oh-menu-sec">
-    <p class="oh-menu-sec__en">Options</p>
-    <h2 class="oh-menu-sec__ttl">オプションメニュー一覧</h2>
-    <ul class="oh-menu-grid oh-menu-grid--opt">
-      <li class="oh-menu-optcard"><p class="oh-menu-optcard__cat">エアコン</p><h3 class="oh-menu-optcard__ttl">防虫キャップ</h3><p class="oh-menu-optcard__price">¥1,100</p><p class="oh-menu-optcard__txt">室外機のドレンホース（排水ホース）に取り付け、虫の侵入を物理的に遮断！</p></li>
-      <li class="oh-menu-optcard"><p class="oh-menu-optcard__cat">エアコン</p><h3 class="oh-menu-optcard__ttl">室外機セット</h3><p class="oh-menu-optcard__price">¥5,500</p><p class="oh-menu-optcard__txt">室内機だけではもったいない！ 空気の入口だけでなく“出口”も綺麗にすることで節電の効率も向上。</p></li>
-      <li class="oh-menu-optcard"><p class="oh-menu-optcard__cat">エアコン</p><h3 class="oh-menu-optcard__ttl">防カビコート</h3><p class="oh-menu-optcard__price">¥3,300</p><p class="oh-menu-optcard__txt">エアコンの嫌な臭いの原因は「カビ」にあり…。クリーニング後の効果持続期間が圧倒的に長くなります。お任せください！</p></li>
-      <li class="oh-menu-optcard"><p class="oh-menu-optcard__cat">洗濯機</p><h3 class="oh-menu-optcard__ttl">設置枠（防水パン）</h3><p class="oh-menu-optcard__price">¥3,300</p><p class="oh-menu-optcard__txt">床下の点検口の位置、排水口の位置により設置方法が異なる洗濯機の設置枠（防水パン）も。</p></li>
-      <li class="oh-menu-optcard"><p class="oh-menu-optcard__cat">洗濯機</p><h3 class="oh-menu-optcard__ttl">排水溝クリーニング</h3><p class="oh-menu-optcard__price">¥3,300</p><p class="oh-menu-optcard__txt">「すすぎ→脱水」の排水に時間がかかるな…。と思ったらご相談ください！ 放置は逆流の元に…。</p></li>
-      <li class="oh-menu-optcard"><p class="oh-menu-optcard__cat">キッチン</p><h3 class="oh-menu-optcard__ttl">キッチンセット</h3><p class="oh-menu-optcard__price">¥13,800</p><p class="oh-menu-optcard__txt">※キッチン全体の施工</p></li>
-      <li class="oh-menu-optcard"><p class="oh-menu-optcard__cat">キッチン</p><h3 class="oh-menu-optcard__ttl">コンロセット</h3><p class="oh-menu-optcard__price">¥5,500</p><p class="oh-menu-optcard__txt">原則キッチンとのセットオプションとなります。コンロ（五徳）でもプロのワザを実感してください。</p></li>
-      <li class="oh-menu-optcard"><p class="oh-menu-optcard__cat">水回り</p><h3 class="oh-menu-optcard__ttl">お掃除時短コーティング</h3><p class="oh-menu-optcard__price">¥19,800</p><p class="oh-menu-optcard__txt">毎日の水回り掃除時間が劇的に短縮されます…！ 掃除がキライなあなたに体感して欲しいです…。</p></li>
-      <li class="oh-menu-optcard"><p class="oh-menu-optcard__cat">浴室</p><h3 class="oh-menu-optcard__ttl">浴室乾燥機洗浄</h3><p class="oh-menu-optcard__price">¥7,800</p><p class="oh-menu-optcard__txt">浴室乾燥機も（エアコンと同じく）実はカビが大好きな環境…。洗濯物を清潔に乾燥させましょう。</p></li>
-      <li class="oh-menu-optcard"><p class="oh-menu-optcard__cat">浴室</p><h3 class="oh-menu-optcard__ttl">追い焚き配管クリーニング</h3><p class="oh-menu-optcard__price">¥15,100</p><p class="oh-menu-optcard__txt">見えない追い焚き配管の中も綺麗にクリーニング！ 清潔なバスタイムを取り戻します。</p></li>
-      <li class="oh-menu-optcard"><p class="oh-menu-optcard__cat">浴室</p><h3 class="oh-menu-optcard__ttl">エプロン内部高圧洗浄</h3><p class="oh-menu-optcard__price">¥7,700</p><p class="oh-menu-optcard__txt">エプロン（側面カバー）の奥を覗いたことはありますか…？ カビや皮脂汚れの溜まり場を根本解決。</p></li>
-      <li class="oh-menu-optcard"><p class="oh-menu-optcard__cat">浴室</p><h3 class="oh-menu-optcard__ttl">浴室換気扇洗浄</h3><p class="oh-menu-optcard__price">¥3,300</p><p class="oh-menu-optcard__txt">お手入れの難しい浴室換気扇も、スッキリキレイに！ クリーンなお風呂環境のための大切な一手間です。</p></li>
-      <li class="oh-menu-optcard"><p class="oh-menu-optcard__cat">浴室</p><h3 class="oh-menu-optcard__ttl">鏡の水垢除去</h3><p class="oh-menu-optcard__price">¥3,300</p><p class="oh-menu-optcard__txt">市販のウロコ取りでは届かない頑固な水アカを根本的に解消！ 鏡が綺麗だと浴室が明るくなります。</p></li>
-    </ul>
+    <div class="oh-menu-sec__head">
+      <h2 class="oh-menu-sec__ttl">オプションメニュー</h2>
+      <span class="oh-menu-eyebrow oh-menu-sec__en">Options</span>
+    </div>
+    <div class="oh-menu-optgrid">
+      <div class="oh-menu-optcat">
+        <p class="oh-menu-optcat__ttl">Air Conditioner ｜ エアコン</p>
+        <ul class="oh-menu-list">
+          <li class="oh-menu-row"><span class="oh-menu-row__n">室外機セット<small>空気の“出口”も綺麗に。節電の効率も向上</small></span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥5,500</span></li>
+          <li class="oh-menu-row"><span class="oh-menu-row__n">防カビコート<small>クリーニング後の効果持続期間が長くなります</small></span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥3,300</span></li>
+          <li class="oh-menu-row"><span class="oh-menu-row__n">防虫キャップ<small>ドレンホースからの虫の侵入を物理的に遮断</small></span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥1,100</span></li>
+        </ul>
+      </div>
+      <div class="oh-menu-optcat">
+        <p class="oh-menu-optcat__ttl">Laundry ｜ 洗濯機</p>
+        <ul class="oh-menu-list">
+          <li class="oh-menu-row"><span class="oh-menu-row__n">設置枠（防水パン）<small>点検口・排水口の位置に応じて対応します</small></span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥3,300</span></li>
+          <li class="oh-menu-row"><span class="oh-menu-row__n">排水溝クリーニング<small>すすぎ・脱水の排水が遅いと感じたら</small></span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥3,300</span></li>
+        </ul>
+      </div>
+      <div class="oh-menu-optcat">
+        <p class="oh-menu-optcat__ttl">Kitchen ｜ キッチン</p>
+        <ul class="oh-menu-list">
+          <li class="oh-menu-row"><span class="oh-menu-row__n">キッチンセット<small>キッチン全体の施工</small></span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥13,800</span></li>
+          <li class="oh-menu-row"><span class="oh-menu-row__n">コンロセット<small>原則キッチンとのセットオプション</small></span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥5,500</span></li>
+        </ul>
+      </div>
+      <div class="oh-menu-optcat">
+        <p class="oh-menu-optcat__ttl">Bathroom ｜ 浴室</p>
+        <ul class="oh-menu-list">
+          <li class="oh-menu-row"><span class="oh-menu-row__n">追い焚き配管クリーニング<small>見えない配管の中まで洗浄します</small></span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥15,100</span></li>
+          <li class="oh-menu-row"><span class="oh-menu-row__n">浴室乾燥機洗浄<small>実はカビが好む環境です</small></span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥7,800</span></li>
+          <li class="oh-menu-row"><span class="oh-menu-row__n">エプロン内部高圧洗浄<small>側面カバーの奥は皮脂汚れの溜まり場</small></span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥7,700</span></li>
+          <li class="oh-menu-row"><span class="oh-menu-row__n">浴室換気扇洗浄<small>お手入れの難しい箇所もすっきりと</small></span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥3,300</span></li>
+          <li class="oh-menu-row"><span class="oh-menu-row__n">鏡の水垢除去<small>市販のウロコ取りでは届かない水アカを</small></span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥3,300</span></li>
+        </ul>
+      </div>
+      <div class="oh-menu-optcat">
+        <p class="oh-menu-optcat__ttl">Water Area ｜ 水まわり</p>
+        <ul class="oh-menu-list">
+          <li class="oh-menu-row"><span class="oh-menu-row__n">お掃除時短コーティング<small>毎日の水まわり掃除の時間が短くなります</small></span><span class="oh-menu-row__lead"></span><span class="oh-menu-row__p">¥19,800</span></li>
+        </ul>
+      </div>
+    </div>
   </section>
 
-  <!-- ===== セットメニュー ===== -->
+  <!-- ===== セット ===== -->
   <section class="oh-menu-sec">
-    <p class="oh-menu-sec__en">Set Menu</p>
-    <h2 class="oh-menu-sec__ttl">セットメニュー</h2>
-    <ul class="oh-menu-grid oh-menu-grid--set">
-      <li class="oh-menu-tile oh-menu-tile--set"><h3 class="oh-menu-tile__ttl">キッチンセット</h3><p class="oh-menu-tile__price">¥13,800</p></li>
-      <li class="oh-menu-tile oh-menu-tile--set"><h3 class="oh-menu-tile__ttl">浴室セット</h3><p class="oh-menu-tile__price">¥13,800</p></li>
-      <li class="oh-menu-tile oh-menu-tile--set"><h3 class="oh-menu-tile__ttl">換気扇セット</h3><p class="oh-menu-tile__price">¥13,800</p></li>
-      <li class="oh-menu-tile oh-menu-tile--set"><h3 class="oh-menu-tile__ttl">洗面台丸洗い</h3><p class="oh-menu-tile__price">¥6,800</p></li>
+    <div class="oh-menu-sec__head">
+      <h2 class="oh-menu-sec__ttl">セットメニュー</h2>
+      <span class="oh-menu-eyebrow oh-menu-sec__en">Set</span>
+    </div>
+    <ul class="oh-menu-tiles">
+      <li class="oh-menu-tile"><h3 class="oh-menu-tile__ttl">キッチンセット</h3><p class="oh-menu-tile__p">¥13,800</p></li>
+      <li class="oh-menu-tile"><h3 class="oh-menu-tile__ttl">浴室セット</h3><p class="oh-menu-tile__p">¥13,800</p></li>
+      <li class="oh-menu-tile"><h3 class="oh-menu-tile__ttl">換気扇セット</h3><p class="oh-menu-tile__p">¥13,800</p></li>
+      <li class="oh-menu-tile"><h3 class="oh-menu-tile__ttl">洗面台丸洗い</h3><p class="oh-menu-tile__p">¥6,800</p></li>
     </ul>
   </section>
 
   <!-- ===== 法人 ===== -->
   <section class="oh-menu-sec oh-menu-biz">
-    <p class="oh-menu-sec__en">For Business</p>
-    <h2 class="oh-menu-sec__ttl">法人／事業者様向けメニュー</h2>
-    <p class="oh-menu-biz__lead">ONE HITTERでは、多種多様な事業者様へ清掃サービスをご提供しております。ご自身で清掃作業をされている、自社で清掃要員を確保している、など「清掃の外注」を未だ行っていない方には、<strong>費用対効果シミュレーション作成／無料テスト期間</strong>をご紹介させていただいております。また、様々な業種の事業者様と業務提携を行い、新たな収益源のご提案も行っております。</p>
+    <div class="oh-menu-sec__head">
+      <h2 class="oh-menu-sec__ttl">法人／事業者様向け</h2>
+      <span class="oh-menu-eyebrow oh-menu-sec__en">For Business</span>
+    </div>
+    <p class="oh-menu-biz__lead">ONE HITTERでは、多種多様な事業者様へ清掃サービスをご提供しております。ご自身で清掃作業をされている、自社で清掃要員を確保している、など「清掃の外注」を未だ行っていない方には、<strong style="color:#fff">費用対効果シミュレーションの作成／無料テスト期間</strong>をご紹介させていただいております。</p>
 
-    <ul class="oh-menu-grid oh-menu-grid--biz">
-      <li class="oh-menu-bizcard">
-        <h3 class="oh-menu-bizcard__ttl">定期清掃</h3>
-        <p class="oh-menu-bizcard__price">¥29,800<span>〜</span></p>
-        <p class="oh-menu-bizcard__txt">事業者様ごとに必要な頻度／清掃箇所を自由に設定していただけます。定期清掃をご利用いただくことで、清潔な空間を常に維持できるだけでなく、衛生面の向上や従業員満足度の改善にもつながります。業務に適した清掃体制をご提案し、定期点検やご要望のヒアリングを通じて、より効果的な日常メンテナンスの実現をサポートいたします。</p>
-      </li>
-      <li class="oh-menu-bizcard">
-        <h3 class="oh-menu-bizcard__ttl">空室清掃</h3>
-        <p class="oh-menu-bizcard__price">¥52,800<span>〜</span></p>
-        <p class="oh-menu-bizcard__txt">「人が入居する前だからこそ徹底的にきれいな空間にしたい」そのようなニーズにお応えし、入居前・退去後の空室クリーニングをご提供しております。キッチン・水回り・床・窓部分など細部まで清掃を行い、清潔で快適な状態へ整えます。</p>
-      </li>
-      <li class="oh-menu-bizcard">
-        <h3 class="oh-menu-bizcard__ttl">業務用エアコン</h3>
-        <p class="oh-menu-bizcard__price">¥24,800<span>〜（2台以上）</span></p>
-        <p class="oh-menu-bizcard__txt">店舗や施設に設置されている業務用エアコンの専門清掃です。内部の汚れを放置すると効率低下や臭いの原因となるため、定期的なメンテナンスを推奨しております。専門技術により分解洗浄を行い、性能回復と衛生環境の向上を実現します。複数台のご依頼にも柔軟に対応可能です。</p>
-      </li>
-    </ul>
+    <div class="oh-menu-bizlist">
+      <div class="oh-menu-bizitem">
+        <div>
+          <h3 class="oh-menu-bizitem__ttl">定期清掃</h3>
+          <p class="oh-menu-bizitem__p">¥29,800<span>〜</span></p>
+        </div>
+        <p class="oh-menu-bizitem__txt">事業者様ごとに必要な頻度／清掃箇所を自由に設定していただけます。清潔な空間を常に維持できるだけでなく、衛生面の向上や従業員満足度の改善にもつながります。定期点検やご要望のヒアリングを通じて、より効果的な日常メンテナンスの実現をサポートいたします。</p>
+      </div>
+      <div class="oh-menu-bizitem">
+        <div>
+          <h3 class="oh-menu-bizitem__ttl">空室清掃</h3>
+          <p class="oh-menu-bizitem__p">¥52,800<span>〜</span></p>
+        </div>
+        <p class="oh-menu-bizitem__txt">「人が入居する前だからこそ徹底的にきれいな空間にしたい」。そのようなニーズにお応えし、入居前・退去後の空室クリーニングをご提供しております。キッチン・水回り・床・窓部分など細部まで清掃を行い、清潔で快適な状態へ整えます。</p>
+      </div>
+      <div class="oh-menu-bizitem">
+        <div>
+          <h3 class="oh-menu-bizitem__ttl">業務用エアコン</h3>
+          <p class="oh-menu-bizitem__p">¥24,800<span>〜（2台以上）</span></p>
+        </div>
+        <p class="oh-menu-bizitem__txt">店舗や施設に設置されている業務用エアコンの専門清掃です。内部の汚れを放置すると効率低下や臭いの原因となるため、定期的なメンテナンスを推奨しております。専門技術により分解洗浄を行い、性能回復と衛生環境の向上を実現します。</p>
+      </div>
+    </div>
 
     <div class="oh-menu-alliance">
       <h3 class="oh-menu-alliance__ttl">戦略的業務提携（アライアンス）のご案内</h3>
-      <p class="oh-menu-alliance__txt">お客さま一人ひとりへ提供する価値の最大化を目的として、ONE HITTERでは様々な業種の事業者様と戦略的業務提携を結んでおります。これまで１つの事業でしか接点を持てなかったお客さまに対して、複数の事業で価値提供を行うことでお客さま満足度、LTV※向上に寄与します。<br><small>※LTV＝Life Time Value（1顧客から預かる利益の総和）</small></p>
+      <p class="oh-menu-alliance__txt">お客さま一人ひとりへ提供する価値の最大化を目的として、ONE HITTERでは様々な業種の事業者様と戦略的業務提携を結んでおります。これまで一つの事業でしか接点を持てなかったお客さまに対して、複数の事業で価値提供を行うことで、お客さま満足度とLTVの向上に寄与します。<br><small>※LTV＝Life Time Value（1顧客から預かる利益の総和）</small></p>
       <ul class="oh-menu-alliance__list">
         <li>エアコン設置業者 × ONE HITTER</li>
         <li>リフォーム業者 × ONE HITTER</li>
@@ -561,10 +766,15 @@
     </div>
   </section>
 
-  <!-- ===== 末尾注記 ===== -->
-  <footer class="oh-menu-foot">
-    <p class="oh-menu-foot__notice">※ 5〜7月・12月は、各料金に ¥3,300 が加算されます</p>
-    <p class="oh-menu-foot__sub">表示価格はすべて税込です。／ お見積り以上の追加請求は一切ありません。／ メニューに記載のない箇所のお掃除もお気軽にご相談ください。</p>
+  <!-- ===== 末尾 ===== -->
+  <footer class="oh-menu-close">
+    <h2 class="oh-menu-close__ttl">メニューにない場所も、ご相談ください</h2>
+    <p class="oh-menu-close__txt">住まいの中のあらゆる場所をプロがお掃除しております。<br>「これは頼めるのだろうか」と思ったら、そのままお聞かせください。</p>
+    <p class="oh-menu-close__fine">
+      表示価格はすべて税込です。／ 5〜7月・12月は本メニュー各料金に ¥3,300 が加算されます。<br>
+      お見積り以上の追加請求は一切ありません。／ 汚れの状態により落としきれない場合があります。<br>
+      設備の状態によっては施工をお受けできない場合があります。
+    </p>
   </footer>
 
 </div>
