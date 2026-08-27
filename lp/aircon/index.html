@@ -1,0 +1,682 @@
+<title>エアコン内部洗浄 ONE HITTER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=Shippori+Mincho+B1:wght@600&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
+
+<style>
+:root{
+  --ground:#F1F5F6;
+  --surface:#FFFFFF;
+  --surface-2:#E7EEF0;
+  --ink:#0F2A38;
+  --ink-soft:#38505C;
+  --muted:#6A818B;
+  --line:#D6E1E4;
+  --line-strong:#B6C7CC;
+  --accent:#0E7C93;
+  --accent-deep:#0A5C6E;
+  --accent-soft:#DDEEF1;
+  --cta:#D9552A;
+  --cta-deep:#B8441F;
+  --ok:#1E7A5A;
+  --shadow:0 1px 2px rgba(15,42,56,.06),0 12px 32px -20px rgba(15,42,56,.4);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C171C;
+    --surface:#12222A;
+    --surface-2:#183039;
+    --ink:#E6EFF1;
+    --ink-soft:#BCCFD5;
+    --muted:#8CA3AB;
+    --line:#223942;
+    --line-strong:#39555F;
+    --accent:#4EC0D4;
+    --accent-deep:#8BDCEA;
+    --accent-soft:#0F3541;
+    --cta:#F0764B;
+    --cta-deep:#D9552A;
+    --ok:#4FBF95;
+    --shadow:0 1px 2px rgba(0,0,0,.5),0 14px 36px -22px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C171C;
+  --surface:#12222A;
+  --surface-2:#183039;
+  --ink:#E6EFF1;
+  --ink-soft:#BCCFD5;
+  --muted:#8CA3AB;
+  --line:#223942;
+  --line-strong:#39555F;
+  --accent:#4EC0D4;
+  --accent-deep:#8BDCEA;
+  --accent-soft:#0F3541;
+  --cta:#F0764B;
+  --cta-deep:#D9552A;
+  --ok:#4FBF95;
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 14px 36px -22px rgba(0,0,0,.9);
+}
+
+*{box-sizing:border-box;}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:16px;line-height:1.85;-webkit-font-smoothing:antialiased;
+  padding-bottom:76px;
+}
+h1,h2,h3,h4{margin:0;line-height:1.42;text-wrap:balance;font-weight:900;}
+p{margin:0;}
+img{max-width:100%;}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+.wrap{max-width:880px;margin:0 auto;padding:0 20px;}
+.num{font-family:"Barlow",system-ui,sans-serif;font-variant-numeric:tabular-nums;font-weight:700;}
+.eyebrow{
+  font-family:"Barlow",sans-serif;font-weight:600;font-size:12px;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--accent);
+}
+.mincho{font-family:"Shippori Mincho B1","Yu Mincho",serif;font-weight:600;}
+
+/* ===== header ===== */
+.bar{
+  position:sticky;top:0;z-index:40;background:var(--surface);
+  border-bottom:1px solid var(--line);
+}
+.bar-in{max-width:880px;margin:0 auto;padding:9px 20px;display:flex;align-items:center;gap:14px;}
+.logo{display:flex;flex-direction:column;line-height:1.15;}
+.logo b{font-family:"Barlow",sans-serif;font-weight:700;letter-spacing:.08em;font-size:16px;}
+.logo small{font-size:9.5px;color:var(--muted);letter-spacing:.04em;}
+.bar-cta{margin-left:auto;display:flex;gap:8px;align-items:center;}
+.tel{display:none;flex-direction:column;line-height:1.2;text-align:right;text-decoration:none;color:inherit;}
+.tel .n{font-family:"Barlow",sans-serif;font-weight:700;font-size:17px;}
+.tel small{font-size:9.5px;color:var(--muted);}
+@media(min-width:640px){.tel{display:flex;}}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border-radius:6px;font-weight:700;text-decoration:none;border:0;cursor:pointer;
+  font-family:inherit;font-size:14px;padding:10px 18px;line-height:1.4;
+  background:var(--cta);color:#fff;transition:background .15s ease,transform .15s ease;
+}
+.btn:hover{background:var(--cta-deep);}
+.btn:active{transform:translateY(1px);}
+.btn.line{background:#06C755;}
+.btn.line:hover{background:#05A445;}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong);}
+.btn.ghost:hover{background:var(--surface-2);}
+.btn.lg{font-size:17px;padding:16px 30px;width:100%;}
+
+/* ===== hero ===== */
+.hero{background:var(--surface);border-bottom:1px solid var(--line);overflow:hidden;}
+.hero-in{max-width:880px;margin:0 auto;padding:36px 20px 40px;display:flex;flex-direction:column;gap:20px;}
+.hero .area{
+  display:inline-flex;align-items:center;gap:8px;align-self:flex-start;
+  background:var(--accent-soft);color:var(--accent-deep);
+  font-size:12.5px;font-weight:700;padding:5px 13px;border-radius:99px;
+}
+.hero h1{font-size:clamp(28px,7.2vw,46px);letter-spacing:-.01em;}
+.hero h1 .hl{
+  background:linear-gradient(transparent 62%,var(--accent-soft) 62%);
+  padding:0 2px;
+}
+.hero .sub{color:var(--ink-soft);font-size:15.5px;max-width:44em;}
+.price-tag{
+  display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;
+  padding:16px 20px;border:2px solid var(--accent);border-radius:8px;background:var(--accent-soft);
+}
+.price-tag .lab{font-size:13px;font-weight:700;color:var(--accent-deep);line-height:1.5;}
+.price-tag .big{font-family:"Barlow",sans-serif;font-weight:700;font-size:clamp(38px,10vw,56px);line-height:.95;color:var(--accent-deep);}
+.price-tag .yen{font-size:.5em;}
+.price-tag .tail{font-size:13px;color:var(--ink-soft);padding-bottom:6px;}
+.trust{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+.trust div{background:var(--surface);padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:2px;}
+.trust .t{font-family:"Barlow",sans-serif;font-weight:700;font-size:19px;color:var(--accent);}
+.trust .b{font-size:10.5px;color:var(--muted);line-height:1.5;}
+.hero-cta{display:flex;flex-direction:column;gap:9px;}
+.hero-note{font-size:11.5px;color:var(--muted);text-align:center;}
+
+/* ===== sections ===== */
+section{padding:56px 0;}
+section.alt{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+.sec-h{display:flex;flex-direction:column;gap:8px;margin-bottom:26px;text-align:center;align-items:center;}
+.sec-h h2{font-size:clamp(21px,4.6vw,30px);}
+.sec-h p{font-size:14.5px;color:var(--muted);max-width:38em;}
+
+/* symptoms */
+.symp{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;}
+.symp li{
+  list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:8px;
+  padding:16px 14px;display:flex;gap:10px;align-items:flex-start;font-size:14.5px;font-weight:700;
+  line-height:1.6;box-shadow:var(--shadow);
+}
+.symp .ck{color:var(--cta);font-family:"Barlow",sans-serif;font-weight:700;flex:0 0 auto;}
+.symp-out{
+  margin-top:18px;text-align:center;font-size:16px;font-weight:700;
+  padding:18px;border-radius:8px;background:var(--accent-soft);color:var(--accent-deep);
+}
+
+/* photo placeholder */
+.ph{
+  border:1.5px dashed var(--line-strong);border-radius:8px;background:
+    repeating-linear-gradient(135deg,transparent 0 9px,var(--surface-2) 9px 10px),var(--surface);
+  min-height:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;text-align:center;padding:20px;color:var(--muted);
+}
+.ph b{font-size:13px;color:var(--ink-soft);}
+.ph small{font-size:11px;}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:520px){.ba{grid-template-columns:1fr;}}
+.ba .cap{
+  font-family:"Barlow",sans-serif;font-weight:700;font-size:11px;letter-spacing:.14em;
+  padding:4px 10px;border-radius:99px;background:var(--ink);color:var(--ground);
+}
+.ba .after .cap{background:var(--accent);color:#fff;}
+
+/* mechanism */
+.mech{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;}
+.mech div{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:18px 20px;display:flex;flex-direction:column;gap:6px;}
+.mech h4{font-size:15.5px;}
+.mech p{font-size:13.5px;color:var(--ink-soft);line-height:1.75;}
+
+/* price table */
+.ptable{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow);}
+.prow{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line);}
+.prow:last-child{border-bottom:0;}
+.prow .nm{font-weight:700;font-size:15.5px;}
+.prow .dur{font-size:12px;color:var(--muted);font-weight:500;}
+.prow .pr{font-family:"Barlow",sans-serif;font-weight:700;font-size:24px;white-space:nowrap;}
+.prow .pr small{font-size:13px;}
+.prow.opt{background:var(--surface-2);}
+.prow.opt .nm{font-size:14px;font-weight:500;}
+.prow.opt .pr{font-size:17px;}
+.peak{
+  margin-top:12px;padding:14px 18px;border-radius:8px;
+  background:var(--surface-2);border:1px solid var(--line);font-size:13.5px;color:var(--ink-soft);
+}
+.peak b{color:var(--ink);}
+
+/* calculator */
+.calc{background:var(--surface);border:2px solid var(--accent);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);}
+.calc-h{background:var(--accent);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:10px;}
+.calc-h b{font-size:16px;}
+.calc-h span{font-size:12px;opacity:.9;margin-left:auto;}
+.calc-b{padding:20px;display:flex;flex-direction:column;gap:18px;}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;}
+legend{font-size:13px;font-weight:700;color:var(--ink-soft);padding:0;}
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{position:relative;}
+.chip input{position:absolute;opacity:0;inset:0;width:100%;height:100%;cursor:pointer;margin:0;}
+.chip span{
+  display:block;padding:9px 15px;border:1.5px solid var(--line-strong);border-radius:6px;
+  font-size:14px;font-weight:500;background:var(--surface);transition:.15s;
+}
+.chip input:checked + span{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
+.chip input:focus-visible + span{outline:3px solid var(--accent);outline-offset:2px;}
+.chip small{display:block;font-size:11px;font-weight:500;opacity:.8;}
+.calc-out{
+  border-top:1px dashed var(--line-strong);padding-top:16px;
+  display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;
+}
+.calc-out .lab{font-size:13px;color:var(--muted);}
+.calc-out .tot{font-family:"Barlow",sans-serif;font-weight:700;font-size:40px;line-height:1;color:var(--accent-deep);}
+.calc-out .tot small{font-size:15px;}
+#breakdown{font-size:12.5px;color:var(--muted);line-height:1.8;}
+
+/* steps */
+.steps{counter-reset:s;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;list-style:none;padding:0;margin:0;}
+.steps li{
+  counter-increment:s;background:var(--surface);border:1px solid var(--line);border-radius:8px;
+  padding:14px 16px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:baseline;font-size:14px;
+}
+.steps li::before{
+  content:counter(s,decimal-leading-zero);font-family:"Barlow",sans-serif;font-weight:700;
+  color:var(--accent);font-size:13px;
+}
+.steps b{font-weight:700;}
+.steps p{font-size:12.5px;color:var(--muted);line-height:1.65;}
+
+/* voice */
+.voice{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:24px 26px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);}
+.voice .stars{color:var(--cta);font-size:15px;letter-spacing:.1em;}
+.voice q{font-family:"Shippori Mincho B1",serif;font-size:16px;line-height:2;quotes:"「" "」";color:var(--ink);}
+.voice .who{font-size:12.5px;color:var(--muted);}
+
+/* faq */
+details{background:var(--surface);border:1px solid var(--line);border-radius:8px;margin-bottom:8px;overflow:hidden;}
+details[open]{border-color:var(--line-strong);}
+summary{cursor:pointer;padding:15px 18px;font-weight:700;font-size:14.5px;list-style:none;display:flex;gap:10px;align-items:flex-start;}
+summary::-webkit-details-marker{display:none;}
+summary::before{content:"Q";font-family:"Barlow",sans-serif;color:var(--accent);font-weight:700;flex:0 0 auto;}
+details p{padding:0 18px 16px 40px;font-size:14px;color:var(--ink-soft);line-height:1.85;}
+
+/* area */
+.area-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.area-grid div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px 12px;text-align:center;}
+.area-grid b{display:block;font-size:19px;}
+.area-grid small{font-size:11px;color:var(--muted);}
+.zip{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+.zip input{
+  flex:1 1 160px;padding:12px 14px;border:1.5px solid var(--line-strong);border-radius:6px;
+  font-family:"Barlow",sans-serif;font-size:16px;background:var(--surface);color:var(--ink);
+}
+#zipres{margin-top:10px;font-size:14px;font-weight:700;min-height:1.6em;}
+#zipres.ok{color:var(--ok);}
+#zipres.ng{color:var(--cta-deep);}
+
+/* form */
+.form{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:16px;box-shadow:var(--shadow);}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:13px;font-weight:700;}
+.field .req{color:var(--cta);font-size:11px;margin-left:5px;}
+.field input,.field select,.field textarea{
+  padding:12px 14px;border:1.5px solid var(--line-strong);border-radius:6px;font-family:inherit;
+  font-size:16px;background:var(--surface);color:var(--ink);width:100%;
+}
+.field textarea{min-height:80px;resize:vertical;}
+.form-note{font-size:11.5px;color:var(--muted);text-align:center;}
+
+/* sticky bottom */
+.sticky{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--surface);
+  border-top:1px solid var(--line);padding:9px 14px;display:flex;gap:8px;
+  box-shadow:0 -6px 20px -12px rgba(0,0,0,.35);
+}
+.sticky .btn{flex:1;font-size:14px;padding:12px 8px;}
+
+footer{background:var(--ink);color:#C9D9DE;padding:40px 0 32px;margin-top:0;}
+footer .wrap{display:flex;flex-direction:column;gap:14px;}
+footer b{color:#fff;font-size:15px;}
+footer dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:12.5px;}
+footer dt{color:#8FA9B1;}
+footer dd{margin:0;}
+footer .fine{font-size:11px;color:#8FA9B1;line-height:1.8;border-top:1px solid #1F3C48;padding-top:14px;}
+
+@media (prefers-reduced-motion: reduce){*{transition:none !important;animation:none !important;}}
+</style>
+
+<div class="bar">
+  <div class="bar-in">
+    <span class="logo"><b>ONE HITTER</b><small>あなたに寄り添うハウスクリーニング</small></span>
+    <span class="bar-cta">
+      <a class="tel" href="tel:08017557275"><span class="n">080-1755-7275</span><small>8:00–20:00 受付</small></a>
+      <a class="btn" href="#form">WEB予約</a>
+    </span>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-in">
+    <span class="area">✓ 東京・千葉・神奈川 対応／最短翌日</span>
+    <h1>フィルターを掃除しても<br><span class="hl">カビ臭い</span>。<br>原因は、内部のカビです。</h1>
+    <p class="sub">エアコンを分解し、ニオイの根源になっている熱交換器の奥まで専用機材で洗浄します。作業は60分。お見積り以上の追加請求は、一切ありません。</p>
+
+    <div class="price-tag">
+      <span class="lab">ノーマルエアコン<br>1台あたり</span>
+      <span class="big"><span class="yen">¥</span>9,800</span>
+      <span class="tail">／60分（税込）<br>お掃除機能付きは ¥15,800／120分</span>
+    </div>
+
+    <div class="trust">
+      <div><span class="t num">98.8%</span><span class="b">が「勧めたい」<br>と回答</span></div>
+      <div><span class="t num">¥0</span><span class="b">見積り以上の<br>追加請求</span></div>
+      <div><span class="t num">60<small>分</small></span><span class="b">1台あたりの<br>作業時間</span></div>
+    </div>
+
+    <div class="hero-cta">
+      <a class="btn lg" href="#form">かんたん5項目でWEB予約する</a>
+      <a class="btn lg line" href="https://lin.ee/7kD9WGN">LINEで相談・予約する</a>
+    </div>
+    <p class="hero-note">※ご利用者アンケートより。5〜7月・12月は繁忙期加算 ¥3,300 が加わります。</p>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="sec-h">
+      <span class="eyebrow">Check</span>
+      <h2>ひとつでも当てはまったら、<br>内部にカビが出ています</h2>
+    </div>
+    <ul class="symp">
+      <li><span class="ck">✓</span>つけた瞬間、カビ臭い</li>
+      <li><span class="ck">✓</span>送風口から黒い点が見える</li>
+      <li><span class="ck">✓</span>前より効きが悪くなった</li>
+      <li><span class="ck">✓</span>運転中に異音がする</li>
+      <li><span class="ck">✓</span>家族にアレルギー体質の人がいる</li>
+      <li><span class="ck">✓</span>2年以上クリーニングしていない</li>
+    </ul>
+    <p class="symp-out">これらはすべて、フィルター掃除では届かない<br><b>熱交換器とファンの汚れ</b>が原因です。</p>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="sec-h">
+      <span class="eyebrow">Before / After</span>
+      <h2>洗浄前と、洗浄後</h2>
+      <p>実際の施工でお客様にお見せしている、内部の様子です。</p>
+    </div>
+    <div class="ba">
+      <div>
+        <div class="ph"><span class="cap">BEFORE</span><b>施工写真：洗浄前の熱交換器・送風ファン</b><small>撮影同行時に差し替え</small></div>
+      </div>
+      <div class="after">
+        <div class="ph"><span class="cap">AFTER</span><b>施工写真：洗浄後の同一箇所</b><small>撮影同行時に差し替え</small></div>
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <div class="ph" style="min-height:130px"><b>動画：高圧洗浄で流れ出る汚水</b><small>この1本がLPで最も成果に効きます。撮影同行時に差し替え</small></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-h">
+      <span class="eyebrow">Why</span>
+      <h2>内部が綺麗になると、<br>3つ変わります</h2>
+    </div>
+    <div class="mech">
+      <div>
+        <h4>ニオイが消える</h4>
+        <p>ニオイの根源は熱交換器の奥に定着したカビとホコリです。分解して直接洗い流すため、消臭剤では戻らない状態からリセットできます。</p>
+      </div>
+      <div>
+        <h4>効きが戻り、電気代が下がる</h4>
+        <p>熱交換器が汚れていると交換効率が落ちます。内部が綺麗になることで冷暖房の効きが改善し、電気代の削減にも直結します。</p>
+      </div>
+      <div>
+        <h4>室内の空気がクリーンになる</h4>
+        <p>アレルギーの一因とされるカビ菌を一掃します。一年中稼働する設備だからこそ、住環境そのものへの影響が大きい箇所です。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="sec-h">
+      <span class="eyebrow">Price</span>
+      <h2>料金は、この通りです</h2>
+      <p>すべて税込。お見積り以上の追加請求は一切ありません。</p>
+    </div>
+    <div class="ptable">
+      <div class="prow">
+        <span><span class="nm">エアコンクリーニング</span><br><span class="dur">ノーマルエアコン／60分</span></span>
+        <span class="pr">¥9,800</span>
+      </div>
+      <div class="prow">
+        <span><span class="nm">エアコンクリーニング</span><br><span class="dur">お掃除機能付きエアコン／120分</span></span>
+        <span class="pr">¥15,800</span>
+      </div>
+      <div class="prow opt"><span class="nm">オプション｜室外機セット</span><span class="pr">¥5,500</span></div>
+      <div class="prow opt"><span class="nm">オプション｜防カビコート</span><span class="pr">¥3,300</span></div>
+      <div class="prow opt"><span class="nm">オプション｜防虫キャップ</span><span class="pr">¥1,100</span></div>
+    </div>
+    <p class="peak"><b>繁忙期加算について。</b> 5〜7月・12月は各料金に <b>¥3,300</b> が加わります。この期間は予約が埋まりやすいため、お急ぎでなければ端境期（4月・8〜11月）のご予約が最もお得です。</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-h">
+      <span class="eyebrow">Simulator</span>
+      <h2>いくらになるか、<br>その場で分かります</h2>
+      <p>入力は3つだけ。この金額以上の請求は発生しません。</p>
+    </div>
+    <div class="calc">
+      <div class="calc-h"><b>料金シミュレーター</b><span>税込・見積確定額</span></div>
+      <div class="calc-b">
+        <fieldset>
+          <legend>1. エアコンの種類</legend>
+          <div class="chips">
+            <label class="chip"><input type="radio" name="type" value="9800" checked><span>ノーマル<small>¥9,800／60分</small></span></label>
+            <label class="chip"><input type="radio" name="type" value="15800"><span>お掃除機能付き<small>¥15,800／120分</small></span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>2. 台数</legend>
+          <div class="chips" id="qty">
+            <label class="chip"><input type="radio" name="qty" value="1" checked><span>1台</span></label>
+            <label class="chip"><input type="radio" name="qty" value="2"><span>2台</span></label>
+            <label class="chip"><input type="radio" name="qty" value="3"><span>3台</span></label>
+            <label class="chip"><input type="radio" name="qty" value="4"><span>4台以上</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>3. ご希望の時期</legend>
+          <div class="chips">
+            <label class="chip"><input type="radio" name="peak" value="0" checked><span>4月・8〜11月・1〜3月<small>加算なし</small></span></label>
+            <label class="chip"><input type="radio" name="peak" value="3300"><span>5〜7月・12月<small>+¥3,300／台</small></span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>オプション（任意）</legend>
+          <div class="chips">
+            <label class="chip"><input type="checkbox" class="opt" value="5500" data-nm="室外機セット"><span>室外機セット<small>+¥5,500</small></span></label>
+            <label class="chip"><input type="checkbox" class="opt" value="3300" data-nm="防カビコート"><span>防カビコート<small>+¥3,300</small></span></label>
+            <label class="chip"><input type="checkbox" class="opt" value="1100" data-nm="防虫キャップ"><span>防虫キャップ<small>+¥1,100</small></span></label>
+          </div>
+        </fieldset>
+        <div class="calc-out">
+          <div>
+            <div class="lab">お見積り金額（税込）</div>
+            <div class="tot" id="total">¥9,800</div>
+          </div>
+          <div id="breakdown">ノーマル ¥9,800 × 1台</div>
+        </div>
+        <a class="btn lg" href="#form">この内容で予約に進む</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="sec-h">
+      <span class="eyebrow">Flow</span>
+      <h2>当日の作業は、この8工程</h2>
+      <p>ご在宅のまま、60分で完了します。</p>
+    </div>
+    <ol class="steps">
+      <li><div><b>養生</b><p>床・壁・家財をシートで完全に覆います</p></div></li>
+      <li><div><b>分解</b><p>カバー・ルーバー・ファンを取り外し</p></div></li>
+      <li><div><b>薬剤塗布</b><p>汚れの質を見て洗剤を選定</p></div></li>
+      <li><div><b>高圧洗浄</b><p>熱交換器とファンを専用機材で洗浄</p></div></li>
+      <li><div><b>すすぎ・乾燥</b><p>洗剤成分が残らないよう十分に流す</p></div></li>
+      <li><div><b>組み立て</b><p>分解した部品を元通りに</p></div></li>
+      <li><div><b>試運転</b><p>動作・排水・異音を確認</p></div></li>
+      <li><div><b>清掃・ご確認</b><p>お客様と一緒に仕上がりを確認</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-h">
+      <span class="eyebrow">Voice</span>
+      <h2>ご利用いただいた方から</h2>
+    </div>
+    <div class="voice">
+      <span class="stars">★★★★★</span>
+      <q>クリーニング後のエアコンの効き具合に驚きました！風の爽やかさが全く違います。自分では絶対に手の届かない奥の汚れを、あっという間に綺麗にしていただき大満足。プロの手際の良さと仕上がりに感動したので、次はぜひキッチンの換気扇もお願いしたいです！</q>
+      <span class="who">40代 女性</span>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="sec-h">
+      <span class="eyebrow">FAQ</span>
+      <h2>よくあるご質問</h2>
+    </div>
+    <details open>
+      <summary>作業中、在宅している必要はありますか？</summary>
+      <p>はい、ご在宅をお願いしています。作業前に汚れの状態を、作業後に仕上がりを一緒にご確認いただくためです。60分ほどですので、その間は別のお部屋でお過ごしいただいて構いません。</p>
+    </details>
+    <details>
+      <summary>当日、追加料金が発生することはありませんか？</summary>
+      <p>ありません。お見積り以上の追加請求は一切いたしません。オプションをその場で追加ご希望の場合のみ、金額をご説明し、ご了承いただいてから作業します。</p>
+    </details>
+    <details>
+      <summary>賃貸住宅でも依頼できますか？</summary>
+      <p>可能です。分解・洗浄・組み立てまで行い、原状に戻してお引き渡しします。管理会社への事前確認が必要かどうかは、契約内容によりますのでご確認ください。</p>
+    </details>
+    <details>
+      <summary>水漏れや故障が心配です。</summary>
+      <p>養生を徹底し、洗浄後は必ず試運転で排水と動作を確認しています。万一の事態に備えた保険にも加入しています。</p>
+    </details>
+    <details>
+      <summary>メニューにない場所も頼めますか？</summary>
+      <p>はい。メニューに記載のない箇所のお掃除も柔軟に対応しています。お気軽にご相談ください。</p>
+    </details>
+    <details>
+      <summary>何年に一度クリーニングすべきですか？</summary>
+      <p>使用頻度によりますが、目安は1〜2年に一度です。防カビコートを併用すると、効果の持続期間が長くなります。</p>
+    </details>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-h">
+      <span class="eyebrow">Area</span>
+      <h2>対応エリア</h2>
+    </div>
+    <div class="area-grid">
+      <div><b>東京都</b><small>全域</small></div>
+      <div><b>千葉県</b><small>全域</small></div>
+      <div><b>神奈川県</b><small>全域</small></div>
+    </div>
+    <div class="zip">
+      <input id="zipin" type="text" inputmode="numeric" maxlength="8" placeholder="郵便番号（例：134-0081）" aria-label="郵便番号を入力してエリアを確認">
+      <button class="btn ghost" id="zipbtn" type="button">エリアを確認</button>
+    </div>
+    <p id="zipres" role="status"></p>
+  </div>
+</section>
+
+<section class="alt" id="form">
+  <div class="wrap">
+    <div class="sec-h">
+      <span class="eyebrow">Reservation</span>
+      <h2>WEB予約・お見積り</h2>
+      <p>入力は5項目。ご返信は当日中、遅くとも翌営業日にいたします。</p>
+    </div>
+    <form class="form" onsubmit="return false;">
+      <div class="field">
+        <label for="f-name">お名前<span class="req">必須</span></label>
+        <input id="f-name" name="name" type="text" autocomplete="name" required>
+      </div>
+      <div class="field">
+        <label for="f-tel">お電話番号<span class="req">必須</span></label>
+        <input id="f-tel" name="tel" type="tel" inputmode="tel" autocomplete="tel" required>
+      </div>
+      <div class="field">
+        <label for="f-zip">郵便番号<span class="req">必須</span></label>
+        <input id="f-zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" required>
+      </div>
+      <div class="field">
+        <label for="f-menu">ご希望のメニュー<span class="req">必須</span></label>
+        <select id="f-menu" name="menu">
+          <option>エアコンクリーニング（ノーマル）</option>
+          <option>エアコンクリーニング（お掃除機能付き）</option>
+          <option>まだ決めていない／相談したい</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-when">ご希望の時期</label>
+        <input id="f-when" name="when" type="text" placeholder="例：来週の土日、今月中など">
+      </div>
+      <button class="btn lg" type="submit">この内容で予約を申し込む</button>
+      <p class="form-note">送信後、担当より日程のご連絡をいたします。<br>お電話でのご予約は <a href="tel:08017557275" style="color:var(--accent-deep)">080-1755-7275</a>（8:00–20:00）</p>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <b>ワンヒッター株式会社｜ONE HITTER Ltd.</b>
+    <p class="mincho" style="font-size:14px;color:#DDE9EC">手が届く、理想の生活を実現する。</p>
+    <dl>
+      <dt>代表者</dt><dd>代表取締役　佐々木 沙樹</dd>
+      <dt>所在地</dt><dd>東京都江戸川区北葛西5-14-11 5F</dd>
+      <dt>電話</dt><dd>080-1755-7275（8:00–20:00）</dd>
+      <dt>FAX</dt><dd>03-5674-8758</dd>
+      <dt>設立</dt><dd>2022年8月15日</dd>
+      <dt>WEB</dt><dd>https://one-hitter.jp/</dd>
+    </dl>
+    <p class="fine">
+      表示価格はすべて税込です。5〜7月・12月は各料金に¥3,300が加算されます。<br>
+      「98.8%が他人に勧めたい」は自社実施のご利用者アンケートに基づく結果です（集計期間は掲載時に明記）。<br>
+      効果には個人差があります。設備の状態によっては施工をお受けできない場合があります。
+    </p>
+  </div>
+</footer>
+
+<div class="sticky">
+  <a class="btn line" href="https://lin.ee/7kD9WGN">LINEで相談</a>
+  <a class="btn" href="#form">WEB予約する</a>
+</div>
+
+<script>
+(function(){
+  var fmt = function(n){ return '¥' + n.toLocaleString('ja-JP'); };
+  var totalEl = document.getElementById('total');
+  var bdEl = document.getElementById('breakdown');
+
+  function calc(){
+    var typeEl = document.querySelector('input[name=type]:checked');
+    var unit = parseInt(typeEl.value, 10);
+    var typeName = unit === 9800 ? 'ノーマル' : 'お掃除機能付き';
+    var qty = parseInt(document.querySelector('input[name=qty]:checked').value, 10);
+    var peak = parseInt(document.querySelector('input[name=peak]:checked').value, 10);
+
+    var total = (unit + peak) * qty;
+    var lines = [typeName + ' ' + fmt(unit) + ' × ' + qty + '台'];
+    if (peak) lines.push('繁忙期加算 ' + fmt(peak) + ' × ' + qty + '台');
+
+    document.querySelectorAll('input.opt:checked').forEach(function(o){
+      var v = parseInt(o.value, 10);
+      total += v * qty;
+      lines.push(o.dataset.nm + ' ' + fmt(v) + ' × ' + qty + '台');
+    });
+
+    totalEl.textContent = fmt(total);
+    bdEl.innerHTML = lines.join('<br>') + (qty >= 4 ? '<br><b>※4台以上は個別にお見積りします</b>' : '');
+  }
+
+  document.querySelectorAll('.calc input').forEach(function(el){
+    el.addEventListener('change', calc);
+  });
+  calc();
+
+  // area check by postal code prefix (Tokyo 100-208 / Kanagawa 210-259 / Chiba 260-299)
+  var res = document.getElementById('zipres');
+
+  function region(zip){
+    var n = parseInt(zip.slice(0,3), 10);
+    if (isNaN(n)) return null;
+    if (n >= 100 && n <= 208) return '東京都';
+    if (n >= 210 && n <= 259) return '神奈川県';
+    if (n >= 260 && n <= 299) return '千葉県';
+    return null;
+  }
+
+  document.getElementById('zipbtn').addEventListener('click', function(){
+    var raw = (document.getElementById('zipin').value || '').replace(/[^0-9]/g, '');
+    if (raw.length < 3){
+      res.className = 'ng';
+      res.textContent = '郵便番号を3桁以上入力してください。';
+      return;
+    }
+    var r = region(raw);
+    if (r){
+      res.className = 'ok';
+      res.textContent = '✓ ' + r + '｜対応エリアです。最短翌日でお伺いできます。';
+    } else {
+      res.className = 'ng';
+      res.textContent = '現在この地域は対応エリア外です。順番待ちにご登録いただければ、エリア拡大時にご連絡します。';
+    }
+  });
+})();
+</script>
