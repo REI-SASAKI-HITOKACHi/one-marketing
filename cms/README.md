@@ -80,3 +80,51 @@ https://claude.ai/code/artifact/124243eb-b1c6-4f86-9e52-b5db686c6515
 ## 注意
 
 - **認証情報は一切このリポジトリに置かないこと。**
+
+---
+
+## `/menu/` ページの編集経路（2026-08-27 調査）
+
+### 結論：`/menu/` の本文は、こちらから直接差し替えられない
+
+- 公開 `/menu/` は **ページID 6374 / レイアウト102**。TOP（6372）とは別ページ。
+- 本文は「ページビルダー」で組まれた**ライブラリインスタンスの積み重ね**。
+  - `data-instance="42946"`（lib 29712）= 見出し＋説明文のリッチテキストブロック ← 差し替え対象
+  - `data-instance="43148"`（lib 37154）= 「SERVICE サービス詳細」の動的一覧（`/feature/` 配下を出力）
+- **`/_sys/` 側にブロックを直接編集する datastore フォームが存在しない。**
+  `/_sys/contents/page/` はダッシュボードのみ。`/_sys/contents/page/6374/` も `/_cms/page/`（GET）も 404。
+- 編集する唯一の正規手段は**フロント側のページ編集セッション**（`POST /_cms/page/` に
+  `_[action]=cms` / `mode=on`）。開始すると別タブでフロントが開き、その上に編集UIが被さる。
+
+### 分かったこと：サイト全体にCSSを流し込む口がある
+
+- 管理画面「リソース → フォント」（リソース1018）の `input_ci[common_css_url]` は plain textarea で、
+  **`<style>…</style>` をそのまま受け取り全ページに出力する。**
+- ここには既に **約267KB の `<style id="codex-brand-override">`** が入っており、
+  公開 `/menu/` にも出力されている。**過去に別のAIエージェント（codex系）がCSSを注入した形跡。**
+- 保存は `POST /_sys/contents/resource/1018/`（`_[action]=datastore` / `datastore[type]=resource` / `group=1018`）。
+  **datastore は送った値で全置換するため、既存値を取得→追記して送らないと267KBが消える。**
+
+### リッチテキスト欄には自由HTMLが通る（実証済み）
+
+- Jodit にソースモードあり。`cleanHTML`/`allowTags` の上書きなし。
+- サーバ側は実質サニタイズしていない。実証：ブログ記事 `/_sys/contents/article/561/1549/` に
+  `<span style="font-size: 14px;">` や `<strong style="background-color: rgb(255, 255, 0);">` が原文のまま保存されている。
+- `class` も保存される（`table[class="-x-on-richtext"]` が公開CSSに存在）。
+- **ただし `<style>` と `<script>` は Jodit 側で除去され得る。** CSSは必ずリソース1018へ。
+
+### 滞留セッション（現在86件）
+
+- 存在確認: `GET /_sys/cms_session/check.html` ／ 一覧: `GET /_sys/cms_session/list.html`
+- 最古 2022-09-06（#112192）〜 最新 2026-05-31（#179503）。
+  **うち約50件が 2026-05-31 に集中**し、コメントは "codex" "inspect" "test" "hero" など。
+  上記のCSS注入作業の取りこぼしと見られる。
+- 破棄は1件ずつ: `POST` に `_[action]=datastore` / `datastore[mode]=cancel_by_id` / `datastore[session_key_id]=<ID>`
+  一括破棄APIはない。
+
+### 危険箇所
+
+1. リソース1018のCSSは **site-wide**。`/menu/` 限定にするならセレクタを厳密に絞ること。
+2. ページ編集セッションの開始・再開・破棄は、滞留86件の未公開編集を失わせる恐れがある。
+3. `/menu/` の SERVICE一覧（instance 43148）は `/feature/` の動的出力。触ると詳細ページに波及する。
+4. アーティクル804（TOPの料金）は修正済み。`/menu/`（6374）とは別物。
