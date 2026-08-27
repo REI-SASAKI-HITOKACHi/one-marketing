@@ -1,0 +1,152 @@
+/* ONE HITTER menu page — scoped to .oh-menu-root so it cannot collide with site CSS */
+.oh-menu-root{
+  --ohm-ink:#202223; --ohm-ink2:#5e6368; --ohm-ink3:#7a8087;
+  --ohm-accent:#d94739; --ohm-cream:#faf7f2; --ohm-cream2:#f6efe6;
+  --ohm-band:#f1e7dd; --ohm-line:#eee1d3; --ohm-white:#fff;
+  box-sizing:border-box; color:var(--ohm-ink);
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,Meiryo,sans-serif;
+  line-height:1.9; letter-spacing:.02em;
+  max-width:1080px; margin:0 auto; padding:0 clamp(16px,4vw,32px) 64px;
+  overflow-wrap:break-word; word-break:normal;
+}
+.oh-menu-root *,.oh-menu-root *::before,.oh-menu-root *::after{box-sizing:inherit;}
+.oh-menu-root img{max-width:100%;height:auto;}
+.oh-menu-root ul{list-style:none;margin:0;padding:0;}
+.oh-menu-root p{margin:0 0 1em;}
+.oh-menu-root h1,.oh-menu-root h2,.oh-menu-root h3,.oh-menu-root h4{margin:0 0 .6em;line-height:1.5;font-weight:700;}
+
+/* hero */
+.oh-menu-hero{text-align:center;padding:clamp(32px,7vw,64px) 0 clamp(24px,5vw,40px);}
+.oh-menu-hero__en{font-size:.75rem;letter-spacing:.32em;color:var(--ohm-accent);font-weight:700;margin:0 0 .8em;text-transform:uppercase;}
+.oh-menu-hero__ttl{font-size:clamp(1.5rem,5vw,2.25rem);letter-spacing:.06em;}
+.oh-menu-hero__lead{font-size:clamp(.875rem,2.4vw,1rem);color:var(--ohm-ink2);max-width:44em;margin:1.2em auto;}
+.oh-menu-hero__vision{display:inline-block;font-weight:700;font-size:clamp(.9rem,2.6vw,1.05rem);
+  border-top:1px solid var(--ohm-line);border-bottom:1px solid var(--ohm-line);padding:.5em 1.4em;margin:0;}
+
+/* 共通注記 */
+.oh-menu-notice{background:var(--ohm-accent);color:#fff;border-radius:10px;
+  padding:clamp(14px,3vw,20px) clamp(16px,4vw,28px);text-align:center;margin:0 0 clamp(40px,8vw,72px);}
+.oh-menu-notice__main{font-size:clamp(.95rem,2.9vw,1.15rem);font-weight:700;margin:0;}
+.oh-menu-notice__sub{font-size:clamp(.75rem,2.2vw,.85rem);margin:.5em 0 0;opacity:.92;}
+
+/* section header */
+.oh-menu-sec{margin:0 0 clamp(48px,9vw,88px);}
+.oh-menu-sec__en{font-size:.7rem;letter-spacing:.3em;color:var(--ohm-accent);font-weight:700;margin:0 0 .5em;text-transform:uppercase;}
+.oh-menu-sec__ttl{font-size:clamp(1.25rem,4vw,1.75rem);letter-spacing:.05em;
+  border-bottom:2px solid var(--ohm-ink);display:inline-block;padding-bottom:.25em;margin-bottom:1.4em;}
+
+/* 早見表 */
+.oh-menu-tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px;border:1px solid var(--ohm-line);}
+.oh-menu-table{width:100%;border-collapse:collapse;min-width:0;font-size:clamp(.8rem,2.5vw,.95rem);background:var(--ohm-white);}
+.oh-menu-table th,.oh-menu-table td{padding:.85em .9em;border-bottom:1px solid var(--ohm-line);text-align:left;vertical-align:middle;}
+.oh-menu-table thead th{background:var(--ohm-ink);color:#fff;font-size:.85em;letter-spacing:.08em;white-space:nowrap;}
+.oh-menu-table tbody th{font-weight:600;}
+.oh-menu-table tbody tr:nth-child(even){background:var(--ohm-cream);}
+.oh-menu-table tbody tr:last-child th,.oh-menu-table tbody tr:last-child td{border-bottom:0;}
+.oh-menu-table td{white-space:nowrap;font-variant-numeric:tabular-nums;}
+.oh-menu-table td:first-of-type{font-weight:700;color:var(--ohm-accent);}
+.oh-menu-table__note{display:block;font-size:.8em;font-weight:400;color:var(--ohm-ink3);}
+.oh-menu-tablenote{font-size:clamp(.75rem,2.2vw,.85rem);color:var(--ohm-ink2);margin:.9em 0 0;}
+
+/* メニュー詳細カード */
+.oh-menu-card{background:var(--ohm-white);border:1px solid var(--ohm-line);border-radius:14px;
+  padding:clamp(20px,4.5vw,36px);margin:0 0 clamp(24px,5vw,40px);}
+.oh-menu-card__head{display:flex;flex-wrap:wrap;gap:clamp(12px,3vw,28px);
+  align-items:flex-start;justify-content:space-between;
+  border-bottom:1px solid var(--ohm-line);padding-bottom:1.2em;margin-bottom:1.4em;}
+.oh-menu-card__headL{flex:1 1 15em;min-width:0;}
+.oh-menu-card__ttl{font-size:clamp(1.15rem,4vw,1.6rem);letter-spacing:.04em;margin-bottom:.5em;}
+.oh-menu-kw{display:flex;flex-wrap:wrap;gap:.4em;}
+.oh-menu-kw li{background:var(--ohm-band);color:var(--ohm-ink2);font-size:clamp(.7rem,2.2vw,.78rem);
+  font-weight:700;border-radius:999px;padding:.3em 1em;}
+.oh-menu-card__price{flex:0 1 auto;min-width:0;text-align:left;}
+.oh-menu-price{margin:0 0 .25em;display:flex;flex-wrap:wrap;align-items:baseline;gap:.15em .4em;}
+.oh-menu-price__v{font-size:clamp(1.35rem,5vw,2rem);font-weight:700;color:var(--ohm-accent);
+  font-variant-numeric:tabular-nums;line-height:1.2;}
+.oh-menu-price__t{font-size:clamp(.8rem,2.4vw,.95rem);font-weight:700;color:var(--ohm-ink2);}
+.oh-menu-price__k{font-size:clamp(.7rem,2.2vw,.78rem);color:var(--ohm-ink3);width:100%;}
+.oh-menu-price__season{font-size:clamp(.7rem,2.2vw,.78rem);color:var(--ohm-ink3);margin:.5em 0 0;}
+
+/* お悩み */
+.oh-menu-worry{background:var(--ohm-cream2);border-radius:10px;padding:clamp(14px,3.5vw,22px);margin:0 0 1.6em;}
+.oh-menu-worry__ttl{font-weight:700;text-align:center;margin:0 0 .8em;font-size:clamp(.9rem,2.8vw,1.05rem);}
+.oh-menu-worry__list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15em),1fr));gap:.5em .9em;}
+.oh-menu-worry__list li{position:relative;padding-left:1.5em;font-size:clamp(.82rem,2.5vw,.92rem);}
+.oh-menu-worry__list li::before{content:"✓";position:absolute;left:0;color:var(--ohm-accent);font-weight:700;}
+
+.oh-menu-catch{font-size:clamp(1rem,3.2vw,1.2rem);color:var(--ohm-accent);
+  border-left:4px solid var(--ohm-accent);padding-left:.7em;margin-bottom:.9em;}
+.oh-menu-body{font-size:clamp(.85rem,2.5vw,.95rem);color:var(--ohm-ink2);}
+
+/* オプション */
+.oh-menu-opt{background:var(--ohm-cream);border-radius:10px;padding:clamp(14px,3.5vw,22px);margin:0 0 1.4em;}
+.oh-menu-opt__ttl{font-weight:700;font-size:clamp(.85rem,2.6vw,.95rem);margin:0 0 .7em;
+  letter-spacing:.08em;color:var(--ohm-ink);}
+.oh-menu-opt__list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16em),1fr));gap:.45em .9em;}
+.oh-menu-opt__list li{display:flex;justify-content:space-between;align-items:baseline;gap:.6em;
+  border-bottom:1px dotted var(--ohm-line);padding:.35em 0;font-size:clamp(.8rem,2.4vw,.9rem);}
+.oh-menu-opt__n{min-width:0;}
+.oh-menu-opt__n small{display:block;font-size:.8em;color:var(--ohm-ink3);}
+.oh-menu-opt__p{font-weight:700;color:var(--ohm-accent);white-space:nowrap;font-variant-numeric:tabular-nums;}
+.oh-menu-opt__p--ask{color:var(--ohm-ink3);font-size:.85em;}
+
+/* お客様の声 */
+.oh-menu-voice{margin:0;background:var(--ohm-band);border-radius:10px;padding:clamp(14px,3.5vw,22px);}
+.oh-menu-voice blockquote{margin:0;font-size:clamp(.82rem,2.4vw,.92rem);color:var(--ohm-ink2);position:relative;padding-left:1.6em;}
+.oh-menu-voice blockquote::before{content:"“";position:absolute;left:0;top:-.1em;font-size:2.2em;line-height:1;color:var(--ohm-accent);opacity:.4;}
+.oh-menu-voice figcaption{margin-top:.7em;text-align:right;font-weight:700;font-size:clamp(.75rem,2.2vw,.85rem);color:var(--ohm-ink);}
+
+/* grid tiles */
+.oh-menu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15em),1fr));gap:clamp(12px,2.5vw,20px);}
+.oh-menu-tile{background:var(--ohm-white);border:1px solid var(--ohm-line);border-radius:12px;
+  padding:clamp(16px,3.5vw,24px);text-align:center;}
+.oh-menu-tile__ttl{font-size:clamp(.95rem,2.9vw,1.05rem);margin-bottom:.4em;}
+.oh-menu-tile__price{font-size:clamp(1.3rem,4.5vw,1.7rem);font-weight:700;color:var(--ohm-accent);
+  margin:0;font-variant-numeric:tabular-nums;}
+.oh-menu-tile__price span{font-size:.55em;color:var(--ohm-ink2);font-weight:700;}
+.oh-menu-tile__note{font-size:clamp(.72rem,2.2vw,.8rem);color:var(--ohm-ink3);margin:.5em 0 0;}
+.oh-menu-tile--set{background:var(--ohm-cream2);border-color:transparent;}
+
+/* オプションカード */
+.oh-menu-optcard{background:var(--ohm-white);border:1px solid var(--ohm-line);border-radius:12px;padding:clamp(16px,3.5vw,22px);}
+.oh-menu-optcard__cat{display:inline-block;background:var(--ohm-ink);color:#fff;font-size:.68rem;
+  letter-spacing:.1em;font-weight:700;border-radius:4px;padding:.2em .8em;margin:0 0 .7em;}
+.oh-menu-optcard__ttl{font-size:clamp(.95rem,2.8vw,1.05rem);margin-bottom:.2em;}
+.oh-menu-optcard__price{font-size:clamp(1.2rem,4vw,1.5rem);font-weight:700;color:var(--ohm-accent);
+  margin:0 0 .5em;font-variant-numeric:tabular-nums;}
+.oh-menu-optcard__txt{font-size:clamp(.75rem,2.2vw,.85rem);color:var(--ohm-ink2);margin:0;}
+
+/* はじめての方へ */
+.oh-menu-first{background:var(--ohm-ink);color:#fff;border-radius:14px;
+  padding:clamp(24px,5vw,44px);margin:0 0 clamp(48px,9vw,88px);}
+.oh-menu-first__ttl{font-size:clamp(1.1rem,3.6vw,1.5rem);text-align:center;letter-spacing:.05em;margin-bottom:1em;}
+.oh-menu-first__body{font-size:clamp(.85rem,2.5vw,.95rem);color:#e6e3df;margin:0;}
+.oh-menu-first__body strong{color:#fff;}
+.oh-menu-first__disc{font-size:clamp(.7rem,2.1vw,.78rem);color:#a9a6a2;margin:1em 0 0;}
+
+/* 法人 */
+.oh-menu-biz__lead{font-size:clamp(.85rem,2.5vw,.95rem);color:var(--ohm-ink2);margin-bottom:1.6em;}
+.oh-menu-bizcard{background:var(--ohm-cream2);border-radius:12px;padding:clamp(18px,4vw,26px);}
+.oh-menu-bizcard__ttl{font-size:clamp(1rem,3.2vw,1.2rem);margin-bottom:.2em;}
+.oh-menu-bizcard__price{font-size:clamp(1.35rem,4.5vw,1.8rem);font-weight:700;color:var(--ohm-accent);
+  margin:0 0 .6em;font-variant-numeric:tabular-nums;}
+.oh-menu-bizcard__price span{font-size:.5em;color:var(--ohm-ink2);}
+.oh-menu-bizcard__txt{font-size:clamp(.78rem,2.3vw,.88rem);color:var(--ohm-ink2);margin:0;}
+.oh-menu-alliance{margin-top:clamp(24px,5vw,40px);border:1px solid var(--ohm-line);border-radius:12px;padding:clamp(18px,4vw,28px);}
+.oh-menu-alliance__ttl{font-size:clamp(1rem,3.2vw,1.15rem);margin-bottom:.6em;}
+.oh-menu-alliance__txt{font-size:clamp(.8rem,2.4vw,.9rem);color:var(--ohm-ink2);}
+.oh-menu-alliance__txt small{color:var(--ohm-ink3);}
+.oh-menu-alliance__list{display:flex;flex-wrap:wrap;gap:.5em;}
+.oh-menu-alliance__list li{background:var(--ohm-band);border-radius:999px;padding:.35em 1.1em;
+  font-size:clamp(.75rem,2.2vw,.85rem);font-weight:700;}
+
+/* footer */
+.oh-menu-foot{border-top:2px solid var(--ohm-ink);padding-top:clamp(16px,3.5vw,24px);text-align:center;}
+.oh-menu-foot__notice{font-weight:700;color:var(--ohm-accent);font-size:clamp(.9rem,2.8vw,1.05rem);margin:0 0 .4em;}
+.oh-menu-foot__sub{font-size:clamp(.72rem,2.2vw,.82rem);color:var(--ohm-ink3);margin:0;}
+
+@media (max-width:600px){
+  .oh-menu-card__head{flex-direction:column;}
+  .oh-menu-card__price{width:100%;}
+  .oh-menu-table td{white-space:normal;}
+}
