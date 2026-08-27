@@ -1,0 +1,374 @@
+[
+ {
+  "kind": "DEAD-RULE",
+  "line": 1462,
+  "bytes": 64,
+  "sel": "body div[data-instance=\"42956\"] .-w-icon"
+ },
+ {
+  "kind": "DEAD-RULE",
+  "line": 1466,
+  "bytes": 65,
+  "sel": "body div[data-instance=\"42956\"] .-w-icon svg"
+ },
+ {
+  "kind": "DEAD-RULE",
+  "line": 1896,
+  "bytes": 147,
+  "sel": "body .-w-staff .-w-column"
+ },
+ {
+  "kind": "DEAD-RULE",
+  "line": 1903,
+  "bytes": 61,
+  "sel": "body .-w-staff .-w-image"
+ },
+ {
+  "kind": "DEAD-RULE",
+  "line": 1908,
+  "bytes": 85,
+  "sel": "body .-w-staff .-w-ttl_top"
+ },
+ {
+  "kind": "DEAD-RULE",
+  "line": 1914,
+  "bytes": 71,
+  "sel": "body .-w-staff .-w-name span"
+ },
+ {
+  "kind": "DEAD-RULE",
+  "line": 1929,
+  "bytes": 147,
+  "sel": "body .-w-staff .-w-column"
+ },
+ {
+  "kind": "DEAD-RULE",
+  "line": 1936,
+  "bytes": 61,
+  "sel": "body .-w-staff .-w-image"
+ },
+ {
+  "kind": "DEAD-RULE",
+  "line": 1941,
+  "bytes": 85,
+  "sel": "body .-w-staff .-w-ttl_top"
+ },
+ {
+  "kind": "DEAD-RULE",
+  "line": 1947,
+  "bytes": 71,
+  "sel": "body .-w-staff .-w-name span"
+ },
+ {
+  "kind": "DEAD-RULE",
+  "line": 1952,
+  "bytes": 199,
+  "sel": "body .-w-staff .-w-name_en span"
+ },
+ {
+  "kind": "DEAD-RULE",
+  "line": 2233,
+  "bytes": 63,
+  "sel": "body .-w-staff .-w-column"
+ },
+ {
+  "kind": "DEAD-RULE",
+  "line": 2237,
+  "bytes": 52,
+  "sel": "body .-w-staff .-w-image"
+ },
+ {
+  "kind": "DEAD-RULE",
+  "line": 2241,
+  "bytes": 55,
+  "sel": "body .-w-staff .-w-name span"
+ },
+ {
+  "kind": "DEAD-SELECTOR",
+  "line": 1809,
+  "bytes": null,
+  "sel": "body .-w-staff, body .-w-staff > .-w-wrapper"
+ },
+ {
+  "kind": "DEAD-SELECTOR",
+  "line": 1818,
+  "bytes": null,
+  "sel": "body .-w-staff section, body .-w-staff .-w-text_wrap"
+ },
+ {
+  "kind": "DEAD-SELECTOR",
+  "line": 1836,
+  "bytes": null,
+  "sel": "body .-w-staff .-w-image img"
+ },
+ {
+  "kind": "DEAD-SELECTOR",
+  "line": 2217,
+  "bytes": null,
+  "sel": "body .-w-staff section, body .-w-staff .-w-text_wrap"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 172,
+  "bytes": 121,
+  "sel": "body main [data-lib=\"28887\"] .-w-wrapper"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 178,
+  "bytes": 126,
+  "sel": "body main [data-lib=\"28887\"] #swiper-container, body main [data-lib=\"28887\"] .swiper-slide"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 183,
+  "bytes": 100,
+  "sel": "body main [data-lib=\"28887\"] .-w-box-main-image__wrp-txt-wrp"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 187,
+  "bytes": 773,
+  "sel": "body main [data-lib=\"28887\"] .-w-top-main-txt"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 204,
+  "bytes": 130,
+  "sel": "body main [data-lib=\"28887\"] .-w-catch-small-container, body main [data-lib=\"28887\"] .-w-catch-big-container"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 209,
+  "bytes": 79,
+  "sel": "body main [data-lib=\"28887\"] .-w-catch-small-container"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 213,
+  "bytes": 99,
+  "sel": "body main [data-lib=\"28887\"] .-w-catch-big-container"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 271,
+  "bytes": 141,
+  "sel": "body header[data-lib=\"28880\"] .-w-logo.-w-sp_logo img"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 277,
+  "bytes": 86,
+  "sel": "body main [data-lib=\"28887\"] .-w-wrapper"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 281,
+  "bytes": 132,
+  "sel": "body main [data-lib=\"28887\"] #swiper-container, body main [data-lib=\"28887\"] .swiper-slide"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 286,
+  "bytes": 104,
+  "sel": "body main [data-lib=\"28887\"] .-w-box-main-image__wrp-txt-wrp"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 290,
+  "bytes": 701,
+  "sel": "body main [data-lib=\"28887\"] .-w-top-main-txt"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 305,
+  "bytes": 139,
+  "sel": "body main [data-lib=\"28887\"] .-w-catch-small-container, body main [data-lib=\"28887\"] .-w-catch-big-container"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 320,
+  "bytes": 110,
+  "sel": "body main [data-lib=\"28887\"] .-w-catch-small::before"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 364,
+  "bytes": 82,
+  "sel": "body main [data-lib=\"28887\"] .-w-wrapper"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 368,
+  "bytes": 126,
+  "sel": "body main [data-lib=\"28887\"] #swiper-container, body main [data-lib=\"28887\"] .swiper-slide"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 373,
+  "bytes": 100,
+  "sel": "body main [data-lib=\"28887\"] .-w-box-main-image__wrp-txt-wrp"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 417,
+  "bytes": 88,
+  "sel": "body header[data-lib=\"28880\"] .-w-logo.-w-sp_logo img"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 421,
+  "bytes": 86,
+  "sel": "body main [data-lib=\"28887\"] .-w-wrapper"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 425,
+  "bytes": 132,
+  "sel": "body main [data-lib=\"28887\"] #swiper-container, body main [data-lib=\"28887\"] .swiper-slide"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 430,
+  "bytes": 104,
+  "sel": "body main [data-lib=\"28887\"] .-w-box-main-image__wrp-txt-wrp"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 461,
+  "bytes": 206,
+  "sel": "body main [data-lib=\"28887\"] .-w-top-main-txt01, body main [data-lib=\"28887\"] .-w-top-main-txt01.-w-anime-title"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 469,
+  "bytes": 108,
+  "sel": "body main [data-lib=\"28887\"]"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 483,
+  "bytes": 124,
+  "sel": "body main [data-lib=\"28887\"] .-w-bg42925, body main [data-lib=\"28887\"] .-w-bg43283"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 488,
+  "bytes": 82,
+  "sel": "body main [data-lib=\"28887\"] .-w-wrapper"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 492,
+  "bytes": 126,
+  "sel": "body main [data-lib=\"28887\"] #swiper-container, body main [data-lib=\"28887\"] .swiper-slide"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 497,
+  "bytes": 100,
+  "sel": "body main [data-lib=\"28887\"] .-w-box-main-image__wrp-txt-wrp"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 527,
+  "bytes": 73,
+  "sel": "body main [data-lib=\"28887\"] .-w-catch-small-container"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 547,
+  "bytes": 93,
+  "sel": "body main [data-lib=\"28887\"] .-w-catch-big-container"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 552,
+  "bytes": 272,
+  "sel": "body main [data-lib=\"28887\"] .-w-top-main-txt01"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 562,
+  "bytes": 86,
+  "sel": "body main [data-lib=\"28887\"] .-w-top-main-txt01::after"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 566,
+  "bytes": 493,
+  "sel": "body main [data-lib=\"28887\"] .-w-top-main-txt01::before"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 588,
+  "bytes": 86,
+  "sel": "body main [data-lib=\"28887\"] .-w-wrapper"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 592,
+  "bytes": 132,
+  "sel": "body main [data-lib=\"28887\"] #swiper-container, body main [data-lib=\"28887\"] .swiper-slide"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 597,
+  "bytes": 104,
+  "sel": "body main [data-lib=\"28887\"] .-w-box-main-image__wrp-txt-wrp"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 601,
+  "bytes": 530,
+  "sel": "body main [data-lib=\"28887\"] .-w-top-main-txt"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 614,
+  "bytes": 127,
+  "sel": "body main [data-lib=\"28887\"] .-w-catch-small"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 620,
+  "bytes": 124,
+  "sel": "body main [data-lib=\"28887\"] .-w-top-main-txt01"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 625,
+  "bytes": 179,
+  "sel": "body main [data-lib=\"28887\"] .-w-top-main-txt01::before"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 851,
+  "bytes": 126,
+  "sel": "body main [data-lib=\"28887\"] #swiper-container, body main [data-lib=\"28887\"] .swiper-slide"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 1886,
+  "bytes": 245,
+  "sel": "body .-w-before-image, body .-w-after-image"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 2030,
+  "bytes": 80,
+  "sel": "body main [data-lib=\"28887\"] .-w-wrapper"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 2034,
+  "bytes": 132,
+  "sel": "body main [data-lib=\"28887\"] #swiper-container, body main [data-lib=\"28887\"] .swiper-slide"
+ },
+ {
+  "kind": "FULLY-OVERRIDDEN-RULE",
+  "line": 2065,
+  "bytes": 131,
+  "sel": "body main [data-lib=\"28887\"] .-w-top-main-txt01::after"
+ }
+]
