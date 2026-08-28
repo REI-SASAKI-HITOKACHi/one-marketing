@@ -270,10 +270,11 @@ section.alt{background:var(--surface);border-top:1px solid var(--line);border-bo
 .voices{display:flex;flex-direction:column;gap:12px;}
 .voice{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px 24px;display:flex;flex-direction:column;gap:10px;}
 .voice .head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.voice .stars{color:var(--cta);font-size:14px;letter-spacing:.1em;}
 .voice .menu-tag{font-size:11px;font-weight:700;background:var(--accent-soft);color:var(--accent-deep);padding:2px 10px;border-radius:99px;}
 .voice q{font-family:"Shippori Mincho B1",serif;font-size:15px;line-height:2;quotes:"「" "」";}
 .voice .who{font-size:12px;color:var(--muted);}
+.area-note{font-size:11.5px;color:var(--muted);line-height:1.8;margin-top:12px;}
+.voice-src{font-size:11.5px;color:var(--muted);line-height:1.8;margin-top:10px;}
 
 /* promise */
 .promise{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
@@ -370,7 +371,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
           <span class="save">3,000円 おトク</span>
         </div>
         <div class="big"><span class="num">30,600</span><span class="unit">円</span></div>
-        <div style="font-size:12.5px;color:var(--ink-soft)">浴室クリーニング 16,800円 ＋ キッチンセット 13,800円（同時施工価格・税込）</div>
+        <div style="font-size:12.5px;color:var(--ink-soft)">浴室クリーニング 16,800円 ＋ キッチンクリーニング 13,800円（2箇所目の同時施工価格・税込）</div>
       </div>
     </div>
 
@@ -399,7 +400,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
     <div class="sec-h">
       <span class="eyebrow">Scenes</span>
       <h2>後回しにしている場所、<br>だいたいこの4つです</h2>
-      <p>日本人が嫌いな家事の第1位は、掃除。もし1日30分を掃除に割いているなら、1年で180時間以上を「嫌いなこと」に使っている計算になります。</p>
+      <p>掃除は、後回しにされやすい家事です。もし1日30分を掃除に割いているなら、1年で180時間以上。その時間を、気の進まない場所と格闘することに使っている計算になります。</p>
     </div>
     <div class="scenes">
       <div class="scene">
@@ -613,7 +614,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
         <div class="body">
           <h3>レンジフードクリーニング</h3>
           <div class="kw"><span>油汚れ</span><span>ニオイ</span><span>吸い込み</span></div>
-          <p>ご自身では手のつけにくい内部のファンまで分解。専用洗剤による浸け置きと磨き上げで、本来の換気能力を完全に復活させます。プロペラ式は9,800円です。</p>
+          <p>ご自身では手のつけにくい内部のファンまで分解。専用洗剤による浸け置きと磨き上げで、目詰まりを抜き、本来の換気能力に近い状態まで戻します。プロペラ式は9,800円です。</p>
         </div>
         <div class="price">16,800円<em>90分</em></div>
       </div>
@@ -694,22 +695,26 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       <h2>ご利用いただいた方から</h2>
     </div>
     <div class="voices">
-      <div class="voice">
-        <div class="head"><span class="stars">★★★★★</span><span class="menu-tag">洗濯機クリーニング</span></div>
-        <q>作業中、取り外した洗濯槽の裏側を見せていただき思わず絶句しました。びっしりこびりついた黒カビを見て「今までこんな状態で家族の服を洗っていたなんて…」とゾッとしましたが、プロの素早く丁寧な作業であっという間に新品のようにピカピカに！これからは毎日安心して洗濯ができます。今後は定期的にクリーニングをお願いしようと思います！</q>
-        <span class="who">40代 女性</span>
-      </div>
-      <div class="voice">
-        <div class="head"><span class="stars">★★★★★</span><span class="menu-tag">キッチンクリーニング</span></div>
-        <q>毎日スポンジでこすってもビクともしないシンクの頑固な白い水垢に限界を感じ、思い切ってお願いしました。仕上がりを見てびっくり！諦めていたくすみが跡形もなく消え、まるで新築の頃のようにピカピカと輝きを取り戻していて感動しました。一緒にお願いした時短コーティングのおかげで、今はサッと拭くだけで汚れがスルッと落ちるようになりました。</q>
-        <span class="who">30代 女性</span>
-      </div>
-      <div class="voice">
-        <div class="head"><span class="stars">★★★★★</span><span class="menu-tag">追い焚き配管クリーニング</span></div>
-        <q>専用の機械で作業前の汚れ数値を見せていただいて唖然…。さらに清掃中、配管からドロドロと溢れ出てくる湯垢や汚れを目の当たりにして、「今までこんなお湯に家族で浸かっていたなんて！」と本気でゾッとしました。ですが、作業後に劇的に下がったクリーンな数値を見て、心の底からホッとしました。もっと早く頼めばよかったです。</q>
-        <span class="who">40代 男性</span>
-      </div>
+    <div class="voice">
+      <div class="head"><span class="menu-tag">洗濯機クリーニング</span></div>
+      <q>洗濯機を分解して見せていただき、カビの多さに衝撃を受けました…。これまで、こんなにカビにまみれた洗濯機で家族の洋服を洗っていたかと思うと恐ろしいです。</q>
+      <span class="who">42歳 女性</span>
     </div>
+    <div class="voice">
+      <div class="head"><span class="menu-tag">洗濯機クリーニング</span></div>
+      <q>今まで何度か“洗濯槽用洗剤”で掃除をしてきましたが、黒いゴミが浮かんでくるだけでした。洗濯槽を分解して洗ってもらえたので黒カビは一切出なくなりました。定期的に利用したいです。</q>
+      <span class="who">38歳 女性</span>
+    </div>
+    <div class="voice">
+      <q>丁寧な説明、対応で安心して任せられました。他の業者と比較しても低価格なところも利用する決め手になりました。</q>
+      <span class="who">27歳 女性</span>
+    </div>
+    <div class="voice">
+      <q>大変よかったです。早いレスポンスから、親切丁寧に感動しております。</q>
+      <span class="who">67歳 男性</span>
+    </div>
+    </div>
+    <p class="voice-src">※公式サイト「お客様の声」に掲載している、実際にいただいたご感想です。文面は原文のまま、年代・性別もご本人の申告どおり掲載しています。</p>
   </div>
 </section>
 
@@ -762,6 +767,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       <button class="btn ghost" id="zipbtn" type="button">エリアを確認</button>
     </div>
     <p id="zipres" role="status"></p>
+    <p class="area-note">※離島および一部の山間部は、お伺いできない場合があります。郵便番号でご確認いただくか、お電話・LINEでお問い合わせください。</p>
   </div>
 </section>
 

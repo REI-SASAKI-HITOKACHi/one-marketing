@@ -286,10 +286,15 @@ legend{font-size:13px;font-weight:700;color:var(--ink-soft);padding:0;}
 .steps p{font-size:12.5px;color:var(--muted);line-height:1.65;}
 
 /* voice */
+.voices{display:flex;flex-direction:column;gap:12px;}
 .voice{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:24px 26px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);}
-.voice .stars{color:var(--cta);font-size:15px;letter-spacing:.1em;}
+.voice .head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.voice .menu-tag{font-size:11px;font-weight:700;background:var(--accent-soft);color:var(--accent-deep);padding:2px 10px;border-radius:99px;}
 .voice q{font-family:"Shippori Mincho B1",serif;font-size:16px;line-height:2;quotes:"「" "」";color:var(--ink);}
 .voice .who{font-size:12.5px;color:var(--muted);}
+.area-note{font-size:11.5px;color:var(--muted);line-height:1.8;margin-top:12px;}
+.voice-src{font-size:11.5px;color:var(--muted);line-height:1.8;margin-top:10px;}
+.fine-in{display:block;margin-top:8px;font-size:11.5px;color:var(--muted);line-height:1.7;}
 
 /* faq */
 details{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:8px;overflow:hidden;}
@@ -487,16 +492,16 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
     </div>
     <div class="mech">
       <div>
-        <h3>ニオイが消える</h3>
-        <p>ニオイの根源は熱交換器の奥に定着したカビとホコリです。分解して直接洗い流すため、消臭剤では戻らない状態からリセットできます。</p>
+        <h3>ニオイの元を、直接洗い流す</h3>
+        <p>ニオイの根源は、熱交換器の奥に定着したカビとホコリです。消臭剤はニオイを覆うだけですが、分解して直接洗い流せば、根源そのものを取り除けます。</p>
       </div>
       <div>
-        <h3>効きが戻り、電気代が下がる</h3>
-        <p>熱交換器が汚れていると交換効率が落ちます。内部が綺麗になることで冷暖房の効きが改善し、電気代の削減にも直結します。</p>
+        <h3>風の通り道が戻る</h3>
+        <p>熱交換器やファンにホコリが詰まると、風量と熱の交換効率が落ちます。詰まりを取り除くことで、本来の効き方に近づきます。<span class="fine-in">※改善の度合いは、汚れの程度・機種・使用状況により異なります。</span></p>
       </div>
       <div>
-        <h3>室内の空気がクリーンになる</h3>
-        <p>アレルギーの一因とされるカビ菌を一掃します。一年中稼働する設備だからこそ、住環境そのものへの影響が大きい箇所です。</p>
+        <h3>吹き出す空気の通り道が、きれいになる</h3>
+        <p>エアコンは、内部を通った空気をそのまま部屋に送り出します。一年中稼働する設備だからこそ、その通り道にカビとホコリを溜めたままにしない意味があります。</p>
       </div>
     </div>
   </div>
@@ -613,7 +618,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
     <div class="sec-h">
       <span class="eyebrow">Flow</span>
       <h2>当日の作業は、この8工程</h2>
-      <p>ご在宅のまま、60分で完了します。</p>
+      <p>ご在宅のまま完了します。ノーマルエアコンで60分、お掃除機能付きは120分が目安です。</p>
     </div>
     <ol class="steps">
       <li><div><b>養生</b><p>床・壁・家財をシートで完全に覆います</p></div></li>
@@ -634,11 +639,29 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       <span class="eyebrow">Voice</span>
       <h2>ご利用いただいた方から</h2>
     </div>
+    <div class="voices">
     <div class="voice">
-      <span class="stars">★★★★★</span>
-      <q>クリーニング後のエアコンの効き具合に驚きました！風の爽やかさが全く違います。自分では絶対に手の届かない奥の汚れを、あっという間に綺麗にしていただき大満足。プロの手際の良さと仕上がりに感動したので、次はぜひキッチンの換気扇もお願いしたいです！</q>
-      <span class="who">40代 女性</span>
+      <div class="head"><span class="menu-tag">エアコンクリーニング</span></div>
+      <q>お願いする前と同じ設定温度だと寒く感じるほど効き目が変わりました！　もっと早くお願いすればよかったです。</q>
+      <span class="who">58歳 女性</span>
     </div>
+    <div class="voice">
+      <div class="head"><span class="menu-tag">エアコンクリーニング</span></div>
+      <q>エアコン掃除を頼むのが初めてだったので不安が大きかったですが、思ってた以上に丁寧な感じで、掃除する前に段階を踏んでから取り掛かっていたのでよかった。担当してくれた方も気さくな人だったので不安はなくなりました。また利用したいです。</q>
+      <span class="who">62歳 女性</span>
+    </div>
+    <div class="voice">
+      <div class="head"><span class="menu-tag">エアコンクリーニング</span></div>
+      <q>時間もあっという間に終わって、とても綺麗になって満足です！！　お掃除後のエアコンの効きがすごい。自分じゃできないところなのでプロに頼んでよかったです。次はキッチンの換気扇もお願いしたいです☆</q>
+      <span class="who">39歳 女性</span>
+    </div>
+    <div class="voice">
+      <div class="head"><span class="menu-tag">エアコンクリーニング</span></div>
+      <q>大満足です。買い替えようかと諦めていたエアコンが見事に蘇りました。</q>
+      <span class="who">35歳 女性</span>
+    </div>
+    </div>
+    <p class="voice-src">※公式サイト「お客様の声」に掲載している、実際にいただいたご感想です。文面は原文のまま、年代・性別もご本人の申告どおり掲載しています。</p>
   </div>
 </section>
 
@@ -650,7 +673,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
     </div>
     <details open>
       <summary>作業中、在宅している必要はありますか？</summary>
-      <p>はい、ご在宅をお願いしています。作業前に汚れの状態を、作業後に仕上がりを一緒にご確認いただくためです。60分ほどですので、その間は別のお部屋でお過ごしいただいて構いません。</p>
+      <p>はい、ご在宅をお願いしています。作業前に汚れの状態を、作業後に仕上がりを一緒にご確認いただくためです。ノーマルエアコンで60分ほどですので、その間は別のお部屋でお過ごしいただいて構いません。</p>
     </details>
     <details>
       <summary>当日、追加料金が発生することはありませんか？</summary>
@@ -662,7 +685,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
     </details>
     <details>
       <summary>水漏れや故障が心配です。</summary>
-      <p>養生を徹底し、洗浄後は必ず試運転で排水と動作を確認しています。万一の事態に備えた保険にも加入しています。</p>
+      <p>床・壁・家財を覆う養生を徹底し、洗浄後は必ず試運転で排水・動作・異音を確認してからお引き渡しします。作業前に設備の状態を拝見し、リスクがある場合は着手前にお伝えします。</p>
     </details>
     <details>
       <summary>メニューにない場所も頼めますか？</summary>
@@ -670,7 +693,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
     </details>
     <details>
       <summary>何年に一度クリーニングすべきですか？</summary>
-      <p>使用頻度によりますが、目安は1〜2年に一度です。防カビコートを併用すると、効果の持続期間が長くなります。</p>
+      <p>使用頻度によりますが、目安は1〜2年に一度です。毎日長時間つけるお部屋や、ペット・喫煙のあるお部屋は、より短い間隔をおすすめしています。</p>
     </details>
   </div>
 </section>
@@ -691,6 +714,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       <button class="btn ghost" id="zipbtn" type="button">エリアを確認</button>
     </div>
     <p id="zipres" role="status"></p>
+    <p class="area-note">※離島および一部の山間部は、お伺いできない場合があります。郵便番号でご確認いただくか、お電話・LINEでお問い合わせください。</p>
   </div>
 </section>
 
