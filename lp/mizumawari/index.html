@@ -137,8 +137,20 @@ p{margin:0;}
 .btn.lg.line:active{box-shadow:0 1px 0 0 #04913C;transform:translateY(3px);}
 
 /* hero */
-.hero{background:var(--surface);border-bottom:1px solid var(--line);}
+.hero{background:var(--surface);border-bottom:1px solid var(--line);overflow:hidden;}
 .hero-in{max-width:880px;margin:0 auto;padding:36px 20px 40px;display:flex;flex-direction:column;gap:20px;}
+@media(min-width:860px){
+  .hero-in{
+    max-width:1120px;display:grid;gap:14px 44px;align-items:start;
+    grid-template-columns:minmax(0,1fr) minmax(0,420px);
+  }
+  .hero .area,.hero h1,.hero .sub,.setbox{grid-column:1;}
+  .hero-shot{grid-column:2;grid-row:1/span 5;align-self:center;margin:0;}
+  .hero .trust,.hero-cta,.hero-note{grid-column:1/-1;}
+  .hero .area{justify-self:start;}
+  .hero .hero-cta{flex-direction:row;justify-content:center;max-width:760px;margin:0 auto;width:100%;}
+  .hero .hero-cta .btn.lg{flex:1 1 0;font-size:16px;padding:18px 16px;}
+}
 .hero .area{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;background:var(--accent-soft);
   color:var(--accent-deep);font-size:12.5px;font-weight:700;padding:5px 13px;border-radius:99px;}
 .hero h1{font-size:clamp(27px,6.8vw,44px);letter-spacing:-.01em;}
@@ -375,10 +387,10 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       </div>
     </div>
 
-    <figure class="shot" style="margin:0">
-      <img src="img/hero.jpg" alt="分解した洗濯機の外槽内部。全面に黒カビが付着している" loading="eager" width="1000" height="750">
+    <figure class="shot hero-shot" style="margin:0">
+      <img src="img/hero.jpg" alt="取り外した洗濯槽の裏側。全面に黒カビが付着している" loading="eager" width="1000" height="750">
       <span class="cap">実際の施工前</span>
-      <span class="where">洗濯機を分解した外槽の内側。市販のクリーナーでは、ここまで届きません。</span>
+      <span class="where">分解して取り出した洗濯槽の裏側。市販のクリーナーでは、ここまで届きません。</span>
     </figure>
 
     <div class="trust">
