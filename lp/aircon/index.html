@@ -65,7 +65,7 @@ body{
   font-size:16px;line-height:1.85;-webkit-font-smoothing:antialiased;
   padding-bottom:76px;
 }
-h1,h2,h3,h4{margin:0;line-height:1.42;text-wrap:balance;font-weight:900;}
+h1,h2,h3{margin:0;line-height:1.42;text-wrap:balance;font-weight:900;}
 p{margin:0;}
 img{max-width:100%;}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
@@ -174,7 +174,7 @@ section.alt{background:var(--surface);border-top:1px solid var(--line);border-bo
 /* mechanism */
 .mech{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;}
 .mech div{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:18px 20px;display:flex;flex-direction:column;gap:6px;}
-.mech h4{font-size:15.5px;}
+.mech h3{font-size:15.5px;}
 .mech p{font-size:13.5px;color:var(--ink-soft);line-height:1.75;}
 
 /* price table */
@@ -277,10 +277,18 @@ details p{padding:0 18px 16px 40px;font-size:14px;color:var(--ink-soft);line-hei
 /* sticky bottom */
 .sticky{
   position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--surface);
-  border-top:1px solid var(--line);padding:9px 14px;display:flex;gap:8px;
+  border-top:1px solid var(--line);padding:9px 12px;display:flex;gap:7px;
   box-shadow:0 -6px 20px -12px rgba(0,0,0,.35);
 }
-.sticky .btn{flex:1;font-size:14px;padding:12px 8px;}
+.sticky .btn{flex:1;font-size:13.5px;padding:12px 6px;}
+.sticky .btn.call{
+  flex:0 0 auto;background:var(--surface);color:var(--ink);
+  border:1.5px solid var(--line-strong);flex-direction:column;gap:1px;line-height:1.15;
+  padding:8px 14px;font-size:15px;
+}
+.sticky .btn.call small{font-size:9px;font-weight:500;color:var(--muted);letter-spacing:.02em;}
+.sticky .btn.call:hover{background:var(--surface-2);}
+@media(min-width:640px){.sticky .btn.call{display:none;}}
 
 footer{background:var(--ink);color:#C9D9DE;padding:40px 0 32px;margin-top:0;}
 footer .wrap{display:flex;flex-direction:column;gap:14px;}
@@ -376,15 +384,15 @@ footer .fine{font-size:11px;color:#8FA9B1;line-height:1.8;border-top:1px solid #
     </div>
     <div class="mech">
       <div>
-        <h4>ニオイが消える</h4>
+        <h3>ニオイが消える</h3>
         <p>ニオイの根源は熱交換器の奥に定着したカビとホコリです。分解して直接洗い流すため、消臭剤では戻らない状態からリセットできます。</p>
       </div>
       <div>
-        <h4>効きが戻り、電気代が下がる</h4>
+        <h3>効きが戻り、電気代が下がる</h3>
         <p>熱交換器が汚れていると交換効率が落ちます。内部が綺麗になることで冷暖房の効きが改善し、電気代の削減にも直結します。</p>
       </div>
       <div>
-        <h4>室内の空気がクリーンになる</h4>
+        <h3>室内の空気がクリーンになる</h3>
         <p>アレルギーの一因とされるカビ菌を一掃します。一年中稼働する設備だからこそ、住環境そのものへの影響が大きい箇所です。</p>
       </div>
     </div>
@@ -466,6 +474,34 @@ footer .fine{font-size:11px;color:#8FA9B1;line-height:1.8;border-top:1px solid #
         <a class="btn lg" href="#form">この内容で予約に進む</a>
       </div>
     </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-h">
+      <span class="eyebrow">Reason</span>
+      <h2>なぜ、この価格でできるのか</h2>
+      <p>安いと、かえって不安になると思います。理由は3つです。</p>
+    </div>
+    <div class="mech">
+      <div>
+        <h3>自社の職人が伺います</h3>
+        <p>下請けに出していません。外注の手数料が乗らない分、そのまま価格に反映しています。作業品質の責任も、私たちが直接負います。</p>
+      </div>
+      <div>
+        <h3>営業をしません</h3>
+        <p>訪問営業も、電話営業もしていません。ご予約から日程調整までスマホひとつで完結する形にして、その分のコストを削っています。</p>
+      </div>
+      <div>
+        <h3>必要な分だけ提供します</h3>
+        <p>不要な箇所まで抱き合わせで売ることをしません。今日いちばん困っている場所だけのご依頼で構いません。だから1台からお受けできます。</p>
+      </div>
+    </div>
+    <p class="symp-out" style="font-size:14.5px;font-weight:500;line-height:1.9">
+      安さの理由は、<b>手を抜くこと</b>ではありません。<br>
+      落としきれない可能性がある場合は、作業前に必ずお伝えします。
+    </p>
   </div>
 </section>
 
@@ -614,9 +650,11 @@ footer .fine{font-size:11px;color:#8FA9B1;line-height:1.8;border-top:1px solid #
 </footer>
 
 <div class="sticky">
-  <a class="btn line" href="https://lin.ee/7kD9WGN">LINE・無料クーポン</a>
+  <a class="btn call" href="tel:08017557275" aria-label="電話でお問い合わせ 080-1755-7275">電話<small>8-20時</small></a>
+  <a class="btn line" href="https://lin.ee/7kD9WGN">LINE</a>
   <a class="btn" href="#form">WEB予約する</a>
 </div>
+
 
 <script>
 (function(){

@@ -70,7 +70,7 @@ body{
   font-family:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
   font-size:16px;line-height:1.85;-webkit-font-smoothing:antialiased;padding-bottom:76px;
 }
-h1,h2,h3,h4{margin:0;line-height:1.42;text-wrap:balance;font-weight:900;}
+h1,h2,h3{margin:0;line-height:1.42;text-wrap:balance;font-weight:900;}
 p{margin:0;}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
 .wrap{max-width:880px;margin:0 auto;padding:0 20px;}
@@ -136,7 +136,7 @@ section.alt{background:var(--surface);border-top:1px solid var(--line);border-bo
 .scenes{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;}
 .scene{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);}
 .scene .tag{font-family:"Barlow",sans-serif;font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--accent);}
-.scene h4{font-size:16px;}
+.scene h3{font-size:16px;}
 .scene p{font-size:13.5px;color:var(--ink-soft);line-height:1.8;}
 
 /* builder */
@@ -176,7 +176,7 @@ section.alt{background:var(--surface);border-top:1px solid var(--line);border-bo
 .menu{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px 24px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start;}
 @media(max-width:560px){.menu{grid-template-columns:1fr;}}
 .menu .body{display:flex;flex-direction:column;gap:7px;}
-.menu h4{font-size:17px;}
+.menu h3{font-size:17px;}
 .menu .kw{display:flex;gap:6px;flex-wrap:wrap;}
 .menu .kw span{font-size:11px;background:var(--surface-2);color:var(--muted);padding:2px 9px;border-radius:99px;}
 .menu p{font-size:13.5px;color:var(--ink-soft);line-height:1.8;}
@@ -226,7 +226,7 @@ section.alt{background:var(--surface);border-top:1px solid var(--line);border-bo
 /* promise */
 .promise{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
 .promise div{background:var(--gold-soft);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:6px;}
-.promise h4{font-size:15.5px;color:var(--ink);}
+.promise h3{font-size:15.5px;color:var(--ink);}
 .promise p{font-size:13px;color:var(--ink-soft);line-height:1.75;}
 
 details{background:var(--surface);border:1px solid var(--line);border-radius:8px;margin-bottom:8px;overflow:hidden;}
@@ -255,9 +255,20 @@ details p{padding:0 18px 16px 40px;font-size:14px;color:var(--ink-soft);line-hei
 .field textarea{min-height:80px;resize:vertical;}
 .form-note{font-size:11.5px;color:var(--muted);text-align:center;}
 
-.sticky{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--surface);border-top:1px solid var(--line);
-  padding:9px 14px;display:flex;gap:8px;box-shadow:0 -6px 20px -12px rgba(0,0,0,.35);}
-.sticky .btn{flex:1;font-size:14px;padding:12px 8px;}
+.sticky{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--surface);
+  border-top:1px solid var(--line);padding:9px 12px;display:flex;gap:7px;
+  box-shadow:0 -6px 20px -12px rgba(0,0,0,.35);
+}
+.sticky .btn{flex:1;font-size:13.5px;padding:12px 6px;}
+.sticky .btn.call{
+  flex:0 0 auto;background:var(--surface);color:var(--ink);
+  border:1.5px solid var(--line-strong);flex-direction:column;gap:1px;line-height:1.15;
+  padding:8px 14px;font-size:15px;
+}
+.sticky .btn.call small{font-size:9px;font-weight:500;color:var(--muted);letter-spacing:.02em;}
+.sticky .btn.call:hover{background:var(--surface-2);}
+@media(min-width:640px){.sticky .btn.call{display:none;}}
 
 footer{background:var(--ink);color:#C9D9DE;padding:40px 0 32px;}
 footer .wrap{display:flex;flex-direction:column;gap:14px;}
@@ -323,22 +334,22 @@ footer .fine{font-size:11px;color:#8FA9B1;line-height:1.8;border-top:1px solid #
     <div class="scenes">
       <div class="scene">
         <span class="tag">KITCHEN</span>
-        <h4>換気扇の油に、丸1日かかる</h4>
+        <h3>換気扇の油に、丸1日かかる</h3>
         <p>内部を分解して頑固な油と格闘すると、3時間から丸1日の重労働になります。せっかくの休日が、それで終わってしまう。</p>
       </div>
       <div class="scene">
         <span class="tag">BATHROOM</span>
-        <h4>パッキンの黒カビが取れない</h4>
+        <h3>パッキンの黒カビが取れない</h3>
         <p>市販の洗剤では落ちない汚れ、天井や高所の掃除。皮脂・石鹸カス・水垢が複雑に絡み合う、いちばん手強い場所です。</p>
       </div>
       <div class="scene">
         <span class="tag">LAUNDRY</span>
-        <h4>洗濯槽クリーナーでは、届かない</h4>
+        <h3>洗濯槽クリーナーでは、届かない</h3>
         <p>分解すると、洗濯槽の裏側に黒カビと石鹸カスがびっしり増殖しているケースがほとんど。生乾き臭の正体はここです。</p>
       </div>
       <div class="scene">
         <span class="tag">PIPE</span>
-        <h4>追い焚き配管は、見えない</h4>
+        <h3>追い焚き配管は、見えない</h3>
         <p>お湯が循環する配管の中は、雑菌やカビにとって絶好の繁殖環境。皮脂汚れや洗剤カスが少しずつ溜まっていきます。</p>
       </div>
     </div>
@@ -449,7 +460,7 @@ footer .fine{font-size:11px;color:#8FA9B1;line-height:1.8;border-top:1px solid #
     <div class="menus">
       <div class="menu">
         <div class="body">
-          <h4>浴室クリーニング</h4>
+          <h3>浴室クリーニング</h3>
           <div class="kw"><span>ニオイ</span><span>ヌメリ</span><span>カビ</span><span>水垢</span></div>
           <p>皮脂・石鹸カス・水垢が複雑に絡み合う、家の中でいちばんお手入れの難しい空間です。ご家庭では落としきれない床の汚れから、普段は開けることのない換気扇の内部まで洗浄します。</p>
         </div>
@@ -457,7 +468,7 @@ footer .fine{font-size:11px;color:#8FA9B1;line-height:1.8;border-top:1px solid #
       </div>
       <div class="menu">
         <div class="body">
-          <h4>キッチンクリーニング</h4>
+          <h3>キッチンクリーニング</h3>
           <div class="kw"><span>水垢</span><span>コゲ</span><span>カビ</span><span>油汚れ</span></div>
           <p>シンクや蛇口周りに白く固まった水垢、壁面や収納扉に飛び散ってこびりついた油汚れ。汚れの特性を見極め、キッチン素材を傷めることなく徹底的に除去します。</p>
         </div>
@@ -465,7 +476,7 @@ footer .fine{font-size:11px;color:#8FA9B1;line-height:1.8;border-top:1px solid #
       </div>
       <div class="menu">
         <div class="body">
-          <h4>レンジフードクリーニング</h4>
+          <h3>レンジフードクリーニング</h3>
           <div class="kw"><span>油汚れ</span><span>ニオイ</span><span>吸い込み</span></div>
           <p>ご自身では手のつけにくい内部のファンまで分解。専用洗剤による浸け置きと磨き上げで、本来の換気能力を完全に復活させます。プロペラ式は¥9,800です。</p>
         </div>
@@ -473,7 +484,7 @@ footer .fine{font-size:11px;color:#8FA9B1;line-height:1.8;border-top:1px solid #
       </div>
       <div class="menu">
         <div class="body">
-          <h4>洗濯機クリーニング</h4>
+          <h3>洗濯機クリーニング</h3>
           <div class="kw"><span>皮脂汚れ</span><span>石鹸カス</span><span>黒カビ</span></div>
           <p>市販のクリーナーでは、汚れのごく一部しか落ちません。分解して洗濯槽の裏側まで洗浄します。毎日素肌に触れる衣類だからこそ、根本から。</p>
         </div>
@@ -481,7 +492,7 @@ footer .fine{font-size:11px;color:#8FA9B1;line-height:1.8;border-top:1px solid #
       </div>
       <div class="menu">
         <div class="body">
-          <h4>追い焚き配管クリーニング</h4>
+          <h3>追い焚き配管クリーニング</h3>
           <div class="kw"><span>ニオイ</span><span>水垢</span><span>カビ</span></div>
           <p>専用測定器で洗浄前後の汚れを数値化する、当社の看板メニューです。詳しくは次の項目をご覧ください。</p>
         </div>
@@ -496,12 +507,12 @@ footer .fine{font-size:11px;color:#8FA9B1;line-height:1.8;border-top:1px solid #
     <div class="feature">
       <span class="eyebrow">Signature</span>
       <h3>「綺麗になった気がする」で、<br>終わらせません。</h3>
-      <p>追い焚き配管の中は、目で確かめることができません。だから ONE HITTER では、専用の測定器「ルミテスター」（©キッコーマンバイオケミファ株式会社）を導入し、配管内の汚れを客観的な数値で測定しています。作業前と作業後、どちらもお客様の目の前で測ります。多くのお客様が、その変化に驚かれます。</p>
+      <p>追い焚き配管の中は、目で確かめることができません。だから ONE HITTER では、専用の測定器「ルミテスター」（©キッコーマンバイオケミファ株式会社）を導入し、配管内の汚れを客観的な数値で測定しています。多くのお客様が、その変化に驚かれます。</p>
       <div class="gauge">
-        <div class="g"><span class="l">BEFORE</span><span class="v" id="gb">—</span></div>
+        <div class="g"><span class="l">Before</span><span class="v">測定</span></div>
         <div class="arw">→</div>
-        <div class="g after"><span class="l">AFTER</span><span class="v" id="ga">—</span></div>
-        <div class="note">実測値は施工写真とあわせて掲載します（実測データを取得後に差し替え）。<br>数値は測定条件により変動します。</div>
+        <div class="g after"><span class="l">After</span><span class="v">再測定</span></div>
+        <div class="note">洗浄前と洗浄後、どちらもお客様の目の前で測ります。<br>数値は測定条件により変動します。実測値は施工報告としてお渡しします。</div>
       </div>
       <p style="font-size:13px">見えない場所だからこそ、数値で確かめる。それが、ご家族全員が安心して浸かれるお湯の条件だと考えています。</p>
     </div>
@@ -537,16 +548,20 @@ footer .fine{font-size:11px;color:#8FA9B1;line-height:1.8;border-top:1px solid #
     </div>
     <div class="promise" style="margin-top:20px">
       <div>
-        <h4>完全明朗会計</h4>
+        <h3>完全明朗会計</h3>
         <p>お見積り以上の追加請求は一切ありません。当日その場で金額が変わることはないので、安心してお任せいただけます。</p>
       </div>
       <div>
-        <h4>スマホひとつで完結</h4>
+        <h3>スマホひとつで完結</h3>
         <p>ご予約から日程調整まで、LINEでやり取りできます。ハウスクリーニングは「料金が高い・時間がかかる」から頼みにくい、を変えたいと考えています。</p>
       </div>
       <div>
-        <h4>メニューにない場所も</h4>
+        <h3>メニューにない場所も</h3>
         <p>記載のない箇所のお掃除も柔軟に対応しています。「これは頼めるのかな」と思ったら、そのままご相談ください。</p>
+      </div>
+      <div>
+        <h3>落ちない可能性は、先にお伝えします</h3>
+        <p>素材や汚れの状態によっては、どうしても落としきれない場合があります。作業前に必ずご説明し、ご納得いただいてから始めます。</p>
       </div>
     </div>
   </div>
@@ -686,9 +701,11 @@ footer .fine{font-size:11px;color:#8FA9B1;line-height:1.8;border-top:1px solid #
 </footer>
 
 <div class="sticky">
-  <a class="btn line" href="https://lin.ee/7kD9WGN">LINE・無料クーポン</a>
+  <a class="btn call" href="tel:08017557275" aria-label="電話でお問い合わせ 080-1755-7275">電話<small>8-20時</small></a>
+  <a class="btn line" href="https://lin.ee/7kD9WGN">LINE</a>
   <a class="btn" href="#builder">料金を見る</a>
 </div>
+
 
 <script>
 (function(){
@@ -737,6 +754,9 @@ footer .fine{font-size:11px;color:#8FA9B1;line-height:1.8;border-top:1px solid #
     menuField.value = names.length ? names.join('、') : '（未選択）';
 
     if (!chosen.length){
+      singleEl.textContent = '—';
+      savedEl.textContent  = '—';
+      totalEl.textContent  = '—';
       hintEl.textContent = '気になる場所をひとつ以上お選びください。';
     } else if (chosen.length === 1){
       hintEl.textContent = 'もう1箇所追加すると、2箇所目から同時施工価格が適用されます。';
