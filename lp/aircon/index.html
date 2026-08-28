@@ -10,7 +10,7 @@
   --surface-2:#F2EFE9;
   --ink:#14323D;
   --ink-soft:#40606C;
-  --muted:#5A7079;
+  --muted:#566B73;
   --line:#E2DDD4;
   --line-strong:#C8C0B4;
   --accent:#0E7C93;
@@ -20,6 +20,7 @@
   --cta-deep:#A83714;
   --cta-fg:#FFFFFF;
   --cta-shadow:#8C3212;
+  --cta-text:#A83714;
   --marker:linear-gradient(transparent 58%,#FFE566 58%);
   --on-accent:#FFFFFF;
   --invert:#0F2A38;
@@ -46,6 +47,7 @@
     --cta-deep:#D9552A;
     --cta-fg:#0C171C;
     --cta-shadow:#A8481F;
+    --cta-text:#E27E5E;
     --marker:linear-gradient(transparent 58%,#C9A020 58%);
     --on-accent:#08222A;
   --invert:#08151A;
@@ -75,6 +77,7 @@
   --cta-deep:#D9552A;
   --cta-fg:#0C171C;
   --cta-shadow:#A8481F;
+  --cta-text:#E27E5E;
   --marker:linear-gradient(transparent 58%,#C9A020 58%);
   --on-accent:#08222A;
   --invert:#08151A;
@@ -262,7 +265,7 @@ section.alt{background:var(--surface);border-top:1px solid var(--line);border-bo
 .calc{background:var(--surface);border:2px solid var(--accent);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);}
 .calc-h{background:var(--accent);color:var(--on-accent);padding:14px 20px;display:flex;align-items:center;gap:10px;}
 .calc-h b{font-size:16px;}
-.calc-h span{font-size:12px;opacity:.9;margin-left:auto;}
+.calc-h span{font-size:12px;margin-left:auto;}
 .calc-b{padding:20px;display:flex;flex-direction:column;gap:18px;}
 fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;}
 legend{font-size:13px;font-weight:700;color:var(--ink-soft);padding:0;}
@@ -275,7 +278,8 @@ legend{font-size:13px;font-weight:700;color:var(--ink-soft);padding:0;}
 }
 .chip input:checked + span{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700;}
 .chip input:focus-visible + span{outline:3px solid var(--accent);outline-offset:2px;}
-.chip small{display:block;font-size:11px;font-weight:500;opacity:.8;}
+.chip small{display:block;font-size:11px;font-weight:500;color:var(--muted);}
+.chip input:checked + span small{color:var(--on-accent);}
 .calc-out{
   border-top:1px dashed var(--line-strong);padding-top:16px;
   display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;
@@ -305,6 +309,10 @@ legend{font-size:13px;font-weight:700;color:var(--ink-soft);padding:0;}
 .voice .menu-tag{font-size:11px;font-weight:700;background:var(--accent-soft);color:var(--accent-deep);padding:2px 10px;border-radius:99px;}
 .voice q{font-family:"Shippori Mincho B1",serif;font-size:16px;line-height:2;quotes:"「" "」";color:var(--ink);}
 .voice .who{font-size:12.5px;color:var(--muted);}
+.consent{font-size:11.5px;color:var(--muted);line-height:1.8;margin:-2px 0 4px;}
+.consent a{color:var(--accent-deep);}
+.foot-links{font-size:12.5px;margin:14px 0 4px;display:flex;gap:16px;flex-wrap:wrap;}
+.foot-links a{color:var(--invert-ink);text-decoration:underline;}
 .area-note{font-size:11.5px;color:var(--muted);line-height:1.8;margin-top:12px;}
 .voice-src{font-size:11.5px;color:var(--muted);line-height:1.8;margin-top:10px;}
 .fine-in{display:block;margin-top:8px;font-size:11.5px;color:var(--muted);line-height:1.7;}
@@ -329,7 +337,7 @@ details p{padding:0 18px 16px 40px;font-size:14px;color:var(--ink-soft);line-hei
 }
 #zipres{margin-top:10px;font-size:14px;font-weight:700;min-height:1.6em;}
 #zipres.ok{color:var(--ok);}
-#zipres.ng{color:var(--cta-deep);}
+#zipres.ng{color:var(--cta-text);}
 
 /* form */
 .form{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:16px;box-shadow:var(--shadow);}
@@ -356,7 +364,7 @@ details p{padding:0 18px 16px 40px;font-size:14px;color:var(--ink-soft);line-hei
   flex-direction:column;gap:1px;line-height:1.2;box-shadow:none;
 }
 .sticky .btn small{
-  display:block;font-size:9px;font-weight:500;opacity:.85;letter-spacing:0;
+  display:block;font-size:9px;font-weight:500;letter-spacing:0;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
 }
 .sticky-note{
@@ -493,7 +501,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       </figure>
     </div>
     <p class="shot-note">専用の洗剤と高圧洗浄機で、内部を洗い流したあとの水です。<b>ここに出てきたぶんが、これまで部屋に送られていた空気の通り道に付いていたもの</b>です。作業後は、この水をお客様にもご覧いただいています。</p>
-    <p class="shot-note" style="opacity:.85">※いずれも実際の施工写真です。BEFORE／AFTERは同一の箇所を撮影しています。汚れや設備の状態により、仕上がりや出てくる汚水の量は異なります。</p>
+    <p class="shot-note">※いずれも実際の施工写真です。BEFORE／AFTERは同一の箇所を撮影しています。汚れや設備の状態により、仕上がりや出てくる汚水の量は異なります。</p>
   </div>
 </section>
 
@@ -718,7 +726,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       <h2>対応エリア</h2>
     </div>
     <div class="area-grid">
-      <div><b>東京都</b><small>全域</small></div>
+      <div><b>東京都</b><small>23区・多摩地域</small></div>
       <div><b>千葉県</b><small>全域</small></div>
       <div><b>神奈川県</b><small>全域</small></div>
     </div>
@@ -727,7 +735,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       <button class="btn ghost" id="zipbtn" type="button">エリアを確認</button>
     </div>
     <p id="zipres" role="status"></p>
-    <p class="area-note">※離島および一部の山間部は、お伺いできない場合があります。郵便番号でご確認いただくか、お電話・LINEでお問い合わせください。</p>
+    <p class="area-note">※伊豆・小笠原諸島および一部の山間部は、お伺いできない場合があります。郵便番号でご確認いただくか、お電話・LINEでお問い合わせください。</p>
   </div>
 </section>
 
@@ -763,6 +771,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
         <label for="f-when">ご希望の時期</label>
         <input id="f-when" name="when" type="text" placeholder="例：来週の土日、今月中など">
       </div>
+      <p class="consent">ご入力いただいた情報は、ご予約・お見積りのご連絡にのみ使用します。送信をもって<a href="https://one-hitter.jp/privacy_policy/" target="_blank" rel="noopener">個人情報の取扱いについて</a>にご同意いただいたものとみなします。</p>
       <button class="btn lg" type="submit">この内容で予約を申し込む</button>
       <p class="form-note">送信後、担当より日程のご連絡をいたします。<br>お電話でのご予約は <a href="tel:08080438259" style="color:var(--accent-deep)">080-8043-8259</a>（受付：渡辺／8:00–20:00）<br>時間外でも対応しておりますので、お気軽にご相談ください。</p>
     </form>
@@ -781,6 +790,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       <dt>設立</dt><dd>2022年8月15日</dd>
       <dt>WEB</dt><dd>https://one-hitter.jp/</dd>
     </dl>
+    <p class="foot-links"><a href="https://one-hitter.jp/privacy_policy/" target="_blank" rel="noopener">個人情報の取扱いについて</a>　<a href="https://one-hitter.jp/" target="_blank" rel="noopener">公式サイト</a></p>
     <p class="fine">
       表示価格はすべて税込です。5〜7月・12月は各料金に3,300円が加算されます。<br>
       「98.6%が勧めたい」は自社実施のご利用者アンケートに基づく結果です（実施期間：2023年1月〜2025年12月／回答209名中206名）。<br>
