@@ -5,26 +5,29 @@
 
 <style>
 :root{
-  --ground:#F1F5F6;
+  --ground:#FAF7F2;
   --surface:#FFFFFF;
-  --surface-2:#E7EEF0;
-  --ink:#0F2A38;
-  --ink-soft:#38505C;
+  --surface-2:#F2EFE9;
+  --ink:#14323D;
+  --ink-soft:#40606C;
   --muted:#5A7079;
-  --line:#D6E1E4;
-  --line-strong:#B6C7CC;
+  --line:#E2DDD4;
+  --line-strong:#C8C0B4;
   --accent:#0E7C93;
   --accent-deep:#0A5C6E;
   --accent-soft:#DDEEF1;
   --cta:#C4461D;
   --cta-deep:#A83714;
   --cta-fg:#FFFFFF;
+  --cta-shadow:#8C3212;
+  --marker:linear-gradient(transparent 58%,#FFE566 58%);
   --on-accent:#FFFFFF;
   --invert:#0F2A38;
   --invert-ink:#C9D9DE;
   --invert-line:#1F3C48;
   --ok:#1E7A5A;
-  --shadow:0 1px 2px rgba(15,42,56,.06),0 12px 32px -20px rgba(15,42,56,.4);
+  --shadow:0 2px 10px rgba(20,40,50,.10);
+  --shadow-lift:4px 4px 16px rgba(20,40,50,.08);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -42,6 +45,8 @@
     --cta:#F0764B;
     --cta-deep:#D9552A;
     --cta-fg:#0C171C;
+    --cta-shadow:#A8481F;
+    --marker:linear-gradient(transparent 58%,#C9A020 58%);
     --on-accent:#08222A;
   --invert:#08151A;
   --invert-ink:#B9CBD1;
@@ -50,7 +55,8 @@
     --invert-ink:#B9CBD1;
     --invert-line:#1B2E36;
     --ok:#4FBF95;
-    --shadow:0 1px 2px rgba(0,0,0,.5),0 14px 36px -22px rgba(0,0,0,.9);
+    --shadow:0 2px 10px rgba(0,0,0,.45);
+    --shadow-lift:4px 4px 16px rgba(0,0,0,.4);
   }
 }
 :root[data-theme="dark"]{
@@ -68,22 +74,26 @@
   --cta:#F0764B;
   --cta-deep:#D9552A;
   --cta-fg:#0C171C;
+  --cta-shadow:#A8481F;
+  --marker:linear-gradient(transparent 58%,#C9A020 58%);
   --on-accent:#08222A;
   --invert:#08151A;
   --invert-ink:#B9CBD1;
   --invert-line:#1B2E36;
   --ok:#4FBF95;
-  --shadow:0 1px 2px rgba(0,0,0,.5),0 14px 36px -22px rgba(0,0,0,.9);
+  --shadow:0 2px 10px rgba(0,0,0,.45);
+    --shadow-lift:4px 4px 16px rgba(0,0,0,.4);
 }
 
 *{box-sizing:border-box;}
 body{
   margin:0;background:var(--ground);color:var(--ink);
   font-family:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
-  font-size:16px;line-height:1.85;-webkit-font-smoothing:antialiased;
-  padding-bottom:76px;
+  font-size:16px;line-height:1.8;-webkit-font-smoothing:antialiased;
+  padding-bottom:104px;
 }
-h1,h2,h3{margin:0;line-height:1.42;text-wrap:balance;font-weight:900;}
+h1,h2{margin:0;line-height:1.28;letter-spacing:.01em;text-wrap:balance;font-weight:900;}
+h3{margin:0;line-height:1.4;text-wrap:balance;font-weight:900;}
 p{margin:0;}
 img{max-width:100%;}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
@@ -111,7 +121,7 @@ img{max-width:100%;}
 @media(min-width:640px){.tel{display:flex;}}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  border-radius:6px;font-weight:700;text-decoration:none;border:0;cursor:pointer;
+  border-radius:10px;font-weight:700;text-decoration:none;border:0;cursor:pointer;
   font-family:inherit;font-size:14px;padding:10px 18px;line-height:1.4;
   background:var(--cta);color:var(--cta-fg);transition:background .15s ease,transform .15s ease;
 }
@@ -121,7 +131,15 @@ img{max-width:100%;}
 .btn.line:hover{background:#05A445;}
 .btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong);}
 .btn.ghost:hover{background:var(--surface-2);}
-.btn.lg{font-size:17px;padding:16px 30px;width:100%;}
+.btn.lg{
+  font-size:18px;padding:18px 30px;width:100%;min-height:62px;border-radius:9999px;
+  letter-spacing:.12em;
+  box-shadow:0 4px 0 0 var(--cta-shadow);
+}
+.btn.lg:hover{box-shadow:0 3px 0 0 var(--cta-shadow);}
+.btn.lg:active{box-shadow:0 1px 0 0 var(--cta-shadow);transform:translateY(3px);}
+.btn.lg.line{box-shadow:0 4px 0 0 #04913C;}
+.btn.lg.line:active{box-shadow:0 1px 0 0 #04913C;transform:translateY(3px);}
 
 /* ===== hero ===== */
 .hero{background:var(--surface);border-bottom:1px solid var(--line);overflow:hidden;}
@@ -133,19 +151,19 @@ img{max-width:100%;}
 }
 .hero h1{font-size:clamp(28px,7.2vw,46px);letter-spacing:-.01em;}
 .hero h1 .hl{
-  background:linear-gradient(transparent 62%,var(--accent-soft) 62%);
-  padding:0 2px;
+  background:var(--marker);
+  padding:0 .1em;
 }
 .hero .sub{color:var(--ink-soft);font-size:15.5px;max-width:44em;}
 .price-tag{
   display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;
-  padding:16px 20px;border:2px solid var(--accent);border-radius:8px;background:var(--accent-soft);
+  padding:16px 20px;border:2px solid var(--accent);border-radius:10px;background:var(--accent-soft);
 }
 .price-tag .lab{font-size:13px;font-weight:700;color:var(--accent-deep);line-height:1.5;}
 .price-tag .big{font-family:"Barlow",sans-serif;font-weight:700;font-size:clamp(38px,10vw,56px);line-height:.95;color:var(--accent-deep);}
-.price-tag .yen{font-size:.5em;}
+.price-tag .unit{font-family:"Zen Kaku Gothic New",sans-serif;font-size:.36em;font-weight:900;margin-left:.06em;letter-spacing:0;}
 .price-tag .tail{font-size:13px;color:var(--ink-soft);padding-bottom:6px;}
-.trust{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+.trust{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
 .trust div{background:var(--surface);padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:2px;}
 .trust .t{font-family:"Barlow",sans-serif;font-weight:700;font-size:19px;color:var(--accent);}
 .trust .b{font-size:10.5px;color:var(--muted);line-height:1.5;}
@@ -155,26 +173,32 @@ img{max-width:100%;}
 /* ===== sections ===== */
 section{padding:56px 0;}
 section.alt{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
-.sec-h{display:flex;flex-direction:column;gap:8px;margin-bottom:26px;text-align:center;align-items:center;}
-.sec-h h2{font-size:clamp(21px,4.6vw,30px);}
+.sec-h{display:flex;flex-direction:column;gap:10px;margin-bottom:34px;text-align:center;align-items:center;}
+.sec-h h2{position:relative;padding-bottom:18px;}
+.sec-h h2::after{
+  content:"";position:absolute;left:50%;bottom:0;transform:translateX(-50%);
+  width:26px;height:15px;background:var(--accent);
+  clip-path:polygon(0 0,100% 0,50% 100%);
+}
+.sec-h h2{font-size:clamp(24px,5.6vw,38px);}
 .sec-h p{font-size:14.5px;color:var(--muted);max-width:38em;}
 
 /* symptoms */
 .symp{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;}
 .symp li{
-  list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:8px;
+  list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:10px;
   padding:16px 14px;display:flex;gap:10px;align-items:flex-start;font-size:14.5px;font-weight:700;
   line-height:1.6;box-shadow:var(--shadow);
 }
 .symp .ck{color:var(--cta);font-family:"Barlow",sans-serif;font-weight:700;flex:0 0 auto;}
 .symp-out{
   margin-top:18px;text-align:center;font-size:16px;font-weight:700;
-  padding:18px;border-radius:8px;background:var(--accent-soft);color:var(--accent-deep);
+  padding:18px;border-radius:10px;background:var(--accent-soft);color:var(--accent-deep);
 }
 
 /* photo placeholder */
 .ph{
-  border:1.5px dashed var(--line-strong);border-radius:8px;background:
+  border:1.5px dashed var(--line-strong);border-radius:10px;background:
     repeating-linear-gradient(135deg,transparent 0 9px,var(--surface-2) 9px 10px),var(--surface);
   min-height:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:4px;text-align:center;padding:20px;color:var(--muted);
@@ -207,7 +231,7 @@ section.alt{background:var(--surface);border-top:1px solid var(--line);border-bo
 .prow.opt .nm{font-size:14px;font-weight:500;}
 .prow.opt .pr{font-size:17px;}
 .peak{
-  margin-top:12px;padding:14px 18px;border-radius:8px;
+  margin-top:12px;padding:14px 18px;border-radius:10px;
   background:var(--surface-2);border:1px solid var(--line);font-size:13.5px;color:var(--ink-soft);
 }
 .peak b{color:var(--ink);}
@@ -242,7 +266,7 @@ legend{font-size:13px;font-weight:700;color:var(--ink-soft);padding:0;}
 /* steps */
 .steps{counter-reset:s;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;list-style:none;padding:0;margin:0;}
 .steps li{
-  counter-increment:s;background:var(--surface);border:1px solid var(--line);border-radius:8px;
+  counter-increment:s;background:var(--surface);border:1px solid var(--line);border-radius:10px;
   padding:14px 16px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:baseline;font-size:14px;
 }
 .steps li::before{
@@ -259,7 +283,7 @@ legend{font-size:13px;font-weight:700;color:var(--ink-soft);padding:0;}
 .voice .who{font-size:12.5px;color:var(--muted);}
 
 /* faq */
-details{background:var(--surface);border:1px solid var(--line);border-radius:8px;margin-bottom:8px;overflow:hidden;}
+details{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:8px;overflow:hidden;}
 details[open]{border-color:var(--line-strong);}
 summary{cursor:pointer;padding:15px 18px;font-weight:700;font-size:14.5px;list-style:none;display:flex;gap:10px;align-items:flex-start;}
 summary::-webkit-details-marker{display:none;}
@@ -268,7 +292,7 @@ details p{padding:0 18px 16px 40px;font-size:14px;color:var(--ink-soft);line-hei
 
 /* area */
 .area-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-.area-grid div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px 12px;text-align:center;}
+.area-grid div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 12px;text-align:center;}
 .area-grid b{display:block;font-size:19px;}
 .area-grid small{font-size:11px;color:var(--muted);}
 .zip{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
@@ -295,10 +319,22 @@ details p{padding:0 18px 16px 40px;font-size:14px;color:var(--ink-soft);line-hei
 /* sticky bottom */
 .sticky{
   position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--surface);
-  border-top:1px solid var(--line);padding:9px 12px;display:flex;gap:7px;
-  box-shadow:0 -6px 20px -12px rgba(0,0,0,.35);
+  border-top:1px solid var(--line);padding:8px 12px 9px;
+  display:flex;flex-direction:column;gap:6px;
+  box-shadow:0 -8px 22px -14px rgba(0,0,0,.4);
 }
-.sticky .btn{flex:1;font-size:13.5px;padding:12px 6px;}
+.sticky-row{display:flex;gap:8px;}
+.sticky .btn{
+  flex:1 1 0;min-width:0;font-size:13.5px;padding:9px 4px;border-radius:10px;
+  flex-direction:column;gap:1px;line-height:1.2;box-shadow:none;
+}
+.sticky .btn small{
+  display:block;font-size:9px;font-weight:500;opacity:.85;letter-spacing:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
+}
+.sticky-note{
+  font-size:10.5px;color:var(--muted);text-align:center;letter-spacing:.02em;line-height:1.4;
+}
 .sticky .btn.call{
   flex:0 0 auto;background:var(--surface);color:var(--ink);
   border:1.5px solid var(--line-strong);flex-direction:column;gap:1px;line-height:1.15;
@@ -337,13 +373,13 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
 
     <div class="price-tag">
       <span class="lab">ノーマルエアコン<br>1台あたり</span>
-      <span class="big"><span class="yen">¥</span>9,800</span>
-      <span class="tail">／60分（税込）<br>お掃除機能付きは ¥15,800／120分</span>
+      <span class="big"><span class="num">9,800</span><span class="unit">円</span></span>
+      <span class="tail">／60分（税込）<br>お掃除機能付きは 15,800円／120分</span>
     </div>
 
     <div class="trust">
-      <div><span class="t num">98.6%</span><span class="b">が「勧めたい」<br>と回答</span></div>
-      <div><span class="t num">¥0</span><span class="b">見積り以上の<br>追加請求</span></div>
+      <div><span class="t num">98.6%</span><span class="b">が「他の人に勧めたい」<br>と回答<sup>※1</sup></span></div>
+      <div><span class="t num">0円</span><span class="b">お見積り後の<br>追加請求</span></div>
       <div><span class="t num">60<small>分</small></span><span class="b">1台あたりの<br>作業時間</span></div>
     </div>
 
@@ -351,7 +387,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       <a class="btn lg" href="#form">かんたん5項目でWEB予約する</a>
       <a class="btn lg line" href="https://lin.ee/7kD9WGN">LINEで無料クーポンを受け取る</a>
     </div>
-    <p class="hero-note">※ご利用者アンケート（2023年1月〜2025年12月／回答209名中206名）より。5〜7月・12月は繁忙期加算 ¥3,300 が加わります。</p>
+    <p class="hero-note">※1 「他の人に勧めたい」と回答した割合：集計期間 2023年1月〜2025年12月、回答209名中206名、自社調べ</p>
   </div>
 </div>
 
@@ -427,17 +463,17 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
     <div class="ptable">
       <div class="prow">
         <span><span class="nm">エアコンクリーニング</span><br><span class="dur">ノーマルエアコン／60分</span></span>
-        <span class="pr">¥9,800</span>
+        <span class="pr">9,800円</span>
       </div>
       <div class="prow">
         <span><span class="nm">エアコンクリーニング</span><br><span class="dur">お掃除機能付きエアコン／120分</span></span>
-        <span class="pr">¥15,800</span>
+        <span class="pr">15,800円</span>
       </div>
-      <div class="prow opt"><span class="nm">オプション｜室外機セット</span><span class="pr">¥5,500</span></div>
-      <div class="prow opt"><span class="nm">オプション｜防カビコート</span><span class="pr">¥3,300</span></div>
-      <div class="prow opt"><span class="nm">オプション｜防虫キャップ</span><span class="pr">¥1,100</span></div>
+      <div class="prow opt"><span class="nm">オプション｜室外機セット</span><span class="pr">5,500円</span></div>
+      <div class="prow opt"><span class="nm">オプション｜防カビコート</span><span class="pr">3,300円</span></div>
+      <div class="prow opt"><span class="nm">オプション｜防虫キャップ</span><span class="pr">1,100円</span></div>
     </div>
-    <p class="peak"><b>繁忙期加算について。</b> 5〜7月・12月は各料金に <b>¥3,300</b> が加わります。この期間は予約が埋まりやすいため、お急ぎでなければ端境期（4月・8〜11月）のご予約が最もお得です。</p>
+    <p class="peak"><b>繁忙期加算について。</b> 5〜7月・12月は各料金に <b>3,300円</b> が加わります。この期間は予約が埋まりやすいため、お急ぎでなければ端境期（4月・8〜11月）のご予約が最もお得です。</p>
   </div>
 </section>
 
@@ -454,8 +490,8 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
         <fieldset>
           <legend>1. エアコンの種類</legend>
           <div class="chips">
-            <label class="chip"><input type="radio" name="type" value="9800" checked><span>ノーマル<small>¥9,800／60分</small></span></label>
-            <label class="chip"><input type="radio" name="type" value="15800"><span>お掃除機能付き<small>¥15,800／120分</small></span></label>
+            <label class="chip"><input type="radio" name="type" value="9800" checked><span>ノーマル<small>9,800円／60分</small></span></label>
+            <label class="chip"><input type="radio" name="type" value="15800"><span>お掃除機能付き<small>15,800円／120分</small></span></label>
           </div>
         </fieldset>
         <fieldset>
@@ -471,23 +507,23 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
           <legend>3. ご希望の時期</legend>
           <div class="chips">
             <label class="chip"><input type="radio" name="peak" value="0" checked><span>4月・8〜11月・1〜3月<small>加算なし</small></span></label>
-            <label class="chip"><input type="radio" name="peak" value="3300"><span>5〜7月・12月<small>+¥3,300／台</small></span></label>
+            <label class="chip"><input type="radio" name="peak" value="3300"><span>5〜7月・12月<small>+3,300円／台</small></span></label>
           </div>
         </fieldset>
         <fieldset>
           <legend>オプション（任意）</legend>
           <div class="chips">
-            <label class="chip"><input type="checkbox" class="opt" value="5500" data-nm="室外機セット"><span>室外機セット<small>+¥5,500</small></span></label>
-            <label class="chip"><input type="checkbox" class="opt" value="3300" data-nm="防カビコート"><span>防カビコート<small>+¥3,300</small></span></label>
-            <label class="chip"><input type="checkbox" class="opt" value="1100" data-nm="防虫キャップ"><span>防虫キャップ<small>+¥1,100</small></span></label>
+            <label class="chip"><input type="checkbox" class="opt" value="5500" data-nm="室外機セット"><span>室外機セット<small>+5,500円</small></span></label>
+            <label class="chip"><input type="checkbox" class="opt" value="3300" data-nm="防カビコート"><span>防カビコート<small>+3,300円</small></span></label>
+            <label class="chip"><input type="checkbox" class="opt" value="1100" data-nm="防虫キャップ"><span>防虫キャップ<small>+1,100円</small></span></label>
           </div>
         </fieldset>
         <div class="calc-out">
           <div>
             <div class="lab">お見積り金額（税込）</div>
-            <div class="tot" id="total">¥9,800</div>
+            <div class="tot" id="total">9,800円</div>
           </div>
-          <div id="breakdown">ノーマル ¥9,800 × 1台</div>
+          <div id="breakdown">ノーマル 9,800円 × 1台</div>
         </div>
         <a class="btn lg" href="#form">この内容で予約に進む</a>
       </div>
@@ -660,7 +696,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       <dt>WEB</dt><dd>https://one-hitter.jp/</dd>
     </dl>
     <p class="fine">
-      表示価格はすべて税込です。5〜7月・12月は各料金に¥3,300が加算されます。<br>
+      表示価格はすべて税込です。5〜7月・12月は各料金に3,300円が加算されます。<br>
       「98.6%が勧めたい」は自社実施のご利用者アンケートに基づく結果です（実施期間：2023年1月〜2025年12月／回答209名中206名）。<br>
       効果には個人差があります。設備の状態によっては施工をお受けできない場合があります。
     </p>
@@ -668,15 +704,18 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
 </footer>
 
 <div class="sticky">
-  <a class="btn call" href="tel:08080438259" aria-label="電話でお問い合わせ 080-8043-8259">電話<small>8-20時</small></a>
-  <a class="btn line" href="https://lin.ee/7kD9WGN">LINE</a>
-  <a class="btn" href="#form">WEB予約する</a>
+  <div class="sticky-row">
+    <a class="btn call" href="tel:08080438259" aria-label="電話でお問い合わせ 080-8043-8259">電話<small>8-20時 渡辺</small></a>
+    <a class="btn line" href="https://lin.ee/7kD9WGN">LINE<small>無料クーポン</small></a>
+    <a class="btn" href="#form">WEB予約する<small>入力5項目</small></a>
+  </div>
+  <p class="sticky-note">しつこい営業・訪問はいたしません</p>
 </div>
 
 
 <script>
 (function(){
-  var fmt = function(n){ return '¥' + n.toLocaleString('ja-JP'); };
+  var fmt = function(n){ return n.toLocaleString('ja-JP') + '円'; };
   var totalEl = document.getElementById('total');
   var bdEl = document.getElementById('breakdown');
 
