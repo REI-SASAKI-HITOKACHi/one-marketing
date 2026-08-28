@@ -290,17 +290,28 @@ legend{font-size:13px;font-weight:700;color:var(--ink-soft);padding:0;}
 #breakdown{font-size:12.5px;color:var(--muted);line-height:1.8;}
 
 /* steps */
-.steps{counter-reset:s;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;list-style:none;padding:0;margin:0;}
-.steps li{
-  counter-increment:s;background:var(--surface);border:1px solid var(--line);border-radius:10px;
-  padding:14px 16px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:baseline;font-size:14px;
-}
+.steps{counter-reset:s;list-style:none;padding:0;margin:0;display:grid;}
+.steps li{counter-increment:s;position:relative;padding:0 0 22px 46px;}
 .steps li::before{
-  content:counter(s,decimal-leading-zero);font-family:"Barlow",sans-serif;font-weight:700;
-  color:var(--accent);font-size:13px;
+  content:counter(s,decimal-leading-zero);
+  position:absolute;left:0;top:-1px;width:30px;height:30px;border-radius:50%;
+  display:grid;place-items:center;
+  font-family:"Barlow",sans-serif;font-weight:700;font-size:12px;letter-spacing:.02em;
+  background:var(--accent);color:var(--on-accent);
 }
-.steps b{font-weight:700;}
-.steps p{font-size:12.5px;color:var(--muted);line-height:1.65;}
+.steps li::after{
+  content:"";position:absolute;left:14px;top:33px;bottom:2px;width:2px;background:var(--line-strong);
+}
+.steps li:last-child{padding-bottom:0;}
+.steps li:last-child::after{display:none;}
+.steps b{display:block;font-size:15.5px;line-height:1.5;}
+.steps p{font-size:12.5px;color:var(--muted);line-height:1.7;margin-top:3px;}
+@media(min-width:720px){
+  /* 縦につなぎ線を引きたいので、列方向に流す（左列 01-04／右列 05-08） */
+  .steps{grid-auto-flow:column;grid-template-rows:repeat(4,auto);grid-template-columns:1fr 1fr;column-gap:36px;}
+  .steps li:nth-child(4)::after,.steps li:nth-child(8)::after{display:none;}
+  .steps li:nth-child(4),.steps li:nth-child(8){padding-bottom:0;}
+}
 
 /* voice */
 .voices{display:flex;flex-direction:column;gap:12px;}
