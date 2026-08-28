@@ -144,6 +144,18 @@ img{max-width:100%;}
 /* ===== hero ===== */
 .hero{background:var(--surface);border-bottom:1px solid var(--line);overflow:hidden;}
 .hero-in{max-width:880px;margin:0 auto;padding:36px 20px 40px;display:flex;flex-direction:column;gap:20px;}
+@media(min-width:860px){
+  .hero-in{
+    max-width:1120px;display:grid;gap:14px 44px;align-items:start;
+    grid-template-columns:minmax(0,1fr) minmax(0,420px);
+  }
+  .hero .area,.hero h1,.hero .sub,.price-tag{grid-column:1;}
+  .hero-shot{grid-column:2;grid-row:1/span 5;align-self:center;margin:0;}
+  .hero .trust,.hero-cta,.hero-note{grid-column:1/-1;}
+  .hero .area{justify-self:start;}
+  .hero .hero-cta{flex-direction:row;justify-content:center;max-width:760px;margin:0 auto;width:100%;}
+  .hero .hero-cta .btn.lg{flex:1 1 0;font-size:16px;padding:18px 16px;}
+}
 .hero .area{
   display:inline-flex;align-items:center;gap:8px;align-self:flex-start;
   background:var(--accent-soft);color:var(--accent-deep);
@@ -184,7 +196,8 @@ section.alt{background:var(--surface);border-top:1px solid var(--line);border-bo
 .sec-h p{font-size:14.5px;color:var(--muted);max-width:38em;}
 
 /* symptoms */
-.symp{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;}
+.symp{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+@media(min-width:720px){.symp{grid-template-columns:repeat(3,1fr);}}
 .symp li{
   list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:10px;
   padding:16px 14px;display:flex;gap:10px;align-items:flex-start;font-size:14.5px;font-weight:700;
@@ -391,7 +404,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       <span class="tail">／60分（税込）<br>お掃除機能付きは 15,800円／120分</span>
     </div>
 
-    <figure class="shot" style="margin:18px 0 0">
+    <figure class="shot hero-shot" style="margin:18px 0 0">
       <img src="img/hero.jpg" alt="エアコン内部の熱交換器とドレンパン。下端に黒カビが層になって付着している" loading="eager" width="1000" height="750">
       <span class="cap">実際の施工前</span>
       <span class="where">熱交換器の下、ドレンパン周辺。フィルターを外しても、ここまでは手が届きません。</span>
