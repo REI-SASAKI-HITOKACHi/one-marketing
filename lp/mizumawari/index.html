@@ -245,6 +245,16 @@ section.alt{background:var(--surface);border-top:1px solid var(--line);border-bo
 .feature .eyebrow{color:#DCB55E;}
 .feature h2{font-size:clamp(22px,4.8vw,30px);color:#fff;line-height:1.3;}
 .feature p{font-size:14.5px;color:var(--invert-ink);line-height:1.9;}
+.gauge{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;
+  background:rgba(255,255,255,.07);border-radius:10px;padding:18px 14px;}
+.gauge .g{text-align:center;display:flex;flex-direction:column;gap:3px;}
+.gauge .g .l{font-size:12px;color:#C9D9DE;}
+.gauge .g .v{font-size:clamp(28px,7vw,40px);line-height:1.1;color:#fff;letter-spacing:-.01em;}
+.gauge .g.after .v{color:#DCB55E;}
+.gauge .arw{color:#C9D9DE;font-size:20px;}
+.gauge-cap{font-size:12px;color:#C9D9DE;line-height:1.8;}
+.feature .ba .shot{background:rgba(255,255,255,.07);}
+
 .measure{counter-reset:m;list-style:none;margin:0;padding:0;display:grid;gap:0;}
 .measure li{counter-increment:m;position:relative;padding:0 0 18px 44px;}
 .measure li::before{
@@ -415,7 +425,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
 
     <div class="hero-cta">
       <a class="btn lg" href="#builder">箇所を選んで、料金を見る</a>
-      <a class="btn lg line" href="https://lin.ee/7kD9WGN">LINEで無料クーポンを受け取る</a>
+      <a class="btn lg line" href="https://lin.ee/7kD9WGN">LINE登録で 防カビコーティング無料</a>
     </div>
     <p class="hero-note">※1 「他の人に勧めたい」と回答した割合：集計期間 2023年1月〜2025年12月、回答209名中206名、自社調べ</p>
   </div>
@@ -670,6 +680,22 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       <span class="eyebrow">Signature</span>
       <h2>「綺麗になった気がする」で、<br>終わらせません。</h2>
       <p>追い焚き配管の中は、目で確かめることができません。だから ONE HITTER では、専用の測定器「ルミテスター」（©キッコーマンバイオケミファ株式会社）を導入し、配管内の汚れを客観的な数値で測定しています。多くのお客様が、その変化に驚かれます。</p>
+      <div class="gauge">
+        <div class="g"><span class="l">洗浄前</span><span class="v num">42,194</span></div>
+        <div class="arw" aria-hidden="true">→</div>
+        <div class="g after"><span class="l">洗浄後</span><span class="v num">409</span></div>
+      </div>
+      <div class="ba">
+        <figure class="shot" style="margin:0">
+          <img src="img/atp-before.jpg" alt="ルミテスターの表示。検体番号0196、測定値42194" loading="lazy" width="800" height="600">
+          <span class="cap">洗浄前</span>
+        </figure>
+        <figure class="shot after" style="margin:0">
+          <img src="img/atp-after.jpg" alt="ルミテスターの表示。検体番号0197、測定値409" loading="lazy" width="800" height="600">
+          <span class="cap">洗浄後</span>
+        </figure>
+      </div>
+      <p class="gauge-cap">実際の追い焚き配管クリーニングでの測定例です（検体番号 0196／0197、同一現場・同一手順）。別のお宅では 4,515 → 17 でした。</p>
       <ol class="measure">
         <li><b>洗浄前に、配管内をふき取る</b><span>専用の綿棒で、循環口の内側から検体を採ります。</span></li>
         <li><b>その場で数値を出す</b><span>ルミテスターが汚れの量を数値化します。所要は約10秒です。</span></li>
@@ -708,7 +734,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       </div>
       <div>
         <h3>落ちない可能性は、先にお伝えします</h3>
-        <p>素材や汚れの状態によっては、どうしても落としきれない場合があります。作業前に必ずご説明し、ご納得いただいてから始めます。</p>
+        <p>素材や汚れの状態によっては、どうしても落としきれない場合があります。作業前に必ずご説明し、ご納得いただいてから始めます。　万一に備え、損害賠償保険にも加入しています。</p>
       </div>
     </div>
   </div>
@@ -857,7 +883,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
 <div class="sticky">
   <div class="sticky-row">
     <a class="btn call" href="tel:08080438259" aria-label="電話でお問い合わせ 080-8043-8259">電話<small>8-20時 渡辺</small></a>
-    <a class="btn line" href="https://lin.ee/7kD9WGN">LINE<small>無料クーポン</small></a>
+    <a class="btn line" href="https://lin.ee/7kD9WGN">LINE<small>防カビ無料</small></a>
     <a class="btn" href="#builder">料金を見る<small>その場で確定</small></a>
   </div>
   <p class="sticky-note">しつこい営業・訪問はいたしません</p>
