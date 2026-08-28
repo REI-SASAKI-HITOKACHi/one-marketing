@@ -245,13 +245,20 @@ section.alt{background:var(--surface);border-top:1px solid var(--line);border-bo
 .feature .eyebrow{color:#DCB55E;}
 .feature h2{font-size:clamp(22px,4.8vw,30px);color:#fff;line-height:1.3;}
 .feature p{font-size:14.5px;color:var(--invert-ink);line-height:1.9;}
-.gauge{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center;background:rgba(255,255,255,.06);border-radius:10px;padding:18px;}
-.gauge .g{text-align:center;display:flex;flex-direction:column;gap:2px;}
-.gauge .g .l{font-family:"Barlow",sans-serif;font-size:11px;letter-spacing:.14em;color:#C9D9DE;}
-.gauge .g .v{font-family:"Barlow",sans-serif;font-weight:700;font-size:30px;color:#fff;}
-.gauge .g.after .v{color:#DCB55E;}
-.gauge .arw{color:#C9D9DE;font-size:20px;}
-.gauge .note{grid-column:1/-1;font-size:11px;color:#C9D9DE;text-align:center;line-height:1.6;}
+.measure{counter-reset:m;list-style:none;margin:0;padding:0;display:grid;gap:0;}
+.measure li{counter-increment:m;position:relative;padding:0 0 18px 44px;}
+.measure li::before{
+  content:counter(m);position:absolute;left:0;top:-1px;width:28px;height:28px;border-radius:50%;
+  display:grid;place-items:center;font-family:"Barlow",sans-serif;font-weight:700;font-size:13px;
+  background:#DCB55E;color:#231B07;
+}
+.measure li::after{content:"";position:absolute;left:13px;top:31px;bottom:1px;width:2px;background:rgba(220,181,94,.35);}
+.measure li:last-child{padding-bottom:0;}
+.measure li:last-child::after{display:none;}
+.measure b{display:block;font-size:15px;color:#fff;line-height:1.5;}
+.measure span{display:block;font-size:12.5px;color:#C9D9DE;line-height:1.75;margin-top:3px;}
+.measure-note{font-size:12.5px;color:#C9D9DE;line-height:1.9;background:rgba(255,255,255,.07);border-radius:10px;padding:14px 16px;}
+.measure-note b{color:#fff;}
 
 /* 施工写真 */
 .shot{position:relative;border-radius:10px;overflow:hidden;background:var(--surface-2);}
@@ -663,12 +670,12 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       <span class="eyebrow">Signature</span>
       <h2>「綺麗になった気がする」で、<br>終わらせません。</h2>
       <p>追い焚き配管の中は、目で確かめることができません。だから ONE HITTER では、専用の測定器「ルミテスター」（©キッコーマンバイオケミファ株式会社）を導入し、配管内の汚れを客観的な数値で測定しています。多くのお客様が、その変化に驚かれます。</p>
-      <div class="gauge">
-        <div class="g"><span class="l">Before</span><span class="v">測定</span></div>
-        <div class="arw">→</div>
-        <div class="g after"><span class="l">After</span><span class="v">再測定</span></div>
-        <div class="note">洗浄前と洗浄後、どちらもお客様の目の前で測ります。<br>数値は測定条件により変動します。実測値は施工報告としてお渡しします。</div>
-      </div>
+      <ol class="measure">
+        <li><b>洗浄前に、配管内をふき取る</b><span>専用の綿棒で、循環口の内側から検体を採ります。</span></li>
+        <li><b>その場で数値を出す</b><span>ルミテスターが汚れの量を数値化します。所要は約10秒です。</span></li>
+        <li><b>洗浄後、同じ手順で測り直す</b><span>同じ場所・同じ方法で採り直し、洗浄前後を並べてご覧いただきます。</span></li>
+      </ol>
+      <p class="measure-note">洗浄前と洗浄後、どちらもお客様の目の前で測ります。数値は測定条件により変動するため、当社では「何倍下がった」といった表現は使わず、<b>実測値をそのまま施工報告としてお渡しします</b>。</p>
       <p style="font-size:13px">見えない場所だからこそ、数値で確かめる。それが、ご家族全員が安心して浸かれるお湯の条件だと考えています。</p>
     </div>
   </div>
