@@ -50,10 +50,14 @@ function ensureSettingsSheet_(ss) {
   var sh = getOrCreateSheet_(ss, SHEET_SETTINGS);
   ensureHeader_(sh, ['キー', '値', '説明']);
   seedRows_(sh, 'キー', [
-    ['アクセス制限', 'true', 'true にすると「利用者」シートに載っているアドレスだけが使えます'],
+    ['アクセス制限', 'はい', '「はい」にすると、下の「利用者」シートに載っているアドレスだけが使えます'],
     ['画面タイトル', '適合性確認シート／意向把握シート 作成', 'ウェブアプリの見出し'],
     ['既定の契約形態', '個人', 'フォームを開いたときの初期値']
   ]);
+  setNotes_(sh, {
+    'キー': '設定の名前です。変更しないでください。',
+    '値': 'ここを書き換えると動きが変わります。'
+  });
   sh.autoResizeColumns(1, 3);
 }
 
@@ -62,10 +66,16 @@ function ensureAgenciesSheet_(ss) {
   ensureHeader_(sh, ['代理店名', '共有フォルダID', '有効', '備考']);
   if (sh.getLastRow() < 2) {
     sh.getRange(2, 1, 1, 4).setValues([[
-      'ヒトカチ株式会社', '', 'TRUE',
+      'ヒトカチ株式会社', '', true,
       'Drive でフォルダを開いたときの URL の /folders/ 以降が共有フォルダID'
     ]]);
   }
+  checkboxColumn_(sh, '有効', 5);
+  setNotes_(sh, {
+    '共有フォルダID': 'Drive でその代理店の共有フォルダを開いたときの URL の\n'
+      + 'https://drive.google.com/drive/folders/★ここ★\nの部分を貼り付けます。',
+    '有効': 'チェックを外すと、入力フォームの代理店の選択肢に出なくなります。'
+  });
   sh.setColumnWidth(2, 320);
 }
 
@@ -79,12 +89,19 @@ function ensureAgentsSheet_(ss) {
     sh.getRange(2, 1, 2, 9).setValues([
       ['佐々木 嶺', 'info@hitokachi.com', '080-6817-4796', '134-0081',
        '東京都 江戸川区 北葛西', '５－１４－１１ クオーディア西葛西５０３',
-       'ヒトカチ株式会社', '', 'TRUE'],
+       'ヒトカチ株式会社', '', true],
       ['髙橋 知史', 's-takahashi@hitokachi.com', '080-2238-7592', '134-0081',
        '東京都 江戸川区 北葛西', '５－１４－１１ クオーディア西葛西５０３',
-       'ヒトカチ株式会社', '', 'TRUE']
+       'ヒトカチ株式会社', '', true]
     ]);
   }
+  checkboxColumn_(sh, '有効', 5);
+  setNotes_(sh, {
+    '氏名': '適合性確認シートの「取扱者名」と、意向把握シートの「募集人」に入ります。',
+    '郵便番号': '意向把握シートの「所在地」に〒付きで入ります。',
+    'ログイン用アドレス': '空欄でかまいません。将来ログイン者と募集人を突き合わせるための予備欄です。',
+    '有効': 'チェックを外すと、入力フォームの募集人の選択肢に出なくなります。'
+  });
   sh.autoResizeColumns(1, 9);
 }
 
@@ -93,10 +110,16 @@ function ensureUsersSheet_(ss) {
   ensureHeader_(sh, ['メールアドレス', '氏名', '有効', '備考']);
   if (sh.getLastRow() < 2) {
     sh.getRange(2, 1, 1, 4).setValues([[
-      Session.getEffectiveUser().getEmail(), 'オーナー', 'TRUE',
+      Session.getEffectiveUser().getEmail(), 'オーナー', true,
       'このシステムを使えるGoogleアカウント'
     ]]);
   }
+  checkboxColumn_(sh, '有効', 5);
+  setNotes_(sh, {
+    'メールアドレス': 'ここに載っている Google アカウントだけがこのシステムを使えます。\n'
+      + '代理店の共有フォルダと、この設定スプレッドシートの編集権限も別途共有してください。',
+    '有効': 'チェックを外すと、そのアカウントは使えなくなります。'
+  });
   sh.autoResizeColumns(1, 4);
 }
 
@@ -106,29 +129,36 @@ function ensureUsersSheet_(ss) {
  */
 function ensureFieldsSheet_(ss) {
   var sh = getOrCreateSheet_(ss, SHEET_FIELDS);
-  var header = ['項目キー', '表示名', 'セクション', 'モード', '固定値', '必須', '選択肢', '備考'];
+  var header = ['項目キー', '表示名', 'セクション', '扱い', '固定値', '必須', '選択肢', '備考'];
   ensureHeader_(sh, header);
 
+  // 既存の設定（扱いと固定値）は引き継ぐ。英語表記だった頃の値もここで日本語に直る。
   var existing = {};
   if (sh.getLastRow() >= 2) {
     sh.getRange(2, 1, sh.getLastRow() - 1, header.length).getValues().forEach(function (r) {
-      if (r[0]) existing[String(r[0]).trim()] = { mode: r[3], fixed: r[4] };
+      if (r[0]) {
+        existing[String(r[0]).trim()] = {
+          mode: MODE_FROM_LABEL[String(r[3] == null ? '' : r[3]).trim()],
+          fixed: r[4]
+        };
+      }
     });
   }
 
   var rows = FIELD_DEFS.map(function (f) {
     var prev = existing[f.key];
+    var mode = (prev && prev.mode) ? prev.mode : (f.defaultMode || 'form');
     var options = f.options ? f.options.join(' / ')
       : (f.type === 'needs'
-          ? NEEDS.map(function (n) { return n.key + '=' + n.label; }).join(' / ')
+          ? NEEDS.map(function (n) { return n.label; }).join(' / ')
           : '');
     return [
       f.key,
       f.label,
       f.section,
-      prev && prev.mode ? prev.mode : (f.defaultMode || 'form'),
+      MODE_LABELS[mode],
       prev ? prev.fixed : (f.defaultValue == null ? '' : f.defaultValue),
-      f.required ? 'TRUE' : '',
+      !!f.required,
       options,
       f.note || ''
     ];
@@ -140,13 +170,49 @@ function ensureFieldsSheet_(ss) {
   sh.getRange(2, 1, rows.length, header.length).setValues(rows);
 
   var rule = SpreadsheetApp.newDataValidation()
-    .requireValueInList(['form', 'fixed', 'hidden'], true)
+    .requireValueInList([MODE_LABELS.form, MODE_LABELS.fixed, MODE_LABELS.hidden], true)
     .setAllowInvalid(false).build();
-  sh.getRange(2, 4, rows.length, 1).setDataValidation(rule);
+  sh.getRange(2, 4, rows.length, 1).setDataValidation(rule).setHorizontalAlignment('center');
+  sh.getRange(2, 6, rows.length, 1).insertCheckboxes().setHorizontalAlignment('center');
+
+  setNotes_(sh, {
+    '項目キー': 'システムが使う名前です。変更しないでください。',
+    '扱い': 'この項目をどう扱うかを選びます。\n\n'
+      + '　' + MODE_LABELS.form + '　… 入力フォームに欄を出します\n'
+      + '　' + MODE_LABELS.fixed + '　… 欄を出さず、右の「固定値」を毎回そのまま使います\n'
+      + '　' + MODE_LABELS.hidden + '　… この項目は使いません。帳票では空欄になります',
+    '固定値': '「固定値を使う」を選んだときだけ使われます。\n\n'
+      + '　チェック項目　… はい または いいえ\n'
+      + '　複数選べる項目　… 読点やカンマで区切って書く（例: 株式, 投資信託）\n'
+      + '　それ以外　… そのまま書く',
+    '必須': '未入力だと送信できない項目です。システム側で決まっているので変更できません。',
+    '選択肢': 'この項目で選べる値の一覧です（参考表示）。'
+  });
 
   sh.setColumnWidth(2, 260);
+  sh.setColumnWidth(4, 110);
   sh.setColumnWidth(7, 280);
   sh.setColumnWidth(8, 320);
+}
+
+/** 見出しセルに説明のメモを付ける。 */
+function setNotes_(sh, notes) {
+  var header = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+  header.forEach(function (h, i) {
+    if (notes[h]) sh.getRange(1, i + 1).setNote(notes[h]);
+  });
+}
+
+/**
+ * 「有効」列をチェックボックスにする。
+ * 既存の行に加えて数行ぶん先回りして入れておくと、行を足すときに迷わない。
+ */
+function checkboxColumn_(sh, headerName, spare) {
+  var header = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+  var col = header.indexOf(headerName);
+  if (col < 0) return;
+  var rows = Math.max(sh.getLastRow() - 1, 1) + (spare || 0);
+  sh.getRange(2, col + 1, rows, 1).insertCheckboxes().setHorizontalAlignment('center');
 }
 
 function ensureLogSheet_(ss) {

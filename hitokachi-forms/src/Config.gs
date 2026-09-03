@@ -11,6 +11,21 @@
 
 var PROP_SETTINGS_ID = 'SETTINGS_SPREADSHEET_ID';
 
+/**
+ * 「項目設定」シートの扱い列。シート上は日本語で見せ、コードの中では
+ * form / fixed / hidden で扱う。英語表記の古いシートもそのまま読める。
+ */
+var MODE_LABELS = {
+  form:   '入力する',
+  fixed:  '固定値を使う',
+  hidden: '使わない'
+};
+
+var MODE_FROM_LABEL = {
+  '入力する': 'form', '固定値を使う': 'fixed', '使わない': 'hidden',
+  'form': 'form', 'fixed': 'fixed', 'hidden': 'hidden'
+};
+
 var SHEET_SETTINGS = '設定';
 var SHEET_AGENCIES = '代理店マスタ';
 var SHEET_AGENTS   = '募集人マスタ';
@@ -41,7 +56,9 @@ function readTable_(name) {
   var rows = [];
   for (var r = 1; r < values.length; r++) {
     var row = values[r];
-    if (row.join('') === '') continue;
+    // どのシートも1列目がキー。空ならまだ書かれていない行なので飛ばす
+    // （チェックボックスだけ入った行を拾わないため）。
+    if (String(row[0] == null ? '' : row[0]).trim() === '') continue;
     var o = {};
     for (var c = 0; c < header.length; c++) {
       if (header[c] !== '') o[String(header[c])] = row[c];
@@ -121,8 +138,10 @@ function getFieldConfig_() {
   readTable_(SHEET_FIELDS).forEach(function (r) {
     var key = String(r['項目キー']).trim();
     if (!conf[key]) return;
-    var mode = String(r['モード'] || '').trim();
-    if (mode === 'form' || mode === 'fixed' || mode === 'hidden') conf[key].mode = mode;
+    // 見出しは「扱い」。英語表記だった頃の「モード」列も読めるようにしておく。
+    var raw = r['扱い'] != null && r['扱い'] !== '' ? r['扱い'] : r['モード'];
+    var mode = MODE_FROM_LABEL[String(raw == null ? '' : raw).trim()];
+    if (mode) conf[key].mode = mode;
     conf[key].fixedValue = r['固定値'] == null ? '' : r['固定値'];
   });
   return conf;

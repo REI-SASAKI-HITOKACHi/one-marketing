@@ -3,7 +3,7 @@
   "private": true,
   "description": "適合性確認シート・意向把握シートの自動生成システム（Google Apps Script）",
   "scripts": {
-    "test": "node test/logic.test.js && node test/render.test.js",
+    "test": "node test/logic.test.js && node test/config.test.js && node test/render.test.js",
     "preview": "node test/render.test.js --write"
   }
 }
