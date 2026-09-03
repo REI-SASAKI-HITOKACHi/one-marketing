@@ -54,6 +54,9 @@ function onOpenMenu() {
     .addItem('② 未作成の行をすべて作成する', 'runBulkAll')
     .addItem('選択した行だけ作成する', 'runBulkSelected')
     .addSeparator()
+    .addItem('取り込みシートを準備する', 'prepareImportSheet')
+    .addItem('取り込みシートから流し込む', 'importFromStagingSheet')
+    .addSeparator()
     .addItem('実行中の続きを取り消す', 'stopBulk')
     .addToUi();
 }
@@ -508,5 +511,134 @@ function toast_(message) {
     SpreadsheetApp.getActive().toast(message, '帳票作成', 12);
   } catch (e) {
     Logger.log(message); // 時間主導トリガーから呼ばれたときは画面がない
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * 取り込み
+ *
+ * 過去の帳票から起こしたデータを外から流し込む口。
+ * 「一括入力」シートに直接貼らせると、列の並びがズレたときに気づけないまま
+ * 別の項目へ値が入る。そこで、いったん「取り込み」シートに貼ってもらい、
+ * 見出しの文字列で列を突き合わせてから流し込む。位置ではなく名前で照合するので、
+ * 列の順番が違っても、余分な列があっても正しく入る。
+ * ------------------------------------------------------------------ */
+
+var SHEET_IMPORT = '取り込み';
+
+/** 貼り付け用の空シートを用意する。 */
+function prepareImportSheet() {
+  var ss = settingsSpreadsheet_();
+  var sh = ss.getSheetByName(SHEET_IMPORT) || ss.insertSheet(SHEET_IMPORT);
+  if (sh.getLastRow() === 0) {
+    sh.getRange(1, 1).setValue('ここに、見出し行を含めて貼り付けてください');
+    sh.getRange(1, 1).setFontStyle('italic').setFontColor('#888888');
+  }
+  sh.getRange(1, 1).setNote(
+    '過去データの取り込み用シートです。\n\n'
+    + '1. 取り込みたい表を、見出し行を含めて A1 から貼り付ける\n'
+    + '2. メニュー →「取り込みシートから流し込む」\n\n'
+    + '見出しの文字列で「一括入力」シートの列と突き合わせるので、\n'
+    + '列の順番が違っていても、余分な列があっても構いません。\n'
+    + '対応する列がない見出しは、流し込みの前に一覧で知らせます。');
+  ss.setActiveSheet(sh);
+  toast_('「取り込み」シートを用意しました。見出し行を含めて A1 から貼り付けてください。');
+  return sh;
+}
+
+/**
+ * 「取り込み」シートの内容を「一括入力」シートの末尾に足す。
+ * 見出しが一致しない列があれば、何も書かずに中止して知らせる。
+ */
+function importFromStagingSheet() {
+  var ss = settingsSpreadsheet_();
+  var src = ss.getSheetByName(SHEET_IMPORT);
+  if (!src || src.getLastRow() < 2) {
+    return toast_('「取り込み」シートにデータがありません。'
+      + 'メニューの「取り込みシートを準備する」から、見出し行を含めて貼り付けてください。');
+  }
+  var dest = bulkSheetOrThrow_();
+
+  var srcValues = src.getDataRange().getValues();
+  var srcHeader = srcValues[0].map(function (h) { return normalizeHeader_(h); });
+
+  var destLastCol = dest.getLastColumn();
+  var destLabels  = dest.getRange(BULK_HEADER_ROW, 1, 1, destLastCol).getValues()[0];
+  var destKeys    = dest.getRange(BULK_KEY_ROW, 1, 1, destLastCol).getValues()[0].map(String);
+
+  // 見出しの文字列 → 一括入力シートの列番号
+  var labelToCol = {};
+  destLabels.forEach(function (label, i) {
+    var n = normalizeHeader_(label);
+    if (n) labelToCol[n] = i + 1;
+  });
+
+  var mapping = [];   // { srcCol, destCol, isCheck }
+  var unknown = [];
+  srcHeader.forEach(function (h, i) {
+    if (!h) return;
+    var col = labelToCol[h];
+    if (!col) { unknown.push(srcValues[0][i]); return; }
+    mapping.push({ srcCol: i, destCol: col, isCheck: isCheckColumn_(destKeys[col - 1]) });
+  });
+
+  if (unknown.length) {
+    return alertOrToast_('取り込みを中止しました。\n\n'
+      + '次の見出しに対応する列が「一括入力」シートにありません。\n\n'
+      + '　' + unknown.join('\n　') + '\n\n'
+      + '「一括入力シートを準備する」を実行して列を作り直すか、'
+      + '取り込み側の見出しを直してから、もう一度実行してください。');
+  }
+  if (!mapping.length) return toast_('突き合わせられる列がありませんでした。見出し行が1行目にあるか確認してください。');
+
+  // 「一括入力」シートの末尾に足す。既にある行は触らない。
+  var startRow = Math.max(dest.getLastRow() + 1, BULK_FIRST_ROW);
+  var added = 0;
+  var grid = [];
+
+  for (var r = 1; r < srcValues.length; r++) {
+    var srcRow = srcValues[r];
+    if (String(srcRow.join('')).trim() === '') continue;
+
+    var out = new Array(destLastCol).fill('');
+    mapping.forEach(function (m) {
+      var v = srcRow[m.srcCol];
+      out[m.destCol - 1] = m.isCheck ? isTrue_(v) : v;
+    });
+    // 状態は必ず未処理から始める。取り込んだだけで作成済みにはしない。
+    out[COL_STATUS - 1] = '';
+    grid.push(out);
+    added++;
+  }
+
+  if (!added) return toast_('取り込める行がありませんでした。');
+
+  dest.getRange(startRow, 1, grid.length, destLastCol).setValues(grid);
+  ss.setActiveSheet(dest);
+  toast_(added + ' 件を「一括入力」シートの ' + startRow + ' 行目から追加しました。'
+    + '　突き合わせた列は ' + mapping.length + ' 列です。'
+    + '　「① 保存先を下見する」で内容を確かめてください。');
+}
+
+/** 見出しの表記ゆれを吸収する。全角空白や前後の空白で一致しなくなるのを防ぐ。 */
+function normalizeHeader_(h) {
+  var s = String(h == null ? '' : h);
+  if (String.prototype.normalize) s = s.normalize('NFKC');
+  return s.replace(/[\s　]+/g, '').trim();
+}
+
+function isCheckColumn_(key) {
+  if (!key || key.indexOf('__') === 0) return false;
+  if (key.indexOf(':') > 0) return true; // 複数選択を展開した列
+  var f = fieldByKey_(key);
+  return !!(f && f.type === 'check');
+}
+
+/** ダイアログが出せる場面ならダイアログ、無理ならトーストで知らせる。 */
+function alertOrToast_(message) {
+  try {
+    SpreadsheetApp.getUi().alert(message);
+  } catch (e) {
+    toast_(message);
   }
 }
