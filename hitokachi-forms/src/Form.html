@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+  :root {
+    --line: #d7dbe0; --ink: #1a1d21; --muted: #5f6b76;
+    --accent: #1a56a8; --bad: #b3261e; --good: #1a7f45; --bg: #f5f6f8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+    font-size: 14px; line-height: 1.6;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 20px 16px 120px; }
+  header h1 { font-size: 19px; margin: 0 0 2px; }
+  header .who { color: var(--muted); font-size: 12px; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; margin: 16px 0; }
+  .card > h2 { font-size: 15px; margin: 0 0 14px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); }
+  .f { margin-bottom: 16px; }
+  .f > label.t { display: block; font-weight: 600; margin-bottom: 5px; }
+  .req { color: var(--bad); font-size: 11px; margin-left: 5px; }
+  .note { color: var(--muted); font-size: 12px; margin-top: 3px; }
+  input[type=text], input[type=number], input[type=date], select {
+    width: 100%; max-width: 420px; padding: 8px 10px;
+    border: 1px solid var(--line); border-radius: 6px; font-size: 14px; font-family: inherit;
+  }
+  input[type=number] { max-width: 180px; }
+  .unit { margin-left: 6px; color: var(--muted); }
+  .opts { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+  .opts.col { flex-direction: column; gap: 6px; }
+  .opts label { display: flex; align-items: flex-start; gap: 6px; font-weight: normal; cursor: pointer; }
+  .opts input { margin-top: 4px; flex: none; }
+  .bar {
+    position: fixed; left: 0; right: 0; bottom: 0; background: #fff;
+    border-top: 1px solid var(--line); padding: 12px 16px; text-align: center;
+  }
+  button {
+    font-family: inherit; font-size: 15px; font-weight: 600; padding: 11px 30px;
+    border-radius: 7px; border: 1px solid transparent; cursor: pointer;
+  }
+  button.primary { background: var(--accent); color: #fff; }
+  button.ghost { background: #fff; color: var(--ink); border-color: var(--line); }
+  button:disabled { opacity: .5; cursor: default; }
+  .errors { background: #fdecea; border: 1px solid #f2b8b5; color: var(--bad);
+            border-radius: 8px; padding: 12px 16px; margin: 14px 0; }
+  .errors ul { margin: 6px 0 0; padding-left: 20px; }
+  table.j { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.j td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; }
+  table.j td.k { width: 30px; text-align: center; color: var(--muted); }
+  table.j td.v { width: 92px; text-align: center; font-weight: 700; white-space: nowrap; }
+  .yes { color: var(--good); } .no { color: var(--bad); } .na { color: var(--muted); font-weight: normal; }
+  .verdict { border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; font-weight: 600; }
+  .verdict.ok { background: #e7f4ec; border: 1px solid #a8d8bd; color: var(--good); }
+  .verdict.ng { background: #fdecea; border: 1px solid #f2b8b5; color: var(--bad); }
+  .why { color: var(--muted); font-size: 12px; margin-top: 4px; }
+  .dest { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin: 6px 0; }
+  .dest.hit { border-color: #e0a800; background: #fff9e6; }
+  .path { font-family: ui-monospace, monospace; font-size: 12px; color: var(--muted); word-break: break-all; }
+  a { color: var(--accent); }
+  .files a { display: block; padding: 9px 0; }
+  .spin { color: var(--muted); }
+  .hide { display: none; }
+</style></head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="title">帳票作成</h1>
+    <div class="who" id="who"></div>
+  </header>
+  <div id="app"><p class="spin">読み込み中…</p></div>
+</div>
+<div class="bar hide" id="bar"></div>
+
+<script>
+var BOOT = <?!= boot ?>;
+var STATE = { values: {}, prepared: null, choice: 'new' };
+
+function el(tag, attrs, kids) {
+  var n = document.createElement(tag);
+  for (var k in (attrs || {})) {
+    if (k === 'class') n.className = attrs[k];
+    else if (k === 'text') n.textContent = attrs[k];
+    else if (k === 'html') n.innerHTML = attrs[k];
+    else if (k.indexOf('on') === 0) n.addEventListener(k.slice(2), attrs[k]);
+    else n.setAttribute(k, attrs[k]);
+  }
+  (kids || []).forEach(function (c) { if (c) n.appendChild(c); });
+  return n;
+}
+function $(id) { return document.getElementById(id); }
+function fieldsIn(section) {
+  return BOOT.fields.filter(function (f) { return f.section === section; });
+}
+
+/* ---------- 条件表示 ---------- */
+function conditionMet(cond) {
+  var v = STATE.values;
+  if (cond === 'elderly') return Number(v.age || 0) >= 70;
+  if (cond === 'nonRegularOccupation') return !!v.occupationClass && v.occupationClass !== '左記以外';
+  if (cond === 'noExperience') {
+    var e = v.experience || [];
+    return e.length === 0 || (e.length === 1 && e[0] === '投資経験なし');
+  }
+  if (cond === 'maturitySource') return !v.sourceNotMaturity;
+  return true;
+}
+function refreshConditions() {
+  BOOT.fields.forEach(function (f) {
+    if (!f.showIf) return;
+    var row = $('f_' + f.key);
+    if (row) row.classList.toggle('hide', !conditionMet(f.showIf));
+  });
+}
+
+/* ---------- 入力画面 ---------- */
+function renderForm() {
+  var app = $('app');
+  app.innerHTML = '';
+  $('title').textContent = BOOT.title;
+  $('who').textContent = BOOT.email ? 'ログイン中：' + BOOT.email : '';
+
+  app.appendChild(el('div', { id: 'formErrors' }));
+
+  BOOT.sections.forEach(function (section) {
+    var fs = fieldsIn(section);
+    if (!fs.length) return;
+    var card = el('div', { class: 'card' }, [el('h2', { text: sectionTitle(section) })]);
+    fs.forEach(function (f) { card.appendChild(renderField(f)); });
+    app.appendChild(card);
+  });
+
+  var bar = $('bar');
+  bar.className = 'bar';
+  bar.innerHTML = '';
+  bar.appendChild(el('button', { class: 'primary', text: '内容を確認する', onclick: onPrepare }));
+
+  refreshConditions();
+}
+
+function sectionTitle(s) {
+  return ({
+    '基本': '基本情報（両方の帳票に反映されます）',
+    '適合性': '適合性確認シート',
+    '意向': '意向把握シート',
+    '任意': '任意項目',
+    '検証欄': '検証欄'
+  })[s] || s;
+}
+
+function renderField(f) {
+  var row = el('div', { class: 'f', id: 'f_' + f.key });
+  var label = el('label', { class: 't', text: f.label });
+  if (f.required) label.appendChild(el('span', { class: 'req', text: '必須' }));
+  row.appendChild(label);
+  row.appendChild(control(f));
+  if (f.note) row.appendChild(el('div', { class: 'note', text: f.note }));
+  return row;
+}
+
+function setValue(key, v) {
+  STATE.values[key] = v;
+  refreshConditions();
+}
+
+function control(f) {
+  var t = f.type;
+
+  if (t === 'agency' || t === 'agent' || t === 'select') {
+    var list = t === 'agency' ? BOOT.agencies
+      : t === 'agent' ? agentNames() : f.options;
+    var sel = el('select', {
+      id: 'i_' + f.key,
+      onchange: function (e) {
+        setValue(f.key, e.target.value);
+        if (t === 'agency') rebuildAgents();
+      }
+    });
+    sel.appendChild(el('option', { value: '', text: '選択してください' }));
+    list.forEach(function (o) { sel.appendChild(el('option', { value: o, text: o })); });
+    if (list.length === 1) { sel.value = list[0]; setValue(f.key, list[0]); }
+    return sel;
+  }
+
+  if (t === 'radio' || t === 'multi' || t === 'needs') {
+    var multi = (t !== 'radio');
+    var opts = (t === 'needs')
+      ? f.options.map(function (n) { return { v: n.key, l: n.owner + '／' + n.label }; })
+      : f.options.map(function (o) { return { v: o, l: o }; });
+    var long = opts.some(function (o) { return o.l.length > 22; });
+    var box = el('div', { class: 'opts' + (long ? ' col' : '') });
+    if (multi) STATE.values[f.key] = STATE.values[f.key] || [];
+
+    opts.forEach(function (o) {
+      var input = el('input', { type: multi ? 'checkbox' : 'radio', name: 'n_' + f.key, value: o.v });
+      input.addEventListener('change', function () {
+        if (multi) {
+          var arr = STATE.values[f.key] || [];
+          var i = arr.indexOf(o.v);
+          if (input.checked && i < 0) arr.push(o.v);
+          if (!input.checked && i >= 0) arr.splice(i, 1);
+          setValue(f.key, arr);
+        } else {
+          setValue(f.key, o.v);
+        }
+      });
+      if (!multi && f.defaultValue === o.v) { input.checked = true; STATE.values[f.key] = o.v; }
+      box.appendChild(el('label', {}, [input, el('span', { text: o.l })]));
+    });
+    return box;
+  }
+
+  if (t === 'check') {
+    var cb = el('input', { type: 'checkbox', name: 'n_' + f.key });
+    if (f.defaultValue === true || f.defaultValue === 'TRUE' || f.defaultValue === 'true') {
+      cb.checked = true; STATE.values[f.key] = true;
+    }
+    cb.addEventListener('change', function () { setValue(f.key, cb.checked); });
+    return el('div', { class: 'opts col' }, [el('label', {}, [cb, el('span', { text: 'はい' })])]);
+  }
+
+  if (t === 'rows') {
+    var host = el('div');
+    for (var i = 0; i < 3; i++) (function (idx) {
+      var d = el('input', { type: 'date' });
+      var x = el('input', { type: 'text', placeholder: '内容' });
+      var sync = function () {
+        var arr = STATE.values[f.key] || [];
+        arr[idx] = { date: d.value, text: x.value };
+        setValue(f.key, arr);
+      };
+      d.addEventListener('change', sync);
+      x.addEventListener('input', sync);
+      host.appendChild(el('div', { class: 'opts' }, [d, x]));
+    })(i);
+    return host;
+  }
+
+  var input = el('input', {
+    type: t === 'number' ? 'number' : (t === 'date' ? 'date' : 'text'),
+    id: 'i_' + f.key
+  });
+  if (t === 'date' && f.key === 'confirmDate') {
+    input.value = new Date().toISOString().slice(0, 10);
+    STATE.values[f.key] = input.value;
+  }
+  input.addEventListener('input', function () { setValue(f.key, input.value); });
+  input.addEventListener('change', function () { setValue(f.key, input.value); });
+  if (!f.unit) return input;
+  return el('div', {}, [input, el('span', { class: 'unit', text: f.unit })]);
+}
+
+function agentNames() {
+  var agency = STATE.values.agency;
+  var list = BOOT.agents.filter(function (a) { return !agency || !a.agency || a.agency === agency; });
+  if (!list.length) list = BOOT.agents;
+  return list.map(function (a) { return a.name; });
+}
+
+function rebuildAgents() {
+  var sel = $('i_agent');
+  if (!sel) return;
+  var keep = sel.value;
+  sel.innerHTML = '';
+  sel.appendChild(el('option', { value: '', text: '選択してください' }));
+  agentNames().forEach(function (n) { sel.appendChild(el('option', { value: n, text: n })); });
+  sel.value = agentNames().indexOf(keep) >= 0 ? keep : '';
+  STATE.values.agent = sel.value;
+}
+
+/* ---------- 手順1: 確認 ---------- */
+function onPrepare() {
+  showErrors([]);
+  busy('判定しています…');
+  google.script.run
+    .withSuccessHandler(function (res) {
+      if (!res.ok) { restoreFormBar(); showErrors(res.errors); return; }
+      STATE.prepared = res;
+      STATE.choice = res.destination.status === 'new' ? 'new' : res.destination.candidates[0].id;
+      renderConfirm();
+    })
+    .withFailureHandler(function (e) { restoreFormBar(); showErrors([String(e.message || e)]); })
+    .prepare(STATE.values);
+}
+
+function renderConfirm() {
+  var p = STATE.prepared;
+  var app = $('app');
+  app.innerHTML = '';
+  window.scrollTo(0, 0);
+
+  var j = p.judgment;
+  app.appendChild(el('div', {
+    class: 'verdict ' + (j.suitable ? 'ok' : 'ng'),
+    text: (j.suitable ? '適合性の確認：適合' : '適合性の確認：不適合') + ' — ' + j.message
+  }));
+
+  var tbl = el('table', { class: 'j' });
+  ['i1', 'i2', 'i3', 'i4', 'i5', 'i6'].forEach(function (k, i) {
+    var it = j.items[k];
+    var mark = it.value === 'yes' ? ['yes', 'はい'] : it.value === 'no' ? ['no', 'いいえ'] : ['na', '対象外'];
+    tbl.appendChild(el('tr', {}, [
+      el('td', { class: 'k', text: '①②③④⑤⑥'.charAt(i) }),
+      el('td', {}, [
+        el('div', { text: p.judgeLabels[k] }),
+        el('div', { class: 'why', text: '判定理由：' + it.reason })
+      ]),
+      el('td', { class: 'v ' + mark[0], text: mark[1] })
+    ]));
+  });
+  app.appendChild(el('div', { class: 'card' }, [
+    el('h2', { text: '２．適合性の確認（自動判定）' }), tbl
+  ]));
+
+  app.appendChild(renderDestination(p.destination));
+  app.appendChild(el('div', { id: 'formErrors' }));
+
+  var bar = $('bar');
+  bar.innerHTML = '';
+  bar.appendChild(el('button', { class: 'ghost', text: '入力に戻る', onclick: backToForm }));
+  bar.appendChild(el('span', { text: '　' }));
+  bar.appendChild(el('button', { class: 'primary', text: 'PDFを作成して保存', onclick: onSubmit }));
+}
+
+function renderDestination(d) {
+  var card = el('div', { class: 'card' }, [el('h2', { text: '保存先' })]);
+  card.appendChild(el('div', { class: 'path', text: d.agencyFolderName + ' / …' }));
+
+  if (d.status === 'new') {
+    card.appendChild(el('div', { class: 'dest' }, [
+      el('div', { text: '同じ名前の顧客フォルダは見つかりませんでした。新しく作成します。' }),
+      el('div', { class: 'path', text: d.agencyFolderName + ' / ' + d.newFolderName + ' /' })
+    ]));
+    STATE.choice = 'new';
+    return card;
+  }
+
+  card.appendChild(el('div', {
+    class: 'note',
+    text: d.status === 'ambiguous'
+      ? '同じ名前とみなせる顧客フォルダが ' + d.candidates.length + ' 件あります。保存先を選んでください。'
+      : '既存の顧客フォルダが見つかりました。ここに保存するか、新しく作るかを選んでください。'
+  }));
+
+  d.candidates.forEach(function (c, i) {
+    var r = el('input', { type: 'radio', name: 'dest', value: c.id });
+    if (i === 0) r.checked = true;
+    r.addEventListener('change', function () { STATE.choice = c.id; });
+    card.appendChild(el('label', { class: 'dest hit' }, [
+      r, el('span', { text: ' 既存フォルダに保存：' }), el('b', { text: c.name })
+    ]));
+  });
+
+  var rn = el('input', { type: 'radio', name: 'dest', value: 'new' });
+  rn.addEventListener('change', function () { STATE.choice = 'new'; });
+  card.appendChild(el('label', { class: 'dest' }, [
+    rn, el('span', { text: ' 新しく作成：' }), el('b', { text: d.newFolderName })
+  ]));
+  return card;
+}
+
+function backToForm() {
+  var saved = STATE.values;
+  renderForm();
+  STATE.values = saved;
+  restoreInputs();
+}
+
+/** 入力画面に戻ったときに値を戻す。 */
+function restoreInputs() {
+  BOOT.fields.forEach(function (f) {
+    var v = STATE.values[f.key];
+    if (v == null || v === '') return;
+    var simple = $('i_' + f.key);
+    if (simple) { simple.value = v; return; }
+    var inputs = document.getElementsByName('n_' + f.key);
+    for (var i = 0; i < inputs.length; i++) {
+      inputs[i].checked = typeof v === 'boolean' ? v
+        : Array.isArray(v) ? v.indexOf(inputs[i].value) >= 0
+        : inputs[i].value === v;
+    }
+  });
+  refreshConditions();
+}
+
+/* ---------- 手順2: 送信 ---------- */
+function onSubmit() {
+  showErrors([]);
+  busy('PDFを作成しています。30秒ほどかかることがあります…');
+  google.script.run
+    .withSuccessHandler(function (res) {
+      if (!res.ok) { renderConfirm(); showErrors(res.errors); return; }
+      renderDone(res.result);
+    })
+    .withFailureHandler(function (e) { renderConfirm(); showErrors([String(e.message || e)]); })
+    .submit(STATE.prepared.data, STATE.choice);
+}
+
+function renderDone(r) {
+  var app = $('app');
+  app.innerHTML = '';
+  window.scrollTo(0, 0);
+  app.appendChild(el('div', { class: 'verdict ok', text: '2件のPDFを保存しました。' }));
+
+  var files = el('div', { class: 'files' });
+  r.files.forEach(function (f) {
+    files.appendChild(el('a', { href: f.url, target: '_blank', text: f.name }));
+  });
+  app.appendChild(el('div', { class: 'card' }, [
+    el('h2', { text: '保存されたファイル' }),
+    files,
+    el('div', { class: 'note' }, [
+      el('span', { text: '保存先：' + r.folderName + (r.folderCreated ? '（新規作成）' : '（既存）') + '　' }),
+      el('a', { href: r.folderUrl, target: '_blank', text: 'フォルダを開く' })
+    ])
+  ]));
+
+  var bar = $('bar');
+  bar.innerHTML = '';
+  bar.appendChild(el('button', {
+    class: 'primary', text: '続けてもう1件つくる',
+    onclick: function () { STATE = { values: {}, prepared: null, choice: 'new' }; renderForm(); }
+  }));
+}
+
+/* ---------- 共通 ---------- */
+function showErrors(list) {
+  var host = $('formErrors');
+  if (!host) return;
+  host.innerHTML = '';
+  if (!list || !list.length) return;
+  var ul = el('ul');
+  list.forEach(function (m) { ul.appendChild(el('li', { text: m })); });
+  host.appendChild(el('div', { class: 'errors' }, [el('b', { text: '入力を確認してください' }), ul]));
+  host.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function busy(msg) {
+  var bar = $('bar');
+  bar.innerHTML = '';
+  bar.appendChild(el('span', { class: 'spin', text: msg }));
+}
+
+function restoreFormBar() {
+  var bar = $('bar');
+  bar.innerHTML = '';
+  bar.appendChild(el('button', { class: 'primary', text: '内容を確認する', onclick: onPrepare }));
+}
+
+if (!BOOT.allowed) {
+  $('app').innerHTML = '';
+  $('app').appendChild(el('div', { class: 'errors', text: BOOT.message }));
+} else {
+  renderForm();
+}
+</script>
+</body></html>

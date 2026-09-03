@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+  body { font-family: "Noto Sans JP", "Yu Gothic", sans-serif; font-size: 9pt; line-height: 1.45; }
+  .cls { font-size: 8pt; text-align: left; }
+  h1 { font-size: 14pt; text-align: center; margin: 6pt 0 10pt; }
+  h2 { font-size: 11pt; margin: 14pt 0 4pt; }
+  p { margin: 3pt 0; }
+  .note { font-size: 8pt; }
+  table { border-collapse: collapse; width: 100%; margin: 4pt 0; }
+  td { border: 1px solid #000; padding: 3pt 4pt; vertical-align: middle; font-size: 9pt; }
+  td.n { text-align: center; width: 22pt; }
+  td.lbl { background-color: #f2f2f2; width: 70pt; }
+  td.opt { font-size: 8.5pt; line-height: 1.6; }
+  td.ans { text-align: center; width: 78pt; white-space: nowrap; }
+  td.mid { text-align: center; }
+  td.vert { text-align: center; width: 26pt; background-color: #f2f2f2; }
+  .warn { color: #b00020; font-weight: bold; }
+  .pb { page-break-before: always; }
+  .foot { font-size: 8pt; margin-top: 10pt; }
+</style></head>
+<body>
+
+<p class="cls">社外秘</p>
+<h1>適合性確認シート</h1>
+
+<p>本書面は投資性商品である「変額保険」のお申込みを検討されるお客さま（契約者＊）に対し、「変額保険」がお客さまの環境や状況と保険契約のお申込みをする目的に照らし、適合しているかを確認するためのものです。</p>
+<p>「変額保険」のお申込みを検討されるすべてのお客さま（契約者＊）について、ご確認いただくことが必要です。</p>
+<p class="note">＊契約者が未成年の場合、親権者または後見人（いずれも70歳未満の方に限ります）について確認します。</p>
+
+<h2>１．お客さまに適切な商品を提案するために必要な情報である以下の事項につき確認ください。</h2>
+<p class="note">※以下の項目の内、□の項目については、該当する項目にレ点チェックをしてください。お客さまが法人の場合、①〜④は不要です。</p>
+
+<table>
+  <tr>
+    <td class="n">①</td><td class="lbl">年齢</td><td><?= m.age || "\u3000" ?></td>
+    <td class="n">②</td><td class="lbl">職業</td><td><?= m.occupation || "\u3000" ?></td>
+  </tr>
+  <tr>
+    <td class="n">③</td><td class="lbl">年収</td><td><?= m.income || "\u3000" ?></td>
+    <td class="n">④</td><td class="lbl">金融資産</td><td><?= m.assets || "\u3000" ?></td>
+  </tr>
+  <tr>
+    <td class="lbl" colspan="2">年収×20%</td><td><?= m.income20 || "\u3000" ?></td>
+    <td class="lbl" colspan="2">金融資産×30%</td><td><?= m.assets30 || "\u3000" ?></td>
+  </tr>
+  <tr>
+    <td class="n">⑤</td>
+    <td class="opt" colspan="5">これまでご購入されたことのある金融商品をご記入ください。（複数回答可）<br>
+      <? for (var i = 0; i < m.experience.length; i++) { ?><?= m.experience[i].mark ?><?= m.experience[i].label ?><?= m.experience[i].label === 'その他' ? '（' + (m.experienceOther || '\u3000\u3000') + '）' : '' ?>　<? } ?>
+    </td>
+  </tr>
+  <tr>
+    <td class="n">⑥</td>
+    <td class="opt" colspan="5">保険料原資をご記入ください。（複数回答可）<br>
+      <? for (var i = 0; i < m.premiumSource.length; i++) { ?><?= m.premiumSource[i].mark ?><?= m.premiumSource[i].label ?><?= m.premiumSource[i].label === 'その他' ? '（' + (m.premiumSourceOther || '\u3000\u3000') + '）' : '' ?>　<? } ?>
+    </td>
+  </tr>
+  <tr>
+    <td class="n">⑦</td>
+    <td class="opt" colspan="5">株式や為替相場に関する興味やリスク選好度合<br>
+      <?= m.riskYes ?>株式や為替相場に関心がありリスクを理解し（または理解いただくことができ）、許容することができる<br>
+      <?= m.riskNo ?>株式や為替相場に関心がなくリスクを理解していない（または理解いただくことができず）、許容することができない
+    </td>
+  </tr>
+  <tr>
+    <td class="n">⑧</td>
+    <td class="opt" colspan="5">お客さまのご意向（動機やニーズ）<br>
+      <? for (var i = 0; i < m.suitNeeds.length; i++) { ?><?= m.suitNeeds[i].mark ?><?= m.suitNeeds[i].label ?><?= m.suitNeeds[i].label === 'その他' ? '（' + (m.suitNeedsOther || '\u3000\u3000') + '）' : '' ?>　<? } ?>
+    </td>
+  </tr>
+</table>
+
+<h2>２．上記１．の情報に基づき、適合性を確認してください。　必ず別紙を参照のうえ確認ください</h2>
+<p class="note">※以下の内容を確認のうえ、必ず「はい」または「いいえ」にレ点チェックをしてください。お客さまが法人の場合、①〜③は不要です。</p>
+
+<table>
+  <? var marks = ['①','②','③','④','⑤','⑥']; ?>
+  <? for (var i = 0; i < m.judge.length; i++) { var j = m.judge[i]; ?>
+  <tr>
+    <td class="n"><?= marks[i] ?></td>
+    <td class="opt"><?= j.label ?></td>
+    <td class="ans"><? if (j.na) { ?>―（法人契約のため不要）<? } else { ?><?= j.yes ?>はい　<?= j.no ?>いいえ<? } ?></td>
+  </tr>
+  <? } ?>
+</table>
+
+<p class="note">※ご確認いただきました事項に「いいえ」が1つでもある場合、特定保険契約である変額保険は、お客さまに適合しない商品のため、他の定額保険を提案してください。（変額保険をおすすめできません。）</p>
+
+<table>
+  <tr>
+    <td class="lbl">確認日</td><td><?= m.confirmDateJp ?></td>
+    <td class="vert" rowspan="3">検証欄</td>
+    <td class="lbl">検証日</td><td><?= m.verifyDateJp || "\u3000" ?></td>
+  </tr>
+  <tr>
+    <td class="lbl">契約者氏名</td><td><?= m.customerName ?>　様</td>
+    <td class="lbl">検証実施者氏名</td><td><?= m.verifierName || "\u3000" ?></td>
+  </tr>
+  <tr>
+    <td class="lbl">（契約者が未成年の場合）親権者氏名</td><td><?= m.guardianName ?><?= m.guardianName ? '　様' : '' ?></td>
+    <td class="lbl">検証結果</td>
+    <td class="mid"><? if (m.verifyResult === '適') { ?><b>適</b> ・ 不適<? } else if (m.verifyResult === '不適') { ?>適 ・ <b>不適</b><? } else { ?>適 ・ 不適<? } ?></td>
+  </tr>
+  <tr>
+    <td class="lbl">契約者からみた続柄</td><td><?= m.guardianRelation || "\u3000" ?></td>
+    <td class="lbl">取扱代理店名</td><td colspan="2"><?= m.agencyName ?></td>
+  </tr>
+  <tr>
+    <td class="lbl">取扱者名</td><td><?= m.agent.name ?></td>
+    <td colspan="3"></td>
+  </tr>
+</table>
+
+<p class="foot">新契約部25.09（891947）　本書面は取扱者が適切に保管してください。【推奨保管期間５年】</p>
+
+<h1 class="pb">【別紙】適合性確認シート（適合性確認の基準）</h1>
+
+<p>◆「１．お客さまに適切な商品を提案するために必要な情報である以下の事項につき確認ください。」については、必ず全項目を記入してください（お客さまが法人の場合、①〜④は不要です）。空欄がある場合には、適合性の確認ができません。募集は控えてください。</p>
+<p>◆「２．上記１．の情報に基づき、適合性を確認してください。」で各項目をレ点チェックいただくにあたり、必ず以下の内容をご確認のうえ、ご記入ください。</p>
+
+<table>
+  <tr>
+    <td class="lbl">２．①</td>
+    <td class="opt">お客さま（契約者＊）がご高齢者（70歳以上）の場合は、特に十分な理解をいただくために細心の注意が必要です。＊契約者が未成年の場合、親権者または後見人について確認しますが、いずれも70歳未満の方に限ります。<br>
+      【参考】70歳以上の高齢者の場合、下記＜１＞および＜２＞によって募集します。＜１＞70歳未満の親族の同席をともなった募集　＜２＞複数回の面談による募集　ただし、＜１＞の募集が困難な場合、＜２＞および＜３＞での募集も可能です。＜３＞70歳未満の親族への説明</td>
+  </tr>
+  <tr>
+    <td class="lbl">２．③</td>
+    <td class="opt">年間保険料が年収の20％以内または、総払込保険料が金融資産の30％以内または、その組み合わせの範囲内となっていますか。範囲内の場合、「はい」をチェックしてください。<br>
+      ＜組み合わせの例＞・年収500万円のお客さまが年間保険料150万円の変額保険に加入希望の場合、年収の20％は100万円であり、年間保険料150万円を下回るため不可。ただし不足分の年間保険料50万円×保険料払込期間年数の金額が金融資産の30％以内となる場合は取扱い可能です。</td>
+  </tr>
+  <tr>
+    <td class="lbl">２．④</td>
+    <td class="opt">投資経験のないお客さまへは特に、変額保険の仕組み、特徴、投資リスク、お客さまにご負担いただく諸費用、解約控除等について、十分にご理解いただくための時間を確保したうえで、ご説明してください。※対応履歴を代理店として記録保存することを推奨します。</td>
+  </tr>
+  <tr>
+    <td class="lbl">２．⑤ア</td>
+    <td class="opt">「いいえ」に該当する場合で、商品特性等や解約による不利益事項を十分にご理解いただくための時間を確保したうえで、説明し了解されている場合は「はい」をチェックしてください。※対応履歴を代理店として記録保存することを推奨します。</td>
+  </tr>
+  <tr>
+    <td class="lbl">２．⑤イ</td>
+    <td class="opt">余裕資金とは、手持ちの資金のうち、生活費や非常時に備えて残しておくお金を差し引いた資金で、多少減ってしまっても生活に影響を与えないお金のことです。</td>
+  </tr>
+  <tr>
+    <td class="lbl">２．⑤ウ</td>
+    <td class="opt">借入金をもとに保険料の支払をすることは、どのような場合もできません。</td>
+  </tr>
+  <tr>
+    <td class="lbl">２．⑥</td>
+    <td class="opt">＜個人契約の場合＞以下のいずれかに該当する場合「はい」をチェックしてください。a.死亡時の保障　b.病気・ケガ・がん・特定疾病・介護の保障　c.貯蓄（教育資金・老後生活資金準備等）<br>
+      ＜法人契約の場合＞以下のいずれかに該当する場合「はい」をチェックしてください。d.事業保障・事業継承（役員の保障）　e.福利厚生（従業員の保障）　f.退職金（生存・死亡）準備<br>
+      ＜個人・法人契約共通＞その他を選択している場合で、その内容が上記a〜fにあてはまらない内容である場合は「いいえ」となります。</td>
+  </tr>
+</table>
+
+<p class="note">※確認日について<br>適合性の確認は、具体的なプランの提示よりも前に行います。そのため確認日は、原則として意向確認日や申込日よりも前の日付になります。</p>
+<p class="note">※検証欄について<br>募集時の適合性確認が適切であったかを事後的に検証し、必要に応じて改善を図ることが重要です。募集終了後に事後検証を行い、確認結果を証跡として記録します。</p>
+
+<p class="foot">新契約部25.09（891947）　本書面は取扱者が適切に保管してください。【推奨保管期間５年】</p>
+<p class="cls">社外秘</p>
+
+</body></html>

@@ -1,0 +1,5 @@
+{
+  "scriptId": "ここに Apps Script プロジェクトの scriptId を貼る",
+  "rootDir": "src",
+  "fileExtension": "gs"
+}

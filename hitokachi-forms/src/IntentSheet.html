@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+  body { font-family: "Noto Sans JP", "Yu Gothic", sans-serif; font-size: 9.5pt; line-height: 1.45; }
+  h1 { font-size: 14pt; text-align: center; margin: 4pt 0 10pt; }
+  h2 { font-size: 10.5pt; margin: 12pt 0 3pt; }
+  p { margin: 3pt 0; }
+  .name { font-size: 10.5pt; margin-bottom: 4pt; }
+  .note { font-size: 8pt; }
+  table { border-collapse: collapse; width: 100%; margin: 3pt 0; }
+  td { border: 1px solid #000; padding: 3pt 4pt; vertical-align: middle; font-size: 9.5pt; }
+  td.hd { background-color: #f2f2f2; text-align: center; font-size: 9pt; }
+  td.owner { background-color: #f2f2f2; text-align: center; width: 34pt; font-size: 8.5pt; }
+  td.mk { text-align: center; width: 62pt; }
+  td.lbl { background-color: #f2f2f2; width: 72pt; }
+  td.dt { text-align: right; background-color: #f2f2f2; font-size: 9pt; }
+  .agency td { border: none; padding: 1pt 4pt; font-size: 9pt; }
+  .agency td.k { width: 62pt; }
+  .agency td.v { width: 240pt; }
+  .agency td.note { width: 230pt; vertical-align: top; }
+</style></head>
+<body>
+
+<p class="name">お客さま名：<u>　<?= m.customerName ?>　</u>　様</p>
+<h1>お客さまのご意向把握シート</h1>
+
+<h2>１．お客さまが必要とする保障　（ご希望する項目を選択、複数選択可）</h2>
+<table>
+  <tr>
+    <td class="hd" colspan="2">ご希望の保障分野・目的</td>
+    <td class="hd">推定のご意向※</td>
+    <td class="hd">当初のご意向</td>
+    <td class="hd">最終のご意向</td>
+  </tr>
+  <tr>
+    <td class="dt" colspan="2">確認日</td>
+    <td class="mk"></td>
+    <td class="mk"><?= m.confirmDateSlash ?></td>
+    <td class="mk"><?= m.finalDateSlash ?></td>
+  </tr>
+  <? var shownIndividual = false, shownCorporate = false; ?>
+  <? for (var i = 0; i < m.needsRows.length; i++) { var r = m.needsRows[i]; ?>
+  <tr>
+    <? if (r.owner === '個人' && !shownIndividual) { shownIndividual = true; ?>
+      <td class="owner" rowspan="5">個人の<br>お客さま</td>
+    <? } else if (r.owner === '法人' && !shownCorporate) { shownCorporate = true; ?>
+      <td class="owner" rowspan="3">法人の<br>お客さま</td>
+    <? } ?>
+    <td><?= r.label ?></td>
+    <td class="mk"><?= r.estimated ?></td>
+    <td class="mk"><?= r.initial ?></td>
+    <td class="mk"><?= r.final ?></td>
+  </tr>
+  <? } ?>
+</table>
+
+<h2>２．貯蓄部分を必要とされますか？</h2>
+<table>
+  <tr>
+    <td class="hd" colspan="2">貯蓄部分</td>
+    <td class="hd">推定のご意向※</td>
+    <td class="hd">当初のご意向</td>
+    <td class="hd">最終のご意向</td>
+  </tr>
+  <? for (var i = 0; i < m.savingsRows.length; i++) { var s = m.savingsRows[i]; ?>
+  <tr>
+    <td colspan="2"><?= s.label ?></td>
+    <td class="mk"><?= s.estimated ?></td>
+    <td class="mk"><?= s.initial ?></td>
+    <td class="mk"><?= s.final ?></td>
+  </tr>
+  <? } ?>
+</table>
+
+<h2>３．その他のご希望　（保険期間・保険料・保険金額等に関するご希望や優先させたい事項がある場合）</h2>
+<table>
+  <tr>
+    <td class="lbl">保険期間</td><td><?= m.wishPeriod || "\u3000" ?></td>
+    <td class="lbl">保険金額</td><td><?= m.wishAmount || "\u3000" ?></td>
+  </tr>
+  <tr>
+    <td class="lbl">保険料</td><td><?= m.wishPremium || "\u3000" ?></td>
+    <td class="lbl">その他</td><td><?= m.wishOther || "\u3000" ?></td>
+  </tr>
+</table>
+
+<h2>４．ご意向の変化の内容等（推定〜当初〜最終）</h2>
+<table>
+  <tr><td class="hd" style="width:80pt">日付</td><td class="hd">内容</td></tr>
+  <? var FW = "\u3000"; ?>
+  <? for (var i = 0; i < m.changeLog.length; i++) { ?>
+  <tr><td><?= m.changeLog[i].date || FW ?></td><td><?= m.changeLog[i].text || FW ?></td></tr>
+  <? } ?>
+</table>
+
+<h2>募集代理店</h2>
+<table class="agency">
+  <tr><td class="k">【代理店】</td><td class="v"><?= m.agencyName ?></td>
+      <td class="note" rowspan="7">※『推定のご意向』欄は、募集人の推定に基づいてお客さまの希望される保障をご提案する場合に記入します。</td></tr>
+  <tr><td class="k">【募集人】</td><td class="v"><?= m.agent.name ?></td></tr>
+  <tr><td class="k">【所在地】</td><td class="v"><?= m.agent.zip ? '〒' + m.agent.zip : '' ?></td></tr>
+  <tr><td class="k"></td><td class="v"><?= m.agent.address1 ?></td></tr>
+  <tr><td class="k"></td><td class="v"><?= m.agent.address2 ?></td></tr>
+  <tr><td class="k">【連絡先】</td><td class="v"><?= m.agent.tel ?></td></tr>
+  <tr><td class="k">【メール】</td><td class="v"><?= m.agent.email ?></td></tr>
+</table>
+
+</body></html>
