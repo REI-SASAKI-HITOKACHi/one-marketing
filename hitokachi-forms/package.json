@@ -5,6 +5,7 @@
   "scripts": {
     "test": "node test/logic.test.js && node test/config.test.js && node test/bulk.test.js && node test/import.test.js && node test/render.test.js",
     "preview": "node test/render.test.js --write",
-    "build-import": "node tools/build-bulk-import.js"
+    "build-import": "node tools/build-bulk-import.js",
+    "build-archive": "node tools/build-archive.js"
   }
 }
