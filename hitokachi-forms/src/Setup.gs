@@ -192,7 +192,10 @@ function ensureFieldsSheet_(ss) {
     .requireValueInList([MODE_LABELS.form, MODE_LABELS.fixed, MODE_LABELS.hidden], true)
     .setAllowInvalid(false).build();
   sh.getRange(2, 4, rows.length, 1).setDataValidation(rule).setHorizontalAlignment('center');
+  // insertCheckboxes は値を false にするので、チェックボックス化してから必須を書き戻す。
   sh.getRange(2, 6, rows.length, 1).insertCheckboxes().setHorizontalAlignment('center');
+  sh.getRange(2, 6, rows.length, 1)
+    .setValues(rows.map(function (r) { return [r[5]]; }));
 
   setNotes_(sh, {
     '項目キー': 'システムが使う名前です。変更しないでください。',
@@ -225,13 +228,28 @@ function setNotes_(sh, notes) {
 /**
  * 「有効」列をチェックボックスにする。
  * 既存の行に加えて数行ぶん先回りして入れておくと、行を足すときに迷わない。
+ *
+ * insertCheckboxes() は範囲内のセルの値をすべて false にする。そのまま呼ぶと
+ * setup() を実行するたびに代理店・募集人・利用者の「有効」が全部外れ、
+ * 翌日から誰もログインできなくなる。値を退避して書き戻す。
  */
 function checkboxColumn_(sh, headerName, spare) {
   var header = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
   var col = header.indexOf(headerName);
   if (col < 0) return;
-  var rows = Math.max(sh.getLastRow() - 1, 1) + (spare || 0);
+
+  var dataRows = Math.max(sh.getLastRow() - 1, 0);
+  var rows = Math.max(dataRows, 1) + (spare || 0);
+  var saved = dataRows > 0
+    ? sh.getRange(2, col + 1, dataRows, 1).getValues().map(function (r) { return isTrue_(r[0]); })
+    : [];
+
   sh.getRange(2, col + 1, rows, 1).insertCheckboxes().setHorizontalAlignment('center');
+
+  if (saved.length) {
+    sh.getRange(2, col + 1, saved.length, 1)
+      .setValues(saved.map(function (v) { return [v]; }));
+  }
 }
 
 function ensureLogSheet_(ss) {

@@ -203,7 +203,9 @@ function control(f) {
           setValue(f.key, o.v);
         }
       });
-      if (!multi && f.defaultValue === o.v) { input.checked = true; STATE.values[f.key] = o.v; }
+      if (!multi && f.defaultValue === o.v && STATE.values[f.key] === undefined) {
+        input.checked = true; STATE.values[f.key] = o.v;
+      }
       box.appendChild(el('label', {}, [input, el('span', { text: o.l })]));
     });
     return box;
@@ -211,9 +213,8 @@ function control(f) {
 
   if (t === 'check') {
     var cb = el('input', { type: 'checkbox', name: 'n_' + f.key });
-    if (f.defaultValue === true || f.defaultValue === 'TRUE' || f.defaultValue === 'true') {
-      cb.checked = true; STATE.values[f.key] = true;
-    }
+    var on = (f.defaultValue === true || f.defaultValue === 'TRUE' || f.defaultValue === 'true');
+    if (on && STATE.values[f.key] === undefined) { cb.checked = true; STATE.values[f.key] = true; }
     cb.addEventListener('change', function () { setValue(f.key, cb.checked); });
     return el('div', { class: 'opts col' }, [el('label', {}, [cb, el('span', { text: 'はい' })])]);
   }
@@ -239,8 +240,12 @@ function control(f) {
     type: t === 'number' ? 'number' : (t === 'date' ? 'date' : 'text'),
     id: 'i_' + f.key
   });
-  if (t === 'date' && f.key === 'confirmDate') {
-    input.value = new Date().toISOString().slice(0, 10);
+  if (t === 'date' && f.key === 'confirmDate' && STATE.values[f.key] === undefined) {
+    // toISOString() は UTC。そのまま使うと日本時間の 00:00〜09:00 に開いたとき
+    // 確認日が前日になる。確認日は監査上意味を持つ日付なのでローカル日付にする。
+    var now = new Date();
+    input.value = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+      .toISOString().slice(0, 10);
     STATE.values[f.key] = input.value;
   }
   input.addEventListener('input', function () { setValue(f.key, input.value); });
@@ -275,7 +280,9 @@ function onPrepare() {
     .withSuccessHandler(function (res) {
       if (!res.ok) { restoreFormBar(); showErrors(res.errors); return; }
       STATE.prepared = res;
-      STATE.choice = res.destination.status === 'new' ? 'new' : res.destination.candidates[0].id;
+      STATE.choice = res.destination.status === 'new' ? 'new'
+        : res.destination.status === 'ambiguous' ? null
+        : res.destination.candidates[0].id;
       renderConfirm();
     })
     .withFailureHandler(function (e) { restoreFormBar(); showErrors([String(e.message || e)]); })
@@ -341,9 +348,11 @@ function renderDestination(d) {
       : '既存の顧客フォルダが見つかりました。ここに保存するか、新しく作るかを選んでください。'
   }));
 
+  // 候補が複数ある＝別人の可能性が高い。既定では選ばせず、必ず人に選ばせる。
+  var preselect = d.status !== 'ambiguous';
   d.candidates.forEach(function (c, i) {
     var r = el('input', { type: 'radio', name: 'dest', value: c.id });
-    if (i === 0) r.checked = true;
+    if (i === 0 && preselect) r.checked = true;
     r.addEventListener('change', function () { STATE.choice = c.id; });
     card.appendChild(el('label', { class: 'dest hit' }, [
       r, el('span', { text: ' 既存フォルダに保存：' }), el('b', { text: c.name })
@@ -359,7 +368,10 @@ function renderDestination(d) {
 }
 
 function backToForm() {
-  var saved = STATE.values;
+  // renderForm() の中で control() が STATE.values に既定値を書き込むため、
+  // 同じ参照を持ち回すと入力が既定値に戻る。値をコピーしてから作り直す。
+  // （原資アのチェックを外した行が「はい」に戻り、不適合が適合に反転する経路）
+  var saved = JSON.parse(JSON.stringify(STATE.values));
   renderForm();
   STATE.values = saved;
   restoreInputs();
@@ -385,6 +397,7 @@ function restoreInputs() {
 /* ---------- 手順2: 送信 ---------- */
 function onSubmit() {
   showErrors([]);
+  if (!STATE.choice) return showErrors(['保存先を選んでください。']);
   busy('PDFを作成しています。30秒ほどかかることがあります…');
   google.script.run
     .withSuccessHandler(function (res) {

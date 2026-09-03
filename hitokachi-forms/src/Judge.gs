@@ -47,7 +47,7 @@ function judgeAge_(d) {
   if (age === null) return no_('年齢が未入力');
   if (age < 70) return yes_(age + '歳（70歳未満）');
   if (d.elderlyMethod) return yes_('70歳以上だが「' + d.elderlyMethod + '」で募集');
-  return no_('70歳以上だが、別紙＜１＞〜＜３＞の募集方法が選択されていない');
+  return no_('70歳以上だが、別紙の定める募集方法（＜１＞＋＜２＞ または ＜２＞＋＜３＞）が選択されていない');
 }
 
 /** ② パート・アルバイト、学生、主婦、無職ではない。 */
@@ -75,6 +75,11 @@ function judgeBalance_(d) {
   var assets  = num_(d.assets);
   if (premium === null || years === null || income === null || assets === null) {
     return no_('年収・金融資産・年間保険料・払込期間のいずれかが未入力');
+  }
+  // 負値を通すと不等式が裏返って静かに「はい」になる。validate_ でも弾いているが、
+  // 判定を誤らせる影響が大きいのでここでも止める。
+  if (premium < 0 || years <= 0 || income < 0 || assets < 0) {
+    return no_('年収・金融資産・年間保険料・払込期間に不正な値が入っている');
   }
 
   var incomeCap = income * 0.2;
@@ -141,7 +146,11 @@ function judgeIntent_(d, isCorp) {
 
 function num_(v) {
   if (v === '' || v == null) return null;
-  var n = Number(String(v).replace(/[^0-9.\-]/g, ''));
+  var s = String(v).replace(/[^0-9.\-]/g, '');
+  // 「不明」「非公開」「―」などを Number() に渡すと 0 になり、年齢0歳・年収0円として
+  // 判定を通してしまう。数字を1文字も含まないものは未入力として扱う。
+  if (!/[0-9]/.test(s)) return null;
+  var n = Number(s);
   return isNaN(n) ? null : n;
 }
 

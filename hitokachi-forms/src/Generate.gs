@@ -30,10 +30,18 @@ function generateAndSave_(data, choice) {
     folderCreated: dest.created,
     folderUrl: folder.getUrl(),
     files: files,
-    judgment: judgment
+    judgment: judgment,
+    logWarning: ''
   };
 
-  appendLog_(data, judgment, result);
+  // ここから先で投げると、PDF は既に Drive にあるのに失敗扱いになり、
+  // 再実行で同じフォルダに同じ帳票が二重にできる。ログの失敗は警告に留める。
+  try {
+    appendLog_(data, judgment, result);
+  } catch (e) {
+    result.logWarning = '送信ログに記録できませんでした（' + e.message + '）。'
+      + '監査証跡が欠けるので、設定スプレッドシートの「送信ログ」シートを確認してください。';
+  }
   return result;
 }
 
@@ -46,7 +54,7 @@ function confirmDateAsDate_(v) {
 
 function saveOne_(folder, templateName, model, fileName) {
   var html = renderTemplate_(templateName, model);
-  var pdf = htmlToPdfBlob_(html, fileName);
+  var pdf = htmlToPdfBlob_(html, fileName, folder.getId());
   var file = folder.createFile(pdf);
   return { id: file.getId(), name: file.getName(), url: file.getUrl() };
 }
@@ -55,20 +63,46 @@ function saveOne_(folder, templateName, model, fileName) {
  * 入力値の検証。表示中（form）かつ必須の項目が埋まっているかを見る。
  * 帳票そのものの妥当性（適合性の判定）は judge_ の仕事なのでここでは見ない。
  */
+/** 法人契約では使わない項目。帳票にもログにも出ないので入力を求めない。 */
+var INDIVIDUAL_ONLY_FIELDS = [
+  'age', 'elderlyMethod', 'occupation', 'occupationClass', 'householdConfirmed',
+  'income', 'assets', 'annualPremium', 'payYears'
+];
+
 function validate_(data, fieldConfig) {
   var errors = [];
+  var isCorp = data.contractType === '法人';
+
   FIELD_DEFS.forEach(function (f) {
     if (!f.required) return;
-    var mode = fieldConfig[f.key].mode;
-    if (mode === 'hidden') return;
+    if (fieldConfig[f.key].mode === 'hidden') return;
+    if (isCorp && INDIVIDUAL_ONLY_FIELDS.indexOf(f.key) >= 0) return;
     var v = data[f.key];
     var empty = (v == null || v === '' || (Array.isArray(v) && v.length === 0));
     if (empty) errors.push(f.label + 'を入力してください。');
   });
 
+  if (isCorp) return errors;
+
+  // 数値の妥当性。負の値を通すと判定③が静かに「はい」になり、しかも年間保険料と
+  // 払込期間は帳票に出ないので、出来上がったPDFを見ても誤りに気づけない。
   var age = num_(data.age);
   if (age !== null && (age < 0 || age > 120)) errors.push('年齢の値が不正です。');
-  if (num_(data.payYears) === 0) errors.push('保険料払込期間は1年以上で入力してください。');
+
+  [['income', '年収'], ['assets', '金融資産'], ['annualPremium', '年間保険料']]
+    .forEach(function (pair) {
+      var n = num_(data[pair[0]]);
+      if (n !== null && n < 0) errors.push(pair[1] + 'に負の値は入力できません。');
+    });
+
+  var years = num_(data.payYears);
+  if (years !== null && years <= 0) errors.push('保険料払込期間は1年以上で入力してください。');
+
+  // 「投資経験なし」と他の商品を同時に選ぶのは矛盾。判定④が甘くなる。
+  var exp = data.experience || [];
+  if (exp.length > 1 && exp.indexOf('投資経験なし') >= 0) {
+    errors.push('「投資経験なし」は他の金融商品と同時に選べません。');
+  }
   return errors;
 }
 

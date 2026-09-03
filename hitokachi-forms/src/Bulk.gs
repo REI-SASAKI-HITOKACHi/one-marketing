@@ -25,13 +25,15 @@ var COL_MESSAGE = 2;
 
 var STATUS_PENDING     = '未作成';
 var STATUS_READY       = '下見OK';
+var STATUS_EXISTING    = '既存に保存';
 var STATUS_NEEDS_CHECK = '要確認';
 var STATUS_DONE        = '作成済';
 var STATUS_ERROR       = 'エラー';
 
 var ROW_COLORS = {};
 ROW_COLORS[STATUS_PENDING]     = null;
-ROW_COLORS[STATUS_READY]       = '#e8f0fe';
+ROW_COLORS[STATUS_READY]       = '#e8f0fe';  // 新規フォルダ
+ROW_COLORS[STATUS_EXISTING]    = '#fff4d6';  // 既存フォルダ。目を通してから実行する
 ROW_COLORS[STATUS_NEEDS_CHECK] = '#ffe8cc';
 ROW_COLORS[STATUS_DONE]        = '#e7f4ec';
 ROW_COLORS[STATUS_ERROR]       = '#fdecea';
@@ -39,6 +41,7 @@ ROW_COLORS[STATUS_ERROR]       = '#fdecea';
 /** 6分の実行時間制限に対する余裕。これを超えたら中断して続きを予約する。 */
 var BULK_BUDGET_MS = 4.5 * 60 * 1000;
 var RESUME_FUNCTION = 'resumeBulk';
+var PROP_RESUME_ROWS = 'BULK_RESUME_ROWS';
 
 /* ------------------------------------------------------------------ *
  * メニュー
@@ -200,7 +203,7 @@ function applyBulkColumnFormats_(sh, cols, rows) {
 function applyBulkStatusColors_(sh, totalCols, rows) {
   var range = sh.getRange(BULK_FIRST_ROW, 1, rows, totalCols);
   var rules = [];
-  [STATUS_READY, STATUS_NEEDS_CHECK, STATUS_DONE, STATUS_ERROR].forEach(function (s) {
+  [STATUS_READY, STATUS_EXISTING, STATUS_NEEDS_CHECK, STATUS_DONE, STATUS_ERROR].forEach(function (s) {
     if (!ROW_COLORS[s]) return;
     rules.push(SpreadsheetApp.newConditionalFormatRule()
       .whenFormulaSatisfied('=$A' + BULK_FIRST_ROW + '="' + s + '"')
@@ -291,8 +294,13 @@ function writeRow_(sh, row, status, message, result) {
     if (col < 0) return;
     var v = result[i];
     var cell = sh.getRange(row, col + 1);
-    if (v && v.url) cell.setFormula('=HYPERLINK("' + v.url + '","' + v.text + '")');
-    else cell.clearContent();
+    if (v && v.url) {
+      // フォルダ名に " が含まれると数式が壊れる。数式内では "" が1つの " を表す。
+      var text = String(v.text).replace(/"/g, '""');
+      cell.setFormula('=HYPERLINK("' + v.url + '","' + text + '")');
+    } else {
+      cell.clearContent();
+    }
   });
 }
 
@@ -327,19 +335,27 @@ function dryRunBulk() {
       counts.check++;
       return;
     }
-    var where = v.destination.status === 'match'
-      ? '既存フォルダ「' + v.destination.candidates[0].name + '」に保存します'
-      : '新しいフォルダ「' + v.destination.newFolderName + '」を作成します';
-    if (v.destination.status === 'match') counts.existing++;
+    if (v.destination.status === 'match') {
+      counts.existing++;
+      counts.ready++;
+      writeRow_(sh, r.row, STATUS_EXISTING, judgeSummary_(v.judgment)
+        + '／既存フォルダ「' + v.destination.candidates[0].name + '」に保存します。'
+        + '同姓同名の別人でないか確かめてください。');
+      return;
+    }
     counts.ready++;
-    writeRow_(sh, r.row, STATUS_READY, judgeSummary_(v.judgment) + '／' + where);
+    writeRow_(sh, r.row, STATUS_READY, judgeSummary_(v.judgment)
+      + '／新しいフォルダ「' + v.destination.newFolderName + '」を作成します');
   });
 
   toast_('下見しました。作成できる ' + counts.ready + ' 件'
     + '（うち既存フォルダ ' + counts.existing + ' 件）'
     + '／要確認 ' + counts.check + ' 件／エラー ' + counts.error + ' 件'
     + '／作成済 ' + counts.done + ' 件。'
-    + (counts.existing ? '　既存フォルダに入る行に色が付いています。確認してから作成してください。' : ''));
+    + (counts.existing
+        ? '　うち ' + counts.existing + ' 件は既存の顧客フォルダに入ります（黄色の行）。'
+          + '同姓同名の別人でないか確かめてから作成してください。'
+        : ''));
 }
 
 function judgeSummary_(j) {
@@ -367,12 +383,19 @@ function evaluateRow_(r, conf) {
  * ------------------------------------------------------------------ */
 
 function runBulkAll() {
+  PropertiesService.getScriptProperties().deleteProperty(PROP_RESUME_ROWS);
   processBulk_(null);
 }
 
 /** シート上で選択している行だけを処理する。担当者が自分の分だけ流すときに使う。 */
 function runBulkSelected() {
   var sh = bulkSheetOrThrow_();
+  // getActiveRangeList はアクティブシートの選択を返す。別のシートを開いたまま
+  // 実行すると、その行番号が一括入力シートの行として処理されてしまう。
+  var active = SpreadsheetApp.getActiveSheet();
+  if (!active || active.getSheetId() !== sh.getSheetId()) {
+    return toast_('「一括入力」シートを開いて、作成したい行を選んでから実行してください。');
+  }
   var sel = sh.getActiveRangeList();
   if (!sel) return toast_('作成したい行を選択してから実行してください。');
 
@@ -387,10 +410,19 @@ function runBulkSelected() {
   processBulk_(wanted);
 }
 
-/** 中断した続きが自動で呼ばれる入口。 */
+/**
+ * 中断した続きが自動で呼ばれる入口。
+ * 「選択した行だけ」で始まった実行は、その範囲を引き継ぐ。引き継がないと
+ * 担当者が保留していた他人の行まで作りにいく。
+ */
 function resumeBulk() {
   clearResumeTriggers_();
-  processBulk_(null);
+  var raw = PropertiesService.getScriptProperties().getProperty(PROP_RESUME_ROWS);
+  var onlyRows = null;
+  if (raw) {
+    try { onlyRows = JSON.parse(raw); } catch (e) { onlyRows = null; }
+  }
+  processBulk_(onlyRows);
 }
 
 /**
@@ -400,7 +432,11 @@ function resumeBulk() {
  */
 function processBulk_(onlyRows) {
   var lock = LockService.getScriptLock();
-  if (!lock.tryLock(10000)) return toast_('ほかの実行が動いています。終わってからもう一度実行してください。');
+  if (!lock.tryLock(10000)) {
+    // 手動実行と再開が重なった場合。ここで諦めると残りの行が誰にも気づかれず放置される。
+    scheduleResume_(onlyRows);
+    return toast_('ほかの実行が動いています。1分後に自動でやり直します。');
+  }
 
   try {
     var started = Date.now();
@@ -433,21 +469,43 @@ function processBulk_(onlyRows) {
         continue;
       }
 
+      // 既存フォルダへの保存は、下見で一度画面に出したものだけを通す。
+      // 1件ずつのフォームなら確認画面を出せるが、一括では出せないため。
+      if (v.destination.status === 'match' && r.status !== STATUS_EXISTING) {
+        writeRow_(sh, r.row, STATUS_EXISTING, judgeSummary_(v.judgment)
+          + '／既存フォルダ「' + v.destination.candidates[0].name + '」に保存しようとしています。'
+          + '同姓同名の別人でないか確かめて、もう一度実行してください。');
+        skipped++;
+        continue;
+      }
+
+      var result;
       try {
         var choice = v.destination.status === 'match' ? v.destination.candidates[0].id : 'new';
-        var result = generateAndSave_(v.data, choice);
+        result = generateAndSave_(v.data, choice);
+      } catch (e) {
+        writeRow_(sh, r.row, STATUS_ERROR, e.message);
+        failed++;
+        SpreadsheetApp.flush();
+        continue;
+      }
+
+      // ここまで来たら PDF は Drive にある。以降の失敗で「エラー」にすると
+      // 再実行で二重に作られるため、状態は必ず「作成済」にする。
+      made++;
+      try {
         writeRow_(sh, r.row, STATUS_DONE,
           judgeSummary_(v.judgment) + '／' + result.folderName
-            + (result.folderCreated ? '（新規作成）' : '（既存）'),
+            + (result.folderCreated ? '（新規作成）' : '（既存）')
+            + (result.logWarning ? '　' + result.logWarning : ''),
           [
             { url: result.folderUrl,     text: result.folderName },
             { url: result.files[0].url,  text: '適合性確認シート' },
             { url: result.files[1].url,  text: '意向把握シート' }
           ]);
-        made++;
       } catch (e) {
-        writeRow_(sh, r.row, STATUS_ERROR, e.message);
-        failed++;
+        try { sh.getRange(r.row, COL_STATUS, 1, 2).setValues([[STATUS_DONE,
+          'PDFは作成済み。結果の書き込みに失敗（' + e.message + '）']]); } catch (e2) {}
       }
       SpreadsheetApp.flush();
     }
@@ -456,7 +514,7 @@ function processBulk_(onlyRows) {
       + (failed ? 'エラー ' + failed + ' 件。' : '')
       + (skipped ? '要確認 ' + skipped + ' 件。' : '');
     if (remaining > 0) {
-      scheduleResume_();
+      scheduleResume_(onlyRows);
       msg += ' 残り ' + remaining + ' 件は 1 分後に自動で続きを実行します。'
            + 'このタブを閉じても構いません。';
     }
@@ -479,8 +537,11 @@ function countPending_(rows, from, onlyRows) {
  * 続きの予約
  * ------------------------------------------------------------------ */
 
-function scheduleResume_() {
+function scheduleResume_(onlyRows) {
   clearResumeTriggers_();
+  var props = PropertiesService.getScriptProperties();
+  if (onlyRows) props.setProperty(PROP_RESUME_ROWS, JSON.stringify(onlyRows));
+  else props.deleteProperty(PROP_RESUME_ROWS);
   ScriptApp.newTrigger(RESUME_FUNCTION).timeBased().after(60 * 1000).create();
 }
 
@@ -493,6 +554,7 @@ function clearResumeTriggers_() {
 /** 自動で続きが動くのを止める。 */
 function stopBulk() {
   clearResumeTriggers_();
+  PropertiesService.getScriptProperties().deleteProperty(PROP_RESUME_ROWS);
   toast_('予約されていた続きの実行を取り消しました。');
 }
 
@@ -576,7 +638,15 @@ function importFromStagingSheet() {
   var mapping = [];   // { srcCol, destCol, isCheck }
   var unknown = [];
   srcHeader.forEach(function (h, i) {
-    if (!h) return;
+    if (!h) {
+      // 見出しが空でも、その列にデータがあれば貼り付けがずれている可能性が高い。
+      // 黙って捨てず、対応する列がない場合と同じく中止する。
+      var hasData = srcValues.slice(1).some(function (row) {
+        return String(row[i] == null ? '' : row[i]).trim() !== '';
+      });
+      if (hasData) unknown.push('(見出しが空の列 ' + (i + 1) + ' 列目)');
+      return;
+    }
     var col = labelToCol[h];
     if (!col) { unknown.push(srcValues[0][i]); return; }
     mapping.push({ srcCol: i, destCol: col, isCheck: isCheckColumn_(destKeys[col - 1]) });
@@ -591,10 +661,22 @@ function importFromStagingSheet() {
   }
   if (!mapping.length) return toast_('突き合わせられる列がありませんでした。見出し行が1行目にあるか確認してください。');
 
-  // 「一括入力」シートの末尾に足す。既にある行は触らない。
-  var startRow = Math.max(dest.getLastRow() + 1, BULK_FIRST_ROW);
-  var added = 0;
+  // 既にある行の「契約者氏名＋確認日」を控えて、二重取り込みを弾く。
+  // 気づかず2回流し込むと、全顧客のフォルダに同じ帳票が2セットできる。
+  var existing = {};
+  readBulkRows_(dest).forEach(function (row) {
+    existing[importKey_(row.values)] = true;
+  });
+
+  // getLastRow() は先回りで入れたチェックボックス（値 false）まで拾って膨らむ。
+  // 実データの最終行から続けないと、書式も入力規則も条件付き書式もない領域に落ちる。
+  var lastDataRow = readBulkRows_(dest).reduce(function (m, row) {
+    return Math.max(m, row.row);
+  }, BULK_FIRST_ROW - 1);
+  var startRow = lastDataRow + 1;
+
   var grid = [];
+  var duplicates = [];
 
   for (var r = 1; r < srcValues.length; r++) {
     var srcRow = srcValues[r];
@@ -607,17 +689,47 @@ function importFromStagingSheet() {
     });
     // 状態は必ず未処理から始める。取り込んだだけで作成済みにはしない。
     out[COL_STATUS - 1] = '';
+
+    var pairs = {};
+    destKeys.forEach(function (k, i) { pairs[k] = out[i]; });
+    var key = importKey_(pairs);
+    if (existing[key]) { duplicates.push(pairs.customerName); continue; }
+    existing[key] = true;
     grid.push(out);
-    added++;
   }
 
-  if (!added) return toast_('取り込める行がありませんでした。');
+  if (!grid.length) {
+    return alertOrToast_('取り込める行がありませんでした。'
+      + (duplicates.length ? '\n\n' + duplicates.length + ' 件は既に取り込み済みです（契約者氏名と確認日が同じ行があります）。' : ''));
+  }
 
   dest.getRange(startRow, 1, grid.length, destLastCol).setValues(grid);
+
+  // 追加した行にも書式・入力規則・条件付き書式を効かせる。
+  var cols = bulkColumns_();
+  var totalRows = startRow - BULK_FIRST_ROW + grid.length + 20;
+  applyBulkColumnFormats_(dest, cols, totalRows);
+  applyBulkStatusColors_(dest, destLastCol, totalRows);
+  // insertCheckboxes は値を false にするので、貼り直したあとに書き戻す。
+  dest.getRange(startRow, 1, grid.length, destLastCol).setValues(grid);
+
+  // 同じシートをもう一度流し込む事故を防ぐため、取り込み元を空にする。
+  src.clear();
+  prepareImportSheet();
+
   ss.setActiveSheet(dest);
-  toast_(added + ' 件を「一括入力」シートの ' + startRow + ' 行目から追加しました。'
+  toast_(grid.length + ' 件を「一括入力」シートの ' + startRow + ' 行目から追加しました。'
     + '　突き合わせた列は ' + mapping.length + ' 列です。'
+    + (duplicates.length ? '　既に取り込み済みの ' + duplicates.length + ' 件は飛ばしました。' : '')
     + '　「① 保存先を下見する」で内容を確かめてください。');
+}
+
+/** 取り込みの重複判定に使う鍵。同じ顧客・同じ確認日なら同一とみなす。 */
+function importKey_(values) {
+  var d = values.confirmDate;
+  var date = isDate_(d) ? Utilities.formatDate(d, 'Asia/Tokyo', 'yyyy-MM-dd')
+    : String(d == null ? '' : d).trim();
+  return normalizeName_(values.customerName) + '|' + date;
 }
 
 /** 見出しの表記ゆれを吸収する。全角空白や前後の空白で一致しなくなるのを防ぐ。 */

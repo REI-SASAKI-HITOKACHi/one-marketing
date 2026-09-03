@@ -60,11 +60,45 @@ class FakeSheet {
       },
       setValue(v) { return this.setValues([[v]]); },
       setNote(n) { sheet.notes[`${row},${col}`] = n; return this; },
+      // 実APIの insertCheckboxes は「範囲内のセルの値をすべて false にする」。
+      // ここを忠実に真似ておかないと、値が消える不具合をテストが見逃す。
+      insertCheckboxes() {
+        sheet._ensure(row + numRows - 1, col + numCols - 1);
+        for (let r = 0; r < numRows; r++) {
+          for (let c = 0; c < numCols; c++) sheet.grid[row - 1 + r][col - 1 + c] = false;
+        }
+        return this;
+      },
+      clearContent() {
+        sheet._ensure(row + numRows - 1, col + numCols - 1);
+        for (let r = 0; r < numRows; r++) {
+          for (let c = 0; c < numCols; c++) sheet.grid[row - 1 + r][col - 1 + c] = '';
+        }
+        return this;
+      },
+      setFormula(f) { return this.setValues([[f]]); },
+      setDataValidation() { return this; },
+      setNumberFormat() { return this; },
+      setHorizontalAlignment() { return this; },
+      setVerticalAlignment() { return this; },
       setFontStyle() { return this; },
-      setFontColor() { return this; }
+      setFontColor() { return this; },
+      setFontWeight() { return this; },
+      setBackground() { return this; },
+      setWrap() { return this; }
     };
   }
   getDataRange() { return this.getRange(1, 1, Math.max(this.getLastRow(), 1), Math.max(this.width, 1)); }
+  getSheetId() { return this.name; }
+  setColumnWidth() { return this; }
+  setFrozenRows() { return this; }
+  setFrozenColumns() { return this; }
+  hideRows() { return this; }
+  showRows() { return this; }
+  isRowHiddenByUser() { return false; }
+  clearConditionalFormatRules() { return this; }
+  setConditionalFormatRules() { return this; }
+  clear() { this.grid = []; this.width = 0; return this; }
 }
 
 function makeContext(sheets) {
@@ -80,7 +114,18 @@ function makeContext(sheets) {
         setActiveSheet: () => {}
       }),
       getActive: () => ({ toast: (m) => toasts.push(m) }),
-      getUi: () => ({ alert: (m) => alerts.push(m) })
+      getUi: () => ({ alert: (m) => alerts.push(m) }),
+      newDataValidation: () => ({
+        requireValueInList() { return this; }, setAllowInvalid() { return this; },
+        build() { return {}; }
+      }),
+      newConditionalFormatRule: () => {
+        const b = {
+          whenFormulaSatisfied() { return b; }, setBackground() { return b; },
+          setRanges() { return b; }, build() { return {}; }
+        };
+        return b;
+      }
     },
     Utilities: {
       formatDate(d, tz, fmt) {
@@ -256,6 +301,62 @@ console.log('\n--- 追記であって上書きではない ---');
   t('既存の行は先頭のまま',     rows[0].values.customerName, '既存 花子');
   t('既存の状態も保たれる',     rows[0].status, '作成済');
   t('取り込んだ行が後ろに付く', rows[1].values.customerName, '加藤学');
+}
+
+console.log('\n--- 同じ表を2回流し込んでも二重にならない ---');
+{
+  const store = {};
+  const ctx = makeContext(store);
+  const { sheet: bulk } = makeBulkSheet(ctx);
+  store['一括入力'] = bulk;
+
+  store['取り込み'] = new FakeSheet('取り込み', tsv.map(r => r.slice()));
+  ctx.importFromStagingSheet();
+  t('1回目で1件入る', ctx.readBulkRows_(bulk).length, 1);
+
+  // 取り込みシートは流し込み後に空になっているので、貼り直した状況を作る
+  store['取り込み'] = new FakeSheet('取り込み', tsv.map(r => r.slice()));
+  ctx.importFromStagingSheet();
+  t('2回目は増えない', ctx.readBulkRows_(bulk).length, 1);
+  t('飛ばしたことを知らせる',
+    ctx.alerts.concat(ctx.toasts).some(m => String(m).indexOf('取り込み済み') >= 0), true);
+
+  // 別の顧客なら入る
+  const other = tsv.map(r => r.slice());
+  other[1][2] = '別人 太郎';
+  store['取り込み'] = new FakeSheet('取り込み', other);
+  ctx.importFromStagingSheet();
+  t('別の顧客は追加される', ctx.readBulkRows_(bulk).length, 2);
+}
+
+console.log('\n--- 流し込み後は取り込みシートが空になる ---');
+{
+  const store = {};
+  const ctx = makeContext(store);
+  const { sheet: bulk } = makeBulkSheet(ctx);
+  store['一括入力'] = bulk;
+  store['取り込み'] = new FakeSheet('取り込み', tsv.map(r => r.slice()));
+  ctx.importFromStagingSheet();
+  const staging = store['取り込み'];
+  const rows = staging.getRange(2, 1, Math.max(staging.getLastRow() - 1, 1), 5).getValues();
+  t('データ行が残っていない', rows.every(r => r.every(c => c === '' || c === undefined)), true);
+}
+
+console.log('\n--- 見出しが空の列にデータがあれば中止する ---');
+{
+  const store = {};
+  const ctx = makeContext(store);
+  const { sheet: bulk } = makeBulkSheet(ctx);
+  store['一括入力'] = bulk;
+
+  const shifted = tsv.map(r => r.slice());
+  shifted[0].push('');          // 見出しだけ空
+  shifted[1].push('取り残された値');
+  store['取り込み'] = new FakeSheet('取り込み', shifted);
+
+  ctx.importFromStagingSheet();
+  t('中止する', ctx.alerts.length, 1);
+  t('1行も書き込まれていない', ctx.readBulkRows_(bulk).length, 0);
 }
 
 fs.rmSync(TMP, { recursive: true, force: true });

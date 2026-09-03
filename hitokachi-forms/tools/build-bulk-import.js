@@ -136,9 +136,27 @@ function main() {
   const filledCount = {};   // 列キー → 埋まった件数
   cols.forEach(c => { filledCount[c.key] = 0; });
 
+  // 一括では扱えない情報を持つ記録に印を付ける。
+  // 何も言わずに落とすと、当初＝最終・意向の変化なしの帳票が黙って出来上がる。
+  const warned = [];
+  records.forEach(r => {
+    const notes = [];
+    if (changed(r.needsInitial, r.needsFinal)) {
+      notes.push('当初と最終でご意向が変わっています');
+    }
+    if ((r.changeLog || []).some(c => c && (c.date || c.text))) {
+      notes.push('ご意向の変化の記録があります');
+    }
+    if (notes.length) warned.push({ name: r.customerName, notes });
+    r.__warn = notes;
+  });
+
   records.forEach(r => {
     const v = valuesFor(r);
-    const row = ['', '過去の意向把握シートから取り込み。適合性の項目は未入力です。'];
+    const warn = r.__warn && r.__warn.length
+      ? '【一括では作成しないこと】' + r.__warn.join('・') + '。1件ずつのフォームで作成してください。'
+      : '';
+    const row = ['', warn + '過去の意向把握シートから取り込み。契約形態は自動推定。適合性の項目は未入力です。'];
     cols.forEach(c => {
       const has = Object.prototype.hasOwnProperty.call(v, c.key);
       if (has) filledCount[c.key]++;
@@ -149,7 +167,7 @@ function main() {
   });
 
   write(rows);
-  report(ctx, cols, filledCount, records.length);
+  report(ctx, cols, filledCount, records.length, warned);
 }
 
 function write(rows) {
@@ -160,7 +178,13 @@ function write(rows) {
   fs.writeFileSync(OUT_FILE, tsv + '\n', 'utf8');
 }
 
-function report(ctx, cols, filledCount, total) {
+/** 2つのニーズ表が違うかどうか。 */
+function changed(a, b) {
+  if (!a || !b) return false;
+  return Object.keys(a).some(k => !!a[k] !== !!b[k]);
+}
+
+function report(ctx, cols, filledCount, total, warned) {
   const filled = cols.filter(c => filledCount[c.key] > 0);
   const empty  = cols.filter(c => filledCount[c.key] === 0);
 
@@ -182,6 +206,14 @@ function report(ctx, cols, filledCount, total) {
   empty.forEach(c => {
     console.log(`   ${isRequired(c) ? '【必須】' : '　　　　'} ${c.label}`);
   });
+
+  if (warned.length) {
+    console.log(`\n■ 一括では作成できない記録（${warned.length}／${total}）`);
+    console.log('   一括入力シートは「当初のご意向」と「意向の変化」を扱えません。');
+    console.log('   次の顧客は、そのまま一括で作ると原本と違う帳票になります。');
+    console.log('   メッセージ列に警告を入れてあるので、1件ずつのフォームで作成してください。\n');
+    warned.forEach(w => console.log(`   ${w.name}　… ${w.notes.join('・')}`));
+  }
 
   console.log(`
 ■ 取り込み方

@@ -17,7 +17,8 @@ var LOG_HEADER = [
 
 function appendLog_(data, judgment, result) {
   var sh = settingsSpreadsheet_().getSheetByName(SHEET_LOG);
-  if (!sh) return;
+  // 黙って捨てると監査証跡が誰にも気づかれずに欠ける。
+  if (!sh) throw new Error('「送信ログ」シートが見つかりません。setup() を再実行してください。');
 
   var v = function (k) { return judgment.items[k].value; };
   var reasons = ['i1', 'i2', 'i3', 'i4', 'i5', 'i6'].map(function (k, i) {

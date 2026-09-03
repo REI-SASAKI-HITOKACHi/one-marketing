@@ -107,7 +107,14 @@ function submit(data, choice) {
     return { ok: false, errors: ['ほかの処理が実行中です。少し待ってからもう一度お試しください。'] };
   }
   try {
-    var result = generateAndSave_(data, choice);
+    // クライアントを経由して戻ってきた値なので、prepare() と同じ検証をやり直す。
+    // 画面の不整合や将来の改修で検証が抜ける経路を塞ぐ。
+    var conf = getFieldConfig_();
+    var checked = applyFieldConfig_(data || {}, conf);
+    var errors = validate_(checked, conf);
+    if (errors.length) return { ok: false, errors: errors };
+
+    var result = generateAndSave_(checked, choice);
     return { ok: true, result: result };
   } catch (e) {
     return { ok: false, errors: [e.message] };

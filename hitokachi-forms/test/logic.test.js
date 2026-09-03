@@ -35,6 +35,42 @@ t('旧字体 齋→斎',        n('齋藤'),       n('斎藤'));
 t('複合（旧字体＋空白＋敬称）', n('髙橋　知史様'), n('高橋知史'));
 t('空文字は空文字',       n(''),           '');
 
+console.log('\n--- 別人を同一視しないこと（敬称除去の回帰） ---');
+t('田中 ≠ 田',            n('田中') === n('田'), false);
+t('山中 ≠ 山',            n('山中') === n('山'), false);
+t('野中 ≠ 野',            n('野中') === n('野'), false);
+t('「中」が空にならない',   n('中'), '中');
+t('「けん」が削られない',   n('けん'), 'けん');
+t('株式会社田中 ≠ 株式会社田', n('株式会社田中') === n('株式会社田'), false);
+t('敬称は落ちる（様）',     n('田中様'), n('田中'));
+t('敬称は落ちる（さん）',   n('田中さん'), n('田中'));
+t('敬称は落ちる（御中）',   n('株式会社ABC御中'), n('株式会社ABC'));
+t('敬称は落ちる（殿）',     n('田中殿'), n('田中'));
+
+console.log('\n--- 数値でない入力を0として扱わないこと ---');
+t('「不明」は未入力',   ctx.num_('不明'), null);
+t('「非公開」は未入力', ctx.num_('非公開'), null);
+t('「―」は未入力',     ctx.num_('―'), null);
+t('空欄は未入力',      ctx.num_(''), null);
+t('「1,000」は1000',   ctx.num_('1,000'), 1000);
+t('「500万円」は500',  ctx.num_('500万円'), 500);
+t('年齢が「不明」なら判定①は いいえ', ctx.judgeAge_({ age: '不明' }).value, 'no');
+t('年収が「非公開」なら判定③は いいえ',
+  ctx.judgeBalance_({ income: '非公開', assets: 100, annualPremium: 80, payYears: 10 }).value, 'no');
+
+console.log('\n--- 負の値で判定が裏返らないこと ---');
+t('負の年間保険料',   ctx.judgeBalance_({ income: 500, assets: 100, annualPremium: -150, payYears: 10 }).value, 'no');
+t('負の払込期間',     ctx.judgeBalance_({ income: 500, assets: 100, annualPremium: 150, payYears: -5 }).value, 'no');
+t('負の年収',         ctx.judgeBalance_({ income: -500, assets: 100, annualPremium: 150, payYears: 10 }).value, 'no');
+t('払込期間0年',      ctx.judgeBalance_({ income: 500, assets: 100, annualPremium: 80, payYears: 0 }).value, 'no');
+
+console.log('\n--- 70歳以上の募集方法は別紙の組み合わせだけ ---');
+t('選択肢は2つ', ctx.ELDERLY_METHODS.length, 2);
+t('単独の＜２＞は選択肢にない',
+  ctx.ELDERLY_METHODS.indexOf('＜２＞複数回の面談による募集'), -1);
+t('どちらも2つ以上の方法を含む（単独の募集方法がない）',
+  ctx.ELDERLY_METHODS.every(m => (m.match(/＜[１２３]＞/g) || []).length >= 2), true);
+
 console.log('\n--- ニーズの集約（意向把握8項目 → 適合性⑧） ---');
 t('がん＋病気は1つに集約', ctx.needsToSuitKeys_(['medical', 'cancer']), ['medical']);
 t('教育＋老後は貯蓄に集約', ctx.needsToSuitKeys_(['education', 'pension']), ['savings']);

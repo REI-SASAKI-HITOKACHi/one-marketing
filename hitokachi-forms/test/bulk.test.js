@@ -184,6 +184,49 @@ console.log('\n--- 入力漏れはエラーとして拾える ---');
   t('ニーズの漏れを指摘する', errors.some(e => e.indexOf('ご希望の保障分野') >= 0), true);
 }
 
+console.log('\n--- 検証：不正な数値を弾く ---');
+{
+  const ctx = makeContext();
+  const conf = ctx.getFieldConfig_();
+  const base = {
+    contractType: '個人', customerName: '山田 太郎', agency: 'ヒトカチ株式会社',
+    agent: '佐々木 嶺', confirmDate: '2026-08-01',
+    age: 40, occupation: '会社員', occupationClass: '左記以外',
+    income: 500, assets: 100, annualPremium: 80, payYears: 10,
+    experience: ['株式'], premiumSource: ['預貯金・給与'],
+    sourceNotMaturity: true, sourceSpare: true, sourceNotLoan: true,
+    riskTolerance: ctx.RISK_YES, needs: ['death'], savings: '①ある方が良い'
+  };
+  const check = (over) => ctx.validate_(ctx.applyFieldConfig_(Object.assign({}, base, over), conf), conf);
+
+  t('正常な入力は通る', check({}), []);
+  t('負の年間保険料を弾く',
+    check({ annualPremium: -150 }).some(e => e.indexOf('負の値') >= 0), true);
+  t('負の年収を弾く',
+    check({ income: -500 }).some(e => e.indexOf('負の値') >= 0), true);
+  t('負の金融資産を弾く',
+    check({ assets: -100 }).some(e => e.indexOf('負の値') >= 0), true);
+  t('負の払込期間を弾く',
+    check({ payYears: -5 }).some(e => e.indexOf('1年以上') >= 0), true);
+  t('払込期間0年を弾く',
+    check({ payYears: 0 }).some(e => e.indexOf('1年以上') >= 0), true);
+  t('「投資経験なし」と他商品の同時選択を弾く',
+    check({ experience: ['株式', '投資経験なし'] }).some(e => e.indexOf('同時に選べません') >= 0), true);
+  t('「投資経験なし」単独は通る', check({ experience: ['投資経験なし'] }), []);
+
+  console.log('\n--- 検証：法人契約では個人向け項目を求めない ---');
+  const corp = {
+    contractType: '法人', customerName: '有限会社大原商店', agency: 'ヒトカチ株式会社',
+    agent: '佐々木 嶺', confirmDate: '2026-08-01',
+    experience: [], premiumSource: [],
+    riskTolerance: ctx.RISK_YES, needs: ['business'], savings: '②なくても良い'
+  };
+  const corpErrors = ctx.validate_(ctx.applyFieldConfig_(corp, conf), conf);
+  t('年齢・年収なしでも通る', corpErrors, []);
+  t('個人契約なら同じ入力は弾かれる',
+    ctx.validate_(ctx.applyFieldConfig_(Object.assign({}, corp, { contractType: '個人' }), conf), conf).length > 0, true);
+}
+
 console.log('\n--- チェックボックスの表記ゆれ ---');
 {
   const ctx = makeContext();

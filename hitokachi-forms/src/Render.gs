@@ -56,12 +56,13 @@ function esc_(s) {
  * HTML を Google ドキュメント経由で PDF Blob にする。
  * 中間ドキュメントは必ず削除する。
  */
-function htmlToPdfBlob_(html, name) {
+function htmlToPdfBlob_(html, name, parentFolderId) {
   var htmlBlob = Utilities.newBlob(html, 'text/html', name + '.html');
-  var created = Drive.Files.create(
-    { name: '__tmp__' + name, mimeType: 'application/vnd.google-apps.document' },
-    htmlBlob
-  );
+  var resource = { name: '__tmp__' + name, mimeType: 'application/vnd.google-apps.document' };
+  // 親を指定しないと、年収・金融資産を含む中間ドキュメントが実行者のマイドライブ
+  // 直下に一瞬できる。保存先のフォルダ内に作って、そこで消す。
+  if (parentFolderId) resource.parents = [parentFolderId];
+  var created = Drive.Files.create(resource, htmlBlob);
   var docId = created.id;
   try {
     var doc = DocumentApp.openById(docId);
@@ -76,7 +77,12 @@ function htmlToPdfBlob_(html, name) {
     // getAs は遅延評価されうるのでここでバイト列を確定させてから中間ファイルを消す。
     return Utilities.newBlob(pdf.getBytes(), 'application/pdf', name + '.pdf');
   } finally {
-    try { DriveApp.getFileById(docId).setTrashed(true); } catch (e) { /* 消せなくても処理は続ける */ }
+    // ゴミ箱に入れるだけだと個人情報を含む本文が残る。完全に削除する。
+    try {
+      Drive.Files.remove(docId);
+    } catch (e) {
+      try { DriveApp.getFileById(docId).setTrashed(true); } catch (e2) { /* 続行 */ }
+    }
   }
 }
 

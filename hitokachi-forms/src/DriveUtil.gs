@@ -26,7 +26,9 @@ var NAME_VARIANTS = {
 function normalizeName_(s) {
   var t = String(s == null ? '' : s);
   if (String.prototype.normalize) t = t.normalize('NFKC');
-  t = t.replace(/[様さん殿御中]+$/, '');
+  // 文字クラスにすると「田中」→「田」のように1文字ずつ削られ、別人を同一視する。
+  // 敬称そのものを語として落とす。
+  t = t.replace(/(?:様|さん|殿|御中)+$/, '');
   t = t.replace(/[\s　]+/g, '');
   var out = '';
   for (var i = 0; i < t.length; i++) {
