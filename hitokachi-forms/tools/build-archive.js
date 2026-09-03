@@ -117,8 +117,37 @@ function changeLogText(rows) {
     .map(c => `${s(c.date)} ${s(c.text)}`.trim()).join(' / ');
 }
 
+/**
+ * 突き合わせ用の鍵。
+ *
+ * 適合性確認シートは「株式会社◯◯ 代表取締役 △△」と代表者名まで書き、
+ * 意向把握シートは「株式会社◯◯」だけ、という食い違いがある。法人名の後ろに
+ * 続く代表者の肩書き以降を落として揃える。
+ *
+ * フォルダ照合（src/DriveUtil.gs）はここまで踏み込まない。あちらは別人の
+ * フォルダへ保存する事故に直結するので、保守的なままにしておく。
+ */
+function matchKey(normalize, name) {
+  let k = normalize(name);
+
+  // 長音符の揺れを吸収する。NFKC で全角ハイフン「－」は ASCII の「-」になるが、
+  // 「インタ－ハ－ト」と「インターハート」は同じ会社を指している。
+  k = k.replace(/[-\u2010\u2012\u2013\u2014\u2015\u2212]/g, '\u30fc');
+
+  // 法人名のあとに代表者の肩書きと氏名が続く書き方を落とす。
+  // 適合性確認シートは「株式会社◯◯ 代表取締役 △△」、意向把握シートは
+  // 「株式会社◯◯」だけ、という食い違いがあるため。
+  // 法人格を含む名前にだけ適用し、個人名は触らない。
+  if (/(株式会社|有限会社|合同会社|合資会社|合名会社|一般社団法人|一般財団法人|医療法人)/.test(k)) {
+    k = k.replace(/(代表取締役社長|代表取締役|代表執行役|代表社員|代表理事|理事長|代表者|代表|社長|会長).*$/, '');
+  }
+  return k;
+}
+
+
 function main() {
   const normalize = loadNormalizer();
+  const key = (name) => matchKey(normalize, name);
   const NEEDS = [
     { key: 'death', label: '死亡時の保障' },
     { key: 'medical', label: '病気・ケガ・介護の保障' },
@@ -138,26 +167,44 @@ function main() {
     console.error('意向把握シート側の記録だけで台帳を作ります（適合性の列は空欄）。\n');
   }
 
-  // 氏名で突き合わせる。適合性シートと意向把握シートの両方にいる顧客は1行にまとめる。
-  const rows = new Map();   // 正規化した氏名 → 行データ
-  const pick = (name) => {
-    const k = normalize(name);
-    if (!rows.has(k)) rows.set(k, { name: name, intent: null, suit: null });
-    return rows.get(k);
-  };
+  // 1 書類 1 行にする。同じ顧客で内容の食い違う適合性確認シートが複数見つかって
+  // いるため、顧客単位でまとめると矛盾が隠れてしまう。監査で問題になるのはむしろ
+  // その食い違いなので、書類はすべて残す。
+  const intentByName = new Map();
+  intents.forEach(r => intentByName.set(key(r.customerName), r));
 
-  intents.forEach(r => { pick(r.customerName).intent = r; });
-  (suitability || []).forEach(r => { pick(r.customerName).suit = r; });
+  // 同じ顧客に何通の適合性確認シートがあるかを数える。
+  const suitCount = new Map();
+  (suitability || []).forEach(r => {
+    const k = key(r.customerName);
+    suitCount.set(k, (suitCount.get(k) || 0) + 1);
+  });
+
+  const pairs = [];
+  const usedIntent = new Set();
+  (suitability || []).forEach(suit => {
+    const k = key(suit.customerName);
+    pairs.push({ name: suit.customerName, suit: suit, intent: intentByName.get(k) || null });
+    if (intentByName.has(k)) usedIntent.add(k);
+  });
+  // 適合性確認シートが無い顧客も、意向把握シートの記録だけで台帳に載せる。
+  intents.forEach(r => {
+    const k = key(r.customerName);
+    if (!usedIntent.has(k)) pairs.push({ name: r.customerName, suit: null, intent: r });
+  });
 
   const out = [COLUMNS];
   let bothSides = 0, intentOnly = 0, suitOnly = 0;
 
-  Array.from(rows.values()).forEach(({ name, intent, suit }) => {
+  pairs.forEach(({ name, intent, suit }) => {
     if (intent && suit) bothSides++;
     else if (intent) intentOnly++;
     else suitOnly++;
 
     const notes = [];
+    if (suit && suit.extractionFailed) notes.push('本文を読み取れなかった');
+    const dup = suit ? suitCount.get(key(suit.customerName)) : 0;
+    if (dup > 1) notes.push(`この顧客の適合性確認シートは ${dup} 通ある。内容が食い違っていないか確認すること`);
     if (intent && intent.notes) notes.push(intent.notes);
     if (suit && suit.notes) notes.push(suit.notes);
     if (!suit) notes.push('適合性確認シートの記録なし');
@@ -202,10 +249,20 @@ function main() {
 
   const rel = path.relative(process.cwd(), OUT_FILE);
   console.log(`${out.length - 1} 件の台帳を書き出しました: ${rel}\n`);
-  console.log(`■ 内訳`);
-  console.log(`   両方の記録がある顧客        ${bothSides} 件`);
-  console.log(`   意向把握シートのみ          ${intentOnly} 件`);
-  console.log(`   適合性確認シートのみ        ${suitOnly} 件`);
+  console.log(`■ 内訳（1 書類 1 行）`);
+  console.log(`   両方の記録がある            ${bothSides} 行`);
+  console.log(`   意向把握シートのみ          ${intentOnly} 行`);
+  console.log(`   適合性確認シートのみ        ${suitOnly} 行`);
+
+  const multi = Array.from(suitCount.entries()).filter(([, n]) => n > 1);
+  if (multi.length) {
+    console.log(`\n■ 適合性確認シートが複数ある顧客（${multi.length} 名）`);
+    console.log('   内容が食い違っていないか、原本に当たって確認してください。');
+    multi.forEach(([k, n]) => {
+      const one = (suitability || []).find(r => key(r.customerName) === k);
+      console.log(`   ${one ? one.customerName : k}　… ${n} 通`);
+    });
+  }
 
   const missingSuit = out.slice(1).filter(r => r[27].indexOf('適合性確認シートの記録なし') >= 0).length;
   if (missingSuit) {
