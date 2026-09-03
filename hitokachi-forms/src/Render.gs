@@ -11,6 +11,14 @@ var A4_WIDTH_PT  = 595.28;
 var A4_HEIGHT_PT = 841.89;
 var MARGIN_PT    = 36; // 0.5 インチ
 
+/**
+ * 値が日付かどうか。instanceof Date は実行コンテキストをまたぐと偽になるので、
+ * 型タグで見る（スプレッドシートから返る Date を取りこぼさないため）。
+ */
+function isDate_(v) {
+  return Object.prototype.toString.call(v) === '[object Date]';
+}
+
 /** 全角数字。原本の日付表記に合わせる。 */
 function toFullWidth_(s) {
   return String(s).replace(/[0-9]/g, function (c) {
@@ -21,7 +29,7 @@ function toFullWidth_(s) {
 /** Date または 'YYYY-MM-DD' を「２０２６年８月１日」形式にする。 */
 function formatJpDate_(v) {
   if (!v) return '';
-  var d = (v instanceof Date) ? v : new Date(String(v).replace(/\//g, '-'));
+  var d = isDate_(v) ? v : new Date(String(v).replace(/\//g, '-'));
   if (isNaN(d.getTime())) return String(v);
   return toFullWidth_(d.getFullYear()) + '年'
     + toFullWidth_(d.getMonth() + 1) + '月'
@@ -31,7 +39,7 @@ function formatJpDate_(v) {
 /** 意向把握シートの確認日欄は西暦スラッシュ表記。 */
 function formatSlashDate_(v) {
   if (!v) return '';
-  var d = (v instanceof Date) ? v : new Date(String(v).replace(/\//g, '-'));
+  var d = isDate_(v) ? v : new Date(String(v).replace(/\//g, '-'));
   if (isNaN(d.getTime())) return String(v);
   return Utilities.formatDate(d, 'Asia/Tokyo', 'yyyy/MM/dd');
 }

@@ -25,10 +25,29 @@ function setup() {
   ensureUsersSheet_(ss);
   ensureFieldsSheet_(ss);
   ensureLogSheet_(ss);
+  ensureMenuTrigger_(ss);
 
   var url = ss.getUrl();
   Logger.log('設定スプレッドシート: ' + url);
   return url;
+}
+
+/**
+ * 設定スプレッドシートに「帳票作成」メニューを出すためのトリガー。
+ * このスクリプトはスプレッドシートに紐づいていない（スタンドアロン）ので、
+ * onOpen をそのまま書いても呼ばれない。インストール型トリガーで仕掛ける。
+ */
+function ensureMenuTrigger_(ss) {
+  var already = ScriptApp.getProjectTriggers().some(function (t) {
+    return t.getHandlerFunction() === 'onOpenMenu';
+  });
+  if (already) return;
+  try {
+    ScriptApp.newTrigger('onOpenMenu').forSpreadsheet(ss).onOpen().create();
+  } catch (e) {
+    Logger.log('メニューのトリガーを作れませんでした: ' + e.message
+      + '\n一括作成の各関数は、Apps Script エディタから直接実行することもできます。');
+  }
 }
 
 function getOrCreateSheet_(ss, name) {

@@ -17,9 +17,7 @@ function generateAndSave_(data, choice) {
   var folder = DriveApp.getFolderById(dest.id);
 
   var model = buildModel_(data, judgment, agent, data.agency);
-  var stamp = Utilities.formatDate(
-    data.confirmDate ? new Date(String(data.confirmDate).replace(/\//g, '-')) : new Date(),
-    'Asia/Tokyo', 'yyyyMMdd');
+  var stamp = Utilities.formatDate(confirmDateAsDate_(data.confirmDate), 'Asia/Tokyo', 'yyyyMMdd');
   var base = sanitizeFileName_(data.customerName) + '_' + stamp;
 
   var files = [];
@@ -37,6 +35,13 @@ function generateAndSave_(data, choice) {
 
   appendLog_(data, judgment, result);
   return result;
+}
+
+/** 確認日を Date にする。文字列でも Date でも受ける。不正なら今日。 */
+function confirmDateAsDate_(v) {
+  if (isDate_(v)) return v;
+  var d = new Date(String(v == null ? '' : v).replace(/\//g, '-'));
+  return isNaN(d.getTime()) ? new Date() : d;
 }
 
 function saveOne_(folder, templateName, model, fileName) {
@@ -95,6 +100,6 @@ function coerceFixed_(field, raw) {
   }
   if (field.type === 'check') return isTrue_(raw);
   if (field.type === 'rows') return [];
-  if (field.type === 'date' && raw instanceof Date) return formatSlashDate_(raw);
+  if (field.type === 'date' && isDate_(raw)) return formatSlashDate_(raw);
   return raw == null ? '' : raw;
 }
