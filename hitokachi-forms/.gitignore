@@ -2,3 +2,6 @@
 node_modules/
 test/out/
 data/bulk-import.tsv
+
+# 顧客の個人情報を含む抽出データ。リポジトリにはコミットしない。
+data/
