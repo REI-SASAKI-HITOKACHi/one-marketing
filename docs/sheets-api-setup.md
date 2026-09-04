@@ -27,6 +27,12 @@ Claude公式コネクタに「Google Sheets」は存在せず、レジストリ�
 1. https://console.cloud.google.com/ を開く（`case.foot.kid@gmail.com` でログイン）
 2. 画面上部のプロジェクト選択 → **新しいプロジェクト** → 名前 `one-hitter-sheets` → **作成**
 3. 左上メニュー → **APIとサービス → ライブラリ** → 「Google Sheets API」を検索 → **有効にする**
+
+   > ⚠️ **ここが一番飛ばされやすい手順です。** これを忘れると、鍵もサービスアカウントも正しく作れて
+   > 認証まで通るのに、いざシートを読もうとした瞬間に `SERVICE_DISABLED` の403で止まります。
+   > 飛ばしてしまった場合は、後からこのURLで有効化できます（`<プロジェクト番号>` はエラーメッセージに出ます）：
+   > `https://console.developers.google.com/apis/api/sheets.googleapis.com/overview?project=<プロジェクト番号>`
+   > 有効化の反映に数分かかることがあります。
 4. **APIとサービス → 認証情報** → **認証情報を作成 → サービス アカウント**
    - サービス アカウント名：`claude-sheets`
    - **作成して続行** → ロールの選択は **スキップでOK**
@@ -72,6 +78,15 @@ Claude公式コネクタに「Google Sheets」は存在せず、レジストリ�
     ```
 
     サービスアカウント名とタブ一覧が表示されれば成功です。
+
+## うまくいかないとき
+
+| 症状 | 原因 | 対処 |
+|---|---|---|
+| `アクセストークン取得: 成功` の直後に `403 SERVICE_DISABLED` | Part 1 の手順3（Sheets APIの有効化）が未実施 | エラーに出るURLで有効化。数分待って再実行 |
+| `403 The caller does not have permission` | シートがサービスアカウントに共有されていない | Part 2 をやり直す。権限が「閲覧者」になっていないかも確認 |
+| `404 Requested entity was not found` | スプレッドシートIDが違う | URLの `/d/` と `/edit` の間の文字列を確認 |
+| `環境変数 GOOGLE_SHEETS_SA_KEY が設定されていません` | 環境変数が未登録、または設定後にセッションを開き直していない | Part 3 の手順10を確認 |
 
 ## 終わったあとに
 
