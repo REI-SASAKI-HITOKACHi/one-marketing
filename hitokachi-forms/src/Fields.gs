@@ -87,6 +87,10 @@ var FIELD_DEFS = [
     note: '保存先の顧客フォルダ名にも使う' },
   { key: 'confirmDate',  label: '確認日',       type: 'date',   section: '基本', required: true,  defaultMode: 'form',
     note: '適合性の確認日／意向把握シートの「当初のご意向」確認日' },
+  { key: 'productType',  label: '保険種類',     type: 'text',   section: '基本', defaultMode: 'form',
+    note: '成約一覧の保険種類をそのまま入れる。'
+        + '「変額」を含む契約だけ適合性確認シートを作り、それ以外は意向把握シートだけ作る。'
+        + '空欄なら両方作る（判定に使うキーワードは設定シートで変えられる）' },
   { key: 'guardianName',     label: '親権者氏名',        type: 'text', section: '基本', defaultMode: 'hidden',
     note: '契約者が未成年の場合のみ' },
   { key: 'guardianRelation', label: '契約者からみた続柄', type: 'text', section: '基本', defaultMode: 'hidden' },
@@ -176,6 +180,41 @@ var FIELD_DEFS = [
 ];
 
 var FIELD_SECTIONS = ['基本', '適合性', '意向', '任意', '検証欄'];
+
+/**
+ * 適合性確認シートが必要な保険種類のキーワード（既定）。
+ * 設定シートの「適合性確認シートが必要な保険種類」で変えられる。
+ */
+var SUITABILITY_KEYWORDS_DEFAULT = '変額';
+
+/**
+ * この契約に適合性確認シートが要るか。
+ *
+ * 適合性の確認は投資性商品（変額保険）のためのもので、それ以外の契約では
+ * 意向把握シートだけを作る。保険種類が空欄のときは、判断材料がないので
+ * 両方作る側に倒す（足りないより余分なほうが安全）。
+ *
+ * @param {string} productType 保険種類
+ * @param {string} keywords    読点・カンマ区切りのキーワード。省略時は既定値
+ */
+function needsSuitability_(productType, keywords) {
+  var t = String(productType == null ? '' : productType).trim();
+  if (t === '') return true;
+  if (String.prototype.normalize) t = t.normalize('NFKC');
+
+  var list = String(keywords == null || keywords === '' ? SUITABILITY_KEYWORDS_DEFAULT : keywords)
+    .split(/[,、\n]/)
+    .map(function (k) {
+      var v = String(k).trim();
+      return (v !== '' && String.prototype.normalize) ? v.normalize('NFKC') : v;
+    })
+    .filter(function (k) { return k !== ''; });
+
+  for (var i = 0; i < list.length; i++) {
+    if (t.indexOf(list[i]) >= 0) return true;
+  }
+  return false;
+}
 
 function fieldByKey_(key) {
   for (var i = 0; i < FIELD_DEFS.length; i++) {

@@ -77,7 +77,7 @@ function makeContext(extraSheets) {
     }
   };
   vm.createContext(ctx);
-  for (const f of ['Fields.gs', 'Config.gs', 'Judge.gs', 'Render.gs', 'Generate.gs', 'DriveUtil.gs', 'Bulk.gs']) {
+  for (const f of ['Fields.gs', 'Config.gs', 'Judge.gs', 'Render.gs', 'Generate.gs', 'DriveUtil.gs', 'Existing.gs', 'Bulk.gs']) {
     vm.runInContext(fs.readFileSync(path.join(SRC, f), 'utf8'), ctx, { filename: f });
   }
   // 項目設定は FIELD_DEFS を読んでから組み立てるので、あとから差し込む。
@@ -407,6 +407,38 @@ console.log('\n--- 代理店を選ぶと、その行の相方の選択肢が入�
   let threw = false;
   try { ctx.refreshCoAgentValidation_(sh5); } catch (e) { threw = true; }
   t('例外にならない', threw, false);
+}
+
+console.log('\n--- 保険種類で作る帳票が変わる ---');
+{
+  const ctx = makeContext({
+    '設定': [['キー', '値', '説明'], ['適合性確認シートが必要な保険種類', '変額', '']]
+  });
+  const conf = ctx.getFieldConfig_();
+  // 適合性確認シートのための入力（年齢・年収・投資経験など）を一切入れていない行。
+  const thin = {
+    contractType: '個人', customerName: '鈴木 花子', agency: 'ヒトカチ株式会社',
+    agent: '佐々木 嶺', confirmDate: '2026-08-01',
+    needs: ['death'], savings: '①ある方が良い'
+  };
+  const check = (over) => ctx.validate_(ctx.applyFieldConfig_(Object.assign({}, thin, over), conf), conf);
+
+  t('医療保険なら適合性の入力を求めない', check({ productType: '医療保険' }), []);
+  t('終身保険も同じ',                     check({ productType: '終身保険' }), []);
+  t('変額保険なら適合性の入力を求める',    check({ productType: '変額保険' }).length > 0, true);
+  t('求めるのは年齢・年収など',
+    check({ productType: '変額保険' }).some(e => e.indexOf('年収') >= 0), true);
+  t('保険種類が空欄なら求める側に倒す',    check({ productType: '' }).length > 0, true);
+
+  console.log('\n--- 適合性が要らない行でも意向は必須のまま ---');
+  t('ご希望の保障分野は必須',
+    check({ productType: '医療保険', needs: [] }).some(e => e.indexOf('ご希望の保障分野') >= 0), true);
+  t('契約者氏名も必須',
+    check({ productType: '医療保険', customerName: '' }).some(e => e.indexOf('契約者氏名') >= 0), true);
+
+  console.log('\n--- 保険種類は一括入力シートの列になる ---');
+  const cols = ctx.bulkColumns_();
+  t('保険種類の列がある', cols.filter(c => c.key === 'productType').length, 1);
 }
 
 console.log('\n--- チェックボックスの表記ゆれ ---');

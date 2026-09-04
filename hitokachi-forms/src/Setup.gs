@@ -23,6 +23,7 @@ function setup() {
   ensureAgenciesSheet_(ss);
   ensureCoAgentsSheet_(ss);
   ensureAgentsSheet_(ss);
+  ensureAliasSheet_(ss);
   ensureUsersSheet_(ss);
   ensureFieldsSheet_(ss);
   ensureLogSheet_(ss);
@@ -101,7 +102,11 @@ function ensureSettingsSheet_(ss) {
   seedRows_(sh, 'キー', [
     ['アクセス制限', 'はい', '「はい」にすると、下の「利用者」シートに載っているアドレスだけが使えます'],
     ['画面タイトル', '適合性確認シート／意向把握シート 作成', 'ウェブアプリの見出し'],
-    ['既定の契約形態', '個人', 'フォームを開いたときの初期値']
+    ['既定の契約形態', '個人', 'フォームを開いたときの初期値'],
+    ['適合性確認シートが必要な保険種類', SUITABILITY_KEYWORDS_DEFAULT,
+     '保険種類にこの語が含まれる契約だけ、適合性確認シートを作ります'
+     + '（読点かカンマで複数書けます）。それ以外は意向把握シートだけ作ります。'
+     + '保険種類が空欄の行は両方作ります。']
   ]);
   setNotes_(sh, {
     'キー': '設定の名前です。変更しないでください。',
@@ -202,6 +207,32 @@ function ensureAgentsSheet_(ss) {
     '有効': 'チェックを外すと、入力フォームの募集人の選択肢に出なくなります。'
   });
   sh.autoResizeColumns(1, 9);
+}
+
+/**
+ * 成約一覧の見出しを、一括入力シートの見出しに読み替える表。
+ * 成約一覧側の見出しは会社ごとに違うので、コードではなくここで足せるようにする。
+ */
+function ensureAliasSheet_(ss) {
+  var sh = getOrCreateSheet_(ss, SHEET_ALIASES);
+  ensureHeader_(sh, ['成約一覧の見出し', '一括入力シートの見出し', '備考']);
+  if (sh.getLastRow() < 2) {
+    var rows = IMPORT_ALIASES_DEFAULT.map(function (pair) {
+      return [pair[0], pair[1], ''];
+    });
+    sh.getRange(2, 1, rows.length, 3).setValues(rows);
+  }
+  setNotes_(sh, {
+    '成約一覧の見出し': '成約一覧スプレッドシートに書かれている見出しです。\n'
+      + '前後の空白や全角・半角の違いは無視します。',
+    '一括入力シートの見出し': '「一括入力」シートの見出しです。\n'
+      + 'ここに書いた見出しへ読み替えて取り込みます。\n\n'
+      + '読み替え先が「一括入力」シートに無い場合、取り込みは中止されます。',
+    '備考': 'メモ欄です。空欄で構いません。'
+  });
+  sh.setColumnWidth(1, 200);
+  sh.setColumnWidth(2, 200);
+  sh.setColumnWidth(3, 300);
 }
 
 function ensureUsersSheet_(ss) {

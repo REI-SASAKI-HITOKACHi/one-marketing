@@ -24,7 +24,7 @@ const OUT = path.join(ROOT, 'demo', 'index.html');
 const read = (f) => fs.readFileSync(path.join(SRC, f), 'utf8');
 
 /** 実物のロジック。ブラウザでもそのまま動く素の JavaScript。 */
-const LOGIC = ['Fields.gs', 'Config.gs', 'Judge.gs', 'Render.gs', 'Generate.gs', 'DriveUtil.gs']
+const LOGIC = ['Fields.gs', 'Config.gs', 'Judge.gs', 'Render.gs', 'Generate.gs', 'DriveUtil.gs', 'Existing.gs']
   .map(f => `/* ---- src/${f} ---- */\n${read(f)}`).join('\n\n');
 
 /** 帳票のレイアウト。中身は触らず、文字列として持たせる。 */
@@ -249,6 +249,9 @@ var DEMO_AGENCIES = [
     coAgents: ['熊澤 善弘', '小川 康之', '矢野 克臣'] }
 ];
 getAgencies_ = function () { return DEMO_AGENCIES; };
+
+// 設定シートは読めないので、保険種類の判定は既定のキーワードで動かす。
+getSetting_ = function (key, fallback) { return fallback; };
 
 /** 「既にこの顧客のフォルダがある」状況を再現するための仮の一覧。 */
 var DEMO_EXISTING_FOLDERS = ['種田 裕貴', '石川 康幸', '三好 雄策', '田中'];

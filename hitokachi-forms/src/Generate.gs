@@ -25,11 +25,16 @@ function generateAndSave_(data, choice, rawAnswers) {
   var stamp = Utilities.formatDate(confirmDateAsDate_(data.confirmDate), 'Asia/Tokyo', 'yyyyMMdd');
   var base = sanitizeFileName_(data.customerName) + '_' + stamp;
 
+  // 意向把握シートはどの契約でも要る。適合性確認シートは投資性商品だけ。
   var files = [];
-  files.push(saveOne_(folder, 'SuitabilitySheet', model, '適合性確認シート_' + base));
-  files.push(saveOne_(folder, 'IntentSheet',      model, '意向把握シート_' + base));
+  files.push(saveOne_(folder, 'IntentSheet', model, '意向把握シート_' + base));
+  var withSuit = needsSuitabilityFor_(data);
+  if (withSuit) {
+    files.push(saveOne_(folder, 'SuitabilitySheet', model, '適合性確認シート_' + base));
+  }
 
   var result = {
+    withSuitability: withSuit,
     folderId: dest.id,
     folderName: dest.name,
     folderCreated: dest.created,
@@ -76,13 +81,31 @@ var INDIVIDUAL_ONLY_FIELDS = [
   'income', 'assets', 'annualPremium', 'payYears'
 ];
 
+/**
+ * 設定シートのキーワードを見て、この契約に適合性確認シートが要るかを返す。
+ * 設定が読めない場面（テストなど）では既定のキーワードで判断する。
+ */
+function needsSuitabilityFor_(data) {
+  var keywords;
+  try {
+    keywords = getSetting_('適合性確認シートが必要な保険種類', SUITABILITY_KEYWORDS_DEFAULT);
+  } catch (e) {
+    keywords = SUITABILITY_KEYWORDS_DEFAULT;
+  }
+  return needsSuitability_(data && data.productType, keywords);
+}
+
 function validate_(data, fieldConfig) {
   var errors = [];
   var isCorp = data.contractType === '法人';
+  // 適合性確認シートを作らない契約では、そのための入力も求めない。
+  // 年齢・年収・投資経験などは適合性確認シートにしか出ない。
+  var withSuit = needsSuitabilityFor_(data);
 
   FIELD_DEFS.forEach(function (f) {
     if (!f.required) return;
     if (fieldConfig[f.key].mode === 'hidden') return;
+    if (!withSuit && f.section === '適合性') return;
     if (isCorp && INDIVIDUAL_ONLY_FIELDS.indexOf(f.key) >= 0) return;
     var v = data[f.key];
     var empty = (v == null || v === '' || (Array.isArray(v) && v.length === 0));
@@ -104,7 +127,7 @@ function validate_(data, fieldConfig) {
     }
   }
 
-  if (isCorp) return errors;
+  if (isCorp || !withSuit) return errors;
 
   // 数値の妥当性。負の値を通すと判定③が静かに「はい」になり、しかも年間保険料と
   // 払込期間は帳票に出ないので、出来上がったPDFを見ても誤りに気づけない。

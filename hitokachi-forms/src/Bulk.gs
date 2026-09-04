@@ -60,8 +60,11 @@ function onOpenMenu() {
     .addSeparator()
     .addItem('取り込みシートを準備する', 'prepareImportSheet')
     .addItem('取り込みシートから流し込む', 'importFromStagingSheet')
+    .addItem('作成済みの帳票を調べ直す', 'rebuildExistingIndex')
     .addSeparator()
+    .addItem('一括入力シートをリセットする', 'resetBulkSheet')
     .addItem('実行中の続きを取り消す', 'stopBulk')
+    .addItem('調べている途中を止める', 'stopScan')
     .addToUi();
 }
 
@@ -661,6 +664,84 @@ function clearResumeTriggers_() {
   });
 }
 
+/* ------------------------------------------------------------------ *
+ * リセット
+ * ------------------------------------------------------------------ */
+
+/**
+ * 一括入力シートを空にする。1 回の作業ごとに使い切る前提。
+ *
+ * 消す前に必ず控えを取る。作成済みの行は Drive に帳票が残っているので
+ * 消しても実害はないが、未作成・エラー・要確認の行は「まだ帳票が無いのに
+ * 一覧から消えた」状態になり、誰も気づけない。だから件数を出して確認を取る。
+ */
+function resetBulkSheet() {
+  var sh = bulkSheetOrThrow_();
+
+  // 実行の途中（自動再開待ち）で消すと、再開が行番号を頼りに空振りする。
+  var pending = ScriptApp.getProjectTriggers().some(function (t) {
+    return t.getHandlerFunction() === RESUME_FUNCTION;
+  });
+  if (pending) {
+    return alertOrToast_('作成の続きが予約されています。\n'
+      + 'メニューの「実行中の続きを取り消す」で止めてから、もう一度リセットしてください。');
+  }
+
+  var rows = readBulkRows_(sh);
+  if (!rows.length) return toast_('一括入力シートには消す行がありません。');
+
+  var unfinished = rows.filter(function (r) { return r.status !== STATUS_DONE; });
+  var ui = null;
+  try { ui = SpreadsheetApp.getUi(); } catch (e) { /* メニュー外からの実行 */ }
+
+  if (ui) {
+    var message = rows.length + ' 行を消します。\n\n';
+    if (unfinished.length) {
+      message += '⚠ このうち ' + unfinished.length + ' 行は、まだ帳票を作成していません。\n'
+        + '　（' + unfinished.slice(0, 5).map(function (r) {
+            return String(r.values.customerName || '(氏名なし)');
+          }).join('、')
+        + (unfinished.length > 5 ? ' ほか' : '') + '）\n'
+        + '　消すと、この人たちの帳票が作られないまま一覧から消えます。\n\n';
+    }
+    message += '消す前の内容は「' + SHEET_BULK_BACKUP + '」シートに控えます。\n続けますか？';
+    if (ui.alert('一括入力シートのリセット', message, ui.ButtonSet.OK_CANCEL) !== ui.Button.OK) {
+      return toast_('リセットを取りやめました。');
+    }
+  }
+
+  backupBulkSheet_(sh);
+  var lastRow = sh.getLastRow();
+  if (lastRow >= BULK_FIRST_ROW) {
+    sh.getRange(BULK_FIRST_ROW, 1, lastRow - BULK_FIRST_ROW + 1, sh.getLastColumn()).clearContent();
+  }
+  toast_(rows.length + ' 行を消しました。控えは「' + SHEET_BULK_BACKUP + '」シートにあります。');
+}
+
+/** 消す前の内容を控えシートの末尾に足す。上書きはしない。 */
+function backupBulkSheet_(sh) {
+  var ss = settingsSpreadsheet_();
+  var backup = ss.getSheetByName(SHEET_BULK_BACKUP);
+  var lastRow = sh.getLastRow();
+  var lastCol = sh.getLastColumn();
+  if (lastRow < BULK_FIRST_ROW) return;
+
+  var labels = sh.getRange(BULK_HEADER_ROW, 1, 1, lastCol).getValues()[0];
+  var values = sh.getRange(BULK_FIRST_ROW, 1, lastRow - BULK_FIRST_ROW + 1, lastCol).getValues();
+  var stamp = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy/MM/dd HH:mm');
+
+  if (!backup) {
+    backup = ss.insertSheet(SHEET_BULK_BACKUP);
+    backup.getRange(1, 1).setNote(
+      'リセットの直前に、一括入力シートの内容をここへ控えます。\n'
+      + '消しすぎたときはここから戻せます。不要になったら手で消してください。');
+  }
+  var at = backup.getLastRow() + (backup.getLastRow() ? 2 : 0);
+  backup.getRange(at + 1, 1).setValue('▼ ' + stamp + ' のリセット時点').setFontWeight('bold');
+  backup.getRange(at + 2, 1, 1, lastCol).setValues([labels]).setFontWeight('bold');
+  backup.getRange(at + 3, 1, values.length, lastCol).setValues(values);
+}
+
 /** 自動で続きが動くのを止める。 */
 function stopBulk() {
   clearResumeTriggers_();
@@ -697,6 +778,46 @@ function toast_(message) {
  * ------------------------------------------------------------------ */
 
 var SHEET_IMPORT = '取り込み';
+var SHEET_ALIASES = '取り込み別名';
+var SHEET_BULK_BACKUP = '一括入力の控え';
+
+/**
+ * 成約一覧の見出しを、一括入力シートの見出しに読み替える表（初期値）。
+ * 設定スプレッドシートの「取り込み別名」シートで足せる。
+ *
+ * これが無いと、成約一覧の「契約者名」は一括入力シートの「契約者氏名」と
+ * 一致せず、取り込みが丸ごと中止される。
+ */
+var IMPORT_ALIASES_DEFAULT = [
+  ['契約者名', '契約者氏名'],
+  ['契約者', '契約者氏名'],
+  ['お客さま名', '契約者氏名'],
+  ['お客様名', '契約者氏名'],
+  ['提携先代理店名', '取扱代理店'],
+  ['提携先代理店', '取扱代理店'],
+  ['代理店名', '取扱代理店'],
+  ['代理店', '取扱代理店'],
+  ['商品名', '保険種類'],
+  ['保険商品', '保険種類'],
+  ['種類', '保険種類'],
+  ['成約日', '確認日'],
+  ['契約日', '確認日'],
+  ['申込日', '確認日']
+];
+
+/** 見出しの読み替え表。{正規化した取り込み側の見出し: 一括入力側の見出し} */
+function importAliases_() {
+  var out = {};
+  IMPORT_ALIASES_DEFAULT.forEach(function (pair) {
+    out[normalizeHeader_(pair[0])] = normalizeHeader_(pair[1]);
+  });
+  readTableIfExists_(SHEET_ALIASES).forEach(function (r) {
+    var from = normalizeHeader_(r['成約一覧の見出し']);
+    var to   = normalizeHeader_(r['一括入力シートの見出し']);
+    if (from && to) out[from] = to;
+  });
+  return out;
+}
 
 /** 貼り付け用の空シートを用意する。 */
 function prepareImportSheet() {
@@ -732,7 +853,11 @@ function importFromStagingSheet() {
   var dest = bulkSheetOrThrow_();
 
   var srcValues = src.getDataRange().getValues();
-  var srcHeader = srcValues[0].map(function (h) { return normalizeHeader_(h); });
+  var aliases = importAliases_();
+  var srcHeader = srcValues[0].map(function (h) {
+    var n = normalizeHeader_(h);
+    return aliases[n] || n;
+  });
 
   var destLastCol = dest.getLastColumn();
   var destLabels  = dest.getRange(BULK_HEADER_ROW, 1, 1, destLastCol).getValues()[0];
@@ -785,8 +910,14 @@ function importFromStagingSheet() {
   }, BULK_FIRST_ROW - 1);
   var startRow = lastDataRow + 1;
 
+  // 作成済みの帳票の索引。もう作ってある顧客は一括入力シートに載せない。
+  var index = loadExistingIndex_();
+  var suitKeywords = getSetting_('適合性確認シートが必要な保険種類', SUITABILITY_KEYWORDS_DEFAULT);
+
   var grid = [];
   var duplicates = [];
+  var alreadyMade = [];
+  var needsCheck = 0;
 
   for (var r = 1; r < srcValues.length; r++) {
     var srcRow = srcValues[r];
@@ -805,12 +936,25 @@ function importFromStagingSheet() {
     var key = importKey_(pairs);
     if (existing[key]) { duplicates.push(pairs.customerName); continue; }
     existing[key] = true;
+
+    // 作成漏れかどうかを索引で調べる。作成済みなら転記しない。
+    var wantSuit = needsSuitability_(pairs.productType, suitKeywords);
+    var found = lookupExisting_(index, pairs.agency, pairs.customerName, wantSuit);
+    if (found.status === 'done') { alreadyMade.push(pairs.customerName); continue; }
+    if (found.status === 'ambiguous') {
+      out[COL_STATUS - 1] = STATUS_NEEDS_CHECK;
+      out[COL_MESSAGE - 1] = found.message;
+      needsCheck++;
+    } else if (found.status === 'partial') {
+      out[COL_MESSAGE - 1] = found.message;
+    }
     grid.push(out);
   }
 
   if (!grid.length) {
-    return alertOrToast_('取り込める行がありませんでした。'
-      + (duplicates.length ? '\n\n' + duplicates.length + ' 件は既に取り込み済みです（契約者氏名と確認日が同じ行があります）。' : ''));
+    return alertOrToast_('作成が必要な行はありませんでした。'
+      + (alreadyMade.length ? '\n\n' + alreadyMade.length + ' 件は帳票が作成済みです。' : '')
+      + (duplicates.length ? '\n\n' + duplicates.length + ' 件は既に一括入力シートにある行です（契約者氏名と確認日が同じ）。' : ''));
   }
 
   dest.getRange(startRow, 1, grid.length, destLastCol).setValues(grid);
@@ -828,10 +972,22 @@ function importFromStagingSheet() {
   prepareImportSheet();
 
   ss.setActiveSheet(dest);
-  toast_(grid.length + ' 件を「一括入力」シートの ' + startRow + ' 行目から追加しました。'
-    + '　突き合わせた列は ' + mapping.length + ' 列です。'
-    + (duplicates.length ? '　既に取り込み済みの ' + duplicates.length + ' 件は飛ばしました。' : '')
-    + '　「① 保存先を下見する」で内容を確かめてください。');
+  alertOrToast_('作成漏れ ' + grid.length + ' 件を「一括入力」シートの ' + startRow + ' 行目から追加しました。'
+    + '（突き合わせた列は ' + mapping.length + ' 列）'
+    + (alreadyMade.length ? '\n\n作成済みの ' + alreadyMade.length + ' 件は転記していません。' : '')
+    + (duplicates.length ? '\n既に一括入力シートにある ' + duplicates.length + ' 件は飛ばしました。' : '')
+    + (needsCheck ? '\n\nうち ' + needsCheck + ' 件は「要確認」です。氏名の伏せ字や'
+        + '同名フォルダの重複があるので、直してから作成してください。' : '')
+    + '\n\n不足項目を埋めたら「① 保存先を下見する」で内容を確かめてください。'
+    + (existingIndexIsEmpty_(index)
+        ? '\n\n※ 作成済み索引が空です。メニューの「作成済みの帳票を調べ直す」を'
+          + '先に実行しないと、作成漏れの判定ができません。' : ''));
+}
+
+/** 索引がまだ一度も作られていないか。判定できていないことを知らせるため。 */
+function existingIndexIsEmpty_(index) {
+  for (var k in index.byKey) { if (index.byKey.hasOwnProperty(k)) return false; }
+  return true;
 }
 
 /** 取り込みの重複判定に使う鍵。同じ顧客・同じ確認日なら同一とみなす。 */

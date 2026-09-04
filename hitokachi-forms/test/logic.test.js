@@ -10,7 +10,7 @@ const ctx = {
   }
 };
 vm.createContext(ctx);
-for (const f of ['Fields.gs', 'Judge.gs', 'Render.gs', 'DriveUtil.gs']) {
+for (const f of ['Fields.gs', 'Judge.gs', 'Render.gs', 'DriveUtil.gs', 'Existing.gs']) {
   vm.runInContext(fs.readFileSync(require('path').join(__dirname, '..', 'src', f), 'utf8'), ctx, { filename: f });
 }
 
@@ -197,6 +197,79 @@ t('いいえ側は空欄',        m.judge.map(x => x.no).join(''), '□□□□
     'ヒトカチ株式会社');
   t('法人は①〜③が対象外扱い', corpModel.judge.slice(0, 3).map(x => x.na), [true, true, true]);
   t('法人でも④〜⑥は はい',    corpModel.judge.slice(3).map(x => x.yes), ['■', '■', '■']);
+}
+
+console.log('\n--- 保険種類で作る帳票を分ける ---');
+{
+  const need = ctx.needsSuitability_;
+  t('変額保険は適合性確認シートが要る', need('変額保険', '変額'), true);
+  t('変額有期保険も要る',               need('変額有期保険（終身型）', '変額'), true);
+  t('全角の変額も拾う',                 need('ＶＡ変額', '変額'), true);
+  t('医療保険は要らない',               need('医療保険', '変額'), false);
+  t('終身保険は要らない',               need('終身保険', '変額'), false);
+  t('外貨建は既定では要らない',         need('外貨建終身保険', '変額'), false);
+  t('キーワードを足せば拾う',           need('外貨建終身保険', '変額, 外貨建'), true);
+  t('読点区切りでも拾う',               need('外貨建終身保険', '変額、外貨建'), true);
+  t('空欄は両方作る側に倒す',           need('', '変額'), true);
+  t('未入力も両方作る側に倒す',         need(undefined, '変額'), true);
+  t('キーワード未設定なら既定を使う',   need('変額保険', ''), true);
+}
+
+console.log('\n--- 伏せ字の氏名 ---');
+{
+  t('伏せ字を見つける',       ctx.isMaskedName_('山＊太郎'), true);
+  t('半角アスタリスクも',     ctx.isMaskedName_('山*太郎'), true);
+  t('黒丸も',                 ctx.isMaskedName_('山●太郎'), true);
+  t('普通の氏名は伏せ字でない', ctx.isMaskedName_('山田 太郎'), false);
+  t('読める部分だけ取り出す', ctx.unmaskedPrefix_('山＊太郎'), '山');
+  t('2文字読めるなら2文字',   ctx.unmaskedPrefix_('山田＊郎'), '山田');
+  t('伏せ字が先頭なら空',     ctx.unmaskedPrefix_('＊田太郎'), '');
+  t('伏せ字がなければ全部',   ctx.unmaskedPrefix_('山田太郎'), '山田太郎');
+  t('空白は正規化で落ちる',   ctx.unmaskedPrefix_('山田 ＊郎'), '山田');
+}
+
+console.log('\n--- 作成済みかどうかを索引から引く ---');
+{
+  const index = {
+    byKey: {},
+    byAgency: {}
+  };
+  const add = (agency, folderName, suit, intent) => {
+    const e = { agency, folderName, key: ctx.normalizeName_(folderName),
+                suitability: suit, intent, folderId: 'F' + folderName };
+    const k = agency + '\t' + e.key;
+    (index.byKey[k] = index.byKey[k] || []).push(e);
+    (index.byAgency[agency] = index.byAgency[agency] || []).push(e);
+  };
+  const A = 'ヒトカチ株式会社';
+  add(A, '山田 太郎', true, true);      // 両方ある
+  add(A, '鈴木 花子', false, true);     // 意向把握だけ
+  add(A, '髙橋 一郎', true, true);
+  add(A, '高橋 一郎', true, true);      // 旧字体違いで二重にできている
+  add('別代理店', '山田 太郎', true, true);
+
+  const look = (name, wantSuit, agency) =>
+    ctx.lookupExisting_(index, agency || A, name, wantSuit);
+
+  t('両方あれば作成済み',           look('山田 太郎', true).status, 'done');
+  t('敬称つきでも当たる',           look('山田 太郎様', true).status, 'done');
+  t('意向把握だけでも、適合性が要らなければ作成済み',
+    look('鈴木 花子', false).status, 'done');
+  t('適合性が要るのに無ければ作成漏れ',
+    look('鈴木 花子', true).status, 'partial');
+  t('足りない帳票を名指しする',
+    look('鈴木 花子', true).message.indexOf('適合性確認シート') >= 0, true);
+  t('フォルダが無ければ未作成',     look('佐藤 次郎', true).status, 'missing');
+  t('代理店が違えば別扱い',         look('鈴木 花子', true, '別代理店').status, 'missing');
+  t('同名フォルダが複数なら要確認', look('高橋 一郎', true).status, 'ambiguous');
+
+  console.log('\n--- 伏せ字は作成済みとも未作成とも決めない ---');
+  const masked = look('山＊太郎', true);
+  t('必ず要確認になる',   masked.status, 'ambiguous');
+  t('前方一致の候補を出す', masked.candidates.map(e => e.folderName), ['山田 太郎']);
+  t('作成済み扱いにしない', masked.status === 'done', false);
+  t('候補が無くても要確認', look('佐＊次郎', true).status, 'ambiguous');
+  t('読める部分が無くても落ちない', look('＊＊＊', true).status, 'ambiguous');
 }
 
 console.log('\n--- 入力を取っていない判定は参考判定を出さない ---');

@@ -138,13 +138,18 @@ function makeContext(sheets) {
     }
   };
   vm.createContext(ctx);
-  for (const f of ['Fields.gs', 'Config.gs', 'Judge.gs', 'Render.gs', 'Generate.gs', 'DriveUtil.gs', 'Bulk.gs']) {
+  for (const f of ['Fields.gs', 'Config.gs', 'Judge.gs', 'Render.gs', 'Generate.gs', 'DriveUtil.gs', 'Existing.gs', 'Bulk.gs']) {
     vm.runInContext(fs.readFileSync(path.join(SRC, f), 'utf8'), ctx, { filename: f });
   }
   sheets['項目設定'] = new FakeSheet('項目設定',
     [['項目キー', '表示名', 'セクション', '扱い', '固定値', '必須', '選択肢', '備考']].concat(
       ctx.FIELD_DEFS.map(f => [f.key, f.label, f.section, ctx.MODE_LABELS[f.defaultMode || 'form'], '', !!f.required, '', ''])));
-  sheets['代理店マスタ'] = new FakeSheet('代理店マスタ', [['代理店名', '共有フォルダID', '有効', '備考']]);
+  sheets['設定'] = new FakeSheet('設定', [
+    ['キー', '値', '説明'],
+    ['適合性確認シートが必要な保険種類', '変額', '']
+  ]);
+  sheets['代理店マスタ'] = new FakeSheet('代理店マスタ',
+    [['代理店名', '共有フォルダID', '有効', '備考'], ['ヒトカチ株式会社', 'FOLDER_A', true, '']]);
   sheets['募集人マスタ'] = new FakeSheet('募集人マスタ',
     [['氏名', 'メールアドレス', '電話番号', '郵便番号', '住所1', '住所2', '所属代理店', 'ログイン用アドレス', '有効']]);
   return ctx;
@@ -207,7 +212,9 @@ console.log('\n--- 取り込み：見出しで列を突き合わせる ---');
 
   ctx.importFromStagingSheet();
 
-  t('中止されていない', ctx.alerts.length, 0);
+  // 取り込みは結果の件数をダイアログで知らせる。中止だけは「中止しました」と言う。
+  t('中止されていない',
+    ctx.alerts.some(m => String(m).indexOf('中止しました') >= 0), false);
   const rows = ctx.readBulkRows_(bulk);
   t('1件だけ追加された', rows.length, 1);
 
@@ -275,7 +282,8 @@ console.log('\n--- 見出しの表記ゆれは吸収する ---');
   store['取り込み'] = new FakeSheet('取り込み', spaced);
 
   ctx.importFromStagingSheet();
-  t('中止されない', ctx.alerts.length, 0);
+  t('中止されない',
+    ctx.alerts.some(m => String(m).indexOf('中止しました') >= 0), false);
   t('1件取り込まれる', ctx.readBulkRows_(bulk).length, 1);
 }
 
@@ -319,7 +327,7 @@ console.log('\n--- 同じ表を2回流し込んでも二重にならない ---')
   ctx.importFromStagingSheet();
   t('2回目は増えない', ctx.readBulkRows_(bulk).length, 1);
   t('飛ばしたことを知らせる',
-    ctx.alerts.concat(ctx.toasts).some(m => String(m).indexOf('取り込み済み') >= 0), true);
+    ctx.alerts.concat(ctx.toasts).some(m => String(m).indexOf('既に一括入力シートにある') >= 0), true);
 
   // 別の顧客なら入る
   const other = tsv.map(r => r.slice());
@@ -340,6 +348,109 @@ console.log('\n--- 流し込み後は取り込みシートが空になる ---');
   const staging = store['取り込み'];
   const rows = staging.getRange(2, 1, Math.max(staging.getLastRow() - 1, 1), 5).getValues();
   t('データ行が残っていない', rows.every(r => r.every(c => c === '' || c === undefined)), true);
+}
+
+console.log('\n--- 成約一覧の見出しを読み替える ---');
+{
+  const store = {};
+  const ctx = makeContext(store);
+  const { sheet: bulk } = makeBulkSheet(ctx);
+  store['一括入力'] = bulk;
+  // 成約一覧から3項目だけコピペした想定。見出しはあちら側の言い回し。
+  store['取り込み'] = new FakeSheet('取り込み', [
+    ['契約者名', '保険種類', '提携先代理店名'],
+    ['山田 太郎', '変額有期保険', 'ヒトカチ株式会社'],
+    ['鈴木 花子', '医療保険', 'ヒトカチ株式会社']
+  ]);
+
+  ctx.importFromStagingSheet();
+  t('中止されない', ctx.alerts.some(m => String(m).indexOf('中止しました') >= 0), false);
+
+  const rows = ctx.readBulkRows_(bulk);
+  t('2件とも入る', rows.length, 2);
+  t('契約者名 → 契約者氏名', rows[0].values.customerName, '山田 太郎');
+  t('提携先代理店名 → 取扱代理店', rows[0].values.agency, 'ヒトカチ株式会社');
+  t('保険種類はそのまま入る', rows[0].values.productType, '変額有期保険');
+}
+
+console.log('\n--- 作成済みの行は転記しない（作成漏れだけ拾う） ---');
+{
+  const store = {};
+  const ctx = makeContext(store);
+  const { sheet: bulk } = makeBulkSheet(ctx);
+  store['一括入力'] = bulk;
+  const A = 'ヒトカチ株式会社';
+  store['作成済み索引'] = new FakeSheet('作成済み索引', [
+    ['代理店名', '顧客フォルダ名', '照合キー', '適合性確認シート', '意向把握シート', 'フォルダID', '調べた日時'],
+    // 変額の人。両方あるので作成済み
+    [A, '山田 太郎', ctx.normalizeName_('山田 太郎'), true, true, 'F1', ''],
+    // 医療保険の人。意向把握だけあれば足りるので作成済み
+    [A, '鈴木 花子', ctx.normalizeName_('鈴木 花子'), false, true, 'F2', ''],
+    // 変額なのに意向把握しかない。作成漏れ
+    [A, '佐藤 次郎', ctx.normalizeName_('佐藤 次郎'), false, true, 'F3', '']
+  ]);
+  store['取り込み'] = new FakeSheet('取り込み', [
+    ['契約者名', '保険種類', '提携先代理店名'],
+    ['山田 太郎', '変額有期保険', A],
+    ['鈴木 花子', '医療保険', A],
+    ['佐藤 次郎', '変額保険', A],
+    ['田中 三郎', '変額保険', A]     // フォルダごと無い
+  ]);
+
+  ctx.importFromStagingSheet();
+  const names = ctx.readBulkRows_(bulk).map(r => r.values.customerName);
+  t('作成漏れだけが入る', names, ['佐藤 次郎', '田中 三郎']);
+  t('作成済みは転記しない', names.indexOf('山田 太郎'), -1);
+  t('必要な帳票が揃っていれば転記しない', names.indexOf('鈴木 花子'), -1);
+  t('件数を知らせる',
+    ctx.alerts.concat(ctx.toasts).some(m => String(m).indexOf('作成済みの 2 件は転記していません') >= 0), true);
+
+  const partial = ctx.readBulkRows_(bulk)[0];
+  t('片方だけある行は理由が入る',
+    String(partial.values.__message).indexOf('適合性確認シート') >= 0, true);
+}
+
+console.log('\n--- 伏せ字の氏名は作成済みと決めつけない ---');
+{
+  const store = {};
+  const ctx = makeContext(store);
+  const { sheet: bulk } = makeBulkSheet(ctx);
+  store['一括入力'] = bulk;
+  const A = 'ヒトカチ株式会社';
+  store['作成済み索引'] = new FakeSheet('作成済み索引', [
+    ['代理店名', '顧客フォルダ名', '照合キー', '適合性確認シート', '意向把握シート', 'フォルダID', '調べた日時'],
+    [A, '山田 太郎', ctx.normalizeName_('山田 太郎'), true, true, 'F1', '']
+  ]);
+  store['取り込み'] = new FakeSheet('取り込み', [
+    ['契約者名', '保険種類', '提携先代理店名'],
+    ['山＊太郎', '変額保険', A]
+  ]);
+
+  ctx.importFromStagingSheet();
+  const rows = ctx.readBulkRows_(bulk);
+  t('作成済みにされず転記される', rows.length, 1);
+  t('状態は要確認',               rows[0].status, ctx.STATUS_NEEDS_CHECK);
+  t('伏せ字であることを書く',
+    String(rows[0].values.__message).indexOf('伏せ字') >= 0, true);
+  t('前方一致の候補を出す',
+    String(rows[0].values.__message).indexOf('山田 太郎') >= 0, true);
+}
+
+console.log('\n--- 索引がまだ無ければ、判定できないことを知らせる ---');
+{
+  const store = {};
+  const ctx = makeContext(store);
+  const { sheet: bulk } = makeBulkSheet(ctx);
+  store['一括入力'] = bulk;
+  store['取り込み'] = new FakeSheet('取り込み', [
+    ['契約者名', '保険種類', '提携先代理店名'],
+    ['山田 太郎', '変額保険', 'ヒトカチ株式会社']
+  ]);
+
+  ctx.importFromStagingSheet();
+  t('全行が転記される', ctx.readBulkRows_(bulk).length, 1);
+  t('索引が空だと知らせる',
+    ctx.alerts.concat(ctx.toasts).some(m => String(m).indexOf('作成済み索引が空です') >= 0), true);
 }
 
 console.log('\n--- 見出しが空の列にデータがあれば中止する ---');
