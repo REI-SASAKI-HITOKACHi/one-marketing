@@ -1,0 +1,398 @@
+<title>適合性確認シート記録調査</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@600;700&display=swap">
+<style>
+  :root {
+    --paper: #fbfcfd;
+    --card: #ffffff;
+    --ink: #141a20;
+    --muted: #5c6875;
+    --faint: #8a95a1;
+    --rule: #dde3e9;
+    --accent: #1a4d8f;
+    --high: #a4232a;
+    --mid: #8a6100;
+    --low: #5c6875;
+    --band: #f0f3f7;
+    --quote: #eef2f7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #12161b;
+      --card: #191f26;
+      --ink: #e4e9ee;
+      --muted: #9aa6b2;
+      --faint: #74808c;
+      --rule: #2a323b;
+      --accent: #83aee4;
+      --high: #f08b8b;
+      --mid: #dcb45c;
+      --low: #9aa6b2;
+      --band: #1d242c;
+      --quote: #1d242c;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #12161b;
+    --card: #191f26;
+    --ink: #e4e9ee;
+    --muted: #9aa6b2;
+    --faint: #74808c;
+    --rule: #2a323b;
+    --accent: #83aee4;
+    --high: #f08b8b;
+    --mid: #dcb45c;
+    --low: #9aa6b2;
+    --band: #1d242c;
+    --quote: #1d242c;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+    font-size: 15px;
+    line-height: 1.85;
+    font-feature-settings: "palt" 1;
+  }
+  .sheet { max-width: 760px; margin: 0 auto; padding: 40px 22px 72px; }
+
+  /* 表題ブロック。業務文書の鑑にならって罫で囲む */
+  .masthead { border: 1px solid var(--rule); background: var(--card); padding: 26px 28px; }
+  .masthead .kind {
+    font-size: 11px; letter-spacing: .22em; color: var(--muted);
+    text-transform: none; margin-bottom: 10px;
+  }
+  .masthead h1 {
+    font-family: "Noto Serif JP", serif; font-weight: 700;
+    font-size: 26px; line-height: 1.45; margin: 0 0 16px; text-wrap: balance;
+  }
+  .masthead dl {
+    display: grid; grid-template-columns: max-content 1fr; gap: 4px 18px;
+    margin: 0; font-size: 13px; border-top: 1px solid var(--rule); padding-top: 14px;
+  }
+  .masthead dt { color: var(--muted); }
+  .masthead dd { margin: 0; font-variant-numeric: tabular-nums; }
+
+  h2 {
+    font-family: "Noto Serif JP", serif; font-weight: 700;
+    font-size: 19px; line-height: 1.5; margin: 46px 0 4px;
+    padding-bottom: 8px; border-bottom: 2px solid var(--accent); text-wrap: balance;
+  }
+  h2 .num {
+    display: inline-block; min-width: 1.6em;
+    color: var(--accent); font-variant-numeric: tabular-nums;
+  }
+  h3 { font-size: 15px; font-weight: 700; margin: 30px 0 2px; }
+  p { margin: 12px 0; }
+  .lead { color: var(--muted); font-size: 14px; margin-top: 6px; }
+
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  caption { text-align: left; font-size: 13px; color: var(--muted); padding-bottom: 6px; }
+  th, td { border-bottom: 1px solid var(--rule); padding: 9px 10px; text-align: left; vertical-align: top; }
+  thead th { border-bottom: 1.5px solid var(--ink); font-size: 13px; font-weight: 700; white-space: nowrap; }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .scroll { overflow-x: auto; }
+
+  .sev { font-weight: 700; white-space: nowrap; font-size: 13px; }
+  .sev.high { color: var(--high); }
+  .sev.mid  { color: var(--mid); }
+  .sev.low  { color: var(--low); }
+
+  .band {
+    background: var(--band); border-left: 3px solid var(--accent);
+    padding: 16px 20px; margin: 20px 0;
+  }
+  .band p:first-child { margin-top: 0; }
+  .band p:last-child { margin-bottom: 0; }
+
+  blockquote {
+    margin: 16px 0; padding: 14px 18px; background: var(--quote);
+    border-left: 3px solid var(--rule); font-size: 14px; color: var(--ink);
+  }
+  blockquote p { margin: 0; }
+  blockquote cite { display: block; margin-top: 8px; font-size: 12px; color: var(--muted); font-style: normal; }
+
+  ul, ol { margin: 12px 0; padding-left: 1.5em; }
+  li { margin: 5px 0; }
+  strong { font-weight: 700; }
+  .fig { font-variant-numeric: tabular-nums; font-weight: 700; }
+
+  footer {
+    margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--rule);
+    font-size: 12.5px; color: var(--muted);
+  }
+  footer p { margin: 6px 0; }
+</style>
+
+<div class="sheet">
+
+<header class="masthead">
+  <div class="kind">社内資料</div>
+  <h1>適合性確認シートの記録調査</h1>
+  <dl>
+    <dt>対象</dt><dd>Google ドライブに保管されている適合性確認シート 176 件</dd>
+    <dt>期間</dt><dd>2023年7月26日 〜 2026年8月1日（帳票の確認日）</dd>
+    <dt>方法</dt><dd>本文が機械で読める 98 件を抽出し、記載内容どうしの整合を照合</dd>
+    <dt>作成</dt><dd>2026年9月4日</dd>
+  </dl>
+</header>
+
+<p class="lead">
+帳票の自動作成システムを組むにあたって過去の記録を集めたところ、確認しておいた
+ほうがよい点がいくつか見つかりました。事実として読み取れたことだけを並べます。
+</p>
+
+<div class="band">
+  <p><strong>この調査で言えることの範囲</strong></p>
+  <p>
+  読んだのは帳票に書かれている文字だけです。面談で何を話したかは帳票に残らないので、
+  ここに挙げた箇所が誤りとは限りません。別紙の但し書きで説明がつくものも含まれます。
+  一方で、<strong>帳票の中だけで完結する食い違い</strong>——たとえば「原資は解約返戻金
+  ではない」に「はい」が付いているのに、同じ帳票の別の欄で解約返戻金が選ばれている——
+  は、説明の余地なく記載として矛盾しています。
+  </p>
+</div>
+
+<h2><span class="num">1.</span>調べた範囲</h2>
+
+<div class="scroll">
+<table>
+  <caption>ドライブ内の適合性確認シート 176 件の内訳</caption>
+  <thead>
+    <tr><th>区分</th><th class="n">件数</th><th>内容</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>本文を読み取れた</td><td class="n">98</td><td>PDF 92・Word 6。今回の調査対象</td></tr>
+    <tr><td>読み取れなかった</td><td class="n">57</td><td>スキャン画像。チェックの有無が判別できない</td></tr>
+    <tr><td>重複・白紙など</td><td class="n">21</td><td>同一ファイルの複製 18・白紙 1・その他 2</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+読み取れた 98 件の内訳は、<span class="fig">旧様式 80 件・新様式 18 件</span>、
+<span class="fig">個人契約 80 件・法人契約 18 件</span>です。様式は 2025年9月に
+改訂されていますが、<strong>改訂後も 2026年5月まで旧様式が使われています</strong>。
+</p>
+
+<p>
+読み取れなかった 57 件は 2023 年の分が中心で、内容を確認するには原本に当たる
+必要があります。<strong>この 57 件は本調査に含まれていません。</strong>
+</p>
+
+<h2><span class="num">2.</span>最も目を引いたこと</h2>
+
+<h3>「いいえ」が一度も付いていない</h3>
+
+<p>
+98 件の帳票に記録された適合性の判定は、<strong>のべ 586 項目すべてが「はい」または
+未チェック</strong>でした。「いいえ」は 1 件もありません。
+</p>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>記録された回答</th><th class="n">項目数</th></tr></thead>
+  <tbody>
+    <tr><td>はい</td><td class="n">541</td></tr>
+    <tr><td>いいえ</td><td class="n">0</td></tr>
+    <tr><td>未チェック</td><td class="n">45</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+別紙は、判定に「いいえ」が 1 つでもあれば変額保険は適合しないため他の定額保険を
+提案するように定めています。
+</p>
+
+<blockquote>
+  <p>ご確認いただきました事項に「いいえ」が1つでもある場合、特定保険契約である変額保険は、お客さまに適合しない商品のため、他の定額保険を提案してください。</p>
+  <cite>適合性確認シート 本文より</cite>
+</blockquote>
+
+<p>
+不適合だった案件は帳票が作られないまま終わっている、という説明は成り立ちます。
+ただしその場合、<strong>「検討したが適合しなかった」という記録がどこにも残らない</strong>
+ことになります。
+</p>
+
+<h2><span class="num">3.</span>確認をおすすめする箇所</h2>
+
+<p>
+98 件から <span class="fig">119 件</span>、顧客 <span class="fig">66 名</span>分を
+抜き出しました。一覧は別ファイル（<code>issues.tsv</code>）にあり、元の PDF への
+リンクを添えてあります。
+</p>
+
+<div class="scroll">
+<table>
+  <caption>重要度の高い順。件数は帳票 1 通を 1 件として数えています</caption>
+  <thead>
+    <tr><th>重要度</th><th>種別</th><th class="n">件数</th><th>内容</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="sev high">高</span></td>
+      <td>原資の矛盾</td><td class="n">12</td>
+      <td>⑥保険料原資で解約返戻金や特定保険契約を選びながら、「原資が満期金または解約返戻金ではない」に「はい」</td>
+    </tr>
+    <tr>
+      <td><span class="sev high">高</span></td>
+      <td>リスク選好が未記入</td><td class="n">2</td>
+      <td>⑦がどちらも未選択のまま、それを前提とする判定に「はい」</td>
+    </tr>
+    <tr>
+      <td><span class="sev high">高</span></td>
+      <td>未成年契約</td><td class="n">1</td>
+      <td>①年齢 1 歳・職業「幼児」。親権者氏名と続柄の記載がない（旧様式には欄自体がない）</td>
+    </tr>
+    <tr>
+      <td><span class="sev mid">中</span></td>
+      <td>同一顧客で複数</td><td class="n">26</td>
+      <td>顧客 12 名分。同じ確認日で内容の違う帳票がある組も含む</td>
+    </tr>
+    <tr>
+      <td><span class="sev mid">中</span></td>
+      <td>職業の矛盾</td><td class="n">9</td>
+      <td>②職業がパート・主婦・年金生活者でありながら「該当しない」に「はい」</td>
+    </tr>
+    <tr>
+      <td><span class="sev mid">中</span></td>
+      <td>判定が未記入</td><td class="n">4</td>
+      <td>法人契約で不要な欄を除いても、はい・いいえどちらも空欄</td>
+    </tr>
+    <tr>
+      <td><span class="sev mid">中</span></td>
+      <td>印字の計算誤り</td><td class="n">3</td>
+      <td>年収×20% または金融資産×30% の印字が計算と合わない</td>
+    </tr>
+    <tr>
+      <td><span class="sev low">低</span></td>
+      <td>投資経験なし</td><td class="n">50</td>
+      <td>⑤で投資経験なしのまま「リスクを十分に理解のうえ許容いただいた」に「はい」</td>
+    </tr>
+    <tr>
+      <td><span class="sev low">低</span></td>
+      <td>事後検証が未実施</td><td class="n">12</td>
+      <td>新様式で検証日・検証実施者ともに空欄</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h3>「原資の矛盾」が最も明確です</h3>
+
+<p>
+12 件は、同じ 1 枚の帳票の中で内容が食い違っています。別紙は、原資が満期金や
+解約返戻金の場合、<strong>不利益事項を十分に説明し了解を得ていれば「はい」でよい</strong>
+としているので、説明を行っていれば記載として成立します。ただしその説明を行った
+記録は帳票に残っていません。
+</p>
+
+<h3>事後検証がほぼ行われていません</h3>
+
+<p>
+検証欄があるのは新様式の 18 件だけです。そのうち検証日が入っているのは 6 件、
+検証実施者は 4 件。<strong>検証結果（適・不適）に○が付いているものは 0 件</strong>でした。
+</p>
+
+<h2><span class="num">4.</span>この調査では分からないこと</h2>
+
+<ul>
+  <li>
+    <strong>スキャン画像 57 件の中身。</strong>2023 年分が中心で、顧客 18 名の氏名までは
+    判明しています。確認には原本を目で見る必要があります
+  </li>
+  <li>
+    <strong>検証結果の「適・不適」。</strong>○印は文字として取り出せないため、
+    新様式 18 件すべてで判別できませんでした。上記の「0 件」は、
+    ○が付いていないという意味ではなく<strong>読み取れなかった</strong>という意味です
+  </li>
+  <li>
+    <strong>面談で何を説明したか。</strong>別紙は「対応履歴を代理店として記録保存すること」を
+    推奨していますが、その記録が別途あるかどうかは調べていません
+  </li>
+</ul>
+
+<h2><span class="num">5.</span>ついでに分かったこと</h2>
+
+<h3>募集人が 6 名います</h3>
+
+<p>
+帳票に登場する募集人は、佐々木 嶺・髙橋 知史のほかに
+<strong>青木 典子・熊澤 善弘・小川 康之・矢野 克臣</strong>の 4 名がいました。
+新しいシステムの募集人マスタには 2 名しか登録していないので、<strong>運用を始める前に
+追加が必要です。</strong>
+</p>
+
+<p>
+また「佐々木 嶺 / 熊澤 善弘」のように<strong>2 名の連名で募集している帳票が 10 件</strong>
+ありました。いまのシステムは募集人を 1 名しか選べないので、連名を扱うなら仕組みの
+追加が要ります。表記も「佐々木 嶺 / 熊澤 善弘」と「佐々木 嶺 熊澤 善弘」、
+「青木 典子」と「青木典子」のように揺れています。
+</p>
+
+<h3>使い回しのファイルに実データが入っています</h3>
+
+<p>
+「原本」「元データ」「※最新」という名前の Word ファイル 5 件は、白紙の雛形ではなく
+<strong>実在の顧客のデータが入ったまま</strong>でした。次の顧客で上書きされると記録が
+消えるため、今回の抽出で台帳に保全しています。
+</p>
+
+<h3>ファイル名と中身が違うものがあります</h3>
+
+<ul>
+  <li>「【金子様】適合性確認シート.docx」の中身は<strong>石川 康幸様</strong></li>
+  <li>「【適合性確認】薫様.pdf」の中身は<strong>有限会社アマノ重機</strong></li>
+  <li>「適合性確認シート_三河志津江様.pdf」の中身は<strong>意向把握シート</strong></li>
+</ul>
+
+<h3>郵便番号が 1 桁足りません</h3>
+
+<p>
+意向把握シートの所在地が全 37 件とも「〒134-081」になっています。
+雛形に由来するもので、正しくは 134-0081 と思われます。新しいシステムでは
+募集人マスタを直せば以後は正しく出力されます。
+</p>
+
+<h2><span class="num">6.</span>次にできること</h2>
+
+<ol>
+  <li>
+    <strong>重要度「高」の 15 件を原本で確認する。</strong>とくに原資の矛盾 12 件。
+    説明を行っていたのであれば、その記録を残す方法を決める
+  </li>
+  <li>
+    <strong>同一顧客で複数ある 12 名分を突き合わせる。</strong>どれが有効な記録かを
+    はっきりさせる
+  </li>
+  <li>
+    <strong>募集人 4 名をマスタに追加する。</strong>連名の扱いを決める
+  </li>
+  <li>
+    <strong>事後検証の運用を決める。</strong>新しいシステムでは検証欄を既定で使わない
+    設定にしてあるので、実施するなら設定シートで有効にする
+  </li>
+  <li>
+    <strong>スキャン画像 57 件をどうするか決める。</strong>うち 26 件は別の 26 件と
+    ファイルサイズが完全に一致しており、同一画像なら対象は 31 件に減ります
+  </li>
+</ol>
+
+<footer>
+  <p>
+  本資料は、Google ドライブ内の適合性確認シート 176 件と意向把握シート 37 件分の
+  記録を機械的に読み取り、記載内容どうしの整合を照合した結果です。
+  判定の書き換えや評価は行っていません。
+  </p>
+  <p>
+  一覧データ: <code>issues.tsv</code>（119 件の確認事項）、
+  <code>archive.tsv</code>（122 行の記録台帳）。いずれも元ファイルへのリンク付き。
+  </p>
+  <p>ヒトカチ株式会社　社内資料　2026年9月4日</p>
+</footer>
+
+</div>
