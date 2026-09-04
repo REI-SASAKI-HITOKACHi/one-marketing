@@ -1,2 +1,8 @@
 dist/
 deploy/one-hitter-lp.zip
+
+# サービスアカウントの鍵（絶対にコミットしない）
+*-service-account*.json
+*sa-key*.json
+*.pem
+credentials.json
