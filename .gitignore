@@ -6,3 +6,7 @@ deploy/one-hitter-lp.zip
 *sa-key*.json
 *.pem
 credentials.json
+
+# Python のキャッシュ
+__pycache__/
+*.pyc
