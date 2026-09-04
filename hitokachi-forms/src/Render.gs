@@ -114,6 +114,8 @@ function buildModel_(d, answers, agent, agencyName) {
     isCorp: isCorp,
     agencyName: agencyName,
     agent: agent,
+    // 共同募集のときは連名。単独ならそのまま。
+    agentDisplay: d.coAgent ? agent.name + ' / ' + d.coAgent : agent.name,
 
     customerName: d.customerName || '',
     guardianName: d.guardianName || '',

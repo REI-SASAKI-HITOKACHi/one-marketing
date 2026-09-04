@@ -82,20 +82,28 @@ function ensureSettingsSheet_(ss) {
 
 function ensureAgenciesSheet_(ss) {
   var sh = getOrCreateSheet_(ss, SHEET_AGENCIES);
-  ensureHeader_(sh, ['代理店名', '共有フォルダID', '有効', '備考']);
+  ensureHeader_(sh, ['代理店名', '共有フォルダID', '代理店側の募集人', '有効', '備考']);
   if (sh.getLastRow() < 2) {
-    sh.getRange(2, 1, 1, 4).setValues([[
-      'ヒトカチ株式会社', '', true,
-      'Drive でフォルダを開いたときの URL の /folders/ 以降が共有フォルダID'
-    ]]);
+    sh.getRange(2, 1, 2, 5).setValues([
+      ['ヒトカチ株式会社', '', '', true,
+       'Drive でフォルダを開いたときの URL の /folders/ 以降が共有フォルダID'],
+      ['クレスト保険', '', '熊澤 善弘, 小川 康之, 矢野 克臣', true,
+       '共同募集する相手がいる代理店は、その募集人を読点かカンマで区切って並べる']
+    ]);
   }
   checkboxColumn_(sh, '有効', 5);
   setNotes_(sh, {
     '共有フォルダID': 'Drive でその代理店の共有フォルダを開いたときの URL の\n'
       + 'https://drive.google.com/drive/folders/★ここ★\nの部分を貼り付けます。',
+    '代理店側の募集人': '共同募集（連名）をする相手の氏名です。\n\n'
+      + '読点かカンマで区切って複数書けます。\n'
+      + '例: 熊澤 善弘, 小川 康之\n\n'
+      + '入力フォームで代理店を選ぶと、ここに書いた人が\n'
+      + '「共同募集の相方」の選択肢に出ます。単独募集なら空欄のままで構いません。',
     '有効': 'チェックを外すと、入力フォームの代理店の選択肢に出なくなります。'
   });
   sh.setColumnWidth(2, 320);
+  sh.setColumnWidth(3, 240);
 }
 
 function ensureAgentsSheet_(ss) {
@@ -105,13 +113,15 @@ function ensureAgentsSheet_(ss) {
     '所属代理店', 'ログイン用アドレス', '有効'
   ]);
   if (sh.getLastRow() < 2) {
-    sh.getRange(2, 1, 2, 9).setValues([
-      ['佐々木 嶺', 'info@hitokachi.com', '080-6817-4796', '134-0081',
-       '東京都 江戸川区 北葛西', '５－１４－１１ クオーディア西葛西５０３',
-       'ヒトカチ株式会社', '', true],
-      ['髙橋 知史', 's-takahashi@hitokachi.com', '080-2238-7592', '134-0081',
-       '東京都 江戸川区 北葛西', '５－１４－１１ クオーディア西葛西５０３',
-       'ヒトカチ株式会社', '', true]
+    var addr = ['134-0081', '東京都 江戸川区 北葛西', '５－１４－１１ クオーディア西葛西５０３'];
+    sh.getRange(2, 1, 3, 9).setValues([
+      ['佐々木 嶺', 'info@hitokachi.com', '080-6817-4796'].concat(addr)
+        .concat(['ヒトカチ株式会社', '', true]),
+      ['髙橋 知史', 's-takahashi@hitokachi.com', '080-2238-7592'].concat(addr)
+        .concat(['ヒトカチ株式会社', '', true]),
+      // 過去の帳票に登場するが連絡先が分かっていない募集人。
+      // 空欄のままでも動くが、意向把握シートの連絡先欄が空白になる。
+      ['青木 典子', '', '', '', '', '', 'ヒトカチ株式会社', '', true]
     ]);
   }
   checkboxColumn_(sh, '有効', 5);
@@ -119,6 +129,7 @@ function ensureAgentsSheet_(ss) {
     '氏名': '適合性確認シートの「取扱者名」と、意向把握シートの「募集人」に入ります。',
     '郵便番号': '意向把握シートの「所在地」に〒付きで入ります。',
     'ログイン用アドレス': '空欄でかまいません。将来ログイン者と募集人を突き合わせるための予備欄です。',
+    'メールアドレス': '意向把握シートの【メール】欄に入ります。空欄なら空白で出力されます。',
     '有効': 'チェックを外すと、入力フォームの募集人の選択肢に出なくなります。'
   });
   sh.autoResizeColumns(1, 9);

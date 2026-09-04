@@ -173,19 +173,24 @@ function setValue(key, v) {
 function control(f) {
   var t = f.type;
 
-  if (t === 'agency' || t === 'agent' || t === 'select') {
-    var list = t === 'agency' ? BOOT.agencies
-      : t === 'agent' ? agentNames() : f.options;
+  if (t === 'agency' || t === 'agent' || t === 'coAgent' || t === 'select') {
+    var list = t === 'agency' ? agencyNames()
+      : t === 'agent' ? agentNames()
+      : t === 'coAgent' ? coAgentNames() : f.options;
     var sel = el('select', {
       id: 'i_' + f.key,
       onchange: function (e) {
         setValue(f.key, e.target.value);
-        if (t === 'agency') rebuildAgents();
+        // 代理店が変われば、選べる募集人も共同募集の相方も入れ替わる。
+        if (t === 'agency') { rebuildAgents(); rebuildCoAgents(); }
       }
     });
-    sel.appendChild(el('option', { value: '', text: '選択してください' }));
+    sel.appendChild(el('option', {
+      value: '', text: t === 'coAgent' ? '（単独募集）' : '選択してください'
+    }));
     list.forEach(function (o) { sel.appendChild(el('option', { value: o, text: o })); });
-    if (list.length === 1) { sel.value = list[0]; setValue(f.key, list[0]); }
+    // 相方は 1 人しかいなくても単独募集がありうるので、勝手に選ばない。
+    if (t !== 'coAgent' && list.length === 1) { sel.value = list[0]; setValue(f.key, list[0]); }
     return sel;
   }
 
@@ -262,6 +267,10 @@ function control(f) {
   return el('div', {}, [input, el('span', { class: 'unit', text: f.unit })]);
 }
 
+function agencyNames() {
+  return BOOT.agencies.map(function (a) { return a.name; });
+}
+
 function agentNames() {
   var agency = STATE.values.agency;
   var list = BOOT.agents.filter(function (a) { return !agency || !a.agency || a.agency === agency; });
@@ -269,15 +278,34 @@ function agentNames() {
   return list.map(function (a) { return a.name; });
 }
 
-function rebuildAgents() {
-  var sel = $('i_agent');
+/** 共同募集の相方。選んでいる代理店に登録されている募集人だけを出す。 */
+function coAgentNames() {
+  var agency = STATE.values.agency;
+  if (!agency) return [];
+  for (var i = 0; i < BOOT.agencies.length; i++) {
+    if (BOOT.agencies[i].name === agency) return BOOT.agencies[i].coAgents || [];
+  }
+  return [];
+}
+
+/** 選択肢を入れ替える。今の選択が新しい一覧にも残っていればそのまま。 */
+function rebuildSelect_(key, names, placeholder) {
+  var sel = $('i_' + key);
   if (!sel) return;
   var keep = sel.value;
   sel.innerHTML = '';
-  sel.appendChild(el('option', { value: '', text: '選択してください' }));
-  agentNames().forEach(function (n) { sel.appendChild(el('option', { value: n, text: n })); });
-  sel.value = agentNames().indexOf(keep) >= 0 ? keep : '';
-  STATE.values.agent = sel.value;
+  sel.appendChild(el('option', { value: '', text: placeholder }));
+  names.forEach(function (n) { sel.appendChild(el('option', { value: n, text: n })); });
+  sel.value = names.indexOf(keep) >= 0 ? keep : '';
+  setValue(key, sel.value);
+}
+
+function rebuildAgents() {
+  rebuildSelect_('agent', agentNames(), '選択してください');
+}
+
+function rebuildCoAgents() {
+  rebuildSelect_('coAgent', coAgentNames(), '（単独募集）');
 }
 
 /* ---------- 手順1: 確認 ---------- */

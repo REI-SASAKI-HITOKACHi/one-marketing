@@ -102,7 +102,7 @@ function bulkColumns_() {
           : f.type === 'date' ? 'date'
           : f.type === 'number' ? 'number'
           : (f.type === 'radio' || f.type === 'select') ? 'list'
-          : (f.type === 'agency' || f.type === 'agent') ? 'list'
+          : (f.type === 'agency' || f.type === 'agent' || f.type === 'coAgent') ? 'list'
           : 'text',
       options: bulkOptionsFor_(f)
     });
@@ -119,6 +119,14 @@ function bulkColumns_() {
 function bulkOptionsFor_(f) {
   if (f.type === 'agency') return getAgencies_().map(function (a) { return a.name; });
   if (f.type === 'agent')  return getAgents_().map(function (a) { return a.name; });
+  if (f.type === 'coAgent') {
+    // 一括では代理店ごとに選択肢を変えられないので、全代理店の相方をまとめて出す。
+    var all = [];
+    getAgencies_().forEach(function (a) {
+      (a.coAgents || []).forEach(function (n) { if (all.indexOf(n) < 0) all.push(n); });
+    });
+    return all;
+  }
   return f.options || [];
 }
 

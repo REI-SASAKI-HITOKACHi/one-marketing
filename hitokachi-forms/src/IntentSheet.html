@@ -97,7 +97,7 @@
 <table class="agency">
   <tr><td class="k">【代理店】</td><td class="v"><?= m.agencyName ?></td>
       <td class="note" rowspan="7">※『推定のご意向』欄は、募集人の推定に基づいてお客さまの希望される保障をご提案する場合に記入します。</td></tr>
-  <tr><td class="k">【募集人】</td><td class="v"><?= m.agent.name ?></td></tr>
+  <tr><td class="k">【募集人】</td><td class="v"><?= m.agentDisplay ?></td></tr>
   <tr><td class="k">【所在地】</td><td class="v"><?= m.agent.zip ? '〒' + m.agent.zip : '' ?></td></tr>
   <tr><td class="k"></td><td class="v"><?= m.agent.address1 ?></td></tr>
   <tr><td class="k"></td><td class="v"><?= m.agent.address2 ?></td></tr>

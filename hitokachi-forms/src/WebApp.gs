@@ -44,7 +44,10 @@ function bootstrap_() {
     email: currentUserEmail_(),
     sections: FIELD_SECTIONS,
     fields: fields,
-    agencies: getAgencies_().map(function (a) { return a.name; }),
+    // 代理店ごとに共同募集の相方が違うので、名前だけでなく一式渡す。
+    agencies: getAgencies_().map(function (a) {
+      return { name: a.name, coAgents: a.coAgents };
+    }),
     agents: getAgents_(),
     needs: NEEDS,
     defaults: { contractType: String(getSetting_('既定の契約形態', '個人')) }

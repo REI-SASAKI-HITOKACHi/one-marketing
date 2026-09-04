@@ -87,6 +87,21 @@ function validate_(data, fieldConfig) {
     if (empty) errors.push(f.label + 'を入力してください。');
   });
 
+  // 共同募集の相方は、その代理店に登録されている募集人だけ。一括入力シートの
+  // 選択肢は全代理店の相方をまとめて出すので、ここで組み合わせを見ておく。
+  // 誤ると帳票に無関係な代理店の募集人名が連名で印字される。
+  if (data.coAgent) {
+    var ag = getAgencyByName_(data.agency);
+    var coList = (ag && ag.coAgents) || [];
+    if (coList.indexOf(String(data.coAgent).trim()) < 0) {
+      errors.push('共同募集の相方「' + data.coAgent + '」は代理店「' + data.agency
+        + '」の募集人として登録されていません。代理店マスタの「代理店側の募集人」を確認してください。');
+    }
+    if (String(data.coAgent).trim() === String(data.agent).trim()) {
+      errors.push('共同募集の相方に、募集人と同じ人は選べません。');
+    }
+  }
+
   if (isCorp) return errors;
 
   // 数値の妥当性。負の値を通すと判定③が静かに「はい」になり、しかも年間保険料と

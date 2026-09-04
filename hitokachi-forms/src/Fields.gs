@@ -63,7 +63,12 @@ var OCCUPATION_CLASSES = ['左記以外', 'パート・アルバイト', '学生
 var FIELD_DEFS = [
   // ---- 基本（両帳票に効く） ----
   { key: 'agency',       label: '取扱代理店',   type: 'agency', section: '基本', required: true,  defaultMode: 'form' },
-  { key: 'agent',        label: '募集人',       type: 'agent',  section: '基本', required: true,  defaultMode: 'form' },
+  { key: 'agent',        label: '募集人',       type: 'agent',  section: '基本', required: true,  defaultMode: 'form',
+    note: '自社の募集人。帳票の「取扱者名」と「【募集人】」に入る' },
+  { key: 'coAgent',      label: '共同募集の相方', type: 'coAgent', section: '基本', defaultMode: 'form',
+    note: '代理店側の募集人と共同で募集した場合に選ぶ。単独なら空欄のまま。'
+        + '選ぶと帳票に「佐々木 嶺 / 熊澤 善弘」のように連名で入る。'
+        + '選択肢は代理店マスタの「代理店側の募集人」から出る' },
   { key: 'contractType', label: '契約形態',     type: 'radio',  section: '基本', required: true,  defaultMode: 'form',
     options: ['個人', '法人'], defaultValue: '個人',
     note: '法人を選ぶと適合性確認シートの①〜④および2.①〜③が対象外になる' },

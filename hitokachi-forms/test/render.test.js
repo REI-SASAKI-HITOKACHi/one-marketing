@@ -110,6 +110,23 @@ t('未選択の項目は空チェック', i.includes('☐'));
 t('募集人の連絡先が入っている', i.includes('080-6817-4796'));
 t('個人・法人のブロックがある', i.includes('個人の') && i.includes('法人の'));
 
+console.log('\n--- 共同募集（連名） ---');
+{
+  t('単独なら適合性シートは募集人ひとり', s.includes('佐々木 嶺') && !s.includes(' / '));
+  t('単独なら意向把握シートも募集人ひとり', i.includes('佐々木 嶺') && !i.includes(' / '));
+
+  const pairData = Object.assign({}, data, { coAgent: '熊澤 善弘' });
+  const pairModel = ctx.buildModel_(pairData, ctx.defaultAnswers_(pairData), agent, 'ヒトカチ株式会社');
+  const pairRendered = {};
+  for (const file of Object.values(sheets)) {
+    pairRendered[file] = render(fs.readFileSync(path.join(SRC, file), 'utf8'), pairModel);
+  }
+  t('適合性シートの取扱者名が連名になる',
+    pairRendered['SuitabilitySheet.html'].includes('佐々木 嶺 / 熊澤 善弘'));
+  t('意向把握シートの募集人も連名になる',
+    pairRendered['IntentSheet.html'].includes('佐々木 嶺 / 熊澤 善弘'));
+}
+
 if (process.argv.includes('--write')) {
   fs.mkdirSync(OUT, { recursive: true });
   for (const [file, html] of Object.entries(rendered)) {

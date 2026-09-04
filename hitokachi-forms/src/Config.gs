@@ -92,7 +92,12 @@ function getAgencies_() {
     .map(function (r) {
       return {
         name: String(r['代理店名']).trim(),
-        folderId: String(r['共有フォルダID']).trim()
+        folderId: String(r['共有フォルダID']).trim(),
+        // 共同募集の相方。その代理店側の募集人を読点・カンマ区切りで並べる。
+        // 空欄なら単独募集だけの代理店。
+        coAgents: String(r['代理店側の募集人'] || '').split(/[,、\n]/)
+          .map(function (x) { return x.trim(); })
+          .filter(function (x) { return x !== ''; })
       };
     });
 }

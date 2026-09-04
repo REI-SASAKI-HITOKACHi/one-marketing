@@ -11,9 +11,9 @@ const vm = require('vm');
 const SRC = path.join(__dirname, '..', 'src');
 
 const AGENCIES = [
-  ['代理店名', '共有フォルダID', '有効', '備考'],
-  ['ヒトカチ株式会社', 'FOLDER_A', true, ''],
-  ['提携代理店B', 'FOLDER_B', true, '']
+  ['代理店名', '共有フォルダID', '代理店側の募集人', '有効', '備考'],
+  ['ヒトカチ株式会社', 'FOLDER_A', '', true, ''],
+  ['提携代理店B', 'FOLDER_B', '熊澤 善弘, 小川 康之', true, '']
 ];
 const AGENTS = [
   ['氏名', 'メールアドレス', '電話番号', '郵便番号', '住所1', '住所2', '所属代理店', 'ログイン用アドレス', '有効'],
@@ -225,6 +225,49 @@ console.log('\n--- 検証：不正な数値を弾く ---');
   t('年齢・年収なしでも通る', corpErrors, []);
   t('個人契約なら同じ入力は弾かれる',
     ctx.validate_(ctx.applyFieldConfig_(Object.assign({}, corp, { contractType: '個人' }), conf), conf).length > 0, true);
+}
+
+console.log('\n--- 検証：共同募集の相方 ---');
+{
+  const ctx = makeContext();
+  const conf = ctx.getFieldConfig_();
+  const base = {
+    contractType: '個人', customerName: '山田 太郎', agency: '提携代理店B',
+    agent: '佐々木 嶺', confirmDate: '2026-08-01',
+    age: 40, occupation: '会社員', occupationClass: '左記以外',
+    income: 500, assets: 100, annualPremium: 80, payYears: 10,
+    experience: ['株式'], premiumSource: ['預貯金・給与'],
+    sourceNotMaturity: true, sourceSpare: true, sourceNotLoan: true,
+    riskTolerance: ctx.RISK_YES, needs: ['death'], savings: '①ある方が良い'
+  };
+  const check = (over) => ctx.validate_(ctx.applyFieldConfig_(Object.assign({}, base, over), conf), conf);
+
+  t('空欄（単独募集）は通る', check({ coAgent: '' }), []);
+  t('その代理店の募集人なら通る', check({ coAgent: '熊澤 善弘' }), []);
+  t('別の代理店の募集人は弾く',
+    check({ agency: 'ヒトカチ株式会社', coAgent: '熊澤 善弘' })
+      .some(e => e.indexOf('登録されていません') >= 0), true);
+  t('マスタにない名前は弾く',
+    check({ coAgent: '存在 しない' }).some(e => e.indexOf('登録されていません') >= 0), true);
+  t('募集人と同じ人は弾く',
+    check({ coAgent: '佐々木 嶺' }).some(e => e.indexOf('同じ人は選べません') >= 0), true);
+  t('法人契約でも組み合わせは見る',
+    check({ contractType: '法人', agency: 'ヒトカチ株式会社', coAgent: '小川 康之' })
+      .some(e => e.indexOf('登録されていません') >= 0), true);
+
+  console.log('\n--- 一括入力シートの相方の選択肢 ---');
+  const opts = ctx.bulkOptionsFor_(ctx.FIELD_DEFS.filter(f => f.key === 'coAgent')[0]);
+  t('全代理店の相方をまとめて出す', opts, ['熊澤 善弘', '小川 康之']);
+
+  console.log('\n--- 連名の印字 ---');
+  const solo = ctx.applyFieldConfig_(base, conf);
+  const pair = ctx.applyFieldConfig_(Object.assign({}, base, { coAgent: '熊澤 善弘' }), conf);
+  const agent = ctx.getAgentByName_('佐々木 嶺');
+  t('単独なら自社の募集人だけ',
+    ctx.buildModel_(solo, ctx.defaultAnswers_(solo), agent, '提携代理店B').agentDisplay, '佐々木 嶺');
+  t('共同募集なら連名になる',
+    ctx.buildModel_(pair, ctx.defaultAnswers_(pair), agent, '提携代理店B').agentDisplay,
+    '佐々木 嶺 / 熊澤 善弘');
 }
 
 console.log('\n--- チェックボックスの表記ゆれ ---');

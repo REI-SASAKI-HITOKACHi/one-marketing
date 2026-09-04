@@ -239,6 +239,17 @@ var DEMO_AGENTS = [
     address2: '５－１４－１１ クオーディア西葛西５０３', agency: 'ヒトカチ株式会社' }
 ];
 
+/**
+ * 代理店マスタの代わり。共同募集の相方はここに登録された名前から選ぶ。
+ * Config.gs の getAgencies_ は設定スプレッドシートを読むので、丸ごと差し替える。
+ */
+var DEMO_AGENCIES = [
+  { name: 'ヒトカチ株式会社', folderId: 'demo-agency', coAgents: [] },
+  { name: 'クレスト保険', folderId: 'demo-agency-2',
+    coAgents: ['熊澤 善弘', '小川 康之', '矢野 克臣'] }
+];
+getAgencies_ = function () { return DEMO_AGENCIES; };
+
 /** 「既にこの顧客のフォルダがある」状況を再現するための仮の一覧。 */
 var DEMO_EXISTING_FOLDERS = ['種田 裕貴', '石川 康幸', '三好 雄策', '田中'];
 
@@ -255,7 +266,7 @@ var DEMO_BOOT = {
   title: '適合性確認シート／意向把握シート 作成',
   email: 'info@hitokachi.com（デモ）',
   sections: FIELD_SECTIONS,
-  agencies: ['ヒトカチ株式会社', 'クレスト保険'],
+  agencies: DEMO_AGENCIES.map(function (a) { return { name: a.name, coAgents: a.coAgents }; }),
   agents: DEMO_AGENTS,
   needs: NEEDS,
   defaults: { contractType: '個人' },
