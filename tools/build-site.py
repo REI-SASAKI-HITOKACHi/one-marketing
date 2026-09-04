@@ -4,14 +4,23 @@
 lp/ 配下は Artifact 用に <html> や <head> を持たない断片として書いてあるので、
 公開用にはここで文書として包み、フォームの送信先を PHP に繋ぎ替える。
 
-  python3 tools/build-site.py   →  deploy/htdocs/ に一式を書き出す
+  python3 tools/build-site.py php       →  deploy/htdocs/  （PHPでフォームを受ける）
+  python3 tools/build-site.py netlify   →  deploy/netlify/ （Netlify Formsが受ける）
 """
 import pathlib
 import re
 import shutil
+import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-OUT = ROOT / "deploy" / "htdocs"
+
+# 配信先ごとに、フォームの受け口と出力先が変わる
+TARGETS = {
+    # ロリポップなど、PHPが動くサーバー
+    "php": {"out": ROOT / "deploy" / "htdocs"},
+    # Netlify。フォームはNetlify Formsが受ける
+    "netlify": {"out": ROOT / "deploy" / "netlify"},
+}
 
 BASE_URL = "https://lp.one-hitter.jp"
 
@@ -72,7 +81,19 @@ TAIL = """
 """
 
 FORM_OPEN = '<form class="form" onsubmit="return false;">'
-FORM_NEW = """<form class="form" action="/form/send.php" method="post">
+
+FORM_PHP = """<form class="form" action="/form/send.php" method="post">
+      <input type="hidden" name="lp" value="{dir}">
+      <div class="hp" aria-hidden="true">
+        <label for="f-x">この欄には入力しないでください</label>
+        <input id="f-x" name="x_field" type="text" tabindex="-1" autocomplete="off">
+      </div>"""
+
+# Netlify Forms は、配信されたHTMLからこの form を見つけて受け口を用意する。
+# name と form-name が一致していることと、honeypot の欄名の申告が要る。
+FORM_NETLIFY = """<form class="form" name="reserve-{dir}" method="post"
+      action="/{dir}/thanks.html" data-netlify="true" netlify-honeypot="x_field">
+      <input type="hidden" name="form-name" value="reserve-{dir}">
       <input type="hidden" name="lp" value="{dir}">
       <div class="hp" aria-hidden="true">
         <label for="f-x">この欄には入力しないでください</label>
@@ -117,12 +138,13 @@ def make_og(src: pathlib.Path, dst: pathlib.Path, line1: str, line2: str) -> Non
     out.save(dst, quality=82, optimize=True, progressive=True)
 
 
-def build_page(name: str, meta: dict) -> None:
+def build_page(name: str, meta: dict, target: str, out: pathlib.Path) -> None:
     src = (ROOT / "lp" / name / "index.html").read_text(encoding="utf-8")
 
     if FORM_OPEN not in src:
         raise SystemExit(f"{name}: フォームの開始タグが見つかりません")
-    src = src.replace(FORM_OPEN, FORM_NEW.format(dir=meta["dir"]))
+    form = FORM_NETLIFY if target == "netlify" else FORM_PHP
+    src = src.replace(FORM_OPEN, form.format(dir=meta["dir"]))
 
     # 蜂蜜罠のスタイルを、既存の .form の定義のすぐ後ろに足す
     anchor = ".form{background:var(--surface);"
@@ -135,7 +157,7 @@ def build_page(name: str, meta: dict) -> None:
     head_meta = {k: v for k, v in meta.items() if not k.startswith("og_")}
     doc = HEAD.format(base=BASE_URL, **head_meta) + src + TAIL
 
-    dst = OUT / meta["dir"]
+    dst = out / meta["dir"]
     dst.mkdir(parents=True, exist_ok=True)
     (dst / "index.html").write_text(doc, encoding="utf-8")
 
@@ -152,6 +174,11 @@ def build_page(name: str, meta: dict) -> None:
 
 
 if __name__ == "__main__":
-    OUT.mkdir(parents=True, exist_ok=True)
+    target = sys.argv[1] if len(sys.argv) > 1 else "php"
+    if target not in TARGETS:
+        raise SystemExit(f"配信先は {' / '.join(TARGETS)} のいずれかです")
+    out = TARGETS[target]["out"]
+    out.mkdir(parents=True, exist_ok=True)
+    print(f"[{target}] → {out.relative_to(ROOT)}/")
     for name, meta in PAGES.items():
-        build_page(name, meta)
+        build_page(name, meta, target, out)
