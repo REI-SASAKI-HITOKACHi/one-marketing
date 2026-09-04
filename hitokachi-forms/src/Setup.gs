@@ -29,6 +29,19 @@ function setup() {
   ensureMenuTrigger_(ss);
 
   clearMasterCache_();
+
+  // 結び付かない募集人は選択肢に出ないだけで、何も言わずに消える。
+  // 貼り付けで入った表記ゆれに気づけるよう、ここで知らせる。
+  var orphans = orphanCoAgents_();
+  if (orphans.length) {
+    Logger.log('【注意】「代理店募集人マスタ」の次の行が、代理店マスタのどの代理店にも'
+      + '結び付いていません。この人たちは「共同募集の相方」の選択肢に出ません。\n'
+      + orphans.map(function (o) {
+          return '  ・' + o.name + '（代理店名「' + o.agency + '」）';
+        }).join('\n')
+      + '\n代理店マスタにその代理店を追加するか、代理店名を選び直してください。');
+  }
+
   var url = ss.getUrl();
   Logger.log('設定スプレッドシート: ' + url);
   return url;
@@ -138,9 +151,10 @@ function ensureCoAgentsSheet_(ss) {
   }
   // 100社 × 最大30人を見込んで、チェックボックスは 3000 行ぶん。
   checkboxColumn_(sh, '有効', 3000);
+  agencyNameColumn_(sh, '代理店名', 3000);
   setNotes_(sh, {
-    '代理店名': '「代理店マスタ」に書いた代理店名とまったく同じに書いてください。\n'
-      + '1文字でも違うと、その人は選択肢に出ません。\n\n'
+    '代理店名': '「代理店マスタ」に登録した代理店から選びます（プルダウン）。\n'
+      + '手で打つ必要はありません。代理店を先に登録してください。\n\n'
       + '同じ代理店の人は、何行に分けても構いません（並び順も自由）。',
     '氏名': '共同募集（連名）をする相手の氏名です。\n\n'
       + '入力フォームで代理店を選ぶと、その代理店の人だけが\n'
@@ -176,7 +190,9 @@ function ensureAgentsSheet_(ss) {
     ]);
   }
   checkboxColumn_(sh, '有効', 60);
+  agencyNameColumn_(sh, '所属代理店', 200);
   setNotes_(sh, {
+    '所属代理店': '「代理店マスタ」に登録した代理店から選びます（プルダウン）。',
     '氏名': '自社（ヒトカチ株式会社）の募集人です。\n'
       + '適合性確認シートの「取扱者名」と、意向把握シートの「募集人」に入ります。\n\n'
       + '他社の募集人は、ここではなく「代理店募集人マスタ」に登録してください。',
@@ -280,6 +296,35 @@ function ensureFieldsSheet_(ss) {
   sh.setColumnWidth(7, 280);
   sh.setColumnWidth(8, 320);
 }
+
+/**
+ * 代理店名の列を、代理店マスタから選ぶプルダウンにする。
+ * 手で打たせると1文字の違いで結び付かなくなり、しかも黙って選択肢から
+ * 消えるだけなので気づけない。打つ余地をなくすのがいちばん確実。
+ *
+ * @param {Sheet} sh          プルダウンを張るシート
+ * @param {string} headerName 代理店名が入っている列の見出し
+ * @param {number} rows       張る行数
+ */
+function agencyNameColumn_(sh, headerName, rows) {
+  var header = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+  var col = header.indexOf(headerName);
+  if (col < 0) return;
+
+  var agencies = sh.getParent().getSheetByName(SHEET_AGENCIES);
+  if (!agencies) return;
+
+  // 代理店マスタの行が増えても張り直さなくて済むよう、広めに参照する。
+  var source = agencies.getRange(2, 1, AGENCY_LIST_ROWS, 1);
+  sh.getRange(2, col + 1, rows, 1).setDataValidation(
+    SpreadsheetApp.newDataValidation()
+      .requireValueInRange(source, true)
+      .setAllowInvalid(false)
+      .build());
+}
+
+/** 代理店名プルダウンが参照する、代理店マスタの行数。 */
+var AGENCY_LIST_ROWS = 500;
 
 /** 見出しセルに説明のメモを付ける。 */
 function setNotes_(sh, notes) {

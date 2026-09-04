@@ -109,6 +109,18 @@ var MASTER_CACHE_ = {};
 function clearMasterCache_() { MASTER_CACHE_ = {}; }
 
 /**
+ * 代理店名を突き合わせるためのキー。
+ * 「代理店募集人マスタ」の代理店名は設定シート上ではプルダウンから選ぶが、
+ * 貼り付けで入った値には前後の空白や全角空白が混じる。表記のゆれだけで
+ * 募集人が黙って選択肢から消えるのを防ぐ。
+ */
+function agencyKey_(name) {
+  var t = String(name == null ? '' : name);
+  if (String.prototype.normalize) t = t.normalize('NFKC');
+  return t.replace(/[\s　]+/g, '');
+}
+
+/**
  * 代理店の一覧。coAgents は「代理店募集人マスタ」から集めた、その代理店側の
  * 募集人（共同募集の相方）。1代理店につき何人でも登録できる。
  */
@@ -118,12 +130,12 @@ function getAgencies_() {
   var byAgency = {};
   readTableIfExists_(SHEET_CO_AGENTS).forEach(function (r) {
     if (!isTrue_(r['有効'])) return;
-    var agency = String(r['代理店名'] || '').trim();
+    var key = agencyKey_(r['代理店名']);
     var person = String(r['氏名'] || '').trim();
-    if (agency === '' || person === '') return;
-    if (!byAgency[agency]) byAgency[agency] = [];
+    if (key === '' || person === '') return;
+    if (!byAgency[key]) byAgency[key] = [];
     // 同じ人を二度書いても選択肢は1つ。
-    if (byAgency[agency].indexOf(person) < 0) byAgency[agency].push(person);
+    if (byAgency[key].indexOf(person) < 0) byAgency[key].push(person);
   });
 
   MASTER_CACHE_.agencies = readTable_(SHEET_AGENCIES)
@@ -133,10 +145,32 @@ function getAgencies_() {
       return {
         name: name,
         folderId: String(r['共有フォルダID']).trim(),
-        coAgents: byAgency[name] || []
+        coAgents: byAgency[agencyKey_(name)] || []
       };
     });
   return MASTER_CACHE_.agencies;
+}
+
+/**
+ * 「代理店募集人マスタ」にあるのに、代理店マスタのどの代理店にも結び付かない行。
+ * 結び付かない募集人は選択肢に出ないだけで、何も言わずに消える。
+ * setup() がこれを見て知らせる。
+ */
+function orphanCoAgents_() {
+  var known = {};
+  readTable_(SHEET_AGENCIES).forEach(function (r) {
+    var k = agencyKey_(r['代理店名']);
+    if (k) known[k] = true;
+  });
+
+  var out = [];
+  readTableIfExists_(SHEET_CO_AGENTS).forEach(function (r) {
+    var raw = String(r['代理店名'] || '').trim();
+    var person = String(r['氏名'] || '').trim();
+    if (raw === '' || person === '') return;
+    if (!known[agencyKey_(raw)]) out.push({ agency: raw, name: person });
+  });
+  return out;
 }
 
 function getAgencyByName_(name) {
