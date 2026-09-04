@@ -704,42 +704,93 @@ function resetBulkSheet() {
         + (unfinished.length > 5 ? ' ほか' : '') + '）\n'
         + '　消すと、この人たちの帳票が作られないまま一覧から消えます。\n\n';
     }
-    message += '消す前の内容は「' + SHEET_BULK_BACKUP + '」シートに控えます。\n続けますか？';
+    message += '消す前の内容は「' + snapshotSheetName_(settingsSpreadsheet_())
+      + '」シートに控えます。\n続けますか？';
     if (ui.alert('一括入力シートのリセット', message, ui.ButtonSet.OK_CANCEL) !== ui.Button.OK) {
       return toast_('リセットを取りやめました。');
     }
   }
 
-  backupBulkSheet_(sh);
+  var snapshot = snapshotBulkSheet_(sh);
   var lastRow = sh.getLastRow();
   if (lastRow >= BULK_FIRST_ROW) {
     sh.getRange(BULK_FIRST_ROW, 1, lastRow - BULK_FIRST_ROW + 1, sh.getLastColumn()).clearContent();
   }
-  toast_(rows.length + ' 行を消しました。控えは「' + SHEET_BULK_BACKUP + '」シートにあります。');
+  var removed = pruneSnapshots_(settingsSpreadsheet_());
+  alertOrToast_(rows.length + ' 行を消しました。\n控えは「' + snapshot + '」シートにあります。'
+    + (removed.length ? '\n\n古い控え ' + removed.length + ' 枚を消しました（'
+        + removed.join('、') + '）。\n作成の記録そのものは「送信ログ」に残っています。' : ''));
 }
 
-/** 消す前の内容を控えシートの末尾に足す。上書きはしない。 */
-function backupBulkSheet_(sh) {
+/**
+ * これから作る控えシートの名前。「一括作成_2026-09-04」。
+ * 同じ日に2回リセットしたら「_2」「_3」と続ける。上書きしない。
+ */
+function snapshotSheetName_(ss) {
+  var base = BULK_SNAPSHOT_PREFIX
+    + Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd');
+  if (!ss.getSheetByName(base)) return base;
+  for (var i = 2; i < 100; i++) {
+    if (!ss.getSheetByName(base + '_' + i)) return base + '_' + i;
+  }
+  return base + '_' + Utilities.formatDate(new Date(), 'Asia/Tokyo', 'HHmmss');
+}
+
+/**
+ * 消す前の内容を、日付入りの新しいシートに控える。
+ * 1 回の一括作成 = 1 枚。あとから「あの日に何を作ったか」を探せる。
+ * @return {string} 作った控えシートの名前
+ */
+function snapshotBulkSheet_(sh) {
   var ss = settingsSpreadsheet_();
-  var backup = ss.getSheetByName(SHEET_BULK_BACKUP);
   var lastRow = sh.getLastRow();
   var lastCol = sh.getLastColumn();
-  if (lastRow < BULK_FIRST_ROW) return;
+  var name = snapshotSheetName_(ss);
+  var snap = ss.insertSheet(name);
 
-  var labels = sh.getRange(BULK_HEADER_ROW, 1, 1, lastCol).getValues()[0];
-  var values = sh.getRange(BULK_FIRST_ROW, 1, lastRow - BULK_FIRST_ROW + 1, lastCol).getValues();
   var stamp = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy/MM/dd HH:mm');
+  snap.getRange(1, 1).setValue(stamp + ' のリセット時点の一括入力シート').setFontWeight('bold');
+  snap.getRange(1, 1).setNote(
+    'リセットの直前に控えた内容です。\n'
+    + '作成の記録そのものは「送信ログ」に残っているので、'
+    + 'このシートは見返す必要がなくなったら消して構いません。');
 
-  if (!backup) {
-    backup = ss.insertSheet(SHEET_BULK_BACKUP);
-    backup.getRange(1, 1).setNote(
-      'リセットの直前に、一括入力シートの内容をここへ控えます。\n'
-      + '消しすぎたときはここから戻せます。不要になったら手で消してください。');
+  if (lastRow >= BULK_FIRST_ROW) {
+    var labels = sh.getRange(BULK_HEADER_ROW, 1, 1, lastCol).getValues()[0];
+    var values = sh.getRange(BULK_FIRST_ROW, 1, lastRow - BULK_FIRST_ROW + 1, lastCol).getValues();
+    snap.getRange(2, 1, 1, lastCol).setValues([labels])
+      .setFontWeight('bold').setBackground('#efefef');
+    snap.getRange(3, 1, values.length, lastCol).setValues(values);
+    snap.setFrozenRows(2);
   }
-  var at = backup.getLastRow() + (backup.getLastRow() ? 2 : 0);
-  backup.getRange(at + 1, 1).setValue('▼ ' + stamp + ' のリセット時点').setFontWeight('bold');
-  backup.getRange(at + 2, 1, 1, lastCol).setValues([labels]).setFontWeight('bold');
-  backup.getRange(at + 3, 1, values.length, lastCol).setValues(values);
+  return name;
+}
+
+/**
+ * 古い控えシートを消す。残す枚数は設定シートで変えられる（0 なら消さない）。
+ *
+ * 毎日リセットするとタブが年に 250 枚増えて、設定スプレッドシートが
+ * 開けなくなる。作成の記録は「送信ログ」に残るので、控えは古いものから
+ * 落としてよい。
+ *
+ * @return {Array<string>} 消したシート名
+ */
+function pruneSnapshots_(ss) {
+  var keep = Number(getSetting_('一括作成の控えを残す枚数', BULK_SNAPSHOT_KEEP_DEFAULT));
+  if (!isFinite(keep) || keep <= 0) return [];
+
+  var snaps = ss.getSheets()
+    .map(function (s) { return s.getName(); })
+    .filter(function (n) { return n.indexOf(BULK_SNAPSHOT_PREFIX) === 0; })
+    .sort();   // 名前が日付なので、名前順＝古い順
+
+  var removed = [];
+  while (snaps.length > keep) {
+    var name = snaps.shift();
+    ss.deleteSheet(ss.getSheetByName(name));
+    removed.push(name);
+  }
+  return removed;
 }
 
 /** 自動で続きが動くのを止める。 */
@@ -779,7 +830,11 @@ function toast_(message) {
 
 var SHEET_IMPORT = '取り込み';
 var SHEET_ALIASES = '取り込み別名';
-var SHEET_BULK_BACKUP = '一括入力の控え';
+/** 控えシートの名前の頭。この後ろに日付が付く。 */
+var BULK_SNAPSHOT_PREFIX = '一括作成_';
+
+/** 残しておく控えシートの枚数（既定）。設定シートで変えられる。0 なら消さない。 */
+var BULK_SNAPSHOT_KEEP_DEFAULT = 24;
 
 /**
  * 成約一覧の見出しを、一括入力シートの見出しに読み替える表（初期値）。

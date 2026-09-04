@@ -454,6 +454,64 @@ console.log('\n--- チェックボックスの表記ゆれ ---');
   t('どの書き方でも拾う', data.needs, ['death', 'medical', 'cancer']);
 }
 
+console.log('\n--- リセットの控えシート ---');
+{
+  const ctx = makeContext({
+    '設定': [['キー', '値', '説明'], ['一括作成の控えを残す枚数', 3, '']]
+  });
+  // insertSheet / deleteSheet / getSheets だけの、最小のスプレッドシート代役。
+  function fakeSpreadsheet(names) {
+    const sheets = names.slice();
+    return {
+      sheets,
+      getSheets: () => sheets.map(n => ({ getName: () => n })),
+      getSheetByName: n => (sheets.indexOf(n) >= 0 ? { getName: () => n } : null),
+      insertSheet(n) { sheets.push(n); return { getName: () => n }; },
+      deleteSheet(sh) { sheets.splice(sheets.indexOf(sh.getName()), 1); }
+    };
+  }
+  // 日付を固定して名前を確かめる。
+  ctx.Utilities.formatDate = (d, tz, fmt) => (fmt === 'HHmmss' ? '120000' : '2026-09-04');
+
+  const ss1 = fakeSpreadsheet([]);
+  t('日付入りの名前になる', ctx.snapshotSheetName_(ss1), '一括作成_2026-09-04');
+
+  const ss2 = fakeSpreadsheet(['一括作成_2026-09-04']);
+  t('同じ日の2回目は連番', ctx.snapshotSheetName_(ss2), '一括作成_2026-09-04_2');
+
+  const ss3 = fakeSpreadsheet(['一括作成_2026-09-04', '一括作成_2026-09-04_2']);
+  t('3回目も連番',         ctx.snapshotSheetName_(ss3), '一括作成_2026-09-04_3');
+  t('既存の控えを上書きしない',
+    ['一括作成_2026-09-04', '一括作成_2026-09-04_2']
+      .indexOf(ctx.snapshotSheetName_(ss3)), -1);
+
+  console.log('\n--- 古い控えは枚数を超えたら消す ---');
+  const many = fakeSpreadsheet([
+    '設定', '一括入力', '送信ログ',
+    '一括作成_2026-01-10', '一括作成_2026-02-10', '一括作成_2026-03-10',
+    '一括作成_2026-04-10', '一括作成_2026-05-10'
+  ]);
+  const removed = ctx.pruneSnapshots_(many);
+  t('古いものから消す', removed, ['一括作成_2026-01-10', '一括作成_2026-02-10']);
+  t('残るのは新しい3枚',
+    many.sheets.filter(n => n.indexOf('一括作成_') === 0),
+    ['一括作成_2026-03-10', '一括作成_2026-04-10', '一括作成_2026-05-10']);
+  t('控え以外のシートは触らない',
+    many.sheets.filter(n => n.indexOf('一括作成_') !== 0),
+    ['設定', '一括入力', '送信ログ']);
+
+  console.log('\n--- 枚数の設定 ---');
+  const zero = makeContext({ '設定': [['キー', '値', '説明'], ['一括作成の控えを残す枚数', 0, '']] });
+  const ss4 = fakeSpreadsheet(['一括作成_2026-01-10', '一括作成_2026-02-10']);
+  t('0 なら消さない', zero.pruneSnapshots_(ss4), []);
+
+  const blank = makeContext({ '設定': [['キー', '値', '説明']] });
+  const ss5 = fakeSpreadsheet(
+    Array.from({ length: 30 }, (_, i) => '一括作成_2026-01-' + String(i + 1).padStart(2, '0')));
+  t('未設定なら既定の24枚まで',
+    ss5.sheets.length - blank.pruneSnapshots_(ss5).length, ctx.BULK_SNAPSHOT_KEEP_DEFAULT);
+}
+
 console.log('\n--- 状態と行の色 ---');
 {
   const ctx = makeContext();
