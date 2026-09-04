@@ -47,12 +47,20 @@
   table.j { width: 100%; border-collapse: collapse; font-size: 13px; }
   table.j td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; }
   table.j td.k { width: 30px; text-align: center; color: var(--muted); }
-  table.j td.v { width: 92px; text-align: center; font-weight: 700; white-space: nowrap; }
+  table.j td.v { width: 132px; text-align: center; white-space: nowrap; }
   .yes { color: var(--good); } .no { color: var(--bad); } .na { color: var(--muted); font-weight: normal; }
   .verdict { border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; font-weight: 600; }
   .verdict.ok { background: #e7f4ec; border: 1px solid #a8d8bd; color: var(--good); }
   .verdict.ng { background: #fdecea; border: 1px solid #f2b8b5; color: var(--bad); }
   .why { color: var(--muted); font-size: 12px; margin-top: 4px; }
+  .advice { color: #8a6d00; font-size: 12px; margin-top: 5px; }
+  button.toggle {
+    font-size: 13px; font-weight: 600; padding: 5px 12px; margin: 0 2px;
+    border: 1px solid var(--line); background: #fff; color: var(--muted);
+    border-radius: 6px; min-width: 56px;
+  }
+  button.toggle.on.yes { background: var(--good); border-color: var(--good); color: #fff; }
+  button.toggle.on.no  { background: var(--bad);  border-color: var(--bad);  color: #fff; }
   .dest { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin: 6px 0; }
   .dest.hit { border-color: #e0a800; background: #fff9e6; }
   .path { font-family: ui-monospace, monospace; font-size: 12px; color: var(--muted); word-break: break-all; }
@@ -73,7 +81,7 @@
 
 <script>
 var BOOT = <?!= boot ?>;
-var STATE = { values: {}, prepared: null, choice: 'new' };
+var STATE = { values: {}, prepared: null, choice: 'new', answers: null };
 
 function el(tag, attrs, kids) {
   var n = document.createElement(tag);
@@ -280,6 +288,7 @@ function onPrepare() {
     .withSuccessHandler(function (res) {
       if (!res.ok) { restoreFormBar(); showErrors(res.errors); return; }
       STATE.prepared = res;
+      STATE.answers = JSON.parse(JSON.stringify(res.answers));
       STATE.choice = res.destination.status === 'new' ? 'new'
         : res.destination.status === 'ambiguous' ? null
         : res.destination.candidates[0].id;
@@ -295,37 +304,76 @@ function renderConfirm() {
   app.innerHTML = '';
   window.scrollTo(0, 0);
 
-  var j = p.judgment;
-  app.appendChild(el('div', {
-    class: 'verdict ' + (j.suitable ? 'ok' : 'ng'),
-    text: (j.suitable ? '適合性の確認：適合' : '適合性の確認：不適合') + ' — ' + j.message
-  }));
+  app.appendChild(el('div', { id: 'verdict' }));
 
   var tbl = el('table', { class: 'j' });
-  ['i1', 'i2', 'i3', 'i4', 'i5', 'i6'].forEach(function (k, i) {
-    var it = j.items[k];
-    var mark = it.value === 'yes' ? ['yes', 'はい'] : it.value === 'no' ? ['no', 'いいえ'] : ['na', '対象外'];
+  p.judgeKeys.forEach(function (k, i) {
+    var advice = p.advice.items[k];
+    var na = STATE.answers[k] === 'na';
+
+    var cell = el('td', { class: 'v' });
+    if (na) {
+      cell.appendChild(el('span', { class: 'na', text: '対象外' }));
+    } else {
+      ['yes', 'no'].forEach(function (v) {
+        var b = el('button', {
+          type: 'button',
+          class: 'toggle' + (STATE.answers[k] === v ? ' on ' + v : ''),
+          text: v === 'yes' ? 'はい' : 'いいえ',
+          onclick: function () { STATE.answers[k] = v; renderConfirm(); }
+        });
+        cell.appendChild(b);
+      });
+    }
+
+    var body = el('td', {}, [el('div', { text: p.judgeLabels[k] })]);
+    // 既定の「はい」と、入力から計算した結果が食い違うときだけ理由を添える。
+    if (!na && STATE.answers[k] === 'yes' && advice.value === 'no') {
+      body.appendChild(el('div', { class: 'advice', text: '入力からは「いいえ」です：' + advice.reason }));
+    }
+
     tbl.appendChild(el('tr', {}, [
       el('td', { class: 'k', text: '①②③④⑤⑥'.charAt(i) }),
-      el('td', {}, [
-        el('div', { text: p.judgeLabels[k] }),
-        el('div', { class: 'why', text: '判定理由：' + it.reason })
-      ]),
-      el('td', { class: 'v ' + mark[0], text: mark[1] })
+      body,
+      cell
     ]));
   });
+
   app.appendChild(el('div', { class: 'card' }, [
-    el('h2', { text: '２．適合性の確認（自動判定）' }), tbl
+    el('h2', { text: '２．適合性の確認' }),
+    el('p', { class: 'note', text: '既定はすべて「はい」です。変える必要があるときだけ切り替えてください。' }),
+    tbl
   ]));
 
   app.appendChild(renderDestination(p.destination));
   app.appendChild(el('div', { id: 'formErrors' }));
+
+  drawVerdict();
 
   var bar = $('bar');
   bar.innerHTML = '';
   bar.appendChild(el('button', { class: 'ghost', text: '入力に戻る', onclick: backToForm }));
   bar.appendChild(el('span', { text: '　' }));
   bar.appendChild(el('button', { class: 'primary', text: 'PDFを作成して保存', onclick: onSubmit }));
+}
+
+/** 回答から総合結果を描く。切り替えるたびに更新される。 */
+function drawVerdict() {
+  var host = $('verdict');
+  if (!host) return;
+  var keys = STATE.prepared.judgeKeys;
+  var marks = '①②③④⑤⑥';
+  var ng = keys.filter(function (k) { return STATE.answers[k] === 'no'; });
+  var ok = ng.length === 0;
+  host.innerHTML = '';
+  host.appendChild(el('div', {
+    class: 'verdict ' + (ok ? 'ok' : 'ng'),
+    text: ok
+      ? '適合性の確認：適合 — 変額保険の提案が可能です。'
+      : '適合性の確認：不適合 — '
+        + ng.map(function (k) { return marks.charAt(keys.indexOf(k)); }).join('') + ' が「いいえ」です。'
+        + '変額保険はお客さまに適合しません。他の定額保険を提案してください。'
+  }));
 }
 
 function renderDestination(d) {
@@ -405,7 +453,7 @@ function onSubmit() {
       renderDone(res.result);
     })
     .withFailureHandler(function (e) { renderConfirm(); showErrors([String(e.message || e)]); })
-    .submit(STATE.prepared.data, STATE.choice);
+    .submit(STATE.prepared.data, STATE.choice, STATE.answers);
 }
 
 function renderDone(r) {
@@ -431,7 +479,7 @@ function renderDone(r) {
   bar.innerHTML = '';
   bar.appendChild(el('button', {
     class: 'primary', text: '続けてもう1件つくる',
-    onclick: function () { STATE = { values: {}, prepared: null, choice: 'new' }; renderForm(); }
+    onclick: function () { STATE = { values: {}, prepared: null, choice: 'new', answers: null }; renderForm(); }
   }));
 }
 

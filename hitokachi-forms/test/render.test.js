@@ -59,8 +59,8 @@ const agent = {
   tel: '080-6817-4796', email: 'info@hitokachi.com'
 };
 
-const judgment = ctx.judge_(data);
-const model = ctx.buildModel_(data, judgment, agent, 'ヒトカチ株式会社');
+const answers = ctx.defaultAnswers_(data);
+const model = ctx.buildModel_(data, answers, agent, 'ヒトカチ株式会社');
 
 const sheets = {
   '適合性確認シート': 'SuitabilitySheet.html',

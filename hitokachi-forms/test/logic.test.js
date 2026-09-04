@@ -131,13 +131,48 @@ const corp = ctx.judge_(Object.assign({}, genten, { contractType: '法人', need
 t('①②③が対象外', ['i1','i2','i3'].map(k => corp.items[k].value), ['na','na','na']);
 t('総合＝適合',    corp.suitable, true);
 
+console.log('\n--- 帳票に印字する回答（既定はすべて はい） ---');
+{
+  const ans = ctx.defaultAnswers_(genten);
+  t('個人契約は6項目すべて はい',
+    ['i1','i2','i3','i4','i5','i6'].map(k => ans[k]), ['yes','yes','yes','yes','yes','yes']);
+  t('総合は適合', ctx.summarizeAnswers_(ans).suitable, true);
+
+  const corpAns = ctx.defaultAnswers_({ contractType: '法人' });
+  t('法人契約は①〜③が対象外',
+    ['i1','i2','i3'].map(k => corpAns[k]), ['na','na','na']);
+  t('法人でも④〜⑥は はい',
+    ['i4','i5','i6'].map(k => corpAns[k]), ['yes','yes','yes']);
+
+  const changed = ctx.normalizeAnswers_(genten, { i3: 'no' });
+  t('画面で「いいえ」にできる', changed.i3, 'no');
+  t('変えていない項目は はい のまま', changed.i1, 'yes');
+  const sum = ctx.summarizeAnswers_(changed);
+  t('1つでも いいえ なら不適合', sum.suitable, false);
+  t('不適合の項目が分かる', sum.ngKeys, ['i3']);
+
+  const corpTry = ctx.normalizeAnswers_({ contractType: '法人' }, { i1: 'no', i2: 'yes' });
+  t('法人の対象外は画面から上書きできない', [corpTry.i1, corpTry.i2], ['na', 'na']);
+
+  const bad = ctx.normalizeAnswers_(genten, { i4: 'たぶん', i5: null });
+  t('知らない値は既定の はい のまま', [bad.i4, bad.i5], ['yes', 'yes']);
+}
+
+console.log('\n--- 参考判定は帳票に出ないが計算はされる ---');
+{
+  const ng = ctx.judge_(Object.assign({}, genten, { sourceNotLoan: false }));
+  t('入力からは いいえ が出る', ng.items.i5.value, 'no');
+  const ans = ctx.defaultAnswers_(genten);
+  t('それでも帳票の回答は はい', ans.i5, 'yes');
+}
+
 console.log('\n--- 表示モデル（帳票への差し込み値） ---');
 const m = ctx.buildModel_(
   Object.assign({}, genten, {
     customerName: '種田 裕貴', confirmDate: '2026-08-01',
     savings: '①ある方が良い', needsOther: ''
   }),
-  j,
+  ctx.defaultAnswers_(genten),
   { name: '佐々木 嶺', zip: '134-0081', address1: '東京都 江戸川区 北葛西', address2: '', tel: '080-6817-4796', email: 'info@hitokachi.com' },
   'ヒトカチ株式会社'
 );
@@ -151,6 +186,18 @@ t('意向把握8行ぶん',      m.needsRows.length, 8);
 t('意向の変化は常に3行',  m.changeLog.length, 3);
 t('⑤株式にチェック',      m.experience[0].mark, '■');
 t('⑤公社債は未チェック',  m.experience[2].mark, '□');
+t('２．は6項目すべて はい', m.judge.map(x => x.yes).join(''), '■■■■■■');
+t('いいえ側は空欄',        m.judge.map(x => x.no).join(''), '□□□□□□');
+
+{
+  const corpModel = ctx.buildModel_(
+    Object.assign({}, genten, { contractType: '法人', customerName: '株式会社テスト' }),
+    ctx.defaultAnswers_({ contractType: '法人' }),
+    { name: '佐々木 嶺', zip: '', address1: '', address2: '', tel: '', email: '' },
+    'ヒトカチ株式会社');
+  t('法人は①〜③が対象外扱い', corpModel.judge.slice(0, 3).map(x => x.na), [true, true, true]);
+  t('法人でも④〜⑥は はい',    corpModel.judge.slice(3).map(x => x.yes), ['■', '■', '■']);
+}
 
 console.log(`\n合計 ${pass + fail} 件 / 成功 ${pass} / 失敗 ${fail}`);
 process.exit(fail ? 1 : 0);

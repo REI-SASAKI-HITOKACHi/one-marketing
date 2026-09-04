@@ -119,7 +119,9 @@ var FIELD_DEFS = [
 
   // ---- 意向把握シート ----
   { key: 'needs',      label: 'ご希望の保障分野・目的', type: 'needs', section: '意向', required: true, defaultMode: 'form',
-    note: '意向把握シート「当初のご意向」。適合性⑧へは自動で集約する' },
+    note: 'この選択は意向把握シートの「1.保障分野・目的」と、'
+        + '適合性確認シートの「⑧ お客さまのご意向」の両方に反映されます。'
+        + '（適合性⑧は項目が粗いので、がん＋病気は1つに、教育資金＋老後資金は「貯蓄」にまとまります）' },
   { key: 'needsOther', label: '適合性⑧「その他」の内容', type: 'text', section: '意向', defaultMode: 'form' },
   { key: 'savings',    label: '貯蓄部分を必要とされますか', type: 'radio', section: '意向', required: true, defaultMode: 'form',
     options: ['①ある方が良い', '②なくても良い'] },

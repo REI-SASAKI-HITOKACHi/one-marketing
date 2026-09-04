@@ -6,17 +6,20 @@
  * PDF を作って保存先フォルダに置く。
  * @param {Object} data      フォームからの入力（固定値の反映済み）
  * @param {string} choice    保存先フォルダID、または 'new'
+ * @param {Object} rawAnswers 確認画面で確定した「２．」の回答。省略時は既定（すべて はい）
  * @return {Object}          保存結果
  */
-function generateAndSave_(data, choice) {
-  var judgment = judge_(data);
+function generateAndSave_(data, choice, rawAnswers) {
+  var answers = normalizeAnswers_(data, rawAnswers);
+  var summary = summarizeAnswers_(answers);
+  var advice = judge_(data);   // 帳票には出さない。ログに残す参考値
   var agent = getAgentByName_(data.agent);
   if (!agent) throw new Error('募集人「' + data.agent + '」が募集人マスタにありません。');
 
   var dest = materializeDestination_(data.agency, data.customerName, choice);
   var folder = DriveApp.getFolderById(dest.id);
 
-  var model = buildModel_(data, judgment, agent, data.agency);
+  var model = buildModel_(data, answers, agent, data.agency);
   var stamp = Utilities.formatDate(confirmDateAsDate_(data.confirmDate), 'Asia/Tokyo', 'yyyyMMdd');
   var base = sanitizeFileName_(data.customerName) + '_' + stamp;
 
@@ -30,14 +33,16 @@ function generateAndSave_(data, choice) {
     folderCreated: dest.created,
     folderUrl: folder.getUrl(),
     files: files,
-    judgment: judgment,
+    answers: answers,
+    judgment: summary,
+    advice: advice,
     logWarning: ''
   };
 
   // ここから先で投げると、PDF は既に Drive にあるのに失敗扱いになり、
   // 再実行で同じフォルダに同じ帳票が二重にできる。ログの失敗は警告に留める。
   try {
-    appendLog_(data, judgment, result);
+    appendLog_(data, summary, advice, result);
   } catch (e) {
     result.logWarning = '送信ログに記録できませんでした（' + e.message + '）。'
       + '監査証跡が欠けるので、設定スプレッドシートの「送信ログ」シートを確認してください。';

@@ -97,7 +97,7 @@ function renderTemplate_(fileName, model) {
  * 入力値と判定結果から、テンプレートに渡す表示用モデルを組み立てる。
  * ここで表示の都合をすべて吸収し、テンプレート側は値を並べるだけにする。
  */
-function buildModel_(d, judgment, agent, agencyName) {
+function buildModel_(d, answers, agent, agencyName) {
   var isCorp = d.contractType === '法人';
   var income = num_(d.income);
   var assets = num_(d.assets);
@@ -151,14 +151,15 @@ function buildModel_(d, judgment, agent, agencyName) {
     }),
     suitNeedsOther: d.needsOther || '',
 
-    judge: ['i1', 'i2', 'i3', 'i4', 'i5', 'i6'].map(function (k) {
-      var it = judgment.items[k];
+    // 帳票に印字するのは確認画面で確定した回答。自動判定の結果ではない。
+    judge: JUDGE_KEYS.map(function (k) {
+      var v = answers[k];
       return {
         key: k,
         label: JUDGE_LABELS[k],
-        yes: it.value === 'yes' ? '■' : '□',
-        no:  it.value === 'no'  ? '■' : '□',
-        na:  it.value === 'na'
+        yes: v === 'yes' ? '■' : '□',
+        no:  v === 'no'  ? '■' : '□',
+        na:  v === 'na'
       };
     }),
 

@@ -164,7 +164,7 @@ console.log('\n--- 1行をデータに戻す ---');
     ['yes','yes','yes','yes','yes','yes']);
   t('総合＝適合', j.suitable, true);
 
-  const m = ctx.buildModel_(applied, j, ctx.getAgentByName_('佐々木 嶺'), 'ヒトカチ株式会社');
+  const m = ctx.buildModel_(applied, ctx.defaultAnswers_(applied), ctx.getAgentByName_('佐々木 嶺'), 'ヒトカチ株式会社');
   t('年収×20%が計算される',   m.income20, '100万円');
   t('確認日が全角で入る',      m.confirmDateJp, '２０２６年８月１日');
   t('⑧に病気等が集約される',  m.suitNeeds[1].mark, '■');

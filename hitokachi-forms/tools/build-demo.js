@@ -296,27 +296,33 @@ function demoPrepare(raw) {
   var data = applyFieldConfig_(raw || {}, conf);
   var errors = validate_(data, conf);
   if (errors.length) return { ok: false, errors: errors };
+
+  var answers = defaultAnswers_(data);
   return {
     ok: true,
     data: data,
-    judgment: judge_(data),
+    answers: answers,
+    summary: summarizeAnswers_(answers),
+    advice: judge_(data),
+    judgeKeys: JUDGE_KEYS,
     judgeLabels: JUDGE_LABELS,
     destination: demoResolveDestination(data.customerName)
   };
 }
 
-function demoSubmit(data, choice) {
+function demoSubmit(data, choice, rawAnswers) {
   var conf = DEMO_FIELD_CONFIG;
   var checked = applyFieldConfig_(data || {}, conf);
   var errors = validate_(checked, conf);
   if (errors.length) return { ok: false, errors: errors };
 
-  var judgment = judge_(checked);
+  var answers = normalizeAnswers_(checked, rawAnswers);
+  var summary = summarizeAnswers_(answers);
   var agent = null;
   for (var i = 0; i < DEMO_AGENTS.length; i++) {
     if (DEMO_AGENTS[i].name === checked.agent) agent = DEMO_AGENTS[i];
   }
-  var model = buildModel_(checked, judgment, agent || DEMO_AGENTS[0], checked.agency);
+  var model = buildModel_(checked, answers, agent || DEMO_AGENTS[0], checked.agency);
   showSheets(model, checked);
 
   var dest = demoResolveDestination(checked.customerName);
@@ -334,7 +340,8 @@ function demoSubmit(data, choice) {
         { name: '適合性確認シート_' + checked.customerName + '_' + stamp + '.pdf', url: '#sheets' },
         { name: '意向把握シート_' + checked.customerName + '_' + stamp + '.pdf', url: '#sheets' }
       ],
-      judgment: judgment
+      answers: answers,
+      judgment: summary
     }
   };
 }
@@ -350,9 +357,9 @@ var google = { script: { run: (function () {
         try { ok(demoPrepare(values)); } catch (e) { if (ng) ng(e); else throw e; }
       }, 200);
     },
-    submit: function (data, choice) {
+    submit: function (data, choice, answers) {
       setTimeout(function () {
-        try { ok(demoSubmit(data, choice)); } catch (e) { if (ng) ng(e); else throw e; }
+        try { ok(demoSubmit(data, choice, answers)); } catch (e) { if (ng) ng(e); else throw e; }
       }, 500);
     }
   };

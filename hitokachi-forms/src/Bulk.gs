@@ -338,13 +338,13 @@ function dryRunBulk() {
     if (v.destination.status === 'match') {
       counts.existing++;
       counts.ready++;
-      writeRow_(sh, r.row, STATUS_EXISTING, judgeSummary_(v.judgment)
+      writeRow_(sh, r.row, STATUS_EXISTING, judgeSummary_(v.judgment, v.advice)
         + '／既存フォルダ「' + v.destination.candidates[0].name + '」に保存します。'
         + '同姓同名の別人でないか確かめてください。');
       return;
     }
     counts.ready++;
-    writeRow_(sh, r.row, STATUS_READY, judgeSummary_(v.judgment)
+    writeRow_(sh, r.row, STATUS_READY, judgeSummary_(v.judgment, v.advice)
       + '／新しいフォルダ「' + v.destination.newFolderName + '」を作成します');
   });
 
@@ -358,8 +358,14 @@ function dryRunBulk() {
         : ''));
 }
 
-function judgeSummary_(j) {
-  return j.suitable ? '適合' : '不適合（' + j.message + '）';
+function judgeSummary_(j, advice) {
+  var base = j.suitable ? '適合' : '不適合（' + j.message + '）';
+  if (!advice || advice.suitable) return base;
+  // 帳票は「はい」で出るが、入力内容は基準を満たしていない。気づけるように添える。
+  var marks = '①②③④⑤⑥';
+  var ng = advice.ngKeys.map(function (k) { return marks.charAt(Number(k.replace('i', '')) - 1); });
+  return base + '　※入力からは ' + ng.join('') + ' が「いいえ」です。'
+    + '帳票は「はい」で出ます。変えるなら 1 件ずつのフォームで作成してください。';
 }
 
 /** 1 行を検証・判定し、保存先を解決する。書き込みは行わない。 */
@@ -368,9 +374,14 @@ function evaluateRow_(r, conf) {
     var data = applyFieldConfig_(bulkRowToData_(r.values), conf);
     var errors = validate_(data, conf);
     if (errors.length) return { error: errors.join(' ') };
+    // 一括では確認画面を出せないので、回答は既定（すべて はい）のまま。
+    // 「いいえ」にしたい案件は 1 件ずつのフォームで作る。
+    var answers = defaultAnswers_(data);
     return {
       data: data,
-      judgment: judge_(data),
+      answers: answers,
+      judgment: summarizeAnswers_(answers),
+      advice: judge_(data),
       destination: resolveDestination_(data.agency, data.customerName)
     };
   } catch (e) {
@@ -472,7 +483,7 @@ function processBulk_(onlyRows) {
       // 既存フォルダへの保存は、下見で一度画面に出したものだけを通す。
       // 1件ずつのフォームなら確認画面を出せるが、一括では出せないため。
       if (v.destination.status === 'match' && r.status !== STATUS_EXISTING) {
-        writeRow_(sh, r.row, STATUS_EXISTING, judgeSummary_(v.judgment)
+        writeRow_(sh, r.row, STATUS_EXISTING, judgeSummary_(v.judgment, v.advice)
           + '／既存フォルダ「' + v.destination.candidates[0].name + '」に保存しようとしています。'
           + '同姓同名の別人でないか確かめて、もう一度実行してください。');
         skipped++;
@@ -482,7 +493,7 @@ function processBulk_(onlyRows) {
       var result;
       try {
         var choice = v.destination.status === 'match' ? v.destination.candidates[0].id : 'new';
-        result = generateAndSave_(v.data, choice);
+        result = generateAndSave_(v.data, choice, v.answers);
       } catch (e) {
         writeRow_(sh, r.row, STATUS_ERROR, e.message);
         failed++;
@@ -495,7 +506,7 @@ function processBulk_(onlyRows) {
       made++;
       try {
         writeRow_(sh, r.row, STATUS_DONE,
-          judgeSummary_(v.judgment) + '／' + result.folderName
+          judgeSummary_(v.judgment, v.advice) + '／' + result.folderName
             + (result.folderCreated ? '（新規作成）' : '（既存）')
             + (result.logWarning ? '　' + result.logWarning : ''),
           [

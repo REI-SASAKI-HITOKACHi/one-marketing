@@ -1,13 +1,65 @@
 /**
- * 適合性確認シート「２．」①〜⑥ の自動判定。
+ * 適合性確認シート「２．」①〜⑥。
  *
- * 判定根拠は原本の【別紙】（適合性確認の基準）そのまま。入力から機械的に導けるので
- * 募集人には判定させず、ここで一括して出す。
+ * ■ 帳票に印字するのは defaultAnswers_ / normalizeAnswers_ が返す「回答」
+ *
+ * 適合性の確認は募集の場で済んでいる前提なので、回答は既定ですべて「はい」。
+ * 変えたいときだけ確認画面で「いいえ」にする。法人契約では①〜③が対象外。
+ *
+ * ■ judge_ は帳票には出ない「参考」
+ *
+ * 入力から別紙の基準どおりに計算した結果。確認画面で、既定の「はい」と食い違う
+ * ときだけ小さく理由を出す。押しつけではなく、気づきのための表示。
+ * 判定用の入力項目を廃止したら、この参考表示も自然に出なくなる
+ * （docs/pending-decisions.md 参照）。
  *
  * 戻り値の各項目:
  *   value  … 'yes' | 'no' | 'na'（法人契約で対象外のとき）
  *   reason … 画面と送信ログに出す判定理由
  */
+
+var JUDGE_KEYS = ['i1', 'i2', 'i3', 'i4', 'i5', 'i6'];
+
+/** 帳票に印字する回答の既定値。法人契約では①〜③が対象外。 */
+function defaultAnswers_(d) {
+  var isCorp = d && d.contractType === '法人';
+  return {
+    i1: isCorp ? 'na' : 'yes',
+    i2: isCorp ? 'na' : 'yes',
+    i3: isCorp ? 'na' : 'yes',
+    i4: 'yes',
+    i5: 'yes',
+    i6: 'yes'
+  };
+}
+
+/**
+ * 確認画面で変えられた回答を取り込む。
+ * 法人契約で対象外の項目は、画面から何が来ても対象外のままにする。
+ */
+function normalizeAnswers_(d, raw) {
+  var out = defaultAnswers_(d);
+  JUDGE_KEYS.forEach(function (k) {
+    if (out[k] === 'na') return;
+    var v = raw && raw[k];
+    if (v === 'yes' || v === 'no') out[k] = v;
+  });
+  return out;
+}
+
+/** 回答から総合結果を出す。「いいえ」が1つでもあれば不適合。 */
+function summarizeAnswers_(answers) {
+  var ng = JUDGE_KEYS.filter(function (k) { return answers[k] === 'no'; });
+  return {
+    answers: answers,
+    suitable: ng.length === 0,
+    ngKeys: ng,
+    message: ng.length === 0
+      ? '適合。変額保険の提案が可能です。'
+      : '不適合。「いいえ」が ' + ng.length + ' 件あるため、変額保険はお客さまに適合しません。'
+        + '他の定額保険を提案してください。'
+  };
+}
 
 function judge_(d) {
   var isCorp = d.contractType === '法人';
@@ -21,7 +73,7 @@ function judge_(d) {
   items.i6 = judgeIntent_(d, isCorp);
 
   var ng = [];
-  ['i1', 'i2', 'i3', 'i4', 'i5', 'i6'].forEach(function (k) {
+  JUDGE_KEYS.forEach(function (k) {
     if (items[k].value === 'no') ng.push(k);
   });
 

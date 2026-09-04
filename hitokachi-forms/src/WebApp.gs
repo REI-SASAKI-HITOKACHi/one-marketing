@@ -81,13 +81,16 @@ function prepare(raw) {
     var errors = validate_(data, conf);
     if (errors.length) return { ok: false, errors: errors };
 
-    var judgment = judge_(data);
+    var answers = defaultAnswers_(data);
     var dest = resolveDestination_(data.agency, data.customerName);
 
     return {
       ok: true,
       data: data,
-      judgment: judgment,
+      answers: answers,                 // 帳票に印字する回答（既定はすべて はい）
+      summary: summarizeAnswers_(answers),
+      advice: judge_(data),             // 入力からの参考判定。食い違うときだけ画面に出す
+      judgeKeys: JUDGE_KEYS,
       judgeLabels: JUDGE_LABELS,
       destination: dest
     };
@@ -97,7 +100,7 @@ function prepare(raw) {
 }
 
 /** 手順2: PDF を作って保存する。 */
-function submit(data, choice) {
+function submit(data, choice, answers) {
   var gate = checkAccess_();
   if (!gate.allowed) return { ok: false, errors: [gate.message] };
 
@@ -114,7 +117,7 @@ function submit(data, choice) {
     var errors = validate_(checked, conf);
     if (errors.length) return { ok: false, errors: errors };
 
-    var result = generateAndSave_(checked, choice);
+    var result = generateAndSave_(checked, choice, answers);
     return { ok: true, result: result };
   } catch (e) {
     return { ok: false, errors: [e.message] };
