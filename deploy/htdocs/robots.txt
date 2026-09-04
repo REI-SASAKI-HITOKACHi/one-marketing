@@ -1,0 +1,4 @@
+# 各LPは meta robots で noindex にしています。
+# ここで巡回を止めてしまうと noindex を読んでもらえないため、巡回自体は許可します。
+User-agent: *
+Allow: /
