@@ -5,3 +5,6 @@ data/bulk-import.tsv
 
 # 顧客の個人情報を含む抽出データ。リポジトリにはコミットしない。
 data/
+
+# tools/build-demo.js が src/ から組み立てる生成物
+demo/
