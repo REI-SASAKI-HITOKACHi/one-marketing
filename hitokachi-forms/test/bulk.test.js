@@ -11,9 +11,17 @@ const vm = require('vm');
 const SRC = path.join(__dirname, '..', 'src');
 
 const AGENCIES = [
-  ['代理店名', '共有フォルダID', '代理店側の募集人', '有効', '備考'],
-  ['ヒトカチ株式会社', 'FOLDER_A', '', true, ''],
-  ['提携代理店B', 'FOLDER_B', '熊澤 善弘, 小川 康之', true, '']
+  ['代理店名', '共有フォルダID', '有効', '備考'],
+  ['ヒトカチ株式会社', 'FOLDER_A', true, ''],
+  ['提携代理店B', 'FOLDER_B', true, '']
+];
+/** 代理店ごとの共同募集の相手。1人1行。 */
+const CO_AGENTS = [
+  ['代理店名', '氏名', '有効', '備考'],
+  ['提携代理店B', '熊澤 善弘', true, ''],
+  ['提携代理店B', '小川 康之', true, ''],
+  ['提携代理店B', '退職 済', false, '無効なので選択肢に出ない'],
+  ['存在しない代理店', '幽霊 太郎', true, '代理店マスタに無いので無視される']
 ];
 const AGENTS = [
   ['氏名', 'メールアドレス', '電話番号', '郵便番号', '住所1', '住所2', '所属代理店', 'ログイン用アドレス', '有効'],
@@ -44,7 +52,9 @@ function fieldSheet(ctx, overrides) {
 }
 
 function makeContext(extraSheets) {
-  const sheets = Object.assign({ '代理店マスタ': AGENCIES, '募集人マスタ': AGENTS }, extraSheets);
+  const sheets = Object.assign(
+    { '代理店マスタ': AGENCIES, '代理店募集人マスタ': CO_AGENTS, '募集人マスタ': AGENTS },
+    extraSheets);
   const ctx = {
     console,
     PropertiesService: { getScriptProperties: () => ({ getProperty: () => 'dummy' }) },
@@ -284,6 +294,8 @@ console.log('\n--- 検証：共同募集の相方 ---');
   console.log('\n--- 一括入力シートの相方の選択肢 ---');
   const opts = ctx.bulkOptionsFor_(ctx.FIELD_DEFS.filter(f => f.key === 'coAgent')[0]);
   t('全代理店の相方をまとめて出す', opts, ['熊澤 善弘', '小川 康之']);
+  t('無効な行は選択肢に出ない', opts.indexOf('退職 済'), -1);
+  t('代理店マスタに無い代理店の行は無視する', opts.indexOf('幽霊 太郎'), -1);
 
   console.log('\n--- 連名の印字 ---');
   const solo = ctx.applyFieldConfig_(base, conf);

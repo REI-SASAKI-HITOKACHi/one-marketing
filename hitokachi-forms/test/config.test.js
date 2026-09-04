@@ -11,8 +11,11 @@ const vm = require('vm');
 
 const SRC = path.join(__dirname, '..', 'src');
 
-/** 見出し行つきの二次元配列を返すだけの、最小のスプレッドシート代役。 */
-function makeContext(sheets) {
+/**
+ * 見出し行つきの二次元配列を返すだけの、最小のスプレッドシート代役。
+ * onRead を渡すと、シートを実際に読んだ回数を数えられる。
+ */
+function makeContext(sheets, onRead) {
   const ctx = {
     console,
     PropertiesService: {
@@ -22,7 +25,10 @@ function makeContext(sheets) {
       openById: () => ({
         getSheetByName(name) {
           if (!sheets[name]) return null;
-          return { getDataRange: () => ({ getValues: () => sheets[name] }) };
+          return { getDataRange: () => ({ getValues: () => {
+            if (onRead) onRead(name);
+            return sheets[name];
+          } }) };
         }
       })
     }
@@ -108,6 +114,69 @@ console.log('\n--- チェックボックスだけの空行を拾わない ---');
   t('有効な代理店だけ返る', list.map(a => a.name), ['ヒトカチ株式会社', '提携代理店B']);
   t('フォルダIDが読める',   ctx.getAgencyByName_('提携代理店B').folderId, 'FOLDER_B');
   t('無効な代理店は返らない', ctx.getAgencyByName_('提携代理店C'), null);
+}
+
+console.log('\n--- 代理店ごとの募集人（共同募集の相手） ---');
+{
+  const ctx = makeContext({
+    '代理店マスタ': [
+      ['代理店名', '共有フォルダID', '有効', '備考'],
+      ['ヒトカチ株式会社', 'FOLDER_A', true, ''],
+      ['クレスト保険', 'FOLDER_B', true, ''],
+      ['契約終了代理店', 'FOLDER_C', false, '']
+    ],
+    '代理店募集人マスタ': [
+      ['代理店名', '氏名', '有効', '備考'],
+      ['クレスト保険', '熊澤 善弘', true, ''],
+      ['クレスト保険', '小川 康之', true, ''],
+      ['クレスト保険', '矢野 克臣', true, ''],
+      ['クレスト保険', '熊澤 善弘', true, '二重登録'],
+      ['クレスト保険', '退職 済', false, ''],
+      ['契約終了代理店', '無効 代理店の人', true, ''],
+      ['', '', false, ''],              // チェックボックスだけの空行
+      ['クレスト保険', '', true, '']    // 氏名が空
+    ]
+  });
+  const byName = n => ctx.getAgencyByName_(n);
+  t('1代理店に何人でもぶら下がる',
+    byName('クレスト保険').coAgents, ['熊澤 善弘', '小川 康之', '矢野 克臣']);
+  t('二重登録は1つにまとまる',
+    byName('クレスト保険').coAgents.filter(x => x === '熊澤 善弘').length, 1);
+  t('無効な人は出ない', byName('クレスト保険').coAgents.indexOf('退職 済'), -1);
+  t('氏名が空の行は無視する', byName('クレスト保険').coAgents.indexOf(''), -1);
+  t('登録がない代理店は空配列', byName('ヒトカチ株式会社').coAgents, []);
+  t('無効な代理店は returns null のまま', byName('契約終了代理店'), null);
+}
+
+console.log('\n--- 代理店募集人マスタが無い設定スプレッドシートでも動く ---');
+{
+  // シートを作る前の状態。ここで落ちると setup() 前に何も表示できなくなる。
+  const ctx = makeContext({
+    '代理店マスタ': [
+      ['代理店名', '共有フォルダID', '有効', '備考'],
+      ['ヒトカチ株式会社', 'FOLDER_A', true, '']
+    ]
+  });
+  t('例外にならない', ctx.getAgencies_().length, 1);
+  t('相方は空配列',   ctx.getAgencies_()[0].coAgents, []);
+}
+
+console.log('\n--- マスタは1回の実行で読み直さない ---');
+{
+  let reads = 0;
+  const ctx = makeContext({
+    '代理店マスタ': [
+      ['代理店名', '共有フォルダID', '有効', '備考'],
+      ['ヒトカチ株式会社', 'FOLDER_A', true, '']
+    ]
+  }, () => { reads++; });
+  ctx.getAgencies_();
+  const first = reads;
+  ctx.getAgencies_(); ctx.getAgencyByName_('ヒトカチ株式会社');
+  t('2回目からはシートを読み直さない', reads, first);
+  ctx.clearMasterCache_();
+  ctx.getAgencies_();
+  t('キャッシュを捨てれば読み直す', reads > first, true);
 }
 
 console.log('\n--- 有効・無効の表記ゆれ ---');

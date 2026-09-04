@@ -4,7 +4,8 @@
  * 運用者がコードを触らずに変えられるものは、すべてここを経由して読む。
  *   設定       … 全体設定（キー・値）
  *   代理店マスタ … 代理店名 → 共有フォルダID
- *   募集人マスタ … 募集人の氏名・連絡先・所属代理店
+ *   代理店募集人マスタ … 代理店ごとの、共同募集の相手になる募集人（1代理店に何人でも）
+ *   募集人マスタ … 自社の募集人の氏名・連絡先・所属代理店
  *   項目設定   … 各入力項目を form / fixed / hidden のどれで扱うか
  *   利用者     … このウェブアプリを使えるGoogleアカウント
  */
@@ -28,6 +29,7 @@ var MODE_FROM_LABEL = {
 
 var SHEET_SETTINGS = '設定';
 var SHEET_AGENCIES = '代理店マスタ';
+var SHEET_CO_AGENTS = '代理店募集人マスタ';
 var SHEET_AGENTS   = '募集人マスタ';
 var SHEET_FIELDS   = '項目設定';
 var SHEET_USERS    = '利用者';
@@ -50,7 +52,17 @@ function sheetOrThrow_(name) {
 
 /** 見出し行つきシートをオブジェクト配列で読む。 */
 function readTable_(name) {
-  var values = sheetOrThrow_(name).getDataRange().getValues();
+  return readSheetTable_(sheetOrThrow_(name));
+}
+
+/** 同上。ただしシートが無ければ空配列を返す（旧い設定スプレッドシート対策）。 */
+function readTableIfExists_(name) {
+  var sh = settingsSpreadsheet_().getSheetByName(name);
+  return sh ? readSheetTable_(sh) : [];
+}
+
+function readSheetTable_(sh) {
+  var values = sh.getDataRange().getValues();
   if (values.length < 2) return [];
   var header = values[0];
   var rows = [];
@@ -86,20 +98,45 @@ function getSetting_(key, fallback) {
   return fallback;
 }
 
+/**
+ * マスタの読み込み結果を1回の実行の中だけ覚えておく。
+ * 一括作成は1行ごとに代理店・募集人を引くので、100代理店 × 数百行になると
+ * シートの読み直しだけで実行時間を使い切ってしまう。setup() は書き換えたあとに
+ * clearMasterCache_() を呼ぶこと。
+ */
+var MASTER_CACHE_ = {};
+
+function clearMasterCache_() { MASTER_CACHE_ = {}; }
+
+/**
+ * 代理店の一覧。coAgents は「代理店募集人マスタ」から集めた、その代理店側の
+ * 募集人（共同募集の相方）。1代理店につき何人でも登録できる。
+ */
 function getAgencies_() {
-  return readTable_(SHEET_AGENCIES)
+  if (MASTER_CACHE_.agencies) return MASTER_CACHE_.agencies;
+
+  var byAgency = {};
+  readTableIfExists_(SHEET_CO_AGENTS).forEach(function (r) {
+    if (!isTrue_(r['有効'])) return;
+    var agency = String(r['代理店名'] || '').trim();
+    var person = String(r['氏名'] || '').trim();
+    if (agency === '' || person === '') return;
+    if (!byAgency[agency]) byAgency[agency] = [];
+    // 同じ人を二度書いても選択肢は1つ。
+    if (byAgency[agency].indexOf(person) < 0) byAgency[agency].push(person);
+  });
+
+  MASTER_CACHE_.agencies = readTable_(SHEET_AGENCIES)
     .filter(function (r) { return isTrue_(r['有効']) && String(r['代理店名']).trim() !== ''; })
     .map(function (r) {
+      var name = String(r['代理店名']).trim();
       return {
-        name: String(r['代理店名']).trim(),
+        name: name,
         folderId: String(r['共有フォルダID']).trim(),
-        // 共同募集の相方。その代理店側の募集人を読点・カンマ区切りで並べる。
-        // 空欄なら単独募集だけの代理店。
-        coAgents: String(r['代理店側の募集人'] || '').split(/[,、\n]/)
-          .map(function (x) { return x.trim(); })
-          .filter(function (x) { return x !== ''; })
+        coAgents: byAgency[name] || []
       };
     });
+  return MASTER_CACHE_.agencies;
 }
 
 function getAgencyByName_(name) {
@@ -109,7 +146,8 @@ function getAgencyByName_(name) {
 }
 
 function getAgents_() {
-  return readTable_(SHEET_AGENTS)
+  if (MASTER_CACHE_.agents) return MASTER_CACHE_.agents;
+  MASTER_CACHE_.agents = readTable_(SHEET_AGENTS)
     .filter(function (r) { return isTrue_(r['有効']) && String(r['氏名']).trim() !== ''; })
     .map(function (r) {
       return {
@@ -123,6 +161,7 @@ function getAgents_() {
         loginEmail: String(r['ログイン用アドレス'] || '').trim()
       };
     });
+  return MASTER_CACHE_.agents;
 }
 
 function getAgentByName_(name) {

@@ -116,6 +116,9 @@ function bulkColumns_() {
   return cols;
 }
 
+/** プルダウンにする選択肢の上限。これを超えたら手入力にする。 */
+var BULK_LIST_LIMIT = 200;
+
 function bulkOptionsFor_(f) {
   if (f.type === 'agency') return getAgencies_().map(function (a) { return a.name; });
   if (f.type === 'agent')  return getAgents_().map(function (a) { return a.name; });
@@ -125,7 +128,10 @@ function bulkOptionsFor_(f) {
     getAgencies_().forEach(function (a) {
       (a.coAgents || []).forEach(function (n) { if (all.indexOf(n) < 0) all.push(n); });
     });
-    return all;
+    // 代理店が増えると数百人ぶんのプルダウンになって使いものにならない。
+    // その場合はプルダウンをやめて手入力にする。代理店との組み合わせが
+    // 正しいかどうかは、どちらにせよ行ごとに validate_ が見ている。
+    return all.length > BULK_LIST_LIMIT ? [] : all;
   }
   return f.options || [];
 }

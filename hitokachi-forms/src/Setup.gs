@@ -21,12 +21,14 @@ function setup() {
 
   ensureSettingsSheet_(ss);
   ensureAgenciesSheet_(ss);
+  ensureCoAgentsSheet_(ss);
   ensureAgentsSheet_(ss);
   ensureUsersSheet_(ss);
   ensureFieldsSheet_(ss);
   ensureLogSheet_(ss);
   ensureMenuTrigger_(ss);
 
+  clearMasterCache_();
   var url = ss.getUrl();
   Logger.log('設定スプレッドシート: ' + url);
   return url;
@@ -82,28 +84,62 @@ function ensureSettingsSheet_(ss) {
 
 function ensureAgenciesSheet_(ss) {
   var sh = getOrCreateSheet_(ss, SHEET_AGENCIES);
-  ensureHeader_(sh, ['代理店名', '共有フォルダID', '代理店側の募集人', '有効', '備考']);
+  ensureHeader_(sh, ['代理店名', '共有フォルダID', '有効', '備考']);
   if (sh.getLastRow() < 2) {
-    sh.getRange(2, 1, 2, 5).setValues([
-      ['ヒトカチ株式会社', '', '', true,
+    sh.getRange(2, 1, 2, 4).setValues([
+      ['ヒトカチ株式会社', '', true,
        'Drive でフォルダを開いたときの URL の /folders/ 以降が共有フォルダID'],
-      ['クレスト保険', '', '熊澤 善弘, 小川 康之, 矢野 克臣', true,
-       '共同募集する相手がいる代理店は、その募集人を読点かカンマで区切って並べる']
+      ['クレスト保険', '', true,
+       '共同募集の相手は「代理店募集人マスタ」に1人1行で登録する']
     ]);
   }
-  checkboxColumn_(sh, '有効', 5);
+  // 100社まで増える見込みなので、チェックボックスは多めに用意しておく。
+  checkboxColumn_(sh, '有効', 120);
   setNotes_(sh, {
     '共有フォルダID': 'Drive でその代理店の共有フォルダを開いたときの URL の\n'
-      + 'https://drive.google.com/drive/folders/★ここ★\nの部分を貼り付けます。',
-    '代理店側の募集人': '共同募集（連名）をする相手の氏名です。\n\n'
-      + '読点かカンマで区切って複数書けます。\n'
-      + '例: 熊澤 善弘, 小川 康之\n\n'
-      + '入力フォームで代理店を選ぶと、ここに書いた人が\n'
-      + '「共同募集の相方」の選択肢に出ます。単独募集なら空欄のままで構いません。',
-    '有効': 'チェックを外すと、入力フォームの代理店の選択肢に出なくなります。'
+      + 'https://drive.google.com/drive/folders/★ここ★\nの部分を貼り付けます。\n\n'
+      + '空欄のままだと、その代理店では帳票を保存できません。',
+    '有効': 'チェックを外すと、入力フォームの代理店の選択肢に出なくなります。\n'
+      + '取引が終わった代理店は、行を消さずにチェックを外してください\n'
+      + '（過去の送信ログとの対応が保てます）。'
   });
   sh.setColumnWidth(2, 320);
-  sh.setColumnWidth(3, 240);
+  sh.setColumnWidth(4, 380);
+}
+
+/**
+ * 代理店ごとの募集人（共同募集の相手）。1人1行。
+ * 1代理店に何人でも登録できるので、代理店マスタの1セルに詰め込まない。
+ */
+function ensureCoAgentsSheet_(ss) {
+  var sh = getOrCreateSheet_(ss, SHEET_CO_AGENTS);
+  ensureHeader_(sh, ['代理店名', '氏名', '有効', '備考']);
+  if (sh.getLastRow() < 2) {
+    sh.getRange(2, 1, 3, 4).setValues([
+      ['クレスト保険', '熊澤 善弘', true, ''],
+      ['クレスト保険', '小川 康之', true, ''],
+      ['クレスト保険', '矢野 克臣', true, '']
+    ]);
+  }
+  // 100社 × 最大30人を見込んで、チェックボックスは 3000 行ぶん。
+  checkboxColumn_(sh, '有効', 3000);
+  setNotes_(sh, {
+    '代理店名': '「代理店マスタ」に書いた代理店名とまったく同じに書いてください。\n'
+      + '1文字でも違うと、その人は選択肢に出ません。\n\n'
+      + '同じ代理店の人は、何行に分けても構いません（並び順も自由）。',
+    '氏名': '共同募集（連名）をする相手の氏名です。\n\n'
+      + '入力フォームで代理店を選ぶと、その代理店の人だけが\n'
+      + '「共同募集の相方」の選択肢に出ます。\n'
+      + '帳票には「佐々木 嶺 / 熊澤 善弘」のように連名で入ります。\n\n'
+      + '単独募集のときは、フォームで「（単独募集）」を選べばよいので\n'
+      + 'ここに空行を作る必要はありません。',
+    '有効': 'チェックを外すと、その人は選択肢に出なくなります。\n'
+      + '退職した人は行を消さずにチェックを外してください。'
+  });
+  sh.setColumnWidth(1, 220);
+  sh.setColumnWidth(2, 160);
+  sh.setColumnWidth(4, 360);
+  sh.setFrozenRows(1);
 }
 
 function ensureAgentsSheet_(ss) {
@@ -124,9 +160,11 @@ function ensureAgentsSheet_(ss) {
       ['青木 典子', '', '', '', '', '', 'ヒトカチ株式会社', '', true]
     ]);
   }
-  checkboxColumn_(sh, '有効', 5);
+  checkboxColumn_(sh, '有効', 60);
   setNotes_(sh, {
-    '氏名': '適合性確認シートの「取扱者名」と、意向把握シートの「募集人」に入ります。',
+    '氏名': '自社（ヒトカチ株式会社）の募集人です。\n'
+      + '適合性確認シートの「取扱者名」と、意向把握シートの「募集人」に入ります。\n\n'
+      + '他社の募集人は、ここではなく「代理店募集人マスタ」に登録してください。',
     '郵便番号': '意向把握シートの「所在地」に〒付きで入ります。',
     'ログイン用アドレス': '空欄でかまいません。将来ログイン者と募集人を突き合わせるための予備欄です。',
     'メールアドレス': '意向把握シートの【メール】欄に入ります。空欄なら空白で出力されます。',
