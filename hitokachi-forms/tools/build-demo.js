@@ -314,7 +314,7 @@ function demoPrepare(raw) {
     data: data,
     answers: answers,
     summary: summarizeAnswers_(answers),
-    advice: judge_(data),
+    advice: judge_(data, conf),   // 「使わない」項目に依存する判定は参考判定を出さない
     judgeKeys: JUDGE_KEYS,
     judgeLabels: JUDGE_LABELS,
     destination: demoResolveDestination(data.customerName)

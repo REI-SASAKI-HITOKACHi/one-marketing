@@ -12,7 +12,9 @@
 function generateAndSave_(data, choice, rawAnswers) {
   var answers = normalizeAnswers_(data, rawAnswers);
   var summary = summarizeAnswers_(answers);
-  var advice = judge_(data);   // 帳票には出さない。ログに残す参考値
+  // 帳票には出さない。ログに残す参考値。入力を取っていない項目に依存する判定は
+  // 'unknown' になるので、使っていない入力を根拠にした食い違いはログに載らない。
+  var advice = judge_(data, getFieldConfig_());
   var agent = getAgentByName_(data.agent);
   if (!agent) throw new Error('募集人「' + data.agent + '」が募集人マスタにありません。');
 

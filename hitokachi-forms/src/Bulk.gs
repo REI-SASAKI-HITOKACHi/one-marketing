@@ -389,7 +389,7 @@ function evaluateRow_(r, conf) {
       data: data,
       answers: answers,
       judgment: summarizeAnswers_(answers),
-      advice: judge_(data),
+      advice: judge_(data, conf),
       destination: resolveDestination_(data.agency, data.customerName)
     };
   } catch (e) {

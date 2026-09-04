@@ -9,6 +9,17 @@
  *   form   … 入力フォームに表示する
  *   fixed  … フォームには出さず、設定シートの固定値を使う
  *   hidden … 使わない（帳票では空欄になる）
+ *
+ * ■ 判定専用の項目は既定で「使わない」
+ *
+ * 適合性の確認は募集の場で済んでいる前提で、「２．」の回答は既定すべて「はい」。
+ * そのため、帳票に印字されず判定の参考にしか使わない次の 10 項目は既定で
+ * 「使わない」にしてある。入力を減らして一括作成を現実的にするため。
+ *   elderlyMethod / occupationClass / householdConfirmed / annualPremium /
+ *   payYears / experienceExplained / sourceNotMaturity /
+ *   sourceMaturityExplained / sourceSpare / sourceNotLoan
+ * 設定シートで「入力する」に戻せば、確認画面に参考判定が出るようになる
+ * （どの項目がどの判定の根拠かは Judge.gs の JUDGE_INPUTS）。
  */
 
 /** 保障ニーズ。意向把握シートの 8 項目が入力の粒度で、適合性⑧へは集約して流す。 */
@@ -82,43 +93,51 @@ var FIELD_DEFS = [
 
   // ---- 適合性確認シート ----
   { key: 'age',    label: '年齢',   type: 'number', unit: '歳', section: '適合性', required: true, defaultMode: 'form' },
-  { key: 'elderlyMethod', label: '70歳以上の場合の募集方法', type: 'select', section: '適合性', defaultMode: 'form',
+  { key: 'elderlyMethod', label: '70歳以上の場合の募集方法', type: 'select', section: '適合性', defaultMode: 'hidden',
     options: ELDERLY_METHODS, showIf: 'elderly',
-    note: '70歳以上のときだけ表示。未選択だと判定①が「いいえ」になる' },
+    note: '判定①の参考にしか使わず、帳票には出ない。'
+        + '「入力する」にすると70歳以上のときだけ表示され、確認画面に参考判定が出る' },
   { key: 'occupation',      label: '職業',     type: 'text',  section: '適合性', required: true, defaultMode: 'form' },
-  { key: 'occupationClass', label: '職業区分', type: 'radio', section: '適合性', required: true, defaultMode: 'form',
+  { key: 'occupationClass', label: '職業区分', type: 'radio', section: '適合性', required: true, defaultMode: 'hidden',
     options: OCCUPATION_CLASSES, defaultValue: '左記以外',
-    note: '判定②に使う。帳票には出力しない' },
+    note: '判定②の参考にしか使わず、帳票には出ない' },
   { key: 'householdConfirmed',
     label: '世帯主・家族等の職業を確認し、保険料の継続的な支払いに問題がないことを確認した',
-    type: 'check', section: '適合性', defaultMode: 'form', showIf: 'nonRegularOccupation' },
+    type: 'check', section: '適合性', defaultMode: 'hidden', showIf: 'nonRegularOccupation',
+    note: '判定②の参考にしか使わず、帳票には出ない' },
   { key: 'income',        label: '年収',             type: 'number', unit: '万円', section: '適合性', required: true, defaultMode: 'form' },
   { key: 'assets',        label: '金融資産',         type: 'number', unit: '万円', section: '適合性', required: true, defaultMode: 'form' },
-  { key: 'annualPremium', label: '年間保険料',       type: 'number', unit: '万円', section: '適合性', required: true, defaultMode: 'form',
-    note: '判定③（年収の20%／金融資産の30%）に使う。帳票には出力しない' },
-  { key: 'payYears',      label: '保険料払込期間',   type: 'number', unit: '年',   section: '適合性', required: true, defaultMode: 'form',
-    note: '判定③に使う。帳票には出力しない' },
+  { key: 'annualPremium', label: '年間保険料',       type: 'number', unit: '万円', section: '適合性', required: true, defaultMode: 'hidden',
+    note: '判定③（年収の20%／金融資産の30%）の参考にしか使わず、帳票には出ない。'
+        + '「入力する」にすると、払込期間とあわせて確認画面に参考判定が出る' },
+  { key: 'payYears',      label: '保険料払込期間',   type: 'number', unit: '年',   section: '適合性', required: true, defaultMode: 'hidden',
+    note: '判定③の参考にしか使わず、帳票には出ない' },
   { key: 'experience',    label: 'これまでご購入されたことのある金融商品', type: 'multi', section: '適合性', defaultMode: 'form',
     options: EXPERIENCE_OPTIONS },
   { key: 'experienceOther', label: '金融商品「その他」の内容', type: 'text', section: '適合性', defaultMode: 'form' },
   { key: 'experienceExplained',
     label: '投資経験がないため、変額保険の仕組み・特徴・投資リスク・諸費用・解約控除等を十分に理解いただく時間を確保して説明した',
-    type: 'check', section: '適合性', defaultMode: 'form', showIf: 'noExperience' },
+    type: 'check', section: '適合性', defaultMode: 'hidden', showIf: 'noExperience',
+    note: '判定④の参考にしか使わず、帳票には出ない' },
   { key: 'premiumSource',      label: '保険料原資',                 type: 'multi', section: '適合性', defaultMode: 'form',
     options: PREMIUM_SOURCE_OPTIONS },
   { key: 'premiumSourceOther', label: '保険料原資「その他」の内容', type: 'text',  section: '適合性', defaultMode: 'form' },
   { key: 'sourceNotMaturity',
     label: 'ア．保険料の原資が定期性預貯金や他の金融商品の満期金または解約返戻金ではない',
-    type: 'check', section: '適合性', defaultMode: 'form', defaultValue: true },
+    type: 'check', section: '適合性', defaultMode: 'hidden', defaultValue: true,
+    note: '判定⑤の参考にしか使わず、帳票にはア〜ウ個別の記録は残らない' },
   { key: 'sourceMaturityExplained',
     label: '（満期金・解約返戻金が原資の場合）商品特性等や解約による不利益事項を十分に説明し、了解を得た',
-    type: 'check', section: '適合性', defaultMode: 'form', showIf: 'maturitySource' },
+    type: 'check', section: '適合性', defaultMode: 'hidden', showIf: 'maturitySource',
+    note: '判定⑤の参考にしか使わず、帳票には出ない' },
   { key: 'sourceSpare',
     label: 'イ．元本割れがある場合でも許容できる余裕資金を原資としている',
-    type: 'check', section: '適合性', defaultMode: 'form', defaultValue: true },
+    type: 'check', section: '適合性', defaultMode: 'hidden', defaultValue: true,
+    note: '判定⑤の参考にしか使わず、帳票には出ない' },
   { key: 'sourceNotLoan',
     label: 'ウ．充当される資金が借入金を前提としていない',
-    type: 'check', section: '適合性', defaultMode: 'form', defaultValue: true },
+    type: 'check', section: '適合性', defaultMode: 'hidden', defaultValue: true,
+    note: '判定⑤の参考にしか使わず、帳票には出ない' },
   { key: 'riskTolerance', label: '株式や為替相場に関する興味やリスク選好度合', type: 'radio', section: '適合性',
     required: true, defaultMode: 'form', options: [RISK_YES, RISK_NO] },
 

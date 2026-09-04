@@ -199,5 +199,61 @@ t('いいえ側は空欄',        m.judge.map(x => x.no).join(''), '□□□□
   t('法人でも④〜⑥は はい',    corpModel.judge.slice(3).map(x => x.yes), ['■', '■', '■']);
 }
 
+console.log('\n--- 入力を取っていない判定は参考判定を出さない ---');
+{
+  // 判定の参考にしか使わない10項目。既定は「使わない」。
+  const JUDGE_ONLY = [
+    'elderlyMethod', 'occupationClass', 'householdConfirmed', 'annualPremium',
+    'payYears', 'experienceExplained', 'sourceNotMaturity',
+    'sourceMaturityExplained', 'sourceSpare', 'sourceNotLoan'
+  ];
+  const conf = {};
+  ctx.FIELD_DEFS.forEach(f => { conf[f.key] = { mode: f.defaultMode || 'form', fixedValue: '' }; });
+
+  t('10項目はすべて既定で「使わない」',
+    JUDGE_ONLY.filter(k => conf[k].mode !== 'hidden'), []);
+
+  // 判定専用の入力が空のまま。従来ならこれで③⑤が「いいえ」になっていた。
+  const thin = {
+    contractType: '個人', customerName: '種田 裕貴', confirmDate: '2026-08-01',
+    age: 31, occupation: '会社員', income: 500, assets: 100,
+    experience: ['株式'], premiumSource: ['預貯金・給与'],
+    riskTolerance: ctx.RISK_YES, needs: ['death'], savings: '①ある方が良い'
+  };
+
+  const bare = ctx.judge_(thin);
+  t('項目設定を渡さなければ従来どおり計算する',
+    ['i3', 'i5'].map(k => bare.items[k].value), ['no', 'no']);
+
+  const j = ctx.judge_(thin, conf);
+  t('①〜⑤は参考判定なし',
+    ['i1', 'i2', 'i3', 'i4', 'i5'].map(k => j.items[k].value),
+    ['unknown', 'unknown', 'unknown', 'unknown', 'unknown']);
+  t('⑥は入力が残っているので計算する', j.items.i6.value, 'yes');
+  t('参考判定なしは「いいえ」に数えない', j.ngKeys, []);
+  t('総合は適合のまま', j.suitable, true);
+  t('理由に、どの入力を取っていないかが出る',
+    j.items.i3.reason.indexOf('年間保険料') >= 0, true);
+
+  // 帳票に印字する回答は、参考判定とは無関係にすべて「はい」のまま。
+  t('印字する回答は既定どおり すべて はい',
+    ctx.JUDGE_KEYS.map(k => ctx.defaultAnswers_(thin)[k]),
+    ['yes', 'yes', 'yes', 'yes', 'yes', 'yes']);
+
+  // 設定シートで戻せば、参考判定もそのまま復活する。
+  const on = {};
+  Object.keys(conf).forEach(k => { on[k] = { mode: 'form', fixedValue: '' }; });
+  t('「入力する」に戻せば参考判定も戻る',
+    ['i3', 'i5'].map(k => ctx.judge_(thin, on).items[k].value), ['no', 'no']);
+
+  // 使っている入力に基づく食い違いは、これまでどおり出る。
+  const risky = Object.assign({}, thin, { riskTolerance: ctx.RISK_NO });
+  t('⑦を「許容できない」にすれば⑥は いいえ', ctx.judge_(risky, conf).items.i6.value, 'no');
+  t('法人契約では①〜③が対象外のまま',
+    ['i1', 'i2', 'i3'].map(k =>
+      ctx.judge_(Object.assign({}, thin, { contractType: '法人' }), conf).items[k].value),
+    ['na', 'na', 'na']);
+}
+
 console.log(`\n合計 ${pass + fail} 件 / 成功 ${pass} / 失敗 ${fail}`);
 process.exit(fail ? 1 : 0);

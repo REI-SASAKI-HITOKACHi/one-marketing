@@ -24,7 +24,7 @@ function appendLog_(data, summary, advice, result) {
   // 黙って捨てると監査証跡が誰にも気づかれずに欠ける。
   if (!sh) throw new Error('「送信ログ」シートが見つかりません。setup() を再実行してください。');
 
-  var label = { yes: 'はい', no: 'いいえ', na: '対象外' };
+  var label = { yes: 'はい', no: 'いいえ', na: '対象外', unknown: '参考判定なし' };
   var v = function (k) { return label[summary.answers[k]] || ''; };
 
   // 参考判定と食い違った項目を残す。あとから見直すときの手がかりになる。
@@ -32,7 +32,9 @@ function appendLog_(data, summary, advice, result) {
   var diff = [];
   var reasons = JUDGE_KEYS.map(function (k, i) {
     var a = advice.items[k];
-    if (a.value !== summary.answers[k]) {
+    // 'unknown' は「判定の根拠になる入力を取っていない」という意味。
+    // 食い違いではないので、差分としては数えない。
+    if (a.value !== 'unknown' && a.value !== summary.answers[k]) {
       diff.push(marks.charAt(i) + '（入力からは' + (label[a.value] || '') + '）');
     }
     return marks.charAt(i) + label[a.value] + '：' + a.reason;

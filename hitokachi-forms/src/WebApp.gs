@@ -92,7 +92,7 @@ function prepare(raw) {
       data: data,
       answers: answers,                 // 帳票に印字する回答（既定はすべて はい）
       summary: summarizeAnswers_(answers),
-      advice: judge_(data),             // 入力からの参考判定。食い違うときだけ画面に出す
+      advice: judge_(data, conf),       // 入力からの参考判定。食い違うときだけ画面に出す
       judgeKeys: JUDGE_KEYS,
       judgeLabels: JUDGE_LABELS,
       destination: dest

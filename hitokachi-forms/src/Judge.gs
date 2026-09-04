@@ -20,6 +20,31 @@
 
 var JUDGE_KEYS = ['i1', 'i2', 'i3', 'i4', 'i5', 'i6'];
 
+/**
+ * 各判定が根拠にしている入力項目。
+ *
+ * 帳票に印字されない「判定のためだけの入力」は、設定シートで「使わない」に
+ * できる。使わなくした項目がある判定は、入力から確かめようがないので参考判定を
+ * 'unknown' にする（画面にもログにも「入力からは いいえ」を出さない）。
+ * これをやらないと、入力を減らした瞬間にほぼ全件へ誤った注意書きが出る。
+ */
+var JUDGE_INPUTS = {
+  i1: ['age', 'elderlyMethod'],
+  i2: ['occupationClass', 'householdConfirmed'],
+  i3: ['income', 'assets', 'annualPremium', 'payYears'],
+  i4: ['experience', 'experienceExplained'],
+  i5: ['sourceNotMaturity', 'sourceMaturityExplained', 'sourceSpare', 'sourceNotLoan'],
+  i6: ['riskTolerance', 'needs']
+};
+
+/** その判定の根拠のうち、設定シートで「使わない」にされている項目のキー。 */
+function hiddenJudgeInputs_(key, conf) {
+  if (!conf) return [];
+  return (JUDGE_INPUTS[key] || []).filter(function (k) {
+    return conf[k] && conf[k].mode === 'hidden';
+  });
+}
+
 /** 帳票に印字する回答の既定値。法人契約では①〜③が対象外。 */
 function defaultAnswers_(d) {
   var isCorp = d && d.contractType === '法人';
@@ -61,16 +86,30 @@ function summarizeAnswers_(answers) {
   };
 }
 
-function judge_(d) {
+/**
+ * @param {Object} d    入力値
+ * @param {Object} conf 項目設定。渡すと「使わない」項目に依存する判定は 'unknown' になる。
+ *                      省略時はすべての項目を入力している前提で計算する。
+ */
+function judge_(d, conf) {
   var isCorp = d.contractType === '法人';
   var items = {};
+  var advise = function (key, fn) {
+    var missing = hiddenJudgeInputs_(key, conf);
+    if (!missing.length) return fn();
+    var labels = missing.map(function (k) {
+      var f = fieldByKey_(k);
+      return f ? f.label : k;
+    });
+    return unknown_('判定に使う入力（' + labels.join('、') + '）を取っていないため、参考判定は出せません');
+  };
 
-  items.i1 = isCorp ? na_('法人契約のため対象外') : judgeAge_(d);
-  items.i2 = isCorp ? na_('法人契約のため対象外') : judgeOccupation_(d);
-  items.i3 = isCorp ? na_('法人契約のため対象外') : judgeBalance_(d);
-  items.i4 = judgeExperience_(d);
-  items.i5 = judgeSource_(d);
-  items.i6 = judgeIntent_(d, isCorp);
+  items.i1 = isCorp ? na_('法人契約のため対象外') : advise('i1', function () { return judgeAge_(d); });
+  items.i2 = isCorp ? na_('法人契約のため対象外') : advise('i2', function () { return judgeOccupation_(d); });
+  items.i3 = isCorp ? na_('法人契約のため対象外') : advise('i3', function () { return judgeBalance_(d); });
+  items.i4 = advise('i4', function () { return judgeExperience_(d); });
+  items.i5 = advise('i5', function () { return judgeSource_(d); });
+  items.i6 = advise('i6', function () { return judgeIntent_(d, isCorp); });
 
   var ng = [];
   JUDGE_KEYS.forEach(function (k) {
@@ -92,6 +131,8 @@ function judge_(d) {
 function yes_(reason) { return { value: 'yes', reason: reason }; }
 function no_(reason)  { return { value: 'no',  reason: reason }; }
 function na_(reason)  { return { value: 'na',  reason: reason }; }
+/** 入力を取っていないため、入力からは何も言えない。 */
+function unknown_(reason) { return { value: 'unknown', reason: reason }; }
 
 /** ① お一人での判断が的確にできている（70歳以上は環境が整っている）。 */
 function judgeAge_(d) {

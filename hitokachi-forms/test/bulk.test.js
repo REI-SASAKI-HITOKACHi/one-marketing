@@ -21,6 +21,18 @@ const AGENTS = [
   ['髙橋 知史', 's-takahashi@hitokachi.com', '080-2238-7592', '134-0081', '東京都 江戸川区 北葛西', '５－１４－１１', 'ヒトカチ株式会社', '', true]
 ];
 
+/**
+ * 帳票に印字されず、判定の参考にしか使わない項目。既定は「使わない」。
+ * これらを入力する運用に戻したときの動きも見たいので、まとめて持っておく。
+ */
+const JUDGE_ONLY = [
+  'elderlyMethod', 'occupationClass', 'householdConfirmed', 'annualPremium',
+  'payYears', 'experienceExplained', 'sourceNotMaturity',
+  'sourceMaturityExplained', 'sourceSpare', 'sourceNotLoan'
+];
+const ALL_ON = {};
+JUDGE_ONLY.forEach(k => { ALL_ON[k] = 'form'; });
+
 /** 項目設定シートを、既定の扱いから組み立てる（上書きしたい項目だけ渡す）。 */
 function fieldSheet(ctx, overrides) {
   const rows = [['項目キー', '表示名', 'セクション', '扱い', '固定値', '必須', '選択肢', '備考']];
@@ -95,12 +107,24 @@ console.log('\n--- 列の組み立て ---');
   t('年齢は数値',                 byKey('age').kind, 'number');
   t('年収の見出しに単位が付く',    byKey('income').label, '年収（万円）');
   t('確認日は日付',               byKey('confirmDate').kind, 'date');
-  t('原資アはチェックボックス',    byKey('sourceNotMaturity').kind, 'check');
+  t('判定専用の項目は既定で列にならない',
+    JUDGE_ONLY.filter(k => byKey(k) !== undefined), []);
 
   t('既定で使わない項目は列にならない（検証日）', byKey('verifyDate'), undefined);
   t('既定で使わない項目は列にならない（推定意向）',
     keys.filter(k => k.indexOf('estimatedNeeds') === 0).length, 0);
   t('意向の変化は一括では扱わない', byKey('changeLog'), undefined);
+}
+
+console.log('\n--- 判定専用の項目は「入力する」に戻せる ---');
+{
+  const ctx = makeContext({ __modes: ALL_ON });
+  const cols = ctx.bulkColumns_();
+  const byKey = k => cols.find(c => c.key === k);
+  t('10項目すべてが列に戻る', JUDGE_ONLY.filter(k => byKey(k) === undefined), []);
+  t('原資アはチェックボックス', byKey('sourceNotMaturity').kind, 'check');
+  t('年間保険料は数値',         byKey('annualPremium').kind, 'number');
+  t('職業区分はプルダウン',     byKey('occupationClass').kind, 'list');
 }
 
 console.log('\n--- 項目設定を変えると列も変わる ---');
@@ -114,7 +138,8 @@ console.log('\n--- 項目設定を変えると列も変わる ---');
 
 console.log('\n--- 1行をデータに戻す ---');
 {
-  const ctx = makeContext();
+  // 判定専用の項目も含めて、変換と判定が最後まで通ることを見る。
+  const ctx = makeContext({ __modes: ALL_ON });
   const row = {
     __status: '未作成',
     __message: '',
@@ -186,7 +211,8 @@ console.log('\n--- 入力漏れはエラーとして拾える ---');
 
 console.log('\n--- 検証：不正な数値を弾く ---');
 {
-  const ctx = makeContext();
+  // 年間保険料と払込期間は既定では入力しない項目なので、入力する設定にして見る。
+  const ctx = makeContext({ __modes: ALL_ON });
   const conf = ctx.getFieldConfig_();
   const base = {
     contractType: '個人', customerName: '山田 太郎', agency: 'ヒトカチ株式会社',
