@@ -31,6 +31,7 @@ PAGES = {
         "desc": "フィルター掃除では届かない、熱交換器と送風ファンの黒カビを分解洗浄。"
                 "ノーマルエアコン9,800円・60分、お見積り以上の追加請求はありません。"
                 "東京・千葉・神奈川、最短即日。",
+        "label": "エアコン",
         "og": "aircon/img/og.jpg",
         "og_line1": "エアコン内部のカビを、分解洗浄",
         "og_line2": "ノーマル 9,800円／60分・東京 千葉 神奈川",
@@ -40,6 +41,7 @@ PAGES = {
         "title": "水まわりクリーニング まとめて依頼で1箇所3,000円おトク｜ONE HITTER",
         "desc": "キッチン・浴室・レンジフード・洗濯機・追い焚き配管。2箇所目からは同時施工価格。"
                 "浴室＋キッチンで30,600円、半日で完了。東京・千葉・神奈川、最短即日。",
+        "label": "水まわりセット",
         "og": "mizumawari/img/og.jpg",
         "og_line1": "水まわりは、まとめて頼むほど安い",
         "og_line2": "浴室＋キッチン 30,600円・東京 千葉 神奈川",
@@ -94,6 +96,7 @@ FORM_PHP = """<form class="form" action="/form/send.php" method="post">
 FORM_NETLIFY = """<form class="form" name="reserve-{dir}" method="post"
       action="/{dir}/thanks.html" data-netlify="true" netlify-honeypot="x_field">
       <input type="hidden" name="form-name" value="reserve-{dir}">
+      <input type="hidden" name="subject" value="【LP予約】{label}">
       <input type="hidden" name="lp" value="{dir}">
       <div class="hp" aria-hidden="true">
         <label for="f-x">この欄には入力しないでください</label>
@@ -144,7 +147,7 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path) -> None:
     if FORM_OPEN not in src:
         raise SystemExit(f"{name}: フォームの開始タグが見つかりません")
     form = FORM_NETLIFY if target == "netlify" else FORM_PHP
-    src = src.replace(FORM_OPEN, form.format(dir=meta["dir"]))
+    src = src.replace(FORM_OPEN, form.format(dir=meta["dir"], label=meta["label"]))
 
     # 蜂蜜罠のスタイルを、既存の .form の定義のすぐ後ろに足す
     anchor = ".form{background:var(--surface);"
@@ -154,7 +157,7 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path) -> None:
     src = src[:line_end] + HP_CSS.rstrip("\n") + src[line_end:]
 
     src = src.replace("</body>", "")  # 断片には無いはずだが念のため
-    head_meta = {k: v for k, v in meta.items() if not k.startswith("og_")}
+    head_meta = {k: v for k, v in meta.items() if not k.startswith("og_") and k != "label"}
     doc = HEAD.format(base=BASE_URL, **head_meta) + src + TAIL
 
     dst = out / meta["dir"]

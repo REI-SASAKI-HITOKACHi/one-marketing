@@ -355,6 +355,7 @@ details p{padding:0 18px 16px 40px;font-size:14px;color:var(--ink-soft);line-hei
 .form{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:16px;box-shadow:var(--shadow);}
 .field{display:flex;flex-direction:column;gap:5px;}
 .field label{font-size:13px;font-weight:700;}
+.field .lab{display:flex;align-items:baseline;}
 .field .req{color:var(--cta);font-size:11px;margin-left:5px;}
 .field input,.field select,.field textarea{
   padding:12px 14px;border:1.5px solid var(--line-strong);border-radius:6px;font-family:inherit;
@@ -762,19 +763,19 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
     </div>
     <form class="form" onsubmit="return false;">
       <div class="field">
-        <label for="f-name">お名前<span class="req">必須</span></label>
+        <div class="lab"><label for="f-name">お名前</label><span class="req">必須</span></div>
         <input id="f-name" name="name" type="text" autocomplete="name" required>
       </div>
       <div class="field">
-        <label for="f-tel">お電話番号<span class="req">必須</span></label>
+        <div class="lab"><label for="f-tel">お電話番号</label><span class="req">必須</span></div>
         <input id="f-tel" name="tel" type="tel" inputmode="tel" autocomplete="tel" required>
       </div>
       <div class="field">
-        <label for="f-zip">郵便番号<span class="req">必須</span></label>
+        <div class="lab"><label for="f-zip">郵便番号</label><span class="req">必須</span></div>
         <input id="f-zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" required>
       </div>
       <div class="field">
-        <label for="f-menu">ご希望のメニュー<span class="req">必須</span></label>
+        <div class="lab"><label for="f-menu">ご希望のメニュー</label><span class="req">必須</span></div>
         <select id="f-menu" name="menu">
           <option>エアコンクリーニング（ノーマル）</option>
           <option>エアコンクリーニング（お掃除機能付き）</option>
