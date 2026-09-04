@@ -27,6 +27,8 @@ STATE = ROOT / "deploy" / ".netlify-site.json"
 API = "https://api.netlify.com/api/v1"
 
 SITE_NAME = "one-hitter-lp"
+# 既存のプロジェクトと混ざらないよう、チームを明示して作る
+TEAM_SLUG = "case-foot-kid"
 
 
 def token() -> str:
@@ -80,9 +82,17 @@ def main() -> None:
     if not SRC.exists():
         sys.exit(f"{SRC} がありません。先に python3 tools/build-site.py netlify を実行してください。")
 
+    if args.create:
+        existing = call("GET", f"/{TEAM_SLUG}/sites") or []
+        print("チーム内の既存プロジェクト（いずれにも手を触れません）:")
+        for site in existing:
+            print(f"  - {site['name']}")
+        if any(site["name"] == SITE_NAME for site in existing):
+            sys.exit(f"{SITE_NAME} は既にあります。--create を外して実行してください。")
+
     site_id = load_site_id()
     if args.create or not site_id:
-        site = call("POST", "/sites", {"name": SITE_NAME})
+        site = call("POST", f"/{TEAM_SLUG}/sites", {"name": SITE_NAME})
         site_id = site["id"]
         STATE.write_text(json.dumps({"site_id": site_id, "name": site["name"],
                                      "url": site["ssl_url"] or site["url"]}, indent=2) + "\n")
