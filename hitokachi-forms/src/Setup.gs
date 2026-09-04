@@ -35,20 +35,35 @@ function setup() {
 }
 
 /**
- * 設定スプレッドシートに「帳票作成」メニューを出すためのトリガー。
+ * 設定スプレッドシートに仕掛けるトリガー。
  * このスクリプトはスプレッドシートに紐づいていない（スタンドアロン）ので、
- * onOpen をそのまま書いても呼ばれない。インストール型トリガーで仕掛ける。
+ * onOpen / onEdit をそのまま書いても呼ばれない。インストール型で仕掛ける。
+ *
+ *   onOpenMenu … 「帳票作成」メニューを出す
+ *   onEditBulk_ … 一括入力シートで代理店を選んだら、その行の
+ *                 「共同募集の相方」の選択肢をその代理店の人に入れ替える
  */
 function ensureMenuTrigger_(ss) {
-  var already = ScriptApp.getProjectTriggers().some(function (t) {
-    return t.getHandlerFunction() === 'onOpenMenu';
+  var existing = ScriptApp.getProjectTriggers().map(function (t) {
+    return t.getHandlerFunction();
   });
-  if (already) return;
-  try {
-    ScriptApp.newTrigger('onOpenMenu').forSpreadsheet(ss).onOpen().create();
-  } catch (e) {
-    Logger.log('メニューのトリガーを作れませんでした: ' + e.message
-      + '\n一括作成の各関数は、Apps Script エディタから直接実行することもできます。');
+
+  if (existing.indexOf('onOpenMenu') < 0) {
+    try {
+      ScriptApp.newTrigger('onOpenMenu').forSpreadsheet(ss).onOpen().create();
+    } catch (e) {
+      Logger.log('メニューのトリガーを作れませんでした: ' + e.message
+        + '\n一括作成の各関数は、Apps Script エディタから直接実行することもできます。');
+    }
+  }
+
+  if (existing.indexOf('onEditBulk_') < 0) {
+    try {
+      ScriptApp.newTrigger('onEditBulk_').forSpreadsheet(ss).onEdit().create();
+    } catch (e) {
+      Logger.log('連動プルダウンのトリガーを作れませんでした: ' + e.message
+        + '\nメニューの「共同募集の相方の選択肢を作り直す」で代用できます。');
+    }
   }
 }
 

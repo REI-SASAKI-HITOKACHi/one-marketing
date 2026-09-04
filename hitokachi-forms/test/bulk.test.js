@@ -293,9 +293,12 @@ console.log('\n--- 検証：共同募集の相方 ---');
 
   console.log('\n--- 一括入力シートの相方の選択肢 ---');
   const opts = ctx.bulkOptionsFor_(ctx.FIELD_DEFS.filter(f => f.key === 'coAgent')[0]);
-  t('全代理店の相方をまとめて出す', opts, ['熊澤 善弘', '小川 康之']);
-  t('無効な行は選択肢に出ない', opts.indexOf('退職 済'), -1);
-  t('代理店マスタに無い代理店の行は無視する', opts.indexOf('幽霊 太郎'), -1);
+  t('列としての選択肢は持たない（行ごとに作る）', opts, []);
+
+  const co = n => (ctx.getAgencyByName_(n) || {}).coAgents;
+  t('代理店ごとに相方が引ける', co('提携代理店B'), ['熊澤 善弘', '小川 康之']);
+  t('無効な行は選択肢に出ない', co('提携代理店B').indexOf('退職 済'), -1);
+  t('相方がいない代理店は空', co('ヒトカチ株式会社'), []);
 
   console.log('\n--- 連名の印字 ---');
   const solo = ctx.applyFieldConfig_(base, conf);
@@ -306,6 +309,104 @@ console.log('\n--- 検証：共同募集の相方 ---');
   t('共同募集なら連名になる',
     ctx.buildModel_(pair, ctx.defaultAnswers_(pair), agent, '提携代理店B').agentDisplay,
     '佐々木 嶺 / 熊澤 善弘');
+}
+
+console.log('\n--- 代理店を選ぶと、その行の相方の選択肢が入れ替わる ---');
+{
+  /**
+   * 一括入力シートの代役。refreshCoAgentValidation_ が触るぶんだけ。
+   * grid は 1 始まりの [行][列]。validations[行] に、その行の相方セルへ
+   * 張られた選択肢が入る（null なら選べない状態）。
+   */
+  function fakeBulkSheet(keys, rows) {
+    // 1行目=列キー, 2行目=見出し, 3行目以降=データ（実物と同じ並び）。
+    const grid = [null, keys.slice(), keys.map(() => '')].concat(rows.map(r => r.slice()));
+    const validations = {};
+    const colOf = k => keys.indexOf(k) + 1;
+    const cell = (r, c) => ({
+      getValues: () => [[grid[r] ? (grid[r][c - 1] === undefined ? '' : grid[r][c - 1]) : '']],
+      setDataValidation(v) { if (c === colOf('coAgent')) validations[r] = v; },
+      clearContent() { if (grid[r]) grid[r][c - 1] = ''; }
+    });
+    return {
+      grid, validations,
+      getName: () => '一括入力',
+      getLastColumn: () => keys.length,
+      getMaxRows: () => grid.length - 1,
+      getRange(row, col, numRows, numCols) {
+        // getRange(row, col) の 2 引数呼び出しも 1 セルとして扱う。
+        if ((numRows === undefined || numRows === 1)
+            && (numCols === undefined || numCols === 1)) return cell(row, col);
+        const vals = [];
+        for (let i = 0; i < (numRows || 1); i++) {
+          const r = grid[row + i] || [];
+          const line = [];
+          for (let j = 0; j < (numCols || 1); j++) {
+            line.push(r[col + j - 1] === undefined ? '' : r[col + j - 1]);
+          }
+          vals.push(line);
+        }
+        return { getValues: () => vals, setDataValidation() {}, clearContent() {} };
+      }
+    };
+  }
+
+  const ctx = makeContext();
+  // 選択肢リストだけ取り出せる、最小の DataValidation ビルダー。
+  ctx.SpreadsheetApp.newDataValidation = () => {
+    let list = null;
+    const b = {
+      requireValueInList(v) { list = v.slice(); return b; },
+      setAllowInvalid() { return b; },
+      build: () => ({ list })
+    };
+    return b;
+  };
+
+  const KEYS = ['__status', '__message', 'customerName', 'agency', 'coAgent'];
+  const listAt = (sh, row) => (sh.validations[row] || {}).list || null;
+
+  const sh = fakeBulkSheet(KEYS, [
+    ['', '', '山田 太郎', '提携代理店B', ''],
+    ['', '', '鈴木 花子', 'ヒトカチ株式会社', ''],
+    ['', '', '佐藤 次郎', '', '']
+  ]);
+  ctx.refreshCoAgentValidation_(sh);
+  t('相方がいる代理店の行には選択肢が張られる', listAt(sh, 3), ['熊澤 善弘', '小川 康之']);
+  t('相方がいない代理店の行は選べない',         listAt(sh, 4), null);
+  t('代理店が未選択の行も選べない',             listAt(sh, 5), null);
+
+  console.log('\n--- 代理店を選び直すと、前の代理店の人は消える ---');
+  const sh2 = fakeBulkSheet(KEYS, [
+    ['', '', '山田 太郎', 'ヒトカチ株式会社', '熊澤 善弘']  // 代理店だけ差し替えた状態
+  ]);
+  ctx.refreshCoAgentValidation_(sh2);
+  t('他社の募集人が残らない', sh2.grid[3][4], '');
+  t('選択肢も外れる',         listAt(sh2, 3), null);
+
+  const sh3 = fakeBulkSheet(KEYS, [
+    ['', '', '山田 太郎', '提携代理店B', '小川 康之']  // 同じ代理店のまま
+  ]);
+  ctx.refreshCoAgentValidation_(sh3);
+  t('同じ代理店のままなら選択は残る', sh3.grid[3][4], '小川 康之');
+
+  console.log('\n--- 編集された行だけ作り直す ---');
+  const sh4 = fakeBulkSheet(KEYS, [
+    ['', '', 'A', '提携代理店B', ''],
+    ['', '', 'B', '提携代理店B', ''],
+    ['', '', 'C', '提携代理店B', '']
+  ]);
+  ctx.refreshCoAgentValidation_(sh4, 4, 1);   // 2行目だけ
+  t('指定した行だけ張られる', listAt(sh4, 4), ['熊澤 善弘', '小川 康之']);
+  t('ほかの行は触らない',     [listAt(sh4, 3), listAt(sh4, 5)], [null, null]);
+
+  console.log('\n--- 代理店か相方の列を「使わない」にしていても落ちない ---');
+  const sh5 = fakeBulkSheet(['__status', '__message', 'customerName', 'agency'], [
+    ['', '', '山田 太郎', '提携代理店B']
+  ]);
+  let threw = false;
+  try { ctx.refreshCoAgentValidation_(sh5); } catch (e) { threw = true; }
+  t('例外にならない', threw, false);
 }
 
 console.log('\n--- チェックボックスの表記ゆれ ---');
