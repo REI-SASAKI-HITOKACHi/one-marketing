@@ -1,0 +1,469 @@
+<script>
+  const state = {
+    menus: [],
+    submitTargets: [],
+    settings: {},
+    lines: [],
+    lastCalc: null,
+    lastEstimateId: '',
+    originalEstimateId: '',
+    busyTouched: false,
+    discountTouched: false,
+    timer: null
+  };
+
+  window.addEventListener('load', init);
+
+  function init() {
+    google.script.run
+      .withSuccessHandler((res) => {
+        if (!res.ok) {
+          showFatal(res.error || '初期表示に失敗しました。');
+          return;
+        }
+
+        state.menus = res.menus || [];
+        state.submitTargets = res.submitTargets || [];
+        state.settings = res.settings || {};
+
+        setupProjectTypeOptions();
+        setupSearchProjectTypeOptions();
+
+        document.getElementById('highwayLink').href = state.settings['高速料金検索URL'] || '#';
+        document.getElementById('lineNoticeText').textContent =
+          state.settings['LINE一報文言'] || 'メール送信後、LINEで代表者へ一報を入れてください。';
+
+        addLine('main');
+        onProjectTypeChange();
+
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('app').classList.remove('hidden');
+
+        scheduleCalc();
+      })
+      .withFailureHandler((err) => {
+        showFatal(err.message || String(err));
+      })
+      .apiInit();
+  }
+
+  function setupProjectTypeOptions() {
+    const select = document.getElementById('projectType');
+    select.innerHTML = '';
+
+    state.submitTargets.forEach((t) => {
+      const opt = document.createElement('option');
+      opt.value = t.projectType;
+      opt.textContent = t.projectType;
+      select.appendChild(opt);
+    });
+
+    if (![...select.options].some(o => o.value === '自社')) {
+      const opt = document.createElement('option');
+      opt.value = '自社';
+      opt.textContent = '自社';
+      select.insertBefore(opt, select.firstChild);
+    }
+
+    select.value = '自社';
+  }
+
+  function setupSearchProjectTypeOptions() {
+    const select = document.getElementById('searchProjectType');
+    select.innerHTML = '<option value="">指定なし</option>';
+
+    state.submitTargets.forEach((t) => {
+      const opt = document.createElement('option');
+      opt.value = t.projectType;
+      opt.textContent = t.projectType;
+      select.appendChild(opt);
+    });
+  }
+
+  function onProjectTypeChange() {
+    const projectType = val('projectType');
+    const selfBlock = document.getElementById('selfMailBlock');
+    const info = document.getElementById('submitTargetInfo');
+
+    if (projectType === '自社') selfBlock.classList.remove('hidden');
+    else selfBlock.classList.add('hidden');
+
+    const target = state.submitTargets.find(t => t.projectType === projectType);
+
+    if (target) {
+      info.innerHTML = [
+        `提出先：${escapeHtml(target.submitToName || target.projectType || '')}`,
+        `宛先：${escapeHtml(target.to || (projectType === '自社' ? '手入力' : '未設定'))}`,
+        `CC：${escapeHtml(target.cc || 'なし')}`,
+        `テンプレート：${escapeHtml(target.templateType || '')}`
+      ].join('<br>');
+    } else {
+      info.textContent = '提出先マスタに該当する案件タイプがありません。';
+    }
+  }
+
+  function getMainMenus() {
+    return state.menus.filter(m => m.menuType !== 'オプション');
+  }
+
+  function getOptionMenus() {
+    return state.menus.filter(m => m.menuType === 'オプション');
+  }
+
+  function addLine(kind) {
+    const menus = kind === 'option' ? getOptionMenus() : getMainMenus();
+
+    state.lines.push({
+      kind,
+      menuId: menus[0] ? menus[0].menuId : '',
+      qty: 1
+    });
+
+    renderLines();
+    scheduleCalc();
+  }
+
+  function removeLine(index) {
+    state.lines.splice(index, 1);
+    renderLines();
+    scheduleCalc();
+  }
+
+  function updateLine(index, field, value) {
+    state.lines[index][field] = value;
+    scheduleCalc();
+  }
+
+  function renderLines() {
+    renderLineContainer('mainLines', 'main');
+    renderLineContainer('optionLines', 'option');
+  }
+
+  function renderLineContainer(containerId, kind) {
+    const container = document.getElementById(containerId);
+    const menus = kind === 'option' ? getOptionMenus() : getMainMenus();
+
+    const lines = state.lines
+      .map((line, idx) => ({ line, idx }))
+      .filter(x => x.line.kind === kind);
+
+    if (lines.length === 0) {
+      container.innerHTML = '<div class="note">未追加です。</div>';
+      return;
+    }
+
+    container.innerHTML = lines.map(({ line, idx }) => {
+      const options = menus.map(m => {
+        const selected = m.menuId === line.menuId ? 'selected' : '';
+        const price = formatYen(m.unitPrice || 0);
+        return `<option value="${escapeAttr(m.menuId)}" ${selected}>${escapeHtml(m.name)} / ${price}</option>`;
+      }).join('');
+
+      return `
+        <div class="line-card">
+          <label>メニュー</label>
+          <select onchange="updateLine(${idx}, 'menuId', this.value)">
+            <option value="">選択してください</option>
+            ${options}
+          </select>
+
+          <label>数量</label>
+          <div class="line-actions">
+            <input class="qty-input" type="number" min="0" inputmode="decimal" value="${escapeAttr(line.qty)}" onchange="updateLine(${idx}, 'qty', this.value)" oninput="updateLine(${idx}, 'qty', this.value)">
+            <button type="button" class="delete-btn" onclick="removeLine(${idx})">削除</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function scheduleCalc() {
+    clearTimeout(state.timer);
+    state.timer = setTimeout(calculate, 350);
+  }
+
+  function resetManualFlags() {
+    state.busyTouched = false;
+    state.discountTouched = false;
+  }
+
+  function buildPayload() {
+    return {
+      original_estimate_id: state.originalEstimateId || '',
+      projectType: val('projectType'),
+      customerName: val('customerName'),
+      projectName: val('projectName'),
+      siteAddress: val('siteAddress'),
+      workDate: val('workDate'),
+      staff: val('staff'),
+      selfRecipientEmail: val('selfRecipientEmail'),
+      highwayFee: val('highwayFee'),
+      remarks: val('remarks'),
+      busyManual: state.busyTouched ? document.getElementById('busyManual').checked : null,
+      discountManual: state.discountTouched ? document.getElementById('discountManual').checked : null,
+      details: state.lines
+        .filter(l => l.menuId)
+        .map(l => ({ menuId: l.menuId, qty: l.qty }))
+    };
+  }
+
+  function calculate() {
+    google.script.run
+      .withSuccessHandler((res) => {
+        if (!res.ok) {
+          showToast(res.error || '計算に失敗しました。');
+          return;
+        }
+        state.lastCalc = res.calc;
+        renderCalc(res.calc);
+      })
+      .withFailureHandler((err) => showToast(err.message || String(err)))
+      .apiCalculateEstimate(buildPayload());
+  }
+
+  function renderCalc(calc) {
+    if (!calc) return;
+
+    if (!state.busyTouched) document.getElementById('busyManual').checked = !!calc.busyManual;
+    if (!state.discountTouched) document.getElementById('discountManual').checked = !!calc.discountManual;
+
+    const s = calc.summaryDisplay || {};
+
+    document.getElementById('calcSummary').innerHTML = `
+      <div class="summary-row"><span>明細小計</span><strong>${escapeHtml(s.lineSubtotal || '-')}</strong></div>
+      <div class="summary-row"><span>繁忙期加算</span><strong>${escapeHtml(s.busyAmount || '-')}</strong></div>
+      <div class="summary-row"><span>割引額</span><strong>-${escapeHtml(s.discountAmount || '¥0')}</strong></div>
+      <div class="summary-row"><span>高速代（非課税）</span><strong>${escapeHtml(s.highwayFee || '-')}</strong></div>
+      <div class="summary-row"><span>課税小計</span><strong>${escapeHtml(s.taxableSubtotal || '-')}</strong></div>
+      <div class="summary-row"><span>非課税小計</span><strong>${escapeHtml(s.nonTaxableSubtotal || '-')}</strong></div>
+      <div class="summary-row"><span>消費税</span><strong>${escapeHtml(s.tax || '-')}</strong></div>
+      <div class="summary-row total"><span>合計</span><strong>${escapeHtml(s.grandTotal || '-')}</strong></div>
+    `;
+
+    const exceptionSection = document.getElementById('exceptionSection');
+    const exceptionList = document.getElementById('exceptionList');
+
+    if (calc.exceptionFlag) {
+      exceptionSection.classList.remove('hidden');
+      exceptionList.textContent = calc.exceptionReasons.join('\n');
+    } else {
+      exceptionSection.classList.add('hidden');
+      exceptionList.textContent = '';
+    }
+  }
+
+  function createEstimate() {
+    const btn = document.getElementById('createBtn');
+    btn.disabled = true;
+    btn.textContent = '作成中...';
+
+    document.getElementById('createResult').classList.add('hidden');
+    document.getElementById('repDraftBlock').classList.add('hidden');
+
+    google.script.run
+      .withSuccessHandler((res) => {
+        btn.disabled = false;
+        btn.textContent = '見積作成・PDF保存・Gmail下書き作成';
+
+        if (!res.ok) {
+          showResultError(res.error || '作成に失敗しました。');
+          return;
+        }
+
+        state.lastEstimateId = res.estimateId;
+
+        let html = `<strong>見積ID：</strong>${escapeHtml(res.estimateId)}<br>`;
+
+        if (res.pdfUrl) {
+          html += `<strong>PDF：</strong><a href="${escapeAttr(res.pdfUrl)}" target="_blank">PDFを開く</a><br>`;
+        }
+
+        if (res.draftUrl) {
+          html += `<strong>Gmail下書き：</strong><a href="${escapeAttr(res.draftUrl)}" target="_blank">下書き一覧を開く</a><br>`;
+        }
+
+        if (res.errors && res.errors.length) {
+          html += `<div class="alert warning">${escapeHtml(res.errors.join('\n'))}</div>`;
+        }
+
+        if (res.mailPreview) {
+          html += `
+            <div class="note strong">メール下書き作成に失敗しました。以下をコピーして手動作成してください。</div>
+            <pre class="copy-box">To: ${escapeHtml(res.mailPreview.to || '')}
+CC: ${escapeHtml(res.mailPreview.cc || '')}
+件名: ${escapeHtml(res.mailPreview.subject || '')}
+
+${escapeHtml(res.mailPreview.body || '')}</pre>
+          `;
+        }
+
+        const result = document.getElementById('createResult');
+        result.innerHTML = html;
+        result.classList.remove('hidden');
+
+        if (res.representativeDraftAvailable) {
+          document.getElementById('repDraftBlock').classList.remove('hidden');
+        }
+
+        showToast('見積作成が完了しました。');
+      })
+      .withFailureHandler((err) => {
+        btn.disabled = false;
+        btn.textContent = '見積作成・PDF保存・Gmail下書き作成';
+        showResultError(err.message || String(err));
+      })
+      .apiCreateEstimate(buildPayload());
+  }
+
+  function createRepresentativeDraft() {
+    if (!state.lastEstimateId) {
+      showToast('先に見積を作成してください。');
+      return;
+    }
+
+    google.script.run
+      .withSuccessHandler((res) => {
+        if (!res.ok) {
+          showToast(res.error || '代表者確認メール作成に失敗しました。');
+          return;
+        }
+
+        showToast('代表者確認メール下書きを作成しました。');
+        const result = document.getElementById('createResult');
+        result.innerHTML += `<br><strong>代表者確認メール：</strong><a href="${escapeAttr(res.draftUrl)}" target="_blank">Gmail下書き一覧を開く</a>`;
+      })
+      .withFailureHandler((err) => showToast(err.message || String(err)))
+      .apiCreateRepresentativeDraft(state.lastEstimateId);
+  }
+
+  function searchEstimates() {
+    const criteria = {
+      estimateId: val('searchEstimateId'),
+      customerName: val('searchCustomerName'),
+      projectName: val('searchProjectName'),
+      createdDate: val('searchCreatedDate'),
+      projectType: val('searchProjectType')
+    };
+
+    google.script.run
+      .withSuccessHandler((res) => {
+        if (!res.ok) {
+          showToast(res.error || '検索に失敗しました。');
+          return;
+        }
+        renderSearchResults(res.results || []);
+      })
+      .withFailureHandler((err) => showToast(err.message || String(err)))
+      .apiSearchEstimates(criteria);
+  }
+
+  function renderSearchResults(results) {
+    const box = document.getElementById('searchResults');
+
+    if (!results.length) {
+      box.innerHTML = '<div class="note">該当する見積はありません。</div>';
+      return;
+    }
+
+    box.innerHTML = results.map(r => `
+      <div class="search-card">
+        <div class="search-title">${escapeHtml(r.estimate_id)} / ${escapeHtml(r.customer_name)}</div>
+        <div class="search-meta">
+          作成日：${escapeHtml(r.created_at)}<br>
+          案件名：${escapeHtml(r.project_name)}<br>
+          案件タイプ：${escapeHtml(r.project_type)}<br>
+          合計：${escapeHtml(r.total_amount_display)}
+        </div>
+        ${r.pdf_url ? `<a class="link-button" href="${escapeAttr(r.pdf_url)}" target="_blank">PDF</a>` : ''}
+        <button type="button" class="secondary" onclick="loadForClone('${escapeAttr(r.estimate_id)}')">この見積を複製して編集</button>
+      </div>
+    `).join('');
+  }
+
+  function loadForClone(estimateId) {
+    google.script.run
+      .withSuccessHandler((res) => {
+        if (!res.ok) {
+          showToast(res.error || '複製読込に失敗しました。');
+          return;
+        }
+
+        const p = res.payload || {};
+        state.originalEstimateId = res.sourceEstimateId || '';
+
+        setVal('projectType', p.projectType || '自社');
+        onProjectTypeChange();
+
+        setVal('customerName', p.customerName || '');
+        setVal('projectName', p.projectName || '');
+        setVal('siteAddress', p.siteAddress || '');
+        setVal('workDate', p.workDate || '');
+        setVal('staff', p.staff || '');
+        setVal('selfRecipientEmail', p.selfRecipientEmail || '');
+        setVal('highwayFee', p.highwayFee || '');
+        setVal('remarks', p.remarks || '');
+
+        state.lines = (p.details || []).map(d => ({
+          kind: d.menuType === 'オプション' ? 'option' : 'main',
+          menuId: d.menuId,
+          qty: d.qty || 1
+        }));
+
+        if (state.lines.length === 0) addLine('main');
+        else renderLines();
+
+        state.busyTouched = true;
+        state.discountTouched = true;
+        document.getElementById('busyManual').checked = !!p.busyManual;
+        document.getElementById('discountManual').checked = !!p.discountManual;
+
+        scheduleCalc();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        showToast('複製用に読み込みました。保存時に新しい見積IDを発行します。');
+      })
+      .withFailureHandler((err) => showToast(err.message || String(err)))
+      .apiLoadEstimateForClone(estimateId);
+  }
+
+  function val(id) { return document.getElementById(id).value; }
+
+  function setVal(id, value) {
+    document.getElementById(id).value = value == null ? '' : value;
+  }
+
+  function formatYen(n) {
+    n = Number(n || 0);
+    return '¥' + Math.round(n).toLocaleString('ja-JP');
+  }
+
+  function showFatal(message) {
+    document.getElementById('loading').classList.add('hidden');
+    const box = document.getElementById('fatalError');
+    box.textContent = message;
+    box.classList.remove('hidden');
+  }
+
+  function showResultError(message) {
+    const result = document.getElementById('createResult');
+    result.innerHTML = `<div class="alert danger">${escapeHtml(message)}</div>`;
+    result.classList.remove('hidden');
+  }
+
+  function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.remove('hidden');
+    setTimeout(() => toast.classList.add('hidden'), 2800);
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+
+  function escapeAttr(s) { return escapeHtml(s); }
+</script>

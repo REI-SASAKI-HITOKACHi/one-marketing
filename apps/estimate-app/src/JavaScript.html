@@ -1,0 +1,921 @@
+<script>
+/**
+ * クライアント側。
+ *
+ * 旧実装は入力のたびに apiCalculateEstimate() をサーバーへ投げていた。
+ * サーバーは毎回マスタを読み直していたため、1文字打つごとに数秒待たされていた。
+ * 現在は初回に受け取ったマスタで CalcEngine をブラウザ内で回すので、
+ * 入力中のサーバー通信はゼロ。保存時だけサーバーが同じ関数で再計算して正とする。
+ */
+(function () {
+  'use strict';
+
+  var state = {
+    menus: [],
+    submitTargets: [],
+    settings: {},
+    calcContext: null,
+    lines: [],
+    adjustments: [],
+    lastCalc: null,
+    lastEstimateId: '',
+    lastRowNumber: 0,
+    originalEstimateId: '',
+    busyTouched: false,
+    discountTouched: false,
+    creating: false
+  };
+
+  var TAX_OPTIONS = [
+    { value: '課税', label: '課税' },
+    { value: '非課税', label: '非課税' }
+  ];
+
+  /* ===================== 起動 ===================== */
+
+  window.addEventListener('load', init);
+
+  function init() {
+    bindStaticEvents();
+
+    google.script.run
+      .withSuccessHandler(onBootstrap)
+      .withFailureHandler(function (err) { showFatal(message(err)); })
+      .apiBootstrap();
+  }
+
+  function onBootstrap(res) {
+    if (!res || !res.ok) {
+      showFatal((res && res.error) || '初期表示に失敗しました。');
+      return;
+    }
+
+    state.menus = res.menus || [];
+    state.submitTargets = res.submitTargets || [];
+    state.settings = res.settings || {};
+    // menuMap はサーバーから送られてこない（menus と重複するため）ので、ここで組み立てる
+    state.calcContext = res.calcContext || {};
+    state.calcContext.menuMap = {};
+    state.menus.forEach(function (m) { state.calcContext.menuMap[m.menuId] = m; });
+
+    setupProjectTypeOptions();
+    setupSearchProjectTypeOptions();
+
+    byId('highwayLink').href = state.settings['高速料金検索URL'] || '#';
+    byId('lineNoticeText').textContent =
+      state.settings['LINE一報文言'] || 'メール送信後、LINEで代表者へ一報を入れてください。';
+
+    if (res.warnings && res.warnings.length) {
+      var box = byId('masterWarnings');
+      box.textContent = 'マスタに要確認の点があります：\n' + res.warnings.join('\n');
+      box.classList.remove('hidden');
+    }
+
+    addLine('main');
+    renderAdjustments();
+    onProjectTypeChange();
+
+    byId('loading').classList.add('hidden');
+    byId('app').classList.remove('hidden');
+
+    recalc();
+  }
+
+  /* ===================== イベント ===================== */
+
+  function bindStaticEvents() {
+    // 入力はすべてクライアント計算なので、そのまま即時反映してよい
+    ['customerName', 'projectName', 'siteAddress', 'staff', 'selfRecipientEmail',
+      'highwayFee', 'remarks', 'targetTotal'].forEach(function (id) {
+      byId(id).addEventListener('input', recalc);
+    });
+
+    byId('projectType').addEventListener('change', function () {
+      onProjectTypeChange();
+      recalc();
+    });
+
+    byId('workDate').addEventListener('change', function () {
+      // 日付が変わると自動判定の前提が変わるので、手動フラグを解除して判定し直す
+      state.busyTouched = false;
+      state.discountTouched = false;
+      recalc();
+    });
+
+    byId('busyManual').addEventListener('change', function () {
+      state.busyTouched = true;
+      recalc();
+    });
+
+    byId('discountManual').addEventListener('change', function () {
+      state.discountTouched = true;
+      recalc();
+    });
+
+    document.addEventListener('click', function (e) {
+      var el = e.target.closest('[data-action]');
+      if (!el) return;
+
+      var action = el.getAttribute('data-action');
+      var index = Number(el.getAttribute('data-index'));
+
+      if (action === 'add-main') addLine('main');
+      else if (action === 'add-option') addLine('option');
+      else if (action === 'remove-line') removeLine(index);
+      else if (action === 'toggle-line-discount') toggleLineDiscount(index);
+      else if (action === 'add-adjustment') addAdjustment('discount');
+      else if (action === 'add-surcharge') addAdjustment('surcharge');
+      else if (action === 'remove-adjustment') removeAdjustment(index);
+      else if (action === 'clear-target') clearTargetTotal();
+      else if (action === 'create') createEstimate();
+      else if (action === 'rep-draft') createRepresentativeDraft();
+      else if (action === 'search') searchEstimates();
+      else if (action === 'clone') loadForClone(el.getAttribute('data-id'));
+    });
+  }
+
+  /* ===================== 案件タイプ ===================== */
+
+  function setupProjectTypeOptions() {
+    var select = byId('projectType');
+    select.innerHTML = '';
+
+    state.submitTargets.forEach(function (t) {
+      select.appendChild(option(t.projectType, t.projectType));
+    });
+
+    if (!Array.prototype.some.call(select.options, function (o) { return o.value === '自社'; })) {
+      select.insertBefore(option('自社', '自社'), select.firstChild);
+    }
+
+    select.value = '自社';
+  }
+
+  function setupSearchProjectTypeOptions() {
+    var select = byId('searchProjectType');
+    select.innerHTML = '';
+    select.appendChild(option('', '指定なし'));
+    state.submitTargets.forEach(function (t) {
+      select.appendChild(option(t.projectType, t.projectType));
+    });
+  }
+
+  function onProjectTypeChange() {
+    var projectType = val('projectType');
+    byId('selfMailBlock').classList.toggle('hidden', projectType !== '自社');
+
+    var target = state.submitTargets.find(function (t) { return t.projectType === projectType; });
+    var info = byId('submitTargetInfo');
+
+    if (!target) {
+      info.textContent = '提出先マスタに該当する案件タイプがありません。';
+      return;
+    }
+
+    var to = target.to || (projectType === '自社' ? '手入力' : '未設定');
+    info.innerHTML = [
+      '提出先：' + esc(target.submitToName || target.projectType || ''),
+      '宛先：' + esc(to) + (!target.to && projectType !== '自社'
+        ? '<span class="warn-inline">（宛先未設定のためGmail下書きは作成できません）</span>' : ''),
+      'CC：' + esc(target.cc || 'なし'),
+      'テンプレート：' + esc(target.templateType || '')
+    ].join('<br>');
+  }
+
+  /* ===================== 明細 ===================== */
+
+  function mainMenus() {
+    return state.menus.filter(function (m) { return m.menuType !== 'オプション'; });
+  }
+
+  function optionMenus() {
+    return state.menus.filter(function (m) { return m.menuType === 'オプション'; });
+  }
+
+  function addLine(kind) {
+    var menus = kind === 'option' ? optionMenus() : mainMenus();
+
+    state.lines.push({
+      kind: kind,
+      menuId: menus[0] ? menus[0].menuId : '',
+      qty: 1,
+      showDiscount: false,
+      lineDiscountMode: 'amount',
+      lineDiscountValue: ''
+    });
+
+    renderLines();
+    recalc();
+  }
+
+  function removeLine(index) {
+    state.lines.splice(index, 1);
+    renderLines();
+    recalc();
+  }
+
+  function toggleLineDiscount(index) {
+    var line = state.lines[index];
+    line.showDiscount = !line.showDiscount;
+    if (!line.showDiscount) line.lineDiscountValue = '';
+    renderLines();
+    recalc();
+  }
+
+  function updateLine(index, field, value) {
+    state.lines[index][field] = value;
+    if (field === 'menuId') renderLines();
+    recalc();
+  }
+
+  function renderLines() {
+    renderLineContainer('mainLines', 'main');
+    renderLineContainer('optionLines', 'option');
+  }
+
+  function renderLineContainer(containerId, kind) {
+    var container = byId(containerId);
+    var menus = kind === 'option' ? optionMenus() : mainMenus();
+
+    var entries = state.lines
+      .map(function (line, idx) { return { line: line, idx: idx }; })
+      .filter(function (x) { return x.line.kind === kind; });
+
+    if (entries.length === 0) {
+      container.innerHTML = '<div class="note">未追加です。</div>';
+      return;
+    }
+
+    container.innerHTML = '';
+
+    entries.forEach(function (entry) {
+      container.appendChild(buildLineCard(entry.line, entry.idx, menus));
+    });
+  }
+
+  function buildLineCard(line, idx, menus) {
+    var card = el('div', 'line-card');
+
+    card.appendChild(el('label', null, 'メニュー'));
+
+    var select = document.createElement('select');
+    select.appendChild(option('', '選択してください'));
+    menus.forEach(function (m) {
+      select.appendChild(option(m.menuId, m.name + ' / ' + fmtYen(m.unitPrice || 0)));
+    });
+    select.value = line.menuId || '';
+    select.addEventListener('change', function () { updateLine(idx, 'menuId', this.value); });
+    card.appendChild(select);
+
+    card.appendChild(el('label', null, '数量'));
+
+    var actions = el('div', 'line-actions');
+
+    var qty = document.createElement('input');
+    qty.className = 'qty-input';
+    qty.type = 'number';
+    qty.min = '0';
+    qty.inputMode = 'decimal';
+    qty.value = line.qty;
+    qty.addEventListener('input', function () { updateLine(idx, 'qty', this.value); });
+    actions.appendChild(qty);
+
+    actions.appendChild(button('secondary small', line.showDiscount ? '値引き取消' : '値引き', {
+      'data-action': 'toggle-line-discount', 'data-index': idx
+    }));
+
+    actions.appendChild(button('delete-btn', '削除', {
+      'data-action': 'remove-line', 'data-index': idx
+    }));
+
+    card.appendChild(actions);
+
+    if (line.showDiscount) {
+      var box = el('div', 'line-discount');
+      box.appendChild(el('label', null, 'この明細の値引き'));
+
+      var row = el('div', 'line-actions');
+
+      var mode = document.createElement('select');
+      mode.className = 'mode-select';
+      mode.appendChild(option('amount', '円'));
+      mode.appendChild(option('rate', '%'));
+      mode.value = line.lineDiscountMode;
+      mode.addEventListener('change', function () { updateLine(idx, 'lineDiscountMode', this.value); });
+      row.appendChild(mode);
+
+      var value = document.createElement('input');
+      value.type = 'number';
+      value.min = '0';
+      value.inputMode = 'decimal';
+      value.placeholder = '0';
+      value.value = line.lineDiscountValue;
+      value.addEventListener('input', function () { updateLine(idx, 'lineDiscountValue', this.value); });
+      row.appendChild(value);
+
+      box.appendChild(row);
+      card.appendChild(box);
+    }
+
+    return card;
+  }
+
+  /* ===================== 変則割引・調整 ===================== */
+
+  function addAdjustment(kind) {
+    state.adjustments.push({
+      name: kind === 'surcharge' ? '' : '',
+      kind: kind,
+      mode: 'amount',
+      value: '',
+      base: 'taxable',
+      taxType: '課税'
+    });
+
+    renderAdjustments();
+    recalc();
+  }
+
+  function removeAdjustment(index) {
+    state.adjustments.splice(index, 1);
+    renderAdjustments();
+    recalc();
+  }
+
+  function updateAdjustment(index, field, value) {
+    state.adjustments[index][field] = value;
+    if (field === 'mode') renderAdjustments();
+    recalc();
+  }
+
+  function renderAdjustments() {
+    var container = byId('adjustmentLines');
+
+    if (state.adjustments.length === 0) {
+      container.innerHTML = '<div class="note">変則的な値引き・割増があるときだけ追加してください。</div>';
+      return;
+    }
+
+    container.innerHTML = '';
+
+    state.adjustments.forEach(function (adj, idx) {
+      var card = el('div', 'line-card');
+
+      card.appendChild(el('label', null, '名称（見積書に印字されます）'));
+
+      var name = document.createElement('input');
+      name.type = 'text';
+      name.placeholder = adj.kind === 'surcharge' ? '例：高所作業費' : '例：初回サービス割引';
+      name.value = adj.name;
+      name.addEventListener('input', function () { updateAdjustment(idx, 'name', this.value); });
+      card.appendChild(name);
+
+      card.appendChild(el('label', null, adj.kind === 'surcharge' ? '割増額' : '値引き額'));
+
+      var row = el('div', 'line-actions');
+
+      var mode = document.createElement('select');
+      mode.className = 'mode-select';
+      mode.appendChild(option('amount', '円'));
+      mode.appendChild(option('rate', '%'));
+      mode.value = adj.mode;
+      mode.addEventListener('change', function () { updateAdjustment(idx, 'mode', this.value); });
+      row.appendChild(mode);
+
+      var value = document.createElement('input');
+      value.type = 'number';
+      value.min = '0';
+      value.inputMode = 'decimal';
+      value.placeholder = '0';
+      value.value = adj.value;
+      value.addEventListener('input', function () { updateAdjustment(idx, 'value', this.value); });
+      row.appendChild(value);
+
+      row.appendChild(button('delete-btn', '削除', {
+        'data-action': 'remove-adjustment', 'data-index': idx
+      }));
+
+      card.appendChild(row);
+
+      if (adj.mode === 'rate') {
+        card.appendChild(el('label', null, '率の対象'));
+        var base = document.createElement('select');
+        base.appendChild(option('taxable', '課税対象計（繁忙期加算を含む）'));
+        base.appendChild(option('lineSubtotal', '明細小計'));
+        base.value = adj.base;
+        base.addEventListener('change', function () { updateAdjustment(idx, 'base', this.value); });
+        card.appendChild(base);
+      }
+
+      card.appendChild(el('label', null, '税区分'));
+      var tax = document.createElement('select');
+      TAX_OPTIONS.forEach(function (t) { tax.appendChild(option(t.value, t.label)); });
+      tax.value = adj.taxType;
+      tax.addEventListener('change', function () { updateAdjustment(idx, 'taxType', this.value); });
+      card.appendChild(tax);
+
+      card.appendChild(el('div', 'note',
+        adj.taxType === '課税'
+          ? '課税対象から差し引きます。消費税も連動して変わります。'
+          : '税込での調整です。消費税額は変わりません。'));
+
+      container.appendChild(card);
+    });
+  }
+
+  function clearTargetTotal() {
+    byId('targetTotal').value = '';
+    recalc();
+  }
+
+  /* ===================== 計算（クライアント内で完結） ===================== */
+
+  function buildPayload() {
+    return {
+      original_estimate_id: state.originalEstimateId || '',
+      projectType: val('projectType'),
+      customerName: val('customerName'),
+      projectName: val('projectName'),
+      siteAddress: val('siteAddress'),
+      workDate: val('workDate'),
+      staff: val('staff'),
+      selfRecipientEmail: val('selfRecipientEmail'),
+      highwayFee: val('highwayFee'),
+      remarks: val('remarks'),
+      targetTotal: val('targetTotal'),
+      busyManual: state.busyTouched ? byId('busyManual').checked : null,
+      discountManual: state.discountTouched ? byId('discountManual').checked : null,
+      details: state.lines
+        .filter(function (l) { return l.menuId; })
+        .map(function (l) {
+          return {
+            menuId: l.menuId,
+            qty: l.qty,
+            lineDiscountMode: l.lineDiscountMode,
+            lineDiscountValue: l.showDiscount ? l.lineDiscountValue : 0
+          };
+        }),
+      adjustments: state.adjustments
+        .filter(function (a) { return Number(a.value) > 0; })
+        .map(function (a) {
+          return {
+            name: a.name, kind: a.kind, mode: a.mode,
+            value: a.value, base: a.base, taxType: a.taxType
+          };
+        })
+    };
+  }
+
+  function recalc() {
+    if (!state.calcContext) return;
+
+    var calc;
+    try {
+      calc = CalcEngine.calculate(buildPayload(), state.calcContext);
+    } catch (e) {
+      showToast('計算エラー：' + message(e));
+      return;
+    }
+
+    state.lastCalc = calc;
+    renderCalc(calc);
+  }
+
+  function renderCalc(calc) {
+    if (!state.busyTouched) byId('busyManual').checked = !!calc.busyManual;
+    if (!state.discountTouched) byId('discountManual').checked = !!calc.autoDiscountOn;
+
+    byId('busyHint').textContent = calc.busyAuto
+      ? '自動判定：' + calc.month + '月は繁忙期です。'
+      : '自動判定：' + calc.month + '月は繁忙期ではありません。';
+
+    byId('autoDiscountHint').innerHTML = buildAutoDiscountHint(calc);
+    byId('targetTotalHint').textContent = buildTargetHint(calc);
+
+    var s = calc.summaryDisplay;
+    var rows = [
+      ['明細小計', s.lineGrossSubtotal]
+    ];
+
+    if (calc.lineDiscountTotal > 0) rows.push(['明細値引き', '-' + s.lineDiscountTotal]);
+    if (calc.busyAmount > 0) rows.push(['繁忙期加算', s.busyAmount]);
+    if (calc.autoDiscountApplied > 0) rows.push([calc.autoDiscountType || '自動割引', '-' + s.autoDiscountApplied]);
+
+    calc.appliedAdjustments.forEach(function (a) {
+      rows.push([a.name, (a.kind === 'surcharge' ? '' : '-') + fmtYen(a.amount)]);
+    });
+
+    if (calc.highwayFee > 0) rows.push(['高速代（非課税）', s.highwayFee]);
+
+    rows.push(['課税小計', s.taxableSubtotal]);
+    rows.push(['非課税小計', s.nonTaxableSubtotal]);
+    rows.push(['消費税', s.tax]);
+
+    var html = rows.map(function (r) {
+      return '<div class="summary-row"><span>' + esc(r[0]) + '</span><strong>' + esc(r[1]) + '</strong></div>';
+    }).join('');
+
+    html += '<div class="summary-row total"><span>合計</span><strong>' + esc(s.grandTotal) + '</strong></div>';
+
+    if (calc.adjustmentsCollapsed) {
+      html += '<div class="note">PDFの明細が16行を超えるため、調整行を「各種割引・調整」1行にまとめて出力します。</div>';
+    }
+
+    byId('calcSummary').innerHTML = html;
+    renderExceptions(calc);
+  }
+
+  function buildAutoDiscountHint(calc) {
+    if (!calc.autoDiscountAvailable) {
+      return '自動判定：' + calc.month + '月・現在の台数では該当する自動割引はありません。';
+    }
+
+    var head = '該当ルール：' + esc(calc.autoDiscountType) + ' ' + esc(calc.summaryDisplay.autoDiscountCandidate)
+      + '<br><span class="mini">' + esc(calc.autoDiscountDetail) + '</span>';
+
+    if (!calc.autoDiscountEnabledBySetting) {
+      head += '<br><span class="warn-inline">設定マスタで自動割引はOFFです。適用する場合は上のチェックを手動で入れてください。</span>';
+    }
+
+    return head;
+  }
+
+  function buildTargetHint(calc) {
+    if (!calc.targetTotal) return '空欄なら調整しません。金額を入れると、差額を「端数調整」として自動で足し引きします。';
+
+    var auto = calc.appliedAdjustments.filter(function (a) { return a.auto; })[0];
+    if (!auto) return '指定額と現在の合計が一致しているため、調整は入っていません。';
+
+    return '端数調整 ' + (auto.kind === 'surcharge' ? '+' : '-') + fmtYen(auto.amount)
+      + ' を入れて、合計を ' + fmtYen(calc.targetTotal) + ' にしています。';
+  }
+
+  function renderExceptions(calc) {
+    var section = byId('exceptionSection');
+    var reviewBox = byId('reviewList');
+    var alertBox = byId('alertList');
+
+    var reviews = calc.exceptions.filter(function (e) { return e.level === 'review'; });
+    var alerts = calc.exceptions.filter(function (e) { return e.level === 'alert'; });
+
+    section.classList.toggle('hidden', calc.exceptions.length === 0);
+
+    reviewBox.classList.toggle('hidden', reviews.length === 0);
+    reviewBox.textContent = reviews.length
+      ? '【代表者確認の対象】\n' + reviews.map(function (e) { return '・' + e.text; }).join('\n')
+      : '';
+
+    alertBox.classList.toggle('hidden', alerts.length === 0);
+    alertBox.textContent = alerts.length
+      ? '【内容確認】\n' + alerts.map(function (e) { return '・' + e.text; }).join('\n')
+      : '';
+  }
+
+  /* ===================== 見積作成（2フェーズ） ===================== */
+
+  function createEstimate() {
+    if (state.creating) return;
+
+    var problems = validateBeforeCreate();
+    if (problems.length) {
+      showResultError(problems.join('\n'));
+      return;
+    }
+
+    state.creating = true;
+
+    var btn = byId('createBtn');
+    btn.disabled = true;
+    btn.textContent = '保存中...';
+
+    byId('createResult').classList.add('hidden');
+    byId('repDraftBlock').classList.add('hidden');
+    setProgress('見積データを保存しています…');
+
+    google.script.run
+      .withSuccessHandler(onSaved)
+      .withFailureHandler(function (err) { finishCreate(); showResultError(message(err)); })
+      .apiSaveEstimate(buildPayload());
+  }
+
+  /** 保存を止めるのは、見積として成立しないものだけ。宛先未設定などは警告どまりにする。 */
+  function validateBeforeCreate() {
+    var problems = [];
+
+    if (!state.lines.some(function (l) { return l.menuId; })) problems.push('メニューが1件も選択されていません。');
+    if (!val('customerName').trim()) problems.push('顧客名を入力してください。');
+
+    if (problems.length === 0 && val('projectType') === '自社' && !val('selfRecipientEmail').trim()) {
+      showToast('宛先メール未入力です。PDFは作成しますが、Gmail下書きは作成されません。');
+    }
+
+    return problems;
+  }
+
+  function onSaved(res) {
+    if (!res || !res.ok) {
+      finishCreate();
+      showResultError((res && res.error) || '保存に失敗しました。');
+      return;
+    }
+
+    state.lastEstimateId = res.estimateId;
+    state.lastRowNumber = res.rowNumber;
+
+    // サーバー側の再計算結果が正。クライアント表示とずれていたら差し替える。
+    if (res.calc) {
+      var clientTotal = state.lastCalc ? state.lastCalc.grandTotal : null;
+      state.lastCalc = res.calc;
+      renderCalc(res.calc);
+
+      if (clientTotal !== null && clientTotal !== res.calc.grandTotal) {
+        showToast('サーバー計算に合わせて合計を更新しました。');
+      }
+    }
+
+    byId('createBtn').textContent = 'PDF作成中...';
+    setProgress('見積ID ' + res.estimateId + ' を保存しました。PDFとGmail下書きを作成しています…');
+
+    google.script.run
+      .withSuccessHandler(function (built) { onBuilt(res, built); })
+      .withFailureHandler(function (err) {
+        finishCreate();
+        renderCreateResult(res, { ok: false, errors: ['帳票生成失敗：' + message(err)] });
+      })
+      .apiBuildDocuments(res.estimateId, res.rowNumber);
+  }
+
+  function onBuilt(saved, built) {
+    finishCreate();
+
+    if (!built || !built.ok) {
+      renderCreateResult(saved, { errors: [(built && built.error) || '帳票生成に失敗しました。'] });
+      return;
+    }
+
+    renderCreateResult(saved, built);
+    showToast('見積作成が完了しました。');
+  }
+
+  function finishCreate() {
+    state.creating = false;
+    var btn = byId('createBtn');
+    btn.disabled = false;
+    btn.textContent = '見積作成・PDF保存・Gmail下書き作成';
+    byId('createProgress').classList.add('hidden');
+  }
+
+  function renderCreateResult(saved, built) {
+    var parts = ['<strong>見積ID：</strong>' + esc(saved.estimateId) + '<br>'];
+
+    if (built.pdfUrl) {
+      parts.push('<strong>PDF：</strong><a href="' + esc(built.pdfUrl) + '" target="_blank" rel="noopener">PDFを開く</a><br>');
+    }
+
+    if (built.draftUrl) {
+      parts.push('<strong>Gmail下書き：</strong><a href="' + esc(built.draftUrl) + '" target="_blank" rel="noopener">下書き一覧を開く</a><br>');
+    }
+
+    if (built.errors && built.errors.length) {
+      parts.push('<div class="alert warning">' + esc(built.errors.join('\n')) + '</div>');
+    }
+
+    if (built.mailPreview) {
+      parts.push('<div class="note strong">メール下書き作成に失敗しました。以下をコピーして手動で作成してください。</div>'
+        + '<pre class="copy-box">To: ' + esc(built.mailPreview.to || '')
+        + '\nCC: ' + esc(built.mailPreview.cc || '')
+        + '\n件名: ' + esc(built.mailPreview.subject || '')
+        + '\n\n' + esc(built.mailPreview.body || '') + '</pre>');
+    }
+
+    var box = byId('createResult');
+    box.innerHTML = parts.join('');
+    box.classList.remove('hidden');
+
+    // 代表者確認は review レベルの例外があるときだけ。手動値引きだけでは出さない。
+    byId('repDraftBlock').classList.toggle('hidden', saved.reviewFlag !== true);
+  }
+
+  function setProgress(text) {
+    var box = byId('createProgress');
+    box.textContent = text;
+    box.classList.remove('hidden');
+  }
+
+  function createRepresentativeDraft() {
+    if (!state.lastEstimateId) {
+      showToast('先に見積を作成してください。');
+      return;
+    }
+
+    google.script.run
+      .withSuccessHandler(function (res) {
+        if (!res || !res.ok) {
+          showToast((res && res.error) || '代表者確認メール作成に失敗しました。');
+          return;
+        }
+
+        showToast('代表者確認メール下書きを作成しました。');
+        byId('createResult').innerHTML +=
+          '<br><strong>代表者確認メール：</strong><a href="' + esc(res.draftUrl)
+          + '" target="_blank" rel="noopener">Gmail下書き一覧を開く</a>';
+      })
+      .withFailureHandler(function (err) { showToast(message(err)); })
+      .apiCreateRepresentativeDraft(state.lastEstimateId);
+  }
+
+  /* ===================== 検索・複製 ===================== */
+
+  function searchEstimates() {
+    var box = byId('searchResults');
+    box.innerHTML = '<div class="note">検索中...</div>';
+
+    google.script.run
+      .withSuccessHandler(function (res) {
+        if (!res || !res.ok) {
+          box.innerHTML = '';
+          showToast((res && res.error) || '検索に失敗しました。');
+          return;
+        }
+        renderSearchResults(res.results || []);
+      })
+      .withFailureHandler(function (err) {
+        box.innerHTML = '';
+        showToast(message(err));
+      })
+      .apiSearchEstimates({
+        estimateId: val('searchEstimateId'),
+        customerName: val('searchCustomerName'),
+        projectName: val('searchProjectName'),
+        createdDate: val('searchCreatedDate'),
+        projectType: val('searchProjectType')
+      });
+  }
+
+  function renderSearchResults(results) {
+    var box = byId('searchResults');
+
+    if (!results.length) {
+      box.innerHTML = '<div class="note">該当する見積はありません。</div>';
+      return;
+    }
+
+    box.innerHTML = results.map(function (r) {
+      return '<div class="search-card">'
+        + '<div class="search-title">' + esc(r.estimate_id) + ' / ' + esc(r.customer_name) + '</div>'
+        + '<div class="search-meta">'
+        + '作成日：' + esc(r.created_at) + '<br>'
+        + '案件名：' + esc(r.project_name) + '<br>'
+        + '案件タイプ：' + esc(r.project_type) + '<br>'
+        + '合計：' + esc(r.total_amount_display)
+        + (r.invoice_id ? '<br>請求書：' + esc(r.invoice_id) : '')
+        + '</div>'
+        + (r.pdf_url ? '<a class="link-button" href="' + esc(r.pdf_url) + '" target="_blank" rel="noopener">PDF</a>' : '')
+        + '<button type="button" class="secondary" data-action="clone" data-id="' + esc(r.estimate_id) + '">この見積を複製して編集</button>'
+        + '</div>';
+    }).join('');
+  }
+
+  function loadForClone(estimateId) {
+    google.script.run
+      .withSuccessHandler(function (res) {
+        if (!res || !res.ok) {
+          showToast((res && res.error) || '複製読込に失敗しました。');
+          return;
+        }
+
+        applyClonePayload(res);
+        showToast('複製用に読み込みました。保存時に新しい見積IDを発行します。');
+      })
+      .withFailureHandler(function (err) { showToast(message(err)); })
+      .apiLoadEstimateForClone(estimateId);
+  }
+
+  function applyClonePayload(res) {
+    var p = res.payload || {};
+    state.originalEstimateId = res.sourceEstimateId || '';
+
+    setVal('projectType', p.projectType || '自社');
+    onProjectTypeChange();
+
+    ['customerName', 'projectName', 'siteAddress', 'workDate', 'staff',
+      'selfRecipientEmail', 'highwayFee', 'remarks'].forEach(function (id) {
+      setVal(id, p[id]);
+    });
+
+    setVal('targetTotal', '');
+
+    state.lines = (p.details || []).map(function (d) {
+      var discount = Number(d.lineDiscountValue) || 0;
+      return {
+        kind: d.menuType === 'オプション' ? 'option' : 'main',
+        menuId: d.menuId,
+        qty: d.qty || 1,
+        showDiscount: discount > 0,
+        lineDiscountMode: 'amount',
+        lineDiscountValue: discount > 0 ? discount : ''
+      };
+    });
+
+    if (state.lines.length === 0) state.lines.push({
+      kind: 'main', menuId: '', qty: 1, showDiscount: false, lineDiscountMode: 'amount', lineDiscountValue: ''
+    });
+
+    // 端数調整（auto）は複製時に持ち込まない。台数や単価が変われば意味を失うため。
+    state.adjustments = (p.adjustments || [])
+      .filter(function (a) { return a && !a.auto; })
+      .map(function (a) {
+        return {
+          name: a.name || '',
+          kind: a.kind === 'surcharge' ? 'surcharge' : 'discount',
+          mode: a.mode === 'rate' ? 'rate' : 'amount',
+          value: a.value,
+          base: a.base === 'lineSubtotal' ? 'lineSubtotal' : 'taxable',
+          taxType: a.taxType === '非課税' ? '非課税' : '課税'
+        };
+      });
+
+    renderLines();
+    renderAdjustments();
+
+    state.busyTouched = true;
+    state.discountTouched = true;
+    byId('busyManual').checked = !!p.busyManual;
+    byId('discountManual').checked = !!p.discountManual;
+
+    recalc();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ===================== DOMヘルパー ===================== */
+
+  function byId(id) { return document.getElementById(id); }
+  function val(id) { return byId(id).value; }
+
+  function setVal(id, value) {
+    byId(id).value = value === null || value === undefined ? '' : value;
+  }
+
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  function option(value, label) {
+    var o = document.createElement('option');
+    o.value = value;
+    o.textContent = label;
+    return o;
+  }
+
+  function button(className, label, attrs) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = className;
+    b.textContent = label;
+    Object.keys(attrs || {}).forEach(function (k) { b.setAttribute(k, attrs[k]); });
+    return b;
+  }
+
+  function fmtYen(n) { return CalcEngine.fmtYen(n); }
+
+  function message(err) {
+    if (!err) return '不明なエラー';
+    return err.message || String(err);
+  }
+
+  function esc(s) {
+    return String(s === null || s === undefined ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function showFatal(msg) {
+    byId('loading').classList.add('hidden');
+    var box = byId('fatalError');
+    box.textContent = msg;
+    box.classList.remove('hidden');
+  }
+
+  function showResultError(msg) {
+    var box = byId('createResult');
+    box.innerHTML = '<div class="alert danger">' + esc(msg) + '</div>';
+    box.classList.remove('hidden');
+  }
+
+  var toastTimer = null;
+
+  function showToast(msg) {
+    var toast = byId('toast');
+    toast.textContent = msg;
+    toast.classList.remove('hidden');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.classList.add('hidden'); }, 3200);
+  }
+})();
+</script>

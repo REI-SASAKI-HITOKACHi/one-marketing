@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <?!= include('style'); ?>
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <div class="app-title">見積作成</div>
+      <div class="app-subtitle">現調用 / PDF保存 / Gmail下書き作成</div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="loading" class="loading">読み込み中...</div>
+
+    <div id="fatalError" class="alert danger hidden"></div>
+
+    <div id="app" class="hidden">
+      <div id="masterWarnings" class="alert warning hidden"></div>
+
+      <section class="card">
+        <h2>1. 案件情報</h2>
+
+        <label for="projectType">案件タイプ</label>
+        <select id="projectType"></select>
+
+        <label for="customerName">顧客名</label>
+        <input id="customerName" type="text" placeholder="例：山田 太郎">
+
+        <label for="projectName">案件名</label>
+        <input id="projectName" type="text" placeholder="例：エアコンクリーニング">
+
+        <label for="siteAddress">現場住所</label>
+        <textarea id="siteAddress" rows="2" placeholder="現場住所"></textarea>
+
+        <label for="workDate">作業予定日</label>
+        <input id="workDate" type="date">
+
+        <label for="staff">担当者</label>
+        <input id="staff" type="text" placeholder="例：和真">
+
+        <div id="selfMailBlock" class="hidden">
+          <label for="selfRecipientEmail">宛先メールアドレス（自社案件のみ）</label>
+          <input id="selfRecipientEmail" type="email" placeholder="customer@example.com">
+        </div>
+
+        <div id="submitTargetInfo" class="mini-info"></div>
+      </section>
+
+      <section class="card">
+        <h2>2. メインメニュー</h2>
+        <div id="mainLines"></div>
+        <button type="button" class="secondary" data-action="add-main">＋ メインメニュー追加</button>
+      </section>
+
+      <section class="card">
+        <h2>3. オプション</h2>
+        <div id="optionLines"></div>
+        <button type="button" class="secondary" data-action="add-option">＋ オプション追加</button>
+      </section>
+
+      <section class="card">
+        <h2>4. 高速代・備考</h2>
+
+        <label for="highwayFee">高速代（非課税）</label>
+        <input id="highwayFee" type="number" min="0" inputmode="numeric" placeholder="0">
+
+        <a id="highwayLink" class="link-button" href="#" target="_blank" rel="noopener">高速料金検索サイトを開く</a>
+
+        <label for="remarks">備考</label>
+        <textarea id="remarks" rows="4" placeholder="必要事項があれば入力。要確認事項がある場合は「要確認」と記載。"></textarea>
+
+        <div class="note">
+          駐車場代はこのアプリでは入力しません。見積書備考に定型注記のみ反映します。
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>5. 割引・調整</h2>
+
+        <label class="check-row">
+          <input id="busyManual" type="checkbox">
+          <span>繁忙期加算を適用</span>
+        </label>
+        <div id="busyHint" class="mini-info"></div>
+
+        <label class="check-row">
+          <input id="discountManual" type="checkbox">
+          <span>自動割引ルールを適用</span>
+        </label>
+        <div id="autoDiscountHint" class="mini-info"></div>
+
+        <hr class="divider">
+
+        <div class="sub-head">変則割引・調整</div>
+        <div class="note">
+          名称はそのまま見積書PDFに印字されます（例：初回サービス割引）。
+        </div>
+
+        <div id="adjustmentLines"></div>
+
+        <div class="button-row">
+          <button type="button" class="secondary" data-action="add-adjustment">＋ 値引きを追加</button>
+          <button type="button" class="secondary" data-action="add-surcharge">＋ 割増を追加</button>
+        </div>
+
+        <hr class="divider">
+
+        <div class="sub-head">合計を指定額に合わせる</div>
+        <label for="targetTotal">税込合計をこの金額にする</label>
+        <div class="line-actions">
+          <input id="targetTotal" type="number" min="0" inputmode="numeric" placeholder="例：50000">
+          <button type="button" class="secondary" data-action="clear-target">解除</button>
+        </div>
+        <div id="targetTotalHint" class="mini-info"></div>
+      </section>
+
+      <section class="card sticky-summary">
+        <h2>6. 金額確認</h2>
+        <div id="calcSummary" class="summary-grid"></div>
+      </section>
+
+      <section id="exceptionSection" class="card hidden">
+        <h2>7. 確認事項</h2>
+        <div id="reviewList" class="alert warning hidden"></div>
+        <div id="alertList" class="alert info hidden"></div>
+      </section>
+
+      <section class="card">
+        <h2>8. PDF生成・下書き作成</h2>
+
+        <button id="createBtn" type="button" class="primary" data-action="create">
+          見積作成・PDF保存・Gmail下書き作成
+        </button>
+
+        <div id="createProgress" class="progress hidden"></div>
+        <div id="createResult" class="result hidden"></div>
+
+        <div id="repDraftBlock" class="hidden">
+          <button type="button" class="danger-btn" data-action="rep-draft">
+            代表者確認メール下書き作成
+          </button>
+          <div id="lineNoticeText" class="note strong">
+            メール送信後、LINEで代表者へ一報を入れてください。
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>9. 過去見積検索</h2>
+
+        <label for="searchEstimateId">見積ID</label>
+        <input id="searchEstimateId" type="text" placeholder="EST-">
+
+        <label for="searchCustomerName">顧客名</label>
+        <input id="searchCustomerName" type="text">
+
+        <label for="searchProjectName">案件名</label>
+        <input id="searchProjectName" type="text">
+
+        <label for="searchCreatedDate">作成日</label>
+        <input id="searchCreatedDate" type="date">
+
+        <label for="searchProjectType">案件タイプ</label>
+        <select id="searchProjectType"></select>
+
+        <button type="button" class="secondary full" data-action="search">検索</button>
+
+        <div id="searchResults"></div>
+      </section>
+    </div>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <?!= include('Calc'); ?>
+  <?!= include('JavaScript'); ?>
+</body>
+</html>

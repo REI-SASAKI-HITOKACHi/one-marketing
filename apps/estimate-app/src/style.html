@@ -1,0 +1,273 @@
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+    --primary: #111827;
+    --primary-text: #ffffff;
+    --secondary: #f3f4f6;
+    --danger: #b91c1c;
+    --warning-bg: #fff7ed;
+    --warning-line: #fed7aa;
+    --danger-bg: #fef2f2;
+    --danger-line: #fecaca;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+    font-size: 16px;
+  }
+
+  .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #ffffff;
+    border-bottom: 1px solid var(--line);
+    padding: 14px 16px;
+  }
+
+  .app-title { font-size: 20px; font-weight: 800; }
+  .app-subtitle { color: var(--muted); font-size: 13px; margin-top: 2px; }
+
+  .container { padding: 14px; max-width: 720px; margin: 0 auto; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  .sticky-summary { border: 2px solid #111827; }
+  h2 { margin: 0 0 14px; font-size: 18px; }
+  label { display: block; font-weight: 700; margin: 14px 0 6px; }
+
+  input, select, textarea {
+    width: 100%;
+    font-size: 17px;
+    padding: 13px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    background: #fff;
+  }
+
+  textarea { resize: vertical; }
+
+  button, .link-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: none;
+    font-size: 16px;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    margin-top: 12px;
+  }
+
+  button:disabled { opacity: 0.55; cursor: not-allowed; }
+  .primary { width: 100%; background: var(--primary); color: var(--primary-text); }
+  .secondary, .link-button { background: var(--secondary); color: var(--text); }
+  .danger-btn { width: 100%; background: var(--danger); color: #fff; }
+  .full { width: 100%; }
+
+  .line-card {
+    background: #fafafa;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+
+  .line-actions { display: flex; gap: 8px; align-items: center; }
+  .qty-input { max-width: 120px; }
+  .delete-btn { background: #fee2e2; color: #991b1b; min-width: 86px; }
+
+  .summary-grid { display: grid; gap: 8px; }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px dashed var(--line);
+    padding: 8px 0;
+    gap: 10px;
+  }
+
+  .summary-row.total {
+    font-size: 22px;
+    font-weight: 900;
+    border-bottom: none;
+    padding-top: 12px;
+  }
+
+  .alert {
+    border-radius: 12px;
+    padding: 12px;
+    white-space: pre-wrap;
+    line-height: 1.55;
+  }
+
+  .warning { background: var(--warning-bg); border: 1px solid var(--warning-line); }
+
+  .danger {
+    background: var(--danger-bg);
+    border: 1px solid var(--danger-line);
+    color: #7f1d1d;
+  }
+
+  .note {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+    margin-top: 10px;
+  }
+
+  .note.strong { color: #991b1b; font-weight: 800; }
+
+  .mini-info {
+    margin-top: 12px;
+    padding: 10px;
+    background: #f9fafb;
+    border-radius: 12px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .check-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-weight: 800;
+  }
+
+  .check-row input { width: 24px; height: 24px; }
+
+  .result {
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 12px;
+    background: #ecfdf5;
+    border: 1px solid #bbf7d0;
+    line-height: 1.6;
+    word-break: break-all;
+  }
+
+  .search-card {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 10px;
+    background: #fff;
+  }
+
+  .search-title { font-weight: 900; margin-bottom: 4px; }
+
+  .search-meta {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .toast {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    background: #111827;
+    color: #fff;
+    padding: 12px 14px;
+    border-radius: 12px;
+    z-index: 100;
+    text-align: center;
+    font-weight: 800;
+  }
+
+  .loading { padding: 24px; text-align: center; color: var(--muted); }
+  .hidden { display: none !important; }
+  a { color: #1d4ed8; }
+
+  pre.copy-box {
+    white-space: pre-wrap;
+    background: #f3f4f6;
+    padding: 12px;
+    border-radius: 12px;
+    overflow-x: auto;
+  }
+
+  /* ---- 2026-09 追加：変則割引・調整まわり ---- */
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: 20px 0 4px;
+  }
+
+  .sub-head {
+    font-size: 15px;
+    font-weight: 900;
+    margin-top: 14px;
+  }
+
+  .button-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .button-row button { flex: 1 1 auto; min-width: 150px; }
+
+  .line-discount {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+  }
+
+  .mode-select { max-width: 92px; }
+
+  button.small {
+    min-height: 40px;
+    padding: 8px 12px;
+    font-size: 14px;
+    min-width: 92px;
+  }
+
+  /* 確認事項は「代表者確認が要るもの」と「内容確認だけのもの」を色で分ける */
+  .info {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e3a8a;
+  }
+
+  .warn-inline {
+    color: #b45309;
+    font-weight: 700;
+  }
+
+  .mini { font-size: 12px; }
+
+  .progress {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    background: #f3f4f6;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  #masterWarnings { margin-bottom: 14px; }
+</style>

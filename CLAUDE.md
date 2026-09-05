@@ -19,6 +19,7 @@
 | `docs/site-audit.md` | 公式サイトとパンフレットの差分監査 |
 | `docs/tracking-setup.md` | ユニークコール（電話CV計測）の導入手順 |
 | `docs/sns-operation-memo.md` | SNS運用（着手前のメモ） |
+| `apps/estimate-app/` | 見積作成Webアプリ（GAS）。改修版のソースと移行手順 |
 
 ## 前提
 

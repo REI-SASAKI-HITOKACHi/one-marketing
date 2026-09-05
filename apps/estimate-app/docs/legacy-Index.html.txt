@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <?!= include('style'); ?>
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <div class="app-title">見積作成</div>
+      <div class="app-subtitle">現調用 / PDF保存 / Gmail下書き作成</div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="loading" class="loading">読み込み中...</div>
+
+    <div id="fatalError" class="alert danger hidden"></div>
+
+    <div id="app" class="hidden">
+      <section class="card">
+        <h2>1. 案件情報</h2>
+
+        <label>案件タイプ</label>
+        <select id="projectType" onchange="onProjectTypeChange(); scheduleCalc();"></select>
+
+        <label>顧客名</label>
+        <input id="customerName" type="text" placeholder="例：山田 太郎" oninput="scheduleCalc();">
+
+        <label>案件名</label>
+        <input id="projectName" type="text" placeholder="例：エアコンクリーニング" oninput="scheduleCalc();">
+
+        <label>現場住所</label>
+        <textarea id="siteAddress" rows="2" placeholder="現場住所" oninput="scheduleCalc();"></textarea>
+
+        <label>作業予定日</label>
+        <input id="workDate" type="date" onchange="resetManualFlags(); scheduleCalc();">
+
+        <label>担当者</label>
+        <input id="staff" type="text" placeholder="例：和真" oninput="scheduleCalc();">
+
+        <div id="selfMailBlock" class="hidden">
+          <label>宛先メールアドレス（自社案件のみ）</label>
+          <input id="selfRecipientEmail" type="email" placeholder="customer@example.com" oninput="scheduleCalc();">
+        </div>
+
+        <div id="submitTargetInfo" class="mini-info"></div>
+      </section>
+
+      <section class="card">
+        <h2>2. メインメニュー</h2>
+        <div id="mainLines"></div>
+        <button type="button" class="secondary" onclick="addLine('main')">＋ メインメニュー追加</button>
+      </section>
+
+      <section class="card">
+        <h2>3. オプション</h2>
+        <div id="optionLines"></div>
+        <button type="button" class="secondary" onclick="addLine('option')">＋ オプション追加</button>
+      </section>
+
+      <section class="card">
+        <h2>4. 高速代・備考</h2>
+
+        <label>高速代（非課税）</label>
+        <input id="highwayFee" type="number" min="0" inputmode="numeric" placeholder="0" oninput="scheduleCalc();">
+
+        <a id="highwayLink" class="link-button" href="#" target="_blank">高速料金検索サイトを開く</a>
+
+        <label>備考</label>
+        <textarea id="remarks" rows="4" placeholder="必要事項があれば入力。要確認事項がある場合は「要確認」と記載。" oninput="scheduleCalc();"></textarea>
+
+        <div class="note">
+          駐車場代はこのアプリでは入力しません。見積書備考に定型注記のみ反映します。
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>5. 割引・繁忙期チェック</h2>
+
+        <label class="check-row">
+          <input id="busyManual" type="checkbox" onchange="state.busyTouched=true; scheduleCalc();">
+          <span>繁忙期加算を適用</span>
+        </label>
+
+        <label class="check-row">
+          <input id="discountManual" type="checkbox" onchange="state.discountTouched=true; scheduleCalc();">
+          <span>割引を適用</span>
+        </label>
+
+        <div class="note">
+          自動判定は初期値です。現場判断でON/OFFできます。変更した場合は例外アラートに表示されます。
+        </div>
+      </section>
+
+      <section class="card sticky-summary">
+        <h2>6. 金額確認</h2>
+        <div id="calcSummary" class="summary-grid"></div>
+      </section>
+
+      <section id="exceptionSection" class="card hidden">
+        <h2>7. 例外アラート</h2>
+        <div id="exceptionList" class="alert warning"></div>
+      </section>
+
+      <section class="card">
+        <h2>8. PDF生成・下書き作成</h2>
+
+        <button id="createBtn" type="button" class="primary" onclick="createEstimate()">
+          見積作成・PDF保存・Gmail下書き作成
+        </button>
+
+        <div id="createResult" class="result hidden"></div>
+
+        <div id="repDraftBlock" class="hidden">
+          <button type="button" class="danger-btn" onclick="createRepresentativeDraft()">
+            代表者確認メール下書き作成
+          </button>
+          <div id="lineNoticeText" class="note strong">
+            メール送信後、LINEで代表者へ一報を入れてください。
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>9. 過去見積検索</h2>
+
+        <label>見積ID</label>
+        <input id="searchEstimateId" type="text" placeholder="EST-">
+
+        <label>顧客名</label>
+        <input id="searchCustomerName" type="text">
+
+        <label>案件名</label>
+        <input id="searchProjectName" type="text">
+
+        <label>作成日</label>
+        <input id="searchCreatedDate" type="date">
+
+        <label>案件タイプ</label>
+        <select id="searchProjectType"></select>
+
+        <button type="button" class="secondary full" onclick="searchEstimates()">検索</button>
+
+        <div id="searchResults"></div>
+      </section>
+    </div>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <?!= include('JavaScript'); ?>
+</body>
+</html>

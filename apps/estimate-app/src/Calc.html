@@ -1,0 +1,690 @@
+<script>
+/**
+ * CalcEngine ── 見積金額の計算エンジン（唯一の正）
+ *
+ * このファイルはクライアント（ブラウザ）とサーバー（GAS）の両方で動く。
+ *   - クライアント: Index.html から include('Calc') で読み込み、入力のたびに即時計算する。
+ *   - サーバー:     code.gs の getCalcEngine_() が本ファイルを eval して同じ関数を使う。
+ *                   保存時はサーバー側の計算結果を正とする。
+ *
+ * Spreadsheet / DriveApp / DOM に一切触れないこと。触れた瞬間に両対応が壊れる。
+ */
+var CalcEngine = (function () {
+  'use strict';
+
+  var MAX_DETAIL_ROWS = 16;
+
+  /* ===================== 小さいユーティリティ ===================== */
+
+  function toNum(v) {
+    if (typeof v === 'number') return isFinite(v) ? v : 0;
+    if (v === null || v === undefined) return 0;
+    var s = String(v).replace(/[,\s円¥￥]/g, '').replace(/％/g, '%').trim();
+    if (!s) return 0;
+    if (s.indexOf('%') >= 0) {
+      var p = Number(s.replace('%', ''));
+      return isNaN(p) ? 0 : p / 100;
+    }
+    var n = Number(s);
+    return isNaN(n) ? 0 : n;
+  }
+
+  // 「15」「15%」「0.15」いずれで書かれていても 0.15 として扱う
+  function toRate(v) {
+    var n = toNum(v);
+    return n > 1 ? n / 100 : n;
+  }
+
+  function yen(n) { return Math.round(toNum(n)); }
+
+  function fmtYen(n) {
+    var v = yen(n);
+    return (v < 0 ? '-¥' : '¥') + Math.abs(v).toLocaleString('ja-JP');
+  }
+
+  function isBlank(v) { return v === null || v === undefined || String(v).trim() === ''; }
+
+  function parseBool(v) {
+    if (v === true) return true;
+    if (v === false) return false;
+    var s = String(v == null ? '' : v).trim().toLowerCase();
+    return ['true', '1', 'yes', 'y', '有効', 'on', '適用', '○', '〇'].indexOf(s) >= 0;
+  }
+
+  function isTaxable(taxType) {
+    var s = String(taxType || '');
+    return !(s.indexOf('非課税') >= 0 || s.indexOf('不課税') >= 0 || s.indexOf('対象外') >= 0);
+  }
+
+  function containsAny(text, words) {
+    var s = String(text || '');
+    for (var i = 0; i < words.length; i++) if (s.indexOf(words[i]) >= 0) return true;
+    return false;
+  }
+
+  /**
+   * 作業予定日の「月」。'yyyy-MM-dd' を文字列のまま読むので、
+   * スプレッドシート側のタイムゾーン設定（現状 America/Los_Angeles）に影響されない。
+   */
+  function monthOf(workDate) {
+    var s = String(workDate == null ? '' : workDate).trim();
+    var m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (m) return Number(m[2]);
+
+    var d = (workDate && workDate.getMonth) ? workDate : new Date(s);
+    if (d && d.getTime && !isNaN(d.getTime())) return d.getMonth() + 1;
+    return new Date().getMonth() + 1;
+  }
+
+  /* ===================== マスタルールの照合 ===================== */
+
+  function findMonthRule(rules, ruleType, month) {
+    var matched = (rules || []).filter(function (r) {
+      if (r.ruleType !== ruleType) return false;
+      var start = toNum(r.startMonth);
+      var end = toNum(r.endMonth);
+      if (!start || !end) return false;
+      if (start <= end) return month >= start && month <= end;
+      return month >= start || month <= end; // 12月〜2月のような年跨ぎ
+    }).sort(function (a, b) { return toNum(a.priority) - toNum(b.priority); });
+
+    return matched[0] || null;
+  }
+
+  function matchQtyCondition(condition, qty) {
+    var c = String(condition || '');
+    var range = c.match(/(\d+)\s*[-〜~]\s*(\d+)/);
+    if (range) return qty >= Number(range[1]) && qty <= Number(range[2]);
+
+    var over = c.match(/(\d+)\s*超/);
+    if (over) return qty > Number(over[1]);
+
+    return false;
+  }
+
+  function findMultipleDiscountRule(rules, target, totalQty) {
+    var matched = (rules || []).filter(function (r) {
+      return r.ruleType === '複数台割引'
+        && r.target === target
+        && matchQtyCondition(r.condition, totalQty);
+    }).sort(function (a, b) { return toNum(a.priority) - toNum(b.priority); });
+
+    return matched[0] || null;
+  }
+
+  function classifyAirconCategory(line) {
+    var text = String((line.category || '') + ' ' + (line.name || ''));
+    if (containsAny(text, ['ロボ', 'お掃除機能', '掃除機能'])) return 'ロボ付きエアコン';
+    if (containsAny(text, ['業務用', '天カセ', '天井', 'パッケージ'])) return '業務用エアコン';
+    return 'ノーマルエアコン';
+  }
+
+  /* ===================== 明細の組み立て ===================== */
+
+  function buildLines(rawDetails, menuMap) {
+    var lines = [];
+
+    (rawDetails || []).forEach(function (d) {
+      if (!d) return;
+      var menuId = String(d.menuId || '').trim();
+      if (!menuId) return;
+
+      var menu = menuMap[menuId] || null;
+      var qty = Math.max(0, toNum(d.qty));
+      var unitPrice = menu ? toNum(menu.unitPrice) : 0;
+      var gross = yen(qty * unitPrice);
+
+      // 明細ごとの値引き（変則割引・その1）
+      var mode = String(d.lineDiscountMode || 'amount');
+      var rawValue = toNum(d.lineDiscountValue);
+      var discount = 0;
+
+      if (rawValue > 0) {
+        discount = (mode === 'rate') ? yen(gross * toRate(d.lineDiscountValue)) : yen(rawValue);
+        discount = Math.max(0, Math.min(discount, gross)); // 明細金額を超える値引きは切り詰める
+      }
+
+      lines.push({
+        menuId: menuId,
+        name: menu ? menu.name : String(d.menuName || ''),
+        menuType: menu ? menu.menuType : String(d.menuType || ''),
+        rawMenuType: menu ? menu.rawMenuType : String(d.menuType || ''),
+        category: menu ? menu.category : '',
+        qty: qty,
+        unit: menu ? menu.unit : '',
+        unitPrice: unitPrice,
+        unitPriceMissing: !menu || isBlank(menu.unitPriceRaw),
+        grossAmount: gross,
+        lineDiscountMode: mode,
+        lineDiscountValue: rawValue,
+        lineDiscount: discount,
+        amount: gross - discount,
+        taxType: menu ? menu.taxType : '課税',
+        busyTarget: menu ? menu.busyTarget : false,
+        busySurchargeRaw: menu ? menu.busySurchargeRaw : '',
+        discountTarget: menu ? menu.discountTarget : false,
+        multipleDiscountTarget: menu ? menu.multipleDiscountTarget : false,
+        invoiceReusable: menu ? menu.invoiceReusable : true,
+        note: menu ? menu.note : '',
+        requireCheck: menu ? menu.requireCheck : ''
+      });
+    });
+
+    return lines;
+  }
+
+  /* ===================== 繁忙期加算 ===================== */
+
+  function busyTargetLines(lines) {
+    return lines.filter(function (l) { return l.menuType === 'メイン' && l.busyTarget !== false; });
+  }
+
+  function judgeBusySeason(month, lines, payload, ctx) {
+    if (!findMonthRule(ctx.discountRules, '繁忙期', month)) return false;
+    if (busyTargetLines(lines).length === 0) return false;
+
+    var totalQty = busyTargetLines(lines).reduce(function (s, l) { return s + l.qty; }, 0);
+    var corporate = lines.some(function (l) {
+      return containsAny(l.rawMenuType + ' ' + l.category + ' ' + l.name, ['法人', '事業者']);
+    }) || containsAny(payload.projectType, ['法人', '事業者']);
+
+    // 法人5台超は割増なし（初期要件）
+    if (corporate && totalQty > 5) return false;
+    return true;
+  }
+
+  function busySurchargeForLine(line, raw, multiplyByQty) {
+    var text = String(raw == null ? '' : raw).trim();
+    if (!text) return 0;
+    if (text.indexOf('%') >= 0 || text.indexOf('％') >= 0) return yen(line.amount * toRate(text));
+
+    var amount = toNum(text);
+    return multiplyByQty ? yen(amount * line.qty) : yen(amount);
+  }
+
+  function calcBusyAmount(lines, ctx) {
+    var targets = busyTargetLines(lines);
+    if (targets.length === 0) return 0;
+
+    var fallback = toNum(ctx.busySurcharge) || 3300;
+    var unit = String(ctx.busySurchargeUnit || '数量ごと').trim();
+
+    if (unit === '見積ごと') return fallback;
+
+    return targets.reduce(function (sum, l) {
+      var raw = isBlank(l.busySurchargeRaw) ? fallback : l.busySurchargeRaw;
+      return sum + busySurchargeForLine(l, raw, unit !== '明細ごと');
+    }, 0);
+  }
+
+  /**
+   * PDFの繁忙期行。全対象明細が同一の固定金額なら「数量20 / 単価3,300 / 金額66,000」と表示し、
+   * %ルールが混ざる場合は1行にまとめる。
+   */
+  function buildBusyPdfRow(lines, ctx, busyAmount) {
+    if (!busyAmount) return null;
+
+    var targets = busyTargetLines(lines);
+    if (targets.length === 0) return null;
+
+    var fallback = toNum(ctx.busySurcharge) || 3300;
+    var unit = String(ctx.busySurchargeUnit || '数量ごと').trim();
+    var flat = { name: '繁忙期加算', qty: 1, unitPrice: busyAmount, amount: busyAmount, taxType: '課税' };
+
+    if (unit !== '数量ごと') return flat;
+
+    var values = targets.map(function (l) {
+      var raw = String(isBlank(l.busySurchargeRaw) ? fallback : l.busySurchargeRaw).trim();
+      var isRate = raw.indexOf('%') >= 0 || raw.indexOf('％') >= 0;
+      return { isRate: isRate, value: toNum(raw) };
+    });
+
+    var uniform = values.length > 0 && values.every(function (x) {
+      return !x.isRate && x.value === values[0].value;
+    });
+
+    var totalQty = targets.reduce(function (s, l) { return s + l.qty; }, 0);
+    if (!uniform || totalQty <= 0) return flat;
+
+    return { name: '繁忙期加算', qty: totalQty, unitPrice: values[0].value, amount: busyAmount, taxType: '課税' };
+  }
+
+  /* ===================== 自動割引（早期予約 / 複数台） ===================== */
+
+  function calcAutoDiscount(month, lines, ctx) {
+    var eligible = lines
+      .filter(function (l) { return l.discountTarget !== false; })
+      .reduce(function (s, l) { return s + l.amount; }, 0);
+
+    var early = findMonthRule(ctx.discountRules, '早期予約割引', month);
+    if (early && eligible > 0) {
+      return {
+        available: true,
+        type: '早期予約割引',
+        amount: yen(eligible * toRate(early.value)),
+        detail: '対象小計 ' + fmtYen(eligible) + ' × ' + Math.round(toRate(early.value) * 100) + '%'
+      };
+    }
+
+    // 早期予約に該当しない場合のみ複数台割引を見る（併用しない）
+    var totalQty = lines
+      .filter(function (l) { return l.multipleDiscountTarget; })
+      .reduce(function (s, l) { return s + l.qty; }, 0);
+
+    if (totalQty >= 2) {
+      var amount = 0;
+      var parts = [];
+
+      lines.forEach(function (l) {
+        if (!l.multipleDiscountTarget) return;
+        var category = classifyAirconCategory(l);
+        var rule = findMultipleDiscountRule(ctx.discountRules, category, totalQty);
+        if (!rule) return;
+        var per = toNum(rule.value);
+        amount += per * l.qty;
+        parts.push(category + ' ' + l.qty + '台 × ' + fmtYen(per));
+      });
+
+      if (amount > 0) {
+        return {
+          available: true,
+          type: '複数台割引',
+          amount: yen(amount),
+          detail: '合計' + totalQty + '台 / ' + parts.join('、')
+        };
+      }
+    }
+
+    return { available: false, type: '', amount: 0, detail: '' };
+  }
+
+  /* ===================== 変則割引（手動調整行） ===================== */
+
+  /**
+   * 調整行を正規化する。
+   *   kind : 'discount'（値引き） | 'surcharge'（割増）
+   *   mode : 'amount'（定額）     | 'rate'（率）
+   *   base : 'taxable'（課税対象計） | 'lineSubtotal'（明細小計）  ※rateのときのみ意味を持つ
+   */
+  function normalizeAdjustment(a) {
+    if (!a) return null;
+
+    var value = toNum(a.value);
+    if (!(value > 0)) return null;
+
+    var kind = a.kind === 'surcharge' ? 'surcharge' : 'discount';
+    var mode = a.mode === 'rate' ? 'rate' : 'amount';
+    var taxType = isTaxable(a.taxType) ? '課税' : '非課税';
+
+    return {
+      name: String(a.name || '').trim() || (kind === 'surcharge' ? '追加調整' : '値引き'),
+      kind: kind,
+      mode: mode,
+      value: value,
+      base: a.base === 'lineSubtotal' ? 'lineSubtotal' : 'taxable',
+      taxType: taxType,
+      note: String(a.note || ''),
+      auto: a.auto === true
+    };
+  }
+
+  function resolveAdjustmentAmount(adj, bases) {
+    if (adj.mode === 'amount') return yen(adj.value);
+    var base = adj.base === 'lineSubtotal' ? bases.lineSubtotal : bases.taxableBase;
+    return yen(base * toRate(adj.value));
+  }
+
+  /* ===================== PDF明細行 ===================== */
+
+  function buildPdfRows(calc, collapseAdjustments) {
+    var rows = [];
+
+    calc.lines.forEach(function (l) {
+      rows.push({
+        name: l.name,
+        qty: l.qty,
+        unitPrice: l.unitPrice,
+        amount: l.grossAmount,
+        taxType: l.taxType
+      });
+
+      // 明細値引きは「単価×数量＝金額」を崩さないよう、独立した行として出す
+      if (l.lineDiscount > 0) {
+        rows.push({
+          name: l.name + ' 値引き',
+          qty: 1,
+          unitPrice: -l.lineDiscount,
+          amount: -l.lineDiscount,
+          taxType: l.taxType
+        });
+      }
+    });
+
+    if (calc.busyAmount > 0) {
+      rows.push(calc.busyPdfRow || {
+        name: '繁忙期加算', qty: 1, unitPrice: calc.busyAmount, amount: calc.busyAmount, taxType: '課税'
+      });
+    }
+
+    if (calc.autoDiscountApplied > 0) {
+      rows.push({
+        name: calc.autoDiscountType || '割引',
+        qty: 1,
+        unitPrice: -calc.autoDiscountApplied,
+        amount: -calc.autoDiscountApplied,
+        taxType: '課税'
+      });
+    }
+
+    if (collapseAdjustments && calc.appliedAdjustments.length > 1) {
+      var net = calc.appliedAdjustments.reduce(function (s, a) {
+        return s + (a.kind === 'surcharge' ? a.amount : -a.amount);
+      }, 0);
+      if (net !== 0) {
+        rows.push({ name: '各種割引・調整', qty: 1, unitPrice: net, amount: net, taxType: '課税' });
+      }
+    } else {
+      calc.appliedAdjustments.forEach(function (a) {
+        var signed = a.kind === 'surcharge' ? a.amount : -a.amount;
+        rows.push({ name: a.name, qty: 1, unitPrice: signed, amount: signed, taxType: a.taxType });
+      });
+    }
+
+    if (calc.highwayFee > 0) {
+      rows.push({
+        name: '高速代（非課税）', qty: 1,
+        unitPrice: calc.highwayFee, amount: calc.highwayFee, taxType: '非課税'
+      });
+    }
+
+    return rows;
+  }
+
+  /* ===================== 本体 ===================== */
+
+  function calculateCore(payload, ctx) {
+    var p = payload || {};
+    var taxRate = toRate(ctx.taxRate) || 0.10;
+    var lines = buildLines(p.details, ctx.menuMap || {});
+    var month = monthOf(p.workDate);
+    var highwayFee = Math.max(0, toNum(p.highwayFee));
+
+    var lineGrossSubtotal = lines.reduce(function (s, l) { return s + l.grossAmount; }, 0);
+    var lineDiscountTotal = lines.reduce(function (s, l) { return s + l.lineDiscount; }, 0);
+    var lineSubtotal = lineGrossSubtotal - lineDiscountTotal;
+
+    var taxableLines = lines.filter(function (l) { return isTaxable(l.taxType); })
+      .reduce(function (s, l) { return s + l.amount; }, 0);
+    var nonTaxLines = lines.filter(function (l) { return !isTaxable(l.taxType); })
+      .reduce(function (s, l) { return s + l.amount; }, 0);
+
+    /* --- 繁忙期 --- */
+    var busyAuto = judgeBusySeason(month, lines, p, ctx);
+    var busyEnabled = isBlank(p.busyManual) ? busyAuto : parseBool(p.busyManual);
+    var busyAmount = busyEnabled ? calcBusyAmount(lines, ctx) : 0;
+    var busyPdfRow = busyEnabled ? buildBusyPdfRow(lines, ctx, busyAmount) : null;
+
+    /* --- 自動割引 --- */
+    var autoInfo = calcAutoDiscount(month, lines, ctx);
+    var autoEnabledBySetting = parseBool(ctx.autoDiscountEnabled);
+    var autoDefault = autoEnabledBySetting && autoInfo.available;
+    var autoDiscountOn = isBlank(p.discountManual) ? autoDefault : parseBool(p.discountManual);
+    var autoDiscountApplied = autoDiscountOn ? autoInfo.amount : 0;
+
+    /* --- 変則割引（手動調整行） --- */
+    var adjustments = (p.adjustments || []).map(normalizeAdjustment).filter(Boolean);
+
+    var taxableBase = taxableLines + busyAmount;
+    var nonTaxableBase = nonTaxLines + highwayFee;
+    var bases = { taxableBase: taxableBase, lineSubtotal: lineSubtotal };
+
+    // 自動割引は常に課税対象から引く
+    var taxableCut = Math.min(autoDiscountApplied, taxableBase);
+    var appliedAdjustments = [];
+
+    adjustments.forEach(function (adj) {
+      var amount = resolveAdjustmentAmount(adj, bases);
+      if (!(amount > 0)) return;
+
+      if (adj.kind === 'surcharge') {
+        if (adj.taxType === '課税') taxableBase += amount;
+        else nonTaxableBase += amount;
+      } else if (adj.taxType === '課税') {
+        // 課税値引きは課税対象を超えて引かない（消費税がマイナスになるため）
+        amount = Math.min(amount, Math.max(0, taxableBase - taxableCut));
+        if (!(amount > 0)) return;
+        taxableCut += amount;
+      } else {
+        // 非課税値引きは税込での値引き。高速代が無くても効くように
+        // 非課税収入だけでなく書類小計全体を原資とし、小計が0を下回らない範囲で引く。
+        var available = Math.max(0, (taxableBase - taxableCut) + nonTaxableBase);
+        amount = Math.min(amount, available);
+        if (!(amount > 0)) return;
+        nonTaxableBase -= amount;
+      }
+
+      appliedAdjustments.push({
+        name: adj.name, kind: adj.kind, mode: adj.mode, value: adj.value,
+        base: adj.base, taxType: adj.taxType, note: adj.note, auto: adj.auto,
+        amount: amount
+      });
+    });
+
+    var taxableSubtotal = Math.max(0, taxableBase - taxableCut);
+    // 非課税値引きが高速代を上回ると負になり得る。書類上の小計は0で下げ止める。
+    var nonTaxableSubtotal = nonTaxableBase;
+    var documentSubtotal = Math.max(0, taxableSubtotal + nonTaxableSubtotal);
+    var tax = yen(taxableSubtotal * taxRate);
+    var grandTotal = documentSubtotal + tax;
+
+    var adjustmentTotal = appliedAdjustments.reduce(function (s, a) {
+      return s + (a.kind === 'surcharge' ? a.amount : -a.amount);
+    }, 0);
+
+    return {
+      lines: lines,
+      month: month,
+
+      lineGrossSubtotal: lineGrossSubtotal,
+      lineDiscountTotal: lineDiscountTotal,
+      lineSubtotal: lineSubtotal,
+      mainTotal: lines.filter(function (l) { return l.menuType === 'メイン'; })
+        .reduce(function (s, l) { return s + l.amount; }, 0),
+      optionTotal: lines.filter(function (l) { return l.menuType === 'オプション'; })
+        .reduce(function (s, l) { return s + l.amount; }, 0),
+
+      highwayFee: highwayFee,
+
+      busyAuto: busyAuto,
+      busyManual: busyEnabled,
+      busyAmount: busyAmount,
+      busyPdfRow: busyPdfRow,
+
+      autoDiscountEnabledBySetting: autoEnabledBySetting,
+      autoDiscountAvailable: autoInfo.available,
+      autoDiscountCandidate: autoInfo.amount,
+      autoDiscountDetail: autoInfo.detail,
+      autoDiscountType: autoInfo.type,
+      autoDiscountAuto: autoDefault,
+      autoDiscountOn: autoDiscountOn,
+      autoDiscountApplied: autoDiscountApplied,
+
+      appliedAdjustments: appliedAdjustments,
+      adjustmentTotal: adjustmentTotal,
+
+      discountTotal: lineDiscountTotal + autoDiscountApplied
+        + appliedAdjustments.reduce(function (s, a) { return s + (a.kind === 'discount' ? a.amount : 0); }, 0),
+
+      taxableSubtotal: taxableSubtotal,
+      nonTaxableSubtotal: nonTaxableSubtotal,
+      documentSubtotal: documentSubtotal,
+      taxRate: taxRate,
+      tax: tax,
+      grandTotal: grandTotal
+    };
+  }
+
+  /**
+   * 「合計を指定額に合わせる」の逆算。
+   * 端数調整は非課税の値引きとして入れるので、1回で必ず指定額ちょうどに着地する
+   * （課税調整だと消費税の丸めで数円ずれるため）。
+   * 戻り値は調整行1件。呼び出し側が payload.adjustments に足して再計算する。
+   */
+  function solveTargetTotal(payload, ctx, targetTotal) {
+    var target = yen(targetTotal);
+    if (!(target > 0)) return null;
+
+    var stripped = Object.assign({}, payload, {
+      adjustments: (payload.adjustments || []).filter(function (a) { return !(a && a.auto); })
+    });
+
+    var base = calculateCore(stripped, ctx);
+    var diff = base.grandTotal - target;
+    if (diff === 0) return null;
+
+    return {
+      name: '端数調整',
+      kind: diff > 0 ? 'discount' : 'surcharge',
+      mode: 'amount',
+      value: Math.abs(diff),
+      base: 'taxable',
+      taxType: '非課税',
+      note: '合計を' + fmtYen(target) + 'に調整',
+      auto: true
+    };
+  }
+
+  /* ===================== 例外判定 ===================== */
+
+  function buildExceptions(payload, calc, ctx, pdfRows) {
+    var p = payload || {};
+    var out = [];
+    var review = function (t) { out.push({ level: 'review', text: t }); };
+    var alert_ = function (t) { out.push({ level: 'alert', text: t }); };
+
+    if (calc.grandTotal === 0) review('合計金額が0円です。');
+    if (calc.lines.some(function (l) { return l.unitPriceMissing; })) review('単価未設定メニューが含まれています。');
+
+    calc.lines.forEach(function (l) {
+      if (l.requireCheck) review('要確認事項あり：' + l.name + '（' + l.requireCheck + '）');
+    });
+
+    var multiQty = calc.lines.filter(function (l) { return l.multipleDiscountTarget; })
+      .reduce(function (s, l) { return s + l.qty; }, 0);
+    if (multiQty > 50) review('複数台割引対象メニューの合計台数が50台を超えています。');
+
+    if (calc.lines.some(function (l) {
+      return containsAny(l.rawMenuType + ' ' + l.category + ' ' + l.name, ['空室']);
+    })) review('空室清掃メニューが含まれています。');
+
+    if (calc.lines.some(function (l) {
+      return containsAny(l.rawMenuType + ' ' + l.category + ' ' + l.name, ['法人', '事業者']);
+    }) || containsAny(p.projectType, ['法人', '事業者'])) {
+      review('法人/事業者案件または法人/事業者メニューが含まれています。');
+    }
+
+    if (calc.busyManual !== calc.busyAuto) review('繁忙期加算の手動設定が自動判定と異なります。');
+    if (calc.autoDiscountOn !== calc.autoDiscountAuto) review('自動割引の手動設定が自動判定と異なります。');
+
+    if (calc.highwayFee > 0) review('高速代が入力されています。');
+    if (String(p.remarks || '').indexOf('要確認') >= 0) review('備考に「要確認」が含まれています。');
+    if (calc.lines.length > MAX_DETAIL_ROWS) review('保存明細が' + MAX_DETAIL_ROWS + '行を超えています。');
+    if (pdfRows.length > MAX_DETAIL_ROWS) review('PDF表示用の明細行が' + MAX_DETAIL_ROWS + '行を超えています。');
+
+    /* --- 変則割引はアラートのみ。代表者確認は求めない --- */
+    if (calc.lineDiscountTotal > 0) {
+      alert_('明細ごとの値引きが入力されています（合計 ' + fmtYen(calc.lineDiscountTotal) + '）。');
+    }
+
+    calc.appliedAdjustments.forEach(function (a) {
+      if (a.auto) return;
+      alert_('手動' + (a.kind === 'surcharge' ? '割増' : '値引き') + '：'
+        + a.name + ' ' + fmtYen(a.kind === 'surcharge' ? a.amount : -a.amount));
+    });
+
+    var autoTarget = calc.appliedAdjustments.filter(function (a) { return a.auto; });
+    if (autoTarget.length > 0) {
+      alert_('合計金額を指定額に合わせる調整が入っています（' + fmtYen(-calc.adjustmentTotal) + '相当）。');
+    }
+
+    var manualDiscount = calc.lineDiscountTotal
+      + calc.appliedAdjustments.reduce(function (s, a) { return s + (a.kind === 'discount' ? a.amount : 0); }, 0);
+    var ratioLimit = toRate(ctx.largeDiscountRatio) || 0.30;
+
+    if (calc.lineGrossSubtotal > 0 && manualDiscount / calc.lineGrossSubtotal >= ratioLimit) {
+      alert_('手動値引きが明細小計の' + Math.round(ratioLimit * 100) + '%以上です。金額を確認してください。');
+    }
+
+    return out;
+  }
+
+  /* ===================== 公開関数 ===================== */
+
+  function calculate(payload, ctx) {
+    var p = Object.assign({}, payload || {});
+    p.adjustments = (p.adjustments || []).slice();
+
+    // 「合計を指定額に合わせる」が指定されていれば端数調整行を作り直して差し込む。
+    // targetTotal が無いときは保存済みの端数調整行をそのまま使う
+    // （保存済み見積の再現・複製で金額が変わらないようにするため）。
+    var targetTotal = toNum(p.targetTotal);
+
+    if (targetTotal > 0) {
+      p.adjustments = p.adjustments.filter(function (a) { return !(a && a.auto); });
+      var solved = solveTargetTotal(p, ctx, targetTotal);
+      if (solved) p.adjustments.push(solved);
+    }
+
+    var calc = calculateCore(p, ctx);
+
+    var pdfRows = buildPdfRows(calc, false);
+    var collapsed = false;
+    if (pdfRows.length > MAX_DETAIL_ROWS && calc.appliedAdjustments.length > 1) {
+      pdfRows = buildPdfRows(calc, true);
+      collapsed = true;
+    }
+
+    calc.pdfRows = pdfRows;
+    calc.adjustmentsCollapsed = collapsed;
+    calc.targetTotal = targetTotal > 0 ? yen(targetTotal) : 0;
+    calc.adjustments = p.adjustments;
+
+    var exceptions = buildExceptions(p, calc, ctx, pdfRows);
+    calc.exceptions = exceptions;
+    calc.exceptionReasons = exceptions.map(function (e) { return e.text; });
+    calc.exceptionFlag = exceptions.length > 0;
+    calc.reviewFlag = exceptions.some(function (e) { return e.level === 'review'; });
+
+    calc.summaryDisplay = {
+      lineGrossSubtotal: fmtYen(calc.lineGrossSubtotal),
+      lineDiscountTotal: fmtYen(calc.lineDiscountTotal),
+      lineSubtotal: fmtYen(calc.lineSubtotal),
+      busyAmount: fmtYen(calc.busyAmount),
+      autoDiscountApplied: fmtYen(calc.autoDiscountApplied),
+      autoDiscountCandidate: fmtYen(calc.autoDiscountCandidate),
+      adjustmentTotal: fmtYen(calc.adjustmentTotal),
+      highwayFee: fmtYen(calc.highwayFee),
+      taxableSubtotal: fmtYen(calc.taxableSubtotal),
+      nonTaxableSubtotal: fmtYen(calc.nonTaxableSubtotal),
+      documentSubtotal: fmtYen(calc.documentSubtotal),
+      tax: fmtYen(calc.tax),
+      grandTotal: fmtYen(calc.grandTotal)
+    };
+
+    return calc;
+  }
+
+  return {
+    MAX_DETAIL_ROWS: MAX_DETAIL_ROWS,
+    calculate: calculate,
+    solveTargetTotal: solveTargetTotal,
+    toNum: toNum,
+    toRate: toRate,
+    yen: yen,
+    fmtYen: fmtYen,
+    isTaxable: isTaxable,
+    parseBool: parseBool,
+    monthOf: monthOf
+  };
+})();
+</script>

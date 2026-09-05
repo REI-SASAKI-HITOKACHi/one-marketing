@@ -1,0 +1,70 @@
+#!/usr/bin/env node
+/**
+ * マスタ貼り付け用TSVを code.gs / Admin.gs の定義から生成する。
+ *
+ *   node apps/estimate-app/tools/gen-master-tsv.js
+ *
+ * 手書きのTSVはコードとすぐズレるので、必ずここから生成すること。
+ */
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+
+const srcDir = path.join(__dirname, '..', 'src');
+const outDir = path.join(__dirname, '..', 'master');
+
+const sandbox = { console: console, JSON: JSON, Math: Math, Date: Date, String: String, Number: Number, Object: Object, Array: Array, isNaN: isNaN, isFinite: isFinite };
+vm.createContext(sandbox);
+vm.runInContext(fs.readFileSync(path.join(srcDir, 'code.gs'), 'utf8'), sandbox, { filename: 'code.gs' });
+
+function writeTsv(name, headers, rows) {
+  const lines = [headers.join('\t')].concat(rows.map(r => r.map(cell => {
+    const s = cell === null || cell === undefined ? '' : String(cell);
+    // TSVに改行やタブが混ざると貼り付けで列がずれるため置換する
+    return s.replace(/\t/g, ' ').replace(/\r?\n/g, ' ');
+  }).join('\t')));
+
+  const file = path.join(outDir, name);
+  fs.writeFileSync(file, lines.join('\n') + '\n', 'utf8');
+  console.log('  ' + name + '  (' + rows.length + '行)');
+}
+
+fs.mkdirSync(outDir, { recursive: true });
+console.log('生成:');
+
+/* --- 割引繁忙期マスタ --- */
+
+writeTsv('割引繁忙期マスタ_正規化.tsv', sandbox.getDiscountHeaders_(), [
+  ['TRUE', 'BUSY_05_07', '繁忙期', '全体', 5, 7, '', 3300, '金額', 10, '5月〜7月。メインメニューの数量ごとに加算'],
+  ['TRUE', 'BUSY_12', '繁忙期', '全体', 12, 12, '', 3300, '金額', 10, '12月。メインメニューの数量ごとに加算'],
+  ['TRUE', 'EARLY_01_02', '早期予約割引', '全体', 1, 2, '', 0.15, '率', 20, '1月〜2月：15%'],
+  ['TRUE', 'EARLY_03_04', '早期予約割引', '全体', 3, 4, '', 0.10, '率', 20, '3月〜4月：10%'],
+  ['TRUE', 'EARLY_08_10', '早期予約割引', '全体', 8, 10, '', 0.10, '率', 20, '8月〜10月：10%'],
+  ['TRUE', 'MULTI_NORMAL_05_10', '複数台割引', 'ノーマルエアコン', '', '', 'totalQty:5-10', 500, '金額/台', 30, '総台数で判定'],
+  ['TRUE', 'MULTI_NORMAL_11_20', '複数台割引', 'ノーマルエアコン', '', '', 'totalQty:11-20', 1000, '金額/台', 30, '総台数で判定'],
+  ['TRUE', 'MULTI_NORMAL_21_50', '複数台割引', 'ノーマルエアコン', '', '', 'totalQty:21-50', 1500, '金額/台', 30, '総台数で判定'],
+  ['TRUE', 'MULTI_ROBO_05_10', '複数台割引', 'ロボ付きエアコン', '', '', 'totalQty:5-10', 1000, '金額/台', 30, '総台数で判定'],
+  ['TRUE', 'MULTI_ROBO_11_20', '複数台割引', 'ロボ付きエアコン', '', '', 'totalQty:11-20', 1500, '金額/台', 30, '総台数で判定'],
+  ['TRUE', 'MULTI_ROBO_21_50', '複数台割引', 'ロボ付きエアコン', '', '', 'totalQty:21-50', 2000, '金額/台', 30, '総台数で判定'],
+  ['TRUE', 'MULTI_BUSINESS_02_10', '複数台割引', '業務用エアコン', '', '', 'totalQty:2-10', 5000, '金額/台', 30, '総台数で判定'],
+  ['TRUE', 'MULTI_BUSINESS_11_20', '複数台割引', '業務用エアコン', '', '', 'totalQty:11-20', 6000, '金額/台', 30, '総台数で判定'],
+  ['TRUE', 'MULTI_BUSINESS_21_50', '複数台割引', '業務用エアコン', '', '', 'totalQty:21-50', 7000, '金額/台', 30, '総台数で判定'],
+  ['FALSE', 'INTRO_01_02', '紹介料', '全体', 1, 2, '', 0.05, '率', 90, '顧客割引か紹介元支払か未確定のため計算対象外'],
+  ['FALSE', 'INTRO_OTHER', '紹介料', '全体', 3, 12, '', 0.10, '率', 90, '顧客割引か紹介元支払か未確定のため計算対象外']
+]);
+
+/* --- 差し込みセル定義 --- */
+
+writeTsv('差し込みセル定義_正規化.tsv', sandbox.getCellDefHeaders_(), sandbox.getDefaultCellDefinitionRows_());
+
+/* --- 設定マスタ 追加分 --- */
+
+writeTsv('設定マスタ_追加分.tsv', ['設定キー', '設定値', '説明', '備考_現場入力'], [
+  ['auto_discount_enabled', 'FALSE', '早期予約割引・複数台割引の自動判定を使うか', 'TRUEにすると自動で割引が載る。現場周知後に切り替えること'],
+  ['large_discount_alert_ratio', '0.30', '手動値引きが明細小計のこの割合以上なら警告を出す', ''],
+  ['pdf_template_spreadsheet_id', '', 'PDF生成専用テンプレートのスプレッドシートID', '空なら帳票/DBを複製する。adminCreatePdfTemplate()で作成できる']
+]);
+
+console.log('\n完了。master/ 配下のTSVをスプレッドシートに貼り付けてください。');
