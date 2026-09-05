@@ -114,6 +114,35 @@ HP_CSS = (
     ".hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}\n"
 )
 
+# ---------------------------------------------------------------------------
+# 静的ページ（LPではないもの）
+#
+# lp/survey/ は Artifact 用の断片ではなく、それ自体が完結した HTML 文書です。
+# ヒーロー写真も OG 画像も持たないので、LPの組み立てとは別扱いにして、
+# フォームの送信先だけを配信先に合わせて差し替えます。
+# ---------------------------------------------------------------------------
+STATIC_PAGES = {
+    "survey": {
+        "dir": "survey",
+        # 送信は素のJSがfetchで行うので、遷移はしません。
+        "form_php": '<form class="survey-form" action="/form/survey.php" method="post">\n'
+                    '      <input type="hidden" name="page" value="survey">',
+        # Netlify Forms は、配信されたHTMLからこの form と欄の name を読んで受け口を用意する。
+        "form_netlify": '<form class="survey-form" name="survey" method="post" action="/survey/"\n'
+                        '      data-netlify="true" netlify-honeypot="x_field">\n'
+                        '      <input type="hidden" name="form-name" value="survey">\n'
+                        '      <input type="hidden" name="page" value="survey">',
+    },
+}
+
+STATIC_FORM_OPEN = '<form class="survey-form" onsubmit="return false;">'
+
+HONEYPOT = """
+      <div class="hp" aria-hidden="true">
+        <label for="s-x">この欄には入力しないでください</label>
+        <input id="s-x" name="x_field" type="text" tabindex="-1" autocomplete="off">
+      </div>"""
+
 
 
 JP_FONT = "/usr/share/fonts/truetype/fonts-japanese-gothic.ttf"
@@ -186,6 +215,25 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path) -> None:
           f"画像{len(list(img_dst.iterdir()))}点")
 
 
+def build_static_page(name: str, meta: dict, target: str, out: pathlib.Path) -> None:
+    """完結した HTML 文書を、送信先だけ差し替えてそのまま置く。"""
+    src = (ROOT / "lp" / name / "index.html").read_text(encoding="utf-8")
+
+    if STATIC_FORM_OPEN not in src:
+        raise SystemExit(f"{name}: フォームの開始タグが見つかりません")
+    form = meta["form_netlify"] if target == "netlify" else meta["form_php"]
+    src = src.replace(STATIC_FORM_OPEN, form + HONEYPOT)
+
+    if ".hp{" not in src:
+        raise SystemExit(f"{name}: .hp のスタイルが見つかりません（蜂蜜罠が丸見えになります）")
+
+    dst = out / meta["dir"]
+    dst.mkdir(parents=True, exist_ok=True)
+    (dst / "index.html").write_text(src, encoding="utf-8")
+
+    print(f"{dst.relative_to(ROOT)}/index.html  {len(src)//1024}KB  （静的ページ）")
+
+
 if __name__ == "__main__":
     target = sys.argv[1] if len(sys.argv) > 1 else "php"
     if target not in TARGETS:
@@ -195,3 +243,5 @@ if __name__ == "__main__":
     print(f"[{target}] → {out.relative_to(ROOT)}/")
     for name, meta in PAGES.items():
         build_page(name, meta, target, out)
+    for name, meta in STATIC_PAGES.items():
+        build_static_page(name, meta, target, out)

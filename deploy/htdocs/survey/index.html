@@ -1,0 +1,1012 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>お掃除のご感想をお聞かせください｜ONE HITTER</title>
+<meta name="description" content="ワンヒッター株式会社（ONE HITTER）のご利用後アンケートです。所要1分、必須は3問だけです。">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0E7C93">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=Shippori+Mincho+B1:wght@600&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
+
+<style>
+/* デザイントークンは lp/nenmatsu/index.html と共通。トーン&マナーを揃えるため丸ごと持ってきています。 */
+:root{
+  --ground:#FAF7F2;
+  --surface:#FFFFFF;
+  --surface-2:#F2EFE9;
+  --ink:#14323D;
+  --ink-soft:#40606C;
+  --muted:#566B73;
+  --line:#E2DDD4;
+  --line-strong:#C8C0B4;
+  --accent:#0E7C93;
+  --accent-deep:#0A5C6E;
+  --accent-soft:#DDEEF1;
+  --cta:#C4461D;
+  --cta-deep:#A83714;
+  --cta-fg:#FFFFFF;
+  --cta-shadow:#8C3212;
+  --cta-text:#A83714;
+  --marker:linear-gradient(transparent 58%,#FFE566 58%);
+  --on-accent:#FFFFFF;
+  --invert:#0F2A38;
+  --invert-ink:#C9D9DE;
+  --invert-line:#1F3C48;
+  --ok:#1E7A5A;
+  --gold:#9A7420;
+  --gold-soft:#F5EEDC;
+  --star:#E0A32A;
+  --shadow:0 2px 10px rgba(20,40,50,.10);
+  --shadow-lift:4px 4px 16px rgba(20,40,50,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C171C;
+    --surface:#12222A;
+    --surface-2:#183039;
+    --ink:#E6EFF1;
+    --ink-soft:#BCCFD5;
+    --muted:#8CA3AB;
+    --line:#223942;
+    --line-strong:#39555F;
+    --accent:#4EC0D4;
+    --accent-deep:#8BDCEA;
+    --accent-soft:#0F3541;
+    --cta:#F0764B;
+    --cta-deep:#D9552A;
+    --cta-fg:#0C171C;
+    --cta-shadow:#A8481F;
+    --cta-text:#E27E5E;
+    --marker:linear-gradient(transparent 58%,#C9A020 58%);
+    --on-accent:#08222A;
+    --invert:#08151A;
+    --invert-ink:#B9CBD1;
+    --invert-line:#1B2E36;
+    --ok:#4FBF95;
+    --gold:#DCB55E;
+    --gold-soft:#2A2413;
+    --star:#F0C25A;
+    --shadow:0 2px 10px rgba(0,0,0,.45);
+    --shadow-lift:4px 4px 16px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C171C;
+  --surface:#12222A;
+  --surface-2:#183039;
+  --ink:#E6EFF1;
+  --ink-soft:#BCCFD5;
+  --muted:#8CA3AB;
+  --line:#223942;
+  --line-strong:#39555F;
+  --accent:#4EC0D4;
+  --accent-deep:#8BDCEA;
+  --accent-soft:#0F3541;
+  --cta:#F0764B;
+  --cta-deep:#D9552A;
+  --cta-fg:#0C171C;
+  --cta-shadow:#A8481F;
+  --cta-text:#E27E5E;
+  --marker:linear-gradient(transparent 58%,#C9A020 58%);
+  --on-accent:#08222A;
+  --invert:#08151A;
+  --invert-ink:#B9CBD1;
+  --invert-line:#1B2E36;
+  --ok:#4FBF95;
+  --gold:#DCB55E;
+  --gold-soft:#2A2413;
+  --star:#F0C25A;
+  --shadow:0 2px 10px rgba(0,0,0,.45);
+  --shadow-lift:4px 4px 16px rgba(0,0,0,.4);
+}
+
+*{box-sizing:border-box;}
+[hidden]{display:none !important;}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:16px;line-height:1.8;-webkit-font-smoothing:antialiased;padding-bottom:40px;
+}
+h1,h2{margin:0;line-height:1.3;letter-spacing:.01em;text-wrap:balance;font-weight:900;}
+h3{margin:0;line-height:1.45;text-wrap:balance;font-weight:900;}
+p{margin:0;}
+a{color:var(--accent-deep);}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+.wrap{max-width:620px;margin:0 auto;padding:0 18px;}
+.eyebrow{font-family:"Barlow",sans-serif;font-weight:600;font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);}
+.num{font-family:"Barlow",sans-serif;font-variant-numeric:tabular-nums;font-weight:700;}
+
+/* 自動投稿よけ。人間には見せない */
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+
+/* ヘッダー */
+.bar{background:var(--surface);border-bottom:1px solid var(--line);}
+.bar-in{max-width:620px;margin:0 auto;padding:9px 18px;display:flex;align-items:center;gap:14px;}
+.logo{display:flex;flex-direction:column;line-height:1.15;}
+.logo b{font-family:"Barlow",sans-serif;font-weight:700;letter-spacing:.08em;font-size:16px;}
+.logo small{font-size:9.5px;color:var(--muted);}
+.bar .tel{margin-left:auto;display:flex;flex-direction:column;line-height:1.2;text-align:right;text-decoration:none;color:inherit;}
+.bar .tel .n{font-family:"Barlow",sans-serif;font-weight:700;font-size:16px;}
+.bar .tel small{font-size:9.5px;color:var(--muted);}
+
+/* 導入 */
+.intro{padding:26px 0 16px;display:flex;flex-direction:column;gap:10px;}
+.intro h1{font-size:clamp(21px,5.4vw,28px);}
+.intro .lead{font-size:14px;color:var(--ink-soft);}
+.ctx{display:flex;flex-wrap:wrap;gap:6px;}
+.ctx span{font-size:11.5px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line);
+  padding:2px 10px;border-radius:99px;}
+
+/* 進捗 */
+.progress{position:sticky;top:0;z-index:20;background:var(--ground);padding:8px 0 10px;}
+.progress .track{height:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:99px;overflow:hidden;}
+.progress .fill{display:block;height:100%;width:25%;background:var(--accent);transition:width .25s ease;}
+.progress .lab{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:5px;}
+
+/* フォーム */
+.survey-form{display:flex;flex-direction:column;gap:14px;}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 18px;
+  display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);}
+.q > .head{display:flex;flex-direction:column;gap:4px;}
+.q h2{font-size:16.5px;line-height:1.55;}
+.q .why{font-size:12px;color:var(--muted);line-height:1.7;}
+.tag-req,.tag-opt{font-family:"Barlow",sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.1em;
+  padding:2px 8px;border-radius:99px;align-self:flex-start;}
+.tag-req{background:var(--cta);color:var(--cta-fg);}
+.tag-opt{background:var(--surface-2);color:var(--muted);border:1px solid var(--line);}
+
+/* NPS 0-10 */
+.nps{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;}
+@media(min-width:520px){.nps{grid-template-columns:repeat(11,1fr);}}
+.nps label{position:relative;}
+.nps input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer;}
+.nps .b{display:grid;place-items:center;min-height:44px;border:1.5px solid var(--line-strong);border-radius:8px;
+  background:var(--surface);font-family:"Barlow",sans-serif;font-weight:700;font-size:16px;transition:.12s;}
+.nps input:checked + .b{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+.nps input:focus-visible + .b{outline:3px solid var(--accent);outline-offset:2px;}
+.nps-ends{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);}
+
+/* ★評価 */
+.rate{display:flex;flex-direction:column;gap:8px;}
+.rate .rl{font-size:13.5px;font-weight:700;}
+.stars{display:flex;gap:4px;}
+.stars label{position:relative;}
+.stars input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer;}
+.stars .s{display:grid;place-items:center;width:46px;height:44px;font-size:26px;line-height:1;
+  color:var(--line-strong);transition:.12s;}
+.stars input:focus-visible + .s{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px;}
+.stars.on-1 label:nth-child(-n+1) .s,
+.stars.on-2 label:nth-child(-n+2) .s,
+.stars.on-3 label:nth-child(-n+3) .s,
+.stars.on-4 label:nth-child(-n+4) .s,
+.stars.on-5 label:nth-child(-n+5) .s{color:var(--star);}
+
+/* 選択肢 */
+.opts{display:flex;flex-direction:column;gap:8px;}
+.opts.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+@media(max-width:400px){.opts.grid{grid-template-columns:1fr;}}
+.opt{position:relative;}
+.opt input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer;}
+.opt .box{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;min-height:48px;
+  border:1.5px solid var(--line-strong);border-radius:10px;padding:9px 13px;background:var(--surface);
+  font-size:14.5px;font-weight:700;transition:.12s;}
+.opt .mark{width:20px;height:20px;border-radius:50%;border:2px solid var(--line-strong);
+  display:grid;place-items:center;font-size:12px;color:transparent;}
+.opt.check .mark{border-radius:5px;}
+.opt input:checked + .box{border-color:var(--accent);background:var(--accent-soft);}
+.opt input:checked + .box .mark{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+.opt input:focus-visible + .box{outline:3px solid var(--accent);outline-offset:2px;}
+.opt .sub{grid-column:2;font-size:11px;font-weight:500;color:var(--muted);line-height:1.5;}
+.opt.done .box{opacity:.82;}
+.opts-note{font-size:11.5px;color:var(--muted);line-height:1.7;}
+
+/* 入力欄 */
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:13px;font-weight:700;}
+.field input,.field textarea{padding:12px 14px;border:1.5px solid var(--line-strong);border-radius:8px;
+  font-family:inherit;font-size:16px;background:var(--surface);color:var(--ink);width:100%;line-height:1.7;}
+.field textarea{min-height:76px;resize:vertical;}
+.field .hint{font-size:11.5px;color:var(--muted);line-height:1.6;}
+
+/* ボタン */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:8px;font-weight:700;
+  text-decoration:none;border:0;cursor:pointer;font-family:inherit;font-size:15px;padding:13px 18px;line-height:1.4;
+  background:var(--cta);color:var(--cta-fg);transition:background .15s ease,transform .15s ease;}
+.btn:hover{background:var(--cta-deep);}
+.btn:active{transform:translateY(1px);}
+.btn.lg{font-size:17px;padding:16px 20px;width:100%;min-height:58px;border-radius:9999px;letter-spacing:.03em;
+  box-shadow:0 4px 0 0 var(--cta-shadow);}
+.btn.lg:active{box-shadow:0 1px 0 0 var(--cta-shadow);transform:translateY(3px);}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong);}
+.btn.ghost:hover{background:var(--surface-2);}
+.btn.line{background:#06C755;color:#fff;}
+.btn.line:hover{background:#05A445;}
+.btn.tel{background:var(--accent);color:var(--on-accent);}
+.btn.tel:hover{background:var(--accent-deep);}
+.btn.sm{font-size:13.5px;padding:10px 14px;}
+.nav{display:flex;gap:10px;align-items:center;padding:2px 0 8px;}
+.nav .btn{flex:1 1 0;}
+.nav .btn.ghost{flex:0 0 auto;min-width:92px;}
+.err{font-size:13px;font-weight:700;color:var(--cta-text);min-height:1.2em;}
+
+/* 「今すぐ相談したい」「紹介したい」などの分岐ボックス */
+.branch{background:var(--accent-soft);border:1.5px solid var(--accent);border-radius:10px;padding:14px 15px;
+  display:flex;flex-direction:column;gap:10px;}
+.branch b{font-size:14px;color:var(--accent-deep);}
+.branch p{font-size:12.5px;color:var(--ink-soft);line-height:1.75;}
+.branch .row{display:flex;gap:8px;flex-wrap:wrap;}
+.branch .row .btn{flex:1 1 140px;}
+
+/* 完了画面 */
+.done{display:flex;flex-direction:column;gap:14px;}
+.done .thanks{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:24px 20px;
+  display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);}
+.done .thanks h2{font-size:20px;}
+.done .thanks p{font-size:13.5px;color:var(--ink-soft);}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 18px;
+  display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);}
+.card.hero-card{border:2px solid var(--accent);}
+.card.small{padding:16px 15px;}
+.card h3{font-size:16px;}
+.card.small h3{font-size:14px;}
+.card p{font-size:13px;color:var(--ink-soft);line-height:1.8;}
+.card.small p{font-size:12px;}
+.quote{background:var(--surface-2);border:1px dashed var(--line-strong);border-radius:10px;padding:14px 15px;
+  font-size:14px;line-height:1.9;white-space:pre-wrap;color:var(--ink);}
+.copy-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.copy-row .btn{flex:1 1 160px;}
+.copied{font-size:12.5px;font-weight:700;color:var(--ok);}
+.step-list{margin:0;padding-left:1.2em;font-size:12.5px;color:var(--muted);line-height:1.9;}
+
+footer{background:var(--invert);color:var(--invert-ink);padding:30px 0 26px;margin-top:34px;}
+footer .wrap{display:flex;flex-direction:column;gap:8px;}
+footer b{color:#fff;font-size:14px;}
+footer p{font-size:12px;line-height:1.8;}
+footer a{color:var(--invert-ink);}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="bar-in">
+    <span class="logo"><b>ONE HITTER</b><small>ワンヒッター株式会社</small></span>
+    <a class="tel" href="tel:08080438259"><span class="n">080-8043-8259</span><small>受付 渡辺／8:00–20:00</small></a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="intro">
+    <span class="eyebrow">Customer Survey</span>
+    <h1 id="intro-title">本日はありがとうございました。<br>お掃除のご感想をお聞かせください。</h1>
+    <p class="lead">所要 <b>約1分</b>／必須は最初の3問だけです。いただいたお声は、次のお客様のためのサービス改善に使わせていただきます。</p>
+    <div class="ctx" id="ctx" hidden></div>
+  </div>
+
+  <div class="progress" id="progress">
+    <span class="track"><span class="fill" id="bar"></span></span>
+    <span class="lab"><span id="steplab">1 / 4</span><span id="steptitle">満足度</span></span>
+  </div>
+
+  <form class="survey-form" action="/form/survey.php" method="post">
+      <input type="hidden" name="page" value="survey">
+      <div class="hp" aria-hidden="true">
+        <label for="s-x">この欄には入力しないでください</label>
+        <input id="s-x" name="x_field" type="text" tabindex="-1" autocomplete="off">
+      </div>
+
+    <!-- URLパラメータから自動で入る値。お客様に入力していただくものではありません。 -->
+    <input type="hidden" name="cust_id" id="h-id">
+    <input type="hidden" name="cust_name" id="h-name">
+    <input type="hidden" name="cust_menu" id="h-menu">
+    <input type="hidden" name="cust_staff" id="h-staff">
+    <input type="hidden" name="cust_date" id="h-date">
+    <!-- 回答の格納先。画面上の操作は ui_ 接頭辞の入力欄で行い、送信直前にここへ書き写します。
+         （Netlify Forms は配信されたHTMLに書かれた name しか受け取らないため、動的に作る
+           選択肢そのものに name は付けず、この固定の欄に集約しています） -->
+    <input type="hidden" name="q1_nps" id="h-q1">
+    <input type="hidden" name="nps_segment" id="h-seg">
+    <input type="hidden" name="q2_finish" id="h-q2a">
+    <input type="hidden" name="q2_staff" id="h-q2b">
+    <input type="hidden" name="q3_place" id="h-q3">
+    <input type="hidden" name="q3_comment" id="h-q3c">
+    <input type="hidden" name="q4_extra" id="h-q4">
+    <input type="hidden" name="q5_next" id="h-q5">
+    <input type="hidden" name="q6_when" id="h-q6">
+    <input type="hidden" name="q7_referral" id="h-q7">
+    <input type="hidden" name="q8_publish" id="h-q8">
+    <input type="hidden" name="q8_photo" id="h-q8p">
+    <input type="hidden" name="q9_message" id="h-q9">
+    <input type="hidden" name="q10_name" id="h-q10n">
+    <input type="hidden" name="q10_tel" id="h-q10t">
+    <input type="hidden" name="private_feedback" id="h-priv">
+
+    <!-- ステップ1：満足度 -->
+    <section class="step" data-step="1">
+      <div class="q">
+        <div class="head">
+          <span class="tag-req">必須</span>
+          <h2>Q1. 今回のお掃除を、ご家族やご友人にすすめる可能性はどのくらいですか？</h2>
+        </div>
+        <div class="nps" id="nps"></div>
+        <div class="nps-ends"><span>0 まったく思わない</span><span>ぜひすすめたい 10</span></div>
+      </div>
+
+      <div class="q" style="margin-top:14px">
+        <div class="head">
+          <span class="tag-req">必須</span>
+          <h2>Q2. 今回の「仕上がり」と「担当者の対応」はいかがでしたか？</h2>
+          <p class="why">2つに分けてお聞きするのは、どちらを直すべきかを私たちが取り違えないためです。</p>
+        </div>
+        <div class="rate">
+          <span class="rl">仕上がり</span>
+          <div class="stars" id="stars-finish" role="radiogroup" aria-label="仕上がりの評価"></div>
+        </div>
+        <div class="rate">
+          <span class="rl">担当者の対応</span>
+          <div class="stars" id="stars-staff" role="radiogroup" aria-label="担当者の対応の評価"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ステップ2：よかったところ -->
+    <section class="step" data-step="2" hidden>
+      <div class="q">
+        <div class="head">
+          <span class="tag-req">必須</span>
+          <h2 id="q3-title">Q3. 今日いちばん「やってよかった」と感じたのはどこですか？</h2>
+          <p class="why">いちばん効いた場所を1つだけ選んでください。</p>
+        </div>
+        <div class="opts grid" id="q3-opts"></div>
+        <div class="field">
+          <label for="q3-comment">よろしければ、ひとことで教えてください</label>
+          <input id="q3-comment" name="ui_q3c" type="text" maxlength="120"
+                 placeholder="例：10年分の黒ずみが落ちて、浴室が新品みたいになった">
+        </div>
+      </div>
+
+      <div class="q" style="margin-top:14px">
+        <div class="head">
+          <span class="tag-opt">任意</span>
+          <h2>Q4. 作業以外で、うれしかったこと・気づいてくれたことはありましたか？</h2>
+          <p class="why">「排水溝もついでに掃除してくれた」など、頼んでいないところの気づかいがあれば。</p>
+        </div>
+        <div class="field">
+          <textarea id="q4" name="ui_q4" maxlength="300" placeholder="例：浴室の排水溝まで掃除してくれた／靴を揃えてくれた"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- ステップ3：次のご予定 -->
+    <section class="step" data-step="3" hidden>
+      <div class="q">
+        <div class="head">
+          <span class="tag-opt">任意</span>
+          <h2>Q5. 次にプロに任せたいのはどこですか？（いくつでも）</h2>
+          <p class="why">売り込みではありません。時期が来たらご案内するための覚え書きです。</p>
+        </div>
+        <div class="opts grid" id="q5-opts"></div>
+        <p class="opts-note" id="q5-note" hidden>下の2段は、今回すでに施工させていただいた箇所です。</p>
+      </div>
+
+      <div class="q" style="margin-top:14px">
+        <div class="head">
+          <span class="tag-opt">任意</span>
+          <h2>Q6. いつ頃をお考えですか？</h2>
+        </div>
+        <div class="opts grid" id="q6-opts"></div>
+        <div class="branch" id="q6-now" hidden>
+          <b>すぐにご連絡します。</b>
+          <p>この場でご相談いただくのがいちばん早いです。お電話・LINEのどちらでも承ります。</p>
+          <div class="row">
+            <a class="btn tel" href="tel:08080438259">電話する（渡辺）</a>
+            <a class="btn line" href="https://lin.ee/7kD9WGN">LINEで相談する</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ステップ4：ご紹介・掲載・ご連絡先 -->
+    <section class="step" data-step="4" hidden>
+      <div class="q">
+        <div class="head">
+          <span class="tag-opt">任意</span>
+          <h2>Q7. お知り合いにご紹介いただけそうですか？</h2>
+        </div>
+        <div class="opts" id="q7-opts"></div>
+      </div>
+
+      <div class="q" style="margin-top:14px">
+        <div class="head">
+          <span class="tag-opt">任意</span>
+          <h2>Q8. いただいたお声を、ホームページやチラシに掲載してもよろしいですか？</h2>
+        </div>
+        <div class="opts" id="q8-opts"></div>
+        <label class="opt check" style="margin-top:2px">
+          <input type="checkbox" id="q8-photo" name="ui_q8p">
+          <span class="box"><span class="mark">✓</span><span>施工前後の写真の掲載もOK</span></span>
+        </label>
+      </div>
+
+      <div class="q" style="margin-top:14px">
+        <div class="head">
+          <span class="tag-opt">任意</span>
+          <h2 id="q9-title">Q9. 担当者へのメッセージがあれば</h2>
+        </div>
+        <div class="field">
+          <textarea id="q9" name="ui_q9" maxlength="300" placeholder="ねぎらいのお言葉も、お叱りも、そのままお伝えします。"></textarea>
+        </div>
+      </div>
+
+      <div class="q" style="margin-top:14px" id="q10-box">
+        <div class="head">
+          <span class="tag-opt">任意</span>
+          <h2>Q10. お名前・ご連絡先</h2>
+          <p class="why" id="q10-why">掲載のご相談や、次回のご案内が必要な場合にのみ使用します。</p>
+        </div>
+        <div id="q10-fields">
+          <div class="field">
+            <label for="q10-name">お名前</label>
+            <input id="q10-name" name="ui_q10n" type="text" autocomplete="name" maxlength="60">
+          </div>
+          <div class="field" style="margin-top:10px">
+            <label for="q10-tel">ご連絡先（電話番号かメールアドレス）</label>
+            <input id="q10-tel" name="ui_q10t" type="text" autocomplete="tel" maxlength="80">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <p class="err" id="err" role="alert"></p>
+
+    <div class="nav" id="nav">
+      <button class="btn ghost" type="button" id="back" hidden>戻る</button>
+      <button class="btn lg" type="button" id="next">次へ</button>
+      <button class="btn lg" type="submit" id="send" hidden>送信する</button>
+    </div>
+
+    <p class="opts-note" id="privacy-note">
+      ご入力いただいた情報は、サービス改善とご連絡にのみ使用します。送信をもって
+      <a href="https://one-hitter.jp/privacy_policy/" target="_blank" rel="noopener">個人情報の取扱いについて</a>にご同意いただいたものとみなします。
+    </p>
+
+    <!-- 自動投稿よけ（name="x_field" の欄）は、ビルド時にフォームの先頭へ差し込まれます。
+         スタイルは上の .hp にあります。 -->
+
+    <!-- ================= 完了画面 ================= -->
+    <section class="done" id="done" hidden aria-live="polite">
+      <div class="thanks">
+        <h2 id="done-title">ありがとうございました。</h2>
+        <p id="done-lead">ご回答は担当者にそのままお届けします。</p>
+      </div>
+
+      <!-- 予約導線（Q6で「今すぐ相談したい」を選んだ方だけ） -->
+      <div class="card hero-card" id="done-book" hidden>
+        <h3>「今すぐ相談したい」を選んでいただきました</h3>
+        <p>こちらからもご連絡しますが、その場でお話しいただくのがいちばん早いです。</p>
+        <div class="copy-row">
+          <a class="btn tel" href="tel:08080438259">電話する（渡辺 8:00–20:00）</a>
+          <a class="btn line" href="https://lin.ee/7kD9WGN">LINEで相談する</a>
+        </div>
+      </div>
+
+      <!-- Googleクチコミ。スコアに関わらず全員に表示します（下のコメント参照） -->
+      <div class="card" id="done-google">
+        <h3 id="google-title">同じ内容を、Googleにも書いていただけませんか？</h3>
+        <p id="google-lead">個人でやっている会社なので、クチコミの1件が本当に効きます。下の文章はいま書いていただいた内容をそのまま並べたものです。手直しは自由です。</p>
+        <div class="quote" id="review-text"></div>
+        <div class="copy-row">
+          <button class="btn sm ghost" type="button" id="copy-review">文章をコピー</button>
+          <span class="copied" id="copy-review-done" hidden>コピーしました</span>
+        </div>
+        <!-- 差し替え予定：Googleビジネスプロフィールの管理画面から取得できる投稿用の短縮URL
+             （https://g.page/r/.../review）が手に入ったら、下の href をそれに差し替えてください。
+             短縮URLはクチコミの入力欄が直接開くので、いまの地図リンクより1タップ短くなります。 -->
+        <a class="btn lg" id="google-link" href="https://www.google.com/maps?cid=8892658939297434929"
+           target="_blank" rel="noopener">Googleに投稿する</a>
+        <ol class="step-list">
+          <li>「文章をコピー」を押す</li>
+          <li>「Googleに投稿する」を押す</li>
+          <li>クチコミ欄を長押しして貼り付け、星を選んで投稿</li>
+        </ol>
+      </div>
+
+      <!-- 非公開のご意見。低評価の方にはこれを上に出しますが、Googleのリンクは消しません -->
+      <div class="card" id="done-private">
+        <h3 id="private-title">気になった点があれば、公開せずに直接お聞かせください</h3>
+        <p id="private-lead">いただいた内容は代表と担当者だけが読みます。書き直し・再施工のご相談も承ります。</p>
+        <div class="field">
+          <label for="priv">直接お伝えいただく内容（公開されません）</label>
+          <textarea id="priv" name="ui_priv" maxlength="600" placeholder="例：伝えた箇所以外が手つかずだった／時間が押した"></textarea>
+        </div>
+        <div class="copy-row">
+          <button class="btn sm" type="button" id="priv-send">この内容を直接送る</button>
+          <span class="copied" id="priv-done" hidden>お送りしました。折り返しご連絡します。</span>
+        </div>
+        <div class="copy-row">
+          <a class="btn sm tel" href="tel:08080438259">電話でも承ります（渡辺）</a>
+          <a class="btn sm line" href="https://lin.ee/7kD9WGN">LINEで伝える</a>
+        </div>
+      </div>
+
+      <!-- ご紹介（Q7で「紹介したい人がいる」を選んだ方だけ） -->
+      <div class="card" id="done-refer" hidden>
+        <h3>ご紹介いただける方へ</h3>
+        <p>そのまま送れる文章をご用意しました。ご紹介いただいた方には、次回のご依頼時にご相談させてください。</p>
+        <div class="quote" id="refer-text"></div>
+        <div class="copy-row">
+          <button class="btn sm ghost" type="button" id="copy-refer">紹介文をコピー</button>
+          <span class="copied" id="copy-refer-done" hidden>コピーしました</span>
+        </div>
+        <div class="copy-row">
+          <a class="btn sm line" id="refer-line" href="#" target="_blank" rel="noopener">LINEで送る</a>
+        </div>
+      </div>
+
+      <div class="card small">
+        <h3>ワンヒッター株式会社（ONE HITTER）</h3>
+        <p>
+          東京都江戸川区北葛西5-14-11 5F／電話 <a href="tel:08080438259">080-8043-8259</a>（8:00–20:00 渡辺）<br>
+          対応エリア：東京都・千葉県・神奈川県
+        </p>
+      </div>
+    </section>
+
+  </form>
+</main>
+
+<footer>
+  <div class="wrap">
+    <b>ワンヒッター株式会社｜ONE HITTER Ltd.</b>
+    <p>
+      手が届く、理想の生活を実現する。<br>
+      <a href="https://one-hitter.jp/" target="_blank" rel="noopener">公式サイト</a>
+      <a href="https://one-hitter.jp/privacy_policy/" target="_blank" rel="noopener">個人情報の取扱いについて</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+
+  var $  = function(id){ return document.getElementById(id); };
+  var form = document.querySelector('.survey-form');
+
+  /* ---------- URLパラメータ（?id= &name= &menu= &staff= &date=） ---------- */
+  var params = new URLSearchParams(location.search);
+  var P = {
+    id:    (params.get('id')    || '').slice(0, 40),
+    name:  (params.get('name')  || '').slice(0, 40),
+    menu:  (params.get('menu')  || '').slice(0, 120),
+    staff: (params.get('staff') || '').slice(0, 20),
+    date:  (params.get('date')  || '').slice(0, 20)
+  };
+  $('h-id').value    = P.id;
+  $('h-name').value  = P.name;
+  $('h-menu').value  = P.menu;
+  $('h-staff').value = P.staff;
+  $('h-date').value  = P.date;
+
+  /* 画面には読み取り専用で小さく出すだけ */
+  var ctx = $('ctx');
+  var chips = [];
+  if (P.name)  chips.push(P.name + ' 様');
+  if (P.date)  chips.push('施工日 ' + P.date);
+  if (P.menu)  chips.push(P.menu);
+  if (P.staff) chips.push('担当 ' + P.staff);
+  if (chips.length) {
+    ctx.hidden = false;
+    chips.forEach(function(t){
+      var s = document.createElement('span');
+      s.textContent = t;
+      ctx.appendChild(s);
+    });
+  }
+  if (P.name) {
+    $('intro-title').innerHTML = P.name +
+      ' 様<br>本日はありがとうございました。<br>お掃除のご感想をお聞かせください。';
+  }
+  if (P.staff) {
+    $('q9-title').textContent = 'Q9. ' + P.staff + 'へのメッセージがあれば';
+  }
+
+  /* ---------- メニュー辞書。?menu= の文字列から、施工済みの箇所を推定する ---------- */
+  var MENUS = [
+    { key:'aircon',  q3:'エアコン',           q5:'エアコン',           re:/エアコン|ｴｱｺﾝ|AC/i },
+    { key:'hood',    q3:'レンジフード・換気扇', q5:'レンジフード・換気扇', re:/レンジフード|換気扇|フード/ },
+    { key:'bath',    q3:'浴室',               q5:'浴室',               re:/浴室|風呂|バス|ユニットバス/ },
+    { key:'kitchen', q3:'キッチン',            q5:'キッチン',            re:/キッチン|台所|シンク|コンロ/ },
+    { key:'toilet',  q3:'トイレ・洗面所',      q5:'トイレ・洗面所',      re:/トイレ|洗面/ },
+    { key:'washer',  q3:'洗濯機',              q5:'洗濯槽',              re:/洗濯/ },
+    { key:'oidaki',  q3:'追い焚き配管',        q5:'追い焚き配管',        re:/追い?焚き?|追焚|配管/ },
+    { key:'window',  q3:'窓・サッシ',          q5:'窓・サッシ',          re:/窓|サッシ/ },
+    { key:'floor',   q3:'床のワックス',        q5:'床のワックス',        re:/床|ワックス/ },
+    { key:'veranda', q3:'ベランダ',            q5:'ベランダ',            re:/ベランダ|バルコニー/ }
+  ];
+  var doneKeys = {};
+  MENUS.forEach(function(m){ if (P.menu && m.re.test(P.menu)) { doneKeys[m.key] = true; } });
+  var doneList = MENUS.filter(function(m){ return doneKeys[m.key]; });
+
+  /* ---------- 状態 ---------- */
+  var state = {
+    q1:null, q2a:null, q2b:null,
+    q3:'', q3c:'', q4:'',
+    q5:[], q6:'', q7:'', q8:'', q8p:false, q9:'', q10n:'', q10t:''
+  };
+
+  /* ---------- Q1：NPS 0〜10 ---------- */
+  var nps = $('nps');
+  for (var n = 0; n <= 10; n++) {
+    var l = document.createElement('label');
+    l.innerHTML = '<input type="radio" name="ui_q1" value="' + n + '" aria-label="' + n + '">' +
+                  '<span class="b">' + n + '</span>';
+    nps.appendChild(l);
+  }
+  nps.addEventListener('change', function(e){
+    if (e.target.name === 'ui_q1') { state.q1 = parseInt(e.target.value, 10); clearErr(); }
+  });
+
+  /* ---------- Q2：★5段階 × 2軸 ---------- */
+  function buildStars(box, group, onPick){
+    for (var i = 1; i <= 5; i++) {
+      var l = document.createElement('label');
+      l.innerHTML = '<input type="radio" name="' + group + '" value="' + i + '" aria-label="' + i + '">' +
+                    '<span class="s">★</span>';
+      box.appendChild(l);
+    }
+    box.addEventListener('change', function(e){
+      var v = parseInt(e.target.value, 10);
+      box.className = 'stars on-' + v;
+      onPick(v);
+      clearErr();
+    });
+  }
+  buildStars($('stars-finish'), 'ui_q2a', function(v){ state.q2a = v; });
+  buildStars($('stars-staff'),  'ui_q2b', function(v){ state.q2b = v; });
+
+  /* ---------- 選択肢を作る共通処理 ---------- */
+  function makeOpt(group, value, label, opts){
+    opts = opts || {};
+    var l = document.createElement('label');
+    l.className = 'opt' + (opts.multi ? ' check' : '') + (opts.done ? ' done' : '');
+    var inp = document.createElement('input');
+    inp.type = opts.multi ? 'checkbox' : 'radio';
+    inp.name = group;
+    inp.value = value;
+    var box = document.createElement('span');
+    box.className = 'box';
+    box.innerHTML = '<span class="mark">' + (opts.multi ? '✓' : '●') + '</span><span>' + label + '</span>' +
+                    (opts.sub ? '<span class="sub">' + opts.sub + '</span>' : '');
+    l.appendChild(inp);
+    l.appendChild(box);
+    return l;
+  }
+
+  /* ---------- Q3：今日いちばんよかった場所（施工メニューから作る） ---------- */
+  var q3Box = $('q3-opts');
+  var q3Src = doneList.length ? doneList : [
+    { q3:'エアコン' }, { q3:'レンジフード・換気扇' }, { q3:'浴室' },
+    { q3:'キッチン' }, { q3:'トイレ・洗面所' }, { q3:'洗濯機' }
+  ];
+  q3Src.forEach(function(m){ q3Box.appendChild(makeOpt('ui_q3', m.q3, m.q3)); });
+  q3Box.appendChild(makeOpt('ui_q3', 'その他', 'その他'));
+  q3Box.addEventListener('change', function(e){
+    if (e.target.name === 'ui_q3') { state.q3 = e.target.value; clearErr(); }
+  });
+  if (doneList.length) {
+    $('q3-title').textContent = 'Q3. 今日いちばん「やってよかった」と感じたのはどこですか？';
+  }
+  $('q3-comment').addEventListener('input', function(e){ state.q3c = e.target.value; });
+  $('q4').addEventListener('input', function(e){ state.q4 = e.target.value; });
+  $('q9').addEventListener('input', function(e){ state.q9 = e.target.value; });
+  $('q10-name').addEventListener('input', function(e){ state.q10n = e.target.value; });
+  $('q10-tel').addEventListener('input', function(e){ state.q10t = e.target.value; });
+
+  /* ---------- Q5：次に頼みたい場所。施工済みは下に回す ---------- */
+  var q5Box = $('q5-opts');
+  var notDone = MENUS.filter(function(m){ return !doneKeys[m.key]; });
+  notDone.forEach(function(m){ q5Box.appendChild(makeOpt('ui_q5', m.q5, m.q5, { multi:true })); });
+  q5Box.appendChild(makeOpt('ui_q5', 'まだ決めていない', 'まだ決めていない', { multi:true }));
+  doneList.forEach(function(m){
+    q5Box.appendChild(makeOpt('ui_q5', m.q5, m.q5, { multi:true, done:true, sub:'今回ご依頼いただいた箇所' }));
+  });
+  if (doneList.length) { $('q5-note').hidden = false; }
+  q5Box.addEventListener('change', function(e){
+    if (e.target.name !== 'ui_q5') { return; }
+    var v = e.target.value;
+    if (e.target.checked) {
+      if (state.q5.indexOf(v) < 0) { state.q5.push(v); }
+    } else {
+      state.q5 = state.q5.filter(function(x){ return x !== v; });
+    }
+  });
+
+  /* ---------- Q6：時期 ---------- */
+  var q6Box = $('q6-opts');
+  ['今すぐ相談したい','年末までに','春（3〜5月）','夏の前（6〜7月）','秋（9〜11月）','まだ未定']
+    .forEach(function(t){ q6Box.appendChild(makeOpt('ui_q6', t, t)); });
+  q6Box.addEventListener('change', function(e){
+    if (e.target.name !== 'ui_q6') { return; }
+    state.q6 = e.target.value;
+    $('q6-now').hidden = (state.q6 !== '今すぐ相談したい');
+  });
+
+  /* ---------- Q7：ご紹介 ---------- */
+  var q7Box = $('q7-opts');
+  ['紹介したい人がいる','機会があれば','今回は遠慮しておく']
+    .forEach(function(t){ q7Box.appendChild(makeOpt('ui_q7', t, t)); });
+  q7Box.addEventListener('change', function(e){
+    if (e.target.name === 'ui_q7') { state.q7 = e.target.value; }
+  });
+
+  /* ---------- Q8：掲載許可 ---------- */
+  var q8Box = $('q8-opts');
+  [['実名でOK',''],
+   ['イニシャルなら','例：江戸川区 S様'],
+   ['匿名なら','例：東京都 40代 女性'],
+   ['掲載はご遠慮ください','']
+  ].forEach(function(o){ q8Box.appendChild(makeOpt('ui_q8', o[0], o[0], { sub:o[1] })); });
+  q8Box.addEventListener('change', function(e){
+    if (e.target.name === 'ui_q8') { state.q8 = e.target.value; }
+  });
+  $('q8-photo').addEventListener('change', function(e){ state.q8p = e.target.checked; });
+
+  /* ---------- Q10：顧客IDがあれば入力は省略し、確認だけ ---------- */
+  if (P.id) {
+    $('q10-fields').hidden = true;
+    $('q10-why').textContent = (P.name ? P.name + ' 様' : 'お客様') +
+      'として承っています（お客様番号 ' + P.id + '）。ご入力は不要です。';
+  }
+
+  /* ---------- ステップ送り ---------- */
+  var steps = Array.prototype.slice.call(document.querySelectorAll('.step'));
+  var TITLES = ['満足度','よかったところ','次のご予定','ご紹介・掲載'];
+  var cur = 0;
+
+  function clearErr(){ $('err').textContent = ''; }
+
+  function render(){
+    steps.forEach(function(s, i){ s.hidden = (i !== cur); });
+    $('bar').style.width = ((cur + 1) / steps.length * 100) + '%';
+    $('steplab').textContent = (cur + 1) + ' / ' + steps.length;
+    $('steptitle').textContent = TITLES[cur];
+    $('back').hidden = (cur === 0);
+    $('next').hidden = (cur === steps.length - 1);
+    $('send').hidden = (cur !== steps.length - 1);
+    clearErr();
+    window.scrollTo(0, 0);
+  }
+
+  function validate(){
+    if (cur === 0) {
+      if (state.q1 === null) { return 'Q1のおすすめ度（0〜10）をお選びください。'; }
+      if (!state.q2a || !state.q2b) { return 'Q2の「仕上がり」「担当者の対応」を★でお選びください。'; }
+    }
+    if (cur === 1) {
+      if (!state.q3) { return 'Q3の「やってよかった」場所をお選びください。'; }
+    }
+    return '';
+  }
+
+  $('next').addEventListener('click', function(){
+    var msg = validate();
+    if (msg) { $('err').textContent = msg; return; }
+    cur = Math.min(cur + 1, steps.length - 1);
+    render();
+  });
+  $('back').addEventListener('click', function(){
+    cur = Math.max(cur - 1, 0);
+    render();
+  });
+  render();
+
+  /* ---------- 送信 ---------- */
+  function segment(v){
+    if (v >= 9) { return '推奨者'; }
+    if (v >= 7) { return '中立者'; }
+    return '批判者';
+  }
+
+  function fillHidden(){
+    $('h-q1').value  = (state.q1 === null ? '' : String(state.q1));
+    $('h-seg').value = (state.q1 === null ? '' : segment(state.q1));
+    $('h-q2a').value = state.q2a ? String(state.q2a) : '';
+    $('h-q2b').value = state.q2b ? String(state.q2b) : '';
+    $('h-q3').value  = state.q3;
+    $('h-q3c').value = state.q3c;
+    $('h-q4').value  = state.q4;
+    $('h-q5').value  = state.q5.join('、');
+    $('h-q6').value  = state.q6;
+    $('h-q7').value  = state.q7;
+    $('h-q8').value  = state.q8;
+    $('h-q8p').value = state.q8p ? '写真掲載OK' : '';
+    $('h-q9').value  = state.q9;
+    $('h-q10n').value = state.q10n || P.name;
+    $('h-q10t').value = state.q10t;
+    $('h-priv').value = $('priv').value;
+  }
+
+  /* 画面操作用の欄（ui_ 接頭辞）は送らず、固定の欄だけを送る */
+  function payload(){
+    var body = new URLSearchParams();
+    var els = form.elements;
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      if (!el.name || el.name.indexOf('ui_') === 0) { continue; }
+      if (el.type === 'checkbox' && !el.checked) { continue; }
+      body.append(el.name, el.value);
+    }
+    return body;
+  }
+
+  /* action が無いのは、このリポジトリ内のプレビュー用。その場合は送信せず画面だけ進める。
+     ビルド時（tools/build-site.py）に PHP か Netlify Forms の送信先が入ります。 */
+  function post(){
+    var action = form.getAttribute('action');
+    if (!action) { return Promise.resolve(false); }
+    return fetch(action, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+      body: payload().toString()
+    }).then(function(){ return true; }).catch(function(){ return false; });
+  }
+
+  form.noValidate = true;
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var msg = validate();
+    if (msg) { $('err').textContent = msg; return; }
+    fillHidden();
+    $('send').disabled = true;
+    $('send').textContent = '送信しています…';
+    post().then(function(){ showDone(); });
+  });
+
+  /* ---------- 文章の組み立て ---------- */
+  function sentence(t){
+    t = (t || '').replace(/\s+/g, ' ').trim();
+    if (!t) { return ''; }
+    return /[。！？!?…]$/.test(t) ? t : t + '。';
+  }
+
+  function reviewText(){
+    var lines = [];
+    var place = (state.q3 && state.q3 !== 'その他') ? state.q3 : '';
+    lines.push(place ? place + 'のクリーニングをお願いしました。' : 'ハウスクリーニングをお願いしました。');
+    if (state.q3c) {
+      lines.push(sentence(state.q3c));
+    } else if (place) {
+      lines.push(place + 'が見違えるほどきれいになりました。');
+    }
+    if (state.q4) {
+      lines.push(sentence('作業以外でも、' + state.q4.replace(/\s+/g, ' ').trim()));
+    }
+    if (state.q2b && state.q2b >= 4) {
+      lines.push(P.staff ? '担当の' + P.staff + 'さんの対応も丁寧でした。' : '担当の方の対応も丁寧でした。');
+    }
+    lines.push('またお願いしたいです。');
+    return lines.join('\n');
+  }
+
+  var REFER_URL = 'https://lp.one-hitter.jp/mizumawari/?ref=' + encodeURIComponent(P.id || 'shoukai');
+
+  function referText(){
+    var place = (state.q3 && state.q3 !== 'その他') ? state.q3 : '家の水まわり';
+    return 'この前、ハウスクリーニングをONE HITTERさんにお願いしたよ。\n' +
+           place + 'をやってもらったんだけど、想像以上にきれいになった。\n' +
+           '東京・千葉・神奈川で、見積り以上の追加請求もなし。よかったら見てみて。\n' +
+           REFER_URL;
+  }
+
+  /* ---------- コピー（クリップボードが使えない環境向けの控えつき） ---------- */
+  function copyText(text, doneEl){
+    function fallback(){
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
+      document.body.removeChild(ta);
+      return ok;
+    }
+    function flash(ok){
+      doneEl.textContent = ok ? 'コピーしました' : '長押しで選択してコピーしてください';
+      doneEl.hidden = false;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text)
+        .then(function(){ flash(true); })
+        .catch(function(){ flash(fallback()); });
+    } else {
+      flash(fallback());
+    }
+  }
+
+  $('copy-review').addEventListener('click', function(){
+    copyText($('review-text').textContent, $('copy-review-done'));
+  });
+  $('copy-refer').addEventListener('click', function(){
+    copyText($('refer-text').textContent, $('copy-refer-done'));
+  });
+
+  /* 低評価の方からの非公開のご意見。回答本体と同じ送信先へ、追記として送る */
+  $('priv-send').addEventListener('click', function(){
+    var t = $('priv').value.trim();
+    if (!t) { $('priv').focus(); return; }
+    fillHidden();
+    $('priv-send').disabled = true;
+    post().then(function(){
+      $('priv-done').hidden = false;
+      $('priv-send').textContent = '送信しました';
+    });
+  });
+
+  /* ---------- 完了画面 ---------- */
+  function showDone(){
+    steps.forEach(function(s){ s.hidden = true; });
+    $('nav').hidden = true;
+    $('progress').hidden = true;
+    $('privacy-note').hidden = true;
+    document.querySelector('.intro').hidden = true;
+    $('err').hidden = true;
+
+    $('review-text').textContent = reviewText();
+    $('refer-text').textContent = referText();
+    $('refer-line').href = 'https://line.me/R/msg/text/?' + encodeURIComponent(referText());
+
+    var done   = $('done');
+    var google = $('done-google');
+    var priv   = $('done-private');
+    var book   = $('done-book');
+    var refer  = $('done-refer');
+    var low    = (state.q1 !== null && state.q1 <= 6);
+
+    if (low) {
+      /* 低評価の方には「まず直接お聞かせください」を先に。
+         ただしGoogleのリンクは順番を下げるだけで、消さない（レビューゲーティングをしない）。 */
+      $('done-title').textContent = '率直なご意見をありがとうございます。';
+      $('done-lead').textContent  = 'いただいた評価は、その理由まで含めて代表と担当者が確認します。';
+      $('private-title').textContent = 'まず私たちに、直接お聞かせいただけませんか？';
+      $('private-lead').textContent =
+        '公開はいたしません。代表と担当者だけが読み、必要であれば再施工・ご返金のご相談をさせていただきます。';
+      priv.classList.remove('small');
+      priv.classList.add('hero-card');
+      google.classList.add('small');
+      $('google-title').textContent = 'Googleのクチコミも受け付けています';
+      $('google-lead').textContent =
+        '良い評価も、厳しい評価も、同じようにお受けします。書いていただける場合は下の文章をたたき台にしてください。';
+      done.insertBefore(priv, google);
+    } else {
+      $('done-title').textContent = 'ありがとうございました。';
+      $('done-lead').textContent  = '高い評価をいただけて、担当者もよろこびます。';
+      google.classList.add('hero-card');
+      priv.classList.add('small');
+      done.appendChild(priv);
+    }
+
+    if (state.q6 === '今すぐ相談したい') {
+      book.hidden = false;
+      done.insertBefore(book, done.children[1]);  /* お礼の直後 */
+    }
+    if (state.q7 === '紹介したい人がいる') {
+      refer.hidden = false;
+    }
+
+    done.hidden = false;
+    window.scrollTo(0, 0);
+  }
+})();
+</script>
+
+</body>
+</html>
