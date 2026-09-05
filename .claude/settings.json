@@ -1,0 +1,60 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 tools/sheets_client.py:*)",
+      "Bash(python3 tools/drive_client.py:*)",
+      "Bash(python3 tools/build-site.py:*)",
+      "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
+      "Bash(git branch:*)", "Bash(git add:*)", "Bash(git commit:*)", "Bash(git push:*)",
+      "Bash(git fetch:*)", "Bash(git pull:*)", "Bash(git restore:*)", "Bash(git stash:*)",
+      "Bash(ls:*)", "Bash(cat:*)", "Bash(head:*)", "Bash(tail:*)", "Bash(wc:*)",
+      "Bash(grep:*)", "Bash(rg:*)", "Bash(find:*)", "Bash(sed:*)", "Bash(awk:*)",
+      "Bash(sort:*)", "Bash(uniq:*)", "Bash(diff:*)", "Bash(mkdir:*)", "Bash(cp:*)", "Bash(mv:*)",
+      "Bash(curl:*)", "Bash(python3:*)", "Bash(pip3 install:*)", "Bash(node:*)", "Bash(npx:*)",
+      "Read", "Glob", "Grep", "Edit", "Write", "WebFetch", "WebSearch", "Agent", "SendUserFile",
+      "mcp__Google_Drive__search_files",
+      "mcp__Google_Drive__get_file_metadata",
+      "mcp__Google_Drive__read_file_content",
+      "mcp__Google_Drive__download_file_content",
+      "mcp__Google_Drive__list_recent_files",
+      "mcp__Google_Drive__get_file_permissions",
+      "mcp__Google_Drive__create_file",
+      "mcp__Google_Drive__update_file",
+      "mcp__Google_Drive__copy_file",
+      "mcp__Google_Drive__share_file",
+      "mcp__Google_Calendar__list_calendars",
+      "mcp__Google_Calendar__list_events",
+      "mcp__Google_Calendar__get_event",
+      "mcp__Google_Calendar__search_events",
+      "mcp__Google_Calendar__create_event",
+      "mcp__Google_Calendar__update_event",
+      "mcp__github__get_me",
+      "mcp__github__get_file_contents",
+      "mcp__github__list_branches",
+      "mcp__github__list_commits",
+      "mcp__github__list_pull_requests",
+      "mcp__github__pull_request_read",
+      "mcp__github__search_code"
+    ],
+    "ask": [
+      "Bash(git push --force:*)", "Bash(git push -f:*)", "Bash(git reset --hard:*)", "Bash(rm:*)",
+      "mcp__Google_Drive__trash_file",
+      "mcp__Google_Calendar__delete_event",
+      "mcp__github__create_pull_request",
+      "mcp__github__merge_pull_request",
+      "mcp__Gmail__send_message",
+      "mcp__Gmail__reply",
+      "mcp__Gmail__forward",
+      "mcp__Gmail__trash_message",
+      "mcp__Gmail__trash_thread"
+    ],
+    "deny": [
+      "Bash(rm -rf /:*)",
+      "Bash(rm -rf ~:*)",
+      "Read(./**/*service-account*.json)",
+      "Read(./**/*sa-key*.json)",
+      "Read(./**/*.pem)",
+      "Read(./**/credentials.json)"
+    ]
+  }
+}
