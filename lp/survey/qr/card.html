@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>アンケートQRカード｜ONE HITTER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
+<style>
+  /* 名刺サイズ（91×55mm）を A4 に 2列×5段＝10枚。
+     ラミネートして現場社員が携行し、施工後にお客様へ提示する想定。 */
+  @page { size: A4 portrait; margin: 7mm; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Zen Kaku Gothic New","IPAGothic",system-ui,sans-serif;background:#EDEAE4;padding:7mm;color:#14323D;
+       -webkit-font-smoothing:antialiased}
+  .sheet{display:grid;grid-template-columns:repeat(2,91mm);grid-auto-rows:55mm;justify-content:center}
+  .card{width:91mm;height:55mm;background:#fff;border:0.2mm dashed #C6BFB3;
+        padding:3.4mm 3.8mm 3.4mm 5mm;display:flex;gap:3.4mm;align-items:center;position:relative;overflow:hidden}
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2mm;background:#0E7C93}
+  .l{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
+  .brand{font-family:Barlow,sans-serif;font-weight:700;font-size:7pt;letter-spacing:.05em;color:#0E7C93;line-height:1.1}
+  .brand small{display:block;font-family:"Zen Kaku Gothic New","IPAGothic",sans-serif;font-weight:500;
+               font-size:5pt;color:#8A959A;letter-spacing:0;margin-top:.5mm}
+  h1{font-size:10pt;font-weight:900;line-height:1.38;margin:1.9mm 0 1.3mm;letter-spacing:-.015em}
+  h1 em{font-style:normal;background:linear-gradient(transparent 62%,#FFE566 62%);padding:0 .3mm}
+  .lead{font-size:6.1pt;line-height:1.5;color:#4A6871}
+  .off{margin-top:1.7mm;background:#FFF4E3;border:0.25mm solid #E2A845;border-radius:1mm;
+       padding:1.2mm 1.6mm;font-size:5.9pt;line-height:1.45;color:#8A5B12}
+  .off b{display:block;font-size:7.6pt;color:#A83714;line-height:1.3}
+  .r{width:26mm;text-align:center;flex:none}
+  .r img{width:26mm;height:26mm;display:block}
+  .r .time{font-size:5.9pt;font-weight:700;color:#0E7C93;margin-bottom:.9mm;letter-spacing:.01em}
+  .r .cap{font-size:5pt;color:#8A959A;margin-top:.9mm;line-height:1.35}
+  @media print{ body{background:#fff;padding:0} .card{border-color:#DCD6CC} }
+</style>
+</head>
+<body>
+<div class="sheet" id="sheet"></div>
+<script>
+var QR = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABCQAAAQkAQMAAACfWF1KAAAABlBMVEUUMj3////kPhTKAAAFgklEQVR42u3dW4rkOBAFUDEb0P53qR3kQDfTlhVXqhroYRp0/FGQaVt5oH4uekS0zx9wjUZBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBURVtvfrPJ9pz98fHHzeej8uIz+vzu303/E/FX+1PuCgoKCgoKCgoKP7Da06M/R0g+yFFzgn0ea7HaNu2w8udFBQUFBQUFBS35s4nQM7znSM83MKN8SufjhxXy/ByJwUFBQUFBQWF3NnLdGWa2ywJdLwX4DfzonInBQUFBQUFBYXcWYPhvMnzeW0eJ4XU1125k4KCgoKCgoJC7vxqf+dzkOj13DLpOSfQV1y1v5OCgoKCgoKCQu48n2f/rX/q8HInBQUFBQUFBcWFuTNdebE9bfLseVrze9Wc/EcoKCgoKCgoKK7MnfPdcajaWQbrYe19OX9UF+DlTgoKCgoKCgqKu3LndmdmKh5fQmrPhT2XGdJUkknupKCgoKCgoKC4K3emc0BzqKyvldX1cayotF2FlzspKCgoKCgoKK7LnflQ+zOPubw2vh9cl5qecicFBQUFBQUFxa25c8mT+ajQEk3HO1RuN4Nux5M7KSgoKCgoKCiuy52pJ+b8ZDpX1I/TpC30OrLOTkFBQUFBQUEhdy6Rc5nH/OQpzOe7OZ/2cD6+54NJcicFBQUFBQUFxYW5M8fQUeotPVFyWWLfLqzPv7au1vuPUFBQUFBQUFDcmzsPezRHOayeO7C3d/hsOZXKnRQUFBQUFBQUt+XOTzgg9KTIlCyXbZwt11FKzTKts1NQUFBQUFBQ3Jo788dakvOrqki1/FKpJW9/JwUFBQUFBQXF1bmzH0sjtfe05icXU5qf6+F00ig15+VOCgoKCgoKCoq7cudSGX5+ZGk8NL4e71SNSR0lCgoKCgoKCgq5s3RWf4XP5Y1tKfjyWhpP7qSgoKCgoKCguDp3tjl8poPpKaTmQ0Ob8ezvpKCgoKCgoKC4Onfm4kc9LJOf5kVTM/dDi0y5k4KCgoKCgoLiutyZlslz0Hy1KlqeS5Gz/KT6nRQUFBQUFBQUF+fO3Bizh6ryI6TNUyOj1E/TfCcFBQUFBQUFxa25s7RS77so+dnt+fwcNoOWWU65k4KCgoKCgoLi1tyZOg29UmTZAroUlK8Pp7JKcicFBQUFBQUFxdW5M9VCyjd6aEu0CZpp1rTmXf8RCgoKCgoKCoqLcudhe+bycJ3lTA2PlhvbHCt3UlBQUFBQUFBcnTvTLOe/3bcZeru38LDcSUFBQUFBQUFxU+5MPdbnFfelcfvmGHw+jnTucCR3UlBQUFBQUFDclDtzxvyU8pvLu+XbpYdRL5OoZepU7qSgoKCgoKCguDN3LqGyNMZ8fXcoFJ/mT9OivNxJQUFBQUFBQXFd7kzlkuYY2g/r56m2UqlD3+aPcicFBQUFBQUFxZW5s/YhOrTD/ISV9FYaFOX9nfpkUlBQUFBQUFBcnDtTL/YnSpZz6putnaml0SHqyp0UFBQUFBQUFNflzrzi3kItpDqZWYYa765HvYwnd1JQUFBQUFBQ3Jo7y62eOxI9r6V19nyuqJctoHInBQUFBQUFBcW9ubPvDhe10pvoVI0z/Eq3v5OCgoKCgoKCQu7cnWLfTFLOjyzJcoTGmCMnUPOdFBQUFBQUFBRyZy3sXiJn7leUemeO0iKzjCJ3UlBQUFBQUFDIncsBofYuAN/ep4S2c5vj8LtyJwUFBQUFBQXFhbnzXGrzu/2KUuuj9BtyJwUFBQUFBQXFlbmzhQBZpzrLAGlhPTU3WjoXWWenoKCgoKCgoLgzd/5/16CgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCg+EfxN1GAFMiaRQnPAAAAAElFTkSuQmCC";
+var card =
+  '<div class="card">' +
+    '<div class="l">' +
+      '<div class="brand">ONE HITTER<small>ワンヒッター株式会社</small></div>' +
+      '<h1>本日の仕上がりを、<br><em>1分だけ</em>教えてください。</h1>' +
+      '<div class="lead">スマホのカメラをQRに向けるだけです。<br>いただいたお声は担当者本人にも届きます。</div>' +
+      '<div class="off">この場で次回のご予約をいただくと<b>時期によって最大 15%OFF</b>1〜2月がいちばんおトクです</div>' +
+    '</div>' +
+    '<div class="r">' +
+      '<div class="time">所要 約1分</div>' +
+      '<img src="' + QR + '" alt="アンケートのQRコード">' +
+      '<div class="cap">アプリは要りません</div>' +
+    '</div>' +
+  '</div>';
+document.getElementById('sheet').innerHTML = new Array(10).fill(card).join('');
+</script>
+</body>
+</html>

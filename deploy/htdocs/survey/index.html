@@ -319,6 +319,7 @@ footer a{color:var(--invert-ink);}
     <input type="hidden" name="q4_extra" id="h-q4">
     <input type="hidden" name="q5_next" id="h-q5">
     <input type="hidden" name="q6_when" id="h-q6">
+    <input type="hidden" name="q6_discount" id="h-q6off">
     <input type="hidden" name="q7_referral" id="h-q7">
     <input type="hidden" name="q8_publish" id="h-q8">
     <input type="hidden" name="q8_photo" id="h-q8p">
@@ -398,7 +399,8 @@ footer a{color:var(--invert-ink);}
       <div class="q" style="margin-top:14px">
         <div class="head">
           <span class="tag-opt">任意</span>
-          <h2>Q6. いつ頃をお考えですか？</h2>
+          <h2>Q6. 次はいつ頃をお考えですか？</h2>
+          <p class="why">いま次回のご予約をいただくと、<b>時期によって割引になります</b>。空いている時期ほど割引が大きくなります。</p>
         </div>
         <div class="opts grid" id="q6-opts"></div>
         <div class="branch" id="q6-now" hidden>
@@ -486,10 +488,10 @@ footer a{color:var(--invert-ink);}
         <p id="done-lead">ご回答は担当者にそのままお届けします。</p>
       </div>
 
-      <!-- 予約導線（Q6で「今すぐ相談したい」を選んだ方だけ） -->
+      <!-- 予約導線（Q6で「今すぐ」または割引のある時期を選んだ方） -->
       <div class="card hero-card" id="done-book" hidden>
-        <h3>「今すぐ相談したい」を選んでいただきました</h3>
-        <p>こちらからもご連絡しますが、その場でお話しいただくのがいちばん早いです。</p>
+        <h3 id="book-title">「今すぐ相談したい」を選んでいただきました</h3>
+        <p id="book-lead">こちらからもご連絡しますが、その場でお話しいただくのがいちばん早いです。</p>
         <div class="copy-row">
           <a class="btn tel" href="tel:08080438259">電話する（渡辺 8:00–20:00）</a>
           <a class="btn line" href="https://lin.ee/7kD9WGN">LINEで相談する</a>
@@ -638,7 +640,7 @@ footer a{color:var(--invert-ink);}
   var state = {
     q1:null, q2a:null, q2b:null,
     q3:'', q3c:'', q4:'',
-    q5:[], q6:'', q7:'', q8:'', q8p:false, q9:'', q10n:'', q10t:''
+    q5:[], q6:'', q6off:0, q7:'', q8:'', q8p:false, q9:'', q10n:'', q10t:''
   };
 
   /* ---------- Q1：NPS 0〜10 ---------- */
@@ -728,13 +730,42 @@ footer a{color:var(--invert-ink);}
     }
   });
 
-  /* ---------- Q6：時期 ---------- */
+  /* ---------- Q6：時期（次回予約割引つき） ----------
+     割引率は実際の運用に合わせています。5〜7月（夏前のエアコン）と11〜12月（年末の大掃除）は
+     繁忙期なので割引なし。空いている時期ほど大きくすることで、需要の谷を埋める設計です。
+     並び順は「今月が属する期間」から始まるよう毎回計算するので、年をまたいでも古くなりません。 */
+  var BANDS = [
+    { label:'1〜2月',   off:15, note:'いちばんおトクな時期です' },
+    { label:'3〜4月',   off:10, note:'' },
+    { label:'5〜7月',   off:0,  note:'夏前のエアコンで混み合う時期です' },
+    { label:'8〜10月',  off:10, note:'' },
+    { label:'11〜12月', off:0,  note:'年末の大掃除で混み合う時期です' }
+  ];
+  var BAND_OF_MONTH = { 1:0, 2:0, 3:1, 4:1, 5:2, 6:2, 7:2, 8:3, 9:3, 10:3, 11:4, 12:4 };
+
+  function bandOrder() {
+    var start = BAND_OF_MONTH[new Date().getMonth() + 1];
+    var out = [];
+    for (var i = 0; i < BANDS.length; i++) { out.push(BANDS[(start + i) % BANDS.length]); }
+    return out;
+  }
+  function discountOf(label) {
+    for (var i = 0; i < BANDS.length; i++) { if (BANDS[i].label === label) { return BANDS[i].off; } }
+    return 0;
+  }
+
   var q6Box = $('q6-opts');
-  ['今すぐ相談したい','年末までに','春（3〜5月）','夏の前（6〜7月）','秋（9〜11月）','まだ未定']
-    .forEach(function(t){ q6Box.appendChild(makeOpt('ui_q6', t, t)); });
+  q6Box.appendChild(makeOpt('ui_q6', '今すぐ相談したい', '今すぐ相談したい'));
+  bandOrder().forEach(function(b){
+    var sub = b.off > 0 ? ('次回のご予約で ' + b.off + '%OFF') : (b.note || '割引はありません');
+    q6Box.appendChild(makeOpt('ui_q6', b.label, b.label, { sub: sub }));
+  });
+  q6Box.appendChild(makeOpt('ui_q6', 'まだ未定', 'まだ未定'));
+
   q6Box.addEventListener('change', function(e){
     if (e.target.name !== 'ui_q6') { return; }
     state.q6 = e.target.value;
+    state.q6off = discountOf(state.q6);
     $('q6-now').hidden = (state.q6 !== '今すぐ相談したい');
   });
 
@@ -824,6 +855,7 @@ footer a{color:var(--invert-ink);}
     $('h-q4').value  = state.q4;
     $('h-q5').value  = state.q5.join('、');
     $('h-q6').value  = state.q6;
+    $('h-q6off').value = state.q6off ? (state.q6off + '%') : '';
     $('h-q7').value  = state.q7;
     $('h-q8').value  = state.q8;
     $('h-q8p').value = state.q8p ? '写真掲載OK' : '';
@@ -999,9 +1031,26 @@ footer a{color:var(--invert-ink);}
       done.insertBefore(priv, $('done-company'));
     }
 
+    /* 「今すぐ」か、割引のある時期を選んだ方には、この場で予約まで進んでいただく。
+       次回予約は生命線なので、完了画面でもう一度きちんと出します。 */
     if (state.q6 === '今すぐ相談したい') {
       book.hidden = false;
       done.insertBefore(book, done.children[1]);  /* お礼の直後 */
+    } else if (state.q6 && state.q6 !== 'まだ未定') {
+      if (state.q6off > 0) {
+        $('book-title').textContent = state.q6 + 'のご予約なら、' + state.q6off + '%OFFです';
+        $('book-lead').textContent =
+          'いまご予約いただければ、この割引でお取りしておきます。日にちは後から変更していただけます。';
+      } else {
+        /* 割引のない5〜7月・11〜12月は繁忙期。割引の代わりに、
+           埋まる前に日を押さえられるという実際の価値をお伝えする。 */
+        $('book-title').textContent = state.q6 + 'は、毎年はやく埋まります';
+        $('book-lead').textContent =
+          'この時期はご希望の日をお取りできないことがあります。お日にちだけ先に押さえておきませんか。'
+          + '内容は後から決めていただけますし、変更もできます。';
+      }
+      book.hidden = false;
+      done.insertBefore(book, done.children[1]);
     }
     if (state.q7 === '紹介したい人がいる') {
       refer.hidden = false;
