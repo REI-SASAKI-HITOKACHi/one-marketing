@@ -35,6 +35,15 @@ PAGES = {
         "og_line1": "エアコン内部のカビを、分解洗浄",
         "og_line2": "ノーマル 9,800円／60分・東京 千葉 神奈川",
     },
+    "nenmatsu": {
+        "dir": "nenmatsu",
+        "title": "年末大掃除 11月までなら通常価格｜レンジフード・浴室・キッチン｜ONE HITTER",
+        "desc": "12月は繁忙期料金として1箇所につき3,300円が加算されます。11月30日までのご予約なら通常価格。"
+                "レンジフード＋浴室で30,600円、半日で完了。東京・千葉・神奈川、自社施工。",
+        "og": "nenmatsu/img/og.jpg",
+        "og_line1": "年末の大掃除は、11月までが安い",
+        "og_line2": "レンジフード＋浴室 30,600円・12月から+3,300円／箇所",
+    },
     "mizumawari": {
         "dir": "mizumawari",
         "title": "水まわりクリーニング まとめて依頼で1箇所3,000円おトク｜ONE HITTER",
@@ -154,6 +163,10 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path) -> None:
     src = src[:line_end] + HP_CSS.rstrip("\n") + src[line_end:]
 
     src = src.replace("</body>", "")  # 断片には無いはずだが念のため
+
+    # 断片が持つ <title> は Artifact でプレビューするためのもの。
+    # 公開用は HEAD 側の title が正なので、body に流れ込まないよう取り除く。
+    src = re.sub(r"[ \t]*<title>.*?</title>[ \t]*\n?", "", src, count=1, flags=re.S)
     head_meta = {k: v for k, v in meta.items() if not k.startswith("og_")}
     doc = HEAD.format(base=BASE_URL, **head_meta) + src + TAIL
 
