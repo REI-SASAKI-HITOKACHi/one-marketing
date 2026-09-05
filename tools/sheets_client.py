@@ -80,12 +80,13 @@ def _sign_rs256(message: bytes, private_key_pem: str) -> bytes:
             pass
 
 
-def access_token(info: dict) -> str:
+def access_token(info: dict, scope: str = SCOPE) -> str:
+    """スコープ既定は Sheets。Drive を触るときは drive_client.py から別スコープを渡す。"""
     now = int(time.time())
     header = {"alg": "RS256", "typ": "JWT"}
     claims = {
         "iss": info["client_email"],
-        "scope": SCOPE,
+        "scope": scope,
         "aud": info.get("token_uri", TOKEN_URL),
         "iat": now,
         "exp": now + 3600,
