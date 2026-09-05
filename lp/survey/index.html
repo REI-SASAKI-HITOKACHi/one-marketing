@@ -504,15 +504,15 @@ footer a{color:var(--invert-ink);}
           <button class="btn sm ghost" type="button" id="copy-review">文章をコピー</button>
           <span class="copied" id="copy-review-done" hidden>コピーしました</span>
         </div>
-        <!-- 差し替え予定：Googleビジネスプロフィールの管理画面から取得できる投稿用の短縮URL
-             （https://g.page/r/.../review）が手に入ったら、下の href をそれに差し替えてください。
-             短縮URLはクチコミの入力欄が直接開くので、いまの地図リンクより1タップ短くなります。 -->
-        <a class="btn lg" id="google-link" href="https://www.google.com/maps?cid=8892658939297434929"
+        <!-- Places API で取得した Place ID（ChIJef_3b2eHGGARMY2GoTASaXs）を使った
+             クチコミ投稿の直リンク。押すとクチコミの入力欄がそのまま開く。 -->
+        <a class="btn lg" id="google-link"
+           href="https://search.google.com/local/writereview?placeid=ChIJef_3b2eHGGARMY2GoTASaXs"
            target="_blank" rel="noopener">Googleに投稿する</a>
         <ol class="step-list">
           <li>「文章をコピー」を押す</li>
           <li>「Googleに投稿する」を押す</li>
-          <li>クチコミ欄を長押しして貼り付け、星を選んで投稿</li>
+          <li>開いた入力欄に長押しで貼り付け、星を選んで投稿</li>
         </ol>
       </div>
 
