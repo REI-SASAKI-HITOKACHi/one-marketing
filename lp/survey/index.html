@@ -144,7 +144,7 @@ a{color:var(--accent-deep);}
 
 /* 進捗 */
 .progress{position:sticky;top:0;z-index:20;background:var(--ground);padding:8px 0 10px;}
-.progress .track{height:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:99px;overflow:hidden;}
+.progress .track{display:block;height:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:99px;overflow:hidden;}
 .progress .fill{display:block;height:100%;width:25%;background:var(--accent);transition:width .25s ease;}
 .progress .lab{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:5px;}
 
@@ -244,6 +244,7 @@ a{color:var(--accent-deep);}
 
 /* 完了画面 */
 .done{display:flex;flex-direction:column;gap:14px;}
+.done h2,.done h3,.done .thanks strong{word-break:auto-phrase;}
 .done .thanks{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:24px 20px;
   display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);}
 .done .thanks h2{font-size:20px;}
@@ -524,7 +525,7 @@ footer a{color:var(--invert-ink);}
           <span class="copied" id="priv-done" hidden>お送りしました。折り返しご連絡します。</span>
         </div>
         <div class="copy-row">
-          <a class="btn sm tel" href="tel:08080438259">電話でも承ります（渡辺）</a>
+          <a class="btn sm tel" href="tel:08080438259">電話で伝える</a>
           <a class="btn sm line" href="https://lin.ee/7kD9WGN">LINEで伝える</a>
         </div>
       </div>
@@ -543,7 +544,7 @@ footer a{color:var(--invert-ink);}
         </div>
       </div>
 
-      <div class="card small">
+      <div class="card small" id="done-company">
         <h3>ワンヒッター株式会社（ONE HITTER）</h3>
         <p>
           東京都江戸川区北葛西5-14-11 5F／電話 <a href="tel:08080438259">080-8043-8259</a>（8:00–20:00 渡辺）<br>
@@ -885,7 +886,11 @@ footer a{color:var(--invert-ink);}
     if (state.q2b && state.q2b >= 4) {
       lines.push(P.staff ? '担当の' + P.staff + 'さんの対応も丁寧でした。' : '担当の方の対応も丁寧でした。');
     }
-    lines.push('またお願いしたいです。');
+    /* 低い評価をつけた方の下書きに「またお願いしたい」と書き足すのは不誠実なので、
+       締めの一文は7点以上の方にだけ足します。 */
+    if (state.q1 !== null && state.q1 >= 7) {
+      lines.push('またお願いしたいです。');
+    }
     return lines.join('\n');
   }
 
@@ -986,7 +991,7 @@ footer a{color:var(--invert-ink);}
       $('done-lead').textContent  = '高い評価をいただけて、担当者もよろこびます。';
       google.classList.add('hero-card');
       priv.classList.add('small');
-      done.appendChild(priv);
+      done.insertBefore(priv, $('done-company'));
     }
 
     if (state.q6 === '今すぐ相談したい') {
