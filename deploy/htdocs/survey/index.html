@@ -307,6 +307,8 @@ footer a{color:var(--invert-ink);}
     <input type="hidden" name="cust_menu" id="h-menu">
     <input type="hidden" name="cust_staff" id="h-staff">
     <input type="hidden" name="cust_date" id="h-date">
+    <!-- 現場QR経由か、SMS経由か。回答率を経路別に測るために使う -->
+    <input type="hidden" name="src" id="h-src">
     <!-- 回答の格納先。画面上の操作は ui_ 接頭辞の入力欄で行い、送信直前にここへ書き写します。
          （Netlify Forms は配信されたHTMLに書かれた name しか受け取らないため、動的に作る
            選択肢そのものに name は付けず、この固定の欄に集約しています） -->
@@ -539,8 +541,9 @@ footer a{color:var(--invert-ink);}
 
       <!-- ご紹介（Q7で「紹介したい人がいる」を選んだ方だけ） -->
       <div class="card" id="done-refer" hidden>
-        <h3>ご紹介いただける方へ</h3>
-        <p>そのまま送れる文章をご用意しました。ご紹介いただいた方には、次回のご依頼時にご相談させてください。</p>
+        <h3>ご紹介いただくと、次回 1,000円割引です</h3>
+        <p>ご紹介くださった<b>お客様ご本人</b>の、次回のお掃除が1,000円割引になります。
+           そのまま送れる文章をご用意しましたので、よろしければお使いください。</p>
         <div class="quote" id="refer-text"></div>
         <div class="copy-row">
           <button class="btn sm ghost" type="button" id="copy-refer">紹介文をコピー</button>
@@ -548,6 +551,13 @@ footer a{color:var(--invert-ink);}
         </div>
         <div class="copy-row">
           <a class="btn sm line" id="refer-line" href="#" target="_blank" rel="noopener">LINEで送る</a>
+        </div>
+        <!-- 割引クーポンの配布経路が公式LINEなので、ここで友だち追加まで済ませていただく -->
+        <div class="branch" style="margin-top:14px">
+          <b>割引は公式LINEでお渡しします</b>
+          <p>友だち追加していただくと、割引のご案内をお送りします。
+             お掃除の時期のお知らせもこちらからです。</p>
+          <a class="btn line" href="https://lin.ee/7kD9WGN" target="_blank" rel="noopener">公式LINEを友だち追加する</a>
         </div>
       </div>
 
@@ -581,15 +591,19 @@ footer a{color:var(--invert-ink);}
   var $  = function(id){ return document.getElementById(id); };
   var form = document.querySelector('.survey-form');
 
-  /* ---------- URLパラメータ（?id= &name= &menu= &staff= &date=） ---------- */
+  /* ---------- URLパラメータ（?id= &name= &menu= &staff= &date= &src=） ----------
+     src は流入経路。現場でQRを見せた場合は qr、SMSから来た場合は sms が入る。
+     回答率を経路別に測るために使う（分母が違うので合算しないこと）。 */
   var params = new URLSearchParams(location.search);
   var P = {
     id:    (params.get('id')    || '').slice(0, 40),
     name:  (params.get('name')  || '').slice(0, 40),
     menu:  (params.get('menu')  || '').slice(0, 120),
     staff: (params.get('staff') || '').slice(0, 20),
-    date:  (params.get('date')  || '').slice(0, 20)
+    date:  (params.get('date')  || '').slice(0, 20),
+    src:   (params.get('src')   || 'direct').slice(0, 20)
   };
+  $('h-src').value   = P.src;
   $('h-id').value    = P.id;
   $('h-name').value  = P.name;
   $('h-menu').value  = P.menu;
