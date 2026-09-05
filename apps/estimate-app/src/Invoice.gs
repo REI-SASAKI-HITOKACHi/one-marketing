@@ -63,6 +63,14 @@ function apiStartInvoice(estimateId) {
         remarks: '',
         staff: r['担当者'] || r['作成者'] || ''
       },
+      terms: {
+        note: terms.note,
+        closing: terms.closing,
+        site: terms.site,
+        holidayRule: terms.holidayRule,
+        fromMaster: terms.fromMaster,
+        adjusted: terms.adjusted
+      },
       termsNote: terms.note
     };
   });
@@ -271,24 +279,58 @@ function apiGetInvoiceDetail(invoiceId) {
 /* ===================== 請求日・支払期限 ===================== */
 
 /**
- * 取引先ごとの締め日・支払サイトから請求日と支払期限を決める。
- * マスタが空なら「月末締め・翌月末払い」を既定にする。
- * 画面で上書きできるので、ここはあくまで初期値。
+ * 請求日と支払期限は取引先ごとに違うので、提出先マスタで制御する。
+ *
+ * 提出先マスタの列
+ *   請求締め日        … 「月末」または 1〜31 の数字
+ *   支払サイト        … 締め日からいつ払うか（下の書式）
+ *   支払期日_休日調整 … 空 / 「前営業日」 / 「翌営業日」
+ *
+ * 支払サイトの書式
+ *   当月末 / 翌月末 / 翌々月末        … その月の末日
+ *   当月25日 / 翌月10日 / 翌々月20日  … その月の指定日（短い月は末日に丸める）
+ *   30日 / 60日                        … 請求日からの日数
+ *
+ * 空欄なら設定マスタの既定値（月末締め・翌月末払い）を使う。
+ * ここで出すのは初期値で、請求書作成画面で上書きできる。
  */
 function resolvePaymentTerms_(target, workDateInput, settings) {
   const workDate = parseDateInput_(workDateInput) || new Date();
-  const closing = String((target && target.closingDay) || settings['既定_請求締め日'] || '月末').trim();
-  const site = String((target && target.paymentSite) || settings['既定_支払サイト'] || '翌月末').trim();
 
-  const invoiceDate = calcClosingDate_(workDate, closing);
-  const dueDate = calcDueDate_(invoiceDate, site);
+  const closingRaw = pickTerm_(target && target.closingDay, settings['既定_請求締め日'], '月末');
+  const siteRaw = pickTerm_(target && target.paymentSite, settings['既定_支払サイト'], '翌月末');
+  const holidayRaw = pickTerm_(target && target.paymentHolidayRule, settings['既定_支払期日休日調整'], '');
+
+  const fromMaster = !!(target && (target.closingDay || target.paymentSite || target.paymentHolidayRule));
+
+  const invoiceDate = calcClosingDate_(workDate, closingRaw);
+  const rawDue = calcDueDate_(invoiceDate, siteRaw);
+  const dueDate = adjustForWeekend_(rawDue, holidayRaw);
+
+  const notes = ['締め日：' + closingRaw, '支払サイト：' + siteRaw];
+  if (holidayRaw) notes.push('休日調整：' + holidayRaw);
+  notes.push(fromMaster ? '（提出先マスタ）' : '（既定値）');
 
   return {
     invoiceDate: invoiceDate,
     dueDate: dueDate,
-    note: '締め日：' + closing + ' / 支払サイト：' + site
-      + (target && (target.closingDay || target.paymentSite) ? '（提出先マスタ）' : '（既定値）')
+    closing: closingRaw,
+    site: siteRaw,
+    holidayRule: holidayRaw,
+    fromMaster: fromMaster,
+    adjusted: rawDue.getTime() !== dueDate.getTime(),
+    note: notes.join(' / ')
   };
+}
+
+function pickTerm_(masterValue, settingValue, fallback) {
+  const m = String(masterValue == null ? '' : masterValue).trim();
+  if (m) return m;
+
+  const s = String(settingValue == null ? '' : settingValue).trim();
+  if (s) return s;
+
+  return fallback;
 }
 
 function lastDayOfMonth_(year, monthIndex) {
@@ -306,7 +348,7 @@ function calcClosingDate_(workDate, closing) {
   const m = workDate.getMonth();
   const text = String(closing || '').trim();
 
-  if (!text || text === '月末' || text === '末日' || text === '末') return lastDayOfMonth_(y, m);
+  if (isMonthEndText_(text)) return lastDayOfMonth_(y, m);
 
   const day = toNumber_(text);
   if (!(day >= 1 && day <= 31)) return lastDayOfMonth_(y, m);
@@ -315,15 +357,46 @@ function calcClosingDate_(workDate, closing) {
   return workDate.getDate() <= thisMonth.getDate() ? thisMonth : clampToMonth_(y, m + 1, day);
 }
 
+function isMonthEndText_(text) {
+  const t = String(text || '').trim();
+  return t === '月末' || t === '末日' || t === '末';
+}
+
+const MONTH_OFFSET_WORDS = [
+  { words: ['翌々月', '翌翌月', '再来月'], offset: 2 },
+  { words: ['翌月', '来月'], offset: 1 },
+  { words: ['当月', '同月', '今月'], offset: 0 }
+];
+
+/**
+ * 支払サイトから支払期限を出す。
+ * 「翌月10日」のような月＋日の指定に対応する（20日締め翌月10日払い等の実務条件のため）。
+ */
 function calcDueDate_(invoiceDate, site) {
   const y = invoiceDate.getFullYear();
   const m = invoiceDate.getMonth();
   const text = String(site || '').trim();
 
-  if (text === '当月末') return lastDayOfMonth_(y, m);
-  if (text === '翌月末') return lastDayOfMonth_(y, m + 1);
-  if (text === '翌々月末') return lastDayOfMonth_(y, m + 2);
+  if (!text) return lastDayOfMonth_(y, m + 1);
 
+  for (let i = 0; i < MONTH_OFFSET_WORDS.length; i++) {
+    const entry = MONTH_OFFSET_WORDS[i];
+
+    for (let w = 0; w < entry.words.length; w++) {
+      const word = entry.words[w];
+      if (text.indexOf(word) !== 0) continue;
+
+      const rest = text.slice(word.length).trim();
+      if (isMonthEndText_(rest) || rest === '') return lastDayOfMonth_(y, m + entry.offset);
+
+      const day = toNumber_(rest.replace(/日/g, ''));
+      if (day >= 1 && day <= 31) return clampToMonth_(y, m + entry.offset, day);
+
+      return lastDayOfMonth_(y, m + entry.offset);
+    }
+  }
+
+  // 「30日」「60日」のような日数指定
   const days = toNumber_(text.replace(/日/g, ''));
   if (days > 0) {
     const d = new Date(invoiceDate.getTime());
@@ -332,6 +405,34 @@ function calcDueDate_(invoiceDate, site) {
   }
 
   return lastDayOfMonth_(y, m + 1);
+}
+
+/**
+ * 支払期日が土日のときの調整。
+ * 祝日は判定できないので土日のみ。祝日を厳密に見たい場合は画面で手直しすること。
+ */
+function adjustForWeekend_(date, rule) {
+  const text = String(rule || '').trim();
+  if (!text) return date;
+
+  const forward = text.indexOf('翌') === 0;
+  const backward = text.indexOf('前') === 0;
+  if (!forward && !backward) return date;
+
+  const d = new Date(date.getTime());
+  let guard = 0;
+
+  while (isWeekend_(d) && guard < 7) {
+    d.setDate(d.getDate() + (forward ? 1 : -1));
+    guard++;
+  }
+
+  return d;
+}
+
+function isWeekend_(date) {
+  const day = date.getDay();
+  return day === 0 || day === 6;
 }
 
 /* ===================== 請求額の計算 ===================== */
@@ -643,7 +744,7 @@ function fillInvoiceSheet_(sheet, defs, record, calc, settings) {
     document_date: formatDate_(record['請求日'] || new Date(), 'yyyy/MM/dd'),
     document_no_label: '請求番号：',
     invoice_id: record.invoice_id,
-    title: '御  請  求  書',
+    title: '御  請  求  書' + IDEOGRAPHIC_SPACE,
     addressee_name: record['請求書宛名'] || '',
     addressee_suffix: record['敬称'] || '',
     company_name: settings['会社名'] || '',
@@ -656,17 +757,18 @@ function fillInvoiceSheet_(sheet, defs, record, calc, settings) {
     greeting: '下記の通り御請求申し上げます。',
     total_amount_label: 'ご請求金額',
     total_amount_display: calc.grandTotal,
-    total_amount_unit: '円',
-    detail_header_name: '品名',
-    detail_header_qty: '数量',
-    detail_header_unit_price: '単価',
-    detail_header_amount: '金額',
+    total_amount_unit: IDEOGRAPHIC_SPACE + '円',
+    detail_header_name: '品' + IDEOGRAPHIC_SPACE + IDEOGRAPHIC_SPACE + '名',
+    detail_header_qty: '数' + IDEOGRAPHIC_SPACE + '量',
+    detail_header_unit_price: '単' + IDEOGRAPHIC_SPACE + '価',
+    detail_header_amount: '金' + IDEOGRAPHIC_SPACE + '額',
     remarks: remarksText,
-    subtotal_label: '小計',
+    subtotal_label: '小' + IDEOGRAPHIC_SPACE + '計',
     subtotal: calc.documentSubtotal,
-    tax_label: '消費税',
+    // 請求書テンプレートは税率入りの見出し。税率を変えても表示がずれないよう組み立てる
+    tax_label: '消費税(' + Math.round((calc.taxRate || 0.1) * 100) + '%)',
     tax: calc.tax,
-    grand_total_label: '合計',
+    grand_total_label: '合' + IDEOGRAPHIC_SPACE + '計',
     grand_total: calc.grandTotal,
     // 差し込みセル定義に payment_due が無ければ書かずに素通りする
     payment_due: record['支払期限'] ? formatDate_(record['支払期限'], 'yyyy/MM/dd') : ''

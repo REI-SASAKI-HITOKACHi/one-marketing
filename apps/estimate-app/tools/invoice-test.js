@@ -85,8 +85,15 @@ function ymd(date) {
 
 console.log('\n請求日・支払期限（取引先マスタの締め日／支払サイト）');
 
-function terms(closingDay, paymentSite, workDate) {
-  return sandbox.resolvePaymentTerms_({ closingDay: closingDay, paymentSite: paymentSite }, workDate, CTX.settings);
+function terms(closingDay, paymentSite, workDate, holidayRule) {
+  return sandbox.resolvePaymentTerms_(
+    { closingDay: closingDay, paymentSite: paymentSite, paymentHolidayRule: holidayRule || '' },
+    workDate, CTX.settings);
+}
+
+function dates(closingDay, paymentSite, workDate, holidayRule) {
+  const t = terms(closingDay, paymentSite, workDate, holidayRule);
+  return [ymd(t.invoiceDate), ymd(t.dueDate)];
 }
 
 check('T-1 月末締め・翌月末払い（既定）', (() => {
@@ -128,6 +135,57 @@ check('T-8 当月末払い', (() => {
   const t = terms('月末', '当月末', '2026-05-14');
   return [ymd(t.invoiceDate), ymd(t.dueDate)];
 })(), ['2026-05-31', '2026-05-31']);
+
+/* --- 月＋日の指定（20日締め翌月10日払い等の実務条件） --- */
+
+check('T-9 20日締め・翌月10日払い', dates('20', '翌月10日', '2026-05-14'), ['2026-05-20', '2026-06-10']);
+
+check('T-10 20日締め・翌月10日払い（締め日超過で翌月締め）',
+  dates('20', '翌月10日', '2026-05-25'), ['2026-06-20', '2026-07-10']);
+
+check('T-11 月末締め・翌々月10日払い', dates('月末', '翌々月10日', '2026-05-14'), ['2026-05-31', '2026-07-10']);
+
+check('T-12 15日締め・当月25日払い', dates('15', '当月25日', '2026-05-10'), ['2026-05-15', '2026-05-25']);
+
+check('T-13 月＋日の指定で年を跨ぐ', dates('月末', '翌月10日', '2026-12-05'), ['2026-12-31', '2027-01-10']);
+
+check('T-14 翌月31日払いは短い月では末日に丸める',
+  dates('月末', '翌月31日', '2026-01-15'), ['2026-01-31', '2026-02-28']);
+
+check('T-15 「翌月」だけなら翌月末とみなす', dates('月末', '翌月', '2026-05-14'), ['2026-05-31', '2026-06-30']);
+
+/* --- 土日の調整（祝日は判定しない） --- */
+
+// 2026-05-31 は日曜
+check('T-16 支払期限が日曜・調整なしならそのまま',
+  dates('月末', '当月末', '2026-05-14'), ['2026-05-31', '2026-05-31']);
+
+check('T-17 支払期限が日曜・前営業日なら金曜へ',
+  dates('月末', '当月末', '2026-05-14', '前営業日'), ['2026-05-31', '2026-05-29']);
+
+check('T-18 支払期限が日曜・翌営業日なら月曜へ',
+  dates('月末', '当月末', '2026-05-14', '翌営業日'), ['2026-05-31', '2026-06-01']);
+
+check('T-19 平日の支払期限は調整しても動かない',
+  dates('月末', '翌月10日', '2026-05-14', '前営業日'), ['2026-05-31', '2026-06-10']);
+
+/* --- マスタ優先と既定値 --- */
+
+check('T-20 マスタ未設定なら既定値を使い、その旨がわかる', (() => {
+  const t = sandbox.resolvePaymentTerms_(null, '2026-05-14', CTX.settings);
+  return [ymd(t.invoiceDate), ymd(t.dueDate), t.fromMaster];
+})(), ['2026-05-31', '2026-06-30', false]);
+
+check('T-21 マスタに設定があればそちらが優先され、根拠が出る', (() => {
+  const t = terms('20', '翌月10日', '2026-05-14');
+  return [t.fromMaster, t.note.indexOf('提出先マスタ') >= 0];
+})(), [true, true]);
+
+check('T-22 設定マスタの既定値も効く', (() => {
+  const custom = Object.assign({}, CTX.settings, { 既定_請求締め日: '20', 既定_支払サイト: '翌月10日' });
+  const t = sandbox.resolvePaymentTerms_(null, '2026-05-14', custom);
+  return [ymd(t.invoiceDate), ymd(t.dueDate)];
+})(), ['2026-05-20', '2026-06-10']);
 
 /* ===================== 請求額 ===================== */
 
@@ -275,6 +333,36 @@ check('保存レコードの全キーがヘッダーに存在する', unknown, [
 
 const estHeaders = sandbox.getEstimateHeaders_();
 check('見積ヘッダーと請求ヘッダーが別物', estHeaders[0] !== headers[0], true);
+
+/* ===================== 差し込みセル定義 ===================== */
+
+console.log('差し込みセル定義（本番テンプレートの実レイアウトと突き合わせ）');
+
+const defRows = sandbox.getDefaultCellDefinitionRows_();
+
+function defMap(docType) {
+  const map = {};
+  defRows.filter(r => r[0] === docType).forEach(r => { map[r[2]] = r[4]; });
+  return map;
+}
+
+const estDefs = defMap('見積書');
+const invDefs = defMap('請求書');
+
+// 実テンプレート（xlsx書き出しで確認）
+//   見積書 : A19=お見積金額 / C19=　円 / 備考 A39:D41 / 明細 22〜38 / 小計F39 税F40 合計F41
+//   請求書 : A19=ご請求金額 / B19==F41 / C19=　円 / 備考 A39:D40 / A41=お支払い期限：
+check('C-1 合計表示は B19（C19のテンプレート「円」を消さない）', [estDefs.total_amount_display, invDefs.total_amount_display], ['B19', 'B19']);
+check('C-2 合計単位は C19（テンプレートの「円」の位置）', [estDefs.total_amount_unit, invDefs.total_amount_unit], ['C19', 'C19']);
+check('C-3 見積書の備考は A39:D41', estDefs.remarks, 'A39:D41');
+check('C-4 請求書の備考は A39:D40（41行目のお支払い期限を消さない）', invDefs.remarks, 'A39:D40');
+check('C-5 請求書だけ payment_due が B41 にある', [estDefs.payment_due, invDefs.payment_due], [undefined, 'B41']);
+check('C-6 明細範囲は 22〜38（テンプレートの式を空で上書きするため）',
+  [estDefs.detail_name_range, estDefs.detail_qty_range, estDefs.detail_unit_price_range, estDefs.detail_amount_range],
+  ['A22:C38', 'D22:D38', 'E22:E38', 'F22:F38']);
+check('C-7 小計・消費税・合計の位置', [invDefs.subtotal, invDefs.tax, invDefs.grand_total], ['F39', 'F40', 'F41']);
+check('C-8 帳票番号は F3', [estDefs.estimate_id, invDefs.invoice_id], ['F3', 'F3']);
+check('C-9 定義キーに重複がない', defRows.length, new Set(defRows.map(r => r[0] + '::' + r[2])).size);
 
 /* ===================== 結果 ===================== */
 

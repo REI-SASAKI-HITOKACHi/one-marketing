@@ -52,6 +52,9 @@ const APP = {
 
 const SETTINGS_HEADERS = ['設定キー', '設定値', '説明', '備考_現場入力'];
 
+// 帳票テンプレートの固定文言で使われている全角スペース
+const IDEOGRAPHIC_SPACE = '\u3000';
+
 const SETTING_ALIASES = {
   estimate_app_gmail_account: 'GAS実行用Gmail',
   default_sender_alias: '送信元メール',
@@ -83,6 +86,7 @@ const SETTING_ALIASES = {
 
   default_closing_day: '既定_請求締め日',
   default_payment_site: '既定_支払サイト',
+  default_payment_holiday_rule: '既定_支払期日休日調整',
   parking_tax_type: '駐車場代_税区分',
   invoice_remarks_note: '請求書備考注記',
   logo_file_id: 'ロゴファイルID',
@@ -809,11 +813,13 @@ function generateEstimatePdf_(record, calc, ctx) {
 function fillEstimateSheet_(sheet, defs, record, calc, settings) {
   const remarksText = [record['備考'] || '', record['駐車場代注記'] || ''].filter(String).join('\n');
 
+  // 固定文言はテンプレートの実際の文字列（全角スペース込み）に合わせる。
+  // 詰めて書くと見出しの字間が崩れるため。
   setByKeys_(sheet, defs, {
     document_date: formatDate_(record['見積日'] || new Date(), 'yyyy/MM/dd'),
     document_no_label: '見積番号：',
     estimate_id: record.estimate_id,
-    title: '御  見  積  書',
+    title: '御  見  積  書' + IDEOGRAPHIC_SPACE,
     addressee_name: record['見積書宛名'] || '',
     addressee_suffix: record['敬称'] || '',
     company_name: settings['会社名'] || '',
@@ -826,17 +832,17 @@ function fillEstimateSheet_(sheet, defs, record, calc, settings) {
     greeting: '下記の通り御見積り申し上げます。',
     total_amount_label: 'お見積金額',
     total_amount_display: calc.grandTotal,
-    total_amount_unit: '円',
-    detail_header_name: '品名',
-    detail_header_qty: '数量',
-    detail_header_unit_price: '単価',
-    detail_header_amount: '金額',
+    total_amount_unit: IDEOGRAPHIC_SPACE + '円',
+    detail_header_name: '品' + IDEOGRAPHIC_SPACE + IDEOGRAPHIC_SPACE + '名',
+    detail_header_qty: '数' + IDEOGRAPHIC_SPACE + '量',
+    detail_header_unit_price: '単' + IDEOGRAPHIC_SPACE + '価',
+    detail_header_amount: '金' + IDEOGRAPHIC_SPACE + '額',
     remarks: remarksText,
-    subtotal_label: '小計',
+    subtotal_label: '小' + IDEOGRAPHIC_SPACE + '計',
     subtotal: calc.documentSubtotal,
     tax_label: '消費税',
     tax: calc.tax,
-    grand_total_label: '合計',
+    grand_total_label: '合' + IDEOGRAPHIC_SPACE + '計',
     grand_total: calc.grandTotal
   });
 
@@ -846,6 +852,10 @@ function fillEstimateSheet_(sheet, defs, record, calc, settings) {
 /**
  * 明細をまとめて書き込む。旧実装は1セルずつ64回 setValue していた。
  * ここでは列ごとに1回の setValues にまとめる。
+ *
+ * 定義された範囲は最後まで埋める（データが無い行は空文字で上書きする）。
+ * テンプレートの明細行には =D22*E22 のような式が入っているため、
+ * 空のまま残すと金額欄に「0」が印字されてしまう。
  */
 function writeDetailRows_(sheet, defs, rows) {
   const nameDef = defs['detail_name_range'];
@@ -858,19 +868,30 @@ function writeDetailRows_(sheet, defs, rows) {
   }
 
   const nameRange = sheet.getRange(nameDef.a1);
-  const maxRows = Math.min(APP.MAX_DETAIL_ROWS, nameRange.getNumRows());
+  const rowCount = nameRange.getNumRows();
+  const data = rows.slice(0, APP.MAX_DETAIL_ROWS);
 
   const columns = [
     { range: nameRange, pick: function (r) { return r.name || ''; } },
-    { range: sheet.getRange(qtyDef.a1), pick: function (r) { return r.qty === undefined || r.qty === '' ? '' : r.qty; } },
-    { range: sheet.getRange(unitDef.a1), pick: function (r) { return r.unitPrice === undefined || r.unitPrice === '' ? '' : r.unitPrice; } },
-    { range: sheet.getRange(amountDef.a1), pick: function (r) { return r.amount === undefined || r.amount === '' ? '' : r.amount; } }
+    { range: sheet.getRange(qtyDef.a1), pick: function (r) { return isBlank_(r.qty) ? '' : r.qty; } },
+    { range: sheet.getRange(unitDef.a1), pick: function (r) { return isBlank_(r.unitPrice) ? '' : r.unitPrice; } },
+    { range: sheet.getRange(amountDef.a1), pick: function (r) { return isBlank_(r.amount) ? '' : r.amount; } }
   ];
 
   columns.forEach(function (col) {
     const values = [];
-    for (let i = 0; i < maxRows; i++) values.push([col.pick(rows[i] || {})]);
-    sheet.getRange(col.range.getRow(), col.range.getColumn(), maxRows, 1).setValues(values);
+    for (let i = 0; i < rowCount; i++) values.push([col.pick(data[i] || {})]);
+
+    const target = sheet.getRange(col.range.getRow(), col.range.getColumn(), rowCount, 1);
+
+    try {
+      target.setValues(values);
+    } catch (e) {
+      // 結合セルとの相性で一括書き込みが弾かれた場合は1セルずつ書く
+      for (let i = 0; i < rowCount; i++) {
+        sheet.getRange(col.range.getRow() + i, col.range.getColumn()).setValue(values[i][0]);
+      }
+    }
   });
 }
 
@@ -1095,6 +1116,7 @@ function applyDefaultSettingsValues_(s) {
   if (!s['大幅値引き警告率']) s['大幅値引き警告率'] = '0.30';
   if (!s['既定_請求締め日']) s['既定_請求締め日'] = '月末';
   if (!s['既定_支払サイト']) s['既定_支払サイト'] = '翌月末';
+  if (isBlank_(s['既定_支払期日休日調整'])) s['既定_支払期日休日調整'] = '';
   if (!s['駐車場代_税区分']) s['駐車場代_税区分'] = '課税';
 }
 
@@ -1175,6 +1197,7 @@ function readSubmitTargets_(masterSs, settings) {
         // 請求日・支払期限は取引先ごとに条件が違うのでマスタで持つ
         closingDay: String(r['請求締め日'] || '').trim(),
         paymentSite: String(r['支払サイト'] || '').trim(),
+        paymentHolidayRule: String(r['支払期日_休日調整'] || '').trim(),
         note: String(r['備考'] || '')
       });
     });
@@ -1191,6 +1214,7 @@ function readSubmitTargets_(masterSs, settings) {
       templateType: '自社案件_見積送付',
       closingDay: '',
       paymentSite: '',
+      paymentHolidayRule: '',
       note: '自動追加'
     });
   }
@@ -1779,7 +1803,7 @@ function getMenuHeaders_() {
 
 function getSubmitToHeaders_() {
   return ['有効', '案件タイプ', '提出先名', '見積書宛名', '宛先メール', '固定CC', '送信元メール',
-    'メールテンプレート種別', '請求締め日', '支払サイト', '備考'];
+    'メールテンプレート種別', '請求締め日', '支払サイト', '支払期日_休日調整', '備考'];
 }
 
 function getMailTemplateHeaders_() {
@@ -1839,10 +1863,37 @@ function getEstimateHeaders_() {
   return headers;
 }
 
+/**
+ * 差し込みセル定義の初期値。
+ *
+ * 2026-09、本番テンプレート（xlsx書き出し）を実際に読んで確定させた。
+ * 引継ぎ時点の定義には実テンプレートと合っていない箇所が3つあった。
+ *
+ *   1. total_amount_display が B19:C19 になっていた。
+ *      C19 にはテンプレートの「　円」が入っているため、書き込み前の clearContent で
+ *      その「円」が消え、代わりに total_amount_unit が D19（本来は空のセル）へ書かれていた。
+ *      → 金額と「円」の間に空白が1マス空いた状態でPDFが出ていた。
+ *      正しくは 値=B19、単位=C19。
+ *
+ *   2. 請求書の remarks が A39:D41 になっていた。
+ *      請求書の備考の結合は A39:D40 までで、41行目には「お支払い期限：」の見出しがある。
+ *      A39:D41 を clearContent するとその見出しが消える。
+ *      → 請求書は A39:D40。
+ *
+ *   3. 請求書の「お支払い期限：」の値セル（B41）が定義されていなかった。
+ *
+ * 実テンプレートの構造（確認済み）
+ *   見積書：明細 22〜37行に =D*E の式、38行目は式なし、小計/消費税/合計 = F39/F40/F41
+ *   請求書：明細 22〜38行に =D*E の式、小計/消費税/合計 = F39/F40/F41、
+ *           A41 に「お支払い期限：」、A43 に振込先（固定文言）
+ *   どちらも明細の書き込み範囲は 22〜38 行とし、17行目は空で上書きして
+ *   テンプレートの式が「0」として印字されないようにする。
+ */
 function getDefaultCellDefinitionRows_() {
   const rows = [];
 
-  const layout = [
+  // 両帳票で共通の差し込み先
+  const shared = [
     ['document_date', '書類日付', 'F2', 'date'],
     ['document_no_label', '番号ラベル', 'E3', 'string'],
     ['title', '帳票タイトル', 'A5:F5', 'string'],
@@ -1858,17 +1909,16 @@ function getDefaultCellDefinitionRows_() {
     ['project_suffix', '案件名接尾', 'D13', 'string'],
     ['greeting', '挨拶文', 'A18:F18', 'string'],
     ['total_amount_label', '合計ラベル', 'A19', 'string'],
-    ['total_amount_display', '合計表示', 'B19:C19', 'money'],
-    ['total_amount_unit', '合計単位', 'D19', 'string'],
+    ['total_amount_display', '合計表示', 'B19', 'money'],
+    ['total_amount_unit', '合計単位', 'C19', 'string'],
     ['detail_header_name', '明細見出し品名', 'A21:C21', 'string'],
     ['detail_header_qty', '明細見出し数量', 'D21', 'string'],
     ['detail_header_unit_price', '明細見出し単価', 'E21', 'string'],
     ['detail_header_amount', '明細見出し金額', 'F21', 'string'],
-    ['detail_name_range', '明細品名範囲', 'A22:C37', 'string'],
-    ['detail_qty_range', '明細数量範囲', 'D22:D37', 'number'],
-    ['detail_unit_price_range', '明細単価範囲', 'E22:E37', 'money'],
-    ['detail_amount_range', '明細金額範囲', 'F22:F37', 'money'],
-    ['remarks', '備考', 'A39:D41', 'string'],
+    ['detail_name_range', '明細品名範囲', 'A22:C38', 'string'],
+    ['detail_qty_range', '明細数量範囲', 'D22:D38', 'number'],
+    ['detail_unit_price_range', '明細単価範囲', 'E22:E38', 'money'],
+    ['detail_amount_range', '明細金額範囲', 'F22:F38', 'money'],
     ['subtotal_label', '小計ラベル', 'E39', 'string'],
     ['subtotal', '小計', 'F39', 'money'],
     ['tax_label', '消費税ラベル', 'E40', 'string'],
@@ -1877,23 +1927,40 @@ function getDefaultCellDefinitionRows_() {
     ['grand_total', '合計', 'F41', 'money']
   ];
 
-  [['見積書', APP.TEMP_ESTIMATE_SHEET, 'estimate_id', '見積番号'],
-   ['請求書', APP.TEMP_INVOICE_SHEET, 'invoice_id', '請求番号']].forEach(function (doc) {
-    const docType = doc[0];
-    const sheetName = doc[1];
+  const docs = [
+    {
+      docType: '見積書',
+      sheetName: APP.TEMP_ESTIMATE_SHEET,
+      idKey: 'estimate_id',
+      idName: '見積番号',
+      extra: [
+        // 見積書の備考は A39:D41 まで結合されている
+        ['remarks', '備考', 'A39:D41', 'string', 'TRUE', '駐車場代注記を含める']
+      ]
+    },
+    {
+      docType: '請求書',
+      sheetName: APP.TEMP_INVOICE_SHEET,
+      idKey: 'invoice_id',
+      idName: '請求番号',
+      extra: [
+        // 請求書の備考は A39:D40 まで。41行目は「お支払い期限：」の行なので含めない
+        ['remarks', '備考', 'A39:D40', 'string', 'TRUE', '41行目はお支払い期限の行なので含めない'],
+        ['payment_due', '支払期限', 'B41', 'date', 'TRUE', 'A41の「お支払い期限：」の右隣']
+      ]
+    }
+  ];
 
-    rows.push([docType, sheetName, doc[2], doc[3], 'F3', '差し込み', 'string', 'TRUE', '']);
+  docs.forEach(function (doc) {
+    rows.push([doc.docType, doc.sheetName, doc.idKey, doc.idName, 'F3', '差し込み', 'string', 'TRUE', '']);
 
-    layout.forEach(function (l) {
-      rows.push([docType, sheetName, l[0], l[1], l[2], '差し込み', l[3], 'TRUE', '']);
+    shared.forEach(function (l) {
+      rows.push([doc.docType, doc.sheetName, l[0], l[1], l[2], '差し込み', l[3], 'TRUE', '']);
     });
 
-    // 請求書だけ「お支払い期限：」の値セルがある。
-    // 実テンプレートのセル位置は adminInspectTemplateLayout() で確認すること。
-    if (docType === '請求書') {
-      rows.push([docType, sheetName, 'payment_due', '支払期限', 'B41', '差し込み', 'date', 'FALSE',
-        'テンプレートの「お支払い期限：」の右隣。要確認']);
-    }
+    doc.extra.forEach(function (l) {
+      rows.push([doc.docType, doc.sheetName, l[0], l[1], l[2], '差し込み', l[3], l[4], l[5]]);
+    });
   });
 
   return rows;

@@ -115,7 +115,8 @@ function upsertMissingSettings_(masterSs) {
     ['pdf_template_spreadsheet_id', '', 'PDF生成専用テンプレートのID', '空なら帳票/DBスプレッドシートを複製する。adminCreatePdfTemplate()で作成'],
     ['line_notice_text', 'メール送信後、LINEで代表者へ一報を入れてください。', '例外時のアプリ表示文言', ''],
     ['default_closing_day', '月末', '請求締め日の既定値', '提出先マスタに個別指定があればそちらが優先'],
-    ['default_payment_site', '翌月末', '支払サイトの既定値', '候補：当月末 / 翌月末 / 翌々月末 / 30日 など'],
+    ['default_payment_site', '翌月末', '支払サイトの既定値', '候補：当月末 / 翌月末 / 翌々月末 / 翌月10日 / 30日 など'],
+    ['default_payment_holiday_rule', '', '支払期日が土日のときの調整の既定値', '空 / 前営業日 / 翌営業日。祝日は判定しない'],
     ['parking_tax_type', '課税', '駐車場代の既定の税区分', '請求書作成画面で切り替え可能'],
     ['invoice_remarks_note', '', '請求書の備考に毎回入れる定型文', '振込先はテンプレート側に記載済み']
   ];
@@ -475,6 +476,27 @@ function adminDiagnose() {
   }
 
   add('');
+  add('■ 取引先ごとの請求条件（提出先マスタ）');
+  add('  施工日を ' + formatDate_(new Date(), 'yyyy/MM/dd') + ' としたときの計算結果');
+  add('  ' + padRight_('案件タイプ', 26) + padRight_('締め日', 8) + padRight_('支払サイト', 12)
+    + padRight_('休日調整', 10) + padRight_('請求日', 12) + '支払期限');
+
+  targets.forEach(function (t) {
+    const terms = resolvePaymentTerms_(t, formatDate_(new Date(), 'yyyy-MM-dd'), settings);
+    add('  ' + padRight_(t.projectType, 26)
+      + padRight_(t.closingDay || '—', 8)
+      + padRight_(t.paymentSite || '—', 12)
+      + padRight_(t.paymentHolidayRule || '—', 10)
+      + padRight_(formatDate_(terms.invoiceDate, 'yyyy/MM/dd'), 12)
+      + formatDate_(terms.dueDate, 'yyyy/MM/dd')
+      + (terms.fromMaster ? '' : '  ← 既定値')
+      + (terms.adjusted ? '  ← 休日調整あり' : ''));
+  });
+
+  add('  ※ 「—」はマスタ未設定。設定マスタの既定値（'
+    + settings['既定_請求締め日'] + '締め・' + settings['既定_支払サイト'] + '払い）で計算しています。');
+
+  add('');
   add('■ Drive / Gmail');
   [
     ['見積書PDF保存フォルダ', settings['見積書PDF保存フォルダID']],
@@ -581,6 +603,18 @@ function adminInspectTemplateLayout() {
   const message = out.join('\n');
   console.log(message);
   return message;
+}
+
+/** 診断出力の桁揃え。日本語は2桁分として数える。 */
+function padRight_(text, width) {
+  const s = String(text == null ? '' : text);
+  let visible = 0;
+
+  for (let i = 0; i < s.length; i++) {
+    visible += s.charCodeAt(i) > 0x2000 ? 2 : 1;
+  }
+
+  return s + ' '.repeat(Math.max(1, width - visible));
 }
 
 function columnLetter_(col) {

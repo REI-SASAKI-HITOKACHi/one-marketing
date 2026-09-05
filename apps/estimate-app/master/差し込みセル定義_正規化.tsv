@@ -15,23 +15,23 @@
 見積書	一時作業用/見積書	project_suffix	案件名接尾	D13	差し込み	string	TRUE	
 見積書	一時作業用/見積書	greeting	挨拶文	A18:F18	差し込み	string	TRUE	
 見積書	一時作業用/見積書	total_amount_label	合計ラベル	A19	差し込み	string	TRUE	
-見積書	一時作業用/見積書	total_amount_display	合計表示	B19:C19	差し込み	money	TRUE	
-見積書	一時作業用/見積書	total_amount_unit	合計単位	D19	差し込み	string	TRUE	
+見積書	一時作業用/見積書	total_amount_display	合計表示	B19	差し込み	money	TRUE	
+見積書	一時作業用/見積書	total_amount_unit	合計単位	C19	差し込み	string	TRUE	
 見積書	一時作業用/見積書	detail_header_name	明細見出し品名	A21:C21	差し込み	string	TRUE	
 見積書	一時作業用/見積書	detail_header_qty	明細見出し数量	D21	差し込み	string	TRUE	
 見積書	一時作業用/見積書	detail_header_unit_price	明細見出し単価	E21	差し込み	string	TRUE	
 見積書	一時作業用/見積書	detail_header_amount	明細見出し金額	F21	差し込み	string	TRUE	
-見積書	一時作業用/見積書	detail_name_range	明細品名範囲	A22:C37	差し込み	string	TRUE	
-見積書	一時作業用/見積書	detail_qty_range	明細数量範囲	D22:D37	差し込み	number	TRUE	
-見積書	一時作業用/見積書	detail_unit_price_range	明細単価範囲	E22:E37	差し込み	money	TRUE	
-見積書	一時作業用/見積書	detail_amount_range	明細金額範囲	F22:F37	差し込み	money	TRUE	
-見積書	一時作業用/見積書	remarks	備考	A39:D41	差し込み	string	TRUE	
+見積書	一時作業用/見積書	detail_name_range	明細品名範囲	A22:C38	差し込み	string	TRUE	
+見積書	一時作業用/見積書	detail_qty_range	明細数量範囲	D22:D38	差し込み	number	TRUE	
+見積書	一時作業用/見積書	detail_unit_price_range	明細単価範囲	E22:E38	差し込み	money	TRUE	
+見積書	一時作業用/見積書	detail_amount_range	明細金額範囲	F22:F38	差し込み	money	TRUE	
 見積書	一時作業用/見積書	subtotal_label	小計ラベル	E39	差し込み	string	TRUE	
 見積書	一時作業用/見積書	subtotal	小計	F39	差し込み	money	TRUE	
 見積書	一時作業用/見積書	tax_label	消費税ラベル	E40	差し込み	string	TRUE	
 見積書	一時作業用/見積書	tax	消費税	F40	差し込み	money	TRUE	
 見積書	一時作業用/見積書	grand_total_label	合計ラベル	E41	差し込み	string	TRUE	
 見積書	一時作業用/見積書	grand_total	合計	F41	差し込み	money	TRUE	
+見積書	一時作業用/見積書	remarks	備考	A39:D41	差し込み	string	TRUE	駐車場代注記を含める
 請求書	一時作業用/請求書	invoice_id	請求番号	F3	差し込み	string	TRUE	
 請求書	一時作業用/請求書	document_date	書類日付	F2	差し込み	date	TRUE	
 請求書	一時作業用/請求書	document_no_label	番号ラベル	E3	差し込み	string	TRUE	
@@ -48,21 +48,21 @@
 請求書	一時作業用/請求書	project_suffix	案件名接尾	D13	差し込み	string	TRUE	
 請求書	一時作業用/請求書	greeting	挨拶文	A18:F18	差し込み	string	TRUE	
 請求書	一時作業用/請求書	total_amount_label	合計ラベル	A19	差し込み	string	TRUE	
-請求書	一時作業用/請求書	total_amount_display	合計表示	B19:C19	差し込み	money	TRUE	
-請求書	一時作業用/請求書	total_amount_unit	合計単位	D19	差し込み	string	TRUE	
+請求書	一時作業用/請求書	total_amount_display	合計表示	B19	差し込み	money	TRUE	
+請求書	一時作業用/請求書	total_amount_unit	合計単位	C19	差し込み	string	TRUE	
 請求書	一時作業用/請求書	detail_header_name	明細見出し品名	A21:C21	差し込み	string	TRUE	
 請求書	一時作業用/請求書	detail_header_qty	明細見出し数量	D21	差し込み	string	TRUE	
 請求書	一時作業用/請求書	detail_header_unit_price	明細見出し単価	E21	差し込み	string	TRUE	
 請求書	一時作業用/請求書	detail_header_amount	明細見出し金額	F21	差し込み	string	TRUE	
-請求書	一時作業用/請求書	detail_name_range	明細品名範囲	A22:C37	差し込み	string	TRUE	
-請求書	一時作業用/請求書	detail_qty_range	明細数量範囲	D22:D37	差し込み	number	TRUE	
-請求書	一時作業用/請求書	detail_unit_price_range	明細単価範囲	E22:E37	差し込み	money	TRUE	
-請求書	一時作業用/請求書	detail_amount_range	明細金額範囲	F22:F37	差し込み	money	TRUE	
-請求書	一時作業用/請求書	remarks	備考	A39:D41	差し込み	string	TRUE	
+請求書	一時作業用/請求書	detail_name_range	明細品名範囲	A22:C38	差し込み	string	TRUE	
+請求書	一時作業用/請求書	detail_qty_range	明細数量範囲	D22:D38	差し込み	number	TRUE	
+請求書	一時作業用/請求書	detail_unit_price_range	明細単価範囲	E22:E38	差し込み	money	TRUE	
+請求書	一時作業用/請求書	detail_amount_range	明細金額範囲	F22:F38	差し込み	money	TRUE	
 請求書	一時作業用/請求書	subtotal_label	小計ラベル	E39	差し込み	string	TRUE	
 請求書	一時作業用/請求書	subtotal	小計	F39	差し込み	money	TRUE	
 請求書	一時作業用/請求書	tax_label	消費税ラベル	E40	差し込み	string	TRUE	
 請求書	一時作業用/請求書	tax	消費税	F40	差し込み	money	TRUE	
 請求書	一時作業用/請求書	grand_total_label	合計ラベル	E41	差し込み	string	TRUE	
 請求書	一時作業用/請求書	grand_total	合計	F41	差し込み	money	TRUE	
-請求書	一時作業用/請求書	payment_due	支払期限	B41	差し込み	date	FALSE	テンプレートの「お支払い期限：」の右隣。要確認
+請求書	一時作業用/請求書	remarks	備考	A39:D40	差し込み	string	TRUE	41行目はお支払い期限の行なので含めない
+請求書	一時作業用/請求書	payment_due	支払期限	B41	差し込み	date	TRUE	A41の「お支払い期限：」の右隣

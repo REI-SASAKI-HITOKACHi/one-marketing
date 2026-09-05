@@ -1101,7 +1101,14 @@
         + ' の作り直しです。新しい請求IDが発行され、元の請求データは残ります。</div>';
     }
 
-    html += '<div class="note">' + esc(base.termsNote) + '</div>';
+    // 日付がどのルールで決まったかを現場に見せる（マスタの設定ミスに気づけるように）
+    var terms = base.terms || {};
+    html += '<div class="mini-info">請求日・支払期限の根拠<br>' + esc(base.termsNote)
+      + (terms.fromMaster
+          ? ''
+          : '<br><span class="warn-inline">この取引先の請求条件が提出先マスタに未設定です。既定値で計算しています。</span>')
+      + (terms.adjusted ? '<br>支払期限が土日だったため ' + esc(terms.holidayRule) + ' に調整しました。' : '')
+      + '</div>';
     html += '<div id="invoiceFields">';
 
     fields.forEach(function (fl) {
