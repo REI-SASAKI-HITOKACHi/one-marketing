@@ -152,8 +152,8 @@ img{max-width:100%;}
     max-width:1120px;display:grid;gap:14px 44px;align-items:start;
     grid-template-columns:minmax(0,1fr) minmax(0,420px);
   }
-  .hero .area,.hero h1,.hero .sub,.price-tag{grid-column:1;}
-  .hero-shot{grid-column:2;grid-row:1/span 5;align-self:center;margin:0;}
+  .hero .area,.hero h1,.hero .sub,.price-tag,.offer{grid-column:1;}
+  .hero-shot{grid-column:2;grid-row:1/span 6;align-self:center;margin:0;}
   .hero .trust,.hero-cta,.hero-note{grid-column:1/-1;}
   .hero .area{justify-self:start;}
   .hero .hero-cta{flex-direction:row;justify-content:center;max-width:760px;margin:0 auto;width:100%;}
@@ -184,6 +184,49 @@ img{max-width:100%;}
 .trust .b{font-size:10.5px;color:var(--muted);line-height:1.5;}
 .hero-cta{display:flex;flex-direction:column;gap:9px;}
 .hero-note{font-size:11.5px;color:var(--muted);text-align:center;}
+
+/* 自社施工 */
+.own{display:flex;flex-direction:column;gap:0;}
+.own-row{
+  display:grid;grid-template-columns:8.5em 1fr;gap:6px 20px;align-items:start;
+  padding:20px 0;border-bottom:1px solid var(--line);
+}
+.own-row:first-child{border-top:1px solid var(--line);}
+.own-k{
+  font-size:12.5px;font-weight:700;color:var(--accent-deep);
+  background:var(--accent-soft);padding:5px 12px;border-radius:99px;justify-self:start;
+}
+.own-row p{font-size:14.5px;color:var(--ink-soft);line-height:1.95;}
+@media(max-width:560px){
+  .own-row{grid-template-columns:1fr;gap:9px;}
+}
+
+/* 写真を全面で見せる */
+.bleed{padding:0;background:var(--invert);}
+.bleed-fig{margin:0;position:relative;}
+.bleed-fig img{display:block;width:100%;height:auto;max-height:78vh;object-fit:cover;object-position:center;}
+.bleed-fig figcaption{
+  position:absolute;left:0;right:0;bottom:0;padding:56px 22px 26px;
+  background:linear-gradient(transparent,rgba(6,20,26,.92));
+  display:flex;flex-direction:column;gap:7px;
+}
+.bleed-fig b{font-size:clamp(19px,4.6vw,28px);color:#fff;line-height:1.45;font-weight:900;}
+.bleed-fig span{font-size:13.5px;color:#D6E3E7;line-height:1.8;max-width:34em;}
+
+/* 特典 */
+.offer{
+  border:2px dashed var(--cta);border-radius:10px;padding:15px 18px;
+  background:var(--surface);display:flex;flex-direction:column;gap:4px;
+}
+.offer-tag{
+  align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.04em;
+  background:var(--cta);color:var(--cta-fg);padding:3px 10px;border-radius:99px;
+}
+.offer-main{font-size:17px;font-weight:900;line-height:1.5;}
+.offer-main b{color:var(--cta-text);}
+.offer-sub{font-size:12.5px;color:var(--muted);}
+.offer-sub s{opacity:.8;}
+.offer-sub b{color:var(--cta-text);font-size:15px;font-family:"Barlow",sans-serif;}
 
 /* ===== sections ===== */
 section{padding:56px 0;}
@@ -421,8 +464,14 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
 
     <div class="price-tag">
       <span class="lab">ノーマルエアコン<br>1台あたり</span>
-      <span class="big"><span class="num">9,800</span><span class="unit">円</span></span>
-      <span class="tail">／60分（税込）<br>お掃除機能付きは 15,800円／120分</span>
+      <span class="big"><span class="num">10,780</span><span class="unit">円</span></span>
+      <span class="tail">／60分（税込）<br>お掃除機能付きは 17,380円／120分</span>
+    </div>
+
+    <div class="offer">
+      <span class="offer-tag">LINEご登録の方へ</span>
+      <p class="offer-main"><b>防カビコート</b>を無料でお付けします</p>
+      <p class="offer-sub"><s>通常 3,630円</s> → <b>0円</b>　カビの再発を抑えるコーティングです</p>
     </div>
 
     <figure class="shot hero-shot" style="margin:18px 0 0">
@@ -439,7 +488,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
 
     <div class="hero-cta">
       <a class="btn lg" href="#form">かんたん5項目でWEB予約する</a>
-      <a class="btn lg line" href="https://lin.ee/7kD9WGN">LINE登録で 防カビコート無料（3,300円）</a>
+      <a class="btn lg line" href="https://lin.ee/7kD9WGN">LINEで無料クーポンを受け取る</a>
     </div>
     <p class="hero-note">※1 「他の人に勧めたい」と回答した割合：集計期間 2023年1月〜2025年12月、回答209名中206名、自社調べ</p>
   </div>
@@ -518,6 +567,16 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
   </div>
 </section>
 
+<section class="bleed">
+  <figure class="bleed-fig">
+    <img src="img/water-1.jpg" alt="1台のエアコンを洗浄して回収した、真っ黒な汚水がバケツ一杯にたまっている" loading="lazy" width="700" height="700">
+    <figcaption>
+      <b>この水は、エアコン1台から出たものです。</b>
+      <span>ここに出てきたぶんが、昨日まで、あなたの部屋に送られる空気の通り道に付いていました。</span>
+    </figcaption>
+  </figure>
+</section>
+
 <section>
   <div class="wrap">
     <div class="sec-h">
@@ -541,6 +600,30 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
   </div>
 </section>
 
+<section>
+  <div class="wrap">
+    <div class="sec-h">
+      <span class="eyebrow">Who comes</span>
+      <h2>下請けに出しません。<br>自社の職人が伺います。</h2>
+      <p>この業界はフランチャイズと下請けが主流です。ONE HITTERは違います。</p>
+    </div>
+    <div class="own">
+      <div class="own-row">
+        <span class="own-k">誰が来るのか</span>
+        <p>ご予約を受けた私たち自身が伺います。当日になって知らない会社の作業員が来ることはありません。ご連絡から作業まで、担当は変わりません。</p>
+      </div>
+      <div class="own-row">
+        <span class="own-k">なぜ安くできるのか</span>
+        <p>間に会社が入らないぶん、紹介手数料が乗りません。その差をそのまま価格にしています。品質を落として下げているわけではありません。</p>
+      </div>
+      <div class="own-row">
+        <span class="own-k">何かあったときは</span>
+        <p>作業した本人が責任を負います。「本部に確認します」で止まることがありません。万一に備え、損害賠償保険にも加入しています。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="alt">
   <div class="wrap">
     <div class="sec-h">
@@ -551,15 +634,15 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
     <div class="ptable">
       <div class="prow">
         <span><span class="nm">エアコンクリーニング</span><br><span class="dur">ノーマルエアコン／60分</span></span>
-        <span class="pr">9,800円</span>
+        <span class="pr">10,780円</span>
       </div>
       <div class="prow">
         <span><span class="nm">エアコンクリーニング</span><br><span class="dur">お掃除機能付きエアコン／120分</span></span>
-        <span class="pr">15,800円</span>
+        <span class="pr">17,380円</span>
       </div>
-      <div class="prow opt"><span class="nm">オプション｜室外機セット</span><span class="pr">5,500円</span></div>
-      <div class="prow opt"><span class="nm">オプション｜防カビコート</span><span class="pr">3,300円</span></div>
-      <div class="prow opt"><span class="nm">オプション｜防虫キャップ</span><span class="pr">1,100円</span></div>
+      <div class="prow opt"><span class="nm">オプション｜室外機セット</span><span class="pr">6,050円</span></div>
+      <div class="prow opt"><span class="nm">オプション｜防カビコート</span><span class="pr">3,630円</span></div>
+      <div class="prow opt"><span class="nm">オプション｜防虫キャップ</span><span class="pr">1,210円</span></div>
     </div>
     <p class="paid-note">※駐車スペースがない場合は、コインパーキング代を実費でいただきます。金額は事前にお伝えします。</p>
     <p class="peak"><b>繁忙期加算について。</b> 5〜7月・12月は各料金に <b>3,300円</b> が加わります。この期間は予約が埋まりやすいため、お急ぎでなければ端境期（4月・8〜11月）のご予約が最もお得です。</p>
@@ -579,8 +662,8 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
         <fieldset>
           <legend>1. エアコンの種類</legend>
           <div class="chips">
-            <label class="chip"><input type="radio" name="type" value="9800" checked><span>ノーマル<small>9,800円／60分</small></span></label>
-            <label class="chip"><input type="radio" name="type" value="15800"><span>お掃除機能付き<small>15,800円／120分</small></span></label>
+            <label class="chip"><input type="radio" name="type" value="10780" checked><span>ノーマル<small>10,780円／60分</small></span></label>
+            <label class="chip"><input type="radio" name="type" value="17380"><span>お掃除機能付き<small>17,380円／120分</small></span></label>
           </div>
         </fieldset>
         <fieldset>
@@ -602,17 +685,17 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
         <fieldset>
           <legend>オプション（任意）</legend>
           <div class="chips">
-            <label class="chip"><input type="checkbox" class="opt" value="5500" data-nm="室外機セット"><span>室外機セット<small>+5,500円</small></span></label>
-            <label class="chip"><input type="checkbox" class="opt" value="3300" data-nm="防カビコート"><span>防カビコート<small>+3,300円</small></span></label>
-            <label class="chip"><input type="checkbox" class="opt" value="1100" data-nm="防虫キャップ"><span>防虫キャップ<small>+1,100円</small></span></label>
+            <label class="chip"><input type="checkbox" class="opt" value="6050" data-nm="室外機セット"><span>室外機セット<small>+6,050円</small></span></label>
+            <label class="chip"><input type="checkbox" class="opt" value="3630" data-nm="防カビコート"><span>防カビコート<small>+3,630円</small></span></label>
+            <label class="chip"><input type="checkbox" class="opt" value="1210" data-nm="防虫キャップ"><span>防虫キャップ<small>+1,210円</small></span></label>
           </div>
         </fieldset>
         <div class="calc-out">
           <div>
             <div class="lab">お見積り金額（税込）</div>
-            <div class="tot" id="total">9,800円</div>
+            <div class="tot" id="total">10,780円</div>
           </div>
-          <div id="breakdown">ノーマル 9,800円 × 1台</div>
+          <div id="breakdown">ノーマル 10,780円 × 1台</div>
           <p class="paid-note">※駐車スペースがない場合は、コインパーキング代を実費でいただきます。金額は事前にお伝えします。</p>
         </div>
         <a class="btn lg" href="#form">この内容で予約に進む</a>
@@ -626,13 +709,9 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
     <div class="sec-h">
       <span class="eyebrow">Reason</span>
       <h2>なぜ、この価格でできるのか</h2>
-      <p>安いと、かえって不安になると思います。理由は3つです。</p>
+      <p>安いと、かえって不安になると思います。理由は2つです。</p>
     </div>
     <div class="mech">
-      <div>
-        <h3>自社の職人が伺います</h3>
-        <p>下請けに出していません。外注の手数料が乗らない分、そのまま価格に反映しています。作業品質の責任も、私たちが直接負います。</p>
-      </div>
       <div>
         <h3>営業をしません</h3>
         <p>訪問営業も、電話営業もしていません。ご予約から日程調整までスマホひとつで完結する形にして、その分のコストを削っています。</p>
@@ -834,7 +913,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
   function calc(){
     var typeEl = document.querySelector('input[name=type]:checked');
     var unit = parseInt(typeEl.value, 10);
-    var typeName = unit === 9800 ? 'ノーマル' : 'お掃除機能付き';
+    var typeName = unit === 10780 ? 'ノーマル' : 'お掃除機能付き';
     var qty = parseInt(document.querySelector('input[name=qty]:checked').value, 10);
     var peak = parseInt(document.querySelector('input[name=peak]:checked').value, 10);
 
