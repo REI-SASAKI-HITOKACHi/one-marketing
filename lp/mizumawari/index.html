@@ -23,6 +23,11 @@
   --cta-text:#A83714;
   --marker:linear-gradient(transparent 58%,#FFE566 58%);
   --on-accent:#FFFFFF;
+  /* 写真の上に重ねるスクリム。写真は明暗が変わらないため、ライト／ダーク共通の値 */
+  --scrim:rgba(16,42,52,.88);
+  --scrim-mid:rgba(16,42,52,.60);
+  --scrim-0:rgba(16,42,52,0);
+  --on-photo:#FFFFFF;
   --invert:#0F2A38;
   --invert-ink:#C9D9DE;
   --invert-line:#1F3C48;
@@ -147,7 +152,7 @@ p{margin:0;}
     max-width:1120px;display:grid;gap:14px 44px;align-items:start;
     grid-template-columns:minmax(0,1fr) minmax(0,420px);
   }
-  .hero .area,.hero h1,.hero .sub,.setbox{grid-column:1;}
+  .hero .area,.hero h1,.hero .sub,.setbox,.offer{grid-column:1;}
   .hero-shot{grid-column:2;grid-row:1/span 5;align-self:center;margin:0;}
   .hero .trust,.hero-cta,.hero-note{grid-column:1/-1;}
   .hero .area{justify-self:start;}
@@ -169,6 +174,19 @@ p{margin:0;}
 .setbox .big{font-family:"Barlow",sans-serif;font-weight:700;font-size:clamp(34px,9vw,50px);line-height:1;color:var(--accent-deep);}
 .setbox .big .unit{font-family:"Zen Kaku Gothic New",sans-serif;font-size:.36em;font-weight:900;margin-left:.06em;letter-spacing:0;}
 .save{display:inline-block;background:var(--cta);color:var(--cta-fg);font-size:12.5px;font-weight:700;padding:3px 10px;border-radius:4px;}
+
+/* 特典（ファーストビュー） */
+.offer{
+  border:2px dashed var(--cta);border-radius:10px;padding:15px 18px;
+  background:var(--surface);display:flex;flex-direction:column;gap:5px;
+}
+.offer-tag{
+  align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.04em;
+  background:var(--cta);color:var(--cta-fg);padding:3px 10px;border-radius:99px;
+}
+.offer-main{font-size:17px;font-weight:900;line-height:1.5;text-wrap:balance;}
+.offer-main b{color:var(--cta-text);}
+.offer-sub{font-size:12.5px;color:var(--muted);line-height:1.75;}
 
 .trust{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
 .trust div{background:var(--surface);padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:2px;}
@@ -288,6 +306,44 @@ section.alt{background:var(--surface);border-top:1px solid var(--line);border-bo
 }
 .shot-note{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.7;}
 
+/* 全幅で見せる1枚 */
+.bleed{padding:0;}
+.bleed-fig{margin:0;}
+.bleed-media{position:relative;background:var(--surface-2);}
+.bleed-media img{
+  display:block;width:100%;height:clamp(320px,56vh,540px);
+  object-fit:cover;object-position:center;
+}
+.bleed-over{
+  position:absolute;left:0;right:0;bottom:0;padding:70px 20px 20px;
+  background:linear-gradient(to top,var(--scrim) 0%,var(--scrim) 56%,var(--scrim-mid) 80%,var(--scrim-0) 100%);
+  color:var(--on-photo);display:flex;flex-direction:column;align-items:flex-start;gap:9px;
+}
+.bleed-tag{
+  font-family:"Barlow",sans-serif;font-weight:700;font-size:10.5px;letter-spacing:.16em;
+  background:var(--scrim);color:var(--on-photo);padding:4px 11px;border-radius:99px;
+}
+.bleed-h{
+  font-size:clamp(21px,5.4vw,34px);font-weight:900;line-height:1.4;color:var(--on-photo);
+  text-shadow:0 1px 14px rgba(0,0,0,.55);max-width:18em;text-wrap:balance;
+}
+.bleed-cap{background:var(--invert);color:var(--invert-ink);padding:20px 0 22px;}
+.bleed-cap p{font-size:14px;line-height:1.9;}
+.bleed-cap .bleed-note{font-size:12px;color:var(--invert-ink);opacity:.78;margin-top:6px;}
+@media(min-width:860px){
+  .bleed-over{padding:90px 40px 30px;}
+  .bleed-cap p{font-size:14.5px;}
+}
+
+/* 施工写真ギャラリー：1組あたりを大きく（横並びは維持） */
+.wrap.wide{max-width:1160px;}
+@media(min-width:860px){#works .ba{gap:14px;}}
+@media(max-width:520px){
+  #works .ba{margin-inline:-20px;}
+  #works .shot img{aspect-ratio:5/4;}
+  #works .shot.sq img{aspect-ratio:1/1;}
+}
+
 .ba{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
 @media(min-width:521px){.ba{gap:10px;}}
 .ba .cap{font-family:"Barlow",sans-serif;font-weight:700;font-size:11px;letter-spacing:.14em;padding:4px 10px;border-radius:99px;background:var(--ink);color:var(--ground);}
@@ -298,6 +354,17 @@ section.alt{background:var(--surface);border-top:1px solid var(--line);border-bo
 .msg .q{font-family:"Shippori Mincho B1",serif;font-size:clamp(17px,3.6vw,22px);line-height:1.85;color:var(--ink);}
 .msg p{font-size:14px;color:var(--ink-soft);line-height:1.9;}
 .msg .sign{font-size:13px;color:var(--muted);text-align:right;}
+
+/* 誰が家に来るのか */
+.own{display:flex;flex-direction:column;gap:10px;}
+.own-row{
+  background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);
+  border-radius:0 10px 10px 0;padding:18px 22px;
+  display:grid;grid-template-columns:9.5em 1fr;gap:6px 20px;align-items:baseline;
+}
+@media(max-width:560px){.own-row{grid-template-columns:1fr;}}
+.own-k{font-size:13.5px;font-weight:900;color:var(--accent-deep);line-height:1.6;}
+.own-row p{font-size:13.5px;color:var(--ink-soft);line-height:1.85;}
 
 /* voices */
 .voices{display:flex;flex-direction:column;gap:12px;}
@@ -398,7 +465,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
   <div class="hero-in">
     <span class="area">✓ 東京・千葉・神奈川 対応／最短即日</span>
     <h1>水まわりは、<br><span class="hl">まとめて頼むほど安い。</span></h1>
-    <p class="sub">キッチン、浴室、レンジフード、洗濯機、追い焚き配管。1箇所ずつ頼むより、同時施工のほうが1箇所あたり最大3,300円おトクになります。半日で、家じゅうの水まわりがリセットされます。</p>
+    <p class="sub">キッチン、浴室、レンジフード、洗濯機、追い焚き配管。1箇所ずつ頼むより、同時施工のほうが1箇所あたり3,300円おトク（コンロは4,730円）になります。半日で、家じゅうの水まわりがリセットされます。</p>
 
     <div class="setbox">
       <div class="top">いちばん多いご依頼｜浴室＋キッチンの2箇所</div>
@@ -411,6 +478,13 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
         <div class="big"><span class="num">33,660</span><span class="unit">円</span></div>
         <div style="font-size:12.5px;color:var(--ink-soft)">浴室クリーニング 18,480円 ＋ キッチンクリーニング 15,180円（2箇所目の同時施工価格・税込）</div>
       </div>
+    </div>
+
+    <!-- 期間を切る場合は offer-tag を「9月30日まで」等に差し替えてください（現時点で期限の根拠がないため、期日は記載していません） -->
+    <div class="offer">
+      <span class="offer-tag">LINEご登録の方へ</span>
+      <p class="offer-main"><b>防カビコーティング</b>を無料でお付けします</p>
+      <p class="offer-sub">LINEからご予約・ご相談いただいた方が対象です。カビの再発を抑えるコーティングで、予告なく終了する場合があります。</p>
     </div>
 
     <figure class="shot hero-shot" style="margin:0">
@@ -427,7 +501,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
 
     <div class="hero-cta">
       <a class="btn lg" href="#builder">箇所を選んで、料金を見る</a>
-      <a class="btn lg line" href="https://lin.ee/7kD9WGN">LINE登録で 防カビコーティング無料</a>
+      <a class="btn lg line" href="https://lin.ee/7kD9WGN">LINEで相談・予約する</a>
     </div>
     <p class="hero-note">※1 「他の人に勧めたい」と回答した割合：集計期間 2023年1月〜2025年12月、回答209名中206名、自社調べ</p>
   </div>
@@ -465,8 +539,26 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
   </div>
 </section>
 
-<section>
-  <div class="wrap">
+<section class="bleed">
+  <figure class="bleed-fig">
+    <div class="bleed-media">
+      <img src="img/drum-before.jpg" alt="分解して取り出した洗濯機の外槽。内壁一面に黒カビと石鹸カスが層になって付着している" loading="lazy" width="760" height="760">
+      <div class="bleed-over">
+        <span class="bleed-tag">実際の施工前</span>
+        <p class="bleed-h">市販のクリーナーでは、<br>ここには届きません。</p>
+      </div>
+    </div>
+    <figcaption class="bleed-cap">
+      <div class="wrap">
+        <p>分解して取り出した外槽の内壁です。黒カビと石鹸カスが層になって張りついています。毎日の洗濯物は、この裏側を通った水で洗われています。</p>
+        <p class="bleed-note">実際の施工写真です。次のセクションで、同じ場所の洗浄後をご覧いただけます。汚れや設備の状態により、仕上がりは異なります。</p>
+      </div>
+    </figcaption>
+  </figure>
+</section>
+
+<section id="works">
+  <div class="wrap wide">
     <div class="sec-h">
       <span class="eyebrow">Before / After</span>
       <h2>実際の施工から</h2>
@@ -711,6 +803,34 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
   </div>
 </section>
 
+
+<section>
+  <div class="wrap">
+    <div class="sec-h">
+      <span class="eyebrow">Who comes</span>
+      <h2>下請けに出しません。<br>自社の職人が伺います。</h2>
+      <p>この業界はフランチャイズと下請けが主流です。ONE HITTER は違います。</p>
+    </div>
+    <div class="own">
+      <div class="own-row">
+        <span class="own-k">誰が来るのか</span>
+        <p>ご予約を受けた私たち自身が伺います。当日になって、知らない会社の作業員が来ることはありません。ご連絡から作業当日まで、担当は変わりません。</p>
+      </div>
+      <div class="own-row">
+        <span class="own-k">なぜこの価格でできるのか</span>
+        <p>間に会社が入らないぶん、紹介手数料が乗りません。その差をそのまま価格にしています。品質を落として下げているわけではありません。</p>
+      </div>
+      <div class="own-row">
+        <span class="own-k">水まわりを、ひと組で</span>
+        <p>浴室・キッチン・洗濯機・追い焚き配管を、同じ担当が続けて仕上げます。箇所ごとに業者が変わらないので、家に他人が出入りする回数も一度で済みます。</p>
+      </div>
+      <div class="own-row">
+        <span class="own-k">何かあったときは</span>
+        <p>作業した本人が責任を負います。「本部に確認します」で止まることがありません。万一に備え、損害賠償保険にも加入しています。</p>
+      </div>
+    </div>
+  </div>
+</section>
 
 <section class="alt">
   <div class="wrap">
