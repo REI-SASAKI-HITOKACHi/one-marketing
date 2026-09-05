@@ -37,6 +37,8 @@
 | `docs/price-master.md` | 料金マスター（パンフレットPDFが正） |
 | `docs/site-audit.md` | 公式サイトとパンフレットの差分監査 |
 | `docs/tracking-setup.md` | ユニークコール（電話CV計測）の導入手順 |
+| `lp/survey/` | ご利用後アンケート（新版。作り直したもの、未公開） |
+| `docs/survey-redesign.md` | アンケート再設計の仕様書。Googleフォーム版の転記用仕様も収録 |
 | `docs/sns-operation-memo.md` | SNS運用（着手前のメモ） |
 
 ## 前提
