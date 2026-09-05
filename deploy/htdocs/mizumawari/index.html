@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>水まわりクリーニング まとめて依頼で1箇所3,000円おトク｜ONE HITTER</title>
-<meta name="description" content="キッチン・浴室・レンジフード・洗濯機・追い焚き配管。2箇所目からは同時施工価格。浴室＋キッチンで30,600円、半日で完了。東京・千葉・神奈川、最短即日。">
+<title>水まわりクリーニング まとめて依頼で1箇所3,300円おトク｜ONE HITTER</title>
+<meta name="description" content="キッチン・浴室・レンジフード・洗濯機・追い焚き配管。2箇所目からは同時施工価格。浴室＋キッチンで33,660円（税込）、半日で完了。東京・千葉・神奈川、最短即日。">
 <!-- 広告の受け皿なので、公式サイトと検索結果で食い合わないよう検索避けにしています。
      検索にも載せたくなったら、この1行を消してください。 -->
 <meta name="robots" content="noindex,follow">
 <link rel="canonical" href="https://lp.one-hitter.jp/mizumawari/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="ワンヒッター株式会社">
-<meta property="og:title" content="水まわりクリーニング まとめて依頼で1箇所3,000円おトク｜ONE HITTER">
-<meta property="og:description" content="キッチン・浴室・レンジフード・洗濯機・追い焚き配管。2箇所目からは同時施工価格。浴室＋キッチンで30,600円、半日で完了。東京・千葉・神奈川、最短即日。">
+<meta property="og:title" content="水まわりクリーニング まとめて依頼で1箇所3,300円おトク｜ONE HITTER">
+<meta property="og:description" content="キッチン・浴室・レンジフード・洗濯機・追い焚き配管。2箇所目からは同時施工価格。浴室＋キッチンで33,660円（税込）、半日で完了。東京・千葉・神奈川、最短即日。">
 <meta property="og:url" content="https://lp.one-hitter.jp/mizumawari/">
 <meta property="og:image" content="https://lp.one-hitter.jp/mizumawari/img/og.jpg">
 <meta property="og:image:width" content="1200">
@@ -50,6 +50,11 @@
   --cta-text:#A83714;
   --marker:linear-gradient(transparent 58%,#FFE566 58%);
   --on-accent:#FFFFFF;
+  /* 写真の上に重ねるスクリム。写真は明暗が変わらないため、ライト／ダーク共通の値 */
+  --scrim:rgba(16,42,52,.88);
+  --scrim-mid:rgba(16,42,52,.60);
+  --scrim-0:rgba(16,42,52,0);
+  --on-photo:#FFFFFF;
   --invert:#0F2A38;
   --invert-ink:#C9D9DE;
   --invert-line:#1F3C48;
@@ -174,7 +179,7 @@ p{margin:0;}
     max-width:1120px;display:grid;gap:14px 44px;align-items:start;
     grid-template-columns:minmax(0,1fr) minmax(0,420px);
   }
-  .hero .area,.hero h1,.hero .sub,.setbox{grid-column:1;}
+  .hero .area,.hero h1,.hero .sub,.setbox,.offer{grid-column:1;}
   .hero-shot{grid-column:2;grid-row:1/span 5;align-self:center;margin:0;}
   .hero .trust,.hero-cta,.hero-note{grid-column:1/-1;}
   .hero .area{justify-self:start;}
@@ -196,6 +201,19 @@ p{margin:0;}
 .setbox .big{font-family:"Barlow",sans-serif;font-weight:700;font-size:clamp(34px,9vw,50px);line-height:1;color:var(--accent-deep);}
 .setbox .big .unit{font-family:"Zen Kaku Gothic New",sans-serif;font-size:.36em;font-weight:900;margin-left:.06em;letter-spacing:0;}
 .save{display:inline-block;background:var(--cta);color:var(--cta-fg);font-size:12.5px;font-weight:700;padding:3px 10px;border-radius:4px;}
+
+/* 特典（ファーストビュー） */
+.offer{
+  border:2px dashed var(--cta);border-radius:10px;padding:15px 18px;
+  background:var(--surface);display:flex;flex-direction:column;gap:5px;
+}
+.offer-tag{
+  align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.04em;
+  background:var(--cta);color:var(--cta-fg);padding:3px 10px;border-radius:99px;
+}
+.offer-main{font-size:17px;font-weight:900;line-height:1.5;text-wrap:balance;}
+.offer-main b{color:var(--cta-text);}
+.offer-sub{font-size:12.5px;color:var(--muted);line-height:1.75;}
 
 .trust{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
 .trust div{background:var(--surface);padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:2px;}
@@ -315,6 +333,44 @@ section.alt{background:var(--surface);border-top:1px solid var(--line);border-bo
 }
 .shot-note{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.7;}
 
+/* 全幅で見せる1枚 */
+.bleed{padding:0;}
+.bleed-fig{margin:0;}
+.bleed-media{position:relative;background:var(--surface-2);}
+.bleed-media img{
+  display:block;width:100%;height:clamp(320px,56vh,540px);
+  object-fit:cover;object-position:center;
+}
+.bleed-over{
+  position:absolute;left:0;right:0;bottom:0;padding:70px 20px 20px;
+  background:linear-gradient(to top,var(--scrim) 0%,var(--scrim) 56%,var(--scrim-mid) 80%,var(--scrim-0) 100%);
+  color:var(--on-photo);display:flex;flex-direction:column;align-items:flex-start;gap:9px;
+}
+.bleed-tag{
+  font-family:"Barlow",sans-serif;font-weight:700;font-size:10.5px;letter-spacing:.16em;
+  background:var(--scrim);color:var(--on-photo);padding:4px 11px;border-radius:99px;
+}
+.bleed-h{
+  font-size:clamp(21px,5.4vw,34px);font-weight:900;line-height:1.4;color:var(--on-photo);
+  text-shadow:0 1px 14px rgba(0,0,0,.55);max-width:18em;text-wrap:balance;
+}
+.bleed-cap{background:var(--invert);color:var(--invert-ink);padding:20px 0 22px;}
+.bleed-cap p{font-size:14px;line-height:1.9;}
+.bleed-cap .bleed-note{font-size:12px;color:var(--invert-ink);opacity:.78;margin-top:6px;}
+@media(min-width:860px){
+  .bleed-over{padding:90px 40px 30px;}
+  .bleed-cap p{font-size:14.5px;}
+}
+
+/* 施工写真ギャラリー：1組あたりを大きく（横並びは維持） */
+.wrap.wide{max-width:1160px;}
+@media(min-width:860px){#works .ba{gap:14px;}}
+@media(max-width:520px){
+  #works .ba{margin-inline:-20px;}
+  #works .shot img{aspect-ratio:5/4;}
+  #works .shot.sq img{aspect-ratio:1/1;}
+}
+
 .ba{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
 @media(min-width:521px){.ba{gap:10px;}}
 .ba .cap{font-family:"Barlow",sans-serif;font-weight:700;font-size:11px;letter-spacing:.14em;padding:4px 10px;border-radius:99px;background:var(--ink);color:var(--ground);}
@@ -325,6 +381,17 @@ section.alt{background:var(--surface);border-top:1px solid var(--line);border-bo
 .msg .q{font-family:"Shippori Mincho B1",serif;font-size:clamp(17px,3.6vw,22px);line-height:1.85;color:var(--ink);}
 .msg p{font-size:14px;color:var(--ink-soft);line-height:1.9;}
 .msg .sign{font-size:13px;color:var(--muted);text-align:right;}
+
+/* 誰が家に来るのか */
+.own{display:flex;flex-direction:column;gap:10px;}
+.own-row{
+  background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);
+  border-radius:0 10px 10px 0;padding:18px 22px;
+  display:grid;grid-template-columns:9.5em 1fr;gap:6px 20px;align-items:baseline;
+}
+@media(max-width:560px){.own-row{grid-template-columns:1fr;}}
+.own-k{font-size:13.5px;font-weight:900;color:var(--accent-deep);line-height:1.6;}
+.own-row p{font-size:13.5px;color:var(--ink-soft);line-height:1.85;}
 
 /* voices */
 .voices{display:flex;flex-direction:column;gap:12px;}
@@ -427,19 +494,26 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
   <div class="hero-in">
     <span class="area">✓ 東京・千葉・神奈川 対応／最短即日</span>
     <h1>水まわりは、<br><span class="hl">まとめて頼むほど安い。</span></h1>
-    <p class="sub">キッチン、浴室、レンジフード、洗濯機、追い焚き配管。1箇所ずつ頼むより、同時施工のほうが1箇所あたり最大3,000円おトクになります。半日で、家じゅうの水まわりがリセットされます。</p>
+    <p class="sub">キッチン、浴室、レンジフード、洗濯機、追い焚き配管。1箇所ずつ頼むより、同時施工のほうが1箇所あたり3,300円おトク（コンロは4,730円）になります。半日で、家じゅうの水まわりがリセットされます。</p>
 
     <div class="setbox">
       <div class="top">いちばん多いご依頼｜浴室＋キッチンの2箇所</div>
       <div class="mid">
         <div class="calcline">
-          <span class="strike">16,800円 + 16,800円 = 33,600円</span>
+          <span class="strike">18,480円 + 18,480円 = 36,960円</span>
           <span class="arrow">→</span>
-          <span class="save">3,000円 おトク</span>
+          <span class="save">3,300円 おトク</span>
         </div>
-        <div class="big"><span class="num">30,600</span><span class="unit">円</span></div>
-        <div style="font-size:12.5px;color:var(--ink-soft)">浴室クリーニング 16,800円 ＋ キッチンクリーニング 13,800円（2箇所目の同時施工価格・税込）</div>
+        <div class="big"><span class="num">33,660</span><span class="unit">円</span></div>
+        <div style="font-size:12.5px;color:var(--ink-soft)">浴室クリーニング 18,480円 ＋ キッチンクリーニング 15,180円（2箇所目の同時施工価格・税込）</div>
       </div>
+    </div>
+
+    <!-- 期間を切る場合は offer-tag を「9月30日まで」等に差し替えてください（現時点で期限の根拠がないため、期日は記載していません） -->
+    <div class="offer">
+      <span class="offer-tag">LINEご登録の方へ</span>
+      <p class="offer-main"><b>防カビコーティング</b>を無料でお付けします</p>
+      <p class="offer-sub">LINEからご予約・ご相談いただいた方が対象です。カビの再発を抑えるコーティングで、予告なく終了する場合があります。</p>
     </div>
 
     <figure class="shot hero-shot" style="margin:0">
@@ -456,7 +530,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
 
     <div class="hero-cta">
       <a class="btn lg" href="#builder">箇所を選んで、料金を見る</a>
-      <a class="btn lg line" href="https://lin.ee/7kD9WGN">LINE登録で 防カビコーティング無料</a>
+      <a class="btn lg line" href="https://lin.ee/7kD9WGN">LINEで相談・予約する</a>
     </div>
     <p class="hero-note">※1 「他の人に勧めたい」と回答した割合：集計期間 2023年1月〜2025年12月、回答209名中206名、自社調べ</p>
   </div>
@@ -494,8 +568,26 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
   </div>
 </section>
 
-<section>
-  <div class="wrap">
+<section class="bleed">
+  <figure class="bleed-fig">
+    <div class="bleed-media">
+      <img src="img/drum-before.jpg" alt="分解して取り出した洗濯機の外槽。内壁一面に黒カビと石鹸カスが層になって付着している" loading="lazy" width="760" height="760">
+      <div class="bleed-over">
+        <span class="bleed-tag">実際の施工前</span>
+        <p class="bleed-h">市販のクリーナーでは、<br>ここには届きません。</p>
+      </div>
+    </div>
+    <figcaption class="bleed-cap">
+      <div class="wrap">
+        <p>分解して取り出した外槽の内壁です。黒カビと石鹸カスが層になって張りついています。毎日の洗濯物は、この裏側を通った水で洗われています。</p>
+        <p class="bleed-note">実際の施工写真です。次のセクションで、同じ場所の洗浄後をご覧いただけます。汚れや設備の状態により、仕上がりは異なります。</p>
+      </div>
+    </figcaption>
+  </figure>
+</section>
+
+<section id="works">
+  <div class="wrap wide">
     <div class="sec-h">
       <span class="eyebrow">Before / After</span>
       <h2>実際の施工から</h2>
@@ -572,7 +664,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       <div class="builder-b">
         <div class="picks" id="picks">
           <label class="pick">
-            <input type="checkbox" data-nm="浴室クリーニング" data-single="16800" data-set="13800" data-dur="120分" checked>
+            <input type="checkbox" data-nm="浴室クリーニング" data-single="18480" data-set="15180" data-dur="120分" checked>
             <span class="box">
               <span class="mark">✓</span>
               <span><span class="nm">浴室クリーニング</span><br><span class="dur">120分／天井・換気扇内部まで</span></span>
@@ -580,7 +672,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
             </span>
           </label>
           <label class="pick">
-            <input type="checkbox" data-nm="キッチンクリーニング" data-single="16800" data-set="13800" data-dur="120分" checked>
+            <input type="checkbox" data-nm="キッチンクリーニング" data-single="18480" data-set="15180" data-dur="120分" checked>
             <span class="box">
               <span class="mark">✓</span>
               <span><span class="nm">キッチンクリーニング</span><br><span class="dur">120分／シンク・天板・壁面・収納扉</span></span>
@@ -588,7 +680,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
             </span>
           </label>
           <label class="pick">
-            <input type="checkbox" data-nm="レンジフード（換気扇）" data-single="16800" data-set="13800" data-dur="90分">
+            <input type="checkbox" data-nm="レンジフード（換気扇）" data-single="18480" data-set="15180" data-dur="90分">
             <span class="box">
               <span class="mark">✓</span>
               <span><span class="nm">レンジフード（換気扇）</span><br><span class="dur">90分／内部ファンまで分解洗浄</span></span>
@@ -596,7 +688,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
             </span>
           </label>
           <label class="pick">
-            <input type="checkbox" data-nm="追い焚き配管クリーニング" data-single="18100" data-set="15100" data-dur="90分">
+            <input type="checkbox" data-nm="追い焚き配管クリーニング" data-single="19910" data-set="16610" data-dur="90分">
             <span class="box">
               <span class="mark">✓</span>
               <span><span class="nm">追い焚き配管クリーニング</span><br><span class="dur">90分／汚れを数値で測定</span></span>
@@ -604,7 +696,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
             </span>
           </label>
           <label class="pick">
-            <input type="checkbox" data-nm="洗面台丸洗い" data-single="9800" data-set="6800" data-dur="60分">
+            <input type="checkbox" data-nm="洗面台丸洗い" data-single="10780" data-set="7480" data-dur="60分">
             <span class="box">
               <span class="mark">✓</span>
               <span><span class="nm">洗面台丸洗い</span><br><span class="dur">60分</span></span>
@@ -612,7 +704,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
             </span>
           </label>
           <label class="pick">
-            <input type="checkbox" data-nm="コンロクリーニング" data-single="9800" data-set="5500" data-dur="60分">
+            <input type="checkbox" data-nm="コンロクリーニング" data-single="10780" data-set="6050" data-dur="60分">
             <span class="box">
               <span class="mark">✓</span>
               <span><span class="nm">コンロクリーニング</span><br><span class="dur">60分／五徳まで</span></span>
@@ -620,7 +712,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
             </span>
           </label>
           <label class="pick">
-            <input type="checkbox" data-nm="洗濯機クリーニング" data-single="15800" data-set="15800" data-dur="120分">
+            <input type="checkbox" data-nm="洗濯機クリーニング" data-single="17380" data-set="17380" data-dur="120分">
             <span class="box">
               <span class="mark">✓</span>
               <span><span class="nm">洗濯機クリーニング</span><br><span class="dur">120分／分解して槽の裏側まで</span></span>
@@ -628,7 +720,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
             </span>
           </label>
           <label class="pick">
-            <input type="checkbox" data-nm="トイレクリーニング" data-single="9800" data-set="9800" data-dur="60分">
+            <input type="checkbox" data-nm="トイレクリーニング" data-single="10780" data-set="10780" data-dur="60分">
             <span class="box">
               <span class="mark">✓</span>
               <span><span class="nm">トイレクリーニング</span><br><span class="dur">60分</span></span>
@@ -638,11 +730,11 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
         </div>
 
         <div class="result">
-          <div class="row"><span>単体で頼んだ場合</span><span class="num" id="single">33,600円</span></div>
-          <div class="row save-row"><span>同時施工の割引</span><span class="num" id="saved">−3,000円</span></div>
+          <div class="row"><span>単体で頼んだ場合</span><span class="num" id="single">36,960円</span></div>
+          <div class="row save-row"><span>同時施工の割引</span><span class="num" id="saved">−3,300円</span></div>
           <div class="row total">
             <span class="lab">お見積り金額（税込）</span>
-            <span class="tot" id="total">30,600円</span>
+            <span class="tot" id="total">33,660円</span>
           </div>
           <p class="hint" id="hint"></p>
           <p class="paid-note">※駐車スペースがない場合は、コインパーキング代を実費でいただきます。金額は事前にお伝えします。</p>
@@ -669,7 +761,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
           <div class="kw"><span>ニオイ</span><span>ヌメリ</span><span>カビ</span><span>水垢</span></div>
           <p>皮脂・石鹸カス・水垢が複雑に絡み合う、家の中でいちばんお手入れの難しい空間です。ご家庭では落としきれない床の汚れから、普段は開けることのない換気扇の内部まで洗浄します。</p>
         </div>
-        <div class="price">16,800円<em>120分</em></div>
+        <div class="price">18,480円<em>120分</em></div>
       </div>
       <div class="menu">
         <div class="body">
@@ -677,15 +769,15 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
           <div class="kw"><span>水垢</span><span>コゲ</span><span>カビ</span><span>油汚れ</span></div>
           <p>シンクや蛇口周りに白く固まった水垢、壁面や収納扉に飛び散ってこびりついた油汚れ。汚れの特性を見極め、キッチン素材を傷めることなく徹底的に除去します。</p>
         </div>
-        <div class="price">16,800円<em>120分</em></div>
+        <div class="price">18,480円<em>120分</em></div>
       </div>
       <div class="menu">
         <div class="body">
           <h3>レンジフードクリーニング</h3>
           <div class="kw"><span>油汚れ</span><span>ニオイ</span><span>吸い込み</span></div>
-          <p>ご自身では手のつけにくい内部のファンまで分解。専用洗剤による浸け置きと磨き上げで、目詰まりを抜き、本来の換気能力に近い状態まで戻します。プロペラ式は9,800円です。</p>
+          <p>ご自身では手のつけにくい内部のファンまで分解。専用洗剤による浸け置きと磨き上げで、目詰まりを抜き、本来の換気能力に近い状態まで戻します。プロペラ式は10,780円です。</p>
         </div>
-        <div class="price">16,800円<em>90分</em></div>
+        <div class="price">18,480円<em>90分</em></div>
       </div>
       <div class="menu">
         <div class="body">
@@ -693,7 +785,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
           <div class="kw"><span>皮脂汚れ</span><span>石鹸カス</span><span>黒カビ</span></div>
           <p>市販のクリーナーでは、汚れのごく一部しか落ちません。分解して洗濯槽の裏側まで洗浄します。毎日素肌に触れる衣類だからこそ、根本から。</p>
         </div>
-        <div class="price">15,800円<em>120分</em></div>
+        <div class="price">17,380円<em>120分</em></div>
       </div>
       <div class="menu">
         <div class="body">
@@ -701,7 +793,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
           <div class="kw"><span>ニオイ</span><span>水垢</span><span>カビ</span></div>
           <p>専用測定器で洗浄前後の汚れを数値化する、当社の看板メニューです。詳しくは次の項目をご覧ください。</p>
         </div>
-        <div class="price">18,100円<em>90分</em></div>
+        <div class="price">19,910円<em>90分</em></div>
       </div>
     </div>
   </div>
@@ -740,6 +832,34 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
   </div>
 </section>
 
+
+<section>
+  <div class="wrap">
+    <div class="sec-h">
+      <span class="eyebrow">Who comes</span>
+      <h2>下請けに出しません。<br>自社の職人が伺います。</h2>
+      <p>この業界はフランチャイズと下請けが主流です。ONE HITTER は違います。</p>
+    </div>
+    <div class="own">
+      <div class="own-row">
+        <span class="own-k">誰が来るのか</span>
+        <p>ご予約を受けた私たち自身が伺います。当日になって、知らない会社の作業員が来ることはありません。ご連絡から作業当日まで、担当は変わりません。</p>
+      </div>
+      <div class="own-row">
+        <span class="own-k">なぜこの価格でできるのか</span>
+        <p>間に会社が入らないぶん、紹介手数料が乗りません。その差をそのまま価格にしています。品質を落として下げているわけではありません。</p>
+      </div>
+      <div class="own-row">
+        <span class="own-k">水まわりを、ひと組で</span>
+        <p>浴室・キッチン・洗濯機・追い焚き配管を、同じ担当が続けて仕上げます。箇所ごとに業者が変わらないので、家に他人が出入りする回数も一度で済みます。</p>
+      </div>
+      <div class="own-row">
+        <span class="own-k">何かあったときは</span>
+        <p>作業した本人が責任を負います。「本部に確認します」で止まることがありません。万一に備え、損害賠償保険にも加入しています。</p>
+      </div>
+    </div>
+  </div>
+</section>
 
 <section class="alt">
   <div class="wrap">
