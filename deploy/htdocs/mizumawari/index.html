@@ -28,456 +28,447 @@
 <title>水まわり丸ごと ONE HITTER</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=Shippori+Mincho+B1:wght@600&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Oswald:wght@500;600&family=Shippori+Mincho+B1:wght@600;800&display=swap">
 
 <style>
+/* ===========================================================
+   ONE HITTER ／ 水まわりセット LP
+   ------------------------------------------------------------
+   考え方：案Aと同じ骨格。水まわりは「まとめるほど安い」を数字で見せる。
+   見出しは明朝、数字は縦長のコンデンス、面は全幅のバンドで切る。
+   カードを積み上げない。持ち上げるのは価格とビルダーだけ。
+   =========================================================== */
 :root{
-  --ground:#FAF7F2;
+  --ink:#101A1F;          /* 機械の内側の暗さ。青緑に寄せた黒 */
+  --ink-2:#1B2A31;
+  --paper:#EFEDE7;        /* 温かいが黄には寄らない紙 */
+  --paper-2:#E4E1D8;
   --surface:#FFFFFF;
-  --surface-2:#F2EFE9;
-  --ink:#14323D;
-  --ink-soft:#40606C;
-  --muted:#566B73;
-  --line:#E2DDD4;
-  --line-strong:#C8C0B4;
-  --accent:#0E7C93;
-  --accent-deep:#0A5C6E;
-  --accent-soft:#DDEEF1;
-  --cta:#C4461D;
-  --cta-deep:#A83714;
-  --cta-fg:#FFFFFF;
-  --cta-shadow:#8C3212;
-  --cta-text:#A83714;
-  --marker:linear-gradient(transparent 58%,#FFE566 58%);
-  --on-accent:#FFFFFF;
-  /* 写真の上に重ねるスクリム。写真は明暗が変わらないため、ライト／ダーク共通の値 */
-  --scrim:rgba(16,42,52,.88);
-  --scrim-mid:rgba(16,42,52,.60);
-  --scrim-0:rgba(16,42,52,0);
-  --on-photo:#FFFFFF;
-  --invert:#0F2A38;
-  --invert-ink:#C9D9DE;
-  --invert-line:#1F3C48;
-  --ok:#1E7A5A;
-  --gold:#9A7420;
-  --gold-soft:#F5EEDC;
-  --shadow:0 2px 10px rgba(20,40,50,.10);
-  --shadow-lift:4px 4px 16px rgba(20,40,50,.08);
+  --text:#141C20;
+  --text-2:#3D4C52;
+  --steel:#55666B;        /* アルミフィンの灰。補足文 */
+  --rule:#D3CFC4;
+  --rule-2:#B9B3A4;
+  --rust:#B23C0A;         /* 酸化した橙。価格とCTAだけに使う */
+  --rust-fill:#B23C0A;    /* 白文字を載せる面。ダークでも明るくしない */
+  --rust-fill-h:#8F3008;
+  --wash-fill:#0C5F6B;    /* 白文字を載せるティール。同上 */
+  --rust-deep:#9A3412;
+  --rust-soft:#F6E7DE;
+  --wash:#0F6F7C;         /* 罫とラベルの脇役。面には使わない */
+  --wash-ink:#6BC6D4;     /* インクの面の上に置くとき。#0F6F7C では暗すぎて読めない */
+  --wash-soft:#DCEAEC;
+  --on-ink:#F2F0EA;
+  --on-ink-2:#A9BAC0;
+  --ok:#1B6B4F;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --ground:#0C171C;
-    --surface:#12222A;
-    --surface-2:#183039;
-    --ink:#E6EFF1;
-    --ink-soft:#BCCFD5;
-    --muted:#8CA3AB;
-    --line:#223942;
-    --line-strong:#39555F;
-    --accent:#4EC0D4;
-    --accent-deep:#8BDCEA;
-    --accent-soft:#0F3541;
-    --cta:#F0764B;
-    --cta-deep:#D9552A;
-    --cta-fg:#0C171C;
-    --cta-shadow:#A8481F;
-    --cta-text:#E27E5E;
-    --marker:linear-gradient(transparent 58%,#C9A020 58%);
-    --on-accent:#08222A;
-  --invert:#08151A;
-  --invert-ink:#B9CBD1;
-  --invert-line:#1B2E36;
-    --invert:#08151A;
-    --invert-ink:#B9CBD1;
-    --invert-line:#1B2E36;
+    --ink:#080F13; --ink-2:#101B21;
+    --paper:#0D1418; --paper-2:#141F25;
+    --surface:#141F25;
+    --text:#E9EDEC; --text-2:#B4C2C6;
+    --steel:#93A5AA;
+    --rule:#243138; --rule-2:#3A4C54;
+    --rust:#F2733C; --rust-deep:#C2410C; --rust-soft:#2A1710;
+    --rust-fill:#B23C0A; --rust-fill-h:#8F3008; --wash-fill:#0C5F6B;
+    --wash:#4FBACB; --wash-soft:#0B2A30;
+    --on-ink:#F2F0EA; --on-ink-2:#A9BAC0;
     --ok:#4FBF95;
-    --gold:#DCB55E;
-    --gold-soft:#2A2413;
-    --shadow:0 2px 10px rgba(0,0,0,.45);
-    --shadow-lift:4px 4px 16px rgba(0,0,0,.4);
   }
 }
 :root[data-theme="dark"]{
-  --ground:#0C171C;
-  --surface:#12222A;
-  --surface-2:#183039;
-  --ink:#E6EFF1;
-  --ink-soft:#BCCFD5;
-  --muted:#8CA3AB;
-  --line:#223942;
-  --line-strong:#39555F;
-  --accent:#4EC0D4;
-  --accent-deep:#8BDCEA;
-  --accent-soft:#0F3541;
-  --cta:#F0764B;
-  --cta-deep:#D9552A;
-  --cta-fg:#0C171C;
-  --cta-shadow:#A8481F;
-  --cta-text:#E27E5E;
-  --marker:linear-gradient(transparent 58%,#C9A020 58%);
-  --on-accent:#08222A;
-  --invert:#08151A;
-  --invert-ink:#B9CBD1;
-  --invert-line:#1B2E36;
+  --ink:#080F13; --ink-2:#101B21;
+  --paper:#0D1418; --paper-2:#141F25;
+  --surface:#141F25;
+  --text:#E9EDEC; --text-2:#B4C2C6;
+  --steel:#93A5AA;
+  --rule:#243138; --rule-2:#3A4C54;
+  --rust:#F2733C; --rust-deep:#C2410C; --rust-soft:#2A1710;
+  --rust-fill:#B23C0A; --rust-fill-h:#8F3008; --wash-fill:#0C5F6B;
+  --wash:#4FBACB; --wash-soft:#0B2A30;
+  --on-ink:#F2F0EA; --on-ink-2:#A9BAC0;
   --ok:#4FBF95;
-  --gold:#DCB55E;
-  --gold-soft:#2A2413;
-  --shadow:0 2px 10px rgba(0,0,0,.45);
-    --shadow-lift:4px 4px 16px rgba(0,0,0,.4);
 }
 
 *{box-sizing:border-box;}
 body{
-  margin:0;background:var(--ground);color:var(--ink);
-  font-family:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
-  font-size:16px;line-height:1.8;-webkit-font-smoothing:antialiased;padding-bottom:104px;
+  margin:0;background:var(--paper);color:var(--text);
+  font-family:"Noto Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:16px;line-height:1.95;font-weight:400;
+  -webkit-font-smoothing:antialiased;padding-bottom:104px;
 }
-h1,h2{margin:0;line-height:1.28;letter-spacing:.01em;text-wrap:balance;font-weight:900;}
-h3{margin:0;line-height:1.4;text-wrap:balance;font-weight:900;}
+img{max-width:100%;}
 p{margin:0;}
-:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
-.wrap{max-width:880px;margin:0 auto;padding:0 20px;}
-.eyebrow{font-family:"Barlow",sans-serif;font-weight:600;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);}
-.mincho{font-family:"Shippori Mincho B1","Yu Mincho",serif;font-weight:600;}
-.num{font-family:"Barlow",sans-serif;font-variant-numeric:tabular-nums;font-weight:700;}
+:focus-visible{outline:2.5px solid var(--rust);outline-offset:3px;}
 
-.bar{position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--line);}
-.bar-in{max-width:880px;margin:0 auto;padding:9px 20px;display:flex;align-items:center;gap:14px;}
-.logo{display:flex;flex-direction:column;line-height:1.15;}
-.logo b{font-family:"Barlow",sans-serif;font-weight:700;letter-spacing:.08em;font-size:16px;}
-.logo small{font-size:9.5px;color:var(--muted);}
-.bar-cta{margin-left:auto;display:flex;gap:8px;align-items:center;}
-.tel{display:none;flex-direction:column;line-height:1.2;text-align:right;text-decoration:none;color:inherit;}
-.tel .n{font-family:"Barlow",sans-serif;font-weight:700;font-size:17px;}
-.tel small{font-size:9.5px;color:var(--muted);}
+/* 明朝の見出し。この紙面の顔 */
+h1,h2{
+  margin:0;font-family:"Shippori Mincho B1","Yu Mincho",serif;font-weight:800;
+  line-height:1.42;letter-spacing:.02em;text-wrap:balance;
+}
+h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
+
+/* 縦長の数字。価格を紙面で一番強い物にする */
+.num{font-family:"Oswald","Noto Sans JP",sans-serif;font-weight:500;
+  font-variant-numeric:tabular-nums;letter-spacing:.01em;}
+
+.wrap{max-width:760px;margin:0 auto;padding:0 22px;}
+.eyebrow{
+  font-family:"Oswald",sans-serif;font-weight:500;font-size:11.5px;
+  letter-spacing:.26em;text-transform:uppercase;color:var(--wash);
+}
+.mincho{font-family:"Shippori Mincho B1","Yu Mincho",serif;font-weight:600;}
+
+/* ===== ヘッダー ===== */
+.bar{position:sticky;top:0;z-index:40;background:var(--ink);border-bottom:1px solid rgba(255,255,255,.09);}
+.bar-in{max-width:1000px;margin:0 auto;padding:10px 22px;display:flex;align-items:center;gap:14px;}
+.logo{display:flex;flex-direction:column;line-height:1.2;}
+.logo b{font-family:"Oswald",sans-serif;font-weight:500;letter-spacing:.16em;font-size:16px;color:var(--on-ink);}
+.logo small{font-size:9.5px;color:var(--on-ink-2);letter-spacing:.04em;}
+.bar-cta{margin-left:auto;display:flex;gap:10px;align-items:center;}
+.tel{display:none;flex-direction:column;line-height:1.25;text-align:right;text-decoration:none;}
+.tel .n{font-family:"Oswald",sans-serif;font-weight:500;font-size:18px;color:var(--on-ink);letter-spacing:.02em;}
+.tel small{font-size:9.5px;color:var(--on-ink-2);}
 @media(min-width:640px){.tel{display:flex;}}
 
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:6px;font-weight:700;
-  text-decoration:none;border:0;cursor:pointer;font-family:inherit;font-size:14px;padding:10px 18px;line-height:1.4;
-  background:var(--cta);color:var(--cta-fg);transition:background .15s ease,transform .15s ease;}
-.btn:hover{background:var(--cta-deep);}
+/* ===== ボタン ===== */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border:0;cursor:pointer;font-family:inherit;text-decoration:none;font-weight:700;
+  font-size:14px;padding:11px 20px;line-height:1.4;border-radius:2px;
+  background:var(--rust-fill);color:#fff;transition:background .15s,transform .1s;
+}
+.btn:hover{background:var(--rust-fill-h);}
 .btn:active{transform:translateY(1px);}
-.btn.line{background:#06C755;}
-.btn.line:hover{background:#05A445;}
-.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong);}
-.btn.ghost:hover{background:var(--surface-2);}
+.btn.line{background:#06C755;color:#08140F;}
+.btn.line:hover{background:#05B84E;}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--rule-2);}
+.btn.ghost:hover{background:var(--paper-2);}
 .btn.lg{
-  font-size:18px;padding:18px 22px;width:100%;min-height:62px;border-radius:9999px;
+  width:100%;min-height:64px;font-size:17px;padding:18px 22px;border-radius:2px;
   letter-spacing:.04em;text-wrap:balance;
-  box-shadow:0 4px 0 0 var(--cta-shadow);
 }
-.btn.lg:hover{box-shadow:0 3px 0 0 var(--cta-shadow);}
-.btn.lg:active{box-shadow:0 1px 0 0 var(--cta-shadow);transform:translateY(3px);}
-.btn.lg.line{box-shadow:0 4px 0 0 #04913C;}
-.btn.lg.line:active{box-shadow:0 1px 0 0 #04913C;transform:translateY(3px);}
 
-/* hero */
-.hero{background:var(--surface);border-bottom:1px solid var(--line);overflow:hidden;}
-.hero-in{max-width:880px;margin:0 auto;padding:36px 20px 40px;display:flex;flex-direction:column;gap:20px;}
-@media(min-width:860px){
-  .hero-in{
-    max-width:1120px;display:grid;gap:14px 44px;align-items:start;
-    grid-template-columns:minmax(0,1fr) minmax(0,420px);
-  }
-  .hero .area,.hero h1,.hero .sub,.setbox,.offer{grid-column:1;}
-  .hero-shot{grid-column:2;grid-row:1/span 5;align-self:center;margin:0;}
-  .hero .trust,.hero-cta,.hero-note{grid-column:1/-1;}
-  .hero .area{justify-self:start;}
-  .hero .hero-cta{flex-direction:row;justify-content:center;max-width:760px;margin:0 auto;width:100%;}
-  .hero .hero-cta .btn.lg{flex:1 1 0;font-size:16px;padding:18px 16px;}
+/* ===== ヒーロー：インクの帯 ===== */
+.hero{background:var(--ink);color:var(--on-ink);position:relative;overflow:hidden;}
+.hero-in{max-width:760px;margin:0 auto;padding:44px 22px 46px;display:flex;flex-direction:column;gap:22px;}
+.hero .area{
+  align-self:flex-start;font-size:12px;font-weight:500;letter-spacing:.06em;
+  color:var(--on-ink);border:1px solid rgba(255,255,255,.28);padding:5px 13px;
 }
-.hero .area{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;background:var(--accent-soft);
-  color:var(--accent-deep);font-size:12.5px;font-weight:700;padding:5px 13px;border-radius:99px;}
-.hero h1{font-size:clamp(27px,6.8vw,44px);letter-spacing:-.01em;}
-.hero h1 .hl{background:var(--marker);padding:0 .1em;}
-.hero .sub{color:var(--ink-soft);font-size:15.5px;max-width:44em;}
-
-.setbox{border:2px solid var(--accent);border-radius:10px;overflow:hidden;}
-.setbox .top{background:var(--accent);color:var(--on-accent);padding:8px 16px;font-size:13px;font-weight:700;}
-.setbox .mid{padding:16px 18px;display:flex;flex-direction:column;gap:10px;background:var(--accent-soft);}
-.calcline{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:14px;font-weight:700;color:var(--accent-deep);}
-.calcline .strike{color:var(--muted);text-decoration:line-through;font-weight:500;}
-.calcline .arrow{color:var(--muted);}
-.setbox .big{font-family:"Barlow",sans-serif;font-weight:700;font-size:clamp(34px,9vw,50px);line-height:1;color:var(--accent-deep);}
-.setbox .big .unit{font-family:"Zen Kaku Gothic New",sans-serif;font-size:.36em;font-weight:900;margin-left:.06em;letter-spacing:0;}
-.save{display:inline-block;background:var(--cta);color:var(--cta-fg);font-size:12.5px;font-weight:700;padding:3px 10px;border-radius:4px;}
-
-/* 特典（ファーストビュー） */
-.offer{
-  border:2px dashed var(--cta);border-radius:10px;padding:15px 18px;
-  background:var(--surface);display:flex;flex-direction:column;gap:5px;
+.hero h1{font-size:clamp(26px,6.4vw,44px);color:#fff;line-height:1.4;letter-spacing:.01em;text-wrap:balance;}
+.hero h1 .hl{
+  /* 背景で引くと行送りと書体のディセンダに引きずられて字に重なる。
+     下線ならグリフの基準線から測られるので、書体を変えても位置がずれない */
+  text-decoration:underline;text-decoration-color:var(--rust);
+  text-decoration-thickness:.11em;text-underline-offset:.2em;
+  text-decoration-skip-ink:none;
 }
-.offer-tag{
-  align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.04em;
-  background:var(--cta);color:var(--cta-fg);padding:3px 10px;border-radius:99px;
+.hero .sub{color:var(--on-ink-2);font-size:15px;line-height:2.05;max-width:40em;}
+
+/* 価格：紙面で最も強い一点 */
+.price-tag{
+  display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;
+  border-top:1px solid rgba(255,255,255,.22);border-bottom:1px solid rgba(255,255,255,.22);
+  padding:18px 0;
 }
-.offer-main{font-size:17px;font-weight:900;line-height:1.5;text-wrap:balance;}
-.offer-main b{color:var(--cta-text);}
-.offer-sub{font-size:12.5px;color:var(--muted);line-height:1.75;}
-
-.trust{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
-.trust div{background:var(--surface);padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:2px;}
-.trust .t{font-family:"Barlow",sans-serif;font-weight:700;font-size:19px;color:var(--accent);}
-.trust .b{font-size:10.5px;color:var(--muted);line-height:1.5;}
-.hero-cta{display:flex;flex-direction:column;gap:9px;}
-.hero-note{font-size:11.5px;color:var(--muted);text-align:center;}
-
-section{padding:56px 0;}
-section.alt{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
-.sec-h{display:flex;flex-direction:column;gap:10px;margin-bottom:34px;text-align:center;align-items:center;}
-.sec-h h2{position:relative;padding-bottom:18px;}
-.sec-h h2::after{
-  content:"";position:absolute;left:50%;bottom:0;transform:translateX(-50%);
-  width:26px;height:15px;background:var(--accent);
-  clip-path:polygon(0 0,100% 0,50% 100%);
+.price-tag .lab{font-size:12.5px;color:var(--on-ink-2);line-height:1.7;letter-spacing:.04em;}
+.price-tag .big{
+  font-family:"Oswald",sans-serif;font-weight:500;
+  font-size:clamp(52px,15vw,86px);line-height:.86;color:#fff;letter-spacing:-.01em;
 }
-.sec-h h2{font-size:clamp(24px,5.6vw,38px);}
-.sec-h p{font-size:14.5px;color:var(--muted);max-width:38em;}
+.price-tag .unit{font-family:"Noto Sans JP",sans-serif;font-size:.26em;font-weight:700;margin-left:.1em;letter-spacing:0;}
+.price-tag .tail{font-size:12.5px;color:var(--on-ink-2);padding-bottom:8px;line-height:1.8;}
 
-/* scenes */
-.scenes{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;}
-.scene{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);}
-.scene .tag{font-family:"Barlow",sans-serif;font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--accent);}
-.scene h3{font-size:16px;}
-.scene p{font-size:13.5px;color:var(--ink-soft);line-height:1.8;}
+/* 特典 */
+.offer{border:1px solid var(--rust);background:rgba(194,65,12,.14);padding:15px 18px;display:flex;flex-direction:column;gap:5px;}
+.offer-tag{align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.08em;background:var(--rust-fill);color:#fff;padding:3px 11px;}
+.offer-main{font-size:16.5px;font-weight:700;line-height:1.6;color:#fff;}
+.offer-main b{color:#FFB894;}
+.offer-sub{font-size:12.5px;color:var(--on-ink-2);}
+.offer-sub s{opacity:.75;}
+.offer-sub b{font-family:"Oswald",sans-serif;font-size:15px;color:#FFB894;}
 
-/* builder */
-.builder{background:var(--surface);border:2px solid var(--accent);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);}
-.builder-h{background:var(--accent);color:var(--on-accent);padding:14px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.builder-h b{font-size:16px;}
-.builder-h span{font-size:12px;margin-left:auto;}
-.builder-b{padding:18px 20px 22px;display:flex;flex-direction:column;gap:16px;}
-.picks{display:flex;flex-direction:column;gap:8px;}
-.pick{position:relative;}
-.pick input{position:absolute;opacity:0;inset:0;width:100%;height:100%;cursor:pointer;margin:0;}
-.pick .box{
-  display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;
-  border:1.5px solid var(--line-strong);border-radius:10px;padding:12px 15px;background:var(--surface);transition:.15s;
-}
-.pick .mark{width:20px;height:20px;border-radius:4px;border:2px solid var(--line-strong);display:flex;align-items:center;justify-content:center;font-size:13px;color:transparent;}
-.pick input:checked + .box{border-color:var(--accent);background:var(--accent-soft);}
-.pick input:checked + .box .mark{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
-.pick input:focus-visible + .box{outline:3px solid var(--accent);outline-offset:2px;}
-.pick .nm{font-weight:700;font-size:15px;}
-.pick .dur{font-size:11.5px;color:var(--muted);font-weight:500;}
-.pick .pr{text-align:right;font-family:"Barlow",sans-serif;font-weight:700;font-size:17px;white-space:nowrap;}
-.pick .pr em{display:block;font-style:normal;font-size:11px;color:var(--muted);font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500;}
-.pick .pr .set{color:var(--cta-text);}
-
-.result{border-top:1px dashed var(--line-strong);padding-top:16px;display:flex;flex-direction:column;gap:8px;}
-.result .row{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px;color:var(--ink-soft);}
-.result .row.save-row{color:var(--cta-text);font-weight:700;}
-.result .row.total{align-items:flex-end;border-top:1px solid var(--line);padding-top:10px;margin-top:4px;}
-.result .row.total .lab{font-size:14px;font-weight:700;color:var(--ink);}
-.result .tot{font-family:"Barlow",sans-serif;font-weight:700;font-size:38px;line-height:1;color:var(--accent-deep);}
-.result .tot small{font-size:14px;}
-.result .hint{font-size:12px;color:var(--muted);line-height:1.7;}
-.paid-note{font-size:11.5px;color:var(--muted);line-height:1.75;margin-top:10px;}
-
-/* menu detail */
-.menus{display:flex;flex-direction:column;gap:12px;}
-.menu{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px 24px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start;}
-@media(max-width:560px){.menu{grid-template-columns:1fr;}}
-.menu .body{display:flex;flex-direction:column;gap:7px;}
-.menu h3{font-size:17px;}
-.menu .kw{display:flex;gap:6px;flex-wrap:wrap;}
-.menu .kw span{font-size:11px;background:var(--surface-2);color:var(--muted);padding:2px 9px;border-radius:99px;}
-.menu p{font-size:13.5px;color:var(--ink-soft);line-height:1.8;}
-.menu .price{text-align:right;font-family:"Barlow",sans-serif;font-weight:700;font-size:22px;white-space:nowrap;}
-.menu .price em{display:block;font-style:normal;font-size:11.5px;color:var(--muted);font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500;}
-
-/* feature: lumitester */
-.feature{background:var(--invert);color:var(--invert-ink);border-radius:12px;padding:32px 30px;display:flex;flex-direction:column;gap:16px;}
-.feature .eyebrow{color:#DCB55E;}
-.feature h2{font-size:clamp(22px,4.8vw,30px);color:#fff;line-height:1.3;}
-.feature p{font-size:14.5px;color:var(--invert-ink);line-height:1.9;}
-.gauge{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;
-  background:rgba(255,255,255,.07);border-radius:10px;padding:18px 14px;}
-.gauge .g{text-align:center;display:flex;flex-direction:column;gap:3px;}
-.gauge .g .l{font-size:12px;color:#C9D9DE;}
-.gauge .g .v{font-size:clamp(28px,7vw,40px);line-height:1.1;color:#fff;letter-spacing:-.01em;}
-.gauge .g.after .v{color:#DCB55E;}
-.gauge .arw{color:#C9D9DE;font-size:20px;}
-.gauge-cap{font-size:12px;color:#C9D9DE;line-height:1.8;}
-.feature .ba .shot{background:rgba(255,255,255,.07);}
-
-.measure{counter-reset:m;list-style:none;margin:0;padding:0;display:grid;gap:0;}
-.measure li{counter-increment:m;position:relative;padding:0 0 18px 44px;}
-.measure li::before{
-  content:counter(m);position:absolute;left:0;top:-1px;width:28px;height:28px;border-radius:50%;
-  display:grid;place-items:center;font-family:"Barlow",sans-serif;font-weight:700;font-size:13px;
-  background:#DCB55E;color:#231B07;
-}
-.measure li::after{content:"";position:absolute;left:13px;top:31px;bottom:1px;width:2px;background:rgba(220,181,94,.35);}
-.measure li:last-child{padding-bottom:0;}
-.measure li:last-child::after{display:none;}
-.measure b{display:block;font-size:15px;color:#fff;line-height:1.5;}
-.measure span{display:block;font-size:12.5px;color:#C9D9DE;line-height:1.75;margin-top:3px;}
-.measure-note{font-size:12.5px;color:#C9D9DE;line-height:1.9;background:rgba(255,255,255,.07);border-radius:10px;padding:14px 16px;}
-.measure-note b{color:#fff;}
-
-/* 施工写真 */
-.shot{position:relative;border-radius:10px;overflow:hidden;background:var(--surface-2);}
+.shot{position:relative;overflow:hidden;background:var(--ink-2);}
 .shot img{display:block;width:100%;height:100%;object-fit:cover;aspect-ratio:4/3;}
 .shot.sq img{aspect-ratio:1/1;}
 .shot .cap{
-  position:absolute;left:6px;top:6px;font-family:"Barlow",sans-serif;font-weight:700;
-  font-size:10px;letter-spacing:.1em;padding:3px 8px;border-radius:99px;
-  background:rgba(20,50,61,.86);color:#fff;
+  position:absolute;left:0;top:0;font-family:"Oswald",sans-serif;font-weight:500;
+  font-size:10.5px;letter-spacing:.14em;padding:4px 11px;background:var(--ink);color:var(--on-ink);
 }
-.shot.after .cap{background:var(--accent);color:var(--on-accent);}
+.shot.after .cap{background:var(--wash-fill);color:#fff;}
 .shot .where{
-  position:absolute;left:0;right:0;bottom:0;padding:16px 12px 9px;
-  background:linear-gradient(transparent,rgba(20,50,61,.82));
-  color:#fff;font-size:11.5px;line-height:1.5;font-weight:500;
+  position:absolute;left:0;right:0;bottom:0;padding:34px 14px 11px;
+  background:linear-gradient(transparent,rgba(8,15,19,.9));
+  color:#fff;font-size:11.5px;line-height:1.65;
 }
-.shot-note{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.7;}
+.shot-note{font-size:12px;color:var(--steel);margin-top:9px;line-height:1.85;}
+.ba+.shot-note{margin-bottom:26px;}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:3px;}
 
-/* 全幅で見せる1枚 */
-.bleed{padding:0;}
-.bleed-fig{margin:0;}
-.bleed-media{position:relative;background:var(--surface-2);}
-.bleed-media img{
-  display:block;width:100%;height:clamp(320px,56vh,540px);
-  object-fit:cover;object-position:center;
-}
-.bleed-over{
-  position:absolute;left:0;right:0;bottom:0;padding:70px 20px 20px;
-  background:linear-gradient(to top,var(--scrim) 0%,var(--scrim) 56%,var(--scrim-mid) 80%,var(--scrim-0) 100%);
-  color:var(--on-photo);display:flex;flex-direction:column;align-items:flex-start;gap:9px;
-}
-.bleed-tag{
-  font-family:"Barlow",sans-serif;font-weight:700;font-size:10.5px;letter-spacing:.16em;
-  background:var(--scrim);color:var(--on-photo);padding:4px 11px;border-radius:99px;
-}
-.bleed-h{
-  font-size:clamp(21px,5.4vw,34px);font-weight:900;line-height:1.4;color:var(--on-photo);
-  text-shadow:0 1px 14px rgba(0,0,0,.55);max-width:18em;text-wrap:balance;
-}
-.bleed-cap{background:var(--invert);color:var(--invert-ink);padding:20px 0 22px;}
-.bleed-cap p{font-size:14px;line-height:1.9;}
-.bleed-cap .bleed-note{font-size:12px;color:var(--invert-ink);opacity:.78;margin-top:6px;}
-@media(min-width:860px){
-  .bleed-over{padding:90px 40px 30px;}
-  .bleed-cap p{font-size:14.5px;}
+.trust{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid rgba(255,255,255,.22);}
+.trust div{padding:16px 8px 0;text-align:left;display:flex;flex-direction:column;gap:3px;border-right:1px solid rgba(255,255,255,.14);}
+.trust div:last-child{border-right:0;}
+.trust div:not(:first-child){padding-left:14px;}
+.trust .t{font-family:"Oswald",sans-serif;font-weight:500;font-size:26px;color:#fff;line-height:1;}
+.trust .b{font-size:10.5px;color:var(--on-ink-2);line-height:1.6;}
+.hero-cta{display:flex;flex-direction:column;gap:9px;}
+.hero-note{font-size:11px;color:var(--on-ink-2);line-height:1.7;}
+
+@media(min-width:900px){
+  .hero-in{max-width:1060px;display:grid;gap:16px 52px;align-items:start;
+    grid-template-columns:minmax(0,1fr) minmax(0,400px);}
+  .hero .area,.hero h1,.hero .sub,.price-tag,.offer{grid-column:1;}
+  .hero .area{justify-self:start;}
+  .hero-shot{grid-column:2;grid-row:1/span 6;align-self:start;margin:0;}
+  .hero .trust,.hero-cta,.hero-note{grid-column:1/-1;}
+  .hero .hero-cta{flex-direction:row;max-width:720px;}
+  .hero .hero-cta .btn.lg{flex:1 1 0;font-size:15.5px;padding:18px 14px;}
 }
 
-/* 施工写真ギャラリー：1組あたりを大きく（横並びは維持） */
-.wrap.wide{max-width:1160px;}
-@media(min-width:860px){#works .ba{gap:14px;}}
-@media(max-width:520px){
-  #works .ba{margin-inline:-20px;}
-  #works .shot img{aspect-ratio:5/4;}
-  #works .shot.sq img{aspect-ratio:1/1;}
-}
+/* ===== バンド ===== */
+section{padding:60px 0;background:var(--paper);}
+section.alt{background:var(--surface);}
+section.dark{background:var(--ink);color:var(--on-ink);}
+section.dark h2,section.dark h3{color:#fff;}
+section.dark p{color:var(--on-ink-2);}
+section.dark .eyebrow{color:var(--wash-ink);}
 
-.ba{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-@media(min-width:521px){.ba{gap:10px;}}
-.ba .cap{font-family:"Barlow",sans-serif;font-weight:700;font-size:11px;letter-spacing:.14em;padding:4px 10px;border-radius:99px;background:var(--ink);color:var(--ground);}
-.ba .after .cap{background:var(--accent);color:var(--on-accent);}
+/* 見出しは左揃え、罫で切る */
+.sec-h{display:flex;flex-direction:column;gap:12px;margin-bottom:34px;
+  border-bottom:1px solid var(--rule-2);padding-bottom:16px;}
+.sec-h h2{font-size:clamp(23px,5.4vw,34px);}
+.sec-h p{font-size:14px;color:var(--steel);line-height:1.95;}
+section.dark .sec-h{border-bottom-color:rgba(255,255,255,.2);}
+section.dark .sec-h p{color:var(--on-ink-2);}
 
-/* message */
-.msg{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:0 12px 12px 0;padding:28px 30px;display:flex;flex-direction:column;gap:14px;}
-.msg .q{font-family:"Shippori Mincho B1",serif;font-size:clamp(17px,3.6vw,22px);line-height:1.85;color:var(--ink);}
-.msg p{font-size:14px;color:var(--ink-soft);line-height:1.9;}
-.msg .sign{font-size:13px;color:var(--muted);text-align:right;}
+/* 自社施工 */
+.own{display:flex;flex-direction:column;}
+.own-row{display:grid;grid-template-columns:9em 1fr;gap:8px 24px;align-items:start;
+  padding:22px 0;border-bottom:1px solid var(--rule);}
+.own-row:first-child{border-top:1px solid var(--rule-2);}
+.own-k{font-family:"Oswald",sans-serif;font-size:12px;letter-spacing:.1em;color:var(--wash);
+  border-left:2px solid var(--wash);padding-left:10px;justify-self:start;}
+.own-row p{font-size:14.5px;line-height:2.05;color:var(--text-2);}
+/* インクの帯に置いたときだけ、明るいティールに差し替える */
+section.dark .own-row{border-bottom-color:rgba(255,255,255,.16);}
+section.dark .own-row:first-child{border-top-color:rgba(255,255,255,.16);}
+section.dark .own-k{color:var(--wash-ink);border-left-color:var(--wash-ink);}
+@media(max-width:600px){.own-row{grid-template-columns:1fr;gap:10px;}}
 
-/* 誰が家に来るのか */
-.own{display:flex;flex-direction:column;gap:10px;}
-.own-row{
-  background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);
-  border-radius:0 10px 10px 0;padding:18px 22px;
-  display:grid;grid-template-columns:9.5em 1fr;gap:6px 20px;align-items:baseline;
-}
-@media(max-width:560px){.own-row{grid-template-columns:1fr;}}
-.own-k{font-size:13.5px;font-weight:900;color:var(--accent-deep);line-height:1.6;}
-.own-row p{font-size:13.5px;color:var(--ink-soft);line-height:1.85;}
+.paid-note{font-size:11.5px;color:var(--steel);line-height:1.8;margin-top:12px;}
 
-/* voices */
-.voices{display:flex;flex-direction:column;gap:12px;}
-.voice{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px 24px;display:flex;flex-direction:column;gap:10px;}
+/* 声 */
+.voices{display:flex;flex-direction:column;}
+.voice{padding:26px 0;border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:12px;}
+.voice:first-child{border-top:1px solid var(--rule-2);}
 .voice .head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.voice .menu-tag{font-size:11px;font-weight:700;background:var(--accent-soft);color:var(--accent-deep);padding:2px 10px;border-radius:99px;}
-.voice q{font-family:"Shippori Mincho B1",serif;font-size:15px;line-height:2;quotes:"「" "」";}
-.voice .who{font-size:12px;color:var(--muted);}
-.consent{font-size:11.5px;color:var(--muted);line-height:1.8;margin:-2px 0 4px;}
-.consent a{color:var(--accent-deep);}
-.foot-links{font-size:12.5px;margin:14px 0 4px;display:flex;gap:16px;flex-wrap:wrap;}
-.foot-links a{color:var(--invert-ink);text-decoration:underline;}
-.area-note{font-size:11.5px;color:var(--muted);line-height:1.8;margin-top:12px;}
-.voice-src{font-size:11.5px;color:var(--muted);line-height:1.8;margin-top:10px;}
+.voice .menu-tag{font-family:"Oswald",sans-serif;font-size:11px;letter-spacing:.1em;
+  color:var(--wash);border:1px solid var(--wash);padding:2px 9px;}
+.voice q{font-family:"Shippori Mincho B1",serif;font-size:16px;line-height:2.1;quotes:"「" "」";color:var(--text);}
+.voice .who{font-size:12px;color:var(--steel);}
+.voice-src{font-size:11.5px;color:var(--steel);line-height:1.85;margin-top:14px;}
 
-/* promise */
-.promise{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
-.promise div{background:var(--gold-soft);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:6px;}
-.promise h3{font-size:15.5px;color:var(--ink);}
-.promise p{font-size:13px;color:var(--ink-soft);line-height:1.75;}
-
-details{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:8px;overflow:hidden;}
-summary{cursor:pointer;padding:15px 18px;font-weight:700;font-size:14.5px;list-style:none;display:flex;gap:10px;align-items:flex-start;}
+/* FAQ */
+details{border-bottom:1px solid var(--rule);}
+summary{cursor:pointer;padding:17px 0;font-weight:700;font-size:15px;list-style:none;display:flex;gap:12px;align-items:flex-start;}
 summary::-webkit-details-marker{display:none;}
-summary::before{content:"Q";font-family:"Barlow",sans-serif;color:var(--accent);font-weight:700;flex:0 0 auto;}
-details p{padding:0 18px 16px 40px;font-size:14px;color:var(--ink-soft);line-height:1.85;}
+summary::before{content:"Q";font-family:"Oswald",sans-serif;color:var(--rust);font-weight:500;flex:0 0 auto;}
+details p{padding:0 0 18px 26px;font-size:14px;color:var(--text-2);line-height:2.05;}
 
-.area-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-.area-grid div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 12px;text-align:center;}
-.area-grid b{display:block;font-size:19px;}
-.area-grid small{font-size:11px;color:var(--muted);}
-.zip{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
-.zip input{flex:1 1 160px;padding:12px 14px;border:1.5px solid var(--line-strong);border-radius:6px;
-  font-family:"Barlow",sans-serif;font-size:16px;background:var(--surface);color:var(--ink);}
-#zipres{margin-top:10px;font-size:14px;font-weight:700;min-height:1.6em;}
+/* エリア */
+.area-grid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule-2);}
+.area-grid div{padding:20px 12px;text-align:center;border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);}
+.area-grid div:last-child{border-right:0;}
+.area-grid b{display:block;font-size:18px;font-family:"Shippori Mincho B1",serif;font-weight:800;}
+.area-grid small{font-size:11px;color:var(--steel);}
+.zip{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
+.zip input{flex:1 1 160px;padding:13px 14px;border:1px solid var(--rule-2);background:var(--surface);
+  color:var(--text);font-family:"Oswald",sans-serif;font-size:16px;}
+#zipres{margin-top:12px;font-size:14px;font-weight:700;min-height:1.6em;}
 #zipres.ok{color:var(--ok);}
-#zipres.ng{color:var(--cta-text);}
+#zipres.ng{color:var(--rust);}
+.area-note{font-size:11.5px;color:var(--steel);line-height:1.85;margin-top:14px;}
 
-.form{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:16px;box-shadow:var(--shadow);}
+/* フォーム */
+.form{background:var(--surface);border:1px solid var(--rule-2);padding:26px 24px;display:flex;flex-direction:column;gap:17px;}
 /* 自動投稿よけ。人間には見せない */
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
-.field{display:flex;flex-direction:column;gap:5px;}
-.field label{font-size:13px;font-weight:700;}
+.field{display:flex;flex-direction:column;gap:6px;}
 .field .lab{display:flex;align-items:baseline;}
-.field .req{color:var(--cta);font-size:11px;margin-left:5px;}
-.field input,.field select,.field textarea{padding:12px 14px;border:1.5px solid var(--line-strong);border-radius:6px;
-  font-family:inherit;font-size:16px;background:var(--surface);color:var(--ink);width:100%;}
-.field textarea{min-height:80px;resize:vertical;}
-.form-note{font-size:11.5px;color:var(--muted);text-align:center;}
+.field label{font-size:13px;font-weight:700;}
+.field .req{color:var(--rust);font-size:11px;margin-left:6px;}
+.field input,.field select,.field textarea{
+  padding:13px 14px;border:1px solid var(--rule-2);font-family:inherit;font-size:16px;
+  background:var(--surface);color:var(--text);width:100%;border-radius:0;
+}
+.consent{font-size:11.5px;color:var(--steel);line-height:1.85;margin:-2px 0 4px;}
+.consent a{color:var(--wash);}
+.form-note{font-size:11.5px;color:var(--steel);line-height:1.85;}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
 
-.sticky{
-  position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--surface);
-  border-top:1px solid var(--line);padding:8px 12px 9px;
-  display:flex;flex-direction:column;gap:6px;
-  box-shadow:0 -8px 22px -14px rgba(0,0,0,.4);
-}
-.sticky-row{display:flex;gap:8px;}
-.sticky .btn{
-  flex:1 1 0;min-width:0;font-size:13.5px;padding:9px 4px;border-radius:10px;
-  flex-direction:column;gap:1px;line-height:1.2;box-shadow:none;
-}
-.sticky .btn small{
-  display:block;font-size:9px;font-weight:500;letter-spacing:0;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
-}
-.sticky-note{
-  font-size:10.5px;color:var(--muted);text-align:center;letter-spacing:.02em;line-height:1.4;
-}
-.sticky .btn.call{
-  flex:0 0 auto;background:var(--surface);color:var(--ink);
-  border:1.5px solid var(--line-strong);flex-direction:column;gap:1px;line-height:1.15;
-  padding:8px 14px;font-size:15px;
-}
-.sticky .btn.call small{font-size:9px;font-weight:500;color:var(--muted);letter-spacing:.02em;}
-.sticky .btn.call:hover{background:var(--surface-2);}
+/* 追従バー */
+.sticky{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--ink);
+  padding:9px 12px 10px;display:flex;flex-direction:column;gap:6px;}
+.sticky-row{display:flex;gap:7px;}
+.sticky .btn{flex:1 1 0;min-width:0;font-size:13.5px;padding:10px 4px;flex-direction:column;gap:1px;line-height:1.2;}
+.sticky .btn small{display:block;font-size:9px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+.sticky-note{font-size:10.5px;color:var(--on-ink-2);text-align:center;line-height:1.4;}
+.sticky .btn.call{flex:0 0 auto;background:transparent;color:var(--on-ink);
+  border:1px solid rgba(255,255,255,.4);padding:9px 15px;font-size:15px;}
+.sticky .btn.call small{font-size:9px;color:var(--on-ink-2);}
+.sticky .btn.call:hover{background:rgba(255,255,255,.08);}
 @media(min-width:640px){.sticky .btn.call{display:none;}}
 
-footer{background:var(--invert);color:var(--invert-ink);padding:40px 0 32px;}
-footer .wrap{display:flex;flex-direction:column;gap:14px;}
-footer b{color:#fff;font-size:15px;}
-footer dl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:12.5px;}
-footer dt{color:var(--invert-ink);opacity:.72;}
-footer dd{margin:0;}
-footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;border-top:1px solid var(--invert-line);padding-top:14px;}
+footer{background:var(--ink);color:var(--on-ink-2);padding:46px 0 34px;}
+footer .wrap{display:flex;flex-direction:column;gap:15px;}
+footer b{color:#fff;font-size:15px;font-family:"Shippori Mincho B1",serif;font-weight:800;}
+footer dl{display:grid;grid-template-columns:auto 1fr;gap:5px 18px;margin:0;font-size:12.5px;}
+footer dt{opacity:.7;}
+footer dd{margin:0;color:var(--on-ink);}
+.foot-links{font-size:12.5px;margin:14px 0 4px;display:flex;gap:18px;flex-wrap:wrap;}
+.foot-links a{color:var(--on-ink);text-decoration:underline;}
+footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,255,.16);padding-top:16px;}
 
 @media (prefers-reduced-motion: reduce){*{transition:none !important;animation:none !important;}}
+
+/* ===========================================================
+   案B 固有の部品
+   =========================================================== */
+
+/* ヒーローの代表セット価格。案Aの price-tag にあたる */
+.setbox{border-top:1px solid rgba(255,255,255,.22);border-bottom:1px solid rgba(255,255,255,.22);padding:16px 0 18px;}
+.setbox .top{font-size:12.5px;letter-spacing:.04em;color:var(--on-ink-2);line-height:1.7;}
+.setbox .mid{display:flex;flex-direction:column;gap:9px;margin-top:10px;}
+.setbox .big{
+  font-family:"Oswald",sans-serif;font-weight:500;
+  font-size:clamp(48px,14vw,80px);line-height:.86;color:#fff;letter-spacing:-.01em;
+}
+.setbox .big .unit{font-family:"Noto Sans JP",sans-serif;font-size:.26em;font-weight:700;margin-left:.1em;letter-spacing:0;}
+.setbox .note{font-size:12.5px;color:var(--on-ink-2);line-height:1.8;}
+.calcline{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:12.5px;color:var(--on-ink-2);}
+.calcline .strike{text-decoration:line-through;opacity:.75;font-family:"Oswald",sans-serif;}
+.save{font-family:"Oswald",sans-serif;font-weight:500;font-size:12.5px;letter-spacing:.04em;
+  background:var(--rust-fill);color:#fff;padding:2px 10px;}
+
+/* 4つの場所。罫で区切るだけ、カードにしない */
+.scenes{display:grid;grid-template-columns:1fr;}
+@media(min-width:660px){.scenes{grid-template-columns:1fr 1fr;column-gap:36px;}}
+.scene{padding:22px 0;border-top:1px solid var(--rule);display:flex;flex-direction:column;gap:7px;}
+.scene .tag{font-family:"Oswald",sans-serif;font-size:11px;font-weight:500;letter-spacing:.18em;color:var(--wash);}
+.scene h3{font-family:"Shippori Mincho B1",serif;font-weight:800;font-size:16.5px;}
+.scene p{font-size:14px;color:var(--text-2);line-height:2.05;}
+
+/* 全幅写真。案Bは写真の上に見出しを載せ、下に説明の帯を敷く */
+.bleed{padding:0;background:var(--ink);}
+.bleed-fig{margin:0;}
+.bleed-media{position:relative;background:var(--ink-2);}
+.bleed-media img{display:block;width:100%;height:auto;max-height:78vh;object-fit:cover;}
+.bleed-over{position:absolute;left:0;right:0;bottom:0;padding:70px 22px 26px;
+  background:linear-gradient(transparent,rgba(8,15,19,.94));display:flex;flex-direction:column;gap:10px;}
+.bleed-tag{align-self:flex-start;font-family:"Oswald",sans-serif;font-weight:500;font-size:10.5px;
+  letter-spacing:.14em;background:var(--ink);color:var(--on-ink);padding:4px 11px;}
+.bleed-h{font-family:"Shippori Mincho B1",serif;font-weight:800;
+  font-size:clamp(20px,5.4vw,32px);color:#fff;line-height:1.5;margin:0;}
+.bleed-cap{background:var(--ink);color:var(--on-ink-2);padding:22px 0 26px;}
+.bleed-cap p{font-size:13.5px;line-height:2;}
+.bleed-cap .bleed-note{font-size:12px;opacity:.8;margin-top:8px;line-height:1.85;}
+.wrap.wide{max-width:1160px;}
+
+/* 見積りビルダー：シミュレーターと同じく、ここだけ持ち上げる */
+.builder{background:var(--surface);border:1px solid var(--rule-2);box-shadow:0 12px 30px -22px rgba(16,26,31,.55);}
+.builder-h{background:var(--ink);color:#fff;padding:15px 20px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+.builder-h b{font-size:15.5px;font-family:"Shippori Mincho B1",serif;font-weight:800;}
+.builder-h span{font-size:11.5px;margin-left:auto;color:var(--on-ink-2);}
+.builder-b{padding:20px;display:flex;flex-direction:column;gap:18px;}
+.picks{display:flex;flex-direction:column;}
+.pick{position:relative;}
+.pick input{position:absolute;opacity:0;inset:0;width:100%;height:100%;cursor:pointer;margin:0;}
+.pick .box{
+  display:grid;grid-template-columns:auto 1fr auto;gap:13px;align-items:center;
+  padding:14px 2px;border-bottom:1px solid var(--rule);transition:background .12s;
+}
+.pick:first-child .box{border-top:1px solid var(--rule-2);}
+.pick .mark{width:19px;height:19px;border:1px solid var(--rule-2);background:var(--surface);
+  display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent;}
+.pick input:checked + .box{background:var(--paper-2);}
+.pick input:checked + .box .mark{background:var(--ink);border-color:var(--ink);color:#fff;}
+.pick input:focus-visible + .box{outline:2.5px solid var(--rust);outline-offset:-2px;}
+.pick .nm{font-weight:700;font-size:15px;}
+.pick .dur{font-size:11.5px;color:var(--steel);font-weight:400;}
+.pick .pr{text-align:right;font-family:"Oswald",sans-serif;font-weight:500;font-size:19px;white-space:nowrap;}
+.pick .pr em{display:block;font-style:normal;font-size:11px;color:var(--steel);
+  font-family:"Noto Sans JP",sans-serif;font-weight:400;}
+.pick .pr .set{color:var(--rust);}
+
+.result{border-top:1px solid var(--rule-2);padding-top:16px;display:flex;flex-direction:column;gap:8px;}
+.result .row{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px;color:var(--text-2);}
+.result .row.save-row{color:var(--rust);font-weight:700;}
+.result .row.total{align-items:flex-end;border-top:1px solid var(--rule);padding-top:12px;margin-top:4px;}
+.result .row.total .lab{font-size:13px;font-weight:700;color:var(--steel);}
+.result .tot{font-family:"Oswald",sans-serif;font-weight:500;font-size:46px;line-height:1;color:var(--rust);}
+.result .tot small{font-size:16px;}
+.result .hint{font-size:12.5px;color:var(--steel);line-height:1.85;}
+
+/* メニュー：料金表と同じ罫の組み */
+.menus{border-top:1px solid var(--rule-2);}
+.sec-h + .menus{border-top:0;}
+.menu{display:grid;grid-template-columns:1fr auto;gap:8px 18px;align-items:baseline;
+  padding:20px 0;border-bottom:1px solid var(--rule);}
+.menu h3{font-family:"Shippori Mincho B1",serif;font-weight:800;font-size:16.5px;}
+.menu .kw,.menu p{grid-column:1/-1;}
+.menu .kw{display:flex;gap:14px;flex-wrap:wrap;}
+.menu .kw span{font-size:11.5px;color:var(--steel);}
+.menu .kw span::before{content:"／";margin-right:.35em;color:var(--rule-2);}
+.menu p{font-size:13.5px;color:var(--text-2);line-height:2;}
+.menu .price{text-align:right;font-family:"Oswald",sans-serif;font-weight:500;font-size:25px;
+  white-space:nowrap;color:var(--rust);align-self:start;}
+.menu .price em{display:block;font-style:normal;font-size:11.5px;color:var(--steel);
+  font-family:"Noto Sans JP",sans-serif;font-weight:400;}
+
+/* 追い焚き配管：数値で測るという一点。インクの面で見せる */
+.feature{display:flex;flex-direction:column;gap:18px;}
+.feature h2{font-size:clamp(23px,5.4vw,34px);}
+.feature > p{font-size:14.5px;line-height:2.05;}
+.gauge{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center;
+  border-top:1px solid rgba(255,255,255,.22);border-bottom:1px solid rgba(255,255,255,.22);padding:20px 0;}
+.gauge .g{display:flex;flex-direction:column;gap:4px;}
+.gauge .g .l{font-size:11.5px;color:var(--on-ink-2);letter-spacing:.04em;}
+.gauge .g .v{font-family:"Oswald",sans-serif;font-weight:500;
+  font-size:clamp(30px,8vw,44px);line-height:1;color:#fff;}
+.gauge .g.after .v{color:#FFB894;}
+.gauge .arw{color:var(--on-ink-2);font-size:19px;}
+.gauge-cap{font-size:12.5px;color:var(--on-ink-2);line-height:1.9;}
+
+.measure{counter-reset:m;list-style:none;margin:0;padding:0;display:grid;}
+.measure li{counter-increment:m;position:relative;padding:0 0 22px 44px;}
+.measure li::before{
+  content:counter(m,decimal-leading-zero);position:absolute;left:0;top:0;
+  font-family:"Oswald",sans-serif;font-weight:500;font-size:15px;color:var(--wash-ink);letter-spacing:.04em;
+}
+.measure li::after{content:"";position:absolute;left:12px;top:28px;bottom:2px;width:1px;background:rgba(255,255,255,.22);}
+.measure li:last-child{padding-bottom:0;}
+.measure li:last-child::after{display:none;}
+.measure b{display:block;font-family:"Shippori Mincho B1",serif;font-weight:800;font-size:15.5px;color:#fff;line-height:1.5;}
+.measure span{display:block;font-size:12.5px;color:var(--on-ink-2);line-height:1.9;margin-top:4px;}
+.measure-note{font-size:12.5px;color:var(--on-ink-2);line-height:1.95;
+  border-left:2px solid var(--wash-ink);padding-left:16px;}
+.measure-note b{color:#fff;}
+
+/* 方針。引用のように組む */
+.msg{border-left:2px solid var(--rust);padding:4px 0 4px 22px;display:flex;flex-direction:column;gap:14px;}
+.msg .q{font-family:"Shippori Mincho B1",serif;font-weight:800;
+  font-size:clamp(18px,3.8vw,23px);line-height:1.95;color:var(--text);}
+.msg p{font-size:14px;color:var(--text-2);line-height:2.05;}
+.msg .sign{font-size:12.5px;color:var(--steel);}
+
+/* お約束 */
+.promise{display:grid;grid-template-columns:1fr;}
+@media(min-width:660px){.promise{grid-template-columns:1fr 1fr;column-gap:36px;}}
+.promise div{padding:20px 0;border-top:1px solid var(--rule);display:flex;flex-direction:column;gap:6px;}
+.promise h3{font-family:"Shippori Mincho B1",serif;font-weight:800;font-size:16px;}
+.promise p{font-size:13.5px;color:var(--text-2);line-height:2;}
 </style>
 
 <div class="bar">
@@ -505,7 +496,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
           <span class="save">3,300円 おトク</span>
         </div>
         <div class="big"><span class="num">33,660</span><span class="unit">円</span></div>
-        <div style="font-size:12.5px;color:var(--ink-soft)">浴室クリーニング 18,480円 ＋ キッチンクリーニング 15,180円（2箇所目の同時施工価格・税込）</div>
+        <div class="note">浴室クリーニング 18,480円 ＋ キッチンクリーニング 15,180円（2箇所目の同時施工価格・税込）</div>
       </div>
     </div>
 
@@ -752,54 +743,44 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       <span class="eyebrow">Menu</span>
       <h2>それぞれ、何をするのか</h2>
       <p>表示は単体でご依頼いただいた場合の価格です。</p>
-      <p class="paid-note" style="text-align:center">※駐車スペースがない場合は、コインパーキング代を実費でいただきます。金額は事前にお伝えします。</p>
+      <p class="paid-note">※駐車スペースがない場合は、コインパーキング代を実費でいただきます。金額は事前にお伝えします。</p>
     </div>
     <div class="menus">
       <div class="menu">
-        <div class="body">
-          <h3>浴室クリーニング</h3>
-          <div class="kw"><span>ニオイ</span><span>ヌメリ</span><span>カビ</span><span>水垢</span></div>
-          <p>皮脂・石鹸カス・水垢が複雑に絡み合う、家の中でいちばんお手入れの難しい空間です。ご家庭では落としきれない床の汚れから、普段は開けることのない換気扇の内部まで洗浄します。</p>
-        </div>
+        <h3>浴室クリーニング</h3>
         <div class="price">18,480円<em>120分</em></div>
+        <div class="kw"><span>ニオイ</span><span>ヌメリ</span><span>カビ</span><span>水垢</span></div>
+        <p>皮脂・石鹸カス・水垢が複雑に絡み合う、家の中でいちばんお手入れの難しい空間です。ご家庭では落としきれない床の汚れから、普段は開けることのない換気扇の内部まで洗浄します。</p>
       </div>
       <div class="menu">
-        <div class="body">
-          <h3>キッチンクリーニング</h3>
-          <div class="kw"><span>水垢</span><span>コゲ</span><span>カビ</span><span>油汚れ</span></div>
-          <p>シンクや蛇口周りに白く固まった水垢、壁面や収納扉に飛び散ってこびりついた油汚れ。汚れの特性を見極め、キッチン素材を傷めることなく徹底的に除去します。</p>
-        </div>
+        <h3>キッチンクリーニング</h3>
         <div class="price">18,480円<em>120分</em></div>
+        <div class="kw"><span>水垢</span><span>コゲ</span><span>カビ</span><span>油汚れ</span></div>
+        <p>シンクや蛇口周りに白く固まった水垢、壁面や収納扉に飛び散ってこびりついた油汚れ。汚れの特性を見極め、キッチン素材を傷めることなく徹底的に除去します。</p>
       </div>
       <div class="menu">
-        <div class="body">
-          <h3>レンジフードクリーニング</h3>
-          <div class="kw"><span>油汚れ</span><span>ニオイ</span><span>吸い込み</span></div>
-          <p>ご自身では手のつけにくい内部のファンまで分解。専用洗剤による浸け置きと磨き上げで、目詰まりを抜き、本来の換気能力に近い状態まで戻します。プロペラ式は10,780円です。</p>
-        </div>
+        <h3>レンジフードクリーニング</h3>
         <div class="price">18,480円<em>90分</em></div>
+        <div class="kw"><span>油汚れ</span><span>ニオイ</span><span>吸い込み</span></div>
+        <p>ご自身では手のつけにくい内部のファンまで分解。専用洗剤による浸け置きと磨き上げで、目詰まりを抜き、本来の換気能力に近い状態まで戻します。プロペラ式は10,780円です。</p>
       </div>
       <div class="menu">
-        <div class="body">
-          <h3>洗濯機クリーニング</h3>
-          <div class="kw"><span>皮脂汚れ</span><span>石鹸カス</span><span>黒カビ</span></div>
-          <p>市販のクリーナーでは、汚れのごく一部しか落ちません。分解して洗濯槽の裏側まで洗浄します。毎日素肌に触れる衣類だからこそ、根本から。</p>
-        </div>
+        <h3>洗濯機クリーニング</h3>
         <div class="price">17,380円<em>120分</em></div>
+        <div class="kw"><span>皮脂汚れ</span><span>石鹸カス</span><span>黒カビ</span></div>
+        <p>市販のクリーナーでは、汚れのごく一部しか落ちません。分解して洗濯槽の裏側まで洗浄します。毎日素肌に触れる衣類だからこそ、根本から。</p>
       </div>
       <div class="menu">
-        <div class="body">
-          <h3>追い焚き配管クリーニング</h3>
-          <div class="kw"><span>ニオイ</span><span>水垢</span><span>カビ</span></div>
-          <p>専用測定器で洗浄前後の汚れを数値化する、当社の看板メニューです。詳しくは次の項目をご覧ください。</p>
-        </div>
+        <h3>追い焚き配管クリーニング</h3>
         <div class="price">19,910円<em>90分</em></div>
+        <div class="kw"><span>ニオイ</span><span>水垢</span><span>カビ</span></div>
+        <p>専用測定器で洗浄前後の汚れを数値化する、当社の看板メニューです。詳しくは次の項目をご覧ください。</p>
       </div>
     </div>
   </div>
 </section>
 
-<section class="alt">
+<section class="dark">
   <div class="wrap">
     <div class="feature">
       <span class="eyebrow">Signature</span>
@@ -1011,7 +992,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       </div>
       <p class="consent">ご入力いただいた情報は、ご予約・お見積りのご連絡にのみ使用します。送信をもって<a href="https://one-hitter.jp/privacy_policy/" target="_blank" rel="noopener">個人情報の取扱いについて</a>にご同意いただいたものとみなします。</p>
       <button class="btn lg" type="submit">この内容で予約を申し込む</button>
-      <p class="form-note">シミュレーターで選んだ箇所が自動で入ります。<br>お電話でのご予約は <a href="tel:08080438259" style="color:var(--accent-deep)">080-8043-8259</a>（受付：渡辺／8:00–20:00）<br>時間外でも対応しておりますので、お気軽にご相談ください。</p>
+      <p class="form-note">シミュレーターで選んだ箇所が自動で入ります。<br>お電話でのご予約は <a href="tel:08080438259" style="color:var(--rust)">080-8043-8259</a>（受付：渡辺／8:00–20:00）<br>時間外でも対応しておりますので、お気軽にご相談ください。</p>
     </form>
   </div>
 </section>
@@ -1085,7 +1066,8 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       if (p.checked && !isFirst && t < s){
         cell.innerHTML = '<span class="set">' + fmt(t) + '</span><em>同時施工価格</em>';
       } else {
-        cell.innerHTML = fmt(s) + '<em>' + p.dataset.dur + '</em>';
+        // 所要時間は行の左側に既に出ている。ここは「同時施工価格」との対比だけを示す
+        cell.innerHTML = fmt(s) + '<em>単品価格</em>';
       }
     });
 
