@@ -65,3 +65,4 @@
 請求書	一時作業用/請求書	tax	消費税	F40	差し込み	money	TRUE	
 請求書	一時作業用/請求書	grand_total_label	合計ラベル	E41	差し込み	string	TRUE	
 請求書	一時作業用/請求書	grand_total	合計	F41	差し込み	money	TRUE	
+請求書	一時作業用/請求書	payment_due	支払期限	B41	差し込み	date	FALSE	テンプレートの「お支払い期限：」の右隣。要確認

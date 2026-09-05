@@ -2,3 +2,7 @@
 auto_discount_enabled	FALSE	早期予約割引・複数台割引の自動判定を使うか	TRUEにすると自動で割引が載る。現場周知後に切り替えること
 large_discount_alert_ratio	0.30	手動値引きが明細小計のこの割合以上なら警告を出す	
 pdf_template_spreadsheet_id		PDF生成専用テンプレートのスプレッドシートID	空なら帳票/DBを複製する。adminCreatePdfTemplate()で作成できる
+default_closing_day	月末	請求締め日の既定値	提出先マスタに個別指定があればそちらが優先
+default_payment_site	翌月末	支払サイトの既定値	候補：当月末 / 翌月末 / 翌々月末 / 30日 など
+parking_tax_type	課税	駐車場代の既定の税区分	請求書作成画面で切り替え可能
+invoice_remarks_note		請求書の備考に毎回入れる定型文	振込先はテンプレート側に記載済み

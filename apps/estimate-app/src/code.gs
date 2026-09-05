@@ -39,6 +39,7 @@ const APP = {
   SHEET_MAIL_TEMPLATE: 'メールテンプレートマスタ',
   SHEET_DISCOUNT: '割引繁忙期マスタ',
   SHEET_SETTINGS: '設定マスタ',
+  SHEET_STAFF: '担当者マスタ',
   SHEET_CELL_DEF: '差し込みセル定義',
   SHEET_LOG: 'ログ',
 
@@ -79,6 +80,11 @@ const SETTING_ALIASES = {
   busy_surcharge_unit: '繁忙期加算単位',
   auto_discount_enabled: '自動割引有効',
   large_discount_alert_ratio: '大幅値引き警告率',
+
+  default_closing_day: '既定_請求締め日',
+  default_payment_site: '既定_支払サイト',
+  parking_tax_type: '駐車場代_税区分',
+  invoice_remarks_note: '請求書備考注記',
   logo_file_id: 'ロゴファイルID',
   stamp_image_file_id: '社印画像ファイルID'
 };
@@ -172,6 +178,7 @@ function apiBootstrap() {
       calcContext: buildClientCalcContext_(ctx),
       menus: ctx.menus,
       submitTargets: ctx.submitTargets,
+      staff: ctx.staff,
       warnings: ctx.warnings,
       cached: ctx.fromCache,
       user: getCurrentUser_()
@@ -199,32 +206,78 @@ function apiSaveEstimate(payload) {
     const ctx = loadContext_();
     const sheet = getEstimateDataSheet_(ctx);
     const calc = calculateEstimate_(payload, ctx);
+    const requestId = String((payload || {}).requestId || '').trim();
 
     const lock = LockService.getScriptLock();
     lock.waitLock(30000);
 
     let estimateId = '';
     let rowNumber = 0;
-    let record = null;
+    let duplicated = false;
 
     try {
-      estimateId = generateEstimateId_(sheet);
-      record = buildEstimateRecord_(payload, ctx, calc, estimateId);
-      rowNumber = appendObject_(sheet, record);
+      // 通信再送や複数端末の同時操作で同じ見積が2件できるのを防ぐ。
+      // ロックの中で見るので、後から来た方は必ず既存を引き当てる。
+      const seen = requestId ? readSavedRequest_(requestId) : null;
+
+      if (seen) {
+        estimateId = seen.estimateId;
+        rowNumber = seen.rowNumber;
+        duplicated = true;
+      } else {
+        estimateId = generateEstimateId_(sheet);
+        const record = buildEstimateRecord_(payload, ctx, calc, estimateId);
+        record.request_id = requestId;
+        rowNumber = appendObject_(sheet, record);
+        if (requestId) rememberSavedRequest_(requestId, estimateId, rowNumber);
+      }
     } finally {
       lock.releaseLock();
     }
 
-    queueLog_('見積作成', estimateId, '見積データを保存しました。合計 ' + calc.grandTotal + '円', '');
+    queueLog_(
+      duplicated ? '見積作成(再送)' : '見積作成',
+      estimateId,
+      duplicated
+        ? '同じ操作の再送のため既存の見積を返しました。'
+        : '見積データを保存しました。合計 ' + calc.grandTotal + '円',
+      ''
+    );
 
     return {
       ok: true,
       estimateId: estimateId,
       rowNumber: rowNumber,
       calc: calc,
+      duplicated: duplicated,
       reviewFlag: calc.reviewFlag === true
     };
   });
+}
+
+function requestCacheKey_(requestId) {
+  return 'estimate_req_' + requestId;
+}
+
+function readSavedRequest_(requestId) {
+  try {
+    const raw = CacheService.getScriptCache().get(requestCacheKey_(requestId));
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function rememberSavedRequest_(requestId, estimateId, rowNumber) {
+  try {
+    CacheService.getScriptCache().put(
+      requestCacheKey_(requestId),
+      JSON.stringify({ estimateId: estimateId, rowNumber: rowNumber }),
+      1800 // 30分。再送はこの範囲で起きる
+    );
+  } catch (e) {
+    console.warn('リクエストIDの記録に失敗しました：' + toErrorMessage_(e));
+  }
 }
 
 /**
@@ -412,6 +465,59 @@ function apiSearchEstimates(criteria) {
   });
 }
 
+/**
+ * 見積プレビュー。PDFを開かずにアプリ内で中身を確認するためのもの。
+ * 金額は保存レコードから計算し直すので、PDFと同じ数字になる。
+ */
+function apiGetEstimateDetail(estimateId) {
+  return withApi_('見積プレビュー', estimateId, function () {
+    const ctx = loadContext_();
+    const sheet = getEstimateDataSheet_(ctx);
+    const found = findEstimateRecord_(sheet, estimateId);
+    if (!found) throw new Error('見積IDが見つかりません：' + estimateId);
+
+    const r = found.record;
+    const calc = rebuildCalcFromRecord_(r, ctx);
+
+    return {
+      ok: true,
+      estimateId: estimateId,
+      header: {
+        作成日時: formatDateTime_(r['作成日時']),
+        案件タイプ: r['案件タイプ'] || '',
+        提出先名: r['提出先名'] || '',
+        見積書宛名: (r['見積書宛名'] || '') + ' ' + (r['敬称'] || ''),
+        顧客名: r['顧客名'] || '',
+        案件名: r['案件名'] || '',
+        現場住所: r['現場住所'] || '',
+        作業予定日: toDateInputValue_(r['作業予定日']),
+        担当者: r['担当者'] || r['作成者'] || '',
+        宛先メール: r['宛先メール'] || '',
+        固定CC: r['固定CC'] || '',
+        備考: r['備考'] || '',
+        例外理由: r['例外理由'] || '',
+        PDF_URL: r['PDF_URL'] || '',
+        メール下書きURL: r['メール下書きURL'] || '',
+        invoice_id: r['invoice_id'] || '',
+        project_status: r['project_status'] || ''
+      },
+      rows: calc.pdfRows,
+      totals: {
+        書類小計: calc.documentSubtotal,
+        課税小計: calc.taxableSubtotal,
+        非課税小計: calc.nonTaxableSubtotal,
+        消費税: calc.tax,
+        合計金額: calc.grandTotal,
+        繁忙期加算額: calc.busyAmount,
+        自動割引額: calc.autoDiscountApplied,
+        明細値引き合計: calc.lineDiscountTotal,
+        調整合計額: calc.adjustmentTotal
+      },
+      display: calc.summaryDisplay
+    };
+  });
+}
+
 function apiLoadEstimateForClone(estimateId) {
   return withApi_('複製編集', estimateId, function () {
     const ctx = loadContext_();
@@ -532,6 +638,7 @@ function buildEstimateRecord_(payload, ctx, calc, estimateId) {
     代表者確認メール作成日時: '',
     複製元見積ID: p.original_estimate_id || '',
     内部メモ: '',
+    request_id: '',
 
     /* --- 変則割引（今回追加） --- */
     自動割引種別: calc.autoDiscountType || '',
@@ -633,12 +740,16 @@ function resolveSubmitTarget_(payload, ctx) {
     };
   }
 
+  // 元請でも提出先マスタに宛先が無ければ現場の手入力を使う。
+  // マスタ登録待ちでGmail下書きが作れない状態を作らないため。
+  const manualTo = String(p.selfRecipientEmail || '').trim();
+
   if (!target) {
     return {
       submitToName: projectType,
       addresseeName: projectType,
       addresseeSuffix: '御中',
-      to: '',
+      to: manualTo,
       cc: ctx.settings['固定CC'] || '',
       from: ctx.settings['送信元メール'] || APP.DEFAULT_EXECUTION_EMAIL,
       templateType: '元請案件_見積送付'
@@ -649,7 +760,7 @@ function resolveSubmitTarget_(payload, ctx) {
     submitToName: target.submitToName || projectType,
     addresseeName: target.addresseeName || target.submitToName || projectType,
     addresseeSuffix: target.addresseeName ? '' : '御中',
-    to: target.to || '',
+    to: target.to || manualTo,
     cc: target.cc || '',
     from: target.from || ctx.settings['送信元メール'] || APP.DEFAULT_EXECUTION_EMAIL,
     templateType: target.templateType || '元請案件_見積送付'
@@ -873,6 +984,7 @@ function buildContextFromSheets_() {
     menus: menus,
     menuMap: menuMap,
     submitTargets: readSubmitTargets_(masterSs, settings),
+    staff: readStaff_(masterSs),
     mailTemplates: readMailTemplates_(masterSs, warnings),
     discountRules: readDiscountRules_(masterSs, warnings),
     cellDefs: readCellDefs_(masterSs),
@@ -981,6 +1093,9 @@ function applyDefaultSettingsValues_(s) {
   if (!s['繁忙期加算単位']) s['繁忙期加算単位'] = '数量ごと';
   if (isBlank_(s['自動割引有効'])) s['自動割引有効'] = 'FALSE';
   if (!s['大幅値引き警告率']) s['大幅値引き警告率'] = '0.30';
+  if (!s['既定_請求締め日']) s['既定_請求締め日'] = '月末';
+  if (!s['既定_支払サイト']) s['既定_支払サイト'] = '翌月末';
+  if (!s['駐車場代_税区分']) s['駐車場代_税区分'] = '課税';
 }
 
 /**
@@ -1057,6 +1172,9 @@ function readSubmitTargets_(masterSs, settings) {
         cc: String(r['固定CC'] || '').trim(),
         from: String(r['送信元メール'] || '').trim(),
         templateType: String(r['メールテンプレート種別'] || '').trim(),
+        // 請求日・支払期限は取引先ごとに条件が違うのでマスタで持つ
+        closingDay: String(r['請求締め日'] || '').trim(),
+        paymentSite: String(r['支払サイト'] || '').trim(),
         note: String(r['備考'] || '')
       });
     });
@@ -1071,11 +1189,32 @@ function readSubmitTargets_(masterSs, settings) {
       cc: settings['固定CC'] || '',
       from: settings['送信元メール'] || APP.DEFAULT_EXECUTION_EMAIL,
       templateType: '自社案件_見積送付',
+      closingDay: '',
+      paymentSite: '',
       note: '自動追加'
     });
   }
 
   return targets;
+}
+
+/**
+ * 担当者マスタ。誰が作った見積か確実に記録するためのプルダウン用。
+ * シートが無い／空の場合は空配列を返し、画面は手入力にフォールバックする（業務を止めない）。
+ */
+function readStaff_(masterSs) {
+  const sheet = masterSs.getSheetByName(APP.SHEET_STAFF);
+  if (!sheet) return [];
+
+  return readObjects_(sheet, ['担当者名'])
+    .filter(function (r) { return isActive_(r['有効']) && String(r['担当者名'] || '').trim(); })
+    .map(function (r) {
+      return {
+        staffId: String(r['担当者ID'] || '').trim(),
+        name: String(r['担当者名'] || '').trim(),
+        email: String(r['メール'] || '').trim()
+      };
+    });
 }
 
 const MAIL_TEMPLATE_TYPES = [
@@ -1562,14 +1701,15 @@ function getDefaultCellDefMap_(docType) {
 
 /* ===================== ログ ===================== */
 
-function queueLog_(operationType, estimateId, content, errorContent) {
+function queueLog_(operationType, estimateId, content, errorContent, elapsedMs) {
   RUNTIME.logs.push([
     new Date(),
     getCurrentUser_(),
     operationType || '',
     estimateId || '',
     truncate_(content || '', 3000),
-    truncate_(errorContent || '', 3000)
+    truncate_(errorContent || '', 3000),
+    elapsedMs === undefined ? '' : elapsedMs
   ]);
 }
 
@@ -1599,14 +1739,28 @@ function flushLogs_() {
   }
 }
 
+/**
+ * 全APIの共通ラッパー。所要時間を測ってログに残すので、
+ * 体感ではなく数字で速度を確認できる。
+ */
 function withApi_(operationType, estimateId, fn) {
+  const started = Date.now();
+
   try {
     const result = fn();
+    const elapsed = Date.now() - started;
+
+    queueLog_(operationType, (result && result.estimateId) || estimateId || '',
+      '完了' + (RUNTIME.context && RUNTIME.context.fromCache ? '（マスタはキャッシュ）' : '（マスタを実読み）'),
+      '', elapsed);
+
     flushLogs_();
+
+    if (result && typeof result === 'object') result.elapsedMs = elapsed;
     return result;
   } catch (e) {
     const msg = toErrorMessage_(e);
-    queueLog_('エラー', estimateId || '', operationType + 'でエラー', msg);
+    queueLog_('エラー', estimateId || '', operationType + 'でエラー', msg, Date.now() - started);
     flushLogs_();
     return { ok: false, error: msg };
   }
@@ -1624,7 +1778,8 @@ function getMenuHeaders_() {
 }
 
 function getSubmitToHeaders_() {
-  return ['有効', '案件タイプ', '提出先名', '見積書宛名', '宛先メール', '固定CC', '送信元メール', 'メールテンプレート種別', '備考'];
+  return ['有効', '案件タイプ', '提出先名', '見積書宛名', '宛先メール', '固定CC', '送信元メール',
+    'メールテンプレート種別', '請求締め日', '支払サイト', '備考'];
 }
 
 function getMailTemplateHeaders_() {
@@ -1635,12 +1790,16 @@ function getDiscountHeaders_() {
   return ['有効', 'ルールID', 'ルール種別', '対象', '開始月', '終了月', '条件', '値', '値種別', '優先度', '備考'];
 }
 
+function getStaffHeaders_() {
+  return ['有効', '担当者ID', '担当者名', 'メール', '備考'];
+}
+
 function getCellDefHeaders_() {
   return ['帳票区分', '対象シート', '項目キー', '項目名', 'セル/範囲', '入力種別', 'データ型', '必須', '備考'];
 }
 
 function getLogHeaders_() {
-  return ['日時', 'ユーザー', '操作種別', '見積ID', '内容', 'エラー内容'];
+  return ['日時', 'ユーザー', '操作種別', '見積ID', '内容', 'エラー内容', '所要ms'];
 }
 
 function getEstimateHeaders_() {
@@ -1666,7 +1825,7 @@ function getEstimateHeaders_() {
   headers.push('内部メモ');
 
   // ここから下が2026-09改修の追加列。既存列の位置は動かさず右端に足す。
-  headers.push('要代表者確認', '自動割引種別', '自動割引額', '明細値引き合計',
+  headers.push('request_id', '要代表者確認', '自動割引種別', '自動割引額', '明細値引き合計',
     '調整合計額', '合計指定額', '調整_JSON');
 
   for (let i = 1; i <= APP.MAX_ADJUSTMENT_SLOTS; i++) {
@@ -1677,28 +1836,6 @@ function getEstimateHeaders_() {
     headers.push('明細' + pad2_(i) + '_値引き額');
   }
 
-  return headers;
-}
-
-function getInvoiceHeaders_() {
-  const headers = [
-    'invoice_id', 'estimate_id', 'original_invoice_id', 'project_status', '請求ステータス',
-    '作成日時', '更新日時', '作成者', '案件タイプ', '提出先名', '請求書宛名', '敬称',
-    '宛先メール', '固定CC', '送信元メール', '顧客名', '案件名', '現場住所', '施工日',
-    '請求日', '支払期限', '担当者', '請求番号', '件名', '本文テンプレート種別', '備考',
-    '駐車場代', '駐車場代_税区分', '高速代', '高速代_税区分', '追加作業費', '値引き額',
-    '明細小計', '非課税小計', '課税小計', '消費税', '合計金額', '入金予定日', '入金日',
-    '入金額', '入金方法', '未入金額', 'PDF_URL', 'PDF_FILE_ID', 'メール下書きURL',
-    'メール下書きID', 'メール下書き作成日時', '送付日', '複製元請求書ID'
-  ];
-
-  for (let i = 1; i <= APP.MAX_DETAIL_ROWS; i++) {
-    const p = '明細' + pad2_(i) + '_';
-    headers.push(p + '品名', p + 'メニューID', p + 'メニュータイプ', p + '数量', p + '単位',
-      p + '単価', p + '金額', p + '税区分', p + '備考');
-  }
-
-  headers.push('内部メモ');
   return headers;
 }
 
@@ -1750,6 +1887,13 @@ function getDefaultCellDefinitionRows_() {
     layout.forEach(function (l) {
       rows.push([docType, sheetName, l[0], l[1], l[2], '差し込み', l[3], 'TRUE', '']);
     });
+
+    // 請求書だけ「お支払い期限：」の値セルがある。
+    // 実テンプレートのセル位置は adminInspectTemplateLayout() で確認すること。
+    if (docType === '請求書') {
+      rows.push([docType, sheetName, 'payment_due', '支払期限', 'B41', '差し込み', 'date', 'FALSE',
+        'テンプレートの「お支払い期限：」の右隣。要確認']);
+    }
   });
 
   return rows;
@@ -1894,6 +2038,12 @@ function isActive_(v) {
 
 function boolText_(b) { return b ? 'TRUE' : 'FALSE'; }
 function isBlank_(v) { return v === null || v === undefined || String(v).trim() === ''; }
+
+/** 「非課税」「不課税」「対象外」以外は課税として扱う。CalcEngine と同じ判定。 */
+function isTaxable_(taxType) {
+  const s = String(taxType || '');
+  return !(s.indexOf('非課税') >= 0 || s.indexOf('不課税') >= 0 || s.indexOf('対象外') >= 0);
+}
 
 function matchText_(value, keyword) {
   if (!keyword) return true;

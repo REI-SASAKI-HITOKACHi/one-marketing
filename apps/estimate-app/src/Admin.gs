@@ -87,6 +87,7 @@ function adminSetup() {
   ensure(masterSs, APP.SHEET_SUBMIT_TO, getSubmitToHeaders_());
   ensure(masterSs, APP.SHEET_MAIL_TEMPLATE, getMailTemplateHeaders_());
   ensure(masterSs, APP.SHEET_DISCOUNT, getDiscountHeaders_());
+  ensure(masterSs, APP.SHEET_STAFF, getStaffHeaders_());
   ensure(masterSs, APP.SHEET_CELL_DEF, getCellDefHeaders_());
   ensure(masterSs, APP.SHEET_LOG, getLogHeaders_());
 
@@ -94,6 +95,7 @@ function adminSetup() {
   ensure(templateSs, APP.SHEET_INVOICE_DATA, getInvoiceHeaders_());
 
   report.push(upsertMissingSettings_(masterSs));
+  report.push(seedStaffIfEmpty_(masterSs));
 
   clearContextCache_();
 
@@ -111,7 +113,11 @@ function upsertMissingSettings_(masterSs) {
     ['auto_discount_enabled', 'FALSE', '早期予約割引・複数台割引の自動判定を使うか', 'TRUEにすると自動で割引が載る。現場周知後に切り替えること'],
     ['large_discount_alert_ratio', '0.30', '手動値引きが明細小計のこの割合以上なら警告', ''],
     ['pdf_template_spreadsheet_id', '', 'PDF生成専用テンプレートのID', '空なら帳票/DBスプレッドシートを複製する。adminCreatePdfTemplate()で作成'],
-    ['line_notice_text', 'メール送信後、LINEで代表者へ一報を入れてください。', '例外時のアプリ表示文言', '']
+    ['line_notice_text', 'メール送信後、LINEで代表者へ一報を入れてください。', '例外時のアプリ表示文言', ''],
+    ['default_closing_day', '月末', '請求締め日の既定値', '提出先マスタに個別指定があればそちらが優先'],
+    ['default_payment_site', '翌月末', '支払サイトの既定値', '候補：当月末 / 翌月末 / 翌々月末 / 30日 など'],
+    ['parking_tax_type', '課税', '駐車場代の既定の税区分', '請求書作成画面で切り替え可能'],
+    ['invoice_remarks_note', '', '請求書の備考に毎回入れる定型文', '振込先はテンプレート側に記載済み']
   ];
 
   forgetHeaderInfo_(sheet);
@@ -143,6 +149,34 @@ function upsertMissingSettings_(masterSs) {
 
   sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, width).setValues(rows);
   return '設定マスタ：' + toAdd.map(function (d) { return d[0]; }).join(', ') + ' を追加';
+}
+
+/**
+ * 担当者マスタが空のときだけ初期メンバーを入れる。
+ * 既に行があれば何もしない（増殖させない）。
+ */
+function seedStaffIfEmpty_(masterSs) {
+  const sheet = masterSs.getSheetByName(APP.SHEET_STAFF);
+  if (!sheet) return '担当者マスタ：シートがありません';
+
+  forgetHeaderInfo_(sheet);
+  const info = getHeaderInfo_(sheet, getStaffHeaders_());
+  if (sheet.getLastRow() > info.headerRow) return '担当者マスタ：既存行があるため変更なし';
+
+  const seed = [['TRUE', 'STAFF_01', '渡辺 和真', '', '']];
+  const width = Math.max(sheet.getLastColumn(), getStaffHeaders_().length);
+
+  const rows = seed.map(function (d) {
+    const row = new Array(width).fill('');
+    getStaffHeaders_().forEach(function (h, i) {
+      const col = info.map[h];
+      if (col) row[col - 1] = d[i];
+    });
+    return row;
+  });
+
+  sheet.getRange(info.headerRow + 1, 1, rows.length, width).setValues(rows);
+  return '担当者マスタ：渡辺 和真 を登録';
 }
 
 function adminRefreshCache() {
@@ -493,6 +527,71 @@ function adminDiagnose() {
   const message = out.join('\n');
   console.log(message);
   return message;
+}
+
+/**
+ * 帳票テンプレートの実レイアウトを書き出す。
+ * 差し込みセル定義が実テンプレートと合っているかを目視確認するためのもの。
+ *
+ * 特に請求書の「お支払い期限：」の値セルは資料から確定できなかったため、
+ * 請求書を初めて発行する前に必ず一度実行して、payment_due の行を実際の位置に直すこと。
+ */
+function adminInspectTemplateLayout() {
+  const settings = readSettings_(getMasterSs_());
+  const ss = getTemplateSs_(settings);
+  const out = [];
+
+  [APP.TEMP_ESTIMATE_SHEET, APP.TEMP_INVOICE_SHEET].forEach(function (name) {
+    const sheet = ss.getSheetByName(name);
+    out.push('');
+    out.push('■ ' + name);
+
+    if (!sheet) {
+      out.push('  シートが見つかりません。');
+      return;
+    }
+
+    const lastRow = Math.min(sheet.getLastRow(), 50);
+    const lastCol = Math.min(Math.max(sheet.getLastColumn(), 1), 8);
+    const values = sheet.getRange(1, 1, lastRow, lastCol).getDisplayValues();
+
+    values.forEach(function (row, r) {
+      const filled = [];
+      row.forEach(function (v, c) {
+        const text = String(v || '').trim();
+        if (text) filled.push(columnLetter_(c + 1) + (r + 1) + '=' + truncate_(text, 40));
+      });
+      if (filled.length) out.push('  ' + filled.join('  |  '));
+    });
+  });
+
+  out.push('');
+  out.push('■ 差し込みセル定義との突き合わせ');
+
+  const ctx = buildContextFromSheets_();
+  ['見積書', '請求書'].forEach(function (docType) {
+    const defs = getCellDefMap_(docType, ctx);
+    out.push('  ' + docType + '： ' + Object.keys(defs).length + '項目');
+    ['detail_name_range', 'subtotal', 'tax', 'grand_total', 'payment_due'].forEach(function (key) {
+      const def = defs[key];
+      out.push('    ' + key + '： ' + (def ? def.a1 : '未定義'));
+    });
+  });
+
+  const message = out.join('\n');
+  console.log(message);
+  return message;
+}
+
+function columnLetter_(col) {
+  let letter = '';
+  let n = col;
+  while (n > 0) {
+    const rem = (n - 1) % 26;
+    letter = String.fromCharCode(65 + rem) + letter;
+    n = Math.floor((n - 1) / 26);
+  }
+  return letter;
 }
 
 /** マスタ読み込みにかかる時間を実測する。改善前後の比較用。 */

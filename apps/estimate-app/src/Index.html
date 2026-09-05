@@ -39,10 +39,11 @@
         <input id="workDate" type="date">
 
         <label for="staff">担当者</label>
-        <input id="staff" type="text" placeholder="例：和真">
+        <select id="staff"></select>
+        <input id="staffFree" type="text" placeholder="例：渡辺 和真" class="hidden">
 
-        <div id="selfMailBlock" class="hidden">
-          <label for="selfRecipientEmail">宛先メールアドレス（自社案件のみ）</label>
+        <div id="manualMailBlock" class="hidden">
+          <label for="selfRecipientEmail" id="manualMailLabel">宛先メールアドレス</label>
           <input id="selfRecipientEmail" type="email" placeholder="customer@example.com">
         </div>
 
@@ -172,6 +173,16 @@
       </section>
     </div>
   </main>
+
+  <div id="previewOverlay" class="overlay hidden">
+    <div class="overlay-panel">
+      <div class="overlay-head">
+        <div id="previewTitle" class="overlay-title">見積プレビュー</div>
+        <button type="button" class="secondary small" data-action="close-preview">閉じる</button>
+      </div>
+      <div id="previewBody" class="overlay-body"></div>
+    </div>
+  </div>
 
   <div id="toast" class="toast hidden"></div>
 

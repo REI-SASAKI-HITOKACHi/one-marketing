@@ -13,6 +13,7 @@
   var state = {
     menus: [],
     submitTargets: [],
+    staff: [],
     settings: {},
     calcContext: null,
     lines: [],
@@ -20,6 +21,8 @@
     lastCalc: null,
     lastEstimateId: '',
     lastRowNumber: 0,
+    requestId: '',
+    invoice: null,
     originalEstimateId: '',
     busyTouched: false,
     discountTouched: false,
@@ -58,8 +61,11 @@
     state.calcContext.menuMap = {};
     state.menus.forEach(function (m) { state.calcContext.menuMap[m.menuId] = m; });
 
+    state.staff = res.staff || [];
+
     setupProjectTypeOptions();
     setupSearchProjectTypeOptions();
+    setupStaffOptions();
 
     byId('highwayLink').href = state.settings['高速料金検索URL'] || '#';
     byId('lineNoticeText').textContent =
@@ -85,10 +91,13 @@
 
   function bindStaticEvents() {
     // 入力はすべてクライアント計算なので、そのまま即時反映してよい
-    ['customerName', 'projectName', 'siteAddress', 'staff', 'selfRecipientEmail',
+    ['customerName', 'projectName', 'siteAddress', 'selfRecipientEmail',
       'highwayFee', 'remarks', 'targetTotal'].forEach(function (id) {
       byId(id).addEventListener('input', recalc);
     });
+
+    byId('staff').addEventListener('change', recalc);
+    byId('staffFree').addEventListener('input', recalc);
 
     byId('projectType').addEventListener('change', function () {
       onProjectTypeChange();
@@ -131,6 +140,12 @@
       else if (action === 'rep-draft') createRepresentativeDraft();
       else if (action === 'search') searchEstimates();
       else if (action === 'clone') loadForClone(el.getAttribute('data-id'));
+      else if (action === 'preview') openPreview(el.getAttribute('data-id'));
+      else if (action === 'close-preview') closePreview();
+      else if (action === 'start-invoice') startInvoice(el.getAttribute('data-id'), false);
+      else if (action === 'recreate-invoice') startInvoice(el.getAttribute('data-id'), true);
+      else if (action === 'view-invoice') openInvoiceDetail(el.getAttribute('data-id'));
+      else if (action === 'save-invoice') saveInvoice();
     });
   }
 
@@ -151,6 +166,49 @@
     select.value = '自社';
   }
 
+  /**
+   * 担当者はプルダウン必須。ただしマスタが空・未作成のときは手入力に切り替えて業務を止めない。
+   */
+  function setupStaffOptions() {
+    var select = byId('staff');
+    var free = byId('staffFree');
+
+    if (state.staff.length === 0) {
+      select.classList.add('hidden');
+      free.classList.remove('hidden');
+      return;
+    }
+
+    select.classList.remove('hidden');
+    free.classList.add('hidden');
+    select.innerHTML = '';
+    select.appendChild(option('', '選択してください'));
+    state.staff.forEach(function (s) { select.appendChild(option(s.name, s.name)); });
+
+    // 1名しかいないなら選ぶ手間を省く
+    if (state.staff.length === 1) select.value = state.staff[0].name;
+  }
+
+  function staffValue() {
+    return state.staff.length === 0 ? val('staffFree') : val('staff');
+  }
+
+  function setStaffValue(name) {
+    var value = name || '';
+
+    if (state.staff.length === 0) {
+      setVal('staffFree', value);
+      return;
+    }
+
+    var select = byId('staff');
+    var known = state.staff.some(function (s) { return s.name === value; });
+
+    // 過去見積の担当者が今のマスタに無い場合は、その値を一時的に選択肢へ足す
+    if (value && !known) select.appendChild(option(value, value + '（マスタ未登録）'));
+    select.value = value;
+  }
+
   function setupSearchProjectTypeOptions() {
     var select = byId('searchProjectType');
     select.innerHTML = '';
@@ -160,23 +218,35 @@
     });
   }
 
+  /**
+   * 提出先マスタに宛先メールがあればそれを使い、無い案件タイプだけ手入力欄を出す。
+   * 自社案件は常に手入力。
+   */
   function onProjectTypeChange() {
     var projectType = val('projectType');
-    byId('selfMailBlock').classList.toggle('hidden', projectType !== '自社');
-
     var target = state.submitTargets.find(function (t) { return t.projectType === projectType; });
     var info = byId('submitTargetInfo');
 
+    var isSelf = projectType === '自社';
+    var masterTo = target ? target.to : '';
+    var needsManual = isSelf || !masterTo;
+
+    byId('manualMailBlock').classList.toggle('hidden', !needsManual);
+    byId('manualMailLabel').textContent = isSelf
+      ? '宛先メールアドレス（自社案件）'
+      : '宛先メールアドレス（提出先マスタに未登録のため手入力）';
+
     if (!target) {
-      info.textContent = '提出先マスタに該当する案件タイプがありません。';
+      info.innerHTML = '提出先マスタに該当する案件タイプがありません。'
+        + '<br>宛先は手入力してください。';
       return;
     }
 
-    var to = target.to || (projectType === '自社' ? '手入力' : '未設定');
     info.innerHTML = [
       '提出先：' + esc(target.submitToName || target.projectType || ''),
-      '宛先：' + esc(to) + (!target.to && projectType !== '自社'
-        ? '<span class="warn-inline">（宛先未設定のためGmail下書きは作成できません）</span>' : ''),
+      '宛先：' + (masterTo
+        ? esc(masterTo)
+        : '<span class="warn-inline">マスタ未登録 → 下の欄に手入力してください</span>'),
       'CC：' + esc(target.cc || 'なし'),
       'テンプレート：' + esc(target.templateType || '')
     ].join('<br>');
@@ -432,13 +502,14 @@
 
   function buildPayload() {
     return {
+      requestId: state.requestId,
       original_estimate_id: state.originalEstimateId || '',
       projectType: val('projectType'),
       customerName: val('customerName'),
       projectName: val('projectName'),
       siteAddress: val('siteAddress'),
       workDate: val('workDate'),
-      staff: val('staff'),
+      staff: staffValue(),
       selfRecipientEmail: val('selfRecipientEmail'),
       highwayFee: val('highwayFee'),
       remarks: val('remarks'),
@@ -583,6 +654,8 @@
     }
 
     state.creating = true;
+    // 1回の「作成」操作につき1つ発行する。通信の再送で同じ見積が2件できるのを防ぐ。
+    state.requestId = newRequestId();
 
     var btn = byId('createBtn');
     btn.disabled = true;
@@ -604,6 +677,7 @@
 
     if (!state.lines.some(function (l) { return l.menuId; })) problems.push('メニューが1件も選択されていません。');
     if (!val('customerName').trim()) problems.push('顧客名を入力してください。');
+    if (!staffValue().trim()) problems.push('担当者を選択してください。');
 
     if (problems.length === 0 && val('projectType') === '自社' && !val('selfRecipientEmail').trim()) {
       showToast('宛先メール未入力です。PDFは作成しますが、Gmail下書きは作成されません。');
@@ -621,6 +695,8 @@
 
     state.lastEstimateId = res.estimateId;
     state.lastRowNumber = res.rowNumber;
+
+    if (res.duplicated) showToast('同じ操作の再送を検知しました。既存の見積 ' + res.estimateId + ' を使います。');
 
     // サーバー側の再計算結果が正。クライアント表示とずれていたら差し替える。
     if (res.calc) {
@@ -770,8 +846,14 @@
         + '合計：' + esc(r.total_amount_display)
         + (r.invoice_id ? '<br>請求書：' + esc(r.invoice_id) : '')
         + '</div>'
+        + '<div class="button-row">'
+        + '<button type="button" class="secondary" data-action="preview" data-id="' + esc(r.estimate_id) + '">プレビュー</button>'
         + (r.pdf_url ? '<a class="link-button" href="' + esc(r.pdf_url) + '" target="_blank" rel="noopener">PDF</a>' : '')
-        + '<button type="button" class="secondary" data-action="clone" data-id="' + esc(r.estimate_id) + '">この見積を複製して編集</button>'
+        + '<button type="button" class="secondary" data-action="clone" data-id="' + esc(r.estimate_id) + '">複製して編集</button>'
+        + (r.invoice_id
+            ? '<button type="button" class="secondary" data-action="view-invoice" data-id="' + esc(r.invoice_id) + '">請求書確認</button>'
+            : '<button type="button" class="secondary" data-action="start-invoice" data-id="' + esc(r.estimate_id) + '">請求書作成</button>')
+        + '</div>'
         + '</div>';
     }).join('');
   }
@@ -798,10 +880,12 @@
     setVal('projectType', p.projectType || '自社');
     onProjectTypeChange();
 
-    ['customerName', 'projectName', 'siteAddress', 'workDate', 'staff',
+    ['customerName', 'projectName', 'siteAddress', 'workDate',
       'selfRecipientEmail', 'highwayFee', 'remarks'].forEach(function (id) {
       setVal(id, p[id]);
     });
+
+    setStaffValue(p.staff);
 
     setVal('targetTotal', '');
 
@@ -847,6 +931,451 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  /* ===================== 見積プレビュー ===================== */
+
+  function openPreview(estimateId) {
+    byId('previewTitle').textContent = '見積プレビュー ' + estimateId;
+    byId('previewBody').innerHTML = '<div class="note">読み込み中...</div>';
+    byId('previewOverlay').classList.remove('hidden');
+
+    google.script.run
+      .withSuccessHandler(function (res) {
+        if (!res || !res.ok) {
+          byId('previewBody').innerHTML = '<div class="alert danger">'
+            + esc((res && res.error) || 'プレビューの取得に失敗しました。') + '</div>';
+          return;
+        }
+        renderPreview(res);
+      })
+      .withFailureHandler(function (err) {
+        byId('previewBody').innerHTML = '<div class="alert danger">' + esc(message(err)) + '</div>';
+      })
+      .apiGetEstimateDetail(estimateId);
+  }
+
+  function closePreview() {
+    byId('previewOverlay').classList.add('hidden');
+  }
+
+  function renderPreview(res) {
+    var h = res.header;
+    var parts = [];
+
+    parts.push('<div class="preview-block">' + [
+      ['案件タイプ', h.案件タイプ],
+      ['提出先', h.提出先名],
+      ['宛名', h.見積書宛名],
+      ['顧客名', h.顧客名],
+      ['案件名', h.案件名],
+      ['現場住所', h.現場住所],
+      ['作業予定日', h.作業予定日],
+      ['担当者', h.担当者],
+      ['宛先メール', h.宛先メール || '（未設定）'],
+      ['CC', h.固定CC || 'なし'],
+      ['作成日時', h.作成日時]
+    ].map(function (r) {
+      return '<div class="preview-row"><span>' + esc(r[0]) + '</span><strong>' + esc(r[1] || '-') + '</strong></div>';
+    }).join('') + '</div>');
+
+    parts.push('<div class="sub-head">明細</div>');
+    parts.push('<div class="preview-table-wrap"><table class="preview-table">'
+      + '<thead><tr><th>品名</th><th>数量</th><th>単価</th><th>金額</th></tr></thead><tbody>'
+      + res.rows.map(function (r) {
+        return '<tr><td>' + esc(r.name) + '</td><td class="num">' + esc(r.qty)
+          + '</td><td class="num">' + esc(fmtYen(r.unitPrice))
+          + '</td><td class="num">' + esc(fmtYen(r.amount)) + '</td></tr>';
+      }).join('')
+      + '</tbody></table></div>');
+
+    var d = res.display;
+    parts.push('<div class="summary-grid preview-block">'
+      + summaryRow('小計', d.documentSubtotal)
+      + summaryRow('うち課税', d.taxableSubtotal)
+      + summaryRow('うち非課税', d.nonTaxableSubtotal)
+      + summaryRow('消費税', d.tax)
+      + '<div class="summary-row total"><span>合計</span><strong>' + esc(d.grandTotal) + '</strong></div>'
+      + '</div>');
+
+    if (h.備考) parts.push('<div class="sub-head">備考</div><div class="note">' + esc(h.備考) + '</div>');
+    if (h.例外理由) parts.push('<div class="alert warning">' + esc(h.例外理由) + '</div>');
+
+    var links = [];
+    if (h.PDF_URL) links.push('<a class="link-button" href="' + esc(h.PDF_URL) + '" target="_blank" rel="noopener">PDFを開く</a>');
+    if (h.メール下書きURL) links.push('<a class="link-button" href="' + esc(h.メール下書きURL) + '" target="_blank" rel="noopener">Gmail下書き</a>');
+    if (links.length) parts.push('<div class="button-row">' + links.join('') + '</div>');
+
+    parts.push(renderInvoiceAction(res));
+
+    byId('previewBody').innerHTML = parts.join('');
+  }
+
+  /** プレビュー下部の請求書導線。既に請求済みなら作成ではなく確認を出す（二重請求防止）。 */
+  function renderInvoiceAction(res) {
+    var h = res.header;
+
+    if (h.invoice_id) {
+      return '<div class="alert info">この見積は請求書 ' + esc(h.invoice_id) + ' を作成済みです。</div>'
+        + '<div class="button-row">'
+        + '<button type="button" class="secondary" data-action="view-invoice" data-id="' + esc(h.invoice_id) + '">請求書を確認</button>'
+        + '<button type="button" class="secondary" data-action="recreate-invoice" data-id="' + esc(res.estimateId) + '">請求書を作り直す</button>'
+        + '</div>';
+    }
+
+    return '<div class="button-row">'
+      + '<button type="button" class="primary" data-action="start-invoice" data-id="' + esc(res.estimateId) + '">請求書を作成</button>'
+      + '</div>';
+  }
+
+  function summaryRow(label, value) {
+    return '<div class="summary-row"><span>' + esc(label) + '</span><strong>' + esc(value) + '</strong></div>';
+  }
+
+  /* ===================== 請求書 ===================== */
+
+  function startInvoice(estimateId, allowRecreate) {
+    byId('previewTitle').textContent = '請求書作成';
+    byId('previewBody').innerHTML = '<div class="note">見積を読み込んでいます...</div>';
+    byId('previewOverlay').classList.remove('hidden');
+
+    google.script.run
+      .withSuccessHandler(function (res) {
+        if (!res || !res.ok) {
+          byId('previewBody').innerHTML = '<div class="alert danger">'
+            + esc((res && res.error) || '請求書の準備に失敗しました。') + '</div>';
+          return;
+        }
+
+        if (res.existingInvoiceId && !allowRecreate) {
+          byId('previewBody').innerHTML =
+            '<div class="alert warning">この見積には既に請求書 ' + esc(res.existingInvoiceId)
+            + ' があります。二重請求を防ぐため、通常の作成はできません。</div>'
+            + '<div class="button-row">'
+            + '<button type="button" class="secondary" data-action="view-invoice" data-id="' + esc(res.existingInvoiceId) + '">請求書を確認</button>'
+            + '<button type="button" class="danger-btn" data-action="recreate-invoice" data-id="' + esc(res.estimateId) + '">それでも作り直す</button>'
+            + '</div>';
+          return;
+        }
+
+        state.invoice = {
+          base: res,
+          allowRecreate: allowRecreate === true,
+          form: Object.assign({}, res.form),
+          calc: null,
+          saved: null
+        };
+
+        renderInvoiceForm();
+        recalcInvoice();
+      })
+      .withFailureHandler(function (err) {
+        byId('previewBody').innerHTML = '<div class="alert danger">' + esc(message(err)) + '</div>';
+      })
+      .apiStartInvoice(estimateId);
+  }
+
+  function renderInvoiceForm() {
+    var inv = state.invoice;
+    var base = inv.base;
+    var f = inv.form;
+
+    var fields = [
+      ['workCompletedDate', '施工日', 'date'],
+      ['invoiceDate', '請求日', 'date'],
+      ['dueDate', '支払期限', 'date'],
+      ['parkingFee', '駐車場代', 'number'],
+      ['extraWorkName', '追加作業の名目', 'text'],
+      ['extraWorkFee', '追加作業費', 'number'],
+      ['discountName', '値引きの名目', 'text'],
+      ['discountAmount', '値引き額', 'number']
+    ];
+
+    var html = '<div class="preview-block">'
+      + '<div class="preview-row"><span>見積ID</span><strong>' + esc(base.estimateId) + '</strong></div>'
+      + '<div class="preview-row"><span>顧客名</span><strong>' + esc(base.customerName) + '</strong></div>'
+      + '<div class="preview-row"><span>案件名</span><strong>' + esc(base.projectName) + '</strong></div>'
+      + '<div class="preview-row"><span>宛先</span><strong>' + esc(base.to || '（未設定）') + '</strong></div>'
+      + '</div>';
+
+    if (inv.allowRecreate && base.existingInvoiceId) {
+      html += '<div class="alert warning">請求書 ' + esc(base.existingInvoiceId)
+        + ' の作り直しです。新しい請求IDが発行され、元の請求データは残ります。</div>';
+    }
+
+    html += '<div class="note">' + esc(base.termsNote) + '</div>';
+    html += '<div id="invoiceFields">';
+
+    fields.forEach(function (fl) {
+      html += '<label for="inv_' + fl[0] + '">' + esc(fl[1]) + '</label>'
+        + '<input id="inv_' + fl[0] + '" type="' + fl[2] + '"'
+        + (fl[2] === 'number' ? ' min="0" inputmode="numeric"' : '')
+        + ' value="' + esc(f[fl[0]] || '') + '">';
+    });
+
+    html += '<label for="inv_parkingTaxType">駐車場代の税区分</label>'
+      + '<select id="inv_parkingTaxType">'
+      + '<option value="課税"' + (f.parkingTaxType !== '非課税' ? ' selected' : '') + '>課税</option>'
+      + '<option value="非課税"' + (f.parkingTaxType === '非課税' ? ' selected' : '') + '>非課税</option>'
+      + '</select>';
+
+    html += '<label for="inv_staff">担当者</label>'
+      + '<select id="inv_staff">'
+      + (state.staff.length
+          ? state.staff.map(function (st) {
+              return '<option value="' + esc(st.name) + '"' + (st.name === f.staff ? ' selected' : '') + '>' + esc(st.name) + '</option>';
+            }).join('')
+          : '<option value="' + esc(f.staff || '') + '">' + esc(f.staff || '（未設定）') + '</option>')
+      + '</select>';
+
+    html += '<label for="inv_remarks">請求書備考</label>'
+      + '<textarea id="inv_remarks" rows="3">' + esc(f.remarks || '') + '</textarea>';
+
+    html += '</div>';
+    html += '<div id="invoiceSummary"></div>';
+    html += '<div class="button-row">'
+      + '<button type="button" class="primary" id="invoiceSaveBtn" data-action="save-invoice">請求書を作成・PDF保存・Gmail下書き作成</button>'
+      + '</div>';
+    html += '<div id="invoiceResult"></div>';
+
+    byId('previewBody').innerHTML = html;
+
+    // 入力のたびに請求額を計算し直す
+    fields.forEach(function (fl) {
+      byId('inv_' + fl[0]).addEventListener('input', onInvoiceFieldChange);
+    });
+    byId('inv_parkingTaxType').addEventListener('change', onInvoiceFieldChange);
+    byId('inv_staff').addEventListener('change', onInvoiceFieldChange);
+    byId('inv_remarks').addEventListener('input', onInvoiceFieldChange);
+  }
+
+  function onInvoiceFieldChange() {
+    collectInvoiceForm();
+    recalcInvoice();
+  }
+
+  function collectInvoiceForm() {
+    var f = state.invoice.form;
+    ['workCompletedDate', 'invoiceDate', 'dueDate', 'parkingFee', 'extraWorkName',
+      'extraWorkFee', 'discountName', 'discountAmount', 'parkingTaxType', 'staff', 'remarks']
+      .forEach(function (key) {
+        var el = byId('inv_' + key);
+        if (el) f[key] = el.value;
+      });
+  }
+
+  /**
+   * 請求額の計算はサーバーに投げる。
+   * 見積レコードを読まないと明細が分からないため、ここだけは通信が必要。
+   */
+  function recalcInvoice() {
+    var box = byId('invoiceSummary');
+    if (!box) return;
+
+    box.innerHTML = '<div class="note">計算中...</div>';
+
+    var payload = Object.assign({ estimateId: state.invoice.base.estimateId }, state.invoice.form);
+
+    google.script.run
+      .withSuccessHandler(function (res) {
+        if (!res || !res.ok) {
+          box.innerHTML = '<div class="alert danger">' + esc((res && res.error) || '計算に失敗しました。') + '</div>';
+          return;
+        }
+        state.invoice.calc = res.calc;
+        renderInvoiceSummary(res);
+      })
+      .withFailureHandler(function (err) {
+        box.innerHTML = '<div class="alert danger">' + esc(message(err)) + '</div>';
+      })
+      .apiCalculateInvoice(payload);
+  }
+
+  function renderInvoiceSummary(res) {
+    var calc = res.calc;
+    var d = calc.summaryDisplay;
+
+    var rows = calc.pdfRows.map(function (r) {
+      return '<tr><td>' + esc(r.name) + '</td><td class="num">' + esc(r.qty)
+        + '</td><td class="num">' + esc(fmtYen(r.unitPrice))
+        + '</td><td class="num">' + esc(fmtYen(r.amount)) + '</td></tr>';
+    }).join('');
+
+    var diff = res.diff;
+    var diffClass = diff === 0 ? 'diff-none' : 'diff-changed';
+    var diffText = diff === 0
+      ? '見積額と同額です'
+      : (diff > 0 ? '見積より ' + fmtYen(diff) + ' 増' : '見積より ' + fmtYen(-diff) + ' 減');
+
+    byId('invoiceSummary').innerHTML =
+      '<div class="sub-head">請求明細</div>'
+      + '<div class="preview-table-wrap"><table class="preview-table">'
+      + '<thead><tr><th>品名</th><th>数量</th><th>単価</th><th>金額</th></tr></thead>'
+      + '<tbody>' + rows + '</tbody></table></div>'
+      + '<div class="summary-grid preview-block">'
+      + summaryRow('小計', d.documentSubtotal)
+      + summaryRow('消費税', d.tax)
+      + '<div class="summary-row total"><span>請求額</span><strong>' + esc(d.grandTotal) + '</strong></div>'
+      + '</div>'
+      + '<div class="diff-box ' + diffClass + '">'
+      + '<span>見積額 ' + esc(fmtYen(res.estimateTotal)) + '</span>'
+      + '<span>' + esc(diffText) + '</span>'
+      + '</div>';
+  }
+
+  function saveInvoice() {
+    var btn = byId('invoiceSaveBtn');
+    if (!btn || btn.disabled) return;
+
+    collectInvoiceForm();
+
+    btn.disabled = true;
+    btn.textContent = '保存中...';
+    byId('invoiceResult').innerHTML = '<div class="progress">請求データを保存しています…</div>';
+
+    var payload = Object.assign({
+      estimateId: state.invoice.base.estimateId,
+      allowRecreate: state.invoice.allowRecreate,
+      requestId: newRequestId()
+    }, state.invoice.form);
+
+    google.script.run
+      .withSuccessHandler(function (res) {
+        if (!res || !res.ok) {
+          finishInvoiceSave();
+          byId('invoiceResult').innerHTML = '<div class="alert danger">'
+            + esc((res && res.error) || '保存に失敗しました。') + '</div>';
+          return;
+        }
+
+        state.invoice.saved = res;
+        btn.textContent = 'PDF作成中...';
+        byId('invoiceResult').innerHTML = '<div class="progress">請求ID ' + esc(res.invoiceId)
+          + ' を保存しました。PDFとGmail下書きを作成しています…</div>';
+
+        google.script.run
+          .withSuccessHandler(function (built) {
+            finishInvoiceSave();
+            renderInvoiceResult(res, built || { errors: ['帳票生成に失敗しました。'] });
+          })
+          .withFailureHandler(function (err) {
+            finishInvoiceSave();
+            renderInvoiceResult(res, { errors: ['帳票生成失敗：' + message(err)] });
+          })
+          .apiBuildInvoiceDocuments(res.invoiceId, res.rowNumber);
+      })
+      .withFailureHandler(function (err) {
+        finishInvoiceSave();
+        byId('invoiceResult').innerHTML = '<div class="alert danger">' + esc(message(err)) + '</div>';
+      })
+      .apiSaveInvoice(payload);
+  }
+
+  function finishInvoiceSave() {
+    var btn = byId('invoiceSaveBtn');
+    if (!btn) return;
+    btn.disabled = false;
+    btn.textContent = '請求書を作成・PDF保存・Gmail下書き作成';
+  }
+
+  function renderInvoiceResult(saved, built) {
+    var parts = ['<div class="result">'];
+    parts.push('<strong>請求ID：</strong>' + esc(saved.invoiceId) + '<br>');
+    parts.push('<strong>請求額：</strong>' + esc(fmtYen(saved.calc.grandTotal))
+      + '（見積額 ' + esc(fmtYen(saved.estimateTotal)) + '）<br>');
+
+    if (built.pdfUrl) {
+      parts.push('<strong>PDF：</strong><a href="' + esc(built.pdfUrl) + '" target="_blank" rel="noopener">請求書PDFを開く</a><br>');
+    }
+    if (built.draftUrl) {
+      parts.push('<strong>Gmail下書き：</strong><a href="' + esc(built.draftUrl) + '" target="_blank" rel="noopener">下書き一覧を開く</a><br>');
+    }
+
+    parts.push('</div>');
+
+    if (built.errors && built.errors.length) {
+      parts.push('<div class="alert warning">' + esc(built.errors.join('\n')) + '</div>');
+    }
+
+    if (built.mailPreview) {
+      parts.push('<div class="note strong">メール下書き作成に失敗しました。以下をコピーして手動で作成してください。</div>'
+        + '<pre class="copy-box">To: ' + esc(built.mailPreview.to || '')
+        + '\nCC: ' + esc(built.mailPreview.cc || '')
+        + '\n件名: ' + esc(built.mailPreview.subject || '')
+        + '\n\n' + esc(built.mailPreview.body || '') + '</pre>');
+    }
+
+    byId('invoiceResult').innerHTML = parts.join('');
+    showToast('請求書を作成しました。');
+  }
+
+  function openInvoiceDetail(invoiceId) {
+    byId('previewTitle').textContent = '請求書 ' + invoiceId;
+    byId('previewBody').innerHTML = '<div class="note">読み込み中...</div>';
+    byId('previewOverlay').classList.remove('hidden');
+
+    google.script.run
+      .withSuccessHandler(function (res) {
+        if (!res || !res.ok) {
+          byId('previewBody').innerHTML = '<div class="alert danger">'
+            + esc((res && res.error) || '請求書の取得に失敗しました。') + '</div>';
+          return;
+        }
+        renderInvoiceDetail(res);
+      })
+      .withFailureHandler(function (err) {
+        byId('previewBody').innerHTML = '<div class="alert danger">' + esc(message(err)) + '</div>';
+      })
+      .apiGetInvoiceDetail(invoiceId);
+  }
+
+  function renderInvoiceDetail(res) {
+    var h = res.header;
+    var d = res.display;
+
+    var parts = ['<div class="preview-block">' + [
+      ['元の見積ID', h.estimate_id],
+      ['顧客名', h.顧客名],
+      ['案件名', h.案件名],
+      ['宛名', h.請求書宛名],
+      ['施工日', h.施工日],
+      ['請求日', h.請求日],
+      ['支払期限', h.支払期限],
+      ['担当者', h.担当者],
+      ['宛先メール', h.宛先メール || '（未設定）'],
+      ['作成日時', h.作成日時]
+    ].map(function (r) {
+      return '<div class="preview-row"><span>' + esc(r[0]) + '</span><strong>' + esc(r[1] || '-') + '</strong></div>';
+    }).join('') + '</div>'];
+
+    parts.push('<div class="preview-table-wrap"><table class="preview-table">'
+      + '<thead><tr><th>品名</th><th>数量</th><th>単価</th><th>金額</th></tr></thead><tbody>'
+      + res.rows.map(function (r) {
+        return '<tr><td>' + esc(r.name) + '</td><td class="num">' + esc(r.qty)
+          + '</td><td class="num">' + esc(fmtYen(r.unitPrice))
+          + '</td><td class="num">' + esc(fmtYen(r.amount)) + '</td></tr>';
+      }).join('')
+      + '</tbody></table></div>');
+
+    parts.push('<div class="summary-grid preview-block">'
+      + summaryRow('小計', d.documentSubtotal)
+      + summaryRow('消費税', d.tax)
+      + '<div class="summary-row total"><span>請求額</span><strong>' + esc(d.grandTotal) + '</strong></div>'
+      + '</div>');
+
+    if (res.diff !== 0) {
+      parts.push('<div class="diff-box diff-changed"><span>見積額 ' + esc(fmtYen(res.estimateTotal))
+        + '</span><span>差額 ' + esc(fmtYen(res.diff)) + '</span></div>');
+    }
+
+    if (h.備考) parts.push('<div class="sub-head">備考</div><div class="note">' + esc(h.備考) + '</div>');
+
+    var links = [];
+    if (h.PDF_URL) links.push('<a class="link-button" href="' + esc(h.PDF_URL) + '" target="_blank" rel="noopener">請求書PDF</a>');
+    if (h.メール下書きURL) links.push('<a class="link-button" href="' + esc(h.メール下書きURL) + '" target="_blank" rel="noopener">Gmail下書き</a>');
+    if (links.length) parts.push('<div class="button-row">' + links.join('') + '</div>');
+
+    byId('previewBody').innerHTML = parts.join('');
+  }
+
   /* ===================== DOMヘルパー ===================== */
 
   function byId(id) { return document.getElementById(id); }
@@ -877,6 +1406,11 @@
     b.textContent = label;
     Object.keys(attrs || {}).forEach(function (k) { b.setAttribute(k, attrs[k]); });
     return b;
+  }
+
+  function newRequestId() {
+    if (window.crypto && window.crypto.randomUUID) return window.crypto.randomUUID();
+    return 'req-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
   }
 
   function fmtYen(n) { return CalcEngine.fmtYen(n); }
