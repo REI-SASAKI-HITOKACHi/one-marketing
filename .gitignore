@@ -1,3 +1,5 @@
 dist/
 deploy/one-hitter-lp.zip
 deploy/.netlify-site.json
+__pycache__/
+*.pyc
