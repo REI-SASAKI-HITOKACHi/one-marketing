@@ -10,3 +10,7 @@ credentials.json
 # Python のキャッシュ
 __pycache__/
 *.pyc
+
+# 顧客の個人情報を含む作業ファイル（絶対にコミットしない）
+private/
+*.送信リスト.csv
