@@ -420,8 +420,8 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
 
     <div class="price-tag">
       <span class="lab">ノーマルエアコン<br>1台あたり</span>
-      <span class="big"><span class="num">9,800</span><span class="unit">円</span></span>
-      <span class="tail">／60分（税込）<br>お掃除機能付きは 15,800円／120分</span>
+      <span class="big"><span class="num">10,780</span><span class="unit">円</span></span>
+      <span class="tail">／60分（税込）<br>お掃除機能付きは 17,380円／120分</span>
     </div>
 
     <figure class="shot hero-shot" style="margin:18px 0 0">
@@ -550,11 +550,11 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
     <div class="ptable">
       <div class="prow">
         <span><span class="nm">エアコンクリーニング</span><br><span class="dur">ノーマルエアコン／60分</span></span>
-        <span class="pr">9,800円</span>
+        <span class="pr">10,780円</span>
       </div>
       <div class="prow">
         <span><span class="nm">エアコンクリーニング</span><br><span class="dur">お掃除機能付きエアコン／120分</span></span>
-        <span class="pr">15,800円</span>
+        <span class="pr">17,380円</span>
       </div>
       <div class="prow opt"><span class="nm">オプション｜室外機セット</span><span class="pr">5,500円</span></div>
       <div class="prow opt"><span class="nm">オプション｜防カビコート</span><span class="pr">3,300円</span></div>
@@ -578,8 +578,8 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
         <fieldset>
           <legend>1. エアコンの種類</legend>
           <div class="chips">
-            <label class="chip"><input type="radio" name="type" value="9800" checked><span>ノーマル<small>9,800円／60分</small></span></label>
-            <label class="chip"><input type="radio" name="type" value="15800"><span>お掃除機能付き<small>15,800円／120分</small></span></label>
+            <label class="chip"><input type="radio" name="type" value="9800" checked><span>ノーマル<small>10,780円／60分</small></span></label>
+            <label class="chip"><input type="radio" name="type" value="15800"><span>お掃除機能付き<small>17,380円／120分</small></span></label>
           </div>
         </fieldset>
         <fieldset>
@@ -609,9 +609,9 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
         <div class="calc-out">
           <div>
             <div class="lab">お見積り金額（税込）</div>
-            <div class="tot" id="total">9,800円</div>
+            <div class="tot" id="total">10,780円</div>
           </div>
-          <div id="breakdown">ノーマル 9,800円 × 1台</div>
+          <div id="breakdown">ノーマル 10,780円 × 1台</div>
           <p class="paid-note">※駐車スペースがない場合は、コインパーキング代を実費でいただきます。金額は事前にお伝えします。</p>
         </div>
         <a class="btn lg" href="#form">この内容で予約に進む</a>
@@ -833,7 +833,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
   function calc(){
     var typeEl = document.querySelector('input[name=type]:checked');
     var unit = parseInt(typeEl.value, 10);
-    var typeName = unit === 9800 ? 'ノーマル' : 'お掃除機能付き';
+    var typeName = unit === 10780 ? 'ノーマル' : 'お掃除機能付き';
     var qty = parseInt(document.querySelector('input[name=qty]:checked').value, 10);
     var peak = parseInt(document.querySelector('input[name=peak]:checked').value, 10);
 
