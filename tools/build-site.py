@@ -12,6 +12,25 @@ import re
 import shutil
 import sys
 
+def strip_comments(html: str) -> str:
+    """公開する文書からコメントを落とす。
+
+    lp/ 配下のソースには、なぜその値なのかを書いた注記を残してある。
+    ただし公開ページのソースに設計メモが並んでいるのは正常な状態ではないので、
+    書き出すときに外す。CSSのコメントは <style> の中だけを対象にする
+    （JavaScript の中の /* */ を巻き込まないため）。
+    """
+    html = re.sub(r"<!--.*?-->", "", html, flags=re.S)
+
+    def _style(m):
+        return m.group(1) + re.sub(r"/\*.*?\*/", "", m.group(2), flags=re.S) + m.group(3)
+
+    html = re.sub(r"(<style[^>]*>)(.*?)(</style>)", _style, html, flags=re.S)
+    # コメントを抜いた跡に残る空行を畳む
+    html = re.sub(r"\n[ \t]*\n[ \t]*\n+", "\n\n", html)
+    return html
+
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 # 配信先ごとに、フォームの受け口と出力先が変わる
@@ -27,31 +46,46 @@ BASE_URL = "https://lp.one-hitter.jp"
 PAGES = {
     "aircon": {
         "dir": "aircon",
-        "title": "エアコンクリーニング 9,800円／60分｜東京・千葉・神奈川｜ONE HITTER",
+        "title": "エアコンクリーニング 10,780円／60分｜東京・千葉・神奈川｜ONE HITTER",
         "desc": "フィルター掃除では届かない、熱交換器と送風ファンの黒カビを分解洗浄。"
-                "ノーマルエアコン9,800円・60分、お見積り以上の追加請求はありません。"
+                "ノーマルエアコン10,780円（税込）・60分、お見積り以上の追加請求はありません。"
                 "東京・千葉・神奈川、最短即日。",
+        "label": "エアコン",
         "og": "aircon/img/og.jpg",
         "og_line1": "エアコン内部のカビを、分解洗浄",
-        "og_line2": "ノーマル 9,800円／60分・東京 千葉 神奈川",
+        "og_line2": "ノーマル 10,780円（税込）／60分・東京 千葉 神奈川",
     },
-    "nenmatsu": {
-        "dir": "nenmatsu",
-        "title": "年末大掃除 11月までなら通常価格｜レンジフード・浴室・キッチン｜ONE HITTER",
-        "desc": "12月は繁忙期料金として1箇所につき3,300円が加算されます。11月30日までのご予約なら通常価格。"
-                "レンジフード＋浴室で30,600円、半日で完了。東京・千葉・神奈川、自社施工。",
-        "og": "nenmatsu/img/og.jpg",
-        "og_line1": "年末の大掃除は、11月までが安い",
-        "og_line2": "レンジフード＋浴室 30,600円・12月から+3,300円／箇所",
+    # パターンAに対するA/Bテスト用の対抗案。ヒーローだけが違う
+    "aircon-b": {
+        "dir": "aircon-b",
+        "title": "エアコン分解洗浄 1台10,780円／60分 最短即日｜東京・千葉・神奈川｜ONE HITTER",
+        "desc": "エアコンを分解し、熱交換器と送風ファンを専用機材で洗浄。"
+                "ノーマル10,780円（税込）・60分、お掃除機能付き17,380円（税込）・120分。"
+                "お見積り以上の追加請求はありません。東京・千葉・神奈川、最短即日。",
+        "label": "エアコン（B）",
+        "og": "aircon-b/img/og.jpg",
+        "og_line1": "エアコン分解洗浄 1台 10,780円／60分",
+        "og_line2": "最短即日・追加請求なし・東京 千葉 神奈川",
     },
     "mizumawari": {
         "dir": "mizumawari",
-        "title": "水まわりクリーニング まとめて依頼で1箇所3,000円おトク｜ONE HITTER",
+        "title": "水まわりクリーニング まとめて依頼で1箇所3,300円おトク｜ONE HITTER",
         "desc": "キッチン・浴室・レンジフード・洗濯機・追い焚き配管。2箇所目からは同時施工価格。"
-                "浴室＋キッチンで30,600円、半日で完了。東京・千葉・神奈川、最短即日。",
+                "浴室＋キッチンで33,660円（税込）、半日で完了。東京・千葉・神奈川、最短即日。",
+        "label": "水まわりセット",
         "og": "mizumawari/img/og.jpg",
         "og_line1": "水まわりは、まとめて頼むほど安い",
-        "og_line2": "浴室＋キッチン 30,600円・東京 千葉 神奈川",
+        "og_line2": "浴室＋キッチン 33,660円（税込）・東京 千葉 神奈川",
+    },
+    "nenmatsu": {
+        "dir": "nenmatsu",
+        "label": "年末大掃除",
+        "title": "年末大掃除 11月までなら通常価格｜レンジフード・浴室・キッチン｜ONE HITTER",
+        "desc": "12月は繁忙期料金として1箇所につき3,300円が加算されます。11月30日までのご予約なら通常価格。"
+                "レンジフード＋浴室で33,660円（税込）、半日で完了。東京・千葉・神奈川、自社施工。",
+        "og": "nenmatsu/img/og.jpg",
+        "og_line1": "年末の大掃除は、11月までが安い",
+        "og_line2": "レンジフード＋浴室 33,660円（税込）・12月から+3,300円／箇所",
     },
 }
 
@@ -103,6 +137,7 @@ FORM_PHP = """<form class="form" action="/form/send.php" method="post">
 FORM_NETLIFY = """<form class="form" name="reserve-{dir}" method="post"
       action="/{dir}/thanks.html" data-netlify="true" netlify-honeypot="x_field">
       <input type="hidden" name="form-name" value="reserve-{dir}">
+      <input type="hidden" name="subject" value="【LP予約】{label}">
       <input type="hidden" name="lp" value="{dir}">
       <div class="hp" aria-hidden="true">
         <label for="f-x">この欄には入力しないでください</label>
@@ -113,35 +148,6 @@ HP_CSS = (
     "\n/* 自動投稿よけ。人間には見せない */\n"
     ".hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}\n"
 )
-
-# ---------------------------------------------------------------------------
-# 静的ページ（LPではないもの）
-#
-# lp/survey/ は Artifact 用の断片ではなく、それ自体が完結した HTML 文書です。
-# ヒーロー写真も OG 画像も持たないので、LPの組み立てとは別扱いにして、
-# フォームの送信先だけを配信先に合わせて差し替えます。
-# ---------------------------------------------------------------------------
-STATIC_PAGES = {
-    "survey": {
-        "dir": "survey",
-        # 送信は素のJSがfetchで行うので、遷移はしません。
-        "form_php": '<form class="survey-form" action="/form/survey.php" method="post">\n'
-                    '      <input type="hidden" name="page" value="survey">',
-        # Netlify Forms は、配信されたHTMLからこの form と欄の name を読んで受け口を用意する。
-        "form_netlify": '<form class="survey-form" name="survey" method="post" action="/survey/"\n'
-                        '      data-netlify="true" netlify-honeypot="x_field">\n'
-                        '      <input type="hidden" name="form-name" value="survey">\n'
-                        '      <input type="hidden" name="page" value="survey">',
-    },
-}
-
-STATIC_FORM_OPEN = '<form class="survey-form" onsubmit="return false;">'
-
-HONEYPOT = """
-      <div class="hp" aria-hidden="true">
-        <label for="s-x">この欄には入力しないでください</label>
-        <input id="s-x" name="x_field" type="text" tabindex="-1" autocomplete="off">
-      </div>"""
 
 
 
@@ -167,10 +173,10 @@ def make_og(src: pathlib.Path, dst: pathlib.Path, line1: str, line2: str) -> Non
 
     band = Image.new("RGBA", (tw, th), (0, 0, 0, 0))
     draw = ImageDraw.Draw(band)
-    draw.rectangle([0, th - 186, tw, th], fill=(20, 50, 61, 232))
+    draw.rectangle([0, th - 186, tw, th], fill=(13, 59, 92, 232))   # --ink
     draw.text((56, th - 160), line1, font=ImageFont.truetype(JP_FONT, 44), fill=(255, 255, 255, 255))
-    draw.text((56, th - 92), line2, font=ImageFont.truetype(JP_FONT, 25), fill=(201, 217, 222, 255))
-    draw.text((56, th - 48), "ONE HITTER", font=ImageFont.truetype(LATIN_FONT, 26), fill=(78, 192, 212, 255))
+    draw.text((56, th - 92), line2, font=ImageFont.truetype(JP_FONT, 25), fill=(168, 194, 210, 255))  # --on-ink-2
+    draw.text((56, th - 48), "ONE HITTER", font=ImageFont.truetype(LATIN_FONT, 26), fill=(111, 208, 228, 255))  # --aqua-ink
 
     out = Image.alpha_composite(im, band).convert("RGB")
     out.save(dst, quality=82, optimize=True, progressive=True)
@@ -182,7 +188,7 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path) -> None:
     if FORM_OPEN not in src:
         raise SystemExit(f"{name}: フォームの開始タグが見つかりません")
     form = FORM_NETLIFY if target == "netlify" else FORM_PHP
-    src = src.replace(FORM_OPEN, form.format(dir=meta["dir"]))
+    src = src.replace(FORM_OPEN, form.format(dir=meta["dir"], label=meta["label"]))
 
     # 蜂蜜罠のスタイルを、既存の .form の定義のすぐ後ろに足す
     anchor = ".form{background:var(--surface);"
@@ -192,16 +198,12 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path) -> None:
     src = src[:line_end] + HP_CSS.rstrip("\n") + src[line_end:]
 
     src = src.replace("</body>", "")  # 断片には無いはずだが念のため
-
-    # 断片が持つ <title> は Artifact でプレビューするためのもの。
-    # 公開用は HEAD 側の title が正なので、body に流れ込まないよう取り除く。
-    src = re.sub(r"[ \t]*<title>.*?</title>[ \t]*\n?", "", src, count=1, flags=re.S)
-    head_meta = {k: v for k, v in meta.items() if not k.startswith("og_")}
+    head_meta = {k: v for k, v in meta.items() if not k.startswith("og_") and k != "label"}
     doc = HEAD.format(base=BASE_URL, **head_meta) + src + TAIL
 
     dst = out / meta["dir"]
     dst.mkdir(parents=True, exist_ok=True)
-    (dst / "index.html").write_text(doc, encoding="utf-8")
+    (dst / "index.html").write_text(strip_comments(doc), encoding="utf-8")
 
     img_src = ROOT / "lp" / name / "img"
     img_dst = dst / "img"
@@ -209,29 +211,10 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path) -> None:
         shutil.rmtree(img_dst)
     shutil.copytree(img_src, img_dst)
 
-    make_og(img_dst / "hero.jpg", img_dst / "og.jpg", meta["og_line1"], meta["og_line2"])
+    make_og(img_dst / "hero-bg.jpg", img_dst / "og.jpg", meta["og_line1"], meta["og_line2"])
 
     print(f"{dst.relative_to(ROOT)}/index.html  {len(doc)//1024}KB  "
           f"画像{len(list(img_dst.iterdir()))}点")
-
-
-def build_static_page(name: str, meta: dict, target: str, out: pathlib.Path) -> None:
-    """完結した HTML 文書を、送信先だけ差し替えてそのまま置く。"""
-    src = (ROOT / "lp" / name / "index.html").read_text(encoding="utf-8")
-
-    if STATIC_FORM_OPEN not in src:
-        raise SystemExit(f"{name}: フォームの開始タグが見つかりません")
-    form = meta["form_netlify"] if target == "netlify" else meta["form_php"]
-    src = src.replace(STATIC_FORM_OPEN, form + HONEYPOT)
-
-    if ".hp{" not in src:
-        raise SystemExit(f"{name}: .hp のスタイルが見つかりません（蜂蜜罠が丸見えになります）")
-
-    dst = out / meta["dir"]
-    dst.mkdir(parents=True, exist_ok=True)
-    (dst / "index.html").write_text(src, encoding="utf-8")
-
-    print(f"{dst.relative_to(ROOT)}/index.html  {len(src)//1024}KB  （静的ページ）")
 
 
 if __name__ == "__main__":
@@ -243,5 +226,3 @@ if __name__ == "__main__":
     print(f"[{target}] → {out.relative_to(ROOT)}/")
     for name, meta in PAGES.items():
         build_page(name, meta, target, out)
-    for name, meta in STATIC_PAGES.items():
-        build_static_page(name, meta, target, out)

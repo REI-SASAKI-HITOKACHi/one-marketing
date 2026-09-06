@@ -4,15 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>年末大掃除 11月までなら通常価格｜レンジフード・浴室・キッチン｜ONE HITTER</title>
-<meta name="description" content="12月は繁忙期料金として1箇所につき3,300円が加算されます。11月30日までのご予約なら通常価格。レンジフード＋浴室で30,600円、半日で完了。東京・千葉・神奈川、自社施工。">
-<!-- 広告の受け皿なので、公式サイトと検索結果で食い合わないよう検索避けにしています。
-     検索にも載せたくなったら、この1行を消してください。 -->
+<meta name="description" content="12月は繁忙期料金として1箇所につき3,300円が加算されます。11月30日までのご予約なら通常価格。レンジフード＋浴室で33,660円（税込）、半日で完了。東京・千葉・神奈川、自社施工。">
+
 <meta name="robots" content="noindex,follow">
 <link rel="canonical" href="https://lp.one-hitter.jp/nenmatsu/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="ワンヒッター株式会社">
 <meta property="og:title" content="年末大掃除 11月までなら通常価格｜レンジフード・浴室・キッチン｜ONE HITTER">
-<meta property="og:description" content="12月は繁忙期料金として1箇所につき3,300円が加算されます。11月30日までのご予約なら通常価格。レンジフード＋浴室で30,600円、半日で完了。東京・千葉・神奈川、自社施工。">
+<meta property="og:description" content="12月は繁忙期料金として1箇所につき3,300円が加算されます。11月30日までのご予約なら通常価格。レンジフード＋浴室で33,660円（税込）、半日で完了。東京・千葉・神奈川、自社施工。">
 <meta property="og:url" content="https://lp.one-hitter.jp/nenmatsu/">
 <meta property="og:image" content="https://lp.one-hitter.jp/nenmatsu/img/og.jpg">
 <meta property="og:image:width" content="1200">
@@ -22,9 +21,10 @@
 <meta name="theme-color" content="#0E7C93">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<!-- ASP・広告計測タグはこの下に貼ってください -->
+
 </head>
 <body>
+<title>年末大掃除 ONE HITTER</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=Shippori+Mincho+B1:wght@600&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
@@ -32,6 +32,7 @@
 <style>
 :root{
   --ground:#FAF7F2;
+  --scrim:255,255,255;   
   --surface:#FFFFFF;
   --surface-2:#F2EFE9;
   --ink:#14323D;
@@ -165,11 +166,30 @@ p{margin:0;}
 .btn.lg.line{box-shadow:0 4px 0 0 #04913C;}
 .btn.lg.line:active{box-shadow:0 1px 0 0 #04913C;transform:translateY(3px);}
 
-/* hero */
-.hero{background:var(--surface);border-bottom:1px solid var(--line);overflow:hidden;}
-.hero-in{max-width:880px;margin:0 auto;padding:36px 20px 40px;display:flex;flex-direction:column;gap:20px;}
+.hero{position:relative;background:var(--surface);border-bottom:1px solid var(--line);overflow:hidden;isolation:isolate;}
+.hero-bg{
+  position:absolute;top:0;left:0;right:0;height:min(58vw,300px);margin:0;
+  z-index:0;overflow:hidden;background:var(--surface-2);
+}
+.hero-bg img{width:100%;height:100%;object-fit:cover;object-position:50% 52%;display:block;}
+.hero-bg::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(to bottom,
+    rgba(var(--scrim),0) 0%, rgba(var(--scrim),.08) 38%,
+    rgba(var(--scrim),.60) 72%, rgba(var(--scrim),.94) 91%, rgb(var(--scrim)) 100%);
+}
+.hero-in{position:relative;z-index:1;max-width:880px;margin:0 auto;
+  padding:calc(min(58vw,300px) - 44px) 20px 40px;display:flex;flex-direction:column;gap:20px;}
 @media(min-width:860px){
-  .hero-in{
+  
+  .hero-bg{height:auto;bottom:0;}
+  .hero-bg img{object-position:72% 50%;}
+  .hero-bg::after{
+    background:linear-gradient(100deg,
+      rgba(var(--scrim),.985) 0%, rgba(var(--scrim),.96) 38%,
+      rgba(var(--scrim),.70) 55%, rgba(var(--scrim),.20) 76%, rgba(var(--scrim),0) 96%);
+  }
+  .hero-in{padding:44px 20px 40px;
     max-width:1120px;display:grid;gap:14px 44px;align-items:start;
     grid-template-columns:minmax(0,1fr) minmax(0,420px);
   }
@@ -215,14 +235,12 @@ section.alt{background:var(--surface);border-top:1px solid var(--line);border-bo
 .sec-h h2{font-size:clamp(24px,5.6vw,38px);}
 .sec-h p{font-size:14.5px;color:var(--muted);max-width:38em;}
 
-/* scenes */
 .scenes{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;}
 .scene{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);}
 .scene .tag{font-family:"Barlow",sans-serif;font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--accent);}
 .scene h3{font-size:16px;}
 .scene p{font-size:13.5px;color:var(--ink-soft);line-height:1.8;}
 
-/* builder */
 .builder{background:var(--surface);border:2px solid var(--accent);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);}
 .builder-h{background:var(--accent);color:var(--on-accent);padding:14px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .builder-h b{font-size:16px;}
@@ -255,7 +273,6 @@ section.alt{background:var(--surface);border-top:1px solid var(--line);border-bo
 .result .hint{font-size:12px;color:var(--muted);line-height:1.7;}
 .paid-note{font-size:11.5px;color:var(--muted);line-height:1.75;margin-top:10px;}
 
-/* menu detail */
 .menus{display:flex;flex-direction:column;gap:12px;}
 .menu{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px 24px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start;}
 @media(max-width:560px){.menu{grid-template-columns:1fr;}}
@@ -267,7 +284,6 @@ section.alt{background:var(--surface);border-top:1px solid var(--line);border-bo
 .menu .price{text-align:right;font-family:"Barlow",sans-serif;font-weight:700;font-size:22px;white-space:nowrap;}
 .menu .price em{display:block;font-style:normal;font-size:11.5px;color:var(--muted);font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500;}
 
-/* feature: lumitester */
 .feature{background:var(--invert);color:var(--invert-ink);border-radius:12px;padding:32px 30px;display:flex;flex-direction:column;gap:16px;}
 .feature .eyebrow{color:#DCB55E;}
 .feature h2{font-size:clamp(22px,4.8vw,30px);color:#fff;line-height:1.3;}
@@ -297,7 +313,6 @@ section.alt{background:var(--surface);border-top:1px solid var(--line);border-bo
 .measure-note{font-size:12.5px;color:#C9D9DE;line-height:1.9;background:rgba(255,255,255,.07);border-radius:10px;padding:14px 16px;}
 .measure-note b{color:#fff;}
 
-/* 施工写真 */
 .shot{position:relative;border-radius:10px;overflow:hidden;background:var(--surface-2);}
 .shot img{display:block;width:100%;height:100%;object-fit:cover;aspect-ratio:4/3;}
 .shot.sq img{aspect-ratio:1/1;}
@@ -314,24 +329,37 @@ section.alt{background:var(--surface);border-top:1px solid var(--line);border-bo
 }
 .shot-note{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.7;}
 
+.shot.solo img{height:auto;aspect-ratio:4/3;}
+
 .ba{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
 @media(min-width:521px){.ba{gap:10px;}}
 .ba .cap{font-family:"Barlow",sans-serif;font-weight:700;font-size:11px;letter-spacing:.14em;padding:4px 10px;border-radius:99px;background:var(--ink);color:var(--ground);}
 .ba .after .cap{background:var(--accent);color:var(--on-accent);}
 
-/* message */
+.gal-head{margin:32px 0 12px;display:flex;flex-direction:column;gap:6px;}
+.gal-head h3{font-size:17px;}
+.gal-head p{font-size:13.5px;color:var(--muted);line-height:1.8;}
+.gal{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+@media(min-width:521px){.gal{gap:10px;}}
+@media(max-width:420px){.gal{grid-template-columns:1fr;}}
+.gal .wide{grid-column:1/-1;}
+.gal .shot img{aspect-ratio:auto;height:auto;}
+
 .msg{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:0 12px 12px 0;padding:28px 30px;display:flex;flex-direction:column;gap:14px;}
 .msg .q{font-family:"Shippori Mincho B1",serif;font-size:clamp(17px,3.6vw,22px);line-height:1.85;color:var(--ink);}
 .msg p{font-size:14px;color:var(--ink-soft);line-height:1.9;}
 .msg .sign{font-size:13px;color:var(--muted);text-align:right;}
 
-/* voices */
 .voices{display:flex;flex-direction:column;gap:12px;}
 .voice{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px 24px;display:flex;flex-direction:column;gap:10px;}
 .voice .head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .voice .menu-tag{font-size:11px;font-weight:700;background:var(--accent-soft);color:var(--accent-deep);padding:2px 10px;border-radius:99px;}
 .voice q{font-family:"Shippori Mincho B1",serif;font-size:15px;line-height:2;quotes:"「" "」";}
 .voice .who{font-size:12px;color:var(--muted);}
+.voice .stars{font-family:"Barlow",sans-serif;font-size:13px;color:var(--gold);letter-spacing:.08em;}
+.voice .src{font-size:11.5px;color:var(--muted);}
+.voice-group{font-size:13px;font-weight:700;color:var(--muted);margin:22px 0 10px;display:flex;align-items:center;gap:10px;}
+.voice-group::after{content:"";flex:1 1 auto;height:1px;background:var(--line);}
 .consent{font-size:11.5px;color:var(--muted);line-height:1.8;margin:-2px 0 4px;}
 .consent a{color:var(--accent-deep);}
 .foot-links{font-size:12.5px;margin:14px 0 4px;display:flex;gap:16px;flex-wrap:wrap;}
@@ -339,7 +367,6 @@ section.alt{background:var(--surface);border-top:1px solid var(--line);border-bo
 .area-note{font-size:11.5px;color:var(--muted);line-height:1.8;margin-top:12px;}
 .voice-src{font-size:11.5px;color:var(--muted);line-height:1.8;margin-top:10px;}
 
-/* promise */
 .promise{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
 .promise div{background:var(--gold-soft);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:6px;}
 .promise h3{font-size:15.5px;color:var(--ink);}
@@ -363,7 +390,7 @@ details p{padding:0 18px 16px 40px;font-size:14px;color:var(--ink-soft);line-hei
 #zipres.ng{color:var(--cta-text);}
 
 .form{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:16px;box-shadow:var(--shadow);}
-/* 自動投稿よけ。人間には見せない */
+
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
 .field{display:flex;flex-direction:column;gap:5px;}
 .field label{font-size:13px;font-weight:700;}
@@ -408,8 +435,6 @@ footer dt{color:var(--invert-ink);opacity:.72;}
 footer dd{margin:0;}
 footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;border-top:1px solid var(--invert-line);padding-top:14px;}
 
-
-/* --- 年末：締切セクション --- */
 .deadline{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:stretch;max-width:640px;margin:0 auto 20px;}
 .dl-col{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 14px;text-align:center;display:flex;flex-direction:column;gap:6px;justify-content:center;}
 .dl-col.up{border-color:var(--cta);background:#FDF3EE;}
@@ -442,6 +467,9 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
 </div>
 
 <div class="hero">
+  <div class="hero-bg" aria-hidden="true">
+    <img src="img/hero-bg.jpg" alt="" width="1600" height="1067" fetchpriority="high" decoding="async">
+  </div>
   <div class="hero-in">
     <span class="area">✓ 東京・千葉・神奈川 対応／年末の予約 受付中</span>
     <h1>年末の大掃除は、<br><span class="hl">11月までが安い。</span></h1>
@@ -451,12 +479,12 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       <div class="top">年末に多いご依頼｜レンジフード＋浴室の2箇所</div>
       <div class="mid">
         <div class="calcline">
-          <span class="strike">12月にご依頼の場合 37,200円</span>
+          <span class="strike">12月にご依頼の場合 40,260円</span>
           <span class="arrow">→</span>
           <span class="save">6,600円 の差</span>
         </div>
-        <div class="big"><span class="num">30,600</span><span class="unit">円</span><span class="unit" style="font-size:13px">／11月30日まで</span></div>
-        <div style="font-size:12.5px;color:var(--ink-soft)">レンジフードクリーニング 16,800円 ＋ 浴室クリーニング 13,800円（2箇所目の同時施工価格・税込）<br>12月以降は繁忙期料金として1箇所につき3,300円が加算されます。</div>
+        <div class="big"><span class="num">33,660</span><span class="unit">円</span><span class="unit" style="font-size:13px">／11月30日まで</span></div>
+        <div style="font-size:12.5px;color:var(--ink-soft)">レンジフードクリーニング 18,480円 ＋ 浴室クリーニング 15,180円（2箇所目の同時施工価格・税込）<br>12月以降は繁忙期料金として1箇所につき3,300円が加算されます。</div>
       </div>
     </div>
 
@@ -523,13 +551,13 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
     <div class="deadline">
       <div class="dl-col">
         <span class="dl-when">〜 11月30日</span>
-        <span class="dl-price"><span class="num">30,600</span>円</span>
+        <span class="dl-price"><span class="num">33,660</span>円</span>
         <span class="dl-note">通常価格<br>レンジフード＋浴室の2箇所</span>
       </div>
       <div class="dl-arrow" aria-hidden="true">→</div>
       <div class="dl-col up">
         <span class="dl-when">12月 1日 〜</span>
-        <span class="dl-price"><span class="num">37,200</span>円</span>
+        <span class="dl-price"><span class="num">40,260</span>円</span>
         <span class="dl-note">繁忙期料金<br>1箇所につき +3,300円</span>
       </div>
       <div class="dl-gap">
@@ -587,17 +615,6 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
     <p class="shot-note"><b>洗濯機｜防水パン</b>　洗濯機を動かさないと手が入らない場所です。</p>
     <div class="ba">
       <figure class="shot" style="margin:0">
-        <img src="img/hood-before.jpg" alt="レンジフード｜グリスフィルター 洗浄前" loading="lazy" width="800" height="600">
-        <span class="cap">BEFORE</span>
-      </figure>
-      <figure class="shot after" style="margin:0">
-        <img src="img/hood-after.jpg" alt="レンジフード｜グリスフィルター 洗浄後" loading="lazy" width="800" height="600">
-        <span class="cap">AFTER</span>
-      </figure>
-    </div>
-    <p class="shot-note"><b>レンジフード｜グリスフィルター</b>　網目が油で埋まると、換気の力そのものが落ちます。分解して、つけ置き洗いで抜きます。</p>
-    <div class="ba">
-      <figure class="shot" style="margin:0">
         <img src="img/sink-before.jpg" alt="キッチン｜シンクと排水口 洗浄前" loading="lazy" width="800" height="600">
         <span class="cap">BEFORE</span>
       </figure>
@@ -607,7 +624,66 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       </figure>
     </div>
     <p class="shot-note"><b>キッチン｜シンクと排水口</b>　毎日洗っているのに曇るのは、水アカと油膜が重なっているためです。</p>
+    <div class="ba">
+      <figure class="shot" style="margin:0">
+        <img src="img/ac-vent-before.jpg" alt="エアコンの吹き出し口。ルーバーの奥に黒い汚れが付着している" loading="lazy" width="1200" height="900">
+        <span class="cap">BEFORE</span>
+      </figure>
+      <figure class="shot after" style="margin:0">
+        <img src="img/ac-vent-after.jpg" alt="洗浄を終えたエアコンの吹き出し口" loading="lazy" width="1200" height="900">
+        <span class="cap">AFTER</span>
+      </figure>
+    </div>
+    <p class="shot-note"><b>エアコン｜吹き出し口</b>　風の通り道は、いちばん汚れが溜まる場所です。年末はエアコンのご依頼も承っています。</p>
     <p class="shot-note">※いずれも実際の施工写真です。BEFORE／AFTERは同一の箇所を撮影しています。汚れや設備の状態により、仕上がりは異なります。</p>
+
+    <div class="gal-head">
+      <h3>直近の現場から</h3>
+      <p>2026年8月から9月に伺った現場で撮影したものです。1枚ずつ別の日・別の場面の記録で、写真どうしを組み合わせたビフォー／アフターではありません。</p>
+    </div>
+    <div class="gal">
+      <figure class="shot" style="margin:0">
+        <img src="img/hood-fan-before-2.jpg" alt="レンジフードから取り外したシロッコファン。羽根の一枚一枚が黒い油で覆われている" loading="lazy" width="1200" height="1241">
+        <span class="cap">施工前</span>
+        <span class="where">レンジフード｜取り外したシロッコファン。羽根の間が油で埋まると、吸い込む力そのものが落ちます。</span>
+      </figure>
+      <figure class="shot" style="margin:0">
+        <img src="img/water-bucket-black.jpg" alt="洗浄後に回収した水を張ったバケツ。全体が黒褐色に濁り、底が見えない" loading="lazy" width="1200" height="1185">
+        <span class="cap">作業中</span>
+        <span class="where">洗い終わったあとに回収した水です。落とした汚れは、その場でお見せしています。</span>
+      </figure>
+      <figure class="shot after wide" style="margin:0">
+        <img src="img/hood-unit-after.jpg" alt="洗浄を終えたレンジフード。整流板の表面に油汚れが残っていない" loading="lazy" width="1200" height="900">
+        <span class="cap">施工後</span>
+        <span class="where">レンジフード｜洗い終えて、外した部品を戻したところです。</span>
+      </figure>
+      <figure class="shot" style="margin:0">
+        <img src="img/water-black-tight.jpg" alt="洗浄後にバケツへ回収した水。黒く濁って底が見えない" loading="lazy" width="1200" height="1314">
+        <span class="cap">作業中</span>
+        <span class="where">洗い終わったあとに回収した水です。ここまで濁ると、バケツの底は見えません。</span>
+      </figure>
+      <figure class="shot after" style="margin:0">
+        <img src="img/bath-after-2.jpg" alt="作業を終えた浴室。壁のタイル、床、換気口まで洗い上げられている" loading="lazy" width="1200" height="1600">
+        <span class="cap">施工後</span>
+        <span class="where">浴室｜作業を終えたところ。壁・床のほか、天井と換気扇の内部まで洗います。</span>
+      </figure>
+      <figure class="shot after" style="margin:0">
+        <img src="img/sink-after-2.jpg" alt="作業を終えたキッチンのシンクと排水口" loading="lazy" width="1000" height="1333">
+        <span class="cap">施工後</span>
+        <span class="where">キッチン｜作業を終えたシンクと排水口。</span>
+      </figure>
+      <figure class="shot" style="margin:0">
+        <img src="img/hood-before.jpg" alt="レンジフードのグリスフィルター。網目が油で埋まっている" loading="lazy" width="800" height="600">
+        <span class="cap">施工前</span>
+        <span class="where">レンジフード｜グリスフィルター。網目が油で埋まると、換気の力そのものが落ちます。</span>
+      </figure>
+      <figure class="shot after" style="margin:0">
+        <img src="img/toilet-after-2.jpg" alt="作業を終えたトイレ。便器とその周囲" loading="lazy" width="1200" height="1950">
+        <span class="cap">施工後</span>
+        <span class="where">トイレ｜作業を終えたところ。</span>
+      </figure>
+    </div>
+    <p class="shot-note">※ お客様やお住まいが特定できない箇所だけを掲載しています。汚れや設備の状態により、仕上がりは異なります。</p>
   </div>
 </section>
 
@@ -624,7 +700,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       <div class="builder-b">
         <div class="picks" id="picks">
           <label class="pick">
-            <input type="checkbox" data-nm="浴室クリーニング" data-single="16800" data-set="13800" data-dur="120分" checked>
+            <input type="checkbox" data-nm="浴室クリーニング" data-single="18480" data-set="15180" data-dur="120分" checked>
             <span class="box">
               <span class="mark">✓</span>
               <span><span class="nm">浴室クリーニング</span><br><span class="dur">120分／天井・換気扇内部まで</span></span>
@@ -632,7 +708,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
             </span>
           </label>
           <label class="pick">
-            <input type="checkbox" data-nm="キッチンクリーニング" data-single="16800" data-set="13800" data-dur="120分" checked>
+            <input type="checkbox" data-nm="キッチンクリーニング" data-single="18480" data-set="15180" data-dur="120分" checked>
             <span class="box">
               <span class="mark">✓</span>
               <span><span class="nm">キッチンクリーニング</span><br><span class="dur">120分／シンク・天板・壁面・収納扉</span></span>
@@ -640,7 +716,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
             </span>
           </label>
           <label class="pick">
-            <input type="checkbox" data-nm="レンジフード（換気扇）" data-single="16800" data-set="13800" data-dur="90分">
+            <input type="checkbox" data-nm="レンジフード（換気扇）" data-single="18480" data-set="15180" data-dur="90分">
             <span class="box">
               <span class="mark">✓</span>
               <span><span class="nm">レンジフード（換気扇）</span><br><span class="dur">90分／内部ファンまで分解洗浄</span></span>
@@ -648,7 +724,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
             </span>
           </label>
           <label class="pick">
-            <input type="checkbox" data-nm="追い焚き配管クリーニング" data-single="18100" data-set="15100" data-dur="90分">
+            <input type="checkbox" data-nm="追い焚き配管クリーニング" data-single="19910" data-set="16610" data-dur="90分">
             <span class="box">
               <span class="mark">✓</span>
               <span><span class="nm">追い焚き配管クリーニング</span><br><span class="dur">90分／汚れを数値で測定</span></span>
@@ -656,7 +732,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
             </span>
           </label>
           <label class="pick">
-            <input type="checkbox" data-nm="洗面台丸洗い" data-single="9800" data-set="6800" data-dur="60分">
+            <input type="checkbox" data-nm="洗面台丸洗い" data-single="10780" data-set="7480" data-dur="60分">
             <span class="box">
               <span class="mark">✓</span>
               <span><span class="nm">洗面台丸洗い</span><br><span class="dur">60分</span></span>
@@ -664,7 +740,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
             </span>
           </label>
           <label class="pick">
-            <input type="checkbox" data-nm="コンロクリーニング" data-single="9800" data-set="5500" data-dur="60分">
+            <input type="checkbox" data-nm="コンロクリーニング" data-single="10780" data-set="6050" data-dur="60分">
             <span class="box">
               <span class="mark">✓</span>
               <span><span class="nm">コンロクリーニング</span><br><span class="dur">60分／五徳まで</span></span>
@@ -672,7 +748,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
             </span>
           </label>
           <label class="pick">
-            <input type="checkbox" data-nm="洗濯機クリーニング" data-single="15800" data-set="15800" data-dur="120分">
+            <input type="checkbox" data-nm="洗濯機クリーニング" data-single="17380" data-set="17380" data-dur="120分">
             <span class="box">
               <span class="mark">✓</span>
               <span><span class="nm">洗濯機クリーニング</span><br><span class="dur">120分／分解して槽の裏側まで</span></span>
@@ -680,7 +756,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
             </span>
           </label>
           <label class="pick">
-            <input type="checkbox" data-nm="トイレクリーニング" data-single="9800" data-set="9800" data-dur="60分">
+            <input type="checkbox" data-nm="トイレクリーニング" data-single="10780" data-set="10780" data-dur="60分">
             <span class="box">
               <span class="mark">✓</span>
               <span><span class="nm">トイレクリーニング</span><br><span class="dur">60分</span></span>
@@ -690,11 +766,11 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
         </div>
 
         <div class="result">
-          <div class="row"><span>単体で頼んだ場合</span><span class="num" id="single">33,600円</span></div>
-          <div class="row save-row"><span>同時施工の割引</span><span class="num" id="saved">−3,000円</span></div>
+          <div class="row"><span>単体で頼んだ場合</span><span class="num" id="single">36,960円</span></div>
+          <div class="row save-row"><span>同時施工の割引</span><span class="num" id="saved">−3,300円</span></div>
           <div class="row total">
             <span class="lab">お見積り金額（税込）</span>
-            <span class="tot" id="total">30,600円</span>
+            <span class="tot" id="total">33,660円</span>
           </div>
           <p class="hint" id="hint"></p>
           <p class="paid-note">※駐車スペースがない場合は、コインパーキング代を実費でいただきます。金額は事前にお伝えします。</p>
@@ -721,7 +797,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
           <div class="kw"><span>ニオイ</span><span>ヌメリ</span><span>カビ</span><span>水垢</span></div>
           <p>皮脂・石鹸カス・水垢が複雑に絡み合う、家の中でいちばんお手入れの難しい空間です。ご家庭では落としきれない床の汚れから、普段は開けることのない換気扇の内部まで洗浄します。</p>
         </div>
-        <div class="price">16,800円<em>120分</em></div>
+        <div class="price">18,480円<em>120分</em></div>
       </div>
       <div class="menu">
         <div class="body">
@@ -729,15 +805,15 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
           <div class="kw"><span>水垢</span><span>コゲ</span><span>カビ</span><span>油汚れ</span></div>
           <p>シンクや蛇口周りに白く固まった水垢、壁面や収納扉に飛び散ってこびりついた油汚れ。汚れの特性を見極め、キッチン素材を傷めることなく徹底的に除去します。</p>
         </div>
-        <div class="price">16,800円<em>120分</em></div>
+        <div class="price">18,480円<em>120分</em></div>
       </div>
       <div class="menu">
         <div class="body">
           <h3>レンジフードクリーニング</h3>
           <div class="kw"><span>油汚れ</span><span>ニオイ</span><span>吸い込み</span></div>
-          <p>ご自身では手のつけにくい内部のファンまで分解。専用洗剤による浸け置きと磨き上げで、目詰まりを抜き、本来の換気能力に近い状態まで戻します。プロペラ式は9,800円です。</p>
+          <p>ご自身では手のつけにくい内部のファンまで分解。専用洗剤による浸け置きと磨き上げで、目詰まりを抜き、本来の換気能力に近い状態まで戻します。プロペラ式は10,780円です。</p>
         </div>
-        <div class="price">16,800円<em>90分</em></div>
+        <div class="price">18,480円<em>90分</em></div>
       </div>
       <div class="menu">
         <div class="body">
@@ -745,7 +821,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
           <div class="kw"><span>皮脂汚れ</span><span>石鹸カス</span><span>黒カビ</span></div>
           <p>市販のクリーナーでは、汚れのごく一部しか落ちません。分解して洗濯槽の裏側まで洗浄します。毎日素肌に触れる衣類だからこそ、根本から。</p>
         </div>
-        <div class="price">15,800円<em>120分</em></div>
+        <div class="price">17,380円<em>120分</em></div>
       </div>
       <div class="menu">
         <div class="body">
@@ -753,7 +829,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
           <div class="kw"><span>ニオイ</span><span>水垢</span><span>カビ</span></div>
           <p>専用測定器で洗浄前後の汚れを数値化する、当社の看板メニューです。詳しくは次の項目をご覧ください。</p>
         </div>
-        <div class="price">18,100円<em>90分</em></div>
+        <div class="price">19,910円<em>90分</em></div>
       </div>
     </div>
   </div>
@@ -792,7 +868,6 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
   </div>
 </section>
 
-
 <section class="alt">
   <div class="wrap">
     <div class="sec-h">
@@ -830,8 +905,32 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
     <div class="sec-h">
       <span class="eyebrow">Voice</span>
       <h2>ご利用いただいた方から</h2>
-      <p>Googleビジネスプロフィールの評価は<b>23件すべてが5つ星、平均★5.0</b>です（2026年9月時点）。以下は公式サイトに掲載しているご感想です。</p>
+      <p>Googleビジネスプロフィールのクチコミは<b>23件・平均★5.0</b>です（2026年9月時点）。文面は原文のまま、お名前だけ伏せて掲載しています。</p>
     </div>
+    <p class="voice-group">Googleクチコミより</p>
+    <div class="voices">
+    <div class="voice">
+      <div class="head"><span class="stars">★★★★★</span><span class="src">K様（Googleクチコミ・2026年4月）</span></div>
+      <q>…大手のエアコン一台分のお値段で2台お掃除していただき、しかも迅速で丁寧に仕上げてくださいます。</q>
+    </div>
+    <div class="voice">
+      <div class="head"><span class="stars">★★★★★</span><span class="src">Y様（Googleクチコミ・2026年4月）</span></div>
+      <q>今回3回目の利用です。…クリーニング後は汚れを見せてくれるので、こんなに汚れていたんだと確認できます。</q>
+    </div>
+    <div class="voice">
+      <div class="head"><span class="stars">★★★★★</span><span class="src">F様（Googleクチコミ・2026年4月）</span></div>
+      <q>細かい観察に加えて確かな技術なので今回リピートでしたが早速来年の予約を入れました。</q>
+    </div>
+    <div class="voice">
+      <div class="head"><span class="stars">★★★★★</span><span class="src">M様（Googleクチコミ・2024年4月）</span></div>
+      <q>まず作業前に現状を見せていただきました。…クリーニング後は、新品同様にピッカピカになり大満足。</q>
+    </div>
+    <div class="voice">
+      <div class="head"><span class="stars">★★★★★</span><span class="src">H様（Googleクチコミ・2024年10月）</span></div>
+      <q>非常に気の行き届いた細やかなお仕事をして頂いて…兎に角おかげさまで大満足です。</q>
+    </div>
+    </div>
+    <p class="voice-group">公式サイト「お客様の声」より</p>
     <div class="voices">
     <div class="voice">
       <div class="head"><span class="menu-tag">洗濯機クリーニング</span></div>
@@ -852,7 +951,9 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       <span class="who">67歳 男性</span>
     </div>
     </div>
-    <p class="voice-src">※公式サイト「お客様の声」に掲載している、実際にいただいたご感想です。文面は原文のまま、年代・性別もご本人の申告どおり掲載しています。</p>
+    <p class="voice-src">※ 掲載内容はお客様個人の感想であり、効果・仕上がりを保証するものではありません。<br>
+    ※ Googleクチコミは、Googleビジネスプロフィールに寄せられた投稿から引用しています（2026年9月時点・23件・平均★5.0／文面は原文のまま、投稿者名のみ頭文字に置き換え。「…」は中略です）。件数と平均は変動します。<br>
+    ※ 公式サイト「お客様の声」に掲載しているご感想は、文面は原文のまま、年代・性別もご本人の申告どおり掲載しています。</p>
   </div>
 </section>
 
@@ -919,6 +1020,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
     <form class="form" name="reserve-nenmatsu" method="post"
       action="/nenmatsu/thanks.html" data-netlify="true" netlify-honeypot="x_field">
       <input type="hidden" name="form-name" value="reserve-nenmatsu">
+      <input type="hidden" name="subject" value="【LP予約】年末大掃除">
       <input type="hidden" name="lp" value="nenmatsu">
       <div class="hp" aria-hidden="true">
         <label for="f-x">この欄には入力しないでください</label>
@@ -982,7 +1084,6 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
   </div>
   <p class="sticky-note">しつこい営業・訪問はいたしません</p>
 </div>
-
 
 <script>
 (function(){
