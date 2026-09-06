@@ -34,6 +34,7 @@
   --on-ink:#F2F0EA;
   --on-ink-2:#A9BAC0;
   --ok:#1B6B4F;
+  --scrim:239,237,231;   /* = --paper。写真の上に敷く白 */
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -48,6 +49,7 @@
     --wash:#4FBACB; --wash-soft:#0B2A30;
     --on-ink:#F2F0EA; --on-ink-2:#A9BAC0;
     --ok:#4FBF95;
+    --scrim:13,20,24;
   }
 }
 :root[data-theme="dark"]{
@@ -62,6 +64,7 @@
   --wash:#4FBACB; --wash-soft:#0B2A30;
   --on-ink:#F2F0EA; --on-ink-2:#A9BAC0;
   --ok:#4FBF95;
+  --scrim:13,20,24;
 }
 
 *{box-sizing:border-box;}
@@ -123,25 +126,33 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
   letter-spacing:.04em;text-wrap:balance;
 }
 
-/* ===== ヒーロー：明るい写真を敷き、その上に置く =====
-   最初の2秒は写真で決まる。汚れの証拠は下のバンドに回し、
-   ここは「終わったあとの部屋」を見せる。文字は白抜きではなく墨。
-   写真の明るさを落とさずに読ませるため、スクリムは白で敷く。 */
-.hero{position:relative;background:var(--paper);color:var(--text);overflow:hidden;isolation:isolate;}
-.hero-bg{position:absolute;inset:0;z-index:0;background:var(--paper-2);}
-.hero-bg img{width:100%;height:100%;object-fit:cover;object-position:50% 42%;display:block;}
-/* スクリム：モバイルは縦、横に広い画面では横に抜く */
+/* ===== ヒーロー：明るい写真を先に見せる =====
+   最初の2秒は写真で決まる。汚れの証拠は下のバンドに回した。
+   狭い画面では上部の帯として切り出す（縦長の面に cover で敷くと
+   拡大されすぎて何の部屋か分からなくなる）。
+   900px以上では全面に敷き、文字が乗る左側だけ白く沈める。
+   文字は白抜きではなく墨。写真の明るさを落とさないため。 */
+.hero{position:relative;background:var(--paper);color:var(--text);isolation:isolate;}
+.hero-bg{
+  position:absolute;top:0;left:0;right:0;height:min(62vw,330px);margin:0;
+  z-index:0;overflow:hidden;background:var(--paper-2);
+}
+.hero-bg img{width:100%;height:100%;object-fit:cover;object-position:50% 46%;display:block;}
 .hero-bg::after{
   content:"";position:absolute;inset:0;
   background:linear-gradient(to bottom,
-    rgba(239,237,231,.97) 0%, rgba(239,237,231,.95) 42%,
-    rgba(239,237,231,.72) 62%, rgba(239,237,231,.25) 82%, rgba(239,237,231,.05) 100%);
+    rgba(var(--scrim),0) 0%, rgba(var(--scrim),.10) 40%,
+    rgba(var(--scrim),.62) 74%, rgba(var(--scrim),.95) 92%, rgb(var(--scrim)) 100%);
 }
-.hero-in{position:relative;z-index:1;max-width:760px;margin:0 auto;
-  padding:40px 22px 44px;display:flex;flex-direction:column;gap:20px;}
+.hero-in{
+  position:relative;z-index:1;max-width:760px;margin:0 auto;
+  padding:calc(min(62vw,330px) - 52px) 22px 44px;
+  display:flex;flex-direction:column;gap:20px;
+}
 .hero .area{
   align-self:flex-start;font-size:12px;font-weight:700;letter-spacing:.06em;
-  color:var(--wash);border:1px solid var(--wash);padding:5px 13px;background:rgba(255,255,255,.7);
+  color:var(--wash);border:1px solid var(--wash);padding:5px 13px;
+  background:rgba(var(--scrim),.82);
 }
 .hero h1{font-size:clamp(26px,6.4vw,44px);color:var(--text);line-height:1.4;letter-spacing:.01em;text-wrap:balance;}
 .hero h1 .hl{
@@ -167,7 +178,7 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 /* 特典は期限のないおまけ。枠で囲わず一行で添える */
 .perk{font-size:12.5px;color:var(--text-2);line-height:1.85;
   border-left:2px solid var(--rust);padding-left:12px;}
-.perk b{color:var(--rust-deep);}
+.perk b{color:var(--rust);}
 
 .trust{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule-2);}
 .trust div{padding:16px 8px 0;text-align:left;display:flex;flex-direction:column;gap:3px;
@@ -180,11 +191,13 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 .hero-note{font-size:11px;color:var(--steel);line-height:1.7;}
 
 @media(min-width:900px){
-  .hero-bg img{object-position:72% 45%;}
+  /* 横に広い画面は全面に敷ける。文字側だけ抜く */
+  .hero-bg{height:auto;bottom:0;}
+  .hero-bg img{object-position:74% 45%;}
   .hero-bg::after{
     background:linear-gradient(100deg,
-      rgba(239,237,231,.985) 0%, rgba(239,237,231,.965) 40%,
-      rgba(239,237,231,.72) 56%, rgba(239,237,231,.22) 76%, rgba(239,237,231,0) 96%);
+      rgba(var(--scrim),.985) 0%, rgba(var(--scrim),.965) 40%,
+      rgba(var(--scrim),.72) 56%, rgba(var(--scrim),.22) 76%, rgba(var(--scrim),0) 96%);
   }
   .hero-in{max-width:1060px;padding:64px 22px 60px;}
   .hero h1,.hero .sub,.price-tag,.perk,.trust,.hero-cta,.hero-note{max-width:600px;}
