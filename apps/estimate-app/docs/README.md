@@ -395,31 +395,62 @@ apps/estimate-app/
 
 Apps Scriptエディタ（`info.onehitter@gmail.com`）で作業する。
 
-### 手順0：現行を保存する（必須）
+### 本番プロジェクトの実際のファイル名（重要）
 
-1. 現行GASの4ファイル（`code.gs` / `Index.html` / `style.html` / `JavaScript.html`）の中身を
-   ローカルにコピーして保存する
-2. 現在のデプロイID・WebアプリURLを控える
-3. エディタで `adminBackup()` を実行する前に、**先に手順1でファイルを差し替える必要がある**ため、
-   バックアップは手動で行うか、手順1のあと最初に `adminBackup()` を実行する
+本番のApps Scriptプロジェクトを実際に読んで確認した。
+**引継ぎ資料の `current_code` とファイル名が違う。**
 
-> `current_code` は最後に納品されたコードのスナップショットであり、本番そのものではない。
-> 差し替え前に本番の実ソースを必ず控えること。
+| 本番の実ファイル名 | 種別 | 引継ぎ資料での名前 |
+|---|---|---|
+| `コード` | スクリプト | `code.gs` |
+| `Index` | HTML | `Index.html` |
+| **`Style`** | HTML | `style.html`（小文字） |
+| `JavaScript` | HTML | `JavaScript.html` |
+
+本番の `Index` は `include('Style')` と**大文字S**で呼んでいる。
+`createHtmlOutputFromFile()` は大文字小文字を区別するため、
+資料どおり `style.html` を作ると画面が真っ白になる。
+
+このリポジトリの `src/Style.html` は本番に合わせて大文字にしてある。
+
+Apps Scriptプロジェクト：
+`https://script.google.com/d/1YGd7GG__SJU__fBu3TAtqbO3kp6uG3YHz2eUYSg3oU8kDwZF36zz8x4T/edit`
+
+本番の実ソースは `docs/production-snapshot/` に保存済み（2026-09-05時点）。
+引継ぎ資料のスナップショットとの差分は整形のみで、101関数すべて一致・ロジック差なしだった。
+
+### 手順0：バックアップ（作成済み）
+
+2026-09-05時点の本番3点を複製済み。差し替えて問題が出たらここから戻せる。
+
+| 対象 | バックアップ |
+|---|---|
+| Apps Scriptプロジェクト | [`[BACKUP 20260905] 見積アプリ GAS（改修前）`](https://script.google.com/d/1uHncVsNpFAVkXlwxgd5XIxjhA3KChQNgCc2skGkZDbkCPrTC1RyfxRFU/edit) |
+| マスタ | [`[BACKUP 20260905] 見積アプリ_マスタ入力テンプレート（改修前）`](https://docs.google.com/spreadsheets/d/1AHUZHCoLfQUcgAtbDnvAiiFu36VTbV4xi0xLa6v3nak/edit) |
+| 帳票/DB | [`[BACKUP 20260905] 【アプリ】見積-請求書（改修前）`](https://docs.google.com/spreadsheets/d/1jyjN2xAUT-F_YjDJuy3mokaDmad9vJYzxehv1yKHPUc/edit) |
+
+ソースは `docs/production-snapshot/` にも保存してある。
+
+作業前に、現在のデプロイID・WebアプリURLも控えておくこと。
 
 ### 手順1：ファイルを差し替える
 
-| GASのファイル名 | 置くもの |
-|---|---|
-| `code.gs` | `src/code.gs`（全文置換） |
-| `Index.html` | `src/Index.html`（全文置換） |
-| `style.html` | `src/style.html`（全文置換） |
-| `JavaScript.html` | `src/JavaScript.html`（全文置換） |
-| `Admin.gs` | **新規作成**（スクリプト）して `src/Admin.gs` を貼る |
-| `Invoice.gs` | **新規作成**（スクリプト）して `src/Invoice.gs` を貼る |
-| `Calc.html` | **新規作成**（HTML）して `src/Calc.html` を貼る |
+**新しいファイルを作らず、既存ファイルの中身を全文置換すること。**
+`コード` を残したまま `code.gs` を新規作成すると、同名関数が二重定義になって壊れる。
 
-> `Calc.html` を作り忘れると `getCalcEngine_()` が失敗する。必ず作ること。
-> ファイル名は大文字小文字まで一致させること。
+| GASの操作 | ファイル名 | 置くもの |
+|---|---|---|
+| 中身を全文置換 | `コード` | `src/code.gs` |
+| 中身を全文置換 | `Index` | `src/Index.html` |
+| 中身を全文置換 | `Style` | `src/Style.html` |
+| 中身を全文置換 | `JavaScript` | `src/JavaScript.html` |
+| **新規作成**（スクリプト） | `Invoice` | `src/Invoice.gs` |
+| **新規作成**（スクリプト） | `Admin` | `src/Admin.gs` |
+| **新規作成**（HTML） | `Calc` | `src/Calc.html` |
+
+> 新規作成の3つは、GASのエディタで「＋」→ スクリプト／HTML を選び、
+> 上表の名前を付ける（拡張子は自動で付くので入力しない）。
+> `Calc` を作り忘れると `getCalcEngine_()` が失敗する。
 
 ### 手順2：管理者関数を順に実行する
 
@@ -427,7 +458,7 @@ Apps Scriptエディタ（`info.onehitter@gmail.com`）で作業する。
 
 | 順 | 関数 | 内容 | 必須 |
 |---|---|---|---|
-| 1 | `adminBackup()` | マスタと帳票/DBを複製して退避 | ○ |
+| 1 | ~~`adminBackup()`~~ | 手順0で複製済みのためスキップ可 | — |
 | 2 | `adminDiagnose()` | 現状確認（読むだけ） | ○ |
 | 3 | `adminSetup()` | 不足シート・不足列・不足設定キーを補う | ○ |
 | 4 | `adminNormalizeDiscountRules()` | 割引繁忙期マスタを正規化（1,071行 → 16行） | ○ |
@@ -555,7 +586,8 @@ bash apps/estimate-app/tools/run-all.sh   # 下記すべてを一括実行
 |---|---|
 | コードを戻したい | 「デプロイを管理」→ バージョン履歴から旧バージョンを選び直す。または手順0で控えた4ファイルを貼り戻す（`Admin.gs` と `Calc.html` は削除してよい） |
 | マスタを戻したい | `adminNormalize*()` が作った新シートを削除し、`<シート名>_旧_YYYYMMDD_HHmm` を元の名前にリネームし直す |
-| 全部戻したい | `adminBackup()` が作った `[BACKUP ...]` の複製から中身を戻す |
+| 全部戻したい | 手順0の `[BACKUP 20260905] …` 3点から中身を戻す |
+| コードだけ元に戻したい | `docs/production-snapshot/` の4ファイルを貼り戻し、`Invoice`／`Admin`／`Calc` を削除する |
 | 追加した列を消したい | 消さなくてよい。旧コードは列名でなくヘッダー検索で動くため、右端の追加列があっても影響しない |
 
 `adminRefreshCache()` を最後に実行すること。
