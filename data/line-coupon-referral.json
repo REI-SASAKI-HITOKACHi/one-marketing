@@ -1,0 +1,33 @@
+{
+  "_説明": "ご紹介いただいた方にお渡しする1,000円割引クーポン。POST https://api.line.me/v2/bot/coupon の本文。",
+  "_確認済み": [
+    "エンドポイントは POST https://api.line.me/v2/bot/coupon（LINE Developers 公式ドキュメントで確認、2026-09-06）",
+    "固定額の割引は reward.type=\"discount\" / reward.priceInfo.type=\"fixed\" / fixedAmount（公式ドキュメントの例と同じ形）",
+    "作成後の修正は不可。変えたいときは終了させて作り直す",
+    "有効なクーポンは最大5,000件まで"
+  ],
+  "_未確認": [
+    "title / description / startTimestamp / endTimestamp / timezone / visibility / acquisitionCondition のプロパティ名と必須かどうかは、公式リファレンスがJavaScriptで描画されるため未取得。",
+    "★最初の1件は必ず --dry-run で中身を見てから、少額・短期間の『テスト用』として作ること。",
+    "★APIがエラーを返したら、その本文をそのまま読んでプロパティ名を直すこと。推測で足さないこと。"
+  ],
+  "_金額の根拠": "data/prices.json の 紹介.消費者から消費者 = 定額1,000円。事業者からの紹介（5〜15%）とは別の制度なので混同しないこと。",
+  "title": "ご紹介ありがとうクーポン 1,000円割引",
+  "description": "お知り合いをご紹介いただいたお礼です。次回のご利用時に1,000円を割引いたします。ご予約の際にこのクーポンの画面をお見せください。エアコン・水まわりなど、当社の全メニューでお使いいただけます。他の割引との併用はできません。",
+  "startTimestamp": 1793458800000,
+  "endTimestamp": 1798729200000,
+  "timezone": "Asia/Tokyo",
+  "visibility": "PRIVATE",
+  "reward": {
+    "type": "discount",
+    "priceInfo": {
+      "type": "fixed",
+      "fixedAmount": 1000
+    }
+  },
+  "acquisitionCondition": {
+    "type": "normal"
+  },
+  "_日時のメモ": "startTimestamp=2026-11-01 00:00 JST(1793458800000) / endTimestamp=2027-01-01 00:00 JST(1798729200000)。JSTを明示して出すこと: python3 -c \"import datetime as dt;J=dt.timezone(dt.timedelta(hours=9));print(int(dt.datetime(2026,11,1,tzinfo=J).timestamp()*1000))\"",
+  "_visibilityのメモ": "紹介者だけに配るので、タイムラインに出さない設定にしたい。値の綴りは要確認。"
+}
