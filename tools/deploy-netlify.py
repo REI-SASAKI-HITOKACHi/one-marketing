@@ -72,6 +72,25 @@ def load_site_id() -> str | None:
     return None
 
 
+def save_state(site: dict) -> None:
+    STATE.write_text(json.dumps({"site_id": site["id"], "name": site["name"],
+                                 "url": site["ssl_url"] or site["url"]}, indent=2) + "\n")
+
+
+def find_existing_site() -> dict | None:
+    """チームの中から、名前が一致する既存サイトを探す。
+
+    状態ファイル（deploy/.netlify-site.json）はリポジトリに入れていないので、
+    別のパソコンや作り直した作業環境には存在しない。それを「サイトがまだ無い」と
+    取り違えて新しいサイトを作ってしまうと、公開URLが変わってしまう。
+    無ければ作る前に、まず名前で探す。
+    """
+    for site in (call("GET", f"/{TEAM_SLUG}/sites") or []):
+        if site["name"] == SITE_NAME:
+            return site
+    return None
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--create", action="store_true", help="サイトを新規作成する")
@@ -91,11 +110,22 @@ def main() -> None:
             sys.exit(f"{SITE_NAME} は既にあります。--create を外して実行してください。")
 
     site_id = load_site_id()
+
+    if not site_id:
+        # 状態ファイルが無い。作る前に、同じ名前のサイトが既にないか確かめる。
+        found = find_existing_site()
+        if found:
+            save_state(found)
+            site_id = found["id"]
+            print(f"既存のプロジェクトを見つけました： {found['ssl_url'] or found['url']}")
+            print("  （新しいサイトは作りません。状態ファイルを復元しました）")
+
     if args.create or not site_id:
+        if find_existing_site():
+            sys.exit(f"{SITE_NAME} は既にあります。--create を外して実行してください。")
         site = call("POST", f"/{TEAM_SLUG}/sites", {"name": SITE_NAME})
         site_id = site["id"]
-        STATE.write_text(json.dumps({"site_id": site_id, "name": site["name"],
-                                     "url": site["ssl_url"] or site["url"]}, indent=2) + "\n")
+        save_state(site)
         print(f"サイトを作成： {site['ssl_url'] or site['url']}")
 
     files = collect()
