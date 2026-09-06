@@ -32,39 +32,9 @@
   --gold-soft:#F5EEDC;
   --shadow:0 2px 10px rgba(20,40,50,.10);
   --shadow-lift:4px 4px 16px rgba(20,40,50,.08);
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --ground:#0C171C;
-    --surface:#12222A;
-    --surface-2:#183039;
-    --ink:#E6EFF1;
-    --ink-soft:#BCCFD5;
-    --muted:#8CA3AB;
-    --line:#223942;
-    --line-strong:#39555F;
-    --accent:#4EC0D4;
-    --accent-deep:#8BDCEA;
-    --accent-soft:#0F3541;
-    --cta:#F0764B;
-    --cta-deep:#D9552A;
-    --cta-fg:#0C171C;
-    --cta-shadow:#A8481F;
-    --cta-text:#E27E5E;
-    --marker:linear-gradient(transparent 58%,#C9A020 58%);
-    --on-accent:#08222A;
-  --invert:#08151A;
-  --invert-ink:#B9CBD1;
-  --invert-line:#1B2E36;
-    --invert:#08151A;
-    --invert-ink:#B9CBD1;
-    --invert-line:#1B2E36;
-    --ok:#4FBF95;
-    --gold:#DCB55E;
-    --gold-soft:#2A2413;
-    --shadow:0 2px 10px rgba(0,0,0,.45);
-    --shadow-lift:4px 4px 16px rgba(0,0,0,.4);
-  }
+  /* このLPはライト基調で固定する。施工写真のビフォー／アフターは
+     明るい地の上でいちばん明度差が出るため、OSのダーク設定には追随しない。 */
+  color-scheme: light;
 }
 :root[data-theme="dark"]{
   --ground:#0C171C;
@@ -1011,6 +981,10 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       <p>入力は5項目。ご返信は当日中、遅くとも翌営業日にいたします。</p>
     </div>
     <form class="form" onsubmit="return false;">
+      <!-- どこから来た予約かを記録する。SMSやLINEのURLに ?src=sms&cid=C0123 を付けて配る。
+           これが無いと、送ったSMSが受注につながったのか判別できない。 -->
+      <input type="hidden" name="src" id="h-src" value="direct">
+      <input type="hidden" name="cid" id="h-cid" value="">
       <div class="field">
         <label for="f-name">お名前<span class="req">必須</span></label>
         <input id="f-name" name="name" type="text" autocomplete="name" required>
@@ -1160,4 +1134,15 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
     }
   });
 })();
+
+  /* 流入元の記録。?src= と ?cid= を hidden に写す。
+     値は素性が不明なので、長さと文字種を制限してから入れる。 */
+  (function(){
+    var q = new URLSearchParams(location.search);
+    var clean = function(v, n){ return (v || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, n); };
+    var src = clean(q.get('src'), 20) || 'direct';
+    var cid = clean(q.get('cid'), 20);
+    var es = document.getElementById('h-src'); if (es) es.value = src;
+    var ec = document.getElementById('h-cid'); if (ec) ec.value = cid;
+  })();
 </script>

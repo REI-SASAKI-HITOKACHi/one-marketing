@@ -176,6 +176,17 @@
 
 ### 🔗 他スレッドとの分担（重要）
 
+### SMSの誘導先は「年末LPの申し込みフォーム」
+
+既存顧客へのSMSは、**電話番号だけの案内にしない。**
+`https://one-hitter-nenmatsu.netlify.app/?src=sms&cid=（顧客ID）` を付けて配る。
+自社サイトで受注を完結させることが施策の目的そのもの（`docs/cmo-plan.md` の年間630万円改善）。
+
+- LPのフォームは `src` と `cid` を hidden で記録する（2026-09-06 実装・動作確認済み）
+- Netlify Forms の受信データに列が入るので、送った相手と受注が結びつく
+- 詳細は **`docs/SMS配信のリンク設計.md`**
+- **顧客接点スレッドへの最初の指示に、この誘導先の指定が抜けていた。** 補足文書で埋めてある
+
 **LPは「LP概要案プレゼン」スレッド（ブランチ `claude/lp-outline-presentation-8fahl3`）が持っている。**
 `lp/aircon/` `lp/mizumawari/` `lp/aircon-b/` は**あちらが正**。こちらで編集しないこと。
 `lp/nenmatsu/` と `lp/survey/` はこちら（CMO）が持つ。
