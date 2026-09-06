@@ -103,10 +103,6 @@ var FIELD_DEFS = [
   { key: 'agency',       label: '取扱代理店',   type: 'agency', section: '基本', required: true,  defaultMode: 'form' },
   { key: 'agent',        label: '募集人',       type: 'agent',  section: '基本', required: true,  defaultMode: 'form',
     note: '自社の募集人。帳票の「取扱者名」と「【募集人】」に入る' },
-  { key: 'coAgent',      label: '共同募集の相方', type: 'coAgent', section: '基本', defaultMode: 'form',
-    note: '代理店側の募集人と共同で募集した場合に選ぶ。単独なら空欄のまま。'
-        + '選ぶと帳票に「佐々木 嶺 / 熊澤 善弘」のように連名で入る。'
-        + '選択肢は「代理店募集人マスタ」に、その代理店名で登録した人から出る' },
   { key: 'contractType', label: '契約形態',     type: 'radio',  section: '基本', required: true,  defaultMode: 'form',
     options: ['個人', '法人'], defaultValue: '個人',
     note: '法人を選ぶと適合性確認シートの①〜④および2.①〜③が対象外になる' },
@@ -188,6 +184,8 @@ var FIELD_DEFS = [
   { key: 'wishAmount',  label: '保険金額のご希望',   type: 'text', section: '意向', defaultMode: 'form' },
   { key: 'wishPremium', label: '保険料のご希望',     type: 'text', section: '意向', defaultMode: 'form' },
   { key: 'wishOther',   label: 'その他のご希望',     type: 'text', section: '意向', defaultMode: 'form' },
+  { key: 'estimatedDate', label: '推定のご意向 確認日', type: 'date', section: '意向', defaultMode: 'form',
+    note: '空欄なら確認日と同じ日付を入れる。帳票の「推定のご意向」列の確認日欄に入る' },
   { key: 'finalDate',   label: '最終のご意向 確認日', type: 'date', section: '意向', defaultMode: 'form',
     note: '空欄なら確認日と同じ日付を入れる' },
 
@@ -329,10 +327,23 @@ function autoIntentFor_(productType) {
  * 手で入っている内容が優先で、空欄のときだけ補う。推定のご意向は入力欄を出して
  * いないので、当初と同じ内容を入れる（設定シートで止められる）。
  *
+ * ■ 法人契約は自動で入れない
+ *
+ * PRODUCT_TYPES が指すのは死亡保障・医療・老後資金といった個人向けの意向で、
+ * 法人の意向（事業保障・福利厚生・退職金準備）は保険種類からは決まらない。
+ * 同じ終身保険でも、個人なら死亡保障、法人なら事業保障や退職金準備になる。
+ * 法人は画面の「意向を手入力する」から選んでもらう。
+ *
  * @param {Object} data     applyFieldConfig_ を通したあとの入力
  * @param {boolean} withEstimated 推定のご意向も入れるか
  */
 function applyAutoIntent_(data, withEstimated) {
+  // 推定のご意向の確認日は、法人でも当初と同じ日を入れる。
+  // 空欄だと帳票の「推定のご意向」列の確認日欄だけが空白になる。
+  if (withEstimated && !data.estimatedDate) data.estimatedDate = data.confirmDate;
+
+  if (data.contractType === '法人') return data;
+
   var auto = autoIntentFor_(data.productType);
   if (!auto.needs.length && !auto.savings) return data;
 

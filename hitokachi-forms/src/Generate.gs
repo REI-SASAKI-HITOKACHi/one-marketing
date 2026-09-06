@@ -132,21 +132,6 @@ function validate_(data, fieldConfig) {
     if (empty) errors.push(f.label + 'を入力してください。');
   });
 
-  // 共同募集の相方は、その代理店に登録されている募集人だけ。一括入力シートの
-  // 選択肢は全代理店の相方をまとめて出すので、ここで組み合わせを見ておく。
-  // 誤ると帳票に無関係な代理店の募集人名が連名で印字される。
-  if (data.coAgent) {
-    var ag = getAgencyByName_(data.agency);
-    var coList = (ag && ag.coAgents) || [];
-    if (coList.indexOf(String(data.coAgent).trim()) < 0) {
-      errors.push('共同募集の相方「' + data.coAgent + '」は代理店「' + data.agency
-        + '」の募集人として登録されていません。代理店マスタの「代理店側の募集人」を確認してください。');
-    }
-    if (String(data.coAgent).trim() === String(data.agent).trim()) {
-      errors.push('共同募集の相方に、募集人と同じ人は選べません。');
-    }
-  }
-
   if (isCorp || !withSuit) return errors;
 
   // 数値の妥当性。負の値を通すと判定③が静かに「はい」になり、しかも年間保険料と
@@ -184,9 +169,18 @@ function applyFieldConfig_(data, fieldConfig) {
     } else if (c.mode === 'fixed') {
       out[f.key] = coerceFixed_(f, c.fixedValue);
     } else {
-      out[f.key] = data[f.key];
+      var v = data[f.key];
+      // 未入力の複数選択は空配列に揃える。undefined のまま流すと、
+      // indexOf を呼ぶ帳票の描画で落ちる。
+      var isList = (f.type === 'multi' || f.type === 'needs' || f.type === 'rows');
+      out[f.key] = (v === undefined || v === null) ? (isList ? [] : '') : v;
     }
   });
+  // 連名の相手は選ばせず、代理店マスタから決める（getAgencies_ の説明を参照）。
+  // 自社の募集人と同じ名前が返ってきたときは連名にしない。
+  out.coAgent = coAgentFor_(out.agency);
+  if (String(out.coAgent).trim() === String(out.agent).trim()) out.coAgent = '';
+
   // 検証日は固定値を空欄にしておけば確認日と同じ日にする。
   // 検証は募集と同じ日に行う運用なので、日付を毎回書き換えずに済ませるため。
   if (fieldConfig.verifyDate && fieldConfig.verifyDate.mode === 'fixed' && !out.verifyDate) {

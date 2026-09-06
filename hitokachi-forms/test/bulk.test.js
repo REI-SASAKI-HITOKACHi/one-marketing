@@ -13,15 +13,20 @@ const SRC = path.join(__dirname, '..', 'src');
 const AGENCIES = [
   ['代理店名', '共有フォルダID', '有効', '備考'],
   ['ヒトカチ株式会社', 'FOLDER_A', true, ''],
-  ['提携代理店B', 'FOLDER_B', true, '']
+  ['提携代理店B', 'FOLDER_B', true, ''],
+  ['提携代理店C', 'FOLDER_C', true, ''],
+  ['提携代理店D', 'FOLDER_D', true, '']
 ];
 /** 代理店ごとの共同募集の相手。1人1行。 */
 const CO_AGENTS = [
-  ['代理店名', '氏名', '有効', '備考'],
-  ['提携代理店B', '熊澤 善弘', true, ''],
-  ['提携代理店B', '小川 康之', true, ''],
-  ['提携代理店B', '退職 済', false, '無効なので選択肢に出ない'],
-  ['存在しない代理店', '幽霊 太郎', true, '代理店マスタに無いので無視される']
+  ['代理店名', '氏名', '代表', '有効', '備考'],
+  ['提携代理店B', '熊澤 善弘', true,  true,  '代表なのでこの人と連名になる'],
+  ['提携代理店B', '小川 康之', false, true,  ''],
+  ['提携代理店B', '退職 済',   true,  false, '無効なので代表にもならない'],
+  ['提携代理店C', '矢野 克臣', false, true,  '1人しかいないので代表の印は要らない'],
+  ['提携代理店D', '甲野 一郎', false, true,  '2人いて代表がいない'],
+  ['提携代理店D', '乙野 二郎', false, true,  ''],
+  ['存在しない代理店', '幽霊 太郎', false, true, '代理店マスタに無いので無視される']
 ];
 const AGENTS = [
   ['氏名', 'メールアドレス', '電話番号', '郵便番号', '住所1', '住所2', '所属代理店', 'ログイン用アドレス', '有効'],
@@ -112,7 +117,8 @@ console.log('\n--- 列の組み立て ---');
   t('ニーズはチェックボックス',   byKey('needs:death').kind, 'check');
   t('ニーズの見出しは日本語',     byKey('needs:death').label, 'ニーズ｜死亡時の保障');
   t('代理店はプルダウン',         byKey('agency').kind, 'list');
-  t('代理店の選択肢はマスタから', byKey('agency').options, ['ヒトカチ株式会社', '提携代理店B']);
+  t('代理店の選択肢はマスタから', byKey('agency').options,
+    ['ヒトカチ株式会社', '提携代理店B', '提携代理店C', '提携代理店D']);
   t('募集人の選択肢もマスタから', byKey('agent').options, ['佐々木 嶺', '髙橋 知史']);
   t('年齢は数値',                 byKey('age').kind, 'number');
   t('年収の見出しに単位が付く',    byKey('income').label, '年収（万円）');
@@ -263,150 +269,56 @@ console.log('\n--- 検証：不正な数値を弾く ---');
     ctx.validate_(ctx.applyFieldConfig_(Object.assign({}, corp, { contractType: '個人' }), conf), conf).length > 0, true);
 }
 
-console.log('\n--- 検証：共同募集の相方 ---');
+console.log('\n--- 連名の相手は代理店マスタから決まる ---');
 {
   const ctx = makeContext();
   const conf = ctx.getFieldConfig_();
   const base = {
     contractType: '個人', customerName: '山田 太郎', agency: '提携代理店B',
-    agent: '佐々木 嶺', confirmDate: '2026-08-01',
-    age: 40, occupation: '会社員', occupationClass: '左記以外',
-    income: 500, assets: 100, annualPremium: 80, payYears: 10,
-    experience: ['株式'], premiumSource: ['預貯金・給与'],
-    sourceNotMaturity: true, sourceSpare: true, sourceNotLoan: true,
-    riskTolerance: ctx.RISK_YES, needs: ['death'], savings: '①ある方が良い'
+    agent: '佐々木 嶺', confirmDate: '2026-08-01', productType: ['終身'],
+    age: 40, occupation: '会社員', income: 500, assets: 100,
+    experience: ['株式'], premiumSource: ['預貯金・給与'], riskTolerance: ctx.RISK_YES
   };
-  const check = (over) => ctx.validate_(ctx.applyFieldConfig_(Object.assign({}, base, over), conf), conf);
+  const display = (over) => {
+    const d = ctx.applyFieldConfig_(Object.assign({}, base, over), conf);
+    return ctx.buildModel_(d, ctx.defaultAnswers_(d), ctx.getAgentByName_('佐々木 嶺'), d.agency)
+      .agentDisplay;
+  };
 
-  t('空欄（単独募集）は通る', check({ coAgent: '' }), []);
-  t('その代理店の募集人なら通る', check({ coAgent: '熊澤 善弘' }), []);
-  t('別の代理店の募集人は弾く',
-    check({ agency: 'ヒトカチ株式会社', coAgent: '熊澤 善弘' })
-      .some(e => e.indexOf('登録されていません') >= 0), true);
-  t('マスタにない名前は弾く',
-    check({ coAgent: '存在 しない' }).some(e => e.indexOf('登録されていません') >= 0), true);
-  t('募集人と同じ人は弾く',
-    check({ coAgent: '佐々木 嶺' }).some(e => e.indexOf('同じ人は選べません') >= 0), true);
-  t('法人契約でも組み合わせは見る',
-    check({ contractType: '法人', agency: 'ヒトカチ株式会社', coAgent: '小川 康之' })
-      .some(e => e.indexOf('登録されていません') >= 0), true);
+  t('代表がいる代理店はその人と連名',   display({}), '佐々木 嶺 / 熊澤 善弘');
+  t('1人しかいなければその人と連名',    display({ agency: '提携代理店C' }), '佐々木 嶺 / 矢野 克臣');
+  // 誰と連名にすべきか決められないまま適当な1人を出すと、募集していない人の名前が載る。
+  t('2人いて代表が無ければ単独名義',    display({ agency: '提携代理店D' }), '佐々木 嶺');
+  t('登録がない代理店は単独名義',       display({ agency: 'ヒトカチ株式会社' }), '佐々木 嶺');
+  t('無効な人は代表にならない',
+    ctx.getAgencyByName_('提携代理店B').coAgent, '熊澤 善弘');
 
-  console.log('\n--- 一括入力シートの相方の選択肢 ---');
-  const opts = ctx.bulkOptionsFor_(ctx.FIELD_DEFS.filter(f => f.key === 'coAgent')[0]);
-  t('列としての選択肢は持たない（行ごとに作る）', opts, []);
-
-  const co = n => (ctx.getAgencyByName_(n) || {}).coAgents;
-  t('代理店ごとに相方が引ける', co('提携代理店B'), ['熊澤 善弘', '小川 康之']);
-  t('無効な行は選択肢に出ない', co('提携代理店B').indexOf('退職 済'), -1);
-  t('相方がいない代理店は空', co('ヒトカチ株式会社'), []);
-
-  console.log('\n--- 連名の印字 ---');
-  const solo = ctx.applyFieldConfig_(base, conf);
-  const pair = ctx.applyFieldConfig_(Object.assign({}, base, { coAgent: '熊澤 善弘' }), conf);
-  const agent = ctx.getAgentByName_('佐々木 嶺');
-  t('単独なら自社の募集人だけ',
-    ctx.buildModel_(solo, ctx.defaultAnswers_(solo), agent, '提携代理店B').agentDisplay, '佐々木 嶺');
-  t('共同募集なら連名になる',
-    ctx.buildModel_(pair, ctx.defaultAnswers_(pair), agent, '提携代理店B').agentDisplay,
-    '佐々木 嶺 / 熊澤 善弘');
+  t('代表が決まらない代理店を知らせる', ctx.agenciesWithoutRepresentative_(), ['提携代理店D']);
+  t('入力欄は無くなった',               ctx.FIELD_DEFS.filter(f => f.key === 'coAgent').length, 0);
+  t('一括入力シートにも列がない',       ctx.bulkColumns_().filter(c => c.key === 'coAgent').length, 0);
+  t('検証でも相方を求めない',           ctx.validate_(ctx.applyFieldConfig_(base, conf), conf), []);
 }
 
-console.log('\n--- 代理店を選ぶと、その行の相方の選択肢が入れ替わる ---');
+console.log('\n--- 法人の意向は自動で入れない ---');
 {
-  /**
-   * 一括入力シートの代役。refreshCoAgentValidation_ が触るぶんだけ。
-   * grid は 1 始まりの [行][列]。validations[行] に、その行の相方セルへ
-   * 張られた選択肢が入る（null なら選べない状態）。
-   */
-  function fakeBulkSheet(keys, rows) {
-    // 1行目=列キー, 2行目=見出し, 3行目以降=データ（実物と同じ並び）。
-    const grid = [null, keys.slice(), keys.map(() => '')].concat(rows.map(r => r.slice()));
-    const validations = {};
-    const colOf = k => keys.indexOf(k) + 1;
-    const cell = (r, c) => ({
-      getValues: () => [[grid[r] ? (grid[r][c - 1] === undefined ? '' : grid[r][c - 1]) : '']],
-      setDataValidation(v) { if (c === colOf('coAgent')) validations[r] = v; },
-      clearContent() { if (grid[r]) grid[r][c - 1] = ''; }
-    });
-    return {
-      grid, validations,
-      getName: () => '一括入力',
-      getLastColumn: () => keys.length,
-      getMaxRows: () => grid.length - 1,
-      getRange(row, col, numRows, numCols) {
-        // getRange(row, col) の 2 引数呼び出しも 1 セルとして扱う。
-        if ((numRows === undefined || numRows === 1)
-            && (numCols === undefined || numCols === 1)) return cell(row, col);
-        const vals = [];
-        for (let i = 0; i < (numRows || 1); i++) {
-          const r = grid[row + i] || [];
-          const line = [];
-          for (let j = 0; j < (numCols || 1); j++) {
-            line.push(r[col + j - 1] === undefined ? '' : r[col + j - 1]);
-          }
-          vals.push(line);
-        }
-        return { getValues: () => vals, setDataValidation() {}, clearContent() {} };
-      }
-    };
-  }
-
   const ctx = makeContext();
-  // 選択肢リストだけ取り出せる、最小の DataValidation ビルダー。
-  ctx.SpreadsheetApp.newDataValidation = () => {
-    let list = null;
-    const b = {
-      requireValueInList(v) { list = v.slice(); return b; },
-      setAllowInvalid() { return b; },
-      build: () => ({ list })
-    };
-    return b;
+  const conf = ctx.getFieldConfig_();
+  const corp = {
+    contractType: '法人', customerName: '株式会社テスト', agency: 'ヒトカチ株式会社',
+    agent: '佐々木 嶺', confirmDate: '2026-08-01', productType: ['終身']
   };
+  const out = ctx.applyFieldConfig_(corp, conf);
+  // 同じ終身保険でも、個人なら死亡保障、法人なら事業保障や退職金準備になる。
+  t('保険種類からは意向を決めない', out.needs, []);
+  t('貯蓄部分も入れない',           out.savings, '');
+  t('意向は入力が要る',
+    ctx.validate_(out, conf).some(e => e.indexOf('ご希望の保障分野') >= 0), true);
+  t('推定の確認日だけは入れる',     out.estimatedDate, '2026-08-01');
 
-  const KEYS = ['__status', '__message', 'customerName', 'agency', 'coAgent'];
-  const listAt = (sh, row) => (sh.validations[row] || {}).list || null;
-
-  const sh = fakeBulkSheet(KEYS, [
-    ['', '', '山田 太郎', '提携代理店B', ''],
-    ['', '', '鈴木 花子', 'ヒトカチ株式会社', ''],
-    ['', '', '佐藤 次郎', '', '']
-  ]);
-  ctx.refreshCoAgentValidation_(sh);
-  t('相方がいる代理店の行には選択肢が張られる', listAt(sh, 3), ['熊澤 善弘', '小川 康之']);
-  t('相方がいない代理店の行は選べない',         listAt(sh, 4), null);
-  t('代理店が未選択の行も選べない',             listAt(sh, 5), null);
-
-  console.log('\n--- 代理店を選び直すと、前の代理店の人は消える ---');
-  const sh2 = fakeBulkSheet(KEYS, [
-    ['', '', '山田 太郎', 'ヒトカチ株式会社', '熊澤 善弘']  // 代理店だけ差し替えた状態
-  ]);
-  ctx.refreshCoAgentValidation_(sh2);
-  t('他社の募集人が残らない', sh2.grid[3][4], '');
-  t('選択肢も外れる',         listAt(sh2, 3), null);
-
-  const sh3 = fakeBulkSheet(KEYS, [
-    ['', '', '山田 太郎', '提携代理店B', '小川 康之']  // 同じ代理店のまま
-  ]);
-  ctx.refreshCoAgentValidation_(sh3);
-  t('同じ代理店のままなら選択は残る', sh3.grid[3][4], '小川 康之');
-
-  console.log('\n--- 編集された行だけ作り直す ---');
-  const sh4 = fakeBulkSheet(KEYS, [
-    ['', '', 'A', '提携代理店B', ''],
-    ['', '', 'B', '提携代理店B', ''],
-    ['', '', 'C', '提携代理店B', '']
-  ]);
-  ctx.refreshCoAgentValidation_(sh4, 4, 1);   // 2行目だけ
-  t('指定した行だけ張られる', listAt(sh4, 4), ['熊澤 善弘', '小川 康之']);
-  t('ほかの行は触らない',     [listAt(sh4, 3), listAt(sh4, 5)], [null, null]);
-
-  console.log('\n--- 代理店か相方の列を「使わない」にしていても落ちない ---');
-  const sh5 = fakeBulkSheet(['__status', '__message', 'customerName', 'agency'], [
-    ['', '', '山田 太郎', '提携代理店B']
-  ]);
-  let threw = false;
-  try { ctx.refreshCoAgentValidation_(sh5); } catch (e) { threw = true; }
-  t('例外にならない', threw, false);
+  const filled = ctx.applyFieldConfig_(
+    Object.assign({}, corp, { needs: ['business'], savings: ctx.SAVINGS_NO }), conf);
+  t('手入力すれば通る', ctx.validate_(filled, conf), []);
+  t('手入力の内容はそのまま', filled.needs, ['business']);
 }
 
 console.log('\n--- 保険種類で作る帳票が変わる ---');

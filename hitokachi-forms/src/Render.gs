@@ -123,6 +123,7 @@ function buildModel_(d, answers, agent, agencyName) {
 
     confirmDateJp: formatJpDate_(d.confirmDate),
     confirmDateSlash: formatSlashDate_(d.confirmDate),
+    estimatedDateSlash: formatSlashDate_(d.estimatedDate || d.confirmDate),
     finalDateSlash: formatSlashDate_(d.finalDate || d.confirmDate),
     verifyDateJp: formatJpDate_(d.verifyDate),
     verifierName: d.verifierName || '',

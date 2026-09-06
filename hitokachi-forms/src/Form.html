@@ -17,6 +17,10 @@
   .card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; margin: 16px 0; }
   .card > h2 { font-size: 15px; margin: 0 0 14px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); }
   .f { margin-bottom: 16px; }
+  .fold { display: block; margin-top: 4px; padding: 8px 14px; border: 1px solid var(--line);
+          border-radius: 6px; background: #fafafa; color: #333; font-size: 13px; cursor: pointer; }
+  .fold:hover { background: #f0f0f0; }
+  .foldNote { font-size: 12px; color: #666; margin: 2px 0 8px; }
   .f > label.t { display: block; font-weight: 600; margin-bottom: 5px; }
   .req { color: var(--bad); font-size: 11px; margin-left: 5px; }
   .note { color: var(--muted); font-size: 12px; margin-top: 3px; }
@@ -133,6 +137,24 @@ function renderForm() {
     var fs = fieldsIn(section);
     if (!fs.length) return;
     var card = el('div', { class: 'card' }, [el('h2', { text: sectionTitle(section) })]);
+
+    // 意向は保険種類から自動で入るので、既定では畳んでおく。
+    // 出しっぱなしにすると、触らなくてよい欄が画面の半分を占める。
+    if (section === '意向') {
+      var body = el('div', { id: 'intentBody' });
+      fs.forEach(function (f) { body.appendChild(renderField(f)); });
+      body.hidden = true;
+      card.appendChild(el('div', { class: 'foldNote',
+        text: '保険種類から自動で入ります。違う内容にするときだけ開いてください。' }));
+      card.appendChild(el('button', {
+        id: 'intentToggle', class: 'fold', type: 'button', text: '意向を手入力する',
+        onclick: function () { toggleIntent(); }
+      }));
+      card.appendChild(body);
+      app.appendChild(card);
+      return;
+    }
+
     fs.forEach(function (f) { card.appendChild(renderField(f)); });
     app.appendChild(card);
   });
@@ -143,6 +165,18 @@ function renderForm() {
   bar.appendChild(el('button', { class: 'primary', text: '内容を確認する', onclick: onPrepare }));
 
   refreshConditions();
+}
+
+/**
+ * 意向欄の開閉。open を渡さなければ今の状態を反転する。
+ * 法人契約は保険種類から意向を決められないので、開いた状態にする。
+ */
+function toggleIntent(open) {
+  var body = $('intentBody');
+  var btn = $('intentToggle');
+  if (!body || !btn) return;
+  body.hidden = (open === undefined) ? !body.hidden : !open;
+  btn.textContent = body.hidden ? '意向を手入力する' : '意向の手入力を閉じる';
 }
 
 function sectionTitle(s) {
@@ -173,24 +207,19 @@ function setValue(key, v) {
 function control(f) {
   var t = f.type;
 
-  if (t === 'agency' || t === 'agent' || t === 'coAgent' || t === 'select') {
-    var list = t === 'agency' ? agencyNames()
-      : t === 'agent' ? agentNames()
-      : t === 'coAgent' ? coAgentNames() : f.options;
+  if (t === 'agency' || t === 'agent' || t === 'select') {
+    var list = t === 'agency' ? agencyNames() : t === 'agent' ? agentNames() : f.options;
     var sel = el('select', {
       id: 'i_' + f.key,
       onchange: function (e) {
         setValue(f.key, e.target.value);
-        // 代理店が変われば、選べる募集人も共同募集の相方も入れ替わる。
-        if (t === 'agency') { rebuildAgents(); rebuildCoAgents(); }
+        // 代理店が変われば、選べる募集人も入れ替わる。
+        if (t === 'agency') rebuildAgents();
       }
     });
-    sel.appendChild(el('option', {
-      value: '', text: t === 'coAgent' ? '（単独募集）' : '選択してください'
-    }));
+    sel.appendChild(el('option', { value: '', text: '選択してください' }));
     list.forEach(function (o) { sel.appendChild(el('option', { value: o, text: o })); });
-    // 相方は 1 人しかいなくても単独募集がありうるので、勝手に選ばない。
-    if (t !== 'coAgent' && list.length === 1) { sel.value = list[0]; setValue(f.key, list[0]); }
+    if (list.length === 1) { sel.value = list[0]; setValue(f.key, list[0]); }
     return sel;
   }
 
@@ -216,6 +245,8 @@ function control(f) {
           if (f.key === 'productType') applyAutoIntent();
         } else {
           setValue(f.key, o.v);
+          // 法人の意向は保険種類から決められないので、手入力欄を開いておく。
+          if (f.key === 'contractType') toggleIntent(o.v === '法人');
         }
       });
       if (!multi && f.defaultValue === o.v && STATE.values[f.key] === undefined) {
@@ -325,16 +356,6 @@ function agentNames() {
   return list.map(function (a) { return a.name; });
 }
 
-/** 共同募集の相方。選んでいる代理店に登録されている募集人だけを出す。 */
-function coAgentNames() {
-  var agency = STATE.values.agency;
-  if (!agency) return [];
-  for (var i = 0; i < BOOT.agencies.length; i++) {
-    if (BOOT.agencies[i].name === agency) return BOOT.agencies[i].coAgents || [];
-  }
-  return [];
-}
-
 /** 選択肢を入れ替える。今の選択が新しい一覧にも残っていればそのまま。 */
 function rebuildSelect_(key, names, placeholder) {
   var sel = $('i_' + key);
@@ -349,10 +370,6 @@ function rebuildSelect_(key, names, placeholder) {
 
 function rebuildAgents() {
   rebuildSelect_('agent', agentNames(), '選択してください');
-}
-
-function rebuildCoAgents() {
-  rebuildSelect_('coAgent', coAgentNames(), '（単独募集）');
 }
 
 /* ---------- 手順1: 確認 ---------- */
