@@ -41,13 +41,13 @@ else
   clasp create --type webapp --title "${TITLE}" --rootDir src
 fi
 
-# clasp create が書く .clasp.json は fileExtension を持たないことがある。
-# .gs をスクリプトファイルとして上げるために補っておく。
+# clasp 3.x は scriptExtensions / htmlExtensions を自分で書くので、拡張子の設定は要らない。
+# 2.x で作られた古い .clasp.json のために rootDir だけ念のため揃える。
 node -e '
   const fs = require("fs");
   const c = JSON.parse(fs.readFileSync(".clasp.json", "utf8"));
   c.rootDir = "src";
-  c.fileExtension = "gs";
+  if (!c.scriptExtensions) c.fileExtension = "gs";   // 2.x 向け
   fs.writeFileSync(".clasp.json", JSON.stringify(c, null, 2) + "\n");
   console.log("scriptId:", c.scriptId);
 '
