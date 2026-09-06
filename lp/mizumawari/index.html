@@ -42,22 +42,8 @@
   --on-ink-2:#A8C2D2;
   --ok:#1B6B4F;
   --scrim:243,247,249;    /* = --paper。写真の上に敷く白 */
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --ink:#0C2D45; --ink-2:#123E5C;
-    --paper:#0B1720; --paper-2:#12232E;
-    --surface:#12232E;
-    --text:#E7EEF2; --text-2:#B3C4CE;
-    --steel:#8FA4B0;
-    --rule:#20323F; --rule-2:#37505F;
-    --cta:#FF7A4D; --cta-deep:#C0300C; --cta-soft:#2A1610;
-    --cta-fill:#B72C0A; --cta-fill-h:#8F2408; --cta-ink:#FFB894;
-    --aqua:#5AC8DC; --aqua-ink:#6FD0E4; --aqua-fill:#0C5F6B; --aqua-soft:#0A2A33;
-    --on-ink:#EDF4F8; --on-ink-2:#A8C2D2;
-    --ok:#4FBF95;
-    --scrim:11,23,32;
-  }
+  /* このLPはライト基調で固定。OSのダーク設定には追随しない（2026-09-06 オーナー判断） */
+  color-scheme: light;
 }
 :root[data-theme="dark"]{
     --ink:#0C2D45; --ink-2:#123E5C;
@@ -966,6 +952,10 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
       <p>入力は5項目。ご返信は当日中、遅くとも翌営業日にいたします。</p>
     </div>
     <form class="form" onsubmit="return false;">
+      <!-- どこから来た予約かを記録する。広告やSMSのURLに ?src=... &cid=... を付けて配る。
+           これが無いと、どの経路が受注につながったのか判別できない。 -->
+      <input type="hidden" name="src" id="h-src" value="direct">
+      <input type="hidden" name="cid" id="h-cid" value="">
       <div class="field">
         <div class="lab"><label for="f-name">お名前</label><span class="req">必須</span></div>
         <input id="f-name" name="name" type="text" autocomplete="name" required>
@@ -1116,4 +1106,15 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     }
   });
 })();
+
+  /* 流入元の記録。?src= と ?cid= を hidden に写す。
+     値は素性が不明なので、長さと文字種を制限してから入れる。 */
+  (function(){
+    var q = new URLSearchParams(location.search);
+    var clean = function(v, n){ return (v || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, n); };
+    var src = clean(q.get('src'), 20) || 'direct';
+    var cid = clean(q.get('cid'), 20);
+    var es = document.getElementById('h-src'); if (es) es.value = src;
+    var ec = document.getElementById('h-cid'); if (ec) ec.value = cid;
+  })();
 </script>
