@@ -57,16 +57,23 @@ Google ドライブの顧客フォルダに保存する Google Apps Script の�
 
 ```bash
 npm install -g @google/clasp
-clasp login
-clasp create --type webapp --title "帳票自動作成システム" --rootDir src
+clasp login          # ブラウザで Google アカウントを承認する
+bash deploy.sh       # プロジェクト作成・コードの push・ウェブアプリ公開まで
 ```
 
-`.clasp.json` ができるので、`rootDir` と `fileExtension` を
-`.clasp.json.example` に合わせる。
+`deploy.sh` が終わると、エディタの URL と残りの手順が表示される。
+手でやる場合は次のとおり。
 
 ```bash
+clasp create --type webapp --title "帳票自動作成システム" --rootDir src
+# .clasp.json の rootDir と fileExtension を .clasp.json.example に合わせる
 clasp push
+clasp deploy
 ```
+
+コードを直したあとは `clasp push --force` だけでよい。
+シート構成を変えたときは、あわせて `setup()` をもう一度実行する
+（入力済みのデータは壊さない）。
 
 > clasp を使わない場合は、[script.google.com](https://script.google.com/) で
 > 新規プロジェクトを作り、`src/` 以下のファイルを同じ名前で貼り付けてもよい。
