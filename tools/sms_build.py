@@ -136,15 +136,71 @@ def load_templates():
     return data, {t["id"]: t for t in data["テンプレート"]}
 
 
+# どの案を使うか。--variant b で v2案（担当者名で名乗る）に切り替わる
+VARIANT = {"1-2": "A1", "3": "A3"}
+
+
 def pick_template(row) -> str:
     pr = (row.get("優先") or "").strip()
     route = (row.get("送信系統") or "").strip()
-    honpo = "本舗" in route
+    # 本舗経由の顧客は、本舗名義で送る手段が無いため対象外（2026-09-06 オーナー確認）
+    if "本舗" in route:
+        return ""
     if pr in ("1", "2"):
-        return "B1" if honpo else "A1"
+        return VARIANT["1-2"]
     if pr == "3":
-        return "B3" if honpo else "A3"
+        return VARIANT["3"]
     return ""
+
+
+def last_when(row) -> str:
+    """最終施工を、お客様に読める言い方で返す。「昨年11月」「今年1月」など。
+    ★年をまたぐので『昨年』と決め打ちしないこと。2026/01/11 は『今年1月』。"""
+    d = (row.get("最終施工日") or "").strip().replace("-", "/")
+    m = re.match(r"(\d{4})/(\d{1,2})/", d)
+    if not m:
+        return "前回"
+    y, mo = int(m.group(1)), int(m.group(2))
+    ty = dt.date.today().year
+    if y == ty:
+        return f"今年{mo}月"
+    if y == ty - 1:
+        return f"昨年{mo}月"
+    return f"{y}年{mo}月"
+
+
+# 台帳の表記は社内用語。お客様に出す名前へ言い換える。
+# 載っていないもの（空室・応援・まるごと 等）は空文字にして、文から落とす。
+MENU_LABEL = {
+    "エアコン(ノーマル)": "エアコン",
+    "エアコン(ロボ)": "お掃除機能付きエアコン",
+    "天カセ": "天井埋込みエアコン",
+    "業務用エアコン": "業務用エアコン",
+    "業務用エアコン（４方向）": "業務用エアコン",
+    "床置き型エアコン": "床置き型エアコン",
+    "浴室": "浴室",
+    "換気扇": "換気扇",
+    "レンジフード": "レンジフード",
+    "キッチン": "キッチン",
+    "洗濯機(ノーマル)": "洗濯機",
+    "洗濯機(ドラム)": "洗濯機",
+    "トイレ": "トイレ",
+    "洗面台": "洗面台",
+    "コンロ": "コンロ",
+    "追い焚き配管": "追い焚き配管",
+}
+
+
+def last_what(row) -> str:
+    """前回の主なメニューを「浴室を」の形で返す。言い換えられないものは空文字。
+    空でも文が成立するように、助詞まで含めて返す。"""
+    v = (row.get("施工メニュー（内訳）") or row.get("施工メニュー") or "").strip()
+    if not v:
+        return ""
+    head = re.split(r"[／/]", v)[0]
+    key = re.split(r"[×x]", head)[0].strip()
+    label = MENU_LABEL.get(key, "")
+    return f"{label}を" if label else ""
 
 
 def render(body: str, row) -> str:
@@ -152,13 +208,17 @@ def render(body: str, row) -> str:
         body.replace("{name}", surname(row.get("氏名", "")))
         .replace("{osusume}", (row.get("今回おすすめ") or "").strip())
         .replace("{months}", months_elapsed(row))
+        .replace("{last_when}", last_when(row))
+        .replace("{last_what}", last_what(row))
     )
 
 
 # ---------------------------------------------------------------- check mode
 
 REQUIRED_TOKENS = [
-    ("名乗り", lambda b: b.lstrip().startswith("【")),
+    # 特定電子メール法 第4条：送信者の氏名・名称を表示すること。冒頭で名乗る
+    ("名乗り", lambda b: any(k in b[:30] for k in ("ワンヒッター", "おそうじ本舗"))),
+    # 同条：受信拒否の通知先を表示すること
     ("配信停止の記載", lambda b: "停止" in b),
 ]
 
@@ -225,7 +285,7 @@ def cmd_build(args) -> int:
             continue
         tid = pick_template(row)
         if not tid:
-            skipped.append((row, f"優先{pr} は対象外"))
+            skipped.append((row, "おそうじ本舗経由（送信手段がないため対象外）" if "本舗" in route else f"優先{pr} は対象外"))
             continue
         tel, reason = normalize_phone(row.get("TEL"))
         if tel is None:
@@ -300,7 +360,11 @@ def main() -> int:
     p.add_argument("--priority", help="優先度でしぼる（例: 1,2）")
     p.add_argument("--route", help="送信系統でしぼる（自社 / 本舗）")
     p.add_argument("--sample", action="store_true", help="テンプレートごとに本文を1件表示")
+    p.add_argument("--variant", choices=["a", "b"], default="a",
+                   help="a=会社名で名乗る案(A1/A3) / b=担当者名で名乗る案(A1b/A3b)")
     a = p.parse_args()
+    if a.variant == "b":
+        VARIANT["1-2"], VARIANT["3"] = "A1b", "A3b"
     if a.check:
         return cmd_check()
     if not a.csv:
