@@ -449,6 +449,29 @@ console.log('\n--- 保険種類で作る帳票が変わる ---');
     cols.filter(c => c.key === 'experience:株式').map(c => c.label), ['購入経験｜株式']);
 }
 
+console.log('\n--- 検証欄は固定値で印字する ---');
+{
+  const c = makeContext();
+  const conf = c.getFieldConfig_();
+  t('既定は固定値を使う',   conf.verifyResult.mode, 'fixed');
+  t('検証結果の既定は「適」', c.fieldByKey_('verifyResult').defaultValue, '適');
+
+  conf.verifierName.fixedValue = '髙橋 知史';
+  conf.verifyResult.fixedValue = '適';
+  const out = c.applyFieldConfig_({ confirmDate: '2026-08-01' }, conf);
+  t('検証実施者が入る',     out.verifierName, '髙橋 知史');
+  t('検証結果が入る',       out.verifyResult, '適');
+  t('検証日は確認日と同じ', out.verifyDate, '2026-08-01');
+
+  conf.verifyDate.fixedValue = '2026-08-05';
+  t('固定値の日付があればそちら',
+    c.applyFieldConfig_({ confirmDate: '2026-08-01' }, conf).verifyDate, '2026-08-05');
+
+  const hidden = makeContext({ __modes: { verifyDate: 'hidden' } });
+  t('使わないなら確認日も入れない',
+    hidden.applyFieldConfig_({ confirmDate: '2026-08-01' }, hidden.getFieldConfig_()).verifyDate, '');
+}
+
 console.log('\n--- チェックボックスの表記ゆれ ---');
 {
   const ctx = makeContext();

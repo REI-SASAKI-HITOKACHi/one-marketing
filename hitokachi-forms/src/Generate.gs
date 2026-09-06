@@ -187,6 +187,12 @@ function applyFieldConfig_(data, fieldConfig) {
       out[f.key] = data[f.key];
     }
   });
+  // 検証日は固定値を空欄にしておけば確認日と同じ日にする。
+  // 検証は募集と同じ日に行う運用なので、日付を毎回書き換えずに済ませるため。
+  if (fieldConfig.verifyDate && fieldConfig.verifyDate.mode === 'fixed' && !out.verifyDate) {
+    out.verifyDate = out.confirmDate;
+  }
+
   // 保険種類から「ご意向」を補うのは、hidden の項目を空にしたあと。
   // 推定のご意向は入力欄を出していないので、ここで入れないと空欄のまま印字される。
   return applyAutoIntent_(out, autoEstimatedIntent_());

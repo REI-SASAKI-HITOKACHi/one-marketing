@@ -206,11 +206,17 @@ var FIELD_DEFS = [
   { key: 'changeLog',        label: 'ご意向の変化の内容等',       type: 'rows',  section: '任意', defaultMode: 'hidden',
     note: '日付と内容の組を最大3行まで' },
 
-  // ---- 検証欄。募集後に別タイミングで入れるため既定では非表示 ----
-  { key: 'verifyDate',   label: '検証日',           type: 'date',  section: '検証欄', defaultMode: 'hidden' },
-  { key: 'verifierName', label: '検証実施者氏名',   type: 'text',  section: '検証欄', defaultMode: 'hidden' },
-  { key: 'verifyResult', label: '検証結果',         type: 'radio', section: '検証欄', defaultMode: 'hidden',
-    options: ['適', '不適'] }
+  // ---- 検証欄。毎回同じ内容なので入力欄は出さず、設定シートの固定値を印字する ----
+  { key: 'verifyDate',   label: '検証日',           type: 'date',  section: '検証欄', defaultMode: 'fixed',
+    note: '固定値を空欄にしておくと、確認日と同じ日付が入る。'
+        + '別の日を必ず入れたいときだけ、設定シートの固定値に日付を書く' },
+  { key: 'verifierName', label: '検証実施者氏名',   type: 'text',  section: '検証欄', defaultMode: 'fixed',
+    note: '設定シート「項目設定」の固定値に、検証を行う人の氏名を入れる。'
+        + '空欄のままだと帳票の検証実施者欄が空欄で出る' },
+  { key: 'verifyResult', label: '検証結果',         type: 'radio', section: '検証欄', defaultMode: 'fixed',
+    options: ['適', '不適'], defaultValue: '適',
+    note: '毎回同じ値を印字する。個別に「不適」にしたい契約があるときは、'
+        + '扱いを「入力する」に変えると1件ずつ選べるようになる' }
 ];
 
 var FIELD_SECTIONS = ['基本', '適合性', '意向', '任意', '検証欄'];

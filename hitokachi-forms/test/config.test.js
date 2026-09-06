@@ -89,12 +89,12 @@ console.log('\n--- 未知の値や空欄は既定値のまま ---');
     '項目設定': [
       FIELD_HEADER,
       ['age', '年齢', '適合性', 'あいうえお', '', true, '', ''],
-      ['verifyDate', '検証日', '検証欄', '', '', false, '', '']
+      ['guardianName', '親権者氏名', '基本', '', '', false, '', '']
     ]
   });
   const conf = ctx.getFieldConfig_();
   t('打ち間違いは既定値(form)を保つ',  conf.age.mode, 'form');
-  t('空欄も既定値(hidden)を保つ',      conf.verifyDate.mode, 'hidden');
+  t('空欄も既定値(hidden)を保つ',      conf.guardianName.mode, 'hidden');
   t('シートにない項目も既定値が入る',  conf.customerName.mode, 'form');
 }
 
