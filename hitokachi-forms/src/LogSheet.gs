@@ -50,7 +50,8 @@ function appendLog_(data, summary, advice, result) {
     reasons,
     diff.join(' / '),
     result.folderName, result.folderCreated ? '新規' : '既存', result.folderUrl,
-    result.files[0].url, result.files[1].url,
+    fileUrlByKind_(result.files, 'suitability'),
+    fileUrlByKind_(result.files, 'intent'),
     JSON.stringify(data)
   ]);
 }

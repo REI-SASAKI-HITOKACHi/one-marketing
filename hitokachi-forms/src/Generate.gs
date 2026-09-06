@@ -26,11 +26,13 @@ function generateAndSave_(data, choice, rawAnswers) {
   var base = sanitizeFileName_(data.customerName) + '_' + stamp;
 
   // 意向把握シートはどの契約でも要る。適合性確認シートは投資性商品だけ。
+  // 並び順ではなく kind で取り出すこと（fileByKind_）。作られない帳票があるので、
+  // 添字で参照すると入れ替わったり、存在しない要素を触って落ちたりする。
   var files = [];
-  files.push(saveOne_(folder, 'IntentSheet', model, '意向把握シート_' + base));
+  files.push(saveOne_(folder, 'IntentSheet', model, '意向把握シート_' + base, 'intent'));
   var withSuit = needsSuitabilityFor_(data);
   if (withSuit) {
-    files.push(saveOne_(folder, 'SuitabilitySheet', model, '適合性確認シート_' + base));
+    files.push(saveOne_(folder, 'SuitabilitySheet', model, '適合性確認シート_' + base, 'suitability'));
   }
 
   var result = {
@@ -64,11 +66,29 @@ function confirmDateAsDate_(v) {
   return isNaN(d.getTime()) ? new Date() : d;
 }
 
-function saveOne_(folder, templateName, model, fileName) {
+function saveOne_(folder, templateName, model, fileName, kind) {
   var html = renderTemplate_(templateName, model);
   var pdf = htmlToPdfBlob_(html, fileName, folder.getId());
   var file = folder.createFile(pdf);
-  return { id: file.getId(), name: file.getName(), url: file.getUrl() };
+  return { kind: kind, id: file.getId(), name: file.getName(), url: file.getUrl() };
+}
+
+/**
+ * 作った帳票を種類で取り出す。作られていなければ null。
+ *   'intent'      … 意向把握シート（どの契約でも作る）
+ *   'suitability' … 適合性確認シート（投資性商品だけ）
+ */
+function fileByKind_(files, kind) {
+  for (var i = 0; i < (files || []).length; i++) {
+    if (files[i] && files[i].kind === kind) return files[i];
+  }
+  return null;
+}
+
+/** 種類で取り出した帳票の URL。作られていなければ空文字。 */
+function fileUrlByKind_(files, kind) {
+  var f = fileByKind_(files, kind);
+  return f ? f.url : '';
 }
 
 /**

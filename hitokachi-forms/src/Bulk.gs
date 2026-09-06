@@ -612,9 +612,10 @@ function processBulk_(onlyRows) {
             + (result.folderCreated ? '（新規作成）' : '（既存）')
             + (result.logWarning ? '　' + result.logWarning : ''),
           [
-            { url: result.folderUrl,     text: result.folderName },
-            { url: result.files[0].url,  text: '適合性確認シート' },
-            { url: result.files[1].url,  text: '意向把握シート' }
+            { url: result.folderUrl, text: result.folderName },
+            // 適合性確認シートは変額保険のときだけ作る。作られていなければ空欄になる。
+            { url: fileUrlByKind_(result.files, 'suitability'), text: '適合性確認シート' },
+            { url: fileUrlByKind_(result.files, 'intent'),      text: '意向把握シート' }
           ]);
       } catch (e) {
         try { sh.getRange(r.row, COL_STATUS, 1, 2).setValues([[STATUS_DONE,

@@ -454,6 +454,65 @@ console.log('\n--- チェックボックスの表記ゆれ ---');
   t('どの書き方でも拾う', data.needs, ['death', 'medical', 'cancer']);
 }
 
+console.log('\n--- 作った帳票は並び順ではなく種類で取り出す ---');
+{
+  // 適合性確認シートは変額保険のときだけ作る。並び順で参照すると、
+  // 変額では2枚が入れ替わり、変額以外では存在しない2枚目を触って落ちる。
+  const ctx = makeContext({
+    '設定': [['キー', '値', '説明'], ['適合性確認シートが必要な保険種類', '変額', '']]
+  });
+
+  // Drive と PDF 化だけを差し替えて、generateAndSave_ を最後まで通す。
+  const saved = [];
+  ctx.saveOne_ = (folder, templateName, model, fileName, kind) => {
+    saved.push({ templateName, fileName, kind });
+    return { kind, id: 'id_' + kind, name: fileName + '.pdf', url: 'https://example/' + kind };
+  };
+  ctx.materializeDestination_ = () => ({ id: 'FOLDER', name: '山田 太郎', created: true });
+  ctx.DriveApp = { getFolderById: () => ({ getId: () => 'FOLDER', getUrl: () => 'https://folder' }) };
+  const logged = [];
+  ctx.appendLog_ = (data, summary, advice, result) => { logged.push(result); };
+
+  const base = {
+    contractType: '個人', customerName: '山田 太郎', agency: 'ヒトカチ株式会社',
+    agent: '佐々木 嶺', confirmDate: '2026-08-01',
+    age: 40, occupation: '会社員', income: 500, assets: 300,
+    experience: ['株式'], premiumSource: ['預貯金・給与'],
+    riskTolerance: ctx.RISK_YES, needs: ['death'], savings: '①ある方が良い'
+  };
+  const conf = ctx.getFieldConfig_();
+  const run = (productType) => {
+    saved.length = 0;
+    const data = ctx.applyFieldConfig_(Object.assign({}, base, { productType }), conf);
+    return ctx.generateAndSave_(data, 'new', ctx.defaultAnswers_(data));
+  };
+
+  console.log('\n--- 変額保険：2枚とも作る ---');
+  const both = run('変額保険');
+  t('意向把握シートを先に作る', saved.map(f => f.kind), ['intent', 'suitability']);
+  t('種類で正しく引ける（適合性）',
+    ctx.fileUrlByKind_(both.files, 'suitability'), 'https://example/suitability');
+  t('種類で正しく引ける（意向把握）',
+    ctx.fileUrlByKind_(both.files, 'intent'), 'https://example/intent');
+  t('添字で引くと入れ替わる（回帰の証拠）',
+    both.files[0].kind === 'suitability', false);
+
+  console.log('\n--- 医療保険：意向把握シートだけ ---');
+  const one = run('医療保険');
+  t('作るのは1枚だけ',       saved.map(f => f.kind), ['intent']);
+  t('意向把握シートは引ける', ctx.fileUrlByKind_(one.files, 'intent'), 'https://example/intent');
+  t('適合性確認シートは空欄', ctx.fileUrlByKind_(one.files, 'suitability'), '');
+  t('引けなくても落ちない',   ctx.fileByKind_(one.files, 'suitability'), null);
+  t('2枚目は存在しない',      one.files.length, 1);
+
+  console.log('\n--- 送信ログにも正しい順で入る ---');
+  t('医療保険でも記録される', logged.length, 2);
+  t('記録に使う値が取れる',
+    [ctx.fileUrlByKind_(logged[1].files, 'suitability'),
+     ctx.fileUrlByKind_(logged[1].files, 'intent')],
+    ['', 'https://example/intent']);
+}
+
 console.log('\n--- リセットの控えシート ---');
 {
   const ctx = makeContext({
