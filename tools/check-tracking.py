@@ -43,6 +43,34 @@ def oh_m(html: str) -> dict | None:
     return json.loads(m.group(1)) if m else None
 
 
+def check_config(cfg: dict) -> None:
+    """設定そのものの矛盾を見る（HTMLを見る前に）。"""
+    ads = cfg.get("google_ads") or {}
+    labels = ads.get("labels") or {}
+
+    if ads.get("phone_conversion_label") and labels.get("phone_click"):
+        bad("measurement.json: phone_conversion_label と labels.phone_click の両方が入っています。"
+            "実際の通話と、リンクを押しただけの分を二重に数えます。どちらか一方にしてください")
+
+    if labels.get("phone_click") or labels.get("generate_lead") or labels.get("line_click"):
+        if not ads.get("conversion_id"):
+            bad("measurement.json: labels を入れるなら conversion_id（AW-…）も要ります")
+
+    if ads.get("phone_conversion_label") and not ads.get("conversion_id"):
+        bad("measurement.json: phone_conversion_label を入れるなら conversion_id（AW-…）も要ります")
+
+    # イベント名と食い違ったキーは、エラーも出ずに静かに無視されるので、ここで拾う
+    known = {"generate_lead", "phone_click", "line_click", "cta_click",
+             "estimate_use", "area_check", "form_start", "form_submit", "scroll_depth"}
+    for key in labels:
+        if key not in known:
+            bad(f"measurement.json: labels の「{key}」はイベント名にありません"
+                f"（送られません）。使えるのは {' / '.join(sorted(known))}")
+
+    if cfg.get("debug"):
+        bad("measurement.json: debug が true です。本番へ配信する前に false に戻してください")
+
+
 def check_target(target: str, cfg: dict) -> None:
     out = build_site.TARGETS[target]["out"]
     if not out.exists():
@@ -109,6 +137,7 @@ def check_target(target: str, cfg: dict) -> None:
 
 def main() -> None:
     cfg = build_site.load_measurement()
+    check_config(cfg)
     targets = sys.argv[1:] or list(build_site.TARGETS)
     for t in targets:
         if t not in build_site.TARGETS:

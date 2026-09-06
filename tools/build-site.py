@@ -200,10 +200,11 @@ def swap_tel(src: str, number: str) -> str:
     return src
 
 
-def tracking_head(cfg: dict, page: dict) -> str:
+def tracking_head(cfg: dict, page: dict, tel: str = "") -> str:
     """<head> に入れる分。gtag の読み込みと、このページが何なのかの申告。"""
     ga4 = ((cfg.get("ga4") or {}).get("measurement_id") or "").strip()
     ads = ((cfg.get("google_ads") or {}).get("conversion_id") or "").strip()
+    phone_label = ((cfg.get("google_ads") or {}).get("phone_conversion_label") or "").strip()
     pixel = ((cfg.get("meta") or {}).get("pixel_id") or "").strip()
 
     out = ["<!-- ONE HITTER 計測タグ／設定は tracking/measurement.json、設計は docs/measurement-spec.md -->"]
@@ -224,6 +225,13 @@ def tracking_head(cfg: dict, page: dict) -> str:
                          % (ga4, page["lp_id"], page["lp_variant"]))
         if ads:
             lines.append("gtag('config','%s');" % ads)
+        if ads and phone_label and tel:
+            # Google広告の「電話番号の動的挿入」。広告経由で来た人にだけ、
+            # ページ上の電話番号をGoogle広告専用の転送番号に自動で差し替える。
+            # 転送先は結局この番号なので、受電の仕方は変わらない。追加費用は無い。
+            # ここに書く番号は、ページに表示されている番号と一致していないと差し替わらない。
+            lines.append("gtag('config','%s/%s',{'phone_conversion_number':'%s'});"
+                         % (ads, phone_label, tel))
         lines.append("</script>")
         out += lines
     else:
@@ -267,7 +275,7 @@ def build_thanks(cfg: dict, meta: dict, out: pathlib.Path) -> None:
     doc = (tpl.replace("%%DIR%%", meta["dir"])
               .replace("%%TEL_HREF%%", re.sub(r"[^0-9]", "", tel))
               .replace("%%TEL_TEXT%%", html.escape(tel))
-              .replace("%%TRACKING_HEAD%%", tracking_head(cfg, page))
+              .replace("%%TRACKING_HEAD%%", tracking_head(cfg, page, tel))
               .replace("%%TRACKING_BODY%%", tracking_body()))
 
     (out / meta["dir"] / "thanks.html").write_text(doc, encoding="utf-8")
@@ -337,7 +345,8 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict)
     doc = HEAD.format(base=BASE_URL, **head_meta) + src + TAIL
 
     # 電話番号を計測用の発番に差し替える（設定が空なら何も起きない）
-    doc = swap_tel(doc, tel_for(cfg, meta["dir"]))
+    tel = tel_for(cfg, meta["dir"])
+    doc = swap_tel(doc, tel)
 
     dst = out / meta["dir"]
     dst.mkdir(parents=True, exist_ok=True)
@@ -348,9 +357,9 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict)
     page = {"kind": "lp", "lp_id": meta["lp_id"], "lp_variant": meta["lp_variant"]}
     if TRACKING_SLOT not in doc:
         # strip_comments が目印ごと消すので、</head> を手がかりに入れる
-        doc = doc.replace("</head>", tracking_head(cfg, page) + "\n</head>", 1)
+        doc = doc.replace("</head>", tracking_head(cfg, page, tel) + "\n</head>", 1)
     else:
-        doc = doc.replace(TRACKING_SLOT, tracking_head(cfg, page), 1)
+        doc = doc.replace(TRACKING_SLOT, tracking_head(cfg, page, tel), 1)
     doc = doc.replace("</body>", tracking_body() + "\n</body>", 1)
 
     (dst / "index.html").write_text(doc, encoding="utf-8")
