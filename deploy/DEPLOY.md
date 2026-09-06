@@ -136,7 +136,8 @@ form/
 | やりたいこと | 触る場所 |
 |---|---|
 | 予約メールの宛先を変える | `form/config.php` |
-| ASP・広告の計測タグを入れる | 各 `index.html` の `</head>` の直前。目印のコメントがあります |
+| GA4・広告の計測タグを入れる | `tracking/measurement.json` にIDを書いて `build-site.py` を再実行。HTMLは手で触りません（`docs/measurement-owner-steps.md`） |
+| ASPなど、それ以外のタグを入れる | 各 `index.html` の `</head>` の直前。「ONE HITTER 計測タグ」のコメントが目印です |
 | 検索結果にも載せたい | 各 `index.html` の `<meta name="robots" content="noindex,follow">` を削除 |
 | 文言や写真を差し替える | このリポジトリの `lp/` を直して `python3 tools/build-site.py`、再アップロード |
 
