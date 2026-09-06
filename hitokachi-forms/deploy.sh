@@ -26,7 +26,8 @@ die() { printf '\n\033[31m%s\033[0m\n' "$*" >&2; exit 1; }
 command -v clasp >/dev/null 2>&1 \
   || die 'clasp が見つかりません。先に  npm install -g @google/clasp  を実行してください。'
 
-clasp login --status >/dev/null 2>&1 \
+# clasp 3.x は show-authorized-user、2.x は login --status。どちらでも通るようにする。
+clasp show-authorized-user >/dev/null 2>&1 || clasp login --status >/dev/null 2>&1 \
   || die 'Google アカウントにログインしていません。先に  clasp login  を実行してください。'
 
 [ -f src/appsscript.json ] || die 'src/appsscript.json がありません。リポジトリのルートで実行してください。'
