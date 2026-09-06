@@ -52,7 +52,19 @@ if node tools/live-master-test.js | tail -1; then :; else fail=1; fi
 step "7. シートAPI呼び出し回数（旧コードとの比較）"
 if node tools/api-call-benchmark.js | tail -8; then :; else fail=1; fi
 
-step "8. マスタTSVがコードと一致しているか"
+step "8. clasp用ビルドが通るか"
+if bash tools/build-clasp.sh >/dev/null 2>&1; then
+  n=$(ls -1 clasp-build 2>/dev/null | wc -l | tr -d ' ')
+  if [ "$n" = "8" ]; then
+    printf '  ✓ clasp-build に8ファイル生成\n'
+  else
+    printf '  ✗ clasp-build のファイル数が想定と違う（%s）\n' "$n"; fail=1
+  fi
+else
+  printf '  ✗ build-clasp.sh が失敗\n'; fail=1
+fi
+
+step "9. マスタTSVがコードと一致しているか"
 before=$(md5sum master/*.tsv 2>/dev/null | md5sum)
 node tools/gen-master-tsv.js >/dev/null
 after=$(md5sum master/*.tsv 2>/dev/null | md5sum)

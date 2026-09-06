@@ -435,6 +435,38 @@ Apps Scriptプロジェクト：
 
 ### 手順1：ファイルを差し替える
 
+差し替え方は2通り。**A（clasp）を勧める**。手作業の貼り間違いがなくなる。
+
+#### A. clasp で push する（推奨）
+
+`bash tools/build-clasp.sh` を実行すると、`clasp-build/` に
+**本番のGASファイル名どおり**に並べたものが生成される（`コード.js` / `Style.html` など）。
+`appsscript.json` は本番のものをそのまま使うので、タイムゾーン・実行者・公開範囲は変わらない。
+
+```bash
+# 事前に https://script.google.com/home/usersettings で
+# 「Google Apps Script API」をオンにしておく
+
+npm install -g @google/clasp
+clasp login                      # info.onehitter@gmail.com で
+
+bash apps/estimate-app/tools/build-clasp.sh
+cd apps/estimate-app/clasp-build
+
+clasp deployments                # 既存のデプロイIDを控える（@HEADでない方）
+clasp push                       # ソース差し替え。この時点ではまだ本番の挙動は変わらない
+clasp open                       # → 手順2の管理者関数を実行
+# 受入テストを通してから
+clasp deploy --deploymentId <控えたID> --description "2026-09 改修版"
+```
+
+> `--deploymentId` を付けないと新しいデプロイが作られ、**WebアプリのURLが変わって
+> 現場のブックマークが切れる**。必ず付けること。
+
+切り戻しは `clasp deploy --deploymentId <ID> --versionNumber <旧番号>`。
+
+#### B. エディタに貼り付ける
+
 **新しいファイルを作らず、既存ファイルの中身を全文置換すること。**
 `コード` を残したまま `code.gs` を新規作成すると、同名関数が二重定義になって壊れる。
 
