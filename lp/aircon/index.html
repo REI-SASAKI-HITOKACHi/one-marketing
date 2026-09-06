@@ -12,59 +12,66 @@
    カードを積み上げない。持ち上げるのは価格と見積り欄だけ。
    =========================================================== */
 :root{
-  --ink:#101A1F;          /* 機械の内側の暗さ。青緑に寄せた黒 */
-  --ink-2:#1B2A31;
-  --paper:#EFEDE7;        /* 温かいが黄には寄らない紙 */
-  --paper-2:#E4E1D8;
+  --ink:#0D3B5C;          /* 深い青。ヘッダー・追従バー・帯に使う。
+                             黒にしていたが、この業種のLPで黒を地に使う例が無い。
+                             大手7社（本舗・革命・ベアーズ・ダスキン・カジタク・
+                             ユアマイスター・くらしのマーケット）はいずれも
+                             白か寒色寄りの白が地で、清潔感は青が担っている */
+  --ink-2:#14506F;
+  --paper:#F3F7F9;        /* 冷たい白。温かいベージュから寄せ替えた */
+  --paper-2:#E6EDF1;
   --surface:#FFFFFF;
-  --text:#141C20;
-  --text-2:#3D4C52;
-  --steel:#55666B;        /* アルミフィンの灰。補足文 */
-  --rule:#D3CFC4;
-  --rule-2:#B9B3A4;
-  --rust:#B23C0A;         /* 酸化した橙。価格とCTAだけに使う */
-  --rust-fill:#B23C0A;    /* 白文字を載せる面。ダークでも明るくしない */
-  --rust-fill-h:#8F3008;
-  --wash-fill:#0C5F6B;    /* 白文字を載せるティール。同上 */
-  --rust-deep:#9A3412;
-  --rust-soft:#F6E7DE;
-  --wash:#0F6F7C;         /* 罫とラベルの脇役。面には使わない */
-  --wash-ink:#6BC6D4;     /* インクの面の上に置くとき。#0F6F7C では暗すぎて読めない */
-  --wash-soft:#DCEAEC;
-  --on-ink:#F2F0EA;
-  --on-ink-2:#A9BAC0;
+  --text:#13232E;
+  --text-2:#3C5262;
+  --steel:#536A78;        /* 補足文 */
+  --rule:#D7E1E7;
+  --rule-2:#B4C5D0;
+  --cta:#C0300C;          /* 価格の数字とCTA。大手のCTAは #ED0E42／#FF0200／
+                             #E6007D と彩度が高い。そこまで振ると値引きチラシに
+                             見えるので、朱に寄せた赤で止めている */
+  --cta-deep:#8F2408;
+  --cta-fill:#B72C0A;     /* 白文字を載せる面。ダークでも明るくしない */
+  --cta-fill-h:#8F2408;
+  --cta-soft:#FCEAE4;
+  --cta-ink:#FFB894;      /* インクの面の上に置く強調 */
+  --aqua:#0C6B7F;         /* 罫とラベルの脇役 */
+  --aqua-ink:#6FD0E4;     /* インクの面の上。#0C6B7F では暗すぎて読めない */
+  --aqua-fill:#0C5F6B;    /* 白文字を載せる面 */
+  --aqua-soft:#DDEDF1;
+  --on-ink:#EDF4F8;
+  --on-ink-2:#A8C2D2;
   --ok:#1B6B4F;
-  --scrim:239,237,231;   /* = --paper。写真の上に敷く白 */
+  --scrim:243,247,249;    /* = --paper。写真の上に敷く白 */
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --ink:#080F13; --ink-2:#101B21;
-    --paper:#0D1418; --paper-2:#141F25;
-    --surface:#141F25;
-    --text:#E9EDEC; --text-2:#B4C2C6;
-    --steel:#93A5AA;
-    --rule:#243138; --rule-2:#3A4C54;
-    --rust:#F2733C; --rust-deep:#C2410C; --rust-soft:#2A1710;
-    --rust-fill:#B23C0A; --rust-fill-h:#8F3008; --wash-fill:#0C5F6B;
-    --wash:#4FBACB; --wash-soft:#0B2A30;
-    --on-ink:#F2F0EA; --on-ink-2:#A9BAC0;
+    --ink:#0C2D45; --ink-2:#123E5C;
+    --paper:#0B1720; --paper-2:#12232E;
+    --surface:#12232E;
+    --text:#E7EEF2; --text-2:#B3C4CE;
+    --steel:#8FA4B0;
+    --rule:#20323F; --rule-2:#37505F;
+    --cta:#FF7A4D; --cta-deep:#C0300C; --cta-soft:#2A1610;
+    --cta-fill:#B72C0A; --cta-fill-h:#8F2408; --cta-ink:#FFB894;
+    --aqua:#5AC8DC; --aqua-ink:#6FD0E4; --aqua-fill:#0C5F6B; --aqua-soft:#0A2A33;
+    --on-ink:#EDF4F8; --on-ink-2:#A8C2D2;
     --ok:#4FBF95;
-    --scrim:13,20,24;
+    --scrim:11,23,32;
   }
 }
 :root[data-theme="dark"]{
-  --ink:#080F13; --ink-2:#101B21;
-  --paper:#0D1418; --paper-2:#141F25;
-  --surface:#141F25;
-  --text:#E9EDEC; --text-2:#B4C2C6;
-  --steel:#93A5AA;
-  --rule:#243138; --rule-2:#3A4C54;
-  --rust:#F2733C; --rust-deep:#C2410C; --rust-soft:#2A1710;
-  --rust-fill:#B23C0A; --rust-fill-h:#8F3008; --wash-fill:#0C5F6B;
-  --wash:#4FBACB; --wash-soft:#0B2A30;
-  --on-ink:#F2F0EA; --on-ink-2:#A9BAC0;
+    --ink:#0C2D45; --ink-2:#123E5C;
+  --paper:#0B1720; --paper-2:#12232E;
+  --surface:#12232E;
+  --text:#E7EEF2; --text-2:#B3C4CE;
+  --steel:#8FA4B0;
+  --rule:#20323F; --rule-2:#37505F;
+  --cta:#FF7A4D; --cta-deep:#C0300C; --cta-soft:#2A1610;
+  --cta-fill:#B72C0A; --cta-fill-h:#8F2408; --cta-ink:#FFB894;
+  --aqua:#5AC8DC; --aqua-ink:#6FD0E4; --aqua-fill:#0C5F6B; --aqua-soft:#0A2A33;
+  --on-ink:#EDF4F8; --on-ink-2:#A8C2D2;
   --ok:#4FBF95;
-  --scrim:13,20,24;
+  --scrim:11,23,32;
 }
 
 *{box-sizing:border-box;}
@@ -76,7 +83,7 @@ body{
 }
 img{max-width:100%;}
 p{margin:0;}
-:focus-visible{outline:2.5px solid var(--rust);outline-offset:3px;}
+:focus-visible{outline:2.5px solid var(--cta);outline-offset:3px;}
 
 /* 明朝の見出し。この紙面の顔 */
 h1,h2{
@@ -92,7 +99,7 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 .wrap{max-width:760px;margin:0 auto;padding:0 22px;}
 .eyebrow{
   font-family:"Oswald",sans-serif;font-weight:500;font-size:11.5px;
-  letter-spacing:.26em;text-transform:uppercase;color:var(--wash);
+  letter-spacing:.26em;text-transform:uppercase;color:var(--aqua);
 }
 .mincho{font-family:"Shippori Mincho B1","Yu Mincho",serif;font-weight:600;}
 
@@ -113,9 +120,9 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
   border:0;cursor:pointer;font-family:inherit;text-decoration:none;font-weight:700;
   font-size:14px;padding:11px 20px;line-height:1.4;border-radius:2px;
-  background:var(--rust-fill);color:#fff;transition:background .15s,transform .1s;
+  background:var(--cta-fill);color:#fff;transition:background .15s,transform .1s;
 }
-.btn:hover{background:var(--rust-fill-h);}
+.btn:hover{background:var(--cta-fill-h);}
 .btn:active{transform:translateY(1px);}
 .btn.line{background:#06C755;color:#08140F;}
 .btn.line:hover{background:#05B84E;}
@@ -151,12 +158,12 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 }
 .hero .area{
   align-self:flex-start;font-size:12px;font-weight:700;letter-spacing:.06em;
-  color:var(--wash);border:1px solid var(--wash);padding:5px 13px;
+  color:var(--aqua);border:1px solid var(--aqua);padding:5px 13px;
   background:rgba(var(--scrim),.82);
 }
 .hero h1{font-size:clamp(26px,6.4vw,44px);color:var(--text);line-height:1.4;letter-spacing:.01em;text-wrap:balance;}
 .hero h1 .hl{
-  text-decoration:underline;text-decoration-color:var(--rust);
+  text-decoration:underline;text-decoration-color:var(--cta);
   text-decoration-thickness:.11em;text-underline-offset:.2em;text-decoration-skip-ink:none;
 }
 .hero .sub{color:var(--text-2);font-size:15px;line-height:2.05;max-width:38em;}
@@ -177,8 +184,8 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 
 /* 特典は期限のないおまけ。枠で囲わず一行で添える */
 .perk{font-size:12.5px;color:var(--text-2);line-height:1.85;
-  border-left:2px solid var(--rust);padding-left:12px;}
-.perk b{color:var(--rust);}
+  border-left:2px solid var(--cta);padding-left:12px;}
+.perk b{color:var(--cta);}
 
 .trust{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule-2);}
 .trust div{padding:16px 8px 0;text-align:left;display:flex;flex-direction:column;gap:3px;
@@ -212,10 +219,10 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
   position:absolute;left:0;top:0;font-family:"Oswald",sans-serif;font-weight:500;
   font-size:10.5px;letter-spacing:.14em;padding:4px 11px;background:var(--ink);color:var(--on-ink);
 }
-.shot.after .cap{background:var(--wash-fill);color:#fff;}
+.shot.after .cap{background:var(--aqua-fill);color:#fff;}
 .shot .where{
   position:absolute;left:0;right:0;bottom:0;padding:34px 14px 11px;
-  background:linear-gradient(transparent,rgba(8,15,19,.9));
+  background:linear-gradient(transparent,rgba(7,26,40,.9));
   color:#fff;font-size:11.5px;line-height:1.65;
 }
 .shot-note{font-size:12px;color:var(--steel);margin-top:9px;line-height:1.85;}
@@ -229,7 +236,7 @@ section.alt{background:var(--surface);}
 section.dark{background:var(--ink);color:var(--on-ink);}
 section.dark h2,section.dark h3{color:#fff;}
 section.dark p{color:var(--on-ink-2);}
-section.dark .eyebrow{color:var(--wash-ink);}
+section.dark .eyebrow{color:var(--aqua-ink);}
 
 /* 見出しは左揃え、罫で切る */
 .sec-h{display:flex;flex-direction:column;gap:12px;margin-bottom:34px;
@@ -247,12 +254,12 @@ section.dark .sec-h p{color:var(--on-ink-2);}
   font-size:15px;font-weight:500;line-height:1.7;
   padding:14px 0;border-bottom:1px solid var(--rule);
 }
-.symp .ck{color:var(--rust);font-weight:700;flex:0 0 auto;font-size:13px;}
+.symp .ck{color:var(--cta);font-weight:700;flex:0 0 auto;font-size:13px;}
 .symp-out{
   margin-top:24px;font-size:16px;font-weight:700;line-height:1.85;
   padding:20px 22px;background:var(--ink);color:#fff;
 }
-.symp-out b{color:#FFB894;}
+.symp-out b{color:var(--cta-ink);}
 
 /* 効果 */
 .mech{display:grid;grid-template-columns:1fr;gap:0;}
@@ -267,13 +274,13 @@ section.dark .sec-h p{color:var(--on-ink-2);}
 .own-row{display:grid;grid-template-columns:9em 1fr;gap:8px 24px;align-items:start;
   padding:22px 0;border-bottom:1px solid var(--rule);}
 .own-row:first-child{border-top:1px solid var(--rule-2);}
-.own-k{font-family:"Oswald",sans-serif;font-size:12px;letter-spacing:.1em;color:var(--wash);
-  border-left:2px solid var(--wash);padding-left:10px;justify-self:start;}
+.own-k{font-family:"Oswald",sans-serif;font-size:12px;letter-spacing:.1em;color:var(--aqua);
+  border-left:2px solid var(--aqua);padding-left:10px;justify-self:start;}
 .own-row p{font-size:14.5px;line-height:2.05;color:var(--text-2);}
 /* インクの帯に置いたときだけ、明るいティールに差し替える */
 section.dark .own-row{border-bottom-color:rgba(255,255,255,.16);}
 section.dark .own-row:first-child{border-top-color:rgba(255,255,255,.16);}
-section.dark .own-k{color:var(--wash-ink);border-left-color:var(--wash-ink);}
+section.dark .own-k{color:var(--aqua-ink);border-left-color:var(--aqua-ink);}
 section.dark .own-row p{color:var(--on-ink-2);}
 @media(max-width:600px){.own-row{grid-template-columns:1fr;gap:10px;}}
 
@@ -283,7 +290,7 @@ section.dark .own-row p{color:var(--on-ink-2);}
 .bleed-fig img{display:block;width:100%;height:auto;max-height:80vh;object-fit:cover;}
 .bleed-fig figcaption{
   position:absolute;left:0;right:0;bottom:0;padding:64px 22px 28px;
-  background:linear-gradient(transparent,rgba(8,15,19,.94));
+  background:linear-gradient(transparent,rgba(7,26,40,.94));
   display:flex;flex-direction:column;gap:9px;
 }
 .bleed-fig b{font-family:"Shippori Mincho B1",serif;font-weight:800;
@@ -297,7 +304,7 @@ section.dark .own-row p{color:var(--on-ink-2);}
   padding:18px 0;border-bottom:1px solid var(--rule);}
 .prow .nm{font-weight:700;font-size:16px;}
 .prow .dur{font-size:12px;color:var(--steel);font-weight:400;}
-.prow .pr{font-family:"Oswald",sans-serif;font-weight:500;font-size:27px;white-space:nowrap;color:var(--rust);}
+.prow .pr{font-family:"Oswald",sans-serif;font-weight:500;font-size:27px;white-space:nowrap;color:var(--cta);}
 .prow .pr small{font-size:13px;}
 .prow.opt .nm{font-size:14px;font-weight:400;}
 .prow.opt .pr{font-size:18px;color:var(--text-2);}
@@ -306,7 +313,7 @@ section.dark .own-row p{color:var(--on-ink-2);}
 .paid-note{font-size:11.5px;color:var(--steel);line-height:1.8;margin-top:12px;}
 
 /* シミュレーター：ここは持ち上げる */
-.calc{background:var(--surface);border:1px solid var(--rule-2);box-shadow:0 12px 30px -22px rgba(16,26,31,.55);}
+.calc{background:var(--surface);border:1px solid var(--rule-2);box-shadow:0 12px 30px -22px rgba(13,59,92,.5);}
 .calc-h{background:var(--ink);color:#fff;padding:15px 20px;display:flex;align-items:baseline;gap:10px;}
 .calc-h b{font-size:15.5px;font-family:"Shippori Mincho B1",serif;font-weight:800;}
 .calc-h span{font-size:11.5px;margin-left:auto;color:var(--on-ink-2);}
@@ -321,11 +328,11 @@ legend{font-size:12px;font-weight:700;color:var(--steel);letter-spacing:.06em;pa
 .chip small{display:block;font-size:11px;font-weight:400;color:var(--steel);}
 .chip input:checked + span{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:700;}
 .chip input:checked + span small{color:var(--on-ink-2);}
-.chip input:focus-visible + span{outline:2.5px solid var(--rust);outline-offset:2px;}
+.chip input:focus-visible + span{outline:2.5px solid var(--cta);outline-offset:2px;}
 .calc-out{border-top:1px solid var(--rule-2);padding-top:18px;display:flex;align-items:flex-end;
   justify-content:space-between;gap:12px;flex-wrap:wrap;}
 .calc-out .lab{font-size:12.5px;color:var(--steel);}
-.calc-out .tot{font-family:"Oswald",sans-serif;font-weight:500;font-size:46px;line-height:1;color:var(--rust);}
+.calc-out .tot{font-family:"Oswald",sans-serif;font-weight:500;font-size:46px;line-height:1;color:var(--cta);}
 .calc-out .tot small{font-size:16px;}
 #breakdown{font-size:12.5px;color:var(--steel);line-height:1.85;}
 
@@ -334,7 +341,7 @@ legend{font-size:12px;font-weight:700;color:var(--steel);letter-spacing:.06em;pa
 .steps li{counter-increment:s;position:relative;padding:0 0 24px 48px;}
 .steps li::before{
   content:counter(s,decimal-leading-zero);position:absolute;left:0;top:0;
-  font-family:"Oswald",sans-serif;font-weight:500;font-size:15px;color:var(--rust);
+  font-family:"Oswald",sans-serif;font-weight:500;font-size:15px;color:var(--cta);
   letter-spacing:.04em;
 }
 .steps li::after{content:"";position:absolute;left:12px;top:26px;bottom:2px;width:1px;background:var(--rule-2);}
@@ -354,7 +361,7 @@ legend{font-size:12px;font-weight:700;color:var(--steel);letter-spacing:.06em;pa
 .voice:first-child{border-top:1px solid var(--rule-2);}
 .voice .head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .voice .menu-tag{font-family:"Oswald",sans-serif;font-size:11px;letter-spacing:.1em;
-  color:var(--wash);border:1px solid var(--wash);padding:2px 9px;}
+  color:var(--aqua);border:1px solid var(--aqua);padding:2px 9px;}
 .voice q{font-family:"Shippori Mincho B1",serif;font-size:16px;line-height:2.1;quotes:"「" "」";color:var(--text);}
 .voice .who{font-size:12px;color:var(--steel);}
 .voice-src{font-size:11.5px;color:var(--steel);line-height:1.85;margin-top:14px;}
@@ -363,7 +370,7 @@ legend{font-size:12px;font-weight:700;color:var(--steel);letter-spacing:.06em;pa
 details{border-bottom:1px solid var(--rule);}
 summary{cursor:pointer;padding:17px 0;font-weight:700;font-size:15px;list-style:none;display:flex;gap:12px;align-items:flex-start;}
 summary::-webkit-details-marker{display:none;}
-summary::before{content:"Q";font-family:"Oswald",sans-serif;color:var(--rust);font-weight:500;flex:0 0 auto;}
+summary::before{content:"Q";font-family:"Oswald",sans-serif;color:var(--cta);font-weight:500;flex:0 0 auto;}
 details p{padding:0 0 18px 26px;font-size:14px;color:var(--text-2);line-height:2.05;}
 
 /* エリア */
@@ -377,7 +384,7 @@ details p{padding:0 0 18px 26px;font-size:14px;color:var(--text-2);line-height:2
   color:var(--text);font-family:"Oswald",sans-serif;font-size:16px;}
 #zipres{margin-top:12px;font-size:14px;font-weight:700;min-height:1.6em;}
 #zipres.ok{color:var(--ok);}
-#zipres.ng{color:var(--rust);}
+#zipres.ng{color:var(--cta);}
 .area-note{font-size:11.5px;color:var(--steel);line-height:1.85;margin-top:14px;}
 
 /* フォーム */
@@ -385,13 +392,13 @@ details p{padding:0 0 18px 26px;font-size:14px;color:var(--text-2);line-height:2
 .field{display:flex;flex-direction:column;gap:6px;}
 .field .lab{display:flex;align-items:baseline;}
 .field label{font-size:13px;font-weight:700;}
-.field .req{color:var(--rust);font-size:11px;margin-left:6px;}
+.field .req{color:var(--cta);font-size:11px;margin-left:6px;}
 .field input,.field select,.field textarea{
   padding:13px 14px;border:1px solid var(--rule-2);font-family:inherit;font-size:16px;
   background:var(--surface);color:var(--text);width:100%;border-radius:0;
 }
 .consent{font-size:11.5px;color:var(--steel);line-height:1.85;margin:-2px 0 4px;}
-.consent a{color:var(--wash);}
+.consent a{color:var(--aqua);}
 .form-note{font-size:11.5px;color:var(--steel);line-height:1.85;}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
 
@@ -845,7 +852,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
       </div>
       <p class="consent">ご入力いただいた情報は、ご予約・お見積りのご連絡にのみ使用します。送信をもって<a href="https://one-hitter.jp/privacy_policy/" target="_blank" rel="noopener">個人情報の取扱いについて</a>にご同意いただいたものとみなします。</p>
       <button class="btn lg" type="submit">この内容で予約を申し込む</button>
-      <p class="form-note">送信後、担当より日程のご連絡をいたします。<br>お電話でのご予約は <a href="tel:08080438259" style="color:var(--accent-deep)">080-8043-8259</a>（受付：渡辺／8:00–20:00）<br>時間外でも対応しておりますので、お気軽にご相談ください。</p>
+      <p class="form-note">送信後、担当より日程のご連絡をいたします。<br>お電話でのご予約は <a href="tel:08080438259" style="color:var(--cta)">080-8043-8259</a>（受付：渡辺／8:00–20:00）<br>時間外でも対応しておりますので、お気軽にご相談ください。</p>
     </form>
   </div>
 </section>
