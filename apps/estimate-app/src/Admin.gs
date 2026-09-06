@@ -6,17 +6,82 @@
  * 画面を開くたびにマスタへ初期行が追記され、割引繁忙期マスタが150行超まで増殖していた。
  * セットアップとマイグレーションはここに隔離する。
  *
- * 実行順の目安（初回デプロイ時）
+ * 初回デプロイ時は adminDeployAll() を1回実行すれば足りる。
+ * 下の 2〜6 をまとめて実行し、結果をログに出す。
+ *
+ * 個別に実行したい場合の順番
  *   1. adminBackup()                  … 本番2ファイルを複製して退避
  *   2. adminDiagnose()                … 現状を確認（読むだけ・変更しない）
  *   3. adminSetup()                   … 不足シート／不足ヘッダーだけを補う
  *   4. adminNormalizeDiscountRules()  … 割引繁忙期マスタを正規化
  *   5. adminNormalizeMailTemplates()  … メールテンプレートマスタを正規化
  *   6. adminNormalizeCellDefinitions()… 差し込みセル定義の列ずれを修復
- *   7. adminCreatePdfTemplate()       … PDF生成専用の軽いテンプレートを作る（任意）
- *   8. adminSetMasterTimezone()       … マスタのタイムゾーンを Asia/Tokyo に統一（任意）
- *   9. adminRefreshCache()            … マスタキャッシュを破棄
+ *   7. adminRefreshCache()            … マスタキャッシュを破棄
+ *
+ * 任意
+ *   adminCreatePdfTemplate()   … PDF生成専用の軽いテンプレートを作る
+ *   adminSetMasterTimezone()   … マスタのタイムゾーンを Asia/Tokyo に統一
+ *   adminInspectTemplateLayout() … 帳票テンプレートの実レイアウトを出力
+ *   adminBenchmark()           … マスタ読み込み速度の実測
  */
+
+/* ===================== デプロイ後の一括セットアップ ===================== */
+
+/**
+ * デプロイ直後に実行する関数。これ1つで移行作業が全部終わる。
+ *
+ *   1. 現状診断
+ *   2. 不足シート・不足列・不足設定キーの補完
+ *   3. 割引繁忙期マスタの正規化
+ *   4. メールテンプレートマスタの正規化
+ *   5. 差し込みセル定義の正規化
+ *   6. キャッシュ破棄
+ *   7. 再診断
+ *
+ * どれも元シートを「_旧_日時」に退避してから作り直すので、元データは消えない。
+ * 実行後、ログに出た結果をそのまま確認・共有できる。
+ */
+function adminDeployAll() {
+  const out = [];
+  const step = function (label, fn) {
+    out.push('');
+    out.push('══════════════════════════════════════');
+    out.push('■ ' + label);
+    out.push('══════════════════════════════════════');
+    try {
+      out.push(String(fn()));
+    } catch (e) {
+      out.push('❌ 失敗：' + toErrorMessage_(e));
+      out.push('（ここで中断せず続行します。最後にまとめて確認してください）');
+    }
+  };
+
+  out.push('見積アプリ 移行処理 ' + Utilities.formatDate(new Date(), APP.TZ, 'yyyy/MM/dd HH:mm'));
+
+  step('1/6 現状診断（変更前）', adminDiagnose);
+  step('2/6 不足シート・列・設定の補完', adminSetup);
+  step('3/6 割引繁忙期マスタの正規化', adminNormalizeDiscountRules);
+  step('4/6 メールテンプレートマスタの正規化', adminNormalizeMailTemplates);
+  step('5/6 差し込みセル定義の正規化', adminNormalizeCellDefinitions);
+  step('6/6 キャッシュ破棄', adminRefreshCache);
+  step('確認：再診断（変更後）', adminDiagnose);
+
+  out.push('');
+  out.push('══════════════════════════════════════');
+  out.push('■ 完了。次にやること');
+  out.push('══════════════════════════════════════');
+  out.push('1. 上の「再診断」に ⚠ が残っていないか確認する');
+  out.push('2. 「有効ルール」が 繁忙期2 / 早期予約割引3 / 複数台割引9 になっているか確認する');
+  out.push('3. Webアプリを開いて動作確認する（受入テスト）');
+  out.push('4. 問題なければ デプロイを管理 → 編集 → バージョン「新バージョン」→ デプロイ');
+  out.push('');
+  out.push('※ 自動割引は auto_discount_enabled = FALSE で納品しています。');
+  out.push('   現場に周知してから TRUE にしてください。');
+
+  const message = out.join('\n');
+  console.log(message);
+  return message;
+}
 
 /* ===================== バックアップ ===================== */
 

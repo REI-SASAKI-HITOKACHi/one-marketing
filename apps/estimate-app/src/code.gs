@@ -121,13 +121,28 @@ function include(filename) {
 /* ===================== 計算エンジンの共有 ===================== */
 
 /**
- * Calc.html をサーバー側でも評価して CalcEngine を得る。
+ * 計算エンジンの原本。
+ *
+ * 貼り付け配布用のビルド（tools/build-paste-bundle.sh）が、ここに Calc.html の中身を
+ * そのまま埋め込む。埋め込まれていれば Calc というHTMLファイルを作らなくて済むので、
+ * デプロイ時に新規作成するファイルがゼロになる。
+ * 空のまま（リポジトリのsrcそのまま）なら Calc.html を読む。
+ */
+var CALC_ENGINE_SOURCE = '';
+
+/** Index から <?!= calcEngineTag(); ?> で呼ばれる。<script>…</script> ごと返す。 */
+function calcEngineTag() {
+  return CALC_ENGINE_SOURCE || HtmlService.createHtmlOutputFromFile('Calc').getContent();
+}
+
+/**
+ * サーバー側でも同じエンジンを評価して使う。
  * クライアントとサーバーで計算式が二重管理にならないようにするための仕掛け。
  */
 function getCalcEngine_() {
   if (RUNTIME.calcEngine) return RUNTIME.calcEngine;
 
-  const src = HtmlService.createHtmlOutputFromFile('Calc').getContent()
+  const src = calcEngineTag()
     .replace(/<script[^>]*>/gi, '')
     .replace(/<\/script>/gi, '');
 

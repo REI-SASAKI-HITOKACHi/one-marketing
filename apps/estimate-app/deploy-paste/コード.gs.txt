@@ -1,0 +1,4438 @@
+/**
+ * 見積作成Webアプリ（サーバー側 一括版）
+ *
+ * これは配布用に自動生成したファイルです。直接編集しないでください。
+ * 元ファイル：src/code.gs + src/Invoice.gs + src/Admin.gs + src/Calc.html
+ * 生成       ：tools/build-paste-bundle.sh
+ *
+ * GASは全ての .gs ファイルが同じスコープを共有するため、
+ * 分割しても連結しても動作は同じです。デプロイ時に作るファイル数を
+ * 減らすために1つにまとめています。
+ */
+
+/**
+ * 見積作成Webアプリ ── サーバー側
+ *
+ * 設計方針（2026-09 改修）
+ *   1. マスタは1リクエスト1回だけ読み、CacheServiceに載せる。画面ロードのたびに
+ *      setupInitialSheets() を走らせない（マスタ増殖と遅延の原因だった）。
+ *   2. 金額計算は Calc.html の CalcEngine ただ1つ。クライアントは即時表示に使い、
+ *      サーバーは保存時に同じ関数で再計算して、その結果を正とする。
+ *   3. シートへの読み書きはヘッダー名で位置を引く。A列から順に書かない。
+ *   4. 見積作成は「保存」と「PDF/メール生成」の2フェーズ。保存が終わった時点で
+ *      見積IDを画面に返し、重い処理を待たせない。
+ *
+ * 禁止事項（引継ぎ仕様書より）
+ *   - Gmail即送信禁止。createDraft のみ。
+ *   - 高速料金の自動取得禁止。
+ *   - 見積の過去データを直接編集しない。複製は必ず新IDを発行する。
+ *   - 例外案件でもPDF・メール下書き作成をロックしない。
+ */
+
+const APP = {
+  DEFAULT_MASTER_SS_ID: '1HPtoKzOwwqnS6Yk_R0UHEy3u8Wpe43LrD7HlCvS6SLw',
+  DEFAULT_TEMPLATE_SS_ID: '1s0iZGjz58SZLgpkrs-lO_EjGr8bQq6qUZB93lyx061c',
+  DEFAULT_ESTIMATE_FOLDER_ID: '1jWqoPrOzvD4naIW6tjB-sqU-xsJSOqw3',
+  DEFAULT_INVOICE_FOLDER_ID: '1lCcQmmIH2wSfzQDVboJS4sXknOm1OBGy',
+  DEFAULT_EXECUTION_EMAIL: 'info.onehitter@gmail.com',
+  TZ: 'Asia/Tokyo',
+  MAX_DETAIL_ROWS: 16,
+  MAX_ADJUSTMENT_SLOTS: 5,
+
+  // マスタキャッシュの世代。マスタ構造を変えたらここを上げる。
+  CACHE_VERSION: 'v3',
+  CACHE_TTL_SEC: 21600, // 6時間
+  // CacheServiceの1値あたり上限は100KB。日本語は1文字3バイトになり得るので
+  // 文字数ベースで3万文字（最悪90KB）に抑える。
+  CACHE_CHUNK_CHARS: 30000,
+
+  SHEET_MENU: 'メニューマスタ',
+  SHEET_SUBMIT_TO: '提出先マスタ',
+  SHEET_MAIL_TEMPLATE: 'メールテンプレートマスタ',
+  SHEET_DISCOUNT: '割引繁忙期マスタ',
+  SHEET_SETTINGS: '設定マスタ',
+  SHEET_STAFF: '担当者マスタ',
+  SHEET_CELL_DEF: '差し込みセル定義',
+  SHEET_LOG: 'ログ',
+
+  SHEET_ESTIMATE_DATA: '見積書/データ格納',
+  SHEET_INVOICE_DATA: '請求書/データ格納',
+
+  TEMP_ESTIMATE_SHEET: '一時作業用/見積書',
+  TEMP_INVOICE_SHEET: '一時作業用/請求書'
+};
+
+const SETTINGS_HEADERS = ['設定キー', '設定値', '説明', '備考_現場入力'];
+
+// 帳票テンプレートの固定文言で使われている全角スペース
+const IDEOGRAPHIC_SPACE = '\u3000';
+
+const SETTING_ALIASES = {
+  estimate_app_gmail_account: 'GAS実行用Gmail',
+  default_sender_alias: '送信元メール',
+  default_fixed_cc: '固定CC',
+  representative_email: '代表者メール',
+  highway_search_url: '高速料金検索URL',
+  parking_note: '駐車場代注記',
+  line_notice_text: 'LINE一報文言',
+
+  master_spreadsheet_id: 'マスタスプレッドシートID',
+  template_spreadsheet_id: '見積請求書テンプレートスプレッドシートID',
+  pdf_template_spreadsheet_id: 'PDF生成用テンプレートスプレッドシートID',
+  estimate_pdf_folder_id: '見積書PDF保存フォルダID',
+  invoice_pdf_folder_id: '請求書PDF保存フォルダID',
+
+  company_name: '会社名',
+  company_zip: '会社郵便番号',
+  company_address: '会社住所',
+  company_tel: '会社電話番号',
+  company_fax: '会社FAX',
+  company_email: '会社メールアドレス',
+  company_web: '会社WEB',
+
+  tax_rate: '税率',
+  busy_season_surcharge: '繁忙期加算額',
+  busy_surcharge_unit: '繁忙期加算単位',
+  auto_discount_enabled: '自動割引有効',
+  large_discount_alert_ratio: '大幅値引き警告率',
+
+  default_closing_day: '既定_請求締め日',
+  default_payment_site: '既定_支払サイト',
+  default_payment_holiday_rule: '既定_支払期日休日調整',
+  parking_tax_type: '駐車場代_税区分',
+  invoice_remarks_note: '請求書備考注記',
+  logo_file_id: 'ロゴファイルID',
+  stamp_image_file_id: '社印画像ファイルID'
+};
+
+/* ===================== 実行単位のメモ ===================== */
+
+// 1回のGAS実行の中で同じものを二度読まないための入れ物。
+const RUNTIME = {
+  context: null,
+  calcEngine: null,
+  spreadsheets: {},
+  headerInfo: {},
+  logs: []
+};
+
+/* ===================== エントリポイント ===================== */
+
+function doGet() {
+  return HtmlService
+    .createTemplateFromFile('Index')
+    .evaluate()
+    .setTitle('見積作成Webアプリ')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+function include(filename) {
+  return HtmlService.createHtmlOutputFromFile(filename).getContent();
+}
+
+/* ===================== 計算エンジンの共有 ===================== */
+
+/**
+ * 計算エンジンの原本。
+ *
+ * 貼り付け配布用のビルド（tools/build-paste-bundle.sh）が、ここに Calc.html の中身を
+ * そのまま埋め込む。埋め込まれていれば Calc というHTMLファイルを作らなくて済むので、
+ * デプロイ時に新規作成するファイルがゼロになる。
+ * 空のまま（リポジトリのsrcそのまま）なら Calc.html を読む。
+ */
+var CALC_ENGINE_SOURCE = `<script>
+/**
+ * CalcEngine ── 見積金額の計算エンジン（唯一の正）
+ *
+ * このファイルはクライアント（ブラウザ）とサーバー（GAS）の両方で動く。
+ *   - クライアント: Index.html から include('Calc') で読み込み、入力のたびに即時計算する。
+ *   - サーバー:     code.gs の getCalcEngine_() が本ファイルを eval して同じ関数を使う。
+ *                   保存時はサーバー側の計算結果を正とする。
+ *
+ * Spreadsheet / DriveApp / DOM に一切触れないこと。触れた瞬間に両対応が壊れる。
+ */
+var CalcEngine = (function () {
+  'use strict';
+
+  var MAX_DETAIL_ROWS = 16;
+
+  /* ===================== 小さいユーティリティ ===================== */
+
+  function toNum(v) {
+    if (typeof v === 'number') return isFinite(v) ? v : 0;
+    if (v === null || v === undefined) return 0;
+    var s = String(v).replace(/[,\\s円¥￥]/g, '').replace(/％/g, '%').trim();
+    if (!s) return 0;
+    if (s.indexOf('%') >= 0) {
+      var p = Number(s.replace('%', ''));
+      return isNaN(p) ? 0 : p / 100;
+    }
+    var n = Number(s);
+    return isNaN(n) ? 0 : n;
+  }
+
+  // 「15」「15%」「0.15」いずれで書かれていても 0.15 として扱う
+  function toRate(v) {
+    var n = toNum(v);
+    return n > 1 ? n / 100 : n;
+  }
+
+  function yen(n) { return Math.round(toNum(n)); }
+
+  function fmtYen(n) {
+    var v = yen(n);
+    return (v < 0 ? '-¥' : '¥') + Math.abs(v).toLocaleString('ja-JP');
+  }
+
+  function isBlank(v) { return v === null || v === undefined || String(v).trim() === ''; }
+
+  function parseBool(v) {
+    if (v === true) return true;
+    if (v === false) return false;
+    var s = String(v == null ? '' : v).trim().toLowerCase();
+    return ['true', '1', 'yes', 'y', '有効', 'on', '適用', '○', '〇'].indexOf(s) >= 0;
+  }
+
+  function isTaxable(taxType) {
+    var s = String(taxType || '');
+    return !(s.indexOf('非課税') >= 0 || s.indexOf('不課税') >= 0 || s.indexOf('対象外') >= 0);
+  }
+
+  function containsAny(text, words) {
+    var s = String(text || '');
+    for (var i = 0; i < words.length; i++) if (s.indexOf(words[i]) >= 0) return true;
+    return false;
+  }
+
+  /**
+   * 作業予定日の「月」。'yyyy-MM-dd' を文字列のまま読むので、
+   * スプレッドシート側のタイムゾーン設定（現状 America/Los_Angeles）に影響されない。
+   */
+  function monthOf(workDate) {
+    var s = String(workDate == null ? '' : workDate).trim();
+    var m = s.match(/^(\\d{4})-(\\d{1,2})-(\\d{1,2})/);
+    if (m) return Number(m[2]);
+
+    var d = (workDate && workDate.getMonth) ? workDate : new Date(s);
+    if (d && d.getTime && !isNaN(d.getTime())) return d.getMonth() + 1;
+    return new Date().getMonth() + 1;
+  }
+
+  /* ===================== マスタルールの照合 ===================== */
+
+  function findMonthRule(rules, ruleType, month) {
+    var matched = (rules || []).filter(function (r) {
+      if (r.ruleType !== ruleType) return false;
+      var start = toNum(r.startMonth);
+      var end = toNum(r.endMonth);
+      if (!start || !end) return false;
+      if (start <= end) return month >= start && month <= end;
+      return month >= start || month <= end; // 12月〜2月のような年跨ぎ
+    }).sort(function (a, b) { return toNum(a.priority) - toNum(b.priority); });
+
+    return matched[0] || null;
+  }
+
+  function matchQtyCondition(condition, qty) {
+    var c = String(condition || '');
+    var range = c.match(/(\\d+)\\s*[-〜~]\\s*(\\d+)/);
+    if (range) return qty >= Number(range[1]) && qty <= Number(range[2]);
+
+    var over = c.match(/(\\d+)\\s*超/);
+    if (over) return qty > Number(over[1]);
+
+    return false;
+  }
+
+  function findMultipleDiscountRule(rules, target, totalQty) {
+    var matched = (rules || []).filter(function (r) {
+      return r.ruleType === '複数台割引'
+        && r.target === target
+        && matchQtyCondition(r.condition, totalQty);
+    }).sort(function (a, b) { return toNum(a.priority) - toNum(b.priority); });
+
+    return matched[0] || null;
+  }
+
+  function classifyAirconCategory(line) {
+    var text = String((line.category || '') + ' ' + (line.name || ''));
+    if (containsAny(text, ['ロボ', 'お掃除機能', '掃除機能'])) return 'ロボ付きエアコン';
+    if (containsAny(text, ['業務用', '天カセ', '天井', 'パッケージ'])) return '業務用エアコン';
+    return 'ノーマルエアコン';
+  }
+
+  /* ===================== 明細の組み立て ===================== */
+
+  function buildLines(rawDetails, menuMap) {
+    var lines = [];
+
+    (rawDetails || []).forEach(function (d) {
+      if (!d) return;
+      var menuId = String(d.menuId || '').trim();
+      if (!menuId) return;
+
+      var menu = menuMap[menuId] || null;
+      var qty = Math.max(0, toNum(d.qty));
+      var unitPrice = menu ? toNum(menu.unitPrice) : 0;
+      var gross = yen(qty * unitPrice);
+
+      // 明細ごとの値引き（変則割引・その1）
+      var mode = String(d.lineDiscountMode || 'amount');
+      var rawValue = toNum(d.lineDiscountValue);
+      var discount = 0;
+
+      if (rawValue > 0) {
+        discount = (mode === 'rate') ? yen(gross * toRate(d.lineDiscountValue)) : yen(rawValue);
+        discount = Math.max(0, Math.min(discount, gross)); // 明細金額を超える値引きは切り詰める
+      }
+
+      lines.push({
+        menuId: menuId,
+        name: menu ? menu.name : String(d.menuName || ''),
+        menuType: menu ? menu.menuType : String(d.menuType || ''),
+        rawMenuType: menu ? menu.rawMenuType : String(d.menuType || ''),
+        category: menu ? menu.category : '',
+        qty: qty,
+        unit: menu ? menu.unit : '',
+        unitPrice: unitPrice,
+        unitPriceMissing: !menu || isBlank(menu.unitPriceRaw),
+        grossAmount: gross,
+        lineDiscountMode: mode,
+        lineDiscountValue: rawValue,
+        lineDiscount: discount,
+        amount: gross - discount,
+        taxType: menu ? menu.taxType : '課税',
+        busyTarget: menu ? menu.busyTarget : false,
+        busySurchargeRaw: menu ? menu.busySurchargeRaw : '',
+        discountTarget: menu ? menu.discountTarget : false,
+        multipleDiscountTarget: menu ? menu.multipleDiscountTarget : false,
+        invoiceReusable: menu ? menu.invoiceReusable : true,
+        note: menu ? menu.note : '',
+        requireCheck: menu ? menu.requireCheck : ''
+      });
+    });
+
+    return lines;
+  }
+
+  /* ===================== 繁忙期加算 ===================== */
+
+  function busyTargetLines(lines) {
+    return lines.filter(function (l) { return l.menuType === 'メイン' && l.busyTarget !== false; });
+  }
+
+  function judgeBusySeason(month, lines, payload, ctx) {
+    if (!findMonthRule(ctx.discountRules, '繁忙期', month)) return false;
+    if (busyTargetLines(lines).length === 0) return false;
+
+    var totalQty = busyTargetLines(lines).reduce(function (s, l) { return s + l.qty; }, 0);
+    var corporate = lines.some(function (l) {
+      return containsAny(l.rawMenuType + ' ' + l.category + ' ' + l.name, ['法人', '事業者']);
+    }) || containsAny(payload.projectType, ['法人', '事業者']);
+
+    // 法人5台超は割増なし（初期要件）
+    if (corporate && totalQty > 5) return false;
+    return true;
+  }
+
+  function busySurchargeForLine(line, raw, multiplyByQty) {
+    var text = String(raw == null ? '' : raw).trim();
+    if (!text) return 0;
+    if (text.indexOf('%') >= 0 || text.indexOf('％') >= 0) return yen(line.amount * toRate(text));
+
+    var amount = toNum(text);
+    return multiplyByQty ? yen(amount * line.qty) : yen(amount);
+  }
+
+  function calcBusyAmount(lines, ctx) {
+    var targets = busyTargetLines(lines);
+    if (targets.length === 0) return 0;
+
+    var fallback = toNum(ctx.busySurcharge) || 3300;
+    var unit = String(ctx.busySurchargeUnit || '数量ごと').trim();
+
+    if (unit === '見積ごと') return fallback;
+
+    return targets.reduce(function (sum, l) {
+      var raw = isBlank(l.busySurchargeRaw) ? fallback : l.busySurchargeRaw;
+      return sum + busySurchargeForLine(l, raw, unit !== '明細ごと');
+    }, 0);
+  }
+
+  /**
+   * PDFの繁忙期行。全対象明細が同一の固定金額なら「数量20 / 単価3,300 / 金額66,000」と表示し、
+   * %ルールが混ざる場合は1行にまとめる。
+   */
+  function buildBusyPdfRow(lines, ctx, busyAmount) {
+    if (!busyAmount) return null;
+
+    var targets = busyTargetLines(lines);
+    if (targets.length === 0) return null;
+
+    var fallback = toNum(ctx.busySurcharge) || 3300;
+    var unit = String(ctx.busySurchargeUnit || '数量ごと').trim();
+    var flat = { name: '繁忙期加算', qty: 1, unitPrice: busyAmount, amount: busyAmount, taxType: '課税' };
+
+    if (unit !== '数量ごと') return flat;
+
+    var values = targets.map(function (l) {
+      var raw = String(isBlank(l.busySurchargeRaw) ? fallback : l.busySurchargeRaw).trim();
+      var isRate = raw.indexOf('%') >= 0 || raw.indexOf('％') >= 0;
+      return { isRate: isRate, value: toNum(raw) };
+    });
+
+    var uniform = values.length > 0 && values.every(function (x) {
+      return !x.isRate && x.value === values[0].value;
+    });
+
+    var totalQty = targets.reduce(function (s, l) { return s + l.qty; }, 0);
+    if (!uniform || totalQty <= 0) return flat;
+
+    return { name: '繁忙期加算', qty: totalQty, unitPrice: values[0].value, amount: busyAmount, taxType: '課税' };
+  }
+
+  /* ===================== 自動割引（早期予約 / 複数台） ===================== */
+
+  function calcAutoDiscount(month, lines, ctx) {
+    var eligible = lines
+      .filter(function (l) { return l.discountTarget !== false; })
+      .reduce(function (s, l) { return s + l.amount; }, 0);
+
+    var early = findMonthRule(ctx.discountRules, '早期予約割引', month);
+    if (early && eligible > 0) {
+      return {
+        available: true,
+        type: '早期予約割引',
+        amount: yen(eligible * toRate(early.value)),
+        detail: '対象小計 ' + fmtYen(eligible) + ' × ' + Math.round(toRate(early.value) * 100) + '%'
+      };
+    }
+
+    // 早期予約に該当しない場合のみ複数台割引を見る（併用しない）
+    var totalQty = lines
+      .filter(function (l) { return l.multipleDiscountTarget; })
+      .reduce(function (s, l) { return s + l.qty; }, 0);
+
+    if (totalQty >= 2) {
+      var amount = 0;
+      var parts = [];
+
+      lines.forEach(function (l) {
+        if (!l.multipleDiscountTarget) return;
+        var category = classifyAirconCategory(l);
+        var rule = findMultipleDiscountRule(ctx.discountRules, category, totalQty);
+        if (!rule) return;
+        var per = toNum(rule.value);
+        amount += per * l.qty;
+        parts.push(category + ' ' + l.qty + '台 × ' + fmtYen(per));
+      });
+
+      if (amount > 0) {
+        return {
+          available: true,
+          type: '複数台割引',
+          amount: yen(amount),
+          detail: '合計' + totalQty + '台 / ' + parts.join('、')
+        };
+      }
+    }
+
+    return { available: false, type: '', amount: 0, detail: '' };
+  }
+
+  /* ===================== 変則割引（手動調整行） ===================== */
+
+  /**
+   * 調整行を正規化する。
+   *   kind : 'discount'（値引き） | 'surcharge'（割増）
+   *   mode : 'amount'（定額）     | 'rate'（率）
+   *   base : 'taxable'（課税対象計） | 'lineSubtotal'（明細小計）  ※rateのときのみ意味を持つ
+   */
+  function normalizeAdjustment(a) {
+    if (!a) return null;
+
+    var value = toNum(a.value);
+    if (!(value > 0)) return null;
+
+    var kind = a.kind === 'surcharge' ? 'surcharge' : 'discount';
+    var mode = a.mode === 'rate' ? 'rate' : 'amount';
+    var taxType = isTaxable(a.taxType) ? '課税' : '非課税';
+
+    return {
+      name: String(a.name || '').trim() || (kind === 'surcharge' ? '追加調整' : '値引き'),
+      kind: kind,
+      mode: mode,
+      value: value,
+      base: a.base === 'lineSubtotal' ? 'lineSubtotal' : 'taxable',
+      taxType: taxType,
+      note: String(a.note || ''),
+      auto: a.auto === true
+    };
+  }
+
+  function resolveAdjustmentAmount(adj, bases) {
+    if (adj.mode === 'amount') return yen(adj.value);
+    var base = adj.base === 'lineSubtotal' ? bases.lineSubtotal : bases.taxableBase;
+    return yen(base * toRate(adj.value));
+  }
+
+  /* ===================== PDF明細行 ===================== */
+
+  function buildPdfRows(calc, collapseAdjustments) {
+    var rows = [];
+
+    calc.lines.forEach(function (l) {
+      rows.push({
+        name: l.name,
+        qty: l.qty,
+        unitPrice: l.unitPrice,
+        amount: l.grossAmount,
+        taxType: l.taxType
+      });
+
+      // 明細値引きは「単価×数量＝金額」を崩さないよう、独立した行として出す
+      if (l.lineDiscount > 0) {
+        rows.push({
+          name: l.name + ' 値引き',
+          qty: 1,
+          unitPrice: -l.lineDiscount,
+          amount: -l.lineDiscount,
+          taxType: l.taxType
+        });
+      }
+    });
+
+    if (calc.busyAmount > 0) {
+      rows.push(calc.busyPdfRow || {
+        name: '繁忙期加算', qty: 1, unitPrice: calc.busyAmount, amount: calc.busyAmount, taxType: '課税'
+      });
+    }
+
+    if (calc.autoDiscountApplied > 0) {
+      rows.push({
+        name: calc.autoDiscountType || '割引',
+        qty: 1,
+        unitPrice: -calc.autoDiscountApplied,
+        amount: -calc.autoDiscountApplied,
+        taxType: '課税'
+      });
+    }
+
+    if (collapseAdjustments && calc.appliedAdjustments.length > 1) {
+      var net = calc.appliedAdjustments.reduce(function (s, a) {
+        return s + (a.kind === 'surcharge' ? a.amount : -a.amount);
+      }, 0);
+      if (net !== 0) {
+        rows.push({ name: '各種割引・調整', qty: 1, unitPrice: net, amount: net, taxType: '課税' });
+      }
+    } else {
+      calc.appliedAdjustments.forEach(function (a) {
+        var signed = a.kind === 'surcharge' ? a.amount : -a.amount;
+        rows.push({ name: a.name, qty: 1, unitPrice: signed, amount: signed, taxType: a.taxType });
+      });
+    }
+
+    if (calc.highwayFee > 0) {
+      rows.push({
+        name: '高速代（非課税）', qty: 1,
+        unitPrice: calc.highwayFee, amount: calc.highwayFee, taxType: '非課税'
+      });
+    }
+
+    return rows;
+  }
+
+  /* ===================== 本体 ===================== */
+
+  function calculateCore(payload, ctx) {
+    var p = payload || {};
+    var taxRate = toRate(ctx.taxRate) || 0.10;
+    var lines = buildLines(p.details, ctx.menuMap || {});
+    var month = monthOf(p.workDate);
+    var highwayFee = Math.max(0, toNum(p.highwayFee));
+
+    var lineGrossSubtotal = lines.reduce(function (s, l) { return s + l.grossAmount; }, 0);
+    var lineDiscountTotal = lines.reduce(function (s, l) { return s + l.lineDiscount; }, 0);
+    var lineSubtotal = lineGrossSubtotal - lineDiscountTotal;
+
+    var taxableLines = lines.filter(function (l) { return isTaxable(l.taxType); })
+      .reduce(function (s, l) { return s + l.amount; }, 0);
+    var nonTaxLines = lines.filter(function (l) { return !isTaxable(l.taxType); })
+      .reduce(function (s, l) { return s + l.amount; }, 0);
+
+    /* --- 繁忙期 --- */
+    var busyAuto = judgeBusySeason(month, lines, p, ctx);
+    var busyEnabled = isBlank(p.busyManual) ? busyAuto : parseBool(p.busyManual);
+    var busyAmount = busyEnabled ? calcBusyAmount(lines, ctx) : 0;
+    var busyPdfRow = busyEnabled ? buildBusyPdfRow(lines, ctx, busyAmount) : null;
+
+    /* --- 自動割引 --- */
+    var autoInfo = calcAutoDiscount(month, lines, ctx);
+    var autoEnabledBySetting = parseBool(ctx.autoDiscountEnabled);
+    var autoDefault = autoEnabledBySetting && autoInfo.available;
+    var autoDiscountOn = isBlank(p.discountManual) ? autoDefault : parseBool(p.discountManual);
+    var autoDiscountApplied = autoDiscountOn ? autoInfo.amount : 0;
+
+    /* --- 変則割引（手動調整行） --- */
+    var adjustments = (p.adjustments || []).map(normalizeAdjustment).filter(Boolean);
+
+    var taxableBase = taxableLines + busyAmount;
+    var nonTaxableBase = nonTaxLines + highwayFee;
+    var bases = { taxableBase: taxableBase, lineSubtotal: lineSubtotal };
+
+    // 自動割引は常に課税対象から引く
+    var taxableCut = Math.min(autoDiscountApplied, taxableBase);
+    var appliedAdjustments = [];
+
+    adjustments.forEach(function (adj) {
+      var amount = resolveAdjustmentAmount(adj, bases);
+      if (!(amount > 0)) return;
+
+      if (adj.kind === 'surcharge') {
+        if (adj.taxType === '課税') taxableBase += amount;
+        else nonTaxableBase += amount;
+      } else if (adj.taxType === '課税') {
+        // 課税値引きは課税対象を超えて引かない（消費税がマイナスになるため）
+        amount = Math.min(amount, Math.max(0, taxableBase - taxableCut));
+        if (!(amount > 0)) return;
+        taxableCut += amount;
+      } else {
+        // 非課税値引きは税込での値引き。高速代が無くても効くように
+        // 非課税収入だけでなく書類小計全体を原資とし、小計が0を下回らない範囲で引く。
+        var available = Math.max(0, (taxableBase - taxableCut) + nonTaxableBase);
+        amount = Math.min(amount, available);
+        if (!(amount > 0)) return;
+        nonTaxableBase -= amount;
+      }
+
+      appliedAdjustments.push({
+        name: adj.name, kind: adj.kind, mode: adj.mode, value: adj.value,
+        base: adj.base, taxType: adj.taxType, note: adj.note, auto: adj.auto,
+        amount: amount
+      });
+    });
+
+    var taxableSubtotal = Math.max(0, taxableBase - taxableCut);
+    // 非課税値引きが高速代を上回ると負になり得る。書類上の小計は0で下げ止める。
+    var nonTaxableSubtotal = nonTaxableBase;
+    var documentSubtotal = Math.max(0, taxableSubtotal + nonTaxableSubtotal);
+    var tax = yen(taxableSubtotal * taxRate);
+    var grandTotal = documentSubtotal + tax;
+
+    var adjustmentTotal = appliedAdjustments.reduce(function (s, a) {
+      return s + (a.kind === 'surcharge' ? a.amount : -a.amount);
+    }, 0);
+
+    return {
+      lines: lines,
+      month: month,
+
+      lineGrossSubtotal: lineGrossSubtotal,
+      lineDiscountTotal: lineDiscountTotal,
+      lineSubtotal: lineSubtotal,
+      mainTotal: lines.filter(function (l) { return l.menuType === 'メイン'; })
+        .reduce(function (s, l) { return s + l.amount; }, 0),
+      optionTotal: lines.filter(function (l) { return l.menuType === 'オプション'; })
+        .reduce(function (s, l) { return s + l.amount; }, 0),
+
+      highwayFee: highwayFee,
+
+      busyAuto: busyAuto,
+      busyManual: busyEnabled,
+      busyAmount: busyAmount,
+      busyPdfRow: busyPdfRow,
+
+      autoDiscountEnabledBySetting: autoEnabledBySetting,
+      autoDiscountAvailable: autoInfo.available,
+      autoDiscountCandidate: autoInfo.amount,
+      autoDiscountDetail: autoInfo.detail,
+      autoDiscountType: autoInfo.type,
+      autoDiscountAuto: autoDefault,
+      autoDiscountOn: autoDiscountOn,
+      autoDiscountApplied: autoDiscountApplied,
+
+      appliedAdjustments: appliedAdjustments,
+      adjustmentTotal: adjustmentTotal,
+
+      discountTotal: lineDiscountTotal + autoDiscountApplied
+        + appliedAdjustments.reduce(function (s, a) { return s + (a.kind === 'discount' ? a.amount : 0); }, 0),
+
+      taxableSubtotal: taxableSubtotal,
+      nonTaxableSubtotal: nonTaxableSubtotal,
+      documentSubtotal: documentSubtotal,
+      taxRate: taxRate,
+      tax: tax,
+      grandTotal: grandTotal
+    };
+  }
+
+  /**
+   * 「合計を指定額に合わせる」の逆算。
+   * 端数調整は非課税の値引きとして入れるので、1回で必ず指定額ちょうどに着地する
+   * （課税調整だと消費税の丸めで数円ずれるため）。
+   * 戻り値は調整行1件。呼び出し側が payload.adjustments に足して再計算する。
+   */
+  function solveTargetTotal(payload, ctx, targetTotal) {
+    var target = yen(targetTotal);
+    if (!(target > 0)) return null;
+
+    var stripped = Object.assign({}, payload, {
+      adjustments: (payload.adjustments || []).filter(function (a) { return !(a && a.auto); })
+    });
+
+    var base = calculateCore(stripped, ctx);
+    var diff = base.grandTotal - target;
+    if (diff === 0) return null;
+
+    return {
+      name: '端数調整',
+      kind: diff > 0 ? 'discount' : 'surcharge',
+      mode: 'amount',
+      value: Math.abs(diff),
+      base: 'taxable',
+      taxType: '非課税',
+      note: '合計を' + fmtYen(target) + 'に調整',
+      auto: true
+    };
+  }
+
+  /* ===================== 例外判定 ===================== */
+
+  function buildExceptions(payload, calc, ctx, pdfRows) {
+    var p = payload || {};
+    var out = [];
+    var review = function (t) { out.push({ level: 'review', text: t }); };
+    var alert_ = function (t) { out.push({ level: 'alert', text: t }); };
+
+    if (calc.grandTotal === 0) review('合計金額が0円です。');
+    if (calc.lines.some(function (l) { return l.unitPriceMissing; })) review('単価未設定メニューが含まれています。');
+
+    calc.lines.forEach(function (l) {
+      if (l.requireCheck) review('要確認事項あり：' + l.name + '（' + l.requireCheck + '）');
+    });
+
+    var multiQty = calc.lines.filter(function (l) { return l.multipleDiscountTarget; })
+      .reduce(function (s, l) { return s + l.qty; }, 0);
+    if (multiQty > 50) review('複数台割引対象メニューの合計台数が50台を超えています。');
+
+    if (calc.lines.some(function (l) {
+      return containsAny(l.rawMenuType + ' ' + l.category + ' ' + l.name, ['空室']);
+    })) review('空室清掃メニューが含まれています。');
+
+    if (calc.lines.some(function (l) {
+      return containsAny(l.rawMenuType + ' ' + l.category + ' ' + l.name, ['法人', '事業者']);
+    }) || containsAny(p.projectType, ['法人', '事業者'])) {
+      review('法人/事業者案件または法人/事業者メニューが含まれています。');
+    }
+
+    if (calc.busyManual !== calc.busyAuto) review('繁忙期加算の手動設定が自動判定と異なります。');
+    if (calc.autoDiscountOn !== calc.autoDiscountAuto) review('自動割引の手動設定が自動判定と異なります。');
+
+    if (calc.highwayFee > 0) review('高速代が入力されています。');
+    if (String(p.remarks || '').indexOf('要確認') >= 0) review('備考に「要確認」が含まれています。');
+    if (calc.lines.length > MAX_DETAIL_ROWS) review('保存明細が' + MAX_DETAIL_ROWS + '行を超えています。');
+    if (pdfRows.length > MAX_DETAIL_ROWS) review('PDF表示用の明細行が' + MAX_DETAIL_ROWS + '行を超えています。');
+
+    /* --- 変則割引はアラートのみ。代表者確認は求めない --- */
+    if (calc.lineDiscountTotal > 0) {
+      alert_('明細ごとの値引きが入力されています（合計 ' + fmtYen(calc.lineDiscountTotal) + '）。');
+    }
+
+    calc.appliedAdjustments.forEach(function (a) {
+      if (a.auto) return;
+      alert_('手動' + (a.kind === 'surcharge' ? '割増' : '値引き') + '：'
+        + a.name + ' ' + fmtYen(a.kind === 'surcharge' ? a.amount : -a.amount));
+    });
+
+    var autoTarget = calc.appliedAdjustments.filter(function (a) { return a.auto; });
+    if (autoTarget.length > 0) {
+      alert_('合計金額を指定額に合わせる調整が入っています（' + fmtYen(-calc.adjustmentTotal) + '相当）。');
+    }
+
+    var manualDiscount = calc.lineDiscountTotal
+      + calc.appliedAdjustments.reduce(function (s, a) { return s + (a.kind === 'discount' ? a.amount : 0); }, 0);
+    var ratioLimit = toRate(ctx.largeDiscountRatio) || 0.30;
+
+    if (calc.lineGrossSubtotal > 0 && manualDiscount / calc.lineGrossSubtotal >= ratioLimit) {
+      alert_('手動値引きが明細小計の' + Math.round(ratioLimit * 100) + '%以上です。金額を確認してください。');
+    }
+
+    return out;
+  }
+
+  /* ===================== 公開関数 ===================== */
+
+  function calculate(payload, ctx) {
+    var p = Object.assign({}, payload || {});
+    p.adjustments = (p.adjustments || []).slice();
+
+    // 「合計を指定額に合わせる」が指定されていれば端数調整行を作り直して差し込む。
+    // targetTotal が無いときは保存済みの端数調整行をそのまま使う
+    // （保存済み見積の再現・複製で金額が変わらないようにするため）。
+    var targetTotal = toNum(p.targetTotal);
+
+    if (targetTotal > 0) {
+      p.adjustments = p.adjustments.filter(function (a) { return !(a && a.auto); });
+      var solved = solveTargetTotal(p, ctx, targetTotal);
+      if (solved) p.adjustments.push(solved);
+    }
+
+    var calc = calculateCore(p, ctx);
+
+    var pdfRows = buildPdfRows(calc, false);
+    var collapsed = false;
+    if (pdfRows.length > MAX_DETAIL_ROWS && calc.appliedAdjustments.length > 1) {
+      pdfRows = buildPdfRows(calc, true);
+      collapsed = true;
+    }
+
+    calc.pdfRows = pdfRows;
+    calc.adjustmentsCollapsed = collapsed;
+    calc.targetTotal = targetTotal > 0 ? yen(targetTotal) : 0;
+    calc.adjustments = p.adjustments;
+
+    var exceptions = buildExceptions(p, calc, ctx, pdfRows);
+    calc.exceptions = exceptions;
+    calc.exceptionReasons = exceptions.map(function (e) { return e.text; });
+    calc.exceptionFlag = exceptions.length > 0;
+    calc.reviewFlag = exceptions.some(function (e) { return e.level === 'review'; });
+
+    calc.summaryDisplay = {
+      lineGrossSubtotal: fmtYen(calc.lineGrossSubtotal),
+      lineDiscountTotal: fmtYen(calc.lineDiscountTotal),
+      lineSubtotal: fmtYen(calc.lineSubtotal),
+      busyAmount: fmtYen(calc.busyAmount),
+      autoDiscountApplied: fmtYen(calc.autoDiscountApplied),
+      autoDiscountCandidate: fmtYen(calc.autoDiscountCandidate),
+      adjustmentTotal: fmtYen(calc.adjustmentTotal),
+      highwayFee: fmtYen(calc.highwayFee),
+      taxableSubtotal: fmtYen(calc.taxableSubtotal),
+      nonTaxableSubtotal: fmtYen(calc.nonTaxableSubtotal),
+      documentSubtotal: fmtYen(calc.documentSubtotal),
+      tax: fmtYen(calc.tax),
+      grandTotal: fmtYen(calc.grandTotal)
+    };
+
+    return calc;
+  }
+
+  return {
+    MAX_DETAIL_ROWS: MAX_DETAIL_ROWS,
+    calculate: calculate,
+    solveTargetTotal: solveTargetTotal,
+    toNum: toNum,
+    toRate: toRate,
+    yen: yen,
+    fmtYen: fmtYen,
+    isTaxable: isTaxable,
+    parseBool: parseBool,
+    monthOf: monthOf
+  };
+})();
+</script>
+`;
+
+/** Index から <?!= calcEngineTag(); ?> で呼ばれる。<script>…</script> ごと返す。 */
+function calcEngineTag() {
+  return CALC_ENGINE_SOURCE || HtmlService.createHtmlOutputFromFile('Calc').getContent();
+}
+
+/**
+ * サーバー側でも同じエンジンを評価して使う。
+ * クライアントとサーバーで計算式が二重管理にならないようにするための仕掛け。
+ */
+function getCalcEngine_() {
+  if (RUNTIME.calcEngine) return RUNTIME.calcEngine;
+
+  const src = calcEngineTag()
+    .replace(/<script[^>]*>/gi, '')
+    .replace(/<\/script>/gi, '');
+
+  RUNTIME.calcEngine = eval(src + '\nCalcEngine;');
+  return RUNTIME.calcEngine;
+}
+
+function calculateEstimate_(payload, ctx) {
+  return getCalcEngine_().calculate(payload, buildCalcContext_(ctx));
+}
+
+function buildCalcContext_(ctx) {
+  return {
+    taxRate: ctx.taxRate,
+    busySurcharge: ctx.busySurcharge,
+    busySurchargeUnit: ctx.busySurchargeUnit,
+    autoDiscountEnabled: ctx.autoDiscountEnabled,
+    largeDiscountRatio: ctx.largeDiscountRatio,
+    menuMap: ctx.menuMap,
+    discountRules: ctx.discountRules
+  };
+}
+
+/** クライアントへ渡す版。menuMap は menus から組み立てられるので省いて転送量を半減させる。 */
+function buildClientCalcContext_(ctx) {
+  const client = buildCalcContext_(ctx);
+  delete client.menuMap;
+  return client;
+}
+
+/* ===================== API ===================== */
+
+/**
+ * 画面初期表示。マスタ一式をキャッシュから返す。
+ * 旧 apiInit() と違い、セットアップ／マイグレーションは一切走らせない。
+ */
+function apiBootstrap() {
+  return withApi_('初期表示', '', function () {
+    const ctx = loadContext_();
+
+    return {
+      ok: true,
+      settings: {
+        高速料金検索URL: ctx.settings['高速料金検索URL'] || '',
+        駐車場代注記: ctx.settings['駐車場代注記'] || '',
+        LINE一報文言: ctx.settings['LINE一報文言'] || 'メール送信後、LINEで代表者へ一報を入れてください。',
+        会社名: ctx.settings['会社名'] || '',
+        固定CC: ctx.settings['固定CC'] || '',
+        送信元メール: ctx.settings['送信元メール'] || APP.DEFAULT_EXECUTION_EMAIL
+      },
+      // menuMap は menus と同じ中身なので送らない。クライアント側で組み立てる。
+      calcContext: buildClientCalcContext_(ctx),
+      menus: ctx.menus,
+      submitTargets: ctx.submitTargets,
+      staff: ctx.staff,
+      warnings: ctx.warnings,
+      cached: ctx.fromCache,
+      user: getCurrentUser_()
+    };
+  });
+}
+
+// 旧クライアントがキャッシュされていても動くように名前を残す。
+function apiInit() {
+  return apiBootstrap();
+}
+
+function apiCalculateEstimate(payload) {
+  return withApi_('見積計算', '', function () {
+    return { ok: true, calc: calculateEstimate_(payload, loadContext_()) };
+  });
+}
+
+/**
+ * フェーズ1：見積データの保存だけを行う。
+ * PDFとメールは apiBuildDocuments() に分けて、現場を待たせない。
+ */
+function apiSaveEstimate(payload) {
+  return withApi_('見積作成', '', function () {
+    const ctx = loadContext_();
+    const sheet = getEstimateDataSheet_(ctx);
+    const calc = calculateEstimate_(payload, ctx);
+    const requestId = String((payload || {}).requestId || '').trim();
+
+    const lock = LockService.getScriptLock();
+    lock.waitLock(30000);
+
+    let estimateId = '';
+    let rowNumber = 0;
+    let duplicated = false;
+
+    try {
+      // 通信再送や複数端末の同時操作で同じ見積が2件できるのを防ぐ。
+      // ロックの中で見るので、後から来た方は必ず既存を引き当てる。
+      const seen = requestId ? readSavedRequest_(requestId) : null;
+
+      if (seen) {
+        estimateId = seen.estimateId;
+        rowNumber = seen.rowNumber;
+        duplicated = true;
+      } else {
+        estimateId = generateEstimateId_(sheet);
+        const record = buildEstimateRecord_(payload, ctx, calc, estimateId);
+        record.request_id = requestId;
+        rowNumber = appendObject_(sheet, record);
+        if (requestId) rememberSavedRequest_(requestId, estimateId, rowNumber);
+      }
+    } finally {
+      lock.releaseLock();
+    }
+
+    queueLog_(
+      duplicated ? '見積作成(再送)' : '見積作成',
+      estimateId,
+      duplicated
+        ? '同じ操作の再送のため既存の見積を返しました。'
+        : '見積データを保存しました。合計 ' + calc.grandTotal + '円',
+      ''
+    );
+
+    return {
+      ok: true,
+      estimateId: estimateId,
+      rowNumber: rowNumber,
+      calc: calc,
+      duplicated: duplicated,
+      reviewFlag: calc.reviewFlag === true
+    };
+  });
+}
+
+function requestCacheKey_(requestId) {
+  return 'estimate_req_' + requestId;
+}
+
+function readSavedRequest_(requestId) {
+  try {
+    const raw = CacheService.getScriptCache().get(requestCacheKey_(requestId));
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function rememberSavedRequest_(requestId, estimateId, rowNumber) {
+  try {
+    CacheService.getScriptCache().put(
+      requestCacheKey_(requestId),
+      JSON.stringify({ estimateId: estimateId, rowNumber: rowNumber }),
+      1800 // 30分。再送はこの範囲で起きる
+    );
+  } catch (e) {
+    console.warn('リクエストIDの記録に失敗しました：' + toErrorMessage_(e));
+  }
+}
+
+/**
+ * フェーズ2：PDF生成 → Driveへ保存 → Gmail下書き作成 → 見積データへ書き戻し。
+ * PDFが失敗しても見積データは残す。メールが失敗してもPDFと本文は返す。
+ */
+function apiBuildDocuments(estimateId, rowNumber) {
+  return withApi_('帳票生成', estimateId, function () {
+    const ctx = loadContext_();
+    const sheet = getEstimateDataSheet_(ctx);
+    const found = findEstimateRecord_(sheet, estimateId, rowNumber);
+    if (!found) throw new Error('見積IDが見つかりません：' + estimateId);
+
+    const record = found.record;
+    const calc = rebuildCalcFromRecord_(record, ctx);
+    const errors = [];
+    const writeback = { 更新日時: new Date() };
+
+    let pdfFile = null;
+    let pdfUrl = '';
+    let pdfFileId = '';
+
+    try {
+      const pdf = generateEstimatePdf_(record, calc, ctx);
+      pdfFile = pdf.file;
+      pdfUrl = pdf.url;
+      pdfFileId = pdf.fileId;
+
+      writeback.PDF_URL = pdfUrl;
+      writeback.PDF_FILE_ID = pdfFileId;
+      record.PDF_URL = pdfUrl;
+      record.PDF_FILE_ID = pdfFileId;
+
+      queueLog_('PDF生成', estimateId, 'PDFを生成しました。', '');
+    } catch (e) {
+      const msg = toErrorMessage_(e);
+      errors.push('PDF生成失敗：' + msg);
+      queueLog_('エラー', estimateId, 'PDF生成に失敗しました。', msg);
+    }
+
+    let draftUrl = '';
+    let draftId = '';
+    let mailPreview = null;
+
+    try {
+      if (!pdfFile) throw new Error('PDF生成に失敗したため、PDF添付済みメール下書きは作成していません。');
+
+      const draft = createEstimateMailDraft_(record, calc, ctx, pdfFile);
+      draftUrl = draft.draftUrl;
+      draftId = draft.draftId;
+
+      writeback.メール下書きURL = draftUrl;
+      writeback.メール下書きID = draftId;
+      writeback.メール下書き作成日時 = new Date();
+
+      queueLog_('メール下書き作成', estimateId, 'Gmail下書きを作成しました。', '');
+    } catch (e) {
+      const msg = toErrorMessage_(e);
+      errors.push('メール下書き作成失敗：' + msg);
+      mailPreview = buildEstimateMailPreview_(record, calc, ctx);
+      queueLog_('エラー', estimateId, 'メール下書き作成に失敗しました。', msg);
+    }
+
+    // 書き戻しは1回にまとめる（旧実装は毎回シートを検索し直していた）
+    updateObjectAtRow_(sheet, found.rowNumber, writeback);
+
+    return {
+      ok: true,
+      estimateId: estimateId,
+      pdfUrl: pdfUrl,
+      pdfFileId: pdfFileId,
+      draftUrl: draftUrl,
+      draftId: draftId,
+      errors: errors,
+      mailPreview: mailPreview
+    };
+  });
+}
+
+/** 旧インターフェース互換。保存と帳票生成を続けて実行する。 */
+function apiCreateEstimate(payload) {
+  const saved = apiSaveEstimate(payload);
+  if (!saved.ok) return saved;
+
+  const built = apiBuildDocuments(saved.estimateId, saved.rowNumber);
+
+  return {
+    ok: true,
+    estimateId: saved.estimateId,
+    rowNumber: saved.rowNumber,
+    calc: saved.calc,
+    pdfUrl: built.pdfUrl || '',
+    pdfFileId: built.pdfFileId || '',
+    draftUrl: built.draftUrl || '',
+    draftId: built.draftId || '',
+    errors: built.ok ? built.errors : [built.error],
+    mailPreview: built.mailPreview || null,
+    representativeDraftAvailable: saved.reviewFlag === true
+  };
+}
+
+function apiCreateRepresentativeDraft(estimateId) {
+  return withApi_('代表者確認メール下書き作成', estimateId, function () {
+    const ctx = loadContext_();
+    const representativeEmail = String(ctx.settings['代表者メール'] || '').trim();
+    if (!representativeEmail) {
+      throw new Error('設定マスタの representative_email / 代表者メール が未設定です。');
+    }
+
+    const sheet = getEstimateDataSheet_(ctx);
+    const found = findEstimateRecord_(sheet, estimateId);
+    if (!found) throw new Error('見積IDが見つかりません：' + estimateId);
+
+    const record = found.record;
+    const template = ctx.mailTemplates['代表者確認依頼'] || getFallbackRepresentativeTemplate_();
+
+    const tokens = buildTokensFromRecord_(record, ctx, {
+      例外理由: record['例外理由'] || '',
+      PDF_URL: record['PDF_URL'] || '',
+      作成日時: formatDateTime_(record['作成日時'] || new Date())
+    });
+
+    const draft = GmailApp.createDraft(
+      representativeEmail,
+      renderTemplate_(template.subject, tokens),
+      renderTemplate_(template.body, tokens),
+      buildGmailOptions_(record['送信元メール'], '', ctx.settings)
+    );
+
+    const draftId = draft.getId();
+    const draftUrl = getGmailDraftsUrl_(ctx.settings);
+
+    updateObjectAtRow_(sheet, found.rowNumber, {
+      代表者確認メール下書きURL: draftUrl,
+      代表者確認メール下書きID: draftId,
+      代表者確認メール作成日時: new Date(),
+      更新日時: new Date()
+    });
+
+    queueLog_('代表者確認メール下書き作成', estimateId, '代表者確認メール下書きを作成しました。', '');
+    return { ok: true, draftId: draftId, draftUrl: draftUrl };
+  });
+}
+
+function apiSearchEstimates(criteria) {
+  return withApi_('過去見積検索', '', function () {
+    const ctx = loadContext_();
+    const sheet = getEstimateDataSheet_(ctx);
+    const c = criteria || {};
+
+    // 検索に使う列だけ読む。203列を全部読むと遅い。
+    const wanted = ['estimate_id', '作成日時', '顧客名', '案件名', '案件タイプ',
+      '合計金額', 'PDF_URL', '例外フラグ', 'invoice_id'];
+    const rows = readColumns_(sheet, wanted);
+
+    const results = rows
+      .filter(function (r) {
+        return matchText_(r['estimate_id'], c.estimateId)
+          && matchText_(r['顧客名'], c.customerName)
+          && matchText_(r['案件名'], c.projectName)
+          && matchText_(r['案件タイプ'], c.projectType)
+          && matchDate_(r['作成日時'], c.createdDate);
+      })
+      .sort(function (a, b) {
+        return new Date(b['作成日時']).getTime() - new Date(a['作成日時']).getTime();
+      })
+      .slice(0, 50)
+      .map(function (r) {
+        return {
+          estimate_id: r['estimate_id'] || '',
+          created_at: formatDateTime_(r['作成日時']),
+          customer_name: r['顧客名'] || '',
+          project_name: r['案件名'] || '',
+          project_type: r['案件タイプ'] || '',
+          total_amount: toNumber_(r['合計金額']),
+          total_amount_display: formatYen_(toNumber_(r['合計金額'])),
+          pdf_url: r['PDF_URL'] || '',
+          invoice_id: r['invoice_id'] || '',
+          exception_flag: String(r['例外フラグ'] || '') === 'TRUE'
+        };
+      });
+
+    queueLog_('過去見積呼び出し', '', '検索件数：' + results.length, '');
+    return { ok: true, results: results };
+  });
+}
+
+/**
+ * 見積プレビュー。PDFを開かずにアプリ内で中身を確認するためのもの。
+ * 金額は保存レコードから計算し直すので、PDFと同じ数字になる。
+ */
+function apiGetEstimateDetail(estimateId) {
+  return withApi_('見積プレビュー', estimateId, function () {
+    const ctx = loadContext_();
+    const sheet = getEstimateDataSheet_(ctx);
+    const found = findEstimateRecord_(sheet, estimateId);
+    if (!found) throw new Error('見積IDが見つかりません：' + estimateId);
+
+    const r = found.record;
+    const calc = rebuildCalcFromRecord_(r, ctx);
+
+    return {
+      ok: true,
+      estimateId: estimateId,
+      header: {
+        作成日時: formatDateTime_(r['作成日時']),
+        案件タイプ: r['案件タイプ'] || '',
+        提出先名: r['提出先名'] || '',
+        見積書宛名: (r['見積書宛名'] || '') + ' ' + (r['敬称'] || ''),
+        顧客名: r['顧客名'] || '',
+        案件名: r['案件名'] || '',
+        現場住所: r['現場住所'] || '',
+        作業予定日: toDateInputValue_(r['作業予定日']),
+        担当者: r['担当者'] || r['作成者'] || '',
+        宛先メール: r['宛先メール'] || '',
+        固定CC: r['固定CC'] || '',
+        備考: r['備考'] || '',
+        例外理由: r['例外理由'] || '',
+        PDF_URL: r['PDF_URL'] || '',
+        メール下書きURL: r['メール下書きURL'] || '',
+        invoice_id: r['invoice_id'] || '',
+        project_status: r['project_status'] || ''
+      },
+      rows: calc.pdfRows,
+      totals: {
+        書類小計: calc.documentSubtotal,
+        課税小計: calc.taxableSubtotal,
+        非課税小計: calc.nonTaxableSubtotal,
+        消費税: calc.tax,
+        合計金額: calc.grandTotal,
+        繁忙期加算額: calc.busyAmount,
+        自動割引額: calc.autoDiscountApplied,
+        明細値引き合計: calc.lineDiscountTotal,
+        調整合計額: calc.adjustmentTotal
+      },
+      display: calc.summaryDisplay
+    };
+  });
+}
+
+function apiLoadEstimateForClone(estimateId) {
+  return withApi_('複製編集', estimateId, function () {
+    const ctx = loadContext_();
+    const sheet = getEstimateDataSheet_(ctx);
+    const found = findEstimateRecord_(sheet, estimateId);
+    if (!found) throw new Error('見積IDが見つかりません：' + estimateId);
+
+    const r = found.record;
+    const details = [];
+
+    for (let i = 1; i <= APP.MAX_DETAIL_ROWS; i++) {
+      const p = pad2_(i);
+      const name = r['明細' + p + '_品名'];
+      const menuId = r['明細' + p + '_メニューID'];
+      if (!name && !menuId) continue;
+
+      details.push({
+        menuId: menuId || '',
+        menuName: name || '',
+        menuType: r['明細' + p + '_メニュータイプ'] || '',
+        qty: toNumber_(r['明細' + p + '_数量']) || 1,
+        unit: r['明細' + p + '_単位'] || '',
+        unitPrice: toNumber_(r['明細' + p + '_単価']),
+        taxType: r['明細' + p + '_税区分'] || '',
+        note: r['明細' + p + '_備考'] || '',
+        lineDiscountMode: 'amount',
+        lineDiscountValue: toNumber_(r['明細' + p + '_値引き額'])
+      });
+    }
+
+    queueLog_('複製編集', estimateId, '見積複製用データを読み込みました。', '');
+
+    return {
+      ok: true,
+      sourceEstimateId: estimateId,
+      payload: {
+        original_estimate_id: estimateId,
+        projectType: r['案件タイプ'] || '',
+        submitToName: r['提出先名'] || '',
+        customerName: r['顧客名'] || '',
+        projectName: r['案件名'] || '',
+        siteAddress: r['現場住所'] || '',
+        workDate: toDateInputValue_(r['作業予定日']),
+        staff: r['担当者'] || '',
+        remarks: r['備考'] || '',
+        selfRecipientEmail: r['宛先メール'] || '',
+        highwayFee: toNumber_(r['高速代']),
+        busyManual: parseBooleanLoose_(r['繁忙期_手動設定']),
+        discountManual: parseBooleanLoose_(r['割引_手動設定']),
+        adjustments: parseAdjustmentsJson_(r['調整_JSON']),
+        targetTotal: 0,
+        details: details
+      }
+    };
+  });
+}
+
+/* ===================== 保存レコード ===================== */
+
+function buildEstimateRecord_(payload, ctx, calc, estimateId) {
+  const p = payload || {};
+  const submit = resolveSubmitTarget_(p, ctx);
+  const now = new Date();
+
+  // 端数調整で自動生成された行も含めて保存する（複製時に再現するため）
+  const manualAdjustments = calc.appliedAdjustments || [];
+
+  const record = {
+    estimate_id: estimateId,
+    original_estimate_id: p.original_estimate_id || '',
+    invoice_id: '',
+    invoice_source_flag: '見積作成',
+    project_status: '見積作成済',
+    作成日時: now,
+    更新日時: now,
+    作成者: p.staff || getCurrentUser_(),
+    案件タイプ: p.projectType || '',
+    提出先名: submit.submitToName || '',
+    見積書宛名: submit.addresseeName || '',
+    敬称: submit.addresseeSuffix || '',
+    宛先メール: submit.to || '',
+    固定CC: submit.cc || '',
+    送信元メール: submit.from || '',
+    顧客名: p.customerName || '',
+    案件名: p.projectName || '',
+    現場住所: p.siteAddress || '',
+    作業予定日: parseDateInput_(p.workDate) || '',
+    担当者: p.staff || '',
+    見積日: now,
+    見積番号: estimateId,
+    件名: p.projectName || p.customerName || '',
+    本文テンプレート種別: submit.templateType || '',
+    備考: p.remarks || '',
+    駐車場代注記: ctx.settings['駐車場代注記'] || '',
+    高速代: calc.highwayFee,
+    高速代_税区分: '非課税',
+    明細小計: calc.lineSubtotal,
+    割引額: calc.discountTotal,
+    繁忙期加算額: calc.busyAmount,
+    非課税小計: calc.nonTaxableSubtotal,
+    課税小計: calc.taxableSubtotal,
+    消費税: calc.tax,
+    合計金額: calc.grandTotal,
+    繁忙期_自動判定: boolText_(calc.busyAuto),
+    繁忙期_手動設定: boolText_(calc.busyManual),
+    割引_自動判定: boolText_(calc.autoDiscountAuto),
+    割引_手動設定: boolText_(calc.autoDiscountOn),
+    例外フラグ: boolText_(calc.exceptionFlag),
+    要代表者確認: boolText_(calc.reviewFlag),
+    例外理由: calc.exceptionReasons.join('\n'),
+    PDF_URL: '',
+    PDF_FILE_ID: '',
+    メール下書きURL: '',
+    メール下書きID: '',
+    メール下書き作成日時: '',
+    代表者確認メール下書きURL: '',
+    代表者確認メール下書きID: '',
+    代表者確認メール作成日時: '',
+    複製元見積ID: p.original_estimate_id || '',
+    内部メモ: '',
+    request_id: '',
+
+    /* --- 変則割引（今回追加） --- */
+    自動割引種別: calc.autoDiscountType || '',
+    自動割引額: calc.autoDiscountApplied,
+    明細値引き合計: calc.lineDiscountTotal,
+    調整合計額: calc.adjustmentTotal,
+    合計指定額: calc.targetTotal || '',
+    調整_JSON: JSON.stringify(manualAdjustments.map(function (a) {
+      return {
+        name: a.name, kind: a.kind, mode: a.mode, value: a.value,
+        base: a.base, taxType: a.taxType, note: a.note, auto: a.auto, amount: a.amount
+      };
+    }))
+  };
+
+  for (let i = 1; i <= APP.MAX_ADJUSTMENT_SLOTS; i++) {
+    const a = manualAdjustments[i - 1];
+    record['調整' + pad2_(i) + '_名称'] = a ? a.name : '';
+    record['調整' + pad2_(i) + '_金額'] = a ? (a.kind === 'surcharge' ? a.amount : -a.amount) : '';
+  }
+
+  for (let i = 1; i <= APP.MAX_DETAIL_ROWS; i++) {
+    const pfx = '明細' + pad2_(i) + '_';
+    const line = calc.lines[i - 1];
+    record[pfx + '品名'] = line ? line.name : '';
+    record[pfx + 'メニューID'] = line ? line.menuId : '';
+    record[pfx + 'メニュータイプ'] = line ? line.menuType : '';
+    record[pfx + '数量'] = line ? line.qty : '';
+    record[pfx + '単位'] = line ? line.unit : '';
+    record[pfx + '単価'] = line ? line.unitPrice : '';
+    record[pfx + '金額'] = line ? line.amount : '';
+    record[pfx + '税区分'] = line ? line.taxType : '';
+    record[pfx + '備考'] = line ? line.note : '';
+    record[pfx + '値引き額'] = line && line.lineDiscount ? line.lineDiscount : '';
+  }
+
+  return record;
+}
+
+/**
+ * 保存済みレコードから計算結果を復元する。
+ * PDF生成・メール本文で使うので、保存時と同じ金額になる必要がある。
+ */
+function rebuildCalcFromRecord_(record, ctx) {
+  const details = [];
+
+  for (let i = 1; i <= APP.MAX_DETAIL_ROWS; i++) {
+    const p = pad2_(i);
+    const menuId = record['明細' + p + '_メニューID'];
+    if (!menuId) continue;
+
+    details.push({
+      menuId: menuId,
+      qty: toNumber_(record['明細' + p + '_数量']),
+      lineDiscountMode: 'amount',
+      lineDiscountValue: toNumber_(record['明細' + p + '_値引き額'])
+    });
+  }
+
+  return calculateEstimate_({
+    projectType: record['案件タイプ'] || '',
+    remarks: record['備考'] || '',
+    workDate: toDateInputValue_(record['作業予定日']),
+    highwayFee: toNumber_(record['高速代']),
+    busyManual: parseBooleanLoose_(record['繁忙期_手動設定']),
+    discountManual: parseBooleanLoose_(record['割引_手動設定']),
+    adjustments: parseAdjustmentsJson_(record['調整_JSON']),
+    targetTotal: 0, // 保存済みの調整行をそのまま使うので再逆算しない
+    details: details
+  }, ctx);
+}
+
+function parseAdjustmentsJson_(value) {
+  const text = String(value || '').trim();
+  if (!text) return [];
+
+  try {
+    const parsed = JSON.parse(text);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function resolveSubmitTarget_(payload, ctx) {
+  const p = payload || {};
+  const projectType = String(p.projectType || '').trim();
+  const target = (ctx.submitTargets || []).find(function (t) { return t.projectType === projectType; }) || null;
+
+  if (projectType === '自社') {
+    return {
+      submitToName: '自社',
+      addresseeName: p.customerName || '',
+      addresseeSuffix: p.addresseeSuffix || '様',
+      to: p.selfRecipientEmail || '',
+      cc: target ? target.cc : (ctx.settings['固定CC'] || ''),
+      from: target ? (target.from || ctx.settings['送信元メール']) : (ctx.settings['送信元メール'] || APP.DEFAULT_EXECUTION_EMAIL),
+      templateType: target ? (target.templateType || '自社案件_見積送付') : '自社案件_見積送付'
+    };
+  }
+
+  // 元請でも提出先マスタに宛先が無ければ現場の手入力を使う。
+  // マスタ登録待ちでGmail下書きが作れない状態を作らないため。
+  const manualTo = String(p.selfRecipientEmail || '').trim();
+
+  if (!target) {
+    return {
+      submitToName: projectType,
+      addresseeName: projectType,
+      addresseeSuffix: '御中',
+      to: manualTo,
+      cc: ctx.settings['固定CC'] || '',
+      from: ctx.settings['送信元メール'] || APP.DEFAULT_EXECUTION_EMAIL,
+      templateType: '元請案件_見積送付'
+    };
+  }
+
+  return {
+    submitToName: target.submitToName || projectType,
+    addresseeName: target.addresseeName || target.submitToName || projectType,
+    addresseeSuffix: target.addresseeName ? '' : '御中',
+    to: target.to || manualTo,
+    cc: target.cc || '',
+    from: target.from || ctx.settings['送信元メール'] || APP.DEFAULT_EXECUTION_EMAIL,
+    templateType: target.templateType || '元請案件_見積送付'
+  };
+}
+
+/* ===================== PDF ===================== */
+
+function generateEstimatePdf_(record, calc, ctx) {
+  // PDF専用の軽いテンプレートがあればそれを複製する。
+  // 無ければ従来どおり帳票/DBスプレッドシートを複製する（データが増えるほど遅くなる）。
+  const templateId = String(ctx.settings['PDF生成用テンプレートスプレッドシートID'] || '').trim()
+    || ctx.settings['見積請求書テンプレートスプレッドシートID']
+    || APP.DEFAULT_TEMPLATE_SS_ID;
+
+  const folderId = ctx.settings['見積書PDF保存フォルダID'] || APP.DEFAULT_ESTIMATE_FOLDER_ID;
+
+  if (!templateId) throw new Error('見積請求書テンプレートスプレッドシートIDが未設定です。');
+  if (!folderId) throw new Error('見積書PDF保存フォルダIDが未設定です。');
+
+  const folder = DriveApp.getFolderById(folderId);
+  const tmpFile = DriveApp.getFileById(templateId).makeCopy('tmp_' + record.estimate_id + '_' + Date.now());
+  const tmpSs = SpreadsheetApp.openById(tmpFile.getId());
+
+  try {
+    const cellDefs = getCellDefMap_('見積書', ctx);
+    const targetSheetName = getTargetSheetNameFromDefs_(cellDefs, APP.TEMP_ESTIMATE_SHEET);
+    const sheet = tmpSs.getSheetByName(targetSheetName);
+    if (!sheet) throw new Error('対象シートが見つかりません：' + targetSheetName);
+
+    fillEstimateSheet_(sheet, cellDefs, record, calc, ctx.settings);
+    SpreadsheetApp.flush();
+
+    const pdfBlob = exportSheetToPdfBlob_(tmpSs.getId(), sheet.getSheetId());
+    pdfBlob.setName(sanitizeFileName_(
+      record.estimate_id + '_見積書_' + record['顧客名'] + '_' + record['案件名'] + '.pdf'
+    ));
+
+    const savedFile = folder.createFile(pdfBlob);
+    return { file: savedFile, url: savedFile.getUrl(), fileId: savedFile.getId() };
+  } finally {
+    tmpFile.setTrashed(true);
+  }
+}
+
+function fillEstimateSheet_(sheet, defs, record, calc, settings) {
+  const remarksText = [record['備考'] || '', record['駐車場代注記'] || ''].filter(String).join('\n');
+
+  // 固定文言はテンプレートの実際の文字列（全角スペース込み）に合わせる。
+  // 詰めて書くと見出しの字間が崩れるため。
+  setByKeys_(sheet, defs, {
+    document_date: formatDate_(record['見積日'] || new Date(), 'yyyy/MM/dd'),
+    document_no_label: '見積番号：',
+    estimate_id: record.estimate_id,
+    title: '御  見  積  書' + IDEOGRAPHIC_SPACE,
+    addressee_name: record['見積書宛名'] || '',
+    addressee_suffix: record['敬称'] || '',
+    company_name: settings['会社名'] || '',
+    company_zip: settings['会社郵便番号'] || '',
+    company_address: settings['会社住所'] || '',
+    company_tel: settings['会社電話番号'] || '',
+    company_fax: settings['会社FAX'] || '',
+    project_name: record['案件名'] || record['顧客名'] || '',
+    project_suffix: 'について',
+    greeting: '下記の通り御見積り申し上げます。',
+    total_amount_label: 'お見積金額',
+    total_amount_display: calc.grandTotal,
+    total_amount_unit: IDEOGRAPHIC_SPACE + '円',
+    detail_header_name: '品' + IDEOGRAPHIC_SPACE + IDEOGRAPHIC_SPACE + '名',
+    detail_header_qty: '数' + IDEOGRAPHIC_SPACE + '量',
+    detail_header_unit_price: '単' + IDEOGRAPHIC_SPACE + '価',
+    detail_header_amount: '金' + IDEOGRAPHIC_SPACE + '額',
+    remarks: remarksText,
+    subtotal_label: '小' + IDEOGRAPHIC_SPACE + '計',
+    subtotal: calc.documentSubtotal,
+    tax_label: '消費税',
+    tax: calc.tax,
+    grand_total_label: '合' + IDEOGRAPHIC_SPACE + '計',
+    grand_total: calc.grandTotal
+  });
+
+  writeDetailRows_(sheet, defs, calc.pdfRows.slice(0, APP.MAX_DETAIL_ROWS));
+}
+
+/**
+ * 明細をまとめて書き込む。旧実装は1セルずつ64回 setValue していた。
+ * ここでは列ごとに1回の setValues にまとめる。
+ *
+ * 定義された範囲は最後まで埋める（データが無い行は空文字で上書きする）。
+ * テンプレートの明細行には =D22*E22 のような式が入っているため、
+ * 空のまま残すと金額欄に「0」が印字されてしまう。
+ */
+function writeDetailRows_(sheet, defs, rows) {
+  const nameDef = defs['detail_name_range'];
+  const qtyDef = defs['detail_qty_range'];
+  const unitDef = defs['detail_unit_price_range'];
+  const amountDef = defs['detail_amount_range'];
+
+  if (!nameDef || !qtyDef || !unitDef || !amountDef) {
+    throw new Error('差し込みセル定義に明細範囲が不足しています。');
+  }
+
+  const nameRange = sheet.getRange(nameDef.a1);
+  const rowCount = nameRange.getNumRows();
+  const data = rows.slice(0, APP.MAX_DETAIL_ROWS);
+
+  const columns = [
+    { range: nameRange, pick: function (r) { return r.name || ''; } },
+    { range: sheet.getRange(qtyDef.a1), pick: function (r) { return isBlank_(r.qty) ? '' : r.qty; } },
+    { range: sheet.getRange(unitDef.a1), pick: function (r) { return isBlank_(r.unitPrice) ? '' : r.unitPrice; } },
+    { range: sheet.getRange(amountDef.a1), pick: function (r) { return isBlank_(r.amount) ? '' : r.amount; } }
+  ];
+
+  columns.forEach(function (col) {
+    const values = [];
+    for (let i = 0; i < rowCount; i++) values.push([col.pick(data[i] || {})]);
+
+    const target = sheet.getRange(col.range.getRow(), col.range.getColumn(), rowCount, 1);
+
+    try {
+      target.setValues(values);
+    } catch (e) {
+      // 結合セルとの相性で一括書き込みが弾かれた場合は1セルずつ書く
+      for (let i = 0; i < rowCount; i++) {
+        sheet.getRange(col.range.getRow() + i, col.range.getColumn()).setValue(values[i][0]);
+      }
+    }
+  });
+}
+
+function exportSheetToPdfBlob_(spreadsheetId, gid) {
+  const url = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(spreadsheetId) + '/export'
+    + '?format=pdf'
+    + '&gid=' + encodeURIComponent(gid)
+    + '&size=A4&portrait=true&fitw=true'
+    + '&sheetnames=false&printtitle=false&pagenumbers=false&gridlines=false&fzr=false';
+
+  const res = UrlFetchApp.fetch(url, {
+    headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() },
+    muteHttpExceptions: true
+  });
+
+  if (res.getResponseCode() !== 200) {
+    throw new Error('PDFエクスポートに失敗しました。HTTP ' + res.getResponseCode()
+      + ' / ' + res.getContentText().slice(0, 300));
+  }
+
+  return res.getBlob().setContentType(MimeType.PDF);
+}
+
+/* ===================== Gmail ===================== */
+
+function createEstimateMailDraft_(record, calc, ctx, pdfFile) {
+  const to = String(record['宛先メール'] || '').trim();
+  if (!to) throw new Error('宛先メールが未設定です。提出先マスタか自社案件の宛先入力を確認してください。');
+
+  const preview = buildEstimateMailPreview_(record, calc, ctx);
+  const options = buildGmailOptions_(record['送信元メール'], record['固定CC'], ctx.settings);
+  options.attachments = [pdfFile.getBlob()];
+
+  const draft = GmailApp.createDraft(to, preview.subject, preview.body, options);
+  return { draftId: draft.getId(), draftUrl: getGmailDraftsUrl_(ctx.settings) };
+}
+
+function buildEstimateMailPreview_(record, calc, ctx) {
+  const templateType = record['本文テンプレート種別'] || '自社案件_見積送付';
+  const template = ctx.mailTemplates[templateType] || getFallbackEstimateTemplate_();
+
+  const tokens = buildTokensFromRecord_(record, ctx, {
+    見積金額: formatYen_(calc.grandTotal),
+    作成日: formatDate_(record['見積日'] || new Date(), 'yyyy/MM/dd'),
+    PDF_URL: record['PDF_URL'] || ''
+  });
+
+  return {
+    to: record['宛先メール'] || '',
+    cc: record['固定CC'] || '',
+    from: record['送信元メール'] || '',
+    subject: renderTemplate_(template.subject, tokens),
+    body: renderTemplate_(template.body, tokens)
+  };
+}
+
+function buildGmailOptions_(fromEmail, cc, settings) {
+  const options = {};
+  if (cc) options.cc = cc;
+  if (settings['会社名']) options.name = settings['会社名'];
+
+  const requestedFrom = String(fromEmail || '').trim();
+  if (requestedFrom) {
+    // エイリアスが未設定なら from を指定せず実行アカウントで下書きを作る
+    if (GmailApp.getAliases().indexOf(requestedFrom) >= 0) options.from = requestedFrom;
+  }
+
+  return options;
+}
+
+function getGmailDraftsUrl_(settings) {
+  const account = String((settings || {})['GAS実行用Gmail'] || APP.DEFAULT_EXECUTION_EMAIL).trim();
+  return 'https://mail.google.com/mail/?authuser=' + encodeURIComponent(account) + '#drafts';
+}
+
+/* ===================== マスタ読み込み（キャッシュ付き） ===================== */
+
+function loadContext_() {
+  if (RUNTIME.context) return RUNTIME.context;
+
+  const cached = readCachedContext_();
+  if (cached) {
+    cached.fromCache = true;
+    RUNTIME.context = cached;
+    return cached;
+  }
+
+  const ctx = buildContextFromSheets_();
+  ctx.fromCache = false;
+  writeCachedContext_(ctx);
+  RUNTIME.context = ctx;
+  return ctx;
+}
+
+function buildContextFromSheets_() {
+  const masterSs = getMasterSs_();
+  const warnings = [];
+
+  const settings = readSettings_(masterSs);
+  const menus = readMenus_(masterSs, warnings);
+  const menuMap = {};
+  menus.forEach(function (m) { menuMap[m.menuId] = m; });
+
+  return {
+    settings: settings,
+    taxRate: normalizeRate_(settings['税率'] || 0.10) || 0.10,
+    busySurcharge: toNumber_(settings['繁忙期加算額'] || 3300),
+    busySurchargeUnit: String(settings['繁忙期加算単位'] || '数量ごと').trim(),
+    autoDiscountEnabled: parseBooleanLoose_(settings['自動割引有効']),
+    largeDiscountRatio: normalizeRate_(settings['大幅値引き警告率'] || 0.30) || 0.30,
+    menus: menus,
+    menuMap: menuMap,
+    submitTargets: readSubmitTargets_(masterSs, settings),
+    staff: readStaff_(masterSs),
+    mailTemplates: readMailTemplates_(masterSs, warnings),
+    discountRules: readDiscountRules_(masterSs, warnings),
+    cellDefs: readCellDefs_(masterSs),
+    warnings: warnings
+  };
+}
+
+function contextCacheKey_(suffix) {
+  return 'estimate_ctx_' + APP.CACHE_VERSION + '_' + suffix;
+}
+
+function readCachedContext_() {
+  try {
+    const cache = CacheService.getScriptCache();
+    const meta = cache.get(contextCacheKey_('meta'));
+    if (!meta) return null;
+
+    const chunkCount = Number(meta);
+    if (!(chunkCount > 0)) return null;
+
+    const keys = [];
+    for (let i = 0; i < chunkCount; i++) keys.push(contextCacheKey_(i));
+
+    const parts = cache.getAll(keys);
+    let json = '';
+
+    for (let i = 0; i < chunkCount; i++) {
+      const part = parts[contextCacheKey_(i)];
+      if (part === null || part === undefined) return null; // 一部だけ失効していたら作り直す
+      json += part;
+    }
+
+    return JSON.parse(json);
+  } catch (e) {
+    console.warn('マスタキャッシュの読み込みに失敗しました：' + toErrorMessage_(e));
+    return null;
+  }
+}
+
+function writeCachedContext_(ctx) {
+  try {
+    const json = JSON.stringify(ctx);
+    const cache = CacheService.getScriptCache();
+    const entries = {};
+    let chunkCount = 0;
+
+    for (let i = 0; i < json.length; i += APP.CACHE_CHUNK_CHARS) {
+      entries[contextCacheKey_(chunkCount)] = json.slice(i, i + APP.CACHE_CHUNK_CHARS);
+      chunkCount++;
+    }
+
+    cache.putAll(entries, APP.CACHE_TTL_SEC);
+    cache.put(contextCacheKey_('meta'), String(chunkCount), APP.CACHE_TTL_SEC);
+  } catch (e) {
+    // キャッシュに載らなくても動作はする。次回も実読みになるだけ。
+    console.warn('マスタキャッシュの保存に失敗しました：' + toErrorMessage_(e));
+  }
+}
+
+function clearContextCache_() {
+  try {
+    const cache = CacheService.getScriptCache();
+    const meta = cache.get(contextCacheKey_('meta'));
+    const keys = [contextCacheKey_('meta')];
+    const count = Number(meta || 0);
+    for (let i = 0; i < count; i++) keys.push(contextCacheKey_(i));
+    cache.removeAll(keys);
+  } catch (e) {
+    console.warn(toErrorMessage_(e));
+  }
+  RUNTIME.context = null;
+  RUNTIME.headerInfo = {};
+}
+
+/* ===================== 各マスタの読み取り ===================== */
+
+function readSettings_(masterSs) {
+  const sheet = masterSs.getSheetByName(APP.SHEET_SETTINGS);
+  const settings = {};
+
+  if (sheet) {
+    readObjects_(sheet, ['設定キー', '設定値']).forEach(function (r) {
+      const key = String(r['設定キー'] || r['キー'] || '').trim();
+      if (!key) return;
+      const value = r['設定値'] !== undefined ? r['設定値'] : r['値'];
+      settings[key] = value;
+      const alias = SETTING_ALIASES[key];
+      if (alias) settings[alias] = value;
+    });
+  }
+
+  applyDefaultSettingsValues_(settings);
+  return settings;
+}
+
+function applyDefaultSettingsValues_(s) {
+  if (!s['GAS実行用Gmail']) s['GAS実行用Gmail'] = APP.DEFAULT_EXECUTION_EMAIL;
+  if (!s['送信元メール']) s['送信元メール'] = s['default_sender_alias'] || APP.DEFAULT_EXECUTION_EMAIL;
+  if (!s['固定CC']) s['固定CC'] = '';
+  if (!s['マスタスプレッドシートID']) s['マスタスプレッドシートID'] = APP.DEFAULT_MASTER_SS_ID;
+  if (!s['見積請求書テンプレートスプレッドシートID']) s['見積請求書テンプレートスプレッドシートID'] = APP.DEFAULT_TEMPLATE_SS_ID;
+  if (!s['見積書PDF保存フォルダID']) s['見積書PDF保存フォルダID'] = APP.DEFAULT_ESTIMATE_FOLDER_ID;
+  if (!s['請求書PDF保存フォルダID']) s['請求書PDF保存フォルダID'] = APP.DEFAULT_INVOICE_FOLDER_ID;
+  if (!s['税率']) s['税率'] = '0.10';
+  if (!s['繁忙期加算額']) s['繁忙期加算額'] = '3300';
+  if (!s['繁忙期加算単位']) s['繁忙期加算単位'] = '数量ごと';
+  if (isBlank_(s['自動割引有効'])) s['自動割引有効'] = 'FALSE';
+  if (!s['大幅値引き警告率']) s['大幅値引き警告率'] = '0.30';
+  if (!s['既定_請求締め日']) s['既定_請求締め日'] = '月末';
+  if (!s['既定_支払サイト']) s['既定_支払サイト'] = '翌月末';
+  if (isBlank_(s['既定_支払期日休日調整'])) s['既定_支払期日休日調整'] = '';
+  if (!s['駐車場代_税区分']) s['駐車場代_税区分'] = '課税';
+}
+
+/**
+ * メニューマスタ。シート全体を1回だけ読む。
+ * 旧実装はメニュー1件ごとに pickMenuActiveValue_() でシート全体を読み直しており、
+ * 40メニューで80回のシート読み込みが発生していた（初期表示が遅い最大の原因）。
+ */
+function readMenus_(masterSs, warnings) {
+  const sheet = masterSs.getSheetByName(APP.SHEET_MENU);
+  if (!sheet) {
+    warnings.push('メニューマスタが見つかりません。');
+    return [];
+  }
+
+  const grid = readGrid_(sheet, ['メニューID', 'メニュー名']);
+  if (!grid) return [];
+
+  const headers = grid.headers;
+
+  return grid.rows
+    .map(function (row) {
+      const menuId = String(pickRowValue_(headers, row, ['メニューID']) || '').trim();
+      const rawMenuType = String(pickRowValue_(headers, row, ['メニュータイプ']) || '').trim();
+      const busyRaw = pickRowValue_(headers, row, ['繁忙期加算対象', '繁忙期対象']);
+      const discountRaw = pickRowValue_(headers, row, ['割引対象']);
+      const invoiceRaw = pickRowValue_(headers, row, ['請求書流用', '請求書流用対象']);
+
+      return {
+        menuId: menuId,
+        active: isActive_(pickRowValue_(headers, row, ['有効'])),
+        name: String(pickRowValue_(headers, row, ['顧客表示名', 'メニュー名']) || '').trim(),
+        rawMenuType: rawMenuType,
+        menuType: normalizeMenuType_(menuId, rawMenuType),
+        category: String(pickRowValue_(headers, row, ['カテゴリ']) || '').trim(),
+        unitPriceRaw: pickRowValue_(headers, row, ['単価', '価格']),
+        unitPrice: toNumber_(pickRowValue_(headers, row, ['単価', '価格'])),
+        taxType: String(pickRowValue_(headers, row, ['税区分']) || '課税').trim(),
+        unit: String(pickRowValue_(headers, row, ['数量単位', '単位']) || '').trim(),
+        busyTarget: isBlank_(busyRaw) ? false : parseBooleanLoose_(busyRaw),
+        busySurchargeRaw: pickRowValue_(headers, row, ['繁忙期加算額']) || '',
+        discountTarget: isBlank_(discountRaw) ? false : parseBooleanLoose_(discountRaw),
+        multipleDiscountTarget: parseBooleanLoose_(pickRowValue_(headers, row, ['複数台割引対象'])),
+        invoiceReusable: isBlank_(invoiceRaw) ? true : parseBooleanLoose_(invoiceRaw),
+        sortOrder: toNumber_(pickRowValue_(headers, row, ['表示順'])),
+        note: String(pickRowValue_(headers, row, ['補足_現場入力', '備考']) || ''),
+        requireCheck: String(pickRowValue_(headers, row, ['要確認事項']) || '')
+      };
+    })
+    .filter(function (m) { return m.menuId && m.name && m.active; })
+    .sort(function (a, b) { return (a.sortOrder || 9999) - (b.sortOrder || 9999); });
+}
+
+function normalizeMenuType_(menuId, rawMenuType) {
+  if (String(menuId || '').indexOf('O') === 0) return 'オプション';
+  const raw = String(rawMenuType || '');
+  if (raw === 'オプション' || raw === 'セット') return 'オプション';
+  return 'メイン';
+}
+
+function readSubmitTargets_(masterSs, settings) {
+  const sheet = masterSs.getSheetByName(APP.SHEET_SUBMIT_TO);
+  const targets = [];
+
+  if (sheet) {
+    readObjects_(sheet, ['案件タイプ', '提出先名']).forEach(function (r) {
+      const projectType = String(r['案件タイプ'] || '').trim();
+      if (!projectType || !isActive_(r['有効'])) return;
+
+      targets.push({
+        projectType: projectType,
+        submitToName: String(r['提出先名'] || '').trim(),
+        addresseeName: String(r['見積書宛名'] || '').trim(),
+        to: String(r['宛先メール'] || '').trim(),
+        cc: String(r['固定CC'] || '').trim(),
+        from: String(r['送信元メール'] || '').trim(),
+        templateType: String(r['メールテンプレート種別'] || '').trim(),
+        // 請求日・支払期限は取引先ごとに条件が違うのでマスタで持つ
+        closingDay: String(r['請求締め日'] || '').trim(),
+        paymentSite: String(r['支払サイト'] || '').trim(),
+        paymentHolidayRule: String(r['支払期日_休日調整'] || '').trim(),
+        note: String(r['備考'] || '')
+      });
+    });
+  }
+
+  if (!targets.some(function (t) { return t.projectType === '自社'; })) {
+    targets.unshift({
+      projectType: '自社',
+      submitToName: '自社',
+      addresseeName: '',
+      to: '',
+      cc: settings['固定CC'] || '',
+      from: settings['送信元メール'] || APP.DEFAULT_EXECUTION_EMAIL,
+      templateType: '自社案件_見積送付',
+      closingDay: '',
+      paymentSite: '',
+      paymentHolidayRule: '',
+      note: '自動追加'
+    });
+  }
+
+  return targets;
+}
+
+/**
+ * 担当者マスタ。誰が作った見積か確実に記録するためのプルダウン用。
+ * シートが無い／空の場合は空配列を返し、画面は手入力にフォールバックする（業務を止めない）。
+ */
+function readStaff_(masterSs) {
+  const sheet = masterSs.getSheetByName(APP.SHEET_STAFF);
+  if (!sheet) return [];
+
+  return readObjects_(sheet, ['担当者名'])
+    .filter(function (r) { return isActive_(r['有効']) && String(r['担当者名'] || '').trim(); })
+    .map(function (r) {
+      return {
+        staffId: String(r['担当者ID'] || '').trim(),
+        name: String(r['担当者名'] || '').trim(),
+        email: String(r['メール'] || '').trim()
+      };
+    });
+}
+
+const MAIL_TEMPLATE_TYPES = [
+  '自社案件_見積送付', '元請案件_見積送付', '代表者確認依頼',
+  '自社案件_請求書送付', '元請案件_請求書送付'
+];
+
+/**
+ * メールテンプレートマスタ。
+ * ライブのシートは旧スキーマ（A:テンプレートID〜E:備考）と
+ * 新スキーマ（F:有効〜I:本文）が混在し、初期投入行がA列から書かれていたため
+ * 新ヘッダー側が空になっている。両方の並びを受け付けて読む。
+ */
+function readMailTemplates_(masterSs, warnings) {
+  const sheet = masterSs.getSheetByName(APP.SHEET_MAIL_TEMPLATE);
+  const map = {};
+  if (!sheet) return map;
+
+  const grid = readGrid_(sheet, ['テンプレート種別', '本文']);
+  if (!grid) return map;
+
+  let legacyRows = 0;
+
+  grid.rows.forEach(function (row) {
+    let active = pickRowValue_(grid.headers, row, ['有効']);
+    let type = String(pickRowValue_(grid.headers, row, ['テンプレート種別']) || '').trim();
+    let subject = String(pickRowValue_(grid.headers, row, ['件名']) || '');
+    let body = String(pickRowValue_(grid.headers, row, ['本文']) || '');
+
+    // 新スキーマ列が空で、A:Eに ['TRUE', 種別, 件名, 本文, 備考] が入っている行の救済
+    if (!type && MAIL_TEMPLATE_TYPES.indexOf(String(row[1] || '').trim()) >= 0) {
+      active = row[0];
+      type = String(row[1] || '').trim();
+      subject = String(row[2] || '');
+      body = String(row[3] || '');
+      legacyRows++;
+    }
+
+    if (!type || !isActive_(active) || !body) return;
+    if (map[type]) return; // 重複行は最初の1件だけ採用する
+
+    map[type] = { subject: subject, body: body };
+  });
+
+  if (legacyRows > 0) {
+    warnings.push('メールテンプレートマスタに旧スキーマの行が' + legacyRows
+      + '件あります。adminNormalizeMailTemplates() で整理してください。');
+  }
+
+  return map;
+}
+
+const DISCOUNT_RULE_TYPES = ['繁忙期', '早期予約割引', '複数台割引', '紹介料'];
+
+/**
+ * 割引繁忙期マスタ。
+ * ライブのシートは旧ヘッダー（A:ルールID, B:有効, ...）のまま、
+ * 初期投入行が新スキーマ順（A:有効, B:ルールID, ...）で書かれており、
+ * 開始月／終了月／値が全てずれていた。その結果、
+ * 繁忙期も早期予約割引も複数台割引も自動判定が常に不成立になっていた。
+ * ここでは並びを判定して両方読めるようにし、重複行も畳む。
+ */
+function readDiscountRules_(masterSs, warnings) {
+  const sheet = masterSs.getSheetByName(APP.SHEET_DISCOUNT);
+  if (!sheet) {
+    warnings.push('割引繁忙期マスタが見つかりません。');
+    return [];
+  }
+
+  const grid = readGrid_(sheet, ['ルールID', 'ルール種別']);
+  if (!grid) return [];
+
+  const rules = [];
+  const seen = {};
+  let shiftedRows = 0;
+
+  grid.rows.forEach(function (row) {
+    let rule = readDiscountRowByHeader_(grid.headers, row);
+
+    // ヘッダー読みで月も条件も取れない場合、新スキーマ順で書かれた行として読み直す
+    if (!isUsableDiscountRule_(rule)) {
+      const shifted = readDiscountRowByFixedOrder_(row);
+      if (isUsableDiscountRule_(shifted)) {
+        rule = shifted;
+        shiftedRows++;
+      }
+    }
+
+    if (!isUsableDiscountRule_(rule)) return;
+    if (!isActive_(rule.active)) return;
+
+    const key = [rule.ruleType, rule.target, rule.startMonth, rule.endMonth, rule.condition].join('|');
+    if (seen[key]) return; // 同じルールが何度も追記されているので1件に畳む
+    seen[key] = true;
+
+    rules.push(rule);
+  });
+
+  if (shiftedRows > 0) {
+    warnings.push('割引繁忙期マスタに列ずれ行が' + shiftedRows
+      + '件あります。adminNormalizeDiscountRules() で整理してください。');
+  }
+
+  return rules;
+}
+
+function readDiscountRowByHeader_(headers, row) {
+  return {
+    active: pickRowValue_(headers, row, ['有効']),
+    ruleId: String(pickRowValue_(headers, row, ['ルールID']) || '').trim(),
+    ruleType: normalizeRuleType_(pickRowValue_(headers, row, ['ルール種別'])),
+    target: String(pickRowValue_(headers, row, ['対象']) || '').trim(),
+    startMonth: pickRowValue_(headers, row, ['開始月']),
+    endMonth: pickRowValue_(headers, row, ['終了月']),
+    condition: String(pickRowValue_(headers, row, ['条件']) || '').trim(),
+    value: pickRowValue_(headers, row, ['値']),
+    valueType: String(pickRowValue_(headers, row, ['値種別']) || '').trim(),
+    priority: toNumber_(pickRowValue_(headers, row, ['優先度']) || 9999)
+  };
+}
+
+// 新スキーマの並び：有効, ルールID, ルール種別, 対象, 開始月, 終了月, 条件, 値, 値種別, 優先度, 備考
+function readDiscountRowByFixedOrder_(row) {
+  return {
+    active: row[0],
+    ruleId: String(row[1] || '').trim(),
+    ruleType: normalizeRuleType_(row[2]),
+    target: String(row[3] || '').trim(),
+    startMonth: row[4],
+    endMonth: row[5],
+    condition: String(row[6] || '').trim(),
+    value: row[7],
+    valueType: String(row[8] || '').trim(),
+    priority: toNumber_(row[9] || 9999)
+  };
+}
+
+function normalizeRuleType_(value) {
+  const s = String(value || '').trim();
+  if (!s) return '';
+  if (s === '繁忙期加算') return '繁忙期';
+  if (s.indexOf('複数台割引') === 0) return '複数台割引';
+  return s;
+}
+
+function isUsableDiscountRule_(rule) {
+  if (!rule || DISCOUNT_RULE_TYPES.indexOf(rule.ruleType) < 0) return false;
+  if (!(toNumber_(rule.value) > 0)) return false;
+
+  if (rule.ruleType === '複数台割引') {
+    return /\d+\s*[-〜~]\s*\d+/.test(String(rule.condition || ''));
+  }
+
+  return toNumber_(rule.startMonth) >= 1 && toNumber_(rule.endMonth) >= 1;
+}
+
+function readCellDefs_(masterSs) {
+  const sheet = masterSs.getSheetByName(APP.SHEET_CELL_DEF);
+  if (!sheet) return {};
+
+  const grid = readGrid_(sheet, ['帳票区分', '対象シート', '項目キー']);
+  if (!grid) return {};
+
+  const byDocType = {};
+
+  grid.rows.forEach(function (row) {
+    const docType = String(pickRowValue_(grid.headers, row, ['帳票区分']) || '').trim();
+    const key = String(pickRowValue_(grid.headers, row, ['項目キー']) || '').trim();
+    if (!docType || !key) return;
+
+    const rawA1 = String(pickRowValue_(grid.headers, row, ['セル/範囲']) || '').trim();
+    // 「項目名」が空欄で値が左にずれている行があるため、行内からA1表記を拾い直す
+    const a1 = isValidA1_(rawA1) ? rawA1 : findA1InRow_(row);
+    if (!a1) return;
+
+    if (!byDocType[docType]) byDocType[docType] = {};
+    if (byDocType[docType][key]) return;
+
+    byDocType[docType][key] = {
+      key: key,
+      targetSheet: String(pickRowValue_(grid.headers, row, ['対象シート']) || '').trim(),
+      a1: a1
+    };
+  });
+
+  return byDocType;
+}
+
+function getCellDefMap_(docType, ctx) {
+  const defs = (ctx.cellDefs || {})[docType];
+  return defs && Object.keys(defs).length ? defs : getDefaultCellDefMap_(docType);
+}
+
+function isValidA1_(s) {
+  return /^[A-Z]+\d+(?::[A-Z]+\d+)?$/i.test(String(s || '').trim());
+}
+
+function findA1InRow_(row) {
+  for (let i = 0; i < row.length; i++) {
+    const v = String(row[i] || '').trim();
+    if (isValidA1_(v)) return v;
+  }
+  return '';
+}
+
+/* ===================== 見積データシート ===================== */
+
+function getEstimateDataSheet_(ctx) {
+  const ss = getTemplateSs_(ctx.settings);
+  const sheet = ss.getSheetByName(APP.SHEET_ESTIMATE_DATA);
+  if (!sheet) throw new Error('シートが見つかりません：' + APP.SHEET_ESTIMATE_DATA);
+
+  ensureHeaders_(sheet, getEstimateHeaders_());
+  return sheet;
+}
+
+function generateEstimateId_(sheet) {
+  const prefix = 'EST-' + formatDate_(new Date(), 'yyyyMMdd') + '-';
+  const info = getHeaderInfo_(sheet);
+  const col = info.map['estimate_id'];
+  if (!col) throw new Error('見積データシートに estimate_id ヘッダーがありません。');
+
+  const lastRow = sheet.getLastRow();
+  let maxNo = 0;
+
+  if (lastRow > info.headerRow) {
+    // ID列だけ読む。203列を全部読む必要はない。
+    const ids = sheet.getRange(info.headerRow + 1, col, lastRow - info.headerRow, 1).getDisplayValues();
+    ids.forEach(function (r) {
+      const id = String(r[0] || '');
+      if (id.indexOf(prefix) !== 0) return;
+      const n = Number(id.slice(prefix.length));
+      if (!isNaN(n) && n > maxNo) maxNo = n;
+    });
+  }
+
+  return prefix + String(maxNo + 1).padStart(4, '0');
+}
+
+function findEstimateRecord_(sheet, estimateId, hintRowNumber) {
+  const info = getHeaderInfo_(sheet);
+  const col = info.map['estimate_id'];
+  if (!col) throw new Error('見積データシートに estimate_id ヘッダーがありません。');
+
+  const target = String(estimateId || '').trim();
+
+  // 直前の保存で行番号が分かっている場合はそこだけ確認する
+  if (hintRowNumber && hintRowNumber > info.headerRow) {
+    const hinted = String(sheet.getRange(hintRowNumber, col).getDisplayValue()).trim();
+    if (hinted === target) {
+      return { rowNumber: hintRowNumber, record: readObjectAtRow_(sheet, hintRowNumber, info) };
+    }
+  }
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow <= info.headerRow) return null;
+
+  const ids = sheet.getRange(info.headerRow + 1, col, lastRow - info.headerRow, 1).getDisplayValues();
+  for (let i = 0; i < ids.length; i++) {
+    if (String(ids[i][0]).trim() === target) {
+      const rowNumber = info.headerRow + 1 + i;
+      return { rowNumber: rowNumber, record: readObjectAtRow_(sheet, rowNumber, info) };
+    }
+  }
+
+  return null;
+}
+
+/* ===================== シートIO ===================== */
+
+function getMasterSs_() {
+  return openSpreadsheet_(APP.DEFAULT_MASTER_SS_ID,
+    'マスタスプレッドシートを開けません。Excel形式のままの場合はGoogleスプレッドシート形式へ変換してください。');
+}
+
+function getTemplateSs_(settings) {
+  const id = (settings && settings['見積請求書テンプレートスプレッドシートID']) || APP.DEFAULT_TEMPLATE_SS_ID;
+  return openSpreadsheet_(id,
+    '見積・請求書テンプレートスプレッドシートを開けません。Googleスプレッドシート形式か、権限を確認してください。');
+}
+
+function openSpreadsheet_(id, message) {
+  if (RUNTIME.spreadsheets[id]) return RUNTIME.spreadsheets[id];
+
+  try {
+    const ss = SpreadsheetApp.openById(id);
+    RUNTIME.spreadsheets[id] = ss;
+    return ss;
+  } catch (e) {
+    throw new Error(message + ' 詳細：' + toErrorMessage_(e));
+  }
+}
+
+/** ヘッダー行の位置と「ヘッダー名 → 列番号」を返す。実行中はメモしておく。 */
+function getHeaderInfo_(sheet, requiredHeaders) {
+  const key = sheet.getParent().getId() + '::' + sheet.getName();
+  if (RUNTIME.headerInfo[key]) return RUNTIME.headerInfo[key];
+
+  const lastRow = Math.min(Math.max(sheet.getLastRow(), 1), 20);
+  const lastCol = Math.max(sheet.getLastColumn(), 1);
+  const values = sheet.getRange(1, 1, lastRow, lastCol).getDisplayValues();
+
+  let best = null;
+
+  for (let r = 0; r < values.length; r++) {
+    const map = {};
+    values[r].forEach(function (v, idx) {
+      const h = String(v || '').trim();
+      if (h && !map[h]) map[h] = idx + 1;
+    });
+
+    const hit = (requiredHeaders || []).filter(function (h) { return map[h]; }).length;
+    if (!best || hit > best.count) best = { headerRow: r + 1, map: map, count: hit, lastCol: lastCol };
+  }
+
+  if (!best) best = { headerRow: 1, map: {}, count: 0, lastCol: lastCol };
+  RUNTIME.headerInfo[key] = best;
+  return best;
+}
+
+function forgetHeaderInfo_(sheet) {
+  delete RUNTIME.headerInfo[sheet.getParent().getId() + '::' + sheet.getName()];
+}
+
+/**
+ * 足りないヘッダーだけを右端に1回で追加する。
+ * 既存列の位置は動かさないので、稼働中のデータを壊さない。
+ */
+function ensureHeaders_(sheet, headers) {
+  const info = getHeaderInfo_(sheet, headers.slice(0, 2));
+  const missing = headers.filter(function (h) { return !info.map[h]; });
+  if (missing.length === 0) return info;
+
+  sheet.getRange(info.headerRow, sheet.getLastColumn() + 1, 1, missing.length).setValues([missing]);
+  forgetHeaderInfo_(sheet);
+  return getHeaderInfo_(sheet, headers.slice(0, 2));
+}
+
+/** ヘッダー行＋データ行を1回の getValues でまとめて取る。 */
+function readGrid_(sheet, requiredHeaders) {
+  const info = getHeaderInfo_(sheet, requiredHeaders);
+  const lastRow = sheet.getLastRow();
+  const lastCol = sheet.getLastColumn();
+  if (lastRow <= info.headerRow || lastCol < 1) return null;
+
+  const all = sheet.getRange(info.headerRow, 1, lastRow - info.headerRow + 1, lastCol).getValues();
+  const headers = all[0].map(function (h) { return String(h || '').trim(); });
+
+  const rows = all.slice(1).filter(function (row) {
+    return row.some(function (v) { return !isBlank_(v); });
+  });
+
+  return { headers: headers, rows: rows, headerRow: info.headerRow };
+}
+
+function readObjects_(sheet, requiredHeaders) {
+  const grid = readGrid_(sheet, requiredHeaders);
+  if (!grid) return [];
+
+  return grid.rows.map(function (row) {
+    const obj = {};
+    grid.headers.forEach(function (h, i) {
+      if (h && obj[h] === undefined) obj[h] = row[i];
+    });
+    return obj;
+  });
+}
+
+/** 指定した列だけを読む。列数の多い見積DBの検索用。 */
+function readColumns_(sheet, wantedHeaders) {
+  const info = getHeaderInfo_(sheet, wantedHeaders.slice(0, 2));
+  const lastRow = sheet.getLastRow();
+  if (lastRow <= info.headerRow) return [];
+
+  const cols = wantedHeaders.filter(function (h) { return info.map[h]; });
+  if (cols.length === 0) return [];
+
+  const min = Math.min.apply(null, cols.map(function (h) { return info.map[h]; }));
+  const max = Math.max.apply(null, cols.map(function (h) { return info.map[h]; }));
+
+  const values = sheet.getRange(info.headerRow + 1, min, lastRow - info.headerRow, max - min + 1).getValues();
+
+  return values
+    .filter(function (row) { return row.some(function (v) { return !isBlank_(v); }); })
+    .map(function (row) {
+      const obj = {};
+      cols.forEach(function (h) { obj[h] = row[info.map[h] - min]; });
+      return obj;
+    });
+}
+
+function readObjectAtRow_(sheet, rowNumber, info) {
+  const row = sheet.getRange(rowNumber, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
+  const obj = {};
+  Object.keys(info.map).forEach(function (h) { obj[h] = row[info.map[h] - 1]; });
+  return obj;
+}
+
+/**
+ * オブジェクトを1行追記する。実際のヘッダー位置に書くので、
+ * シート側の列順がコードの定義と違っていてもずれない（旧 upsertRowsByKey_ の不具合）。
+ * 戻り値は書き込んだ行番号。
+ */
+function appendObject_(sheet, obj) {
+  const info = getHeaderInfo_(sheet);
+  const width = Math.max(sheet.getLastColumn(), 1);
+  const row = new Array(width).fill('');
+
+  Object.keys(obj).forEach(function (key) {
+    const col = info.map[key];
+    if (col && col <= width) row[col - 1] = obj[key];
+  });
+
+  const rowNumber = sheet.getLastRow() + 1;
+  sheet.getRange(rowNumber, 1, 1, width).setValues([row]);
+  return rowNumber;
+}
+
+/** 既存行の更新。連続する列はまとめて1回の setValues にする。 */
+function updateObjectAtRow_(sheet, rowNumber, fields) {
+  const info = getHeaderInfo_(sheet);
+  const targets = [];
+
+  Object.keys(fields).forEach(function (key) {
+    const col = info.map[key];
+    if (col) targets.push({ col: col, value: fields[key] });
+  });
+
+  if (targets.length === 0) return;
+  targets.sort(function (a, b) { return a.col - b.col; });
+
+  let run = [targets[0]];
+
+  const flush = function () {
+    const start = run[0].col;
+    sheet.getRange(rowNumber, start, 1, run.length)
+      .setValues([run.map(function (t) { return t.value; })]);
+  };
+
+  for (let i = 1; i < targets.length; i++) {
+    if (targets[i].col === run[run.length - 1].col + 1) {
+      run.push(targets[i]);
+    } else {
+      flush();
+      run = [targets[i]];
+    }
+  }
+
+  flush();
+}
+
+/**
+ * 差し込みセルへの書き込み。
+ * 複数セル範囲は一度clearしてから左上だけに書く（金額の二重表示を防ぐため）。
+ * 単一セルはclear不要なので呼び出し回数を減らす。
+ */
+function setByKeys_(sheet, defs, values) {
+  Object.keys(values).forEach(function (key) {
+    const def = defs[key];
+    if (!def || !def.a1) return;
+
+    const range = sheet.getRange(def.a1);
+    if (range.getNumRows() > 1 || range.getNumColumns() > 1) range.clearContent();
+
+    range.getCell(1, 1).setValue(values[key]);
+  });
+}
+
+function getTargetSheetNameFromDefs_(defs, fallback) {
+  const keys = Object.keys(defs);
+  for (let i = 0; i < keys.length; i++) {
+    if (defs[keys[i]].targetSheet) return defs[keys[i]].targetSheet;
+  }
+  return fallback;
+}
+
+function getDefaultCellDefMap_(docType) {
+  const map = {};
+  getDefaultCellDefinitionRows_()
+    .filter(function (r) { return r[0] === docType; })
+    .forEach(function (r) { map[r[2]] = { key: r[2], targetSheet: r[1], a1: r[4] }; });
+  return map;
+}
+
+/* ===================== ログ ===================== */
+
+function queueLog_(operationType, estimateId, content, errorContent, elapsedMs) {
+  RUNTIME.logs.push([
+    new Date(),
+    getCurrentUser_(),
+    operationType || '',
+    estimateId || '',
+    truncate_(content || '', 3000),
+    truncate_(errorContent || '', 3000),
+    elapsedMs === undefined ? '' : elapsedMs
+  ]);
+}
+
+/** リクエスト終了時に1回だけ書き込む。旧実装は操作ごとに毎回シートを開いていた。 */
+function flushLogs_() {
+  if (RUNTIME.logs.length === 0) return;
+
+  const rows = RUNTIME.logs.splice(0, RUNTIME.logs.length);
+
+  try {
+    const sheet = getMasterSs_().getSheetByName(APP.SHEET_LOG);
+    if (!sheet) return;
+
+    const info = getHeaderInfo_(sheet, getLogHeaders_());
+    const order = getLogHeaders_().map(function (h) { return info.map[h] || 0; });
+    const width = Math.max(sheet.getLastColumn(), getLogHeaders_().length);
+
+    const values = rows.map(function (r) {
+      const out = new Array(width).fill('');
+      order.forEach(function (col, i) { if (col) out[col - 1] = r[i]; });
+      return out;
+    });
+
+    sheet.getRange(sheet.getLastRow() + 1, 1, values.length, width).setValues(values);
+  } catch (e) {
+    console.error('ログ書き込みに失敗しました：' + toErrorMessage_(e));
+  }
+}
+
+/**
+ * 全APIの共通ラッパー。所要時間を測ってログに残すので、
+ * 体感ではなく数字で速度を確認できる。
+ */
+function withApi_(operationType, estimateId, fn) {
+  const started = Date.now();
+
+  try {
+    const result = fn();
+    const elapsed = Date.now() - started;
+
+    queueLog_(operationType, (result && result.estimateId) || estimateId || '',
+      '完了' + (RUNTIME.context && RUNTIME.context.fromCache ? '（マスタはキャッシュ）' : '（マスタを実読み）'),
+      '', elapsed);
+
+    flushLogs_();
+
+    if (result && typeof result === 'object') result.elapsedMs = elapsed;
+    return result;
+  } catch (e) {
+    const msg = toErrorMessage_(e);
+    queueLog_('エラー', estimateId || '', operationType + 'でエラー', msg, Date.now() - started);
+    flushLogs_();
+    return { ok: false, error: msg };
+  }
+}
+
+/* ===================== スキーマ定義 ===================== */
+
+function getMenuHeaders_() {
+  return [
+    'メニューID', '有効', '表示順', 'メニュータイプ', 'カテゴリ', 'メニュー名', '顧客表示名',
+    '単価', '税区分', '数量単位', '標準時間_分', '繁忙期加算対象', '繁忙期加算額',
+    '割引対象', '複数台割引対象', '既存/特殊', '見積表示', '請求書流用',
+    '関連メニュー/利用可能オプション', 'PDF記載ページ', '原文価格/時間', '補足_現場入力', '要確認事項'
+  ];
+}
+
+function getSubmitToHeaders_() {
+  return ['有効', '案件タイプ', '提出先名', '見積書宛名', '宛先メール', '固定CC', '送信元メール',
+    'メールテンプレート種別', '請求締め日', '支払サイト', '支払期日_休日調整', '備考'];
+}
+
+function getMailTemplateHeaders_() {
+  return ['有効', 'テンプレート種別', '件名', '本文', '備考'];
+}
+
+function getDiscountHeaders_() {
+  return ['有効', 'ルールID', 'ルール種別', '対象', '開始月', '終了月', '条件', '値', '値種別', '優先度', '備考'];
+}
+
+function getStaffHeaders_() {
+  return ['有効', '担当者ID', '担当者名', 'メール', '備考'];
+}
+
+function getCellDefHeaders_() {
+  return ['帳票区分', '対象シート', '項目キー', '項目名', 'セル/範囲', '入力種別', 'データ型', '必須', '備考'];
+}
+
+function getLogHeaders_() {
+  return ['日時', 'ユーザー', '操作種別', '見積ID', '内容', 'エラー内容', '所要ms'];
+}
+
+function getEstimateHeaders_() {
+  const headers = [
+    'estimate_id', 'original_estimate_id', 'invoice_id', 'invoice_source_flag', 'project_status',
+    '作成日時', '更新日時', '作成者', '案件タイプ', '提出先名', '見積書宛名', '敬称',
+    '宛先メール', '固定CC', '送信元メール', '顧客名', '案件名', '現場住所', '作業予定日',
+    '担当者', '見積日', '見積番号', '件名', '本文テンプレート種別', '備考', '駐車場代注記',
+    '高速代', '高速代_税区分', '明細小計', '割引額', '繁忙期加算額', '非課税小計',
+    '課税小計', '消費税', '合計金額', '繁忙期_自動判定', '繁忙期_手動設定',
+    '割引_自動判定', '割引_手動設定', '例外フラグ', '例外理由', 'PDF_URL', 'PDF_FILE_ID',
+    'メール下書きURL', 'メール下書きID', 'メール下書き作成日時',
+    '代表者確認メール下書きURL', '代表者確認メール下書きID', '代表者確認メール作成日時',
+    '複製元見積ID'
+  ];
+
+  for (let i = 1; i <= APP.MAX_DETAIL_ROWS; i++) {
+    const p = '明細' + pad2_(i) + '_';
+    headers.push(p + '品名', p + 'メニューID', p + 'メニュータイプ', p + '数量', p + '単位',
+      p + '単価', p + '金額', p + '税区分', p + '備考');
+  }
+
+  headers.push('内部メモ');
+
+  // ここから下が2026-09改修の追加列。既存列の位置は動かさず右端に足す。
+  headers.push('request_id', '要代表者確認', '自動割引種別', '自動割引額', '明細値引き合計',
+    '調整合計額', '合計指定額', '調整_JSON');
+
+  for (let i = 1; i <= APP.MAX_ADJUSTMENT_SLOTS; i++) {
+    headers.push('調整' + pad2_(i) + '_名称', '調整' + pad2_(i) + '_金額');
+  }
+
+  for (let i = 1; i <= APP.MAX_DETAIL_ROWS; i++) {
+    headers.push('明細' + pad2_(i) + '_値引き額');
+  }
+
+  return headers;
+}
+
+/**
+ * 差し込みセル定義の初期値。
+ *
+ * 2026-09、本番テンプレート（xlsx書き出し）を実際に読んで確定させた。
+ * 引継ぎ時点の定義には実テンプレートと合っていない箇所が3つあった。
+ *
+ *   1. total_amount_display が B19:C19 になっていた。
+ *      C19 にはテンプレートの「　円」が入っているため、書き込み前の clearContent で
+ *      その「円」が消え、代わりに total_amount_unit が D19（本来は空のセル）へ書かれていた。
+ *      → 金額と「円」の間に空白が1マス空いた状態でPDFが出ていた。
+ *      正しくは 値=B19、単位=C19。
+ *
+ *   2. 請求書の remarks が A39:D41 になっていた。
+ *      請求書の備考の結合は A39:D40 までで、41行目には「お支払い期限：」の見出しがある。
+ *      A39:D41 を clearContent するとその見出しが消える。
+ *      → 請求書は A39:D40。
+ *
+ *   3. 請求書の「お支払い期限：」の値セル（B41）が定義されていなかった。
+ *
+ * 実テンプレートの構造（確認済み）
+ *   見積書：明細 22〜37行に =D*E の式、38行目は式なし、小計/消費税/合計 = F39/F40/F41
+ *   請求書：明細 22〜38行に =D*E の式、小計/消費税/合計 = F39/F40/F41、
+ *           A41 に「お支払い期限：」、A43 に振込先（固定文言）
+ *   どちらも明細の書き込み範囲は 22〜38 行とし、17行目は空で上書きして
+ *   テンプレートの式が「0」として印字されないようにする。
+ */
+function getDefaultCellDefinitionRows_() {
+  const rows = [];
+
+  // 両帳票で共通の差し込み先
+  const shared = [
+    ['document_date', '書類日付', 'F2', 'date'],
+    ['document_no_label', '番号ラベル', 'E3', 'string'],
+    ['title', '帳票タイトル', 'A5:F5', 'string'],
+    ['addressee_name', '宛名', 'A8:C8', 'string'],
+    ['addressee_suffix', '敬称', 'D8', 'string'],
+    ['company_name', '自社名', 'E9', 'string'],
+    ['company_zip', '会社郵便番号', 'E10', 'string'],
+    ['company_address', '会社住所', 'E11', 'string'],
+    ['company_tel', '会社電話番号', 'E12', 'string'],
+    ['company_fax', '会社FAX', 'E13', 'string'],
+    ['stamp_area', '社印エリア', 'F9:F13', 'image'],
+    ['project_name', '案件名', 'A13:C13', 'string'],
+    ['project_suffix', '案件名接尾', 'D13', 'string'],
+    ['greeting', '挨拶文', 'A18:F18', 'string'],
+    ['total_amount_label', '合計ラベル', 'A19', 'string'],
+    ['total_amount_display', '合計表示', 'B19', 'money'],
+    ['total_amount_unit', '合計単位', 'C19', 'string'],
+    ['detail_header_name', '明細見出し品名', 'A21:C21', 'string'],
+    ['detail_header_qty', '明細見出し数量', 'D21', 'string'],
+    ['detail_header_unit_price', '明細見出し単価', 'E21', 'string'],
+    ['detail_header_amount', '明細見出し金額', 'F21', 'string'],
+    ['detail_name_range', '明細品名範囲', 'A22:C38', 'string'],
+    ['detail_qty_range', '明細数量範囲', 'D22:D38', 'number'],
+    ['detail_unit_price_range', '明細単価範囲', 'E22:E38', 'money'],
+    ['detail_amount_range', '明細金額範囲', 'F22:F38', 'money'],
+    ['subtotal_label', '小計ラベル', 'E39', 'string'],
+    ['subtotal', '小計', 'F39', 'money'],
+    ['tax_label', '消費税ラベル', 'E40', 'string'],
+    ['tax', '消費税', 'F40', 'money'],
+    ['grand_total_label', '合計ラベル', 'E41', 'string'],
+    ['grand_total', '合計', 'F41', 'money']
+  ];
+
+  const docs = [
+    {
+      docType: '見積書',
+      sheetName: APP.TEMP_ESTIMATE_SHEET,
+      idKey: 'estimate_id',
+      idName: '見積番号',
+      extra: [
+        // 見積書の備考は A39:D41 まで結合されている
+        ['remarks', '備考', 'A39:D41', 'string', 'TRUE', '駐車場代注記を含める']
+      ]
+    },
+    {
+      docType: '請求書',
+      sheetName: APP.TEMP_INVOICE_SHEET,
+      idKey: 'invoice_id',
+      idName: '請求番号',
+      extra: [
+        // 請求書の備考は A39:D40 まで。41行目は「お支払い期限：」の行なので含めない
+        ['remarks', '備考', 'A39:D40', 'string', 'TRUE', '41行目はお支払い期限の行なので含めない'],
+        ['payment_due', '支払期限', 'B41', 'date', 'TRUE', 'A41の「お支払い期限：」の右隣']
+      ]
+    }
+  ];
+
+  docs.forEach(function (doc) {
+    rows.push([doc.docType, doc.sheetName, doc.idKey, doc.idName, 'F3', '差し込み', 'string', 'TRUE', '']);
+
+    shared.forEach(function (l) {
+      rows.push([doc.docType, doc.sheetName, l[0], l[1], l[2], '差し込み', l[3], 'TRUE', '']);
+    });
+
+    doc.extra.forEach(function (l) {
+      rows.push([doc.docType, doc.sheetName, l[0], l[1], l[2], '差し込み', l[3], l[4], l[5]]);
+    });
+  });
+
+  return rows;
+}
+
+/* ===================== 文面 ===================== */
+
+function buildTokensFromRecord_(record, ctx, extra) {
+  const settings = (ctx && ctx.settings) || {};
+  const e = extra || {};
+
+  return {
+    顧客名: record['顧客名'] || '',
+    案件名: record['案件名'] || '',
+    見積金額: e['見積金額'] !== undefined ? e['見積金額'] : formatYen_(toNumber_(record['合計金額'])),
+    作成日: e['作成日'] !== undefined ? e['作成日'] : formatDate_(record['作成日時'] || new Date(), 'yyyy/MM/dd'),
+    担当者: record['担当者'] || record['作成者'] || '',
+    提出先名: record['提出先名'] || '',
+    見積ID: record.estimate_id || record['estimate_id'] || '',
+    PDF_URL: e['PDF_URL'] !== undefined ? e['PDF_URL'] : (record['PDF_URL'] || ''),
+    案件タイプ: record['案件タイプ'] || '',
+    例外理由: e['例外理由'] !== undefined ? e['例外理由'] : (record['例外理由'] || ''),
+    作成日時: e['作成日時'] !== undefined ? e['作成日時'] : formatDateTime_(record['作成日時'] || new Date()),
+    会社名: settings['会社名'] || ''
+  };
+}
+
+function renderTemplate_(template, tokens) {
+  return String(template || '').replace(/\{([^}]+)\}/g, function (_, key) {
+    return tokens[key] !== undefined ? tokens[key] : '';
+  });
+}
+
+function getFallbackEstimateTemplate_() {
+  return {
+    subject: '【お見積書】{案件名} / {顧客名}様',
+    body: '{顧客名}様\n\nお世話になっております。\nお見積書を添付にてお送りいたします。\n\n■見積ID：{見積ID}\n■見積金額：{見積金額}\n\nご確認のほど、よろしくお願いいたします。\n\n{会社名}'
+  };
+}
+
+function getFallbackRepresentativeTemplate_() {
+  return {
+    subject: '【要確認】見積確認依頼：{見積ID}',
+    body: '代表者確認をお願いします。\n\n■見積ID：{見積ID}\n■顧客名：{顧客名}\n■案件名：{案件名}\n■合計金額：{見積金額}\n■例外理由：\n{例外理由}\n\n■PDF_URL：{PDF_URL}\n■作成者：{担当者}\n■作成日時：{作成日時}'
+  };
+}
+
+/* ===================== 汎用 ===================== */
+
+function getCurrentUser_() {
+  try {
+    return Session.getActiveUser().getEmail() || Session.getEffectiveUser().getEmail() || '';
+  } catch (e) {
+    return '';
+  }
+}
+
+function pickRowValue_(headers, row, candidates) {
+  // 同名の重複列があるため、まず「値の入っている方」を探す
+  for (let i = 0; i < candidates.length; i++) {
+    for (let c = 0; c < headers.length; c++) {
+      if (headers[c] === candidates[i] && !isBlank_(row[c])) return row[c];
+    }
+  }
+
+  for (let i = 0; i < candidates.length; i++) {
+    for (let c = 0; c < headers.length; c++) {
+      if (headers[c] === candidates[i]) return row[c];
+    }
+  }
+
+  return '';
+}
+
+function parseDateInput_(value) {
+  if (!value) return null;
+  if (Object.prototype.toString.call(value) === '[object Date]') return value;
+
+  const s = String(value).trim();
+  const m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function toDateInputValue_(value) {
+  const d = parseDateInput_(value);
+  return d ? formatDate_(d, 'yyyy-MM-dd') : '';
+}
+
+function formatDate_(date, pattern) {
+  return Utilities.formatDate(parseDateInput_(date) || new Date(), APP.TZ, pattern);
+}
+
+function formatDateTime_(date) {
+  if (!date) return '';
+  const d = parseDateInput_(date) || date;
+  try { return Utilities.formatDate(d, APP.TZ, 'yyyy/MM/dd HH:mm:ss'); }
+  catch (e) { return String(date); }
+}
+
+function toNumber_(value) {
+  if (typeof value === 'number') return isFinite(value) ? value : 0;
+  if (value === null || value === undefined) return 0;
+
+  const s = String(value).replace(/[,\s円¥￥]/g, '').replace(/％/g, '%').trim();
+  if (!s) return 0;
+  if (s.indexOf('%') >= 0) {
+    const p = Number(s.replace('%', ''));
+    return isNaN(p) ? 0 : p / 100;
+  }
+
+  const n = Number(s);
+  return isNaN(n) ? 0 : n;
+}
+
+function normalizeRate_(value) {
+  const n = toNumber_(value);
+  return n > 1 ? n / 100 : n;
+}
+
+function roundYen_(n) { return Math.round(toNumber_(n)); }
+
+function formatYen_(n) {
+  const v = roundYen_(n);
+  return (v < 0 ? '-¥' : '¥') + Math.abs(v).toLocaleString('ja-JP');
+}
+
+function parseBooleanLoose_(v) {
+  if (v === true) return true;
+  if (v === false) return false;
+  const s = String(v == null ? '' : v).trim().toLowerCase();
+  return ['true', '1', 'yes', 'y', '有効', '○', '〇', 'on', '適用'].indexOf(s) >= 0;
+}
+
+function isActive_(v) {
+  if (isBlank_(v)) return true;
+  const s = String(v).trim().toLowerCase();
+  return ['false', '0', 'no', 'n', '無効', '停止', 'off'].indexOf(s) < 0;
+}
+
+function boolText_(b) { return b ? 'TRUE' : 'FALSE'; }
+function isBlank_(v) { return v === null || v === undefined || String(v).trim() === ''; }
+
+/** 「非課税」「不課税」「対象外」以外は課税として扱う。CalcEngine と同じ判定。 */
+function isTaxable_(taxType) {
+  const s = String(taxType || '');
+  return !(s.indexOf('非課税') >= 0 || s.indexOf('不課税') >= 0 || s.indexOf('対象外') >= 0);
+}
+
+function matchText_(value, keyword) {
+  if (!keyword) return true;
+  return String(value || '').toLowerCase().indexOf(String(keyword).toLowerCase()) >= 0;
+}
+
+function matchDate_(value, dateText) {
+  if (!dateText) return true;
+  return formatDate_(value, 'yyyy-MM-dd') === dateText;
+}
+
+function pad2_(n) { return String(n).padStart(2, '0'); }
+
+function sanitizeFileName_(name) {
+  return String(name || '').replace(/[\\/:*?"<>|\r\n]/g, '_').slice(0, 180);
+}
+
+function toErrorMessage_(e) { return !e ? '' : (e.message ? e.message : String(e)); }
+
+function truncate_(s, max) {
+  const t = String(s || '');
+  return t.length > max ? t.slice(0, max) + '…' : t;
+}
+
+
+/* ==========================================================================
+ * Invoice.gs
+ * ========================================================================== */
+
+/**
+ * 請求書機能
+ *
+ * 見積検索 → プレビュー → 請求書作成 → PDF → Gmail下書き → 見積へ書き戻し。
+ *
+ * 設計上の要点
+ *   - 見積レコードは絶対に上書きしない。invoice_id と project_status だけ更新する。
+ *   - 請求データは 請求書/データ格納 へ別レコードとして保存する。
+ *   - 金額計算は見積と同じ CalcEngine を使う。駐車場代・追加作業費・値引き額は
+ *     「調整行」に変換して渡すので、計算式を二重に持たない。
+ *   - 見積に invoice_id があれば通常の作成は出さず「請求書確認」にする（二重請求防止）。
+ *     作り直しは明示的な再作成フラグを立てたときだけ。
+ *   - Gmailは下書きのみ。即送信しない。
+ */
+
+/* ===================== API ===================== */
+
+/**
+ * 請求書作成の入口。見積を読み、請求フォームの初期値を組み立てて返す。
+ * 既に請求済みなら existingInvoiceId を立てて、画面側で「確認」に切り替えさせる。
+ */
+function apiStartInvoice(estimateId) {
+  return withApi_('請求書作成準備', estimateId, function () {
+    const ctx = loadContext_();
+    const estimateSheet = getEstimateDataSheet_(ctx);
+    const found = findEstimateRecord_(estimateSheet, estimateId);
+    if (!found) throw new Error('見積IDが見つかりません：' + estimateId);
+
+    const r = found.record;
+    const existingInvoiceId = String(r['invoice_id'] || '').trim();
+    const estimateCalc = rebuildCalcFromRecord_(r, ctx);
+    const target = (ctx.submitTargets || []).find(function (t) {
+      return t.projectType === String(r['案件タイプ'] || '').trim();
+    }) || null;
+
+    const workDate = toDateInputValue_(r['作業予定日']);
+    const terms = resolvePaymentTerms_(target, workDate, ctx.settings);
+
+    return {
+      ok: true,
+      estimateId: estimateId,
+      existingInvoiceId: existingInvoiceId,
+      estimateTotal: estimateCalc.grandTotal,
+      estimateTotalDisplay: formatYen_(estimateCalc.grandTotal),
+      customerName: r['顧客名'] || '',
+      projectName: r['案件名'] || '',
+      projectType: r['案件タイプ'] || '',
+      submitToName: r['提出先名'] || '',
+      addresseeName: r['見積書宛名'] || '',
+      to: r['宛先メール'] || '',
+      cc: r['固定CC'] || '',
+      rows: estimateCalc.pdfRows,
+      form: {
+        workCompletedDate: workDate,
+        invoiceDate: toDateInputValue_(terms.invoiceDate),
+        dueDate: toDateInputValue_(terms.dueDate),
+        parkingFee: '',
+        parkingTaxType: String(ctx.settings['駐車場代_税区分'] || '課税'),
+        extraWorkName: '追加作業費',
+        extraWorkFee: '',
+        discountName: '値引き',
+        discountAmount: '',
+        remarks: '',
+        staff: r['担当者'] || r['作成者'] || ''
+      },
+      terms: {
+        note: terms.note,
+        closing: terms.closing,
+        site: terms.site,
+        holidayRule: terms.holidayRule,
+        fromMaster: terms.fromMaster,
+        adjusted: terms.adjusted
+      },
+      termsNote: terms.note
+    };
+  });
+}
+
+/** 請求フォームの内容で金額だけ計算して返す（保存はしない）。 */
+function apiCalculateInvoice(payload) {
+  return withApi_('請求額計算', (payload || {}).estimateId || '', function () {
+    const ctx = loadContext_();
+    const prepared = prepareInvoiceCalc_(payload, ctx);
+
+    return {
+      ok: true,
+      calc: prepared.calc,
+      estimateTotal: prepared.estimateTotal,
+      diff: prepared.calc.grandTotal - prepared.estimateTotal
+    };
+  });
+}
+
+/**
+ * 請求データを保存する。フェーズ1（見積と同じ2フェーズ構成）。
+ * 見積側は invoice_id と project_status だけ更新する。
+ */
+function apiSaveInvoice(payload) {
+  return withApi_('請求書作成', (payload || {}).estimateId || '', function () {
+    const p = payload || {};
+    const ctx = loadContext_();
+    const estimateSheet = getEstimateDataSheet_(ctx);
+    const found = findEstimateRecord_(estimateSheet, p.estimateId);
+    if (!found) throw new Error('見積IDが見つかりません：' + p.estimateId);
+
+    const existing = String(found.record['invoice_id'] || '').trim();
+    if (existing && p.allowRecreate !== true) {
+      throw new Error('この見積には既に請求書 ' + existing + ' が作成されています。'
+        + '作り直す場合は再作成を明示してください。');
+    }
+
+    const invoiceSheet = getInvoiceDataSheet_(ctx);
+    const prepared = prepareInvoiceCalc_(p, ctx);
+    const requestId = String(p.requestId || '').trim();
+
+    const lock = LockService.getScriptLock();
+    lock.waitLock(30000);
+
+    let invoiceId = '';
+    let rowNumber = 0;
+    let duplicated = false;
+
+    try {
+      const seen = requestId ? readSavedRequest_(requestId) : null;
+
+      if (seen) {
+        invoiceId = seen.estimateId; // 同じキャッシュ構造を使い回している
+        rowNumber = seen.rowNumber;
+        duplicated = true;
+      } else {
+        invoiceId = generateInvoiceId_(invoiceSheet);
+        const record = buildInvoiceRecord_(p, ctx, prepared, invoiceId, existing);
+        record.request_id = requestId;
+        rowNumber = appendObject_(invoiceSheet, record);
+        if (requestId) rememberSavedRequest_(requestId, invoiceId, rowNumber);
+      }
+    } finally {
+      lock.releaseLock();
+    }
+
+    if (!duplicated) {
+      // 見積レコードは上書きしない。紐付けと進捗だけ更新する。
+      updateObjectAtRow_(estimateSheet, found.rowNumber, {
+        invoice_id: invoiceId,
+        project_status: '請求書作成済',
+        更新日時: new Date()
+      });
+    }
+
+    queueLog_(duplicated ? '請求書作成(再送)' : '請求書作成', p.estimateId,
+      '請求ID ' + invoiceId + ' / 請求額 ' + prepared.calc.grandTotal
+      + '円 / 見積額 ' + prepared.estimateTotal + '円', '');
+
+    return {
+      ok: true,
+      invoiceId: invoiceId,
+      rowNumber: rowNumber,
+      estimateId: p.estimateId,
+      duplicated: duplicated,
+      calc: prepared.calc,
+      estimateTotal: prepared.estimateTotal,
+      diff: prepared.calc.grandTotal - prepared.estimateTotal
+    };
+  });
+}
+
+/** フェーズ2：請求書PDFとGmail下書きを作る。 */
+function apiBuildInvoiceDocuments(invoiceId, rowNumber) {
+  return withApi_('請求書帳票生成', invoiceId, function () {
+    const ctx = loadContext_();
+    const sheet = getInvoiceDataSheet_(ctx);
+    const found = findInvoiceRecord_(sheet, invoiceId, rowNumber);
+    if (!found) throw new Error('請求IDが見つかりません：' + invoiceId);
+
+    const record = found.record;
+    const calc = rebuildInvoiceCalc_(record, ctx);
+    const errors = [];
+    const writeback = { 更新日時: new Date() };
+
+    let pdfFile = null;
+    let pdfUrl = '';
+    let pdfFileId = '';
+
+    try {
+      const pdf = generateInvoicePdf_(record, calc, ctx);
+      pdfFile = pdf.file;
+      pdfUrl = pdf.url;
+      pdfFileId = pdf.fileId;
+
+      writeback.PDF_URL = pdfUrl;
+      writeback.PDF_FILE_ID = pdfFileId;
+      record.PDF_URL = pdfUrl;
+
+      queueLog_('請求書PDF生成', invoiceId, '請求書PDFを生成しました。', '');
+    } catch (e) {
+      const msg = toErrorMessage_(e);
+      errors.push('PDF生成失敗：' + msg);
+      queueLog_('エラー', invoiceId, '請求書PDF生成に失敗しました。', msg);
+    }
+
+    let draftUrl = '';
+    let draftId = '';
+    let mailPreview = null;
+
+    try {
+      if (!pdfFile) throw new Error('PDF生成に失敗したため、PDF添付済みメール下書きは作成していません。');
+
+      const draft = createInvoiceMailDraft_(record, calc, ctx, pdfFile);
+      draftUrl = draft.draftUrl;
+      draftId = draft.draftId;
+
+      writeback.メール下書きURL = draftUrl;
+      writeback.メール下書きID = draftId;
+      writeback.メール下書き作成日時 = new Date();
+
+      queueLog_('請求書メール下書き作成', invoiceId, 'Gmail下書きを作成しました。', '');
+    } catch (e) {
+      const msg = toErrorMessage_(e);
+      errors.push('メール下書き作成失敗：' + msg);
+      mailPreview = buildInvoiceMailPreview_(record, calc, ctx);
+      queueLog_('エラー', invoiceId, '請求書メール下書き作成に失敗しました。', msg);
+    }
+
+    updateObjectAtRow_(sheet, found.rowNumber, writeback);
+
+    return {
+      ok: true,
+      invoiceId: invoiceId,
+      pdfUrl: pdfUrl,
+      pdfFileId: pdfFileId,
+      draftUrl: draftUrl,
+      draftId: draftId,
+      errors: errors,
+      mailPreview: mailPreview
+    };
+  });
+}
+
+/** 作成済み請求書の確認用。 */
+function apiGetInvoiceDetail(invoiceId) {
+  return withApi_('請求書確認', invoiceId, function () {
+    const ctx = loadContext_();
+    const sheet = getInvoiceDataSheet_(ctx);
+    const found = findInvoiceRecord_(sheet, invoiceId);
+    if (!found) throw new Error('請求IDが見つかりません：' + invoiceId);
+
+    const r = found.record;
+    const calc = rebuildInvoiceCalc_(r, ctx);
+
+    return {
+      ok: true,
+      invoiceId: invoiceId,
+      header: {
+        estimate_id: r['estimate_id'] || '',
+        作成日時: formatDateTime_(r['作成日時']),
+        案件タイプ: r['案件タイプ'] || '',
+        提出先名: r['提出先名'] || '',
+        請求書宛名: (r['請求書宛名'] || '') + ' ' + (r['敬称'] || ''),
+        顧客名: r['顧客名'] || '',
+        案件名: r['案件名'] || '',
+        施工日: toDateInputValue_(r['施工日']),
+        請求日: toDateInputValue_(r['請求日']),
+        支払期限: toDateInputValue_(r['支払期限']),
+        担当者: r['担当者'] || '',
+        宛先メール: r['宛先メール'] || '',
+        固定CC: r['固定CC'] || '',
+        備考: r['備考'] || '',
+        PDF_URL: r['PDF_URL'] || '',
+        メール下書きURL: r['メール下書きURL'] || ''
+      },
+      rows: calc.pdfRows,
+      display: calc.summaryDisplay,
+      estimateTotal: toNumber_(r['見積時合計金額']),
+      diff: calc.grandTotal - toNumber_(r['見積時合計金額'])
+    };
+  });
+}
+
+/* ===================== 請求日・支払期限 ===================== */
+
+/**
+ * 請求日と支払期限は取引先ごとに違うので、提出先マスタで制御する。
+ *
+ * 提出先マスタの列
+ *   請求締め日        … 「月末」または 1〜31 の数字
+ *   支払サイト        … 締め日からいつ払うか（下の書式）
+ *   支払期日_休日調整 … 空 / 「前営業日」 / 「翌営業日」
+ *
+ * 支払サイトの書式
+ *   当月末 / 翌月末 / 翌々月末        … その月の末日
+ *   当月25日 / 翌月10日 / 翌々月20日  … その月の指定日（短い月は末日に丸める）
+ *   30日 / 60日                        … 請求日からの日数
+ *
+ * 空欄なら設定マスタの既定値（月末締め・翌月末払い）を使う。
+ * ここで出すのは初期値で、請求書作成画面で上書きできる。
+ */
+function resolvePaymentTerms_(target, workDateInput, settings) {
+  const workDate = parseDateInput_(workDateInput) || new Date();
+
+  const closingRaw = pickTerm_(target && target.closingDay, settings['既定_請求締め日'], '月末');
+  const siteRaw = pickTerm_(target && target.paymentSite, settings['既定_支払サイト'], '翌月末');
+  const holidayRaw = pickTerm_(target && target.paymentHolidayRule, settings['既定_支払期日休日調整'], '');
+
+  const fromMaster = !!(target && (target.closingDay || target.paymentSite || target.paymentHolidayRule));
+
+  const invoiceDate = calcClosingDate_(workDate, closingRaw);
+  const rawDue = calcDueDate_(invoiceDate, siteRaw);
+  const dueDate = adjustForWeekend_(rawDue, holidayRaw);
+
+  const notes = ['締め日：' + closingRaw, '支払サイト：' + siteRaw];
+  if (holidayRaw) notes.push('休日調整：' + holidayRaw);
+  notes.push(fromMaster ? '（提出先マスタ）' : '（既定値）');
+
+  return {
+    invoiceDate: invoiceDate,
+    dueDate: dueDate,
+    closing: closingRaw,
+    site: siteRaw,
+    holidayRule: holidayRaw,
+    fromMaster: fromMaster,
+    adjusted: rawDue.getTime() !== dueDate.getTime(),
+    note: notes.join(' / ')
+  };
+}
+
+function pickTerm_(masterValue, settingValue, fallback) {
+  const m = String(masterValue == null ? '' : masterValue).trim();
+  if (m) return m;
+
+  const s = String(settingValue == null ? '' : settingValue).trim();
+  if (s) return s;
+
+  return fallback;
+}
+
+function lastDayOfMonth_(year, monthIndex) {
+  return new Date(year, monthIndex + 1, 0);
+}
+
+function clampToMonth_(year, monthIndex, day) {
+  const last = lastDayOfMonth_(year, monthIndex).getDate();
+  return new Date(year, monthIndex, Math.min(day, last));
+}
+
+/** 施工日が締め日を過ぎていれば翌月締めにする。 */
+function calcClosingDate_(workDate, closing) {
+  const y = workDate.getFullYear();
+  const m = workDate.getMonth();
+  const text = String(closing || '').trim();
+
+  if (isMonthEndText_(text)) return lastDayOfMonth_(y, m);
+
+  const day = toNumber_(text);
+  if (!(day >= 1 && day <= 31)) return lastDayOfMonth_(y, m);
+
+  const thisMonth = clampToMonth_(y, m, day);
+  return workDate.getDate() <= thisMonth.getDate() ? thisMonth : clampToMonth_(y, m + 1, day);
+}
+
+function isMonthEndText_(text) {
+  const t = String(text || '').trim();
+  return t === '月末' || t === '末日' || t === '末';
+}
+
+const MONTH_OFFSET_WORDS = [
+  { words: ['翌々月', '翌翌月', '再来月'], offset: 2 },
+  { words: ['翌月', '来月'], offset: 1 },
+  { words: ['当月', '同月', '今月'], offset: 0 }
+];
+
+/**
+ * 支払サイトから支払期限を出す。
+ * 「翌月10日」のような月＋日の指定に対応する（20日締め翌月10日払い等の実務条件のため）。
+ */
+function calcDueDate_(invoiceDate, site) {
+  const y = invoiceDate.getFullYear();
+  const m = invoiceDate.getMonth();
+  const text = String(site || '').trim();
+
+  if (!text) return lastDayOfMonth_(y, m + 1);
+
+  for (let i = 0; i < MONTH_OFFSET_WORDS.length; i++) {
+    const entry = MONTH_OFFSET_WORDS[i];
+
+    for (let w = 0; w < entry.words.length; w++) {
+      const word = entry.words[w];
+      if (text.indexOf(word) !== 0) continue;
+
+      const rest = text.slice(word.length).trim();
+      if (isMonthEndText_(rest) || rest === '') return lastDayOfMonth_(y, m + entry.offset);
+
+      const day = toNumber_(rest.replace(/日/g, ''));
+      if (day >= 1 && day <= 31) return clampToMonth_(y, m + entry.offset, day);
+
+      return lastDayOfMonth_(y, m + entry.offset);
+    }
+  }
+
+  // 「30日」「60日」のような日数指定
+  const days = toNumber_(text.replace(/日/g, ''));
+  if (days > 0) {
+    const d = new Date(invoiceDate.getTime());
+    d.setDate(d.getDate() + days);
+    return d;
+  }
+
+  return lastDayOfMonth_(y, m + 1);
+}
+
+/**
+ * 支払期日が土日のときの調整。
+ * 祝日は判定できないので土日のみ。祝日を厳密に見たい場合は画面で手直しすること。
+ */
+function adjustForWeekend_(date, rule) {
+  const text = String(rule || '').trim();
+  if (!text) return date;
+
+  const forward = text.indexOf('翌') === 0;
+  const backward = text.indexOf('前') === 0;
+  if (!forward && !backward) return date;
+
+  const d = new Date(date.getTime());
+  let guard = 0;
+
+  while (isWeekend_(d) && guard < 7) {
+    d.setDate(d.getDate() + (forward ? 1 : -1));
+    guard++;
+  }
+
+  return d;
+}
+
+function isWeekend_(date) {
+  const day = date.getDay();
+  return day === 0 || day === 6;
+}
+
+/* ===================== 請求額の計算 ===================== */
+
+/**
+ * 見積の明細をそのまま引き継ぎ、請求時の追加項目を「調整行」に変換して
+ * 見積と同じ CalcEngine で計算する。計算式を二重に持たないための構成。
+ */
+function prepareInvoiceCalc_(payload, ctx) {
+  const p = payload || {};
+  const estimateSheet = getEstimateDataSheet_(ctx);
+  const found = findEstimateRecord_(estimateSheet, p.estimateId);
+  if (!found) throw new Error('見積IDが見つかりません：' + p.estimateId);
+
+  const r = found.record;
+  const estimateCalc = rebuildCalcFromRecord_(r, ctx);
+
+  const calcPayload = {
+    projectType: r['案件タイプ'] || '',
+    remarks: p.remarks || '',
+    workDate: toDateInputValue_(r['作業予定日']),
+    highwayFee: toNumber_(r['高速代']),
+    busyManual: parseBooleanLoose_(r['繁忙期_手動設定']),
+    discountManual: parseBooleanLoose_(r['割引_手動設定']),
+    adjustments: buildInvoiceAdjustments_(r, p),
+    targetTotal: 0,
+    details: extractDetailsFromRecord_(r)
+  };
+
+  return {
+    estimateRecord: r,
+    estimateRowNumber: found.rowNumber,
+    estimateTotal: estimateCalc.grandTotal,
+    calcPayload: calcPayload,
+    calc: calculateEstimate_(calcPayload, ctx)
+  };
+}
+
+function extractDetailsFromRecord_(record) {
+  const details = [];
+
+  for (let i = 1; i <= APP.MAX_DETAIL_ROWS; i++) {
+    const p = pad2_(i);
+    const menuId = record['明細' + p + '_メニューID'];
+    if (!menuId) continue;
+
+    details.push({
+      menuId: menuId,
+      qty: toNumber_(record['明細' + p + '_数量']),
+      lineDiscountMode: 'amount',
+      lineDiscountValue: toNumber_(record['明細' + p + '_値引き額'])
+    });
+  }
+
+  return details;
+}
+
+/** 請求時の追加項目を調整行に変換する。見積側の調整行はそのまま引き継ぐ。 */
+function buildInvoiceAdjustments_(estimateRecord, form) {
+  const out = parseAdjustmentsJson_(estimateRecord['調整_JSON']).filter(function (a) {
+    // 見積の端数調整は台数も金額も変わり得るので請求には持ち込まない
+    return a && !a.auto;
+  });
+
+  const parking = toNumber_(form.parkingFee);
+  if (parking > 0) {
+    out.push({
+      name: '駐車場代', kind: 'surcharge', mode: 'amount', value: parking,
+      base: 'taxable',
+      taxType: isTaxable_(form.parkingTaxType) ? '課税' : '非課税',
+      note: '請求時入力', auto: false
+    });
+  }
+
+  const extra = toNumber_(form.extraWorkFee);
+  if (extra > 0) {
+    out.push({
+      name: String(form.extraWorkName || '').trim() || '追加作業費',
+      kind: 'surcharge', mode: 'amount', value: extra,
+      base: 'taxable', taxType: '課税', note: '請求時入力', auto: false
+    });
+  }
+
+  const discount = toNumber_(form.discountAmount);
+  if (discount > 0) {
+    out.push({
+      name: String(form.discountName || '').trim() || '値引き',
+      kind: 'discount', mode: 'amount', value: discount,
+      base: 'taxable', taxType: '課税', note: '請求時入力', auto: false
+    });
+  }
+
+  return out;
+}
+
+/** 保存済み請求レコードから計算し直す（PDF・メール本文用）。 */
+function rebuildInvoiceCalc_(record, ctx) {
+  return calculateEstimate_({
+    projectType: record['案件タイプ'] || '',
+    remarks: record['備考'] || '',
+    workDate: toDateInputValue_(record['施工日']),
+    highwayFee: toNumber_(record['高速代']),
+    busyManual: parseBooleanLoose_(record['繁忙期_手動設定']),
+    discountManual: parseBooleanLoose_(record['割引_手動設定']),
+    adjustments: parseAdjustmentsJson_(record['調整_JSON']),
+    targetTotal: 0,
+    details: extractDetailsFromRecord_(record)
+  }, ctx);
+}
+
+/* ===================== 保存レコード ===================== */
+
+function buildInvoiceRecord_(payload, ctx, prepared, invoiceId, previousInvoiceId) {
+  const p = payload || {};
+  const r = prepared.estimateRecord;
+  const calc = prepared.calc;
+  const now = new Date();
+
+  const record = {
+    invoice_id: invoiceId,
+    estimate_id: r['estimate_id'] || '',
+    original_invoice_id: previousInvoiceId || '',
+    project_status: '請求書作成済',
+    請求ステータス: '未送付',
+    作成日時: now,
+    更新日時: now,
+    作成者: p.staff || getCurrentUser_(),
+    案件タイプ: r['案件タイプ'] || '',
+    提出先名: r['提出先名'] || '',
+    請求書宛名: r['見積書宛名'] || '',
+    敬称: r['敬称'] || '',
+    宛先メール: r['宛先メール'] || '',
+    固定CC: r['固定CC'] || '',
+    送信元メール: r['送信元メール'] || '',
+    顧客名: r['顧客名'] || '',
+    案件名: r['案件名'] || '',
+    現場住所: r['現場住所'] || '',
+    施工日: parseDateInput_(p.workCompletedDate) || '',
+    請求日: parseDateInput_(p.invoiceDate) || now,
+    支払期限: parseDateInput_(p.dueDate) || '',
+    担当者: p.staff || '',
+    請求番号: invoiceId,
+    件名: r['案件名'] || r['顧客名'] || '',
+    本文テンプレート種別: resolveInvoiceTemplateType_(r),
+    備考: p.remarks || '',
+    駐車場代: toNumber_(p.parkingFee),
+    駐車場代_税区分: isTaxable_(p.parkingTaxType) ? '課税' : '非課税',
+    高速代: toNumber_(r['高速代']),
+    高速代_税区分: '非課税',
+    追加作業費: toNumber_(p.extraWorkFee),
+    値引き額: toNumber_(p.discountAmount),
+    明細小計: calc.lineSubtotal,
+    非課税小計: calc.nonTaxableSubtotal,
+    課税小計: calc.taxableSubtotal,
+    消費税: calc.tax,
+    合計金額: calc.grandTotal,
+    入金予定日: parseDateInput_(p.dueDate) || '',
+    入金日: '',
+    入金額: '',
+    入金方法: '',
+    未入金額: calc.grandTotal,
+    PDF_URL: '',
+    PDF_FILE_ID: '',
+    メール下書きURL: '',
+    メール下書きID: '',
+    メール下書き作成日時: '',
+    送付日: '',
+    複製元請求書ID: previousInvoiceId || '',
+    内部メモ: '',
+
+    request_id: '',
+    見積時合計金額: prepared.estimateTotal,
+    見積差額: calc.grandTotal - prepared.estimateTotal,
+    繁忙期_手動設定: boolText_(calc.busyManual),
+    割引_手動設定: boolText_(calc.autoDiscountOn),
+    調整合計額: calc.adjustmentTotal,
+    調整_JSON: JSON.stringify((calc.appliedAdjustments || []).map(function (a) {
+      return {
+        name: a.name, kind: a.kind, mode: a.mode, value: a.value,
+        base: a.base, taxType: a.taxType, note: a.note, auto: a.auto, amount: a.amount
+      };
+    }))
+  };
+
+  for (let i = 1; i <= APP.MAX_DETAIL_ROWS; i++) {
+    const pfx = '明細' + pad2_(i) + '_';
+    const line = calc.lines[i - 1];
+    record[pfx + '品名'] = line ? line.name : '';
+    record[pfx + 'メニューID'] = line ? line.menuId : '';
+    record[pfx + 'メニュータイプ'] = line ? line.menuType : '';
+    record[pfx + '数量'] = line ? line.qty : '';
+    record[pfx + '単位'] = line ? line.unit : '';
+    record[pfx + '単価'] = line ? line.unitPrice : '';
+    record[pfx + '金額'] = line ? line.amount : '';
+    record[pfx + '税区分'] = line ? line.taxType : '';
+    record[pfx + '備考'] = line ? line.note : '';
+    record[pfx + '値引き額'] = line && line.lineDiscount ? line.lineDiscount : '';
+  }
+
+  return record;
+}
+
+function resolveInvoiceTemplateType_(estimateRecord) {
+  return String(estimateRecord['案件タイプ'] || '').trim() === '自社'
+    ? '自社案件_請求書送付'
+    : '元請案件_請求書送付';
+}
+
+/* ===================== シート ===================== */
+
+function getInvoiceDataSheet_(ctx) {
+  const ss = getTemplateSs_(ctx.settings);
+  const sheet = ss.getSheetByName(APP.SHEET_INVOICE_DATA);
+  if (!sheet) throw new Error('シートが見つかりません：' + APP.SHEET_INVOICE_DATA);
+
+  ensureHeaders_(sheet, getInvoiceHeaders_());
+  return sheet;
+}
+
+function generateInvoiceId_(sheet) {
+  const prefix = 'INV-' + formatDate_(new Date(), 'yyyyMMdd') + '-';
+  const info = getHeaderInfo_(sheet);
+  const col = info.map['invoice_id'];
+  if (!col) throw new Error('請求データシートに invoice_id ヘッダーがありません。');
+
+  const lastRow = sheet.getLastRow();
+  let maxNo = 0;
+
+  if (lastRow > info.headerRow) {
+    const ids = sheet.getRange(info.headerRow + 1, col, lastRow - info.headerRow, 1).getDisplayValues();
+    ids.forEach(function (row) {
+      const id = String(row[0] || '');
+      if (id.indexOf(prefix) !== 0) return;
+      const n = Number(id.slice(prefix.length));
+      if (!isNaN(n) && n > maxNo) maxNo = n;
+    });
+  }
+
+  return prefix + String(maxNo + 1).padStart(4, '0');
+}
+
+function findInvoiceRecord_(sheet, invoiceId, hintRowNumber) {
+  const info = getHeaderInfo_(sheet);
+  const col = info.map['invoice_id'];
+  if (!col) throw new Error('請求データシートに invoice_id ヘッダーがありません。');
+
+  const target = String(invoiceId || '').trim();
+
+  if (hintRowNumber && hintRowNumber > info.headerRow) {
+    const hinted = String(sheet.getRange(hintRowNumber, col).getDisplayValue()).trim();
+    if (hinted === target) {
+      return { rowNumber: hintRowNumber, record: readObjectAtRow_(sheet, hintRowNumber, info) };
+    }
+  }
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow <= info.headerRow) return null;
+
+  const ids = sheet.getRange(info.headerRow + 1, col, lastRow - info.headerRow, 1).getDisplayValues();
+  for (let i = 0; i < ids.length; i++) {
+    if (String(ids[i][0]).trim() === target) {
+      const rowNumber = info.headerRow + 1 + i;
+      return { rowNumber: rowNumber, record: readObjectAtRow_(sheet, rowNumber, info) };
+    }
+  }
+
+  return null;
+}
+
+/* ===================== PDF ===================== */
+
+function generateInvoicePdf_(record, calc, ctx) {
+  const templateId = String(ctx.settings['PDF生成用テンプレートスプレッドシートID'] || '').trim()
+    || ctx.settings['見積請求書テンプレートスプレッドシートID']
+    || APP.DEFAULT_TEMPLATE_SS_ID;
+
+  const folderId = ctx.settings['請求書PDF保存フォルダID'] || APP.DEFAULT_INVOICE_FOLDER_ID;
+  if (!folderId) throw new Error('請求書PDF保存フォルダIDが未設定です。');
+
+  const folder = DriveApp.getFolderById(folderId);
+  const tmpFile = DriveApp.getFileById(templateId).makeCopy('tmp_' + record.invoice_id + '_' + Date.now());
+  const tmpSs = SpreadsheetApp.openById(tmpFile.getId());
+
+  try {
+    const cellDefs = getCellDefMap_('請求書', ctx);
+    const targetSheetName = getTargetSheetNameFromDefs_(cellDefs, APP.TEMP_INVOICE_SHEET);
+    const sheet = tmpSs.getSheetByName(targetSheetName);
+    if (!sheet) throw new Error('対象シートが見つかりません：' + targetSheetName);
+
+    fillInvoiceSheet_(sheet, cellDefs, record, calc, ctx.settings);
+    SpreadsheetApp.flush();
+
+    const pdfBlob = exportSheetToPdfBlob_(tmpSs.getId(), sheet.getSheetId());
+    pdfBlob.setName(sanitizeFileName_(
+      record.invoice_id + '_請求書_' + record['顧客名'] + '_' + record['案件名'] + '.pdf'
+    ));
+
+    const savedFile = folder.createFile(pdfBlob);
+    return { file: savedFile, url: savedFile.getUrl(), fileId: savedFile.getId() };
+  } finally {
+    tmpFile.setTrashed(true);
+  }
+}
+
+function fillInvoiceSheet_(sheet, defs, record, calc, settings) {
+  const remarksText = [record['備考'] || '', settings['請求書備考注記'] || ''].filter(String).join('\n');
+
+  setByKeys_(sheet, defs, {
+    document_date: formatDate_(record['請求日'] || new Date(), 'yyyy/MM/dd'),
+    document_no_label: '請求番号：',
+    invoice_id: record.invoice_id,
+    title: '御  請  求  書' + IDEOGRAPHIC_SPACE,
+    addressee_name: record['請求書宛名'] || '',
+    addressee_suffix: record['敬称'] || '',
+    company_name: settings['会社名'] || '',
+    company_zip: settings['会社郵便番号'] || '',
+    company_address: settings['会社住所'] || '',
+    company_tel: settings['会社電話番号'] || '',
+    company_fax: settings['会社FAX'] || '',
+    project_name: record['案件名'] || record['顧客名'] || '',
+    project_suffix: 'について',
+    greeting: '下記の通り御請求申し上げます。',
+    total_amount_label: 'ご請求金額',
+    total_amount_display: calc.grandTotal,
+    total_amount_unit: IDEOGRAPHIC_SPACE + '円',
+    detail_header_name: '品' + IDEOGRAPHIC_SPACE + IDEOGRAPHIC_SPACE + '名',
+    detail_header_qty: '数' + IDEOGRAPHIC_SPACE + '量',
+    detail_header_unit_price: '単' + IDEOGRAPHIC_SPACE + '価',
+    detail_header_amount: '金' + IDEOGRAPHIC_SPACE + '額',
+    remarks: remarksText,
+    subtotal_label: '小' + IDEOGRAPHIC_SPACE + '計',
+    subtotal: calc.documentSubtotal,
+    // 請求書テンプレートは税率入りの見出し。税率を変えても表示がずれないよう組み立てる
+    tax_label: '消費税(' + Math.round((calc.taxRate || 0.1) * 100) + '%)',
+    tax: calc.tax,
+    grand_total_label: '合' + IDEOGRAPHIC_SPACE + '計',
+    grand_total: calc.grandTotal,
+    // 差し込みセル定義に payment_due が無ければ書かずに素通りする
+    payment_due: record['支払期限'] ? formatDate_(record['支払期限'], 'yyyy/MM/dd') : ''
+  });
+
+  writeDetailRows_(sheet, defs, calc.pdfRows.slice(0, APP.MAX_DETAIL_ROWS));
+}
+
+/* ===================== Gmail ===================== */
+
+function createInvoiceMailDraft_(record, calc, ctx, pdfFile) {
+  const to = String(record['宛先メール'] || '').trim();
+  if (!to) throw new Error('宛先メールが未設定です。提出先マスタを確認してください。');
+
+  const preview = buildInvoiceMailPreview_(record, calc, ctx);
+  const options = buildGmailOptions_(record['送信元メール'], record['固定CC'], ctx.settings);
+  options.attachments = [pdfFile.getBlob()];
+
+  const draft = GmailApp.createDraft(to, preview.subject, preview.body, options);
+  return { draftId: draft.getId(), draftUrl: getGmailDraftsUrl_(ctx.settings) };
+}
+
+function buildInvoiceMailPreview_(record, calc, ctx) {
+  const templateType = record['本文テンプレート種別'] || '自社案件_請求書送付';
+  const template = ctx.mailTemplates[templateType] || getFallbackInvoiceTemplate_();
+
+  const tokens = buildTokensFromRecord_(record, ctx, {
+    見積金額: formatYen_(calc.grandTotal),
+    作成日: formatDate_(record['請求日'] || new Date(), 'yyyy/MM/dd'),
+    PDF_URL: record['PDF_URL'] || ''
+  });
+
+  tokens['請求金額'] = formatYen_(calc.grandTotal);
+  tokens['請求ID'] = record.invoice_id || '';
+  tokens['請求日'] = formatDate_(record['請求日'] || new Date(), 'yyyy/MM/dd');
+  tokens['支払期限'] = record['支払期限'] ? formatDate_(record['支払期限'], 'yyyy/MM/dd') : '';
+  tokens['施工日'] = record['施工日'] ? formatDate_(record['施工日'], 'yyyy/MM/dd') : '';
+
+  return {
+    to: record['宛先メール'] || '',
+    cc: record['固定CC'] || '',
+    from: record['送信元メール'] || '',
+    subject: renderTemplate_(template.subject, tokens),
+    body: renderTemplate_(template.body, tokens)
+  };
+}
+
+function getFallbackInvoiceTemplate_() {
+  return {
+    subject: '【ご請求書】{案件名} / {顧客名}様',
+    body: '{顧客名}様\n\nお世話になっております。\nご請求書を添付にてお送りいたします。\n\n■案件名：{案件名}\n■ご請求金額：{請求金額}\n■請求番号：{請求ID}\n■お支払期限：{支払期限}\n\nご確認のほど、よろしくお願いいたします。\n\n{会社名}'
+  };
+}
+
+/* ===================== スキーマ ===================== */
+
+function getInvoiceHeaders_() {
+  const headers = [
+    'invoice_id', 'estimate_id', 'original_invoice_id', 'project_status', '請求ステータス',
+    '作成日時', '更新日時', '作成者', '案件タイプ', '提出先名', '請求書宛名', '敬称',
+    '宛先メール', '固定CC', '送信元メール', '顧客名', '案件名', '現場住所', '施工日',
+    '請求日', '支払期限', '担当者', '請求番号', '件名', '本文テンプレート種別', '備考',
+    '駐車場代', '駐車場代_税区分', '高速代', '高速代_税区分', '追加作業費', '値引き額',
+    '明細小計', '非課税小計', '課税小計', '消費税', '合計金額', '入金予定日', '入金日',
+    '入金額', '入金方法', '未入金額', 'PDF_URL', 'PDF_FILE_ID', 'メール下書きURL',
+    'メール下書きID', 'メール下書き作成日時', '送付日', '複製元請求書ID'
+  ];
+
+  for (let i = 1; i <= APP.MAX_DETAIL_ROWS; i++) {
+    const p = '明細' + pad2_(i) + '_';
+    headers.push(p + '品名', p + 'メニューID', p + 'メニュータイプ', p + '数量', p + '単位',
+      p + '単価', p + '金額', p + '税区分', p + '備考');
+  }
+
+  headers.push('内部メモ');
+
+  // 2026-09改修の追加列。既存列の位置は動かさず右端に足す。
+  headers.push('request_id', '見積時合計金額', '見積差額',
+    '繁忙期_手動設定', '割引_手動設定', '調整合計額', '調整_JSON');
+
+  for (let i = 1; i <= APP.MAX_DETAIL_ROWS; i++) {
+    headers.push('明細' + pad2_(i) + '_値引き額');
+  }
+
+  return headers;
+}
+
+
+/* ==========================================================================
+ * Admin.gs
+ * ========================================================================== */
+
+/**
+ * 管理者専用の処理。Webアプリからは一切呼ばれない。
+ * Apps Scriptエディタで関数を選んで実行する。
+ *
+ * 旧実装は setupInitialSheets() を apiInit() から呼んでいたため、
+ * 画面を開くたびにマスタへ初期行が追記され、割引繁忙期マスタが150行超まで増殖していた。
+ * セットアップとマイグレーションはここに隔離する。
+ *
+ * 初回デプロイ時は adminDeployAll() を1回実行すれば足りる。
+ * 下の 2〜6 をまとめて実行し、結果をログに出す。
+ *
+ * 個別に実行したい場合の順番
+ *   1. adminBackup()                  … 本番2ファイルを複製して退避
+ *   2. adminDiagnose()                … 現状を確認（読むだけ・変更しない）
+ *   3. adminSetup()                   … 不足シート／不足ヘッダーだけを補う
+ *   4. adminNormalizeDiscountRules()  … 割引繁忙期マスタを正規化
+ *   5. adminNormalizeMailTemplates()  … メールテンプレートマスタを正規化
+ *   6. adminNormalizeCellDefinitions()… 差し込みセル定義の列ずれを修復
+ *   7. adminRefreshCache()            … マスタキャッシュを破棄
+ *
+ * 任意
+ *   adminCreatePdfTemplate()   … PDF生成専用の軽いテンプレートを作る
+ *   adminSetMasterTimezone()   … マスタのタイムゾーンを Asia/Tokyo に統一
+ *   adminInspectTemplateLayout() … 帳票テンプレートの実レイアウトを出力
+ *   adminBenchmark()           … マスタ読み込み速度の実測
+ */
+
+/* ===================== デプロイ後の一括セットアップ ===================== */
+
+/**
+ * デプロイ直後に実行する関数。これ1つで移行作業が全部終わる。
+ *
+ *   1. 現状診断
+ *   2. 不足シート・不足列・不足設定キーの補完
+ *   3. 割引繁忙期マスタの正規化
+ *   4. メールテンプレートマスタの正規化
+ *   5. 差し込みセル定義の正規化
+ *   6. キャッシュ破棄
+ *   7. 再診断
+ *
+ * どれも元シートを「_旧_日時」に退避してから作り直すので、元データは消えない。
+ * 実行後、ログに出た結果をそのまま確認・共有できる。
+ */
+function adminDeployAll() {
+  const out = [];
+  const step = function (label, fn) {
+    out.push('');
+    out.push('══════════════════════════════════════');
+    out.push('■ ' + label);
+    out.push('══════════════════════════════════════');
+    try {
+      out.push(String(fn()));
+    } catch (e) {
+      out.push('❌ 失敗：' + toErrorMessage_(e));
+      out.push('（ここで中断せず続行します。最後にまとめて確認してください）');
+    }
+  };
+
+  out.push('見積アプリ 移行処理 ' + Utilities.formatDate(new Date(), APP.TZ, 'yyyy/MM/dd HH:mm'));
+
+  step('1/6 現状診断（変更前）', adminDiagnose);
+  step('2/6 不足シート・列・設定の補完', adminSetup);
+  step('3/6 割引繁忙期マスタの正規化', adminNormalizeDiscountRules);
+  step('4/6 メールテンプレートマスタの正規化', adminNormalizeMailTemplates);
+  step('5/6 差し込みセル定義の正規化', adminNormalizeCellDefinitions);
+  step('6/6 キャッシュ破棄', adminRefreshCache);
+  step('確認：再診断（変更後）', adminDiagnose);
+
+  out.push('');
+  out.push('══════════════════════════════════════');
+  out.push('■ 完了。次にやること');
+  out.push('══════════════════════════════════════');
+  out.push('1. 上の「再診断」に ⚠ が残っていないか確認する');
+  out.push('2. 「有効ルール」が 繁忙期2 / 早期予約割引3 / 複数台割引9 になっているか確認する');
+  out.push('3. Webアプリを開いて動作確認する（受入テスト）');
+  out.push('4. 問題なければ デプロイを管理 → 編集 → バージョン「新バージョン」→ デプロイ');
+  out.push('');
+  out.push('※ 自動割引は auto_discount_enabled = FALSE で納品しています。');
+  out.push('   現場に周知してから TRUE にしてください。');
+
+  const message = out.join('\n');
+  console.log(message);
+  return message;
+}
+
+/* ===================== バックアップ ===================== */
+
+function adminBackup() {
+  const stamp = Utilities.formatDate(new Date(), APP.TZ, 'yyyyMMdd_HHmm');
+  const out = [];
+
+  [
+    { id: APP.DEFAULT_MASTER_SS_ID, label: 'マスタ' },
+    { id: APP.DEFAULT_TEMPLATE_SS_ID, label: '帳票DB' }
+  ].forEach(function (t) {
+    const file = DriveApp.getFileById(t.id);
+    const copy = file.makeCopy('[BACKUP ' + stamp + '] ' + file.getName());
+    out.push(t.label + '：' + copy.getName() + ' / ' + copy.getUrl());
+  });
+
+  const message = out.join('\n');
+  console.log(message);
+  return message;
+}
+
+/* ===================== セットアップ ===================== */
+
+/**
+ * 不足しているシートとヘッダーだけを補う。
+ * 既存の列位置は動かさない。初期データの投入もしない（増殖の原因になるため）。
+ */
+function adminSetup() {
+  const masterSs = getMasterSs_();
+  const settings = readSettings_(masterSs);
+  const templateSs = getTemplateSs_(settings);
+  const report = [];
+
+  const ensure = function (ss, name, headers) {
+    let sheet = ss.getSheetByName(name);
+
+    if (!sheet) {
+      sheet = ss.insertSheet(name);
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      sheet.setFrozenRows(1);
+      report.push('作成：' + ss.getName() + ' / ' + name);
+      return;
+    }
+
+    if (sheet.getLastRow() === 0 || sheet.getLastColumn() === 0) {
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      sheet.setFrozenRows(1);
+      report.push('ヘッダー投入：' + name);
+      return;
+    }
+
+    forgetHeaderInfo_(sheet);
+    const before = getHeaderInfo_(sheet, headers.slice(0, 2));
+    const missing = headers.filter(function (h) { return !before.map[h]; });
+
+    if (missing.length === 0) {
+      report.push('変更なし：' + name);
+      return;
+    }
+
+    sheet.getRange(before.headerRow, sheet.getLastColumn() + 1, 1, missing.length).setValues([missing]);
+    forgetHeaderInfo_(sheet);
+    report.push('列追加：' + name + ' → ' + missing.join(', '));
+  };
+
+  ensure(masterSs, APP.SHEET_SETTINGS, SETTINGS_HEADERS);
+  ensure(masterSs, APP.SHEET_MENU, getMenuHeaders_());
+  ensure(masterSs, APP.SHEET_SUBMIT_TO, getSubmitToHeaders_());
+  ensure(masterSs, APP.SHEET_MAIL_TEMPLATE, getMailTemplateHeaders_());
+  ensure(masterSs, APP.SHEET_DISCOUNT, getDiscountHeaders_());
+  ensure(masterSs, APP.SHEET_STAFF, getStaffHeaders_());
+  ensure(masterSs, APP.SHEET_CELL_DEF, getCellDefHeaders_());
+  ensure(masterSs, APP.SHEET_LOG, getLogHeaders_());
+
+  ensure(templateSs, APP.SHEET_ESTIMATE_DATA, getEstimateHeaders_());
+  ensure(templateSs, APP.SHEET_INVOICE_DATA, getInvoiceHeaders_());
+
+  report.push(upsertMissingSettings_(masterSs));
+  report.push(seedStaffIfEmpty_(masterSs));
+
+  clearContextCache_();
+
+  const message = report.join('\n');
+  console.log(message);
+  return message;
+}
+
+/** 設定マスタに「キーが存在しない設定」だけを追記する。既存値は上書きしない。 */
+function upsertMissingSettings_(masterSs) {
+  const sheet = masterSs.getSheetByName(APP.SHEET_SETTINGS);
+  if (!sheet) return '設定マスタが見つかりません。';
+
+  const defaults = [
+    ['auto_discount_enabled', 'FALSE', '早期予約割引・複数台割引の自動判定を使うか', 'TRUEにすると自動で割引が載る。現場周知後に切り替えること'],
+    ['large_discount_alert_ratio', '0.30', '手動値引きが明細小計のこの割合以上なら警告', ''],
+    ['pdf_template_spreadsheet_id', '', 'PDF生成専用テンプレートのID', '空なら帳票/DBスプレッドシートを複製する。adminCreatePdfTemplate()で作成'],
+    ['line_notice_text', 'メール送信後、LINEで代表者へ一報を入れてください。', '例外時のアプリ表示文言', ''],
+    ['default_closing_day', '月末', '請求締め日の既定値', '提出先マスタに個別指定があればそちらが優先'],
+    ['default_payment_site', '翌月末', '支払サイトの既定値', '候補：当月末 / 翌月末 / 翌々月末 / 翌月10日 / 30日 など'],
+    ['default_payment_holiday_rule', '', '支払期日が土日のときの調整の既定値', '空 / 前営業日 / 翌営業日。祝日は判定しない'],
+    ['parking_tax_type', '課税', '駐車場代の既定の税区分', '請求書作成画面で切り替え可能'],
+    ['invoice_remarks_note', '', '請求書の備考に毎回入れる定型文', '振込先はテンプレート側に記載済み']
+  ];
+
+  forgetHeaderInfo_(sheet);
+  const info = getHeaderInfo_(sheet, ['設定キー', '設定値']);
+  const keyCol = info.map['設定キー'];
+  if (!keyCol) return '設定マスタに「設定キー」列がありません。';
+
+  const existing = {};
+  const lastRow = sheet.getLastRow();
+
+  if (lastRow > info.headerRow) {
+    sheet.getRange(info.headerRow + 1, keyCol, lastRow - info.headerRow, 1)
+      .getDisplayValues()
+      .forEach(function (r) { existing[String(r[0] || '').trim()] = true; });
+  }
+
+  const toAdd = defaults.filter(function (d) { return !existing[d[0]]; });
+  if (toAdd.length === 0) return '設定マスタ：追加なし';
+
+  const width = Math.max(sheet.getLastColumn(), SETTINGS_HEADERS.length);
+  const rows = toAdd.map(function (d) {
+    const row = new Array(width).fill('');
+    SETTINGS_HEADERS.forEach(function (h, i) {
+      const col = info.map[h];
+      if (col) row[col - 1] = d[i];
+    });
+    return row;
+  });
+
+  sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, width).setValues(rows);
+  return '設定マスタ：' + toAdd.map(function (d) { return d[0]; }).join(', ') + ' を追加';
+}
+
+/**
+ * 担当者マスタが空のときだけ初期メンバーを入れる。
+ * 既に行があれば何もしない（増殖させない）。
+ */
+function seedStaffIfEmpty_(masterSs) {
+  const sheet = masterSs.getSheetByName(APP.SHEET_STAFF);
+  if (!sheet) return '担当者マスタ：シートがありません';
+
+  forgetHeaderInfo_(sheet);
+  const info = getHeaderInfo_(sheet, getStaffHeaders_());
+  if (sheet.getLastRow() > info.headerRow) return '担当者マスタ：既存行があるため変更なし';
+
+  const seed = [['TRUE', 'STAFF_01', '渡辺 和真', '', '']];
+  const width = Math.max(sheet.getLastColumn(), getStaffHeaders_().length);
+
+  const rows = seed.map(function (d) {
+    const row = new Array(width).fill('');
+    getStaffHeaders_().forEach(function (h, i) {
+      const col = info.map[h];
+      if (col) row[col - 1] = d[i];
+    });
+    return row;
+  });
+
+  sheet.getRange(info.headerRow + 1, 1, rows.length, width).setValues(rows);
+  return '担当者マスタ：渡辺 和真 を登録';
+}
+
+function adminRefreshCache() {
+  clearContextCache_();
+  console.log('マスタキャッシュを破棄しました。次のアクセスで読み直します。');
+  return 'ok';
+}
+
+/* ===================== 正規化（マイグレーション） ===================== */
+
+/**
+ * 元シートを「_旧_日時」にリネームして退避し、正規化した新シートを作る。
+ * 破壊的な書き換えをしないので、問題があればシート名を戻すだけで復旧できる。
+ */
+function replaceSheetWithNormalized_(ss, sheetName, headers, rows) {
+  const stamp = Utilities.formatDate(new Date(), APP.TZ, 'yyyyMMdd_HHmm');
+  const old = ss.getSheetByName(sheetName);
+  const backupName = sheetName + '_旧_' + stamp;
+
+  if (old) old.setName(backupName);
+
+  const sheet = ss.insertSheet(sheetName);
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  sheet.setFrozenRows(1);
+
+  if (rows.length > 0) {
+    sheet.getRange(2, 1, rows.length, headers.length).setValues(rows);
+  }
+
+  sheet.autoResizeColumns(1, Math.min(headers.length, 12));
+  forgetHeaderInfo_(sheet);
+
+  return sheetName + ' を正規化しました（' + rows.length + '行）。旧シートは「' + backupName + '」に退避しています。';
+}
+
+/**
+ * 割引繁忙期マスタの正規化。
+ *
+ * 現状の問題：旧ヘッダー（A:ルールID, B:有効…）のまま、初期投入行が
+ * 新スキーマ順（A:有効, B:ルールID…）で書かれていたため開始月・終了月・値が全てずれ、
+ * 繁忙期／早期予約割引／複数台割引の自動判定が常に不成立になっていた。
+ * さらに画面を開くたびに16行が追記され、150行超まで重複していた。
+ */
+function adminNormalizeDiscountRules() {
+  const masterSs = getMasterSs_();
+
+  const rows = [
+    ['TRUE', 'BUSY_05_07', '繁忙期', '全体', 5, 7, '', 3300, '金額', 10, '5月〜7月。メインメニューの数量ごとに加算'],
+    ['TRUE', 'BUSY_12', '繁忙期', '全体', 12, 12, '', 3300, '金額', 10, '12月。メインメニューの数量ごとに加算'],
+
+    ['TRUE', 'EARLY_01_02', '早期予約割引', '全体', 1, 2, '', 0.15, '率', 20, '1月〜2月：15%'],
+    ['TRUE', 'EARLY_03_04', '早期予約割引', '全体', 3, 4, '', 0.10, '率', 20, '3月〜4月：10%'],
+    ['TRUE', 'EARLY_08_10', '早期予約割引', '全体', 8, 10, '', 0.10, '率', 20, '8月〜10月：10%'],
+
+    ['TRUE', 'MULTI_NORMAL_05_10', '複数台割引', 'ノーマルエアコン', '', '', 'totalQty:5-10', 500, '金額/台', 30, '総台数で判定'],
+    ['TRUE', 'MULTI_NORMAL_11_20', '複数台割引', 'ノーマルエアコン', '', '', 'totalQty:11-20', 1000, '金額/台', 30, '総台数で判定'],
+    ['TRUE', 'MULTI_NORMAL_21_50', '複数台割引', 'ノーマルエアコン', '', '', 'totalQty:21-50', 1500, '金額/台', 30, '総台数で判定'],
+    ['TRUE', 'MULTI_ROBO_05_10', '複数台割引', 'ロボ付きエアコン', '', '', 'totalQty:5-10', 1000, '金額/台', 30, '総台数で判定'],
+    ['TRUE', 'MULTI_ROBO_11_20', '複数台割引', 'ロボ付きエアコン', '', '', 'totalQty:11-20', 1500, '金額/台', 30, '総台数で判定'],
+    ['TRUE', 'MULTI_ROBO_21_50', '複数台割引', 'ロボ付きエアコン', '', '', 'totalQty:21-50', 2000, '金額/台', 30, '総台数で判定'],
+    ['TRUE', 'MULTI_BUSINESS_02_10', '複数台割引', '業務用エアコン', '', '', 'totalQty:2-10', 5000, '金額/台', 30, '総台数で判定'],
+    ['TRUE', 'MULTI_BUSINESS_11_20', '複数台割引', '業務用エアコン', '', '', 'totalQty:11-20', 6000, '金額/台', 30, '総台数で判定'],
+    ['TRUE', 'MULTI_BUSINESS_21_50', '複数台割引', '業務用エアコン', '', '', 'totalQty:21-50', 7000, '金額/台', 30, '総台数で判定'],
+
+    ['FALSE', 'INTRO_01_02', '紹介料', '全体', 1, 2, '', 0.05, '率', 90, '顧客割引か紹介元支払か未確定のため計算対象外'],
+    ['FALSE', 'INTRO_OTHER', '紹介料', '全体', 3, 12, '', 0.10, '率', 90, '顧客割引か紹介元支払か未確定のため計算対象外']
+  ];
+
+  const message = replaceSheetWithNormalized_(masterSs, APP.SHEET_DISCOUNT, getDiscountHeaders_(), rows);
+  clearContextCache_();
+
+  const note = message + '\n'
+    + '※ 空室清掃の繁忙期30%はメニューマスタ M015 の「繁忙期加算額」欄（30%）で管理しています。\n'
+    + '※ 早期予約割引と複数台割引は併用しません（早期予約が優先）。この併用ルールはコード側に実装済みです。\n'
+    + '※ 自動割引を実際に効かせるには、設定マスタの auto_discount_enabled を TRUE にしてください。';
+
+  console.log(note);
+  return note;
+}
+
+/**
+ * メールテンプレートマスタの正規化。
+ * 旧列（テンプレートID / 用途 / 件名テンプレート / 本文テンプレート）と
+ * 新列（有効 / テンプレート種別 / 件名 / 本文 / 備考）が混在し、
+ * 初期投入行がA列から書かれていたため新列側が空で、実質コードのfallback文面が使われていた。
+ */
+function adminNormalizeMailTemplates() {
+  const masterSs = getMasterSs_();
+
+  // 既存シートから拾えた文面を優先して引き継ぐ
+  const existing = readMailTemplates_(masterSs, []);
+
+  const defaults = {
+    '自社案件_見積送付': {
+      subject: '【お見積書】{案件名} / {顧客名}様',
+      body: '{顧客名}様\n\nお世話になっております。\nワンヒッター株式会社です。\n\nご依頼いただきましたお見積書を添付にてお送りいたします。\n\n■案件名：{案件名}\n■お見積金額：{見積金額}\n■見積番号：{見積ID}\n\nご不明点やご要望等ございましたら、何なりとお申し付けくださいませ。\nご検討のほど、よろしくお願いいたします。\n\n{会社名}',
+      note: '自社顧客向け'
+    },
+    '元請案件_見積送付': {
+      subject: '【お見積書】{顧客名}様 / {案件名} / {見積ID}',
+      body: '{提出先名} ご担当者様\n\nお世話になっております。\nワンヒッター株式会社です。\n\n下記案件のお見積書を添付にてお送りいたします。\n\n■顧客名：{顧客名}\n■案件名：{案件名}\n■お見積金額：{見積金額}\n■見積番号：{見積ID}\n\nご査収のほど、よろしくお願いいたします。\n\n{会社名}',
+      note: '元請向け'
+    },
+    '代表者確認依頼': {
+      subject: '【要確認】見積確認依頼：{見積ID} / {顧客名} / {案件名}',
+      body: '代表者確認をお願いします。\n\n■見積ID：{見積ID}\n■顧客名：{顧客名}\n■案件名：{案件名}\n■案件タイプ：{案件タイプ}\n■合計金額：{見積金額}\n■担当者：{担当者}\n■作成日時：{作成日時}\n\n■例外理由：\n{例外理由}\n\n■PDF：{PDF_URL}',
+      note: '例外時のみ使用。メール送信後にLINEで一報'
+    },
+    '自社案件_請求書送付': {
+      subject: '【ご請求書】{案件名} / {顧客名}様',
+      body: '{顧客名}様\n\nお世話になっております。\nワンヒッター株式会社です。\n\nご請求書を添付にてお送りいたします。\n\n■案件名：{案件名}\n■ご請求金額：{見積金額}\n\nご確認のほど、よろしくお願いいたします。\n\n{会社名}',
+      note: '請求書フェーズ用。文面は要確定'
+    },
+    '元請案件_請求書送付': {
+      subject: '【ご請求書】{顧客名}様 / {案件名}',
+      body: '{提出先名} ご担当者様\n\nお世話になっております。\nワンヒッター株式会社です。\n\n下記案件のご請求書を添付にてお送りいたします。\n\n■顧客名：{顧客名}\n■案件名：{案件名}\n■ご請求金額：{見積金額}\n\nご査収のほど、よろしくお願いいたします。\n\n{会社名}',
+      note: '請求書フェーズ用。文面は要確定'
+    }
+  };
+
+  const rows = MAIL_TEMPLATE_TYPES.map(function (type) {
+    const kept = existing[type];
+    const def = defaults[type];
+    return [
+      'TRUE',
+      type,
+      (kept && kept.subject) || def.subject,
+      (kept && kept.body) || def.body,
+      def.note + ((kept && kept.body) ? '（既存文面を引き継ぎ）' : '（初期文面）')
+    ];
+  });
+
+  const message = replaceSheetWithNormalized_(masterSs, APP.SHEET_MAIL_TEMPLATE, getMailTemplateHeaders_(), rows);
+  clearContextCache_();
+
+  console.log(message);
+  return message;
+}
+
+/** 差し込みセル定義の列ずれ（項目名が空で値が左に寄っている行）を9列の正規形に直す。 */
+function adminNormalizeCellDefinitions() {
+  const masterSs = getMasterSs_();
+  const message = replaceSheetWithNormalized_(
+    masterSs, APP.SHEET_CELL_DEF, getCellDefHeaders_(), getDefaultCellDefinitionRows_());
+
+  clearContextCache_();
+  console.log(message);
+  return message;
+}
+
+/* ===================== PDF専用テンプレート ===================== */
+
+/**
+ * PDF生成のたびに帳票/DBスプレッドシートを丸ごと複製するのをやめるため、
+ * 差し込み用の2シートだけを持つ軽いスプレッドシートを作る。
+ * 見積データが増えても複製時間が伸びなくなる。
+ */
+function adminCreatePdfTemplate() {
+  const settings = readSettings_(getMasterSs_());
+  const sourceSs = getTemplateSs_(settings);
+  const stamp = Utilities.formatDate(new Date(), APP.TZ, 'yyyyMMdd_HHmm');
+
+  const target = SpreadsheetApp.create('【アプリ】PDF生成用テンプレート ' + stamp);
+  target.setSpreadsheetTimeZone(APP.TZ);
+
+  [APP.TEMP_ESTIMATE_SHEET, APP.TEMP_INVOICE_SHEET].forEach(function (name) {
+    const src = sourceSs.getSheetByName(name);
+    if (!src) throw new Error('コピー元シートが見つかりません：' + name);
+    // copyTo は書式・結合・列幅・印刷設定をそのまま引き継ぐ
+    target.setActiveSheet(src.copyTo(target)).setName(name);
+  });
+
+  const leftovers = target.getSheets().filter(function (s) {
+    return [APP.TEMP_ESTIMATE_SHEET, APP.TEMP_INVOICE_SHEET].indexOf(s.getName()) < 0;
+  });
+  leftovers.forEach(function (s) { target.deleteSheet(s); });
+
+  const message = 'PDF生成用テンプレートを作成しました。\n'
+    + 'ID: ' + target.getId() + '\n'
+    + 'URL: ' + target.getUrl() + '\n\n'
+    + '設定マスタの pdf_template_spreadsheet_id にこのIDを入れてから adminRefreshCache() を実行してください。\n'
+    + '※ 帳票レイアウトを変更したら、このテンプレートも作り直してください。';
+
+  console.log(message);
+  return message;
+}
+
+/* ===================== タイムゾーン ===================== */
+
+function adminSetMasterTimezone() {
+  const masterSs = getMasterSs_();
+  const before = masterSs.getSpreadsheetTimeZone();
+  masterSs.setSpreadsheetTimeZone(APP.TZ);
+
+  const message = 'マスタのタイムゾーンを ' + before + ' → ' + masterSs.getSpreadsheetTimeZone() + ' に変更しました。';
+  console.log(message);
+  return message;
+}
+
+/* ===================== 診断 ===================== */
+
+/** 読むだけ。何も書き換えない。デプロイ前後の健康診断に使う。 */
+function adminDiagnose() {
+  const out = [];
+  const add = function (line) { out.push(line); };
+
+  const masterSs = getMasterSs_();
+  const settings = readSettings_(masterSs);
+
+  add('■ スプレッドシート');
+  add('  マスタ　　： ' + masterSs.getName() + ' / TZ=' + masterSs.getSpreadsheetTimeZone());
+
+  let templateSs = null;
+  try {
+    templateSs = getTemplateSs_(settings);
+    add('  帳票/DB　： ' + templateSs.getName() + ' / TZ=' + templateSs.getSpreadsheetTimeZone());
+  } catch (e) {
+    add('  帳票/DB　： 開けません → ' + toErrorMessage_(e));
+  }
+
+  if (masterSs.getSpreadsheetTimeZone() !== APP.TZ) {
+    add('  ⚠ マスタのタイムゾーンが ' + APP.TZ + ' ではありません。adminSetMasterTimezone() を検討してください。');
+  }
+
+  add('');
+  add('■ マスタの行数');
+  [APP.SHEET_MENU, APP.SHEET_SUBMIT_TO, APP.SHEET_MAIL_TEMPLATE,
+   APP.SHEET_DISCOUNT, APP.SHEET_SETTINGS, APP.SHEET_CELL_DEF, APP.SHEET_LOG].forEach(function (name) {
+    const sheet = masterSs.getSheetByName(name);
+    add('  ' + name + '： ' + (sheet ? (sheet.getLastRow() + '行 / ' + sheet.getLastColumn() + '列') : '見つかりません'));
+  });
+
+  add('');
+  add('■ マスタ読み取り結果');
+  const warnings = [];
+  const menus = readMenus_(masterSs, warnings);
+  const rules = readDiscountRules_(masterSs, warnings);
+  const templates = readMailTemplates_(masterSs, warnings);
+  const targets = readSubmitTargets_(masterSs, settings);
+
+  add('  有効メニュー： ' + menus.length + '件（メイン ' +
+    menus.filter(function (m) { return m.menuType === 'メイン'; }).length + ' / オプション ' +
+    menus.filter(function (m) { return m.menuType === 'オプション'; }).length + '）');
+  add('  有効ルール　： ' + rules.length + '件（' + ['繁忙期', '早期予約割引', '複数台割引', '紹介料'].map(function (t) {
+    return t + ' ' + rules.filter(function (r) { return r.ruleType === t; }).length;
+  }).join(' / ') + '）');
+  add('  テンプレート： ' + Object.keys(templates).join(', '));
+  add('  案件タイプ　： ' + targets.length + '件');
+
+  const priceless = menus.filter(function (m) { return isBlank_(m.unitPriceRaw); });
+  if (priceless.length) add('  ⚠ 単価未設定の有効メニュー： ' + priceless.map(function (m) { return m.menuId; }).join(', '));
+
+  const noMail = targets.filter(function (t) { return t.projectType !== '自社' && !t.to; });
+  if (noMail.length) {
+    add('  ⚠ 宛先メール未設定の提出先（PDFは作れるがGmail下書きが作れません）：');
+    noMail.forEach(function (t) { add('      - ' + t.projectType); });
+  }
+
+  MAIL_TEMPLATE_TYPES.slice(0, 3).forEach(function (t) {
+    if (!templates[t]) add('  ⚠ メールテンプレート未登録： ' + t + '（コード内のfallback文面が使われます）');
+  });
+
+  add('');
+  add('■ 自動割引の設定');
+  add('  auto_discount_enabled： ' + (parseBooleanLoose_(settings['自動割引有効']) ? 'TRUE（自動で割引が載ります）' : 'FALSE（自動割引は載りません）'));
+  add('  税率　　　　　　　　： ' + normalizeRate_(settings['税率']));
+  add('  繁忙期加算　　　　　： ' + settings['繁忙期加算額'] + ' / ' + settings['繁忙期加算単位']);
+
+  add('');
+  add('■ 自動判定の動作確認（マスタの実データで計算）');
+  const engine = getCalcEngine_();
+  const ctx = buildCalcContext_(buildContextFromSheets_());
+  const probeMenu = menus.filter(function (m) { return m.menuType === 'メイン' && m.multipleDiscountTarget; })[0];
+
+  if (!probeMenu) {
+    add('  複数台割引対象のメインメニューが無いため確認をスキップしました。');
+  } else {
+    const probe = function (label, workDate, qty) {
+      const calc = engine.calculate({
+        workDate: workDate,
+        details: [{ menuId: probeMenu.menuId, qty: qty }]
+      }, Object.assign({}, ctx, { autoDiscountEnabled: true }));
+
+      add('  ' + label + '： 繁忙期 ' + (calc.busyAuto ? 'あり ' + calc.busyAmount + '円' : 'なし')
+        + ' / 割引候補 ' + (calc.autoDiscountCandidate || 0) + '円'
+        + (calc.autoDiscountType ? '（' + calc.autoDiscountType + '）' : ''));
+    };
+
+    add('  対象メニュー： ' + probeMenu.menuId + ' ' + probeMenu.name);
+    probe('  1月 1台 ', '2026-01-15', 1);
+    probe('  5月 1台 ', '2026-05-15', 1);
+    probe('  7月20台', '2026-07-15', 20);
+    probe('  8月 1台 ', '2026-08-15', 1);
+    probe(' 11月 5台 ', '2026-11-15', 5);
+    probe(' 12月 1台 ', '2026-12-15', 1);
+  }
+
+  add('');
+  add('■ 取引先ごとの請求条件（提出先マスタ）');
+  add('  施工日を ' + formatDate_(new Date(), 'yyyy/MM/dd') + ' としたときの計算結果');
+  add('  ' + padRight_('案件タイプ', 26) + padRight_('締め日', 8) + padRight_('支払サイト', 12)
+    + padRight_('休日調整', 10) + padRight_('請求日', 12) + '支払期限');
+
+  targets.forEach(function (t) {
+    const terms = resolvePaymentTerms_(t, formatDate_(new Date(), 'yyyy-MM-dd'), settings);
+    add('  ' + padRight_(t.projectType, 26)
+      + padRight_(t.closingDay || '—', 8)
+      + padRight_(t.paymentSite || '—', 12)
+      + padRight_(t.paymentHolidayRule || '—', 10)
+      + padRight_(formatDate_(terms.invoiceDate, 'yyyy/MM/dd'), 12)
+      + formatDate_(terms.dueDate, 'yyyy/MM/dd')
+      + (terms.fromMaster ? '' : '  ← 既定値')
+      + (terms.adjusted ? '  ← 休日調整あり' : ''));
+  });
+
+  add('  ※ 「—」はマスタ未設定。設定マスタの既定値（'
+    + settings['既定_請求締め日'] + '締め・' + settings['既定_支払サイト'] + '払い）で計算しています。');
+
+  add('');
+  add('■ Drive / Gmail');
+  [
+    ['見積書PDF保存フォルダ', settings['見積書PDF保存フォルダID']],
+    ['請求書PDF保存フォルダ', settings['請求書PDF保存フォルダID']]
+  ].forEach(function (t) {
+    try {
+      add('  ' + t[0] + '： ' + DriveApp.getFolderById(t[1]).getName());
+    } catch (e) {
+      add('  ⚠ ' + t[0] + '： 開けません（' + t[1] + '）');
+    }
+  });
+
+  const pdfTemplateId = String(settings['PDF生成用テンプレートスプレッドシートID'] || '').trim();
+  if (pdfTemplateId) {
+    try {
+      add('  PDF生成用テンプレート： ' + SpreadsheetApp.openById(pdfTemplateId).getName());
+    } catch (e) {
+      add('  ⚠ PDF生成用テンプレートを開けません（' + pdfTemplateId + '）');
+    }
+  } else {
+    add('  PDF生成用テンプレート： 未設定（帳票/DBスプレッドシートを複製します）');
+  }
+
+  const aliases = GmailApp.getAliases();
+  const wantAlias = String(settings['送信元メール'] || '').trim();
+  add('  Gmailエイリアス： ' + (aliases.length ? aliases.join(', ') : 'なし'));
+  add('  送信元メール　： ' + wantAlias + (aliases.indexOf(wantAlias) >= 0 ? '（利用可）' : '（未設定のため実行アカウントで下書きされます）'));
+
+  add('');
+  add('■ 見積データ');
+  if (templateSs) {
+    const sheet = templateSs.getSheetByName(APP.SHEET_ESTIMATE_DATA);
+    if (sheet) {
+      forgetHeaderInfo_(sheet);
+      const info = getHeaderInfo_(sheet, ['estimate_id']);
+      const missing = getEstimateHeaders_().filter(function (h) { return !info.map[h]; });
+      add('  ' + APP.SHEET_ESTIMATE_DATA + '： ' + Math.max(0, sheet.getLastRow() - info.headerRow) + '件 / ' + sheet.getLastColumn() + '列');
+      add(missing.length
+        ? '  ⚠ 不足列 ' + missing.length + '件： ' + missing.slice(0, 12).join(', ') + (missing.length > 12 ? ' …' : '') + '  → adminSetup() を実行してください'
+        : '  列定義： 最新');
+    }
+  }
+
+  if (warnings.length) {
+    add('');
+    add('■ 警告');
+    warnings.forEach(function (w) { add('  ⚠ ' + w); });
+  }
+
+  const message = out.join('\n');
+  console.log(message);
+  return message;
+}
+
+/**
+ * 帳票テンプレートの実レイアウトを書き出す。
+ * 差し込みセル定義が実テンプレートと合っているかを目視確認するためのもの。
+ *
+ * 特に請求書の「お支払い期限：」の値セルは資料から確定できなかったため、
+ * 請求書を初めて発行する前に必ず一度実行して、payment_due の行を実際の位置に直すこと。
+ */
+function adminInspectTemplateLayout() {
+  const settings = readSettings_(getMasterSs_());
+  const ss = getTemplateSs_(settings);
+  const out = [];
+
+  [APP.TEMP_ESTIMATE_SHEET, APP.TEMP_INVOICE_SHEET].forEach(function (name) {
+    const sheet = ss.getSheetByName(name);
+    out.push('');
+    out.push('■ ' + name);
+
+    if (!sheet) {
+      out.push('  シートが見つかりません。');
+      return;
+    }
+
+    const lastRow = Math.min(sheet.getLastRow(), 50);
+    const lastCol = Math.min(Math.max(sheet.getLastColumn(), 1), 8);
+    const values = sheet.getRange(1, 1, lastRow, lastCol).getDisplayValues();
+
+    values.forEach(function (row, r) {
+      const filled = [];
+      row.forEach(function (v, c) {
+        const text = String(v || '').trim();
+        if (text) filled.push(columnLetter_(c + 1) + (r + 1) + '=' + truncate_(text, 40));
+      });
+      if (filled.length) out.push('  ' + filled.join('  |  '));
+    });
+  });
+
+  out.push('');
+  out.push('■ 差し込みセル定義との突き合わせ');
+
+  const ctx = buildContextFromSheets_();
+  ['見積書', '請求書'].forEach(function (docType) {
+    const defs = getCellDefMap_(docType, ctx);
+    out.push('  ' + docType + '： ' + Object.keys(defs).length + '項目');
+    ['detail_name_range', 'subtotal', 'tax', 'grand_total', 'payment_due'].forEach(function (key) {
+      const def = defs[key];
+      out.push('    ' + key + '： ' + (def ? def.a1 : '未定義'));
+    });
+  });
+
+  const message = out.join('\n');
+  console.log(message);
+  return message;
+}
+
+/** 診断出力の桁揃え。日本語は2桁分として数える。 */
+function padRight_(text, width) {
+  const s = String(text == null ? '' : text);
+  let visible = 0;
+
+  for (let i = 0; i < s.length; i++) {
+    visible += s.charCodeAt(i) > 0x2000 ? 2 : 1;
+  }
+
+  return s + ' '.repeat(Math.max(1, width - visible));
+}
+
+function columnLetter_(col) {
+  let letter = '';
+  let n = col;
+  while (n > 0) {
+    const rem = (n - 1) % 26;
+    letter = String.fromCharCode(65 + rem) + letter;
+    n = Math.floor((n - 1) / 26);
+  }
+  return letter;
+}
+
+/** マスタ読み込みにかかる時間を実測する。改善前後の比較用。 */
+function adminBenchmark() {
+  clearContextCache_();
+
+  const t0 = Date.now();
+  const ctx = buildContextFromSheets_();
+  const cold = Date.now() - t0;
+
+  writeCachedContext_(ctx);
+  RUNTIME.context = null;
+
+  const t1 = Date.now();
+  loadContext_();
+  const warm = Date.now() - t1;
+
+  const message = 'マスタ読み込み（キャッシュなし）： ' + cold + 'ms\n'
+    + 'マスタ読み込み（キャッシュあり）： ' + warm + 'ms';
+
+  console.log(message);
+  return message;
+}

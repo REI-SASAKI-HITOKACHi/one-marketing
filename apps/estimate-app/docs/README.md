@@ -355,6 +355,7 @@ apps/estimate-app/
 │   ├── Index.html                画面
 │   ├── style.html                CSS
 │   └── JavaScript.html           クライアント
+├── deploy-paste/                 貼り付け用バンドル（toolsから自動生成・4ファイル）
 ├── master/                       マスタ貼り付け用TSV（toolsから自動生成）
 ├── tools/                        Nodeで動く検証スクリプト
 │   └── fixtures-live-master.json 本番マスタの実データ（匿名化済み・テスト用）
@@ -377,6 +378,14 @@ apps/estimate-app/
 同じ関数を2箇所で実装しないので、**画面の合計とPDFの合計がずれない**。
 `tools/record-roundtrip-test.js` がこの一致を毎回検証している。
 
+貼り付け配布用のバンドルでは、`Calc.html` の中身を `コード` の
+`CALC_ENGINE_SOURCE` に文字列として埋め込む。こうするとGAS側に
+HTMLファイルを新規作成しなくて済み、デプロイ時のファイル作成がゼロになる。
+埋め込みが空のとき（リポジトリの `src/` をそのまま使うとき）は
+`Calc.html` を読むので、どちらの構成でも同じエンジンが動く。
+`tools/build-paste-bundle.sh` は生成後に、埋め込んだエンジンが
+サーバー側で実際に計算できるところまで確認している。
+
 ### GASを続ける判断について
 
 「GASに拘るつもりはない」とのことだったが、**GASのまま直すのが正解**と判断した。
@@ -393,33 +402,11 @@ apps/estimate-app/
 
 ## 4. デプロイ手順
 
-Apps Scriptエディタ（`info.onehitter@gmail.com`）で作業する。
+**インストール不要。コピペ4回 + 関数実行1回 + デプロイ操作。10分程度。**
 
-### 本番プロジェクトの実際のファイル名（重要）
+[Apps Scriptプロジェクトを開く](https://script.google.com/d/1YGd7GG__SJU__fBu3TAtqbO3kp6uG3YHz2eUYSg3oU8kDwZF36zz8x4T/edit)
 
-本番のApps Scriptプロジェクトを実際に読んで確認した。
-**引継ぎ資料の `current_code` とファイル名が違う。**
-
-| 本番の実ファイル名 | 種別 | 引継ぎ資料での名前 |
-|---|---|---|
-| `コード` | スクリプト | `code.gs` |
-| `Index` | HTML | `Index.html` |
-| **`Style`** | HTML | `style.html`（小文字） |
-| `JavaScript` | HTML | `JavaScript.html` |
-
-本番の `Index` は `include('Style')` と**大文字S**で呼んでいる。
-`createHtmlOutputFromFile()` は大文字小文字を区別するため、
-資料どおり `style.html` を作ると画面が真っ白になる。
-
-このリポジトリの `src/Style.html` は本番に合わせて大文字にしてある。
-
-Apps Scriptプロジェクト：
-`https://script.google.com/d/1YGd7GG__SJU__fBu3TAtqbO3kp6uG3YHz2eUYSg3oU8kDwZF36zz8x4T/edit`
-
-本番の実ソースは `docs/production-snapshot/` に保存済み（2026-09-05時点）。
-引継ぎ資料のスナップショットとの差分は整形のみで、101関数すべて一致・ロジック差なしだった。
-
-### 手順0：バックアップ（作成済み）
+### 手順0：バックアップ（作成済み・作業不要）
 
 2026-09-05時点の本番3点を複製済み。差し替えて問題が出たらここから戻せる。
 
@@ -431,22 +418,81 @@ Apps Scriptプロジェクト：
 
 ソースは `docs/production-snapshot/` にも保存してある。
 
-作業前に、現在のデプロイID・WebアプリURLも控えておくこと。
+### 手順1：4ファイルを貼り替える（新規作成なし）
 
-### 手順1：ファイルを差し替える
+`deploy-paste/` の4つを、**既存の同名ファイルに全文貼り付ける**だけ。
+GitHubの画面で各ファイルを開き、右上のコピーボタン → エディタで Ctrl+A → Ctrl+V。
 
-差し替え方は2通り。**A（clasp）を勧める**。手作業の貼り間違いがなくなる。
+| GASのファイル | 貼るもの |
+|---|---|
+| `コード` | `deploy-paste/コード.gs.txt` |
+| `Index` | `deploy-paste/Index.html.txt` |
+| `Style` | `deploy-paste/Style.html.txt` |
+| `JavaScript` | `deploy-paste/JavaScript.html.txt` |
 
-#### A. clasp で push する（推奨）
+**新しいファイルは1つも作らない。** サーバー側3ファイル（本体・請求書・管理）は
+`コード` に連結済み、計算エンジンも `コード` に埋め込み済み。
 
-`bash tools/build-clasp.sh` を実行すると、`clasp-build/` に
-**本番のGASファイル名どおり**に並べたものが生成される（`コード.js` / `Style.html` など）。
-`appsscript.json` は本番のものをそのまま使うので、タイムゾーン・実行者・公開範囲は変わらない。
+> 本番のファイル名は `コード` `Index` `Style` `JavaScript`（引継ぎ資料の
+> `code.gs` `style.html` とは違う）。`Style` は**大文字S**。
+> 資料どおりに `style.html` を作ると画面が真っ白になる。
+
+保存（Ctrl+S）する。
+
+### 手順2：`adminDeployAll()` を1回実行する
+
+エディタ上部の関数プルダウンで **`adminDeployAll`** を選んで実行。
+初回は権限の承認を求められるので許可する。
+
+これ1つで以下が全部走り、結果がログに出る。
+
+1. 現状診断
+2. 不足シート・列・設定キーの補完（担当者マスタの新設と「渡辺 和真」の登録を含む）
+3. 割引繁忙期マスタの正規化（1,071行 → 16行）
+4. メールテンプレートマスタの正規化（160行 → 5行）
+5. 差し込みセル定義の正規化
+6. キャッシュ破棄 → 再診断
+
+正規化はどれも元シートを `<シート名>_旧_日時` に退避してから作り直すので、
+**元データは消えない。**
+
+ログの最後の「再診断」で確認すること。
+
+- ⚠ が残っていない
+- 「有効ルール」が **繁忙期2 / 早期予約割引3 / 複数台割引9**
+- 見積データが「列定義：最新」
+
+### 手順3：動作確認
+
+Webアプリを開いて `docs/acceptance-test.md` を上から実施する。
+最低限、以下だけでも見ておくと安心。
+
+- 開くのが速くなっている
+- 数量を変えると待ち時間なく合計が変わる
+- 見積作成 → PDFの金額が画面と一致する
+- Gmail下書きができる（送信されない）
+
+### 手順4：デプロイ
+
+「デプロイを管理」→ 既存デプロイの鉛筆アイコン →
+バージョンを「新バージョン」→「デプロイ」。
+
+**「新しいデプロイ」は押さないこと。** URLが変わって現場のブックマークが切れる。
+
+### （任意）手順5：さらに速くする
+
+`adminCreatePdfTemplate()` を実行すると、PDF生成専用の軽いテンプレートが作られる。
+出力されたIDを設定マスタの `pdf_template_spreadsheet_id` に貼り、
+`adminRefreshCache()` を実行する。見積データが増えてもPDF生成時間が伸びなくなる。
+
+---
+
+### 別の方法：clasp で push する
+
+Node.js が入っていて、[Apps Script API](https://script.google.com/home/usersettings) が
+オンなら、コピペせずに差し替えられる。リポジトリをローカルにcloneして：
 
 ```bash
-# 事前に https://script.google.com/home/usersettings で
-# 「Google Apps Script API」をオンにしておく
-
 npm install -g @google/clasp
 clasp login                      # info.onehitter@gmail.com で
 
@@ -454,79 +500,20 @@ bash apps/estimate-app/tools/build-clasp.sh
 cd apps/estimate-app/clasp-build
 
 clasp deployments                # 既存のデプロイIDを控える（@HEADでない方）
-clasp push                       # ソース差し替え。この時点ではまだ本番の挙動は変わらない
-clasp open                       # → 手順2の管理者関数を実行
+clasp push
+clasp open                       # → adminDeployAll() を実行
 # 受入テストを通してから
 clasp deploy --deploymentId <控えたID> --description "2026-09 改修版"
 ```
 
-> `--deploymentId` を付けないと新しいデプロイが作られ、**WebアプリのURLが変わって
-> 現場のブックマークが切れる**。必ず付けること。
+`--deploymentId` を必ず付けること。付けないと新規デプロイになりURLが変わる。
 
-切り戻しは `clasp deploy --deploymentId <ID> --versionNumber <旧番号>`。
-
-#### B. エディタに貼り付ける
-
-**新しいファイルを作らず、既存ファイルの中身を全文置換すること。**
-`コード` を残したまま `code.gs` を新規作成すると、同名関数が二重定義になって壊れる。
-
-| GASの操作 | ファイル名 | 置くもの |
-|---|---|---|
-| 中身を全文置換 | `コード` | `src/code.gs` |
-| 中身を全文置換 | `Index` | `src/Index.html` |
-| 中身を全文置換 | `Style` | `src/Style.html` |
-| 中身を全文置換 | `JavaScript` | `src/JavaScript.html` |
-| **新規作成**（スクリプト） | `Invoice` | `src/Invoice.gs` |
-| **新規作成**（スクリプト） | `Admin` | `src/Admin.gs` |
-| **新規作成**（HTML） | `Calc` | `src/Calc.html` |
-
-> 新規作成の3つは、GASのエディタで「＋」→ スクリプト／HTML を選び、
-> 上表の名前を付ける（拡張子は自動で付くので入力しない）。
-> `Calc` を作り忘れると `getCalcEngine_()` が失敗する。
-
-### 手順2：管理者関数を順に実行する
-
-エディタ上部の関数プルダウンから選んで実行する。
-
-| 順 | 関数 | 内容 | 必須 |
-|---|---|---|---|
-| 1 | ~~`adminBackup()`~~ | 手順0で複製済みのためスキップ可 | — |
-| 2 | `adminDiagnose()` | 現状確認（読むだけ） | ○ |
-| 3 | `adminSetup()` | 不足シート・不足列・不足設定キーを補う | ○ |
-| 4 | `adminNormalizeDiscountRules()` | 割引繁忙期マスタを正規化（1,071行 → 16行） | ○ |
-| 5 | `adminNormalizeMailTemplates()` | メールテンプレートマスタを正規化（160行 → 5行） | ○ |
-| 6 | `adminNormalizeCellDefinitions()` | 差し込みセル定義の列ずれを修復 | ○ |
-| 7 | `adminDiagnose()` | もう一度実行して警告が消えたか確認 | ○ |
-| 8 | `adminInspectTemplateLayout()` | 帳票テンプレートの実レイアウトと差し込み定義の突き合わせを出力（確認用） | 任意 |
-| 9 | `adminCreatePdfTemplate()` | PDF生成専用テンプレートを作成 | 任意 |
-| 10 | `adminSetMasterTimezone()` | マスタのTZを Asia/Tokyo に統一 | 任意 |
-| 11 | `adminRefreshCache()` | マスタキャッシュを破棄 | ○ |
-
-`adminSetup()` は既存の列位置を動かさない。追加列は右端に足すだけ。
-
-手順4〜6は元シートを `<シート名>_旧_YYYYMMDD_HHmm` にリネームして退避してから
-新しいシートを作る。**元データは消えない。**
-
-手順8を実行した場合は、表示されたIDを設定マスタの `pdf_template_spreadsheet_id` に貼り、
-もう一度 `adminRefreshCache()` を実行する。
-
-### 手順3：デプロイ
-
-「デプロイを管理」→ 既存デプロイを編集 → バージョンを「新バージョン」にして更新。
-**新規デプロイを作らないこと**（URLが変わり、現場のブックマークが切れる）。
-
-- 実行するユーザー：自分（スクリプト所有者）
-- アクセスできるユーザー：現行のまま
-
-### 手順4：受入テスト
-
-`docs/acceptance-test.md` を上から実施する。
-
----
+こちらは `src/` の構成そのまま（7ファイル）で push する。
+どちらの方法でも動作は同じ。
 
 ## 5. マスタ変更内容
 
-`adminNormalize*()` を実行すれば自動で反映される。
+**手順2の `adminDeployAll()` で自動的に反映される。** 手作業は不要。
 手で貼りたい場合のためにTSVも用意した（`master/`）。
 
 | ファイル | 貼り付け先 |
@@ -593,6 +580,8 @@ bash apps/estimate-app/tools/run-all.sh   # 下記すべてを一括実行
 | `invoice-test.js` | 請求日・支払期限・請求額・保存→復元・セル定義 | 66 |
 | `live-master-test.js` | **本番マスタの実データ**を読み込めるか | 50 |
 | `api-call-benchmark.js` | 旧コードとのシートAPI呼び出し回数比較 | — |
+| `build-paste-bundle.sh` | 貼り付け用4ファイルを生成し、埋め込みエンジンの動作を確認 | — |
+| `build-clasp.sh` | clasp用の7ファイルを生成 | — |
 | `gen-master-tsv.js` | マスタTSVをコード定義から再生成 | — |
 
 `live-master-test.js` は本番スプレッドシートをxlsxで書き出した

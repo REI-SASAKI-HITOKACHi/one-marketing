@@ -64,7 +64,20 @@ else
   printf '  ✗ build-clasp.sh が失敗\n'; fail=1
 fi
 
-step "9. マスタTSVがコードと一致しているか"
+step "9. 貼り付けバンドルがsrcと一致しているか"
+before=$(md5sum deploy-paste/* 2>/dev/null | md5sum)
+if bash tools/build-paste-bundle.sh >/dev/null 2>&1; then
+  after=$(md5sum deploy-paste/* 2>/dev/null | md5sum)
+  if [ "$before" = "$after" ]; then
+    printf '  ✓ deploy-paste/ は最新\n'
+  else
+    printf '  ✗ deploy-paste/ がsrcとずれていたため再生成した。差分をコミットすること\n'; fail=1
+  fi
+else
+  printf '  ✗ build-paste-bundle.sh が失敗\n'; fail=1
+fi
+
+step "10. マスタTSVがコードと一致しているか"
 before=$(md5sum master/*.tsv 2>/dev/null | md5sum)
 node tools/gen-master-tsv.js >/dev/null
 after=$(md5sum master/*.tsv 2>/dev/null | md5sum)
