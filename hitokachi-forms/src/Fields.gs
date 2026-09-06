@@ -79,7 +79,7 @@ var FIELD_DEFS = [
   { key: 'coAgent',      label: '共同募集の相方', type: 'coAgent', section: '基本', defaultMode: 'form',
     note: '代理店側の募集人と共同で募集した場合に選ぶ。単独なら空欄のまま。'
         + '選ぶと帳票に「佐々木 嶺 / 熊澤 善弘」のように連名で入る。'
-        + '選択肢は代理店マスタの「代理店側の募集人」から出る' },
+        + '選択肢は「代理店募集人マスタ」に、その代理店名で登録した人から出る' },
   { key: 'contractType', label: '契約形態',     type: 'radio',  section: '基本', required: true,  defaultMode: 'form',
     options: ['個人', '法人'], defaultValue: '個人',
     note: '法人を選ぶと適合性確認シートの①〜④および2.①〜③が対象外になる' },
