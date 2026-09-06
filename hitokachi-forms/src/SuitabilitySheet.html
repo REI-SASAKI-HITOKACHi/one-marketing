@@ -1,23 +1,32 @@
 <!DOCTYPE html>
 <html><head><meta charset="utf-8">
 <style>
-  body { font-family: "Noto Sans JP", "Yu Gothic", sans-serif; font-size: 9pt; line-height: 1.45; }
-  .cls { font-size: 8pt; text-align: left; }
-  h1 { font-size: 14pt; text-align: center; margin: 6pt 0 10pt; }
-  h2 { font-size: 11pt; margin: 14pt 0 4pt; }
-  p { margin: 3pt 0; }
-  .note { font-size: 8pt; }
-  table { border-collapse: collapse; width: 100%; margin: 4pt 0; }
-  td { border: 1px solid #000; padding: 3pt 4pt; vertical-align: middle; font-size: 9pt; }
-  td.n { text-align: center; width: 22pt; }
-  td.lbl { background-color: #f2f2f2; width: 70pt; }
-  td.opt { font-size: 8.5pt; line-height: 1.6; }
-  td.ans { text-align: center; width: 78pt; white-space: nowrap; }
+  /*
+   * 1枚目（１．２．＋確認日欄）で1ページ、別紙で1ページ、合わせて2ページに収める。
+   *
+   * 実際の PDF は HTML → Google ドキュメント → PDF の順で作る。
+   * ドキュメント側は行間と表の余白をブラウザより広く取るので、
+   * ブラウザで「ぎりぎり収まる」高さだと本番では溢れる。
+   * A4 の本文域は約 1027px。1枚目を 850px 前後に収めて余裕を持たせている。
+   * ここの数値を大きくするときは、必ず実際の PDF でページ数を確かめること。
+   */
+  body { font-family: "Noto Sans JP", "Yu Gothic", sans-serif; font-size: 9pt; line-height: 1.4; }
+  .cls { font-size: 7.5pt; text-align: left; margin: 0; }
+  h1 { font-size: 12.5pt; text-align: center; margin: 3pt 0 5pt; }
+  h2 { font-size: 10.5pt; margin: 9pt 0 3pt; }
+  p { margin: 2pt 0; }
+  .note { font-size: 8pt; line-height: 1.3; }
+  table { border-collapse: collapse; width: 100%; margin: 2pt 0; }
+  td { border: 1px solid #000; padding: 2pt 4pt; vertical-align: middle; font-size: 9pt; }
+  td.n { text-align: center; width: 20pt; }
+  td.lbl { background-color: #f2f2f2; width: 68pt; }
+  td.opt { font-size: 8.5pt; line-height: 1.45; }
+  td.ans { text-align: center; width: 74pt; white-space: nowrap; }
   td.mid { text-align: center; }
-  td.vert { text-align: center; width: 26pt; background-color: #f2f2f2; }
+  td.vert { text-align: center; width: 24pt; background-color: #f2f2f2; }
   .warn { color: #b00020; font-weight: bold; }
   .pb { page-break-before: always; }
-  .foot { font-size: 8pt; margin-top: 10pt; }
+  .foot { font-size: 7.5pt; margin-top: 6pt; }
 </style></head>
 <body>
 
