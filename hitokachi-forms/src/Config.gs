@@ -109,6 +109,28 @@ var MASTER_CACHE_ = {};
 function clearMasterCache_() { MASTER_CACHE_ = {}; }
 
 /**
+ * 共有フォルダIDの欄から、フォルダIDを取り出す。
+ *
+ * Drive のアドレスバーからコピーすると URL 全体が入る。
+ *   https://drive.google.com/drive/folders/XXXX?usp=drive_link
+ * ID だけを貼るより URL を貼るほうが自然なので、どちらでも通るようにする。
+ * 直さないと DriveApp.getFolderById() が URL を ID として扱って失敗する。
+ */
+function folderIdFromInput_(v) {
+  var s = String(v == null ? '' : v).trim();
+  if (s === '') return '';
+
+  var m = s.match(/\/folders\/([^\/?#]+)/);      // .../drive/folders/ID?usp=...
+  if (m) return m[1];
+  m = s.match(/[?&]id=([^&#]+)/);                // 旧形式 ...open?id=ID
+  if (m) return m[1];
+  m = s.match(/\/d\/([^\/?#]+)/);                // 念のため .../d/ID/...
+  if (m) return m[1];
+
+  return s.replace(/[?#].*$/, '');               // ID がそのまま入っている
+}
+
+/**
  * 代理店名を突き合わせるためのキー。
  * 「代理店募集人マスタ」の代理店名は設定シート上ではプルダウンから選ぶが、
  * 貼り付けで入った値には前後の空白や全角空白が混じる。表記のゆれだけで
@@ -144,7 +166,7 @@ function getAgencies_() {
       var name = String(r['代理店名']).trim();
       return {
         name: name,
-        folderId: String(r['共有フォルダID']).trim(),
+        folderId: folderIdFromInput_(r['共有フォルダID']),
         coAgents: byAgency[agencyKey_(name)] || []
       };
     });

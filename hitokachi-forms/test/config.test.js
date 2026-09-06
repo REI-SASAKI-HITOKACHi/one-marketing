@@ -116,6 +116,28 @@ console.log('\n--- チェックボックスだけの空行を拾わない ---');
   t('無効な代理店は返らない', ctx.getAgencyByName_('提携代理店C'), null);
 }
 
+console.log('\n--- 共有フォルダIDは URL のまま貼っても通る ---');
+{
+  const ctx = makeContext({
+    '代理店マスタ': [
+      ['代理店名', '共有フォルダID', '有効', '備考'],
+      ['URL貼り付け', 'https://drive.google.com/drive/folders/1QFFYl1U4MXe_Gi_D6SBfKoAIkMfHPIl9?usp=drive_link', true, ''],
+      ['クエリなし', 'https://drive.google.com/drive/folders/1AnxGMvz_4nzjPnJG3cZMSDF', true, ''],
+      ['IDだけ',     '1pK6ChGD2wsQehpHOOfwZ7dbgTY2lXhz6', true, ''],
+      ['前後に空白',  '  1vvz_SiAb0VtFh4npYbFsSj4rVS7eUIs7  ', true, ''],
+      ['旧形式',     'https://drive.google.com/open?id=10GUIYnDJtxso_xLutp7tlRlHdPe6-gIP', true, ''],
+      ['空欄',       '', true, '']
+    ]
+  });
+  const id = n => ctx.getAgencyByName_(n).folderId;
+  t('URL からIDを取り出す',   id('URL貼り付け'), '1QFFYl1U4MXe_Gi_D6SBfKoAIkMfHPIl9');
+  t('クエリが無くても取れる', id('クエリなし'),  '1AnxGMvz_4nzjPnJG3cZMSDF');
+  t('IDだけならそのまま',     id('IDだけ'),      '1pK6ChGD2wsQehpHOOfwZ7dbgTY2lXhz6');
+  t('前後の空白は落とす',     id('前後に空白'),  '1vvz_SiAb0VtFh4npYbFsSj4rVS7eUIs7');
+  t('旧形式の open?id= も取れる', id('旧形式'),  '10GUIYnDJtxso_xLutp7tlRlHdPe6-gIP');
+  t('空欄は空欄のまま',       id('空欄'),        '');
+}
+
 console.log('\n--- 代理店ごとの募集人（共同募集の相手） ---');
 {
   const ctx = makeContext({
