@@ -14,6 +14,25 @@ import pathlib
 import re
 import sys
 
+def strip_comments(html: str) -> str:
+    """公開する文書からコメントを落とす。
+
+    lp/ 配下のソースには、なぜその値なのかを書いた注記を残してある。
+    ただし公開ページのソースに設計メモが並んでいるのは正常な状態ではないので、
+    書き出すときに外す。CSSのコメントは <style> の中だけを対象にする
+    （JavaScript の中の /* */ を巻き込まないため）。
+    """
+    html = re.sub(r"<!--.*?-->", "", html, flags=re.S)
+
+    def _style(m):
+        return m.group(1) + re.sub(r"/\*.*?\*/", "", m.group(2), flags=re.S) + m.group(3)
+
+    html = re.sub(r"(<style[^>]*>)(.*?)(</style>)", _style, html, flags=re.S)
+    # コメントを抜いた跡に残る空行を畳む
+    html = re.sub(r"\n[ \t]*\n[ \t]*\n+", "\n\n", html)
+    return html
+
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DIST = ROOT / "dist"
 
@@ -34,7 +53,7 @@ def inline(name: str) -> pathlib.Path:
     html, n = re.subn(r'src="((?!data:|https?:)[^"]+)"', repl, html)
     DIST.mkdir(exist_ok=True)
     out = DIST / f"lp-{name}.html"
-    out.write_text(html, encoding="utf-8")
+    out.write_text(strip_comments(html), encoding="utf-8")
     print(f"{out}  画像{n}点  {out.stat().st_size // 1024}KB")
     return out
 
