@@ -12,6 +12,25 @@ import re
 import shutil
 import sys
 
+def strip_comments(html: str) -> str:
+    """公開する文書からコメントを落とす。
+
+    lp/ 配下のソースには、なぜその値なのかを書いた注記を残してある。
+    ただし公開ページのソースに設計メモが並んでいるのは正常な状態ではないので、
+    書き出すときに外す。CSSのコメントは <style> の中だけを対象にする
+    （JavaScript の中の /* */ を巻き込まないため）。
+    """
+    html = re.sub(r"<!--.*?-->", "", html, flags=re.S)
+
+    def _style(m):
+        return m.group(1) + re.sub(r"/\*.*?\*/", "", m.group(2), flags=re.S) + m.group(3)
+
+    html = re.sub(r"(<style[^>]*>)(.*?)(</style>)", _style, html, flags=re.S)
+    # コメントを抜いた跡に残る空行を畳む
+    html = re.sub(r"\n[ \t]*\n[ \t]*\n+", "\n\n", html)
+    return html
+
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 # 配信先ごとに、フォームの受け口と出力先が変わる
@@ -162,7 +181,7 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path) -> None:
 
     dst = out / meta["dir"]
     dst.mkdir(parents=True, exist_ok=True)
-    (dst / "index.html").write_text(doc, encoding="utf-8")
+    (dst / "index.html").write_text(strip_comments(doc), encoding="utf-8")
 
     img_src = ROOT / "lp" / name / "img"
     img_dst = dst / "img"
