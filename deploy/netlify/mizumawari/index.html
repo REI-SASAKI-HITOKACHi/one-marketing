@@ -1209,7 +1209,11 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     if (href.indexOf('tel:') === 0) {
       send('phone_click', { link_position: placeOf(a), phone_number: href.slice(4) });
     } else if (href.indexOf('lin.ee') > -1 || href.indexOf('line.me') > -1) {
-      send('line_click', { link_position: placeOf(a) });
+      // アンケートのLINEリンクは「友だちに紹介文を送る」ボタンで、
+      // LPの「公式アカウントを友だち追加」とは意味が違う。
+      // line_click は成果（キーイベント）に指定するので、混ぜない。
+      send(PAGE.kind === 'survey' ? 'refer_share' : 'line_click',
+           { link_position: placeOf(a), share_to: 'line' });
     } else if (href.charAt(0) === '#' && href.length > 1) {
       send('cta_click', { link_position: placeOf(a), link_target: href });
     }
@@ -1302,6 +1306,82 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     else if (value > 0) { lead.value = value; lead.currency = 'JPY'; }
 
     send('generate_lead', lead);
+  }
+
+  // ---------------------------------------------------------------
+  // 5-b. アンケート（4問ずつ4画面のウィザード）
+  //
+  //   知りたいのは「QRを見た人のうち、何人が最後まで答えたか」と
+  //   「どの画面で脱落したか」の2つ。ページ遷移が起きない作りなので、
+  //   画面の出し入れ（hidden属性）を見張って段階を記録する。
+  // ---------------------------------------------------------------
+  if (PAGE.kind === 'survey') {
+    var sForm = document.querySelector('form.survey-form');
+
+    if (sForm) {
+      var sStarted = false;
+      sForm.addEventListener('focusin', function () {
+        if (sStarted) return;
+        sStarted = true;
+        send('survey_start', {});
+      });
+      // ラジオ・チェックボックスはフォーカスを伴わない操作もあるので、変更も入口に含める
+      sForm.addEventListener('change', function () {
+        if (sStarted) return;
+        sStarted = true;
+        send('survey_start', {});
+      });
+    }
+
+    // 進んだ画面の記録。戻って進み直しても二重に数えない
+    var seenStep = {};
+    function noteStep(n) {
+      if (!n || seenStep[n]) return;
+      seenStep[n] = true;
+      send('survey_step', { step_number: parseInt(n, 10) });
+    }
+
+    var doneSent = false;
+    function watch() {
+      document.querySelectorAll('.step[data-step]').forEach(function (el) {
+        if (!el.hidden) noteStep(el.getAttribute('data-step'));
+      });
+      var done = document.getElementById('done');
+      if (done && !done.hidden && !doneSent) {
+        doneSent = true;
+        // ここは送信が終わってから出る画面なので、回答完了として数えてよい
+        send('survey_complete', {});
+      }
+    }
+
+    if (window.MutationObserver) {
+      var mo = new MutationObserver(watch);
+      document.querySelectorAll('.step[data-step]').forEach(function (el) {
+        mo.observe(el, { attributes: true, attributeFilter: ['hidden'] });
+      });
+      var doneEl = document.getElementById('done');
+      if (doneEl) mo.observe(doneEl, { attributes: true, attributeFilter: ['hidden'] });
+    }
+    watch();   // 最初の画面の分
+
+    // 完了画面のボタン。クチコミと紹介は、ここが唯一の観測点になる
+    var BUTTONS = {
+      'copy-review': 'review_copy',      // クチコミ下書きをコピー
+      'copy-refer': 'refer_copy',        // 紹介文をコピー
+      'priv-send': 'private_send'        // 非公開のご意見を送る
+    };
+    Object.keys(BUTTONS).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('click', function () { send(BUTTONS[id], {}); });
+    });
+
+    var glink = document.getElementById('google-link');
+    if (glink) {
+      glink.addEventListener('click', function () {
+        // Googleのクチコミ投稿画面へ送り出した回数。実際に投稿されたかは分からない
+        send('google_review_click', {});
+      });
+    }
   }
 
   // ---------------------------------------------------------------
