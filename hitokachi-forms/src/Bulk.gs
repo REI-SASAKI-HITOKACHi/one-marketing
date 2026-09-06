@@ -91,7 +91,7 @@ function bulkColumns_() {
       return;
     }
     if (f.type === 'multi') {
-      var prefix = f.key === 'experience' ? '購入経験｜' : '保険料原資｜';
+      var prefix = (f.bulkPrefix || f.label) + '｜';
       (f.options || []).forEach(function (o) {
         cols.push({ key: f.key + ':' + o, label: prefix + o, kind: 'check', group: f.key });
       });
@@ -939,8 +939,15 @@ function importFromStagingSheet() {
       return;
     }
     var col = labelToCol[h];
-    if (!col) { unknown.push(srcValues[0][i]); return; }
-    mapping.push({ srcCol: i, destCol: col, isCheck: isCheckColumn_(destKeys[col - 1]) });
+    if (col) {
+      mapping.push({ srcCol: i, destCol: col, isCheck: isCheckColumn_(destKeys[col - 1]) });
+      return;
+    }
+    // 「保険種類」のような複数選択の項目は、一括入力シートでは選択肢ごとの
+    // チェック列に分かれている。1 列の文字列から当てはまる列を立てる。
+    var group = importGroupFor_(h, destKeys);
+    if (group) { mapping.push({ srcCol: i, group: group }); return; }
+    unknown.push(srcValues[0][i]);
   });
 
   if (unknown.length) {
@@ -982,6 +989,13 @@ function importFromStagingSheet() {
     var out = new Array(destLastCol).fill('');
     mapping.forEach(function (m) {
       var v = srcRow[m.srcCol];
+      if (m.group) {
+        var picked = parseMultiValue_(m.group.field, v);
+        m.group.cols.forEach(function (c) {
+          out[c.destCol - 1] = picked.indexOf(c.option) >= 0;
+        });
+        return;
+      }
       out[m.destCol - 1] = m.isCheck ? isTrue_(v) : v;
     });
     // 状態は必ず未処理から始める。取り込んだだけで作成済みにはしない。
@@ -994,7 +1008,8 @@ function importFromStagingSheet() {
     existing[key] = true;
 
     // 作成漏れかどうかを索引で調べる。作成済みなら転記しない。
-    var wantSuit = needsSuitability_(pairs.productType, suitKeywords);
+    // 保険種類はチェック列に分かれているので、行を入力データの形に戻して見る。
+    var wantSuit = needsSuitability_(bulkRowToData_(pairs).productType, suitKeywords);
     var found = lookupExisting_(index, pairs.agency, pairs.customerName, wantSuit);
     if (found.status === 'done') { alreadyMade.push(pairs.customerName); continue; }
     if (found.status === 'ambiguous') {
@@ -1059,6 +1074,46 @@ function normalizeHeader_(h) {
   var s = String(h == null ? '' : h);
   if (String.prototype.normalize) s = s.normalize('NFKC');
   return s.replace(/[\s　]+/g, '').trim();
+}
+
+/**
+ * 取り込み側の 1 列が、一括入力シートでは複数のチェック列に分かれている場合の対応表。
+ * 見出しが複数選択項目のラベルと一致したときだけ返す。
+ *
+ * @return {Object|null} { field, cols: [{ destCol, option }] }
+ */
+function importGroupFor_(header, destKeys) {
+  for (var i = 0; i < FIELD_DEFS.length; i++) {
+    var f = FIELD_DEFS[i];
+    if (f.type !== 'multi' && f.type !== 'needs') continue;
+    if (normalizeHeader_(f.label) !== header) continue;
+
+    var cols = [];
+    destKeys.forEach(function (k, c) {
+      k = String(k || '');
+      if (k.indexOf(f.key + ':') !== 0) return;
+      cols.push({ destCol: c + 1, option: k.slice(f.key.length + 1) });
+    });
+    return cols.length ? { field: f, cols: cols } : null;
+  }
+  return null;
+}
+
+/**
+ * 1 セルの文字列から、複数選択項目のどれに当たるかを返す。
+ * 保険種類だけは商品名からの拾い読みが要るので専用の照合を使い、
+ * それ以外は選択肢そのものが区切って書かれている前提で突き合わせる。
+ */
+function parseMultiValue_(field, raw) {
+  if (field.key === 'productType') return parseProductTypes_(raw);
+
+  var list = String(raw == null ? '' : raw).split(/[,、\n]/)
+    .map(function (s) { return String(s).trim(); })
+    .filter(function (s) { return s !== ''; });
+  var options = field.type === 'needs'
+    ? NEEDS.map(function (n) { return n.key; })
+    : (field.options || []);
+  return options.filter(function (o) { return list.indexOf(o) >= 0; });
 }
 
 function isCheckColumn_(key) {

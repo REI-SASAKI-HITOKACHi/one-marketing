@@ -187,7 +187,18 @@ function applyFieldConfig_(data, fieldConfig) {
       out[f.key] = data[f.key];
     }
   });
-  return out;
+  // 保険種類から「ご意向」を補うのは、hidden の項目を空にしたあと。
+  // 推定のご意向は入力欄を出していないので、ここで入れないと空欄のまま印字される。
+  return applyAutoIntent_(out, autoEstimatedIntent_());
+}
+
+/** 推定のご意向を自動で入れるか。設定が読めない場面（テストなど）では入れる。 */
+function autoEstimatedIntent_() {
+  try {
+    return isTrue_(getSetting_('推定のご意向を自動で入れる', 'はい'));
+  } catch (e) {
+    return true;
+  }
 }
 
 /** 設定シートの固定値（文字列）を、項目の型に合わせて解釈する。 */

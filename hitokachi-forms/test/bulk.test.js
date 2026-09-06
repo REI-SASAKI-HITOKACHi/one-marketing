@@ -430,15 +430,23 @@ console.log('\n--- 保険種類で作る帳票が変わる ---');
     check({ productType: '変額保険' }).some(e => e.indexOf('年収') >= 0), true);
   t('保険種類が空欄なら求める側に倒す',    check({ productType: '' }).length > 0, true);
 
-  console.log('\n--- 適合性が要らない行でも意向は必須のまま ---');
-  t('ご希望の保障分野は必須',
-    check({ productType: '医療保険', needs: [] }).some(e => e.indexOf('ご希望の保障分野') >= 0), true);
+  console.log('\n--- 意向は保険種類から補う ---');
+  t('保険種類があれば空欄でも通る',
+    check({ productType: '医療保険', needs: [], savings: '' }), []);
+  t('保険種類も空欄なら意向は必須',
+    check({ productType: '', needs: [], savings: '' }).some(e => e.indexOf('ご希望の保障分野') >= 0), true);
   t('契約者氏名も必須',
     check({ productType: '医療保険', customerName: '' }).some(e => e.indexOf('契約者氏名') >= 0), true);
 
   console.log('\n--- 保険種類は一括入力シートの列になる ---');
   const cols = ctx.bulkColumns_();
-  t('保険種類の列がある', cols.filter(c => c.key === 'productType').length, 1);
+  t('選択肢ごとに1列になる',
+    cols.filter(c => c.group === 'productType').length, ctx.PRODUCT_TYPES.length);
+  t('見出しは「保険種類｜変額」',
+    cols.filter(c => c.key === 'productType:変額').map(c => c.label), ['保険種類｜変額']);
+  t('文字列の列は残っていない', cols.filter(c => c.key === 'productType').length, 0);
+  t('購入経験の見出しはそのまま',
+    cols.filter(c => c.key === 'experience:株式').map(c => c.label), ['購入経験｜株式']);
 }
 
 console.log('\n--- チェックボックスの表記ゆれ ---');

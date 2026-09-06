@@ -45,6 +45,7 @@ const data = {
   premiumSource: ['預貯金・給与'],
   sourceNotMaturity: true, sourceSpare: true, sourceNotLoan: true,
   riskTolerance: ctx.RISK_YES,
+  productType: ['変額', '終身'],
   needs: ['death', 'medical', 'cancer', 'education', 'pension'],
   savings: '①ある方が良い',
   wishPeriod: '一生涯',
@@ -58,6 +59,9 @@ const agent = {
   address2: '５－１４－１１ クオーディア西葛西５０３',
   tel: '080-6817-4796', email: 'info@hitokachi.com'
 };
+
+// 推定のご意向は入力欄がなく、保険種類から自動で入る。本番と同じ形にしてから描く。
+ctx.applyAutoIntent_(data, true);
 
 const answers = ctx.defaultAnswers_(data);
 const model = ctx.buildModel_(data, answers, agent, 'ヒトカチ株式会社');
@@ -107,6 +111,8 @@ const i = rendered['IntentSheet.html'];
 t('確認日が西暦スラッシュ表記', i.includes('2026/08/01'));
 t('当初のご意向にチェックが5件', (i.match(/☑/g) || []).length >= 5);
 t('未選択の項目は空チェック', i.includes('☐'));
+// 推定のご意向は入力欄がないので、自動で入らないと列が丸ごと空欄になる。
+t('推定のご意向も埋まっている', (i.match(/☑/g) || []).length >= 12);
 t('募集人の連絡先が入っている', i.includes('080-6817-4796'));
 t('個人・法人のブロックがある', i.includes('個人の') && i.includes('法人の'));
 

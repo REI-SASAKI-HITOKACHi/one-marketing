@@ -212,6 +212,8 @@ function control(f) {
           if (input.checked && i < 0) arr.push(o.v);
           if (!input.checked && i >= 0) arr.splice(i, 1);
           setValue(f.key, arr);
+          // 保険種類を選び直したら、ご意向も入れ直す。
+          if (f.key === 'productType') applyAutoIntent();
         } else {
           setValue(f.key, o.v);
         }
@@ -265,6 +267,51 @@ function control(f) {
   input.addEventListener('change', function () { setValue(f.key, input.value); });
   if (!f.unit) return input;
   return el('div', {}, [input, el('span', { class: 'unit', text: f.unit })]);
+}
+
+/**
+ * 保険種類から「ご意向」と「貯蓄部分」を入れ直す。
+ *
+ * 保険種類を触るたびに入れ直すので、手で直したいときは保険種類を決めてから直す。
+ * サーバ側でも同じことをするが、印字される内容を送信前に目で確かめられるように
+ * 画面でも反映させている。
+ */
+function applyAutoIntent() {
+  var types = STATE.values.productType || [];
+  var picked = {};
+  var savings = '';
+  (BOOT.productTypes || []).forEach(function (p) {
+    if (types.indexOf(p.key) < 0) return;
+    p.needs.forEach(function (n) { picked[n] = true; });
+    if (p.savings === BOOT.savingsYes) savings = BOOT.savingsYes;
+    else if (savings === '') savings = p.savings;
+  });
+  var needs = BOOT.needs
+    .filter(function (n) { return picked[n.key]; })
+    .map(function (n) { return n.key; });
+
+  setChecks('needs', needs);
+  setRadio('savings', savings);
+}
+
+/** 複数選択の項目を、渡したキーの並びだけ選んだ状態にする。 */
+function setChecks(key, values) {
+  var boxes = document.getElementsByName('n_' + key);
+  if (!boxes.length) return;
+  for (var i = 0; i < boxes.length; i++) {
+    boxes[i].checked = values.indexOf(boxes[i].value) >= 0;
+  }
+  setValue(key, values.slice());
+}
+
+/** 単一選択の項目を選び直す。空文字なら選択なしに戻す。 */
+function setRadio(key, value) {
+  var boxes = document.getElementsByName('n_' + key);
+  if (!boxes.length) return;
+  for (var i = 0; i < boxes.length; i++) {
+    boxes[i].checked = (value !== '' && boxes[i].value === value);
+  }
+  setValue(key, value);
 }
 
 function agencyNames() {

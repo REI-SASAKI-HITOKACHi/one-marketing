@@ -22,6 +22,10 @@
  * （どの項目がどの判定の根拠かは Judge.gs の JUDGE_INPUTS）。
  */
 
+/** 貯蓄部分の選択肢。意向把握シートの「２．」に対応する。 */
+var SAVINGS_YES = '①ある方が良い';
+var SAVINGS_NO  = '②なくても良い';
+
 /** 保障ニーズ。意向把握シートの 8 項目が入力の粒度で、適合性⑧へは集約して流す。 */
 var NEEDS = [
   { key: 'death',     label: '死亡時の保障',                   owner: '個人', suit: 'death'    },
@@ -44,6 +48,29 @@ var SUIT_NEEDS = [
   { key: 'retire',   label: '退職金（生存・死亡）準備',               owner: '法人' },
   { key: 'other',    label: 'その他',                                 owner: '共通' }
 ];
+
+/**
+ * 保険種類。ここが「保険種類 → ご意向」の対応表になっている。
+ *
+ *   key      … 画面と一括入力シートに出すチェック項目
+ *   keywords … 成約一覧の商品名から拾うための語。「変額終身保険」なら
+ *              変額と終身の両方に当たる（実際どちらの性質も持つので正しい）
+ *   needs    … 自動で入れる「ご意向（保障分野）」。NEEDS のキー
+ *   savings  … 自動で入れる「貯蓄部分」。1 つでも SAVINGS_YES があれば「ある方が良い」
+ *
+ * 適合性確認シートを作るかどうかは、ここではなく設定シートの
+ * 「適合性確認シートが必要な保険種類」で決める（判断の置き場所を 1 つにするため）。
+ */
+var PRODUCT_TYPES = [
+  { key: '変額', keywords: ['変額'],             needs: ['pension'], savings: SAVINGS_YES },
+  { key: '終身', keywords: ['終身'],             needs: ['death'],   savings: SAVINGS_YES },
+  { key: '定期', keywords: ['定期', '収入保障'], needs: ['death'],   savings: SAVINGS_NO  },
+  { key: '医療', keywords: ['医療'],             needs: ['medical'], savings: SAVINGS_NO  },
+  { key: 'がん', keywords: ['がん', 'ガン', '癌'], needs: ['cancer'], savings: SAVINGS_NO  },
+  { key: '介護', keywords: ['介護'],             needs: ['medical'], savings: SAVINGS_NO  }
+];
+
+var PRODUCT_TYPE_KEYS = PRODUCT_TYPES.map(function (p) { return p.key; });
 
 var EXPERIENCE_OPTIONS = [
   '株式', '投資信託', '公社債', '特定保険契約（変額保険・外貨建保険等）',
@@ -87,10 +114,12 @@ var FIELD_DEFS = [
     note: '保存先の顧客フォルダ名にも使う' },
   { key: 'confirmDate',  label: '確認日',       type: 'date',   section: '基本', required: true,  defaultMode: 'form',
     note: '適合性の確認日／意向把握シートの「当初のご意向」確認日' },
-  { key: 'productType',  label: '保険種類',     type: 'text',   section: '基本', defaultMode: 'form',
-    note: '成約一覧の保険種類をそのまま入れる。'
-        + '「変額」を含む契約だけ適合性確認シートを作り、それ以外は意向把握シートだけ作る。'
-        + '空欄なら両方作る（判定に使うキーワードは設定シートで変えられる）' },
+  { key: 'productType',  label: '保険種類',     type: 'multi',  section: '基本', defaultMode: 'form',
+    options: PRODUCT_TYPE_KEYS,
+    note: '当てはまるものをすべて選ぶ（変額終身なら「変額」と「終身」の2つ）。'
+        + '選ぶと「ご意向」と「貯蓄部分」が自動で入る（手で直せる）。'
+        + '「変額」を選んだ契約だけ適合性確認シートを作り、それ以外は意向把握シートだけ作る。'
+        + '1つも選ばないと両方作る（判定に使う語は設定シートで変えられる）' },
   { key: 'guardianName',     label: '親権者氏名',        type: 'text', section: '基本', defaultMode: 'hidden',
     note: '契約者が未成年の場合のみ' },
   { key: 'guardianRelation', label: '契約者からみた続柄', type: 'text', section: '基本', defaultMode: 'hidden' },
@@ -117,14 +146,14 @@ var FIELD_DEFS = [
   { key: 'payYears',      label: '保険料払込期間',   type: 'number', unit: '年',   section: '適合性', required: true, defaultMode: 'hidden',
     note: '判定③の参考にしか使わず、帳票には出ない' },
   { key: 'experience',    label: 'これまでご購入されたことのある金融商品', type: 'multi', section: '適合性', defaultMode: 'form',
-    options: EXPERIENCE_OPTIONS },
+    options: EXPERIENCE_OPTIONS, bulkPrefix: '購入経験' },
   { key: 'experienceOther', label: '金融商品「その他」の内容', type: 'text', section: '適合性', defaultMode: 'form' },
   { key: 'experienceExplained',
     label: '投資経験がないため、変額保険の仕組み・特徴・投資リスク・諸費用・解約控除等を十分に理解いただく時間を確保して説明した',
     type: 'check', section: '適合性', defaultMode: 'hidden', showIf: 'noExperience',
     note: '判定④の参考にしか使わず、帳票には出ない' },
   { key: 'premiumSource',      label: '保険料原資',                 type: 'multi', section: '適合性', defaultMode: 'form',
-    options: PREMIUM_SOURCE_OPTIONS },
+    options: PREMIUM_SOURCE_OPTIONS, bulkPrefix: '保険料原資' },
   { key: 'premiumSourceOther', label: '保険料原資「その他」の内容', type: 'text',  section: '適合性', defaultMode: 'form' },
   { key: 'sourceNotMaturity',
     label: 'ア．保険料の原資が定期性預貯金や他の金融商品の満期金または解約返戻金ではない',
@@ -147,12 +176,14 @@ var FIELD_DEFS = [
 
   // ---- 意向把握シート ----
   { key: 'needs',      label: 'ご希望の保障分野・目的', type: 'needs', section: '意向', required: true, defaultMode: 'form',
-    note: 'この選択は意向把握シートの「1.保障分野・目的」と、'
+    note: '保険種類を選ぶと自動で入る。違うときだけ手で直す。'
+        + 'この選択は意向把握シートの「1.保障分野・目的」と、'
         + '適合性確認シートの「⑧ お客さまのご意向」の両方に反映されます。'
         + '（適合性⑧は項目が粗いので、がん＋病気は1つに、教育資金＋老後資金は「貯蓄」にまとまります）' },
   { key: 'needsOther', label: '適合性⑧「その他」の内容', type: 'text', section: '意向', defaultMode: 'form' },
   { key: 'savings',    label: '貯蓄部分を必要とされますか', type: 'radio', section: '意向', required: true, defaultMode: 'form',
-    options: ['①ある方が良い', '②なくても良い'] },
+    options: [SAVINGS_YES, SAVINGS_NO],
+    note: '保険種類を選ぶと自動で入る。違うときだけ手で直す' },
   { key: 'wishPeriod',  label: '保険期間のご希望',   type: 'text', section: '意向', defaultMode: 'form' },
   { key: 'wishAmount',  label: '保険金額のご希望',   type: 'text', section: '意向', defaultMode: 'form' },
   { key: 'wishPremium', label: '保険料のご希望',     type: 'text', section: '意向', defaultMode: 'form' },
@@ -162,13 +193,16 @@ var FIELD_DEFS = [
 
   // ---- 既定では非表示。設定シートで form にすれば使える ----
   { key: 'estimatedNeeds',   label: '推定のご意向（保障分野）',   type: 'needs', section: '任意', defaultMode: 'hidden',
-    note: '募集人の推定に基づいて提案する場合のみ記入する欄' },
+    note: '既定では入力せず、保険種類から自動で入れる'
+        + '（設定シートの「推定のご意向を自動で入れる」で止められる）。'
+        + '「入力する」にすると手で選べるようになり、そちらが優先される' },
   { key: 'estimatedSavings', label: '推定のご意向（貯蓄部分）',   type: 'radio', section: '任意', defaultMode: 'hidden',
-    options: ['①ある方が良い', '②なくても良い'] },
+    options: [SAVINGS_YES, SAVINGS_NO],
+    note: '既定では入力せず、保険種類から自動で入れる' },
   { key: 'finalNeeds',       label: '最終のご意向（保障分野）',   type: 'needs', section: '任意', defaultMode: 'hidden',
     note: '空欄なら「当初のご意向」と同じ内容を入れる' },
   { key: 'finalSavings',     label: '最終のご意向（貯蓄部分）',   type: 'radio', section: '任意', defaultMode: 'hidden',
-    options: ['①ある方が良い', '②なくても良い'] },
+    options: [SAVINGS_YES, SAVINGS_NO] },
   { key: 'changeLog',        label: 'ご意向の変化の内容等',       type: 'rows',  section: '任意', defaultMode: 'hidden',
     note: '日付と内容の組を最大3行まで' },
 
@@ -198,7 +232,7 @@ var SUITABILITY_KEYWORDS_DEFAULT = '変額';
  * @param {string} keywords    読点・カンマ区切りのキーワード。省略時は既定値
  */
 function needsSuitability_(productType, keywords) {
-  var t = String(productType == null ? '' : productType).trim();
+  var t = productTypeText_(productType);
   if (t === '') return true;
   if (String.prototype.normalize) t = t.normalize('NFKC');
 
@@ -214,6 +248,98 @@ function needsSuitability_(productType, keywords) {
     if (t.indexOf(list[i]) >= 0) return true;
   }
   return false;
+}
+
+/* ------------------------------------------------------------------ *
+ * 保険種類 → ご意向
+ * ------------------------------------------------------------------ */
+
+/**
+ * 保険種類を 1 本の文字列にする。
+ * 画面や一括入力シートからは選んだ種類の配列で来るが、成約一覧から取り込んだ
+ * 直後は「変額有期保険」のような商品名の文字列で来る。どちらも同じに扱う。
+ */
+function productTypeText_(v) {
+  var s = (v && typeof v.join === 'function') ? v.join('、') : String(v == null ? '' : v);
+  s = s.trim();
+  if (s !== '' && String.prototype.normalize) s = s.normalize('NFKC');
+  return s;
+}
+
+/**
+ * 保険種類を PRODUCT_TYPES のキーに直す。
+ * 商品名の文字列でも、選択済みのキーの配列でも受ける（キー自身が keywords に
+ * 入っているので、同じ照合で両方通る）。当てはまらなければ空配列。
+ */
+function parseProductTypes_(v) {
+  var s = productTypeText_(v);
+  if (s === '') return [];
+  var out = [];
+  PRODUCT_TYPES.forEach(function (p) {
+    for (var i = 0; i < p.keywords.length; i++) {
+      var k = String.prototype.normalize ? p.keywords[i].normalize('NFKC') : p.keywords[i];
+      if (s.indexOf(k) >= 0) { out.push(p.key); return; }
+    }
+  });
+  return out;
+}
+
+function productTypeByKey_(key) {
+  for (var i = 0; i < PRODUCT_TYPES.length; i++) {
+    if (PRODUCT_TYPES[i].key === key) return PRODUCT_TYPES[i];
+  }
+  return null;
+}
+
+/**
+ * 保険種類から「ご意向」を組み立てる。
+ *
+ * 貯蓄部分は、1 つでも貯蓄性のある種類が含まれていれば「ある方が良い」にする。
+ * 変額終身のように貯蓄性のある商品を売っておいて「なくても良い」と記録すると、
+ * 意向と契約が食い違った帳票になるため。
+ *
+ * @return {Object} { needs: [NEEDS のキー], savings: string }
+ */
+function autoIntentFor_(productType) {
+  var keys = parseProductTypes_(productType);
+  var picked = {};
+  var savings = '';
+  keys.forEach(function (k) {
+    var p = productTypeByKey_(k);
+    if (!p) return;
+    p.needs.forEach(function (n) { picked[n] = true; });
+    if (p.savings === SAVINGS_YES) savings = SAVINGS_YES;
+    else if (savings === '') savings = p.savings;
+  });
+  // 帳票の並びと同じ順で返す。同じ入力なら毎回同じ並びになるように。
+  var needs = NEEDS.filter(function (n) { return picked[n.key]; })
+    .map(function (n) { return n.key; });
+  return { needs: needs, savings: savings };
+}
+
+/**
+ * 保険種類から「ご意向」を自動で埋める。
+ *
+ * 手で入っている内容が優先で、空欄のときだけ補う。推定のご意向は入力欄を出して
+ * いないので、当初と同じ内容を入れる（設定シートで止められる）。
+ *
+ * @param {Object} data     applyFieldConfig_ を通したあとの入力
+ * @param {boolean} withEstimated 推定のご意向も入れるか
+ */
+function applyAutoIntent_(data, withEstimated) {
+  var auto = autoIntentFor_(data.productType);
+  if (!auto.needs.length && !auto.savings) return data;
+
+  if (!(data.needs && data.needs.length)) data.needs = auto.needs;
+  if (!data.savings) data.savings = auto.savings;
+
+  if (withEstimated) {
+    if (!(data.estimatedNeeds && data.estimatedNeeds.length)) {
+      data.estimatedNeeds = (data.needs || []).slice();
+    }
+    if (!data.estimatedSavings) data.estimatedSavings = data.savings;
+  }
+  return data;
 }
 
 function fieldByKey_(key) {

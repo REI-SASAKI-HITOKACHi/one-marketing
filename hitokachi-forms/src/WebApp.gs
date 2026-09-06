@@ -50,6 +50,12 @@ function bootstrap_() {
     }),
     agents: getAgents_(),
     needs: NEEDS,
+    // 保険種類を選んだ時点で「ご意向」を画面に反映するために渡す。
+    // 判定そのものは送信後にサーバ側でもう一度やるので、ここは見せるためだけ。
+    productTypes: PRODUCT_TYPES.map(function (p) {
+      return { key: p.key, needs: p.needs, savings: p.savings };
+    }),
+    savingsYes: SAVINGS_YES,
     defaults: { contractType: String(getSetting_('既定の契約形態', '個人')) }
   };
 }

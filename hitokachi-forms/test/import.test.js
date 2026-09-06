@@ -370,7 +370,51 @@ console.log('\n--- 成約一覧の見出しを読み替える ---');
   t('2件とも入る', rows.length, 2);
   t('契約者名 → 契約者氏名', rows[0].values.customerName, '山田 太郎');
   t('提携先代理店名 → 取扱代理店', rows[0].values.agency, 'ヒトカチ株式会社');
-  t('保険種類はそのまま入る', rows[0].values.productType, '変額有期保険');
+  // 「変額有期保険」の1列が、選択肢ごとのチェック列に振り分けられる。
+  t('変額有期保険 → 変額', ctx.bulkRowToData_(rows[0].values).productType, ['変額']);
+  t('医療保険 → 医療',     ctx.bulkRowToData_(rows[1].values).productType, ['医療']);
+  t('当てはまらない列は立てない', rows[0].values['productType:医療'], false);
+}
+
+console.log('\n--- 商品名から保険種類を拾う ---');
+{
+  const ctx = makeContext({});
+  const p = (s) => ctx.parseProductTypes_(s);
+  t('変額終身は2つ当たる', p('変額終身保険'), ['変額', '終身']);
+  t('がん保険',            p('がん保険'), ['がん']);
+  t('カタカナのガン',      p('新ガン保険'), ['がん']);
+  t('漢字の癌',            p('癌保険'), ['がん']);
+  t('収入保障は定期',      p('収入保障保険'), ['定期']);
+  t('全角も拾う',          p('ＴＥＲＭ　定期保険'), ['定期']);
+  t('当てはまらなければ空', p('学資保険'), []);
+  t('空欄は空',            p(''), []);
+  t('選んだキーの配列も通る', p(['変額', '終身']), ['変額', '終身']);
+}
+
+console.log('\n--- 保険種類からご意向を自動で入れる ---');
+{
+  const ctx = makeContext({});
+  const auto = (s) => ctx.autoIntentFor_(s);
+  t('医療 → 病気・ケガ・介護', auto('医療保険').needs, ['medical']);
+  t('医療は貯蓄なし',          auto('医療保険').savings, ctx.SAVINGS_NO);
+  t('変額終身 → 死亡＋老後',   auto('変額終身保険').needs, ['death', 'pension']);
+  t('変額終身は貯蓄あり',      auto('変額終身保険').savings, ctx.SAVINGS_YES);
+  t('定期は貯蓄なし',          auto('定期保険').savings, ctx.SAVINGS_NO);
+  t('医療＋終身は貯蓄ありに倒す', auto(['医療', '終身']).savings, ctx.SAVINGS_YES);
+  t('並びは帳票と同じ順',      auto(['がん', '終身']).needs, ['death', 'cancer']);
+  t('空欄なら何も入れない',    auto('').needs, []);
+
+  const withEstimated = ctx.applyAutoIntent_({ productType: ['医療'] }, true);
+  t('推定にも同じ内容が入る',  withEstimated.estimatedNeeds, ['medical']);
+  t('推定の貯蓄部分も入る',    withEstimated.estimatedSavings, ctx.SAVINGS_NO);
+
+  const noEstimated = ctx.applyAutoIntent_({ productType: ['医療'] }, false);
+  t('止めれば推定は空のまま',  noEstimated.estimatedNeeds, undefined);
+
+  const manual = ctx.applyAutoIntent_(
+    { productType: ['医療'], needs: ['education'], savings: ctx.SAVINGS_YES }, true);
+  t('手入力があればそちらが勝つ', manual.needs, ['education']);
+  t('貯蓄部分も手入力が勝つ',     manual.savings, ctx.SAVINGS_YES);
 }
 
 console.log('\n--- 作成済みの行は転記しない（作成漏れだけ拾う） ---');
