@@ -22,9 +22,11 @@
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
+<!-- ONE HITTER 計測タグ／設定は tracking/measurement.json、設計は docs/measurement-spec.md -->
+<script>window.OH_M={"page":{"kind":"lp","lp_id":"aircon","lp_variant":"A"},"google_ads":{"conversion_id":"","labels":{"generate_lead":"","phone_click":"","line_click":""}},"debug":false};</script>
+<!-- GA4・広告タグは未設定。tracking/measurement.json にIDを入れて再ビルドすると出力されます -->
 </head>
 <body>
-<title>エアコン内部洗浄 ONE HITTER</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Oswald:wght@500;600&family=Shippori+Mincho+B1:wght@600;800&display=swap">
@@ -946,5 +948,235 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
 })();
 </script>
 
+<script>
+// ONE HITTER ／ LP計測スクリプト
+//
+// このファイルは tools/build-site.py が各LPの本文の末尾に埋め込む。
+// 設定（測定IDなど）は tracking/measurement.json から window.OH_M として渡される。
+//
+// 設計の意図：
+//   - IDが1つも設定されていなくても、エラーを出さずに黙って何もしない。
+//     先にこの仕組みだけ入れておき、GA4の準備ができた時点で設定ファイルを
+//     書き換えて再ビルドすれば、LPの本文には一切触れずに計測が始まる。
+//   - GA4・Google広告・Metaの3つに、同じ1つの send() から配る。
+//     どこに何を送っているかを1箇所で読めるようにするため。
+//   - イベント名とパラメータの定義は docs/measurement-spec.md が正。
+//     このファイルを直すときは、あちらも必ず直すこと。
+
+(function () {
+  var M = window.OH_M || {};
+  var PAGE = M.page || {};
+  var LOG = !!M.debug;
+
+  function log() {
+    if (LOG && window.console) console.log.apply(console, ['[OH計測]'].concat([].slice.call(arguments)));
+  }
+
+  // ---------------------------------------------------------------
+  // 送信口。GA4 → Google広告 → Meta の順に配る。
+  // ---------------------------------------------------------------
+
+  // Google広告のコンバージョンを送るイベントと、そのラベルの対応
+  var ADS_LABEL = (M.google_ads && M.google_ads.labels) || {};
+  var ADS_ID = (M.google_ads && M.google_ads.conversion_id) || '';
+
+  // Metaの標準イベント名への読み替え
+  var META_MAP = { generate_lead: 'Lead', phone_click: 'Contact', line_click: 'Contact' };
+
+  function send(name, params) {
+    var p = params || {};
+    // どのLPのどのパターンかは、全イベントに必ず付ける
+    p.lp_id = PAGE.lp_id;
+    p.lp_variant = PAGE.lp_variant;
+    p.page_kind = PAGE.kind;
+
+    log(name, p);
+
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', name, p);
+
+      var label = ADS_LABEL[name];
+      if (ADS_ID && label) {
+        var cv = { send_to: ADS_ID + '/' + label };
+        if (p.value) { cv.value = p.value; cv.currency = 'JPY'; }
+        window.gtag('event', 'conversion', cv);
+        log('→ Google広告のコンバージョン', cv.send_to);
+      }
+    }
+
+    if (typeof window.fbq === 'function') {
+      var meta = META_MAP[name];
+      if (meta) window.fbq('track', meta, p.value ? { value: p.value, currency: 'JPY' } : {});
+      else window.fbq('trackCustom', name, p);
+    }
+  }
+
+  // ---------------------------------------------------------------
+  // クリックされた場所の名前を決める。
+  // 同じ「電話」でも、ヘッダーと追従バーとフォーム下では意味が違うため。
+  // ---------------------------------------------------------------
+  var PLACES = [
+    ['.sticky', 'sticky'],       // 画面下に追従するバー
+    ['.bar', 'header'],          // 上部のヘッダー
+    ['.hero', 'hero'],           // ファーストビュー
+    ['#form', 'form'],           // 予約フォームの節
+    ['.calc', 'estimate'],       // 料金シミュレーター（案A）
+    ['#builder', 'estimate'],    // 料金シミュレーター（案B）
+    ['footer', 'footer']
+  ];
+
+  function placeOf(el) {
+    for (var node = el; node && node !== document.body; node = node.parentElement) {
+      for (var i = 0; i < PLACES.length; i++) {
+        var sel = PLACES[i][0];
+        var hit = sel.charAt(0) === '#' ? node.id === sel.slice(1)
+                : sel.charAt(0) === '.' ? node.classList && node.classList.contains(sel.slice(1))
+                : node.tagName && node.tagName.toLowerCase() === sel;
+        if (hit) return PLACES[i][1];
+      }
+    }
+    return PAGE.kind === 'thanks' ? 'thanks' : 'other';
+  }
+
+  // ---------------------------------------------------------------
+  // 1. リンクのクリック（電話・LINE・フォームへの誘導）
+  // ---------------------------------------------------------------
+  document.addEventListener('click', function (ev) {
+    var a = ev.target.closest ? ev.target.closest('a[href]') : null;
+    if (!a) return;
+    var href = a.getAttribute('href') || '';
+
+    if (href.indexOf('tel:') === 0) {
+      send('phone_click', { link_position: placeOf(a), phone_number: href.slice(4) });
+    } else if (href.indexOf('lin.ee') > -1 || href.indexOf('line.me') > -1) {
+      send('line_click', { link_position: placeOf(a) });
+    } else if (href.charAt(0) === '#' && href.length > 1) {
+      send('cta_click', { link_position: placeOf(a), link_target: href });
+    }
+  }, true);
+
+  // ---------------------------------------------------------------
+  // 2. 料金シミュレーターを触ったか（1ページにつき1回だけ）
+  // ---------------------------------------------------------------
+  var estimateSent = false;
+  var estimateBox = document.querySelector('.calc') || document.getElementById('builder');
+  if (estimateBox) {
+    estimateBox.addEventListener('change', function () {
+      if (estimateSent) return;
+      estimateSent = true;
+      send('estimate_use', {});
+    });
+  }
+
+  // 見積り合計の読み取り。「10,780円」→ 10780
+  function estimateTotal() {
+    var el = document.getElementById('total');
+    if (!el) return 0;
+    var n = parseInt((el.textContent || '').replace(/[^0-9]/g, ''), 10);
+    return isNaN(n) ? 0 : n;
+  }
+
+  // ---------------------------------------------------------------
+  // 3. エリア判定ボタン（対応エリアかどうかの結果まで記録する）
+  // ---------------------------------------------------------------
+  var zipbtn = document.getElementById('zipbtn');
+  if (zipbtn) {
+    zipbtn.addEventListener('click', function () {
+      // 判定結果はクリック直後に #zipres へ書き込まれるので、1周待ってから読む
+      setTimeout(function () {
+        var res = document.getElementById('zipres');
+        var cls = res ? res.className : '';
+        send('area_check', {
+          area_result: cls === 'ok' ? 'in_area' : cls === 'ng' ? 'out_of_area' : 'invalid'
+        });
+      }, 0);
+    });
+  }
+
+  // ---------------------------------------------------------------
+  // 4. 予約フォーム（入力開始と送信）
+  // ---------------------------------------------------------------
+  var form = document.querySelector('form.form');
+  if (form) {
+    var startSent = false;
+    form.addEventListener('focusin', function () {
+      if (startSent) return;
+      startSent = true;
+      send('form_start', {});
+    });
+
+    form.addEventListener('submit', function () {
+      var total = estimateTotal();
+      // サンクスページで金額を使えるように渡す。読んだら消す。
+      try {
+        sessionStorage.setItem('oh_estimate', String(total));
+        sessionStorage.setItem('oh_lp', String(PAGE.lp_id || ''));
+        sessionStorage.setItem('oh_variant', String(PAGE.lp_variant || ''));
+      } catch (e) { /* プライベートモード等で保存できなくても続行する */ }
+      // 送信ボタンを押した時点の記録。成果として数えるのはサンクスページの
+      // generate_lead のほうで、こちらは離脱の分析にだけ使う。
+      send('form_submit', { estimate_total: total });
+    });
+  }
+
+  // ---------------------------------------------------------------
+  // 5. サンクスページ ＝ 成果（generate_lead）
+  //    Netlify Forms が受理した後にしか表示されないので、
+  //    ここで数えれば「送信ボタンを押しただけ」の水増しが起きない。
+  // ---------------------------------------------------------------
+  if (PAGE.kind === 'thanks') {
+    var value = PAGE.lead_value || 0;
+    var stored = 0;
+    try {
+      stored = parseInt(sessionStorage.getItem('oh_estimate') || '0', 10) || 0;
+      if (!PAGE.lp_id) {
+        PAGE.lp_id = sessionStorage.getItem('oh_lp') || PAGE.lp_id;
+        PAGE.lp_variant = sessionStorage.getItem('oh_variant') || PAGE.lp_variant;
+      }
+      sessionStorage.removeItem('oh_estimate');
+    } catch (e) { /* 読めなくても成果は数える */ }
+
+    var lead = { estimate_total: stored };
+    // 金額は「見積り額 → 設定値」の順に使う。どちらも無ければ送らない。
+    if (stored > 0) { lead.value = stored; lead.currency = 'JPY'; }
+    else if (value > 0) { lead.value = value; lead.currency = 'JPY'; }
+
+    send('generate_lead', lead);
+  }
+
+  // ---------------------------------------------------------------
+  // 6. どこまで読まれたか（25 / 50 / 75 / 90%）
+  //    GA4の拡張計測にも90%のスクロールはあるが、あちらは1段階しかない。
+  //    どの節で離脱しているかを見たいので、自前で4段階を送る。
+  // ---------------------------------------------------------------
+  if (PAGE.kind === 'lp') {
+    var marks = [25, 50, 75, 90];
+    var done = {};
+    var ticking = false;
+
+    function checkScroll() {
+      ticking = false;
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      if (h <= 0) return;
+      var pct = (window.pageYOffset / h) * 100;
+      for (var i = 0; i < marks.length; i++) {
+        var m = marks[i];
+        if (pct >= m && !done[m]) {
+          done[m] = true;
+          send('scroll_depth', { percent_scrolled: m });
+        }
+      }
+    }
+
+    window.addEventListener('scroll', function () {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(checkScroll);
+    }, { passive: true });
+  }
+
+  log('計測スクリプト読み込み完了', PAGE, 'gtag=' + (typeof window.gtag === 'function'));
+})();
+</script>
 </body>
 </html>

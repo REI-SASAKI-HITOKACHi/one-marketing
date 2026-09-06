@@ -15,7 +15,7 @@ $config = require __DIR__ . '/config.php';
 /** 戻り先のLPを、送信元ページから決める（外部URLへは飛ばさない） */
 function lp_path(string $raw): string
 {
-    return $raw === 'mizumawari' ? '/mizumawari/' : '/aircon/';
+    return in_array($raw, ['mizumawari', 'aircon-b'], true) ? "/$raw/" : '/aircon/';
 }
 
 /** ヘッダーに入れる値から改行を落とす（ヘッダーインジェクション対策） */
@@ -94,7 +94,10 @@ if (!preg_match('/\A[0-9０-９]{3}[\-ー－]?[0-9０-９]{4}\z/u', $zip)) {
     bail($lp, '郵便番号の形式をご確認ください。例：134-0081');
 }
 
-$lpLabel = $lp === '/mizumawari/' ? '水まわりセット' : 'エアコン';
+// A/Bテストのどちらから来た申込かを通知メールでも分かるようにする
+$lpLabel = ['/mizumawari/' => '水まわりセット',
+            '/aircon-b/'   => 'エアコン（パターンB）',
+           ][$lp] ?? 'エアコン（パターンA）';
 $sentAt  = (new DateTimeImmutable('now', new DateTimeZone('Asia/Tokyo')))->format('Y-m-d H:i');
 $whenShown = $when !== '' ? $when : '（未入力）';
 
