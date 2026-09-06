@@ -283,10 +283,13 @@ section.alt{background:var(--surface);border-top:1px solid var(--line);border-bo
 .shot.after .cap{background:var(--accent);color:var(--on-accent);}
 .shot .where{
   position:absolute;left:0;right:0;bottom:0;padding:16px 12px 9px;
-  background:linear-gradient(transparent,rgba(20,50,61,.82));
+  background:linear-gradient(transparent,rgba(20,50,61,.5) 38%,rgba(20,50,61,.9));
+  text-shadow:0 1px 2px rgba(0,0,0,.5);
   color:#fff;font-size:11.5px;line-height:1.5;font-weight:500;
 }
 .shot-note{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.7;}
+/* 組写真ではなく1枚で見せるとき。グリッドの外だと height:100% が効いて縦に伸びるため */
+.shot.solo img{height:auto;aspect-ratio:4/3;}
 
 .ba{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
 @media(min-width:521px){.ba{gap:10px;}}
@@ -571,7 +574,7 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
       </figure>
     </div>
     <p class="shot-note"><b>洗濯機｜防水パン</b>　洗濯機を動かさないと手が入らない場所です。</p>
-    <figure class="shot">
+    <figure class="shot solo" style="margin:0">
       <img src="img/hood-before.jpg" alt="レンジフード｜油で目詰まりしたグリスフィルター" loading="lazy" width="800" height="600">
       <span class="cap">実際の施工前</span>
     </figure>
