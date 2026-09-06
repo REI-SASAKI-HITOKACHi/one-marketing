@@ -132,10 +132,10 @@ def make_og(src: pathlib.Path, dst: pathlib.Path, line1: str, line2: str) -> Non
 
     band = Image.new("RGBA", (tw, th), (0, 0, 0, 0))
     draw = ImageDraw.Draw(band)
-    draw.rectangle([0, th - 186, tw, th], fill=(20, 50, 61, 232))
+    draw.rectangle([0, th - 186, tw, th], fill=(13, 59, 92, 232))   # --ink
     draw.text((56, th - 160), line1, font=ImageFont.truetype(JP_FONT, 44), fill=(255, 255, 255, 255))
-    draw.text((56, th - 92), line2, font=ImageFont.truetype(JP_FONT, 25), fill=(201, 217, 222, 255))
-    draw.text((56, th - 48), "ONE HITTER", font=ImageFont.truetype(LATIN_FONT, 26), fill=(78, 192, 212, 255))
+    draw.text((56, th - 92), line2, font=ImageFont.truetype(JP_FONT, 25), fill=(168, 194, 210, 255))  # --on-ink-2
+    draw.text((56, th - 48), "ONE HITTER", font=ImageFont.truetype(LATIN_FONT, 26), fill=(111, 208, 228, 255))  # --aqua-ink
 
     out = Image.alpha_composite(im, band).convert("RGB")
     out.save(dst, quality=82, optimize=True, progressive=True)
@@ -170,7 +170,7 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path) -> None:
         shutil.rmtree(img_dst)
     shutil.copytree(img_src, img_dst)
 
-    make_og(img_dst / "hero.jpg", img_dst / "og.jpg", meta["og_line1"], meta["og_line2"])
+    make_og(img_dst / "hero-bg.jpg", img_dst / "og.jpg", meta["og_line1"], meta["og_line2"])
 
     print(f"{dst.relative_to(ROOT)}/index.html  {len(doc)//1024}KB  "
           f"画像{len(list(img_dst.iterdir()))}点")
