@@ -6,6 +6,7 @@
 <style>
 :root{
   --ground:#FAF7F2;
+  --scrim:255,255,255;   /* heroの写真を紙面に溶かすための色。--surface と揃える */
   --surface:#FFFFFF;
   --surface-2:#F2EFE9;
   --ink:#14323D;
@@ -139,11 +140,33 @@ p{margin:0;}
 .btn.lg.line{box-shadow:0 4px 0 0 #04913C;}
 .btn.lg.line:active{box-shadow:0 1px 0 0 #04913C;transform:translateY(3px);}
 
-/* hero */
-.hero{background:var(--surface);border-bottom:1px solid var(--line);overflow:hidden;}
-.hero-in{max-width:880px;margin:0 auto;padding:36px 20px 40px;display:flex;flex-direction:column;gap:20px;}
+/* hero
+   最初に目に入るのが文字だけにならないよう、上部に写真を敷いて下端で紙面に溶かす。
+   文字は白抜きにせず墨のまま。写真を暗くせずに済み、読みやすさも落ちない。 */
+.hero{position:relative;background:var(--surface);border-bottom:1px solid var(--line);overflow:hidden;isolation:isolate;}
+.hero-bg{
+  position:absolute;top:0;left:0;right:0;height:min(58vw,300px);margin:0;
+  z-index:0;overflow:hidden;background:var(--surface-2);
+}
+.hero-bg img{width:100%;height:100%;object-fit:cover;object-position:50% 52%;display:block;}
+.hero-bg::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(to bottom,
+    rgba(var(--scrim),0) 0%, rgba(var(--scrim),.08) 38%,
+    rgba(var(--scrim),.60) 72%, rgba(var(--scrim),.94) 91%, rgb(var(--scrim)) 100%);
+}
+.hero-in{position:relative;z-index:1;max-width:880px;margin:0 auto;
+  padding:calc(min(58vw,300px) - 44px) 20px 40px;display:flex;flex-direction:column;gap:20px;}
 @media(min-width:860px){
-  .hero-in{
+  /* 横に広い画面は全面に敷き、文字が乗る左側だけ白く沈める */
+  .hero-bg{height:auto;bottom:0;}
+  .hero-bg img{object-position:72% 50%;}
+  .hero-bg::after{
+    background:linear-gradient(100deg,
+      rgba(var(--scrim),.985) 0%, rgba(var(--scrim),.96) 38%,
+      rgba(var(--scrim),.70) 55%, rgba(var(--scrim),.20) 76%, rgba(var(--scrim),0) 96%);
+  }
+  .hero-in{padding:44px 20px 40px;
     max-width:1120px;display:grid;gap:14px 44px;align-items:start;
     grid-template-columns:minmax(0,1fr) minmax(0,420px);
   }
@@ -430,6 +453,9 @@ footer .fine{font-size:11px;color:var(--invert-ink);opacity:.78;line-height:1.8;
 </div>
 
 <div class="hero">
+  <div class="hero-bg" aria-hidden="true">
+    <img src="img/hero-bg.jpg" alt="" width="1600" height="1067" fetchpriority="high" decoding="async">
+  </div>
   <div class="hero-in">
     <span class="area">✓ 東京・千葉・神奈川 対応／年末の予約 受付中</span>
     <h1>年末の大掃除は、<br><span class="hl">11月までが安い。</span></h1>
