@@ -161,9 +161,11 @@ def op_tabs(argv):
 
 
 def op_read(argv):
+    """read <id> <range> [FORMULA]  — 第3引数に FORMULA で数式そのものを取る"""
     token = access_token(load_credentials())
+    render = argv[2] if len(argv) > 2 else "UNFORMATTED_VALUE"
     res = call(token, f"/{argv[0]}/values/{urllib.parse.quote(argv[1], safe='')}",
-               query={"valueRenderOption": "UNFORMATTED_VALUE",
+               query={"valueRenderOption": render,
                       "dateTimeRenderOption": "FORMATTED_STRING"})
     print(json.dumps(res.get("values", []), ensure_ascii=False, indent=1))
 
