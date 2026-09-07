@@ -62,38 +62,40 @@ CARD_HTML = """<!doctype html>
 <style>
 {fontcss}
 * {{ margin:0; padding:0; box-sizing:border-box; }}
-html, body {{ width:1080px; height:1920px; }}
+html, body {{ width:1080px; height:1920px; overflow:hidden; }}
 body {{
   font-family:'Zen Kaku Gothic New','Noto Sans JP',sans-serif;
   background:#fff; color:#0f172a;
   display:flex; flex-direction:column;
+  position:relative;
 }}
 .head {{
   background:#0e6f7d; color:#fff;
-  padding:66px 72px 60px;
+  padding:60px 72px 52px;
 }}
 .head .name {{ font-size:52px; font-weight:700; letter-spacing:.02em; }}
 .head .en {{
   font-family:'Barlow',sans-serif;
   font-size:32px; letter-spacing:.34em; margin-top:16px; opacity:.72;
 }}
-.body {{ flex:1; padding:96px 72px 0; display:flex; flex-direction:column; }}
-h1 {{ font-size:74px; font-weight:700; line-height:1.35; letter-spacing:-.01em; }}
-.sub {{ font-size:36px; color:#64748b; margin-top:34px; }}
-.qrwrap {{ flex:1; display:flex; align-items:center; justify-content:center; }}
-.qrwrap img {{ width:770px; height:770px; image-rendering:pixelated; }}
+.body {{ flex:1; padding:80px 72px 72px; display:flex; flex-direction:column; min-height:0; }}
+h1 {{ font-size:70px; font-weight:700; line-height:1.32; letter-spacing:-.01em; }}
+.sub {{ font-size:34px; color:#64748b; margin-top:28px; }}
+.qrwrap {{ flex:1; min-height:0; display:flex; align-items:center; justify-content:center; }}
+.qrwrap img {{ width:660px; height:660px; image-rendering:pixelated; }}
 .offer {{
   border:3px solid #f0c98a; background:#fdf6ec; border-radius:26px;
-  padding:44px 48px; margin-bottom:40px;
+  padding:40px 48px; margin-bottom:32px;
 }}
 .offer .lead {{ font-size:32px; color:#7c5a21; }}
-.offer .big {{ font-size:52px; font-weight:700; color:#8a5a12; margin-top:18px; }}
-.offer .note {{ font-size:30px; color:#a07c3f; margin-top:16px; }}
-.staff {{ font-size:28px; color:#94a3b8; padding-bottom:56px; }}
+.offer .big {{ font-size:50px; font-weight:700; color:#8a5a12; margin-top:16px; }}
+.offer .note {{ font-size:27px; color:#a07c3f; margin-top:14px; line-height:1.5; }}
+.staff {{ margin-top:22px; font-size:30px; color:#cfe6ea; letter-spacing:.04em; }}
 </style>
 <div class="head">
   <div class="name">ワンヒッター株式会社</div>
   <div class="en">ONE HITTER</div>
+  <div class="staff">{staff_line}</div>
 </div>
 <div class="body">
   <h1>本日の仕上がりを<br>1分だけ教えてください</h1>
@@ -101,10 +103,9 @@ h1 {{ font-size:74px; font-weight:700; line-height:1.35; letter-spacing:-.01em; 
   <div class="qrwrap"><img src="{qr}" alt=""></div>
   <div class="offer">
     <div class="lead">この場で次回のご予約をいただくと</div>
-    <div class="big">時期によって 最大 15%OFF</div>
-    <div class="note">1〜2月がいちばんおトクです</div>
+    <div class="big">早期予約割引 最大 15%OFF</div>
+    <div class="note">12月からは1箇所あたり +3,300円 の繁忙期加算がかかります</div>
   </div>
-  <div class="staff">{staff_line}</div>
 </div>
 """
 
