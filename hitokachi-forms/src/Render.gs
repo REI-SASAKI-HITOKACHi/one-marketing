@@ -86,6 +86,34 @@ function applyPageBreaks_(body) {
   }
 }
 
+/**
+ * 表の幅を本文幅に合わせる。
+ *
+ * 変換した時点では、表の幅はドキュメントの既定（レター判・余白1インチ＝本文幅
+ * 468pt）で確定する。そのあとページを A4・余白 22pt（本文幅 551pt）に変えても、
+ * 表だけ取り残されて本文より狭いまま残る。CSS の width:100% は変換で効かない。
+ * 列の比率は保ったまま、全列を同じ倍率で引き伸ばす。
+ */
+function fitTablesToPage_(body) {
+  var textWidth = body.getPageWidth() - body.getMarginLeft() - body.getMarginRight();
+  var tables = body.getTables();
+  for (var t = 0; t < tables.length; t++) {
+    var table = tables[t];
+    var widths = [];
+    // 列数を直接は取れないので、取れなくなるまで読む。
+    for (var c = 0; c < 40; c++) {
+      try { widths.push(table.getColumnWidth(c)); } catch (e) { break; }
+    }
+    var total = 0;
+    for (var i = 0; i < widths.length; i++) total += widths[i];
+    if (!total) continue;
+    var scale = textWidth / total;
+    for (var j = 0; j < widths.length; j++) {
+      table.setColumnWidth(j, widths[j] * scale);
+    }
+  }
+}
+
 function chk_(on) { return on ? '■' : '□'; }
 function box_(on) { return on ? '☑' : '☐'; }
 
@@ -113,6 +141,7 @@ function htmlToPdfBlob_(html, name, parentFolderId) {
     body.setMarginTop(MARGIN_PT).setMarginBottom(MARGIN_PT)
         .setMarginLeft(MARGIN_PT).setMarginRight(MARGIN_PT);
     applyPageBreaks_(body);
+    fitTablesToPage_(body);
     doc.saveAndClose();
 
     var pdf = DriveApp.getFileById(docId).getAs('application/pdf');

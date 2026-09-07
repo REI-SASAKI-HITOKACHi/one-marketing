@@ -121,7 +121,9 @@ t('当初のご意向にチェックが5件', (i.match(/☑/g) || []).length >= 
 t('未選択の項目は空チェック', i.includes('☐'));
 // 推定のご意向は入力欄がないので、自動で入らないと列が丸ごと空欄になる。
 t('推定のご意向も埋まっている', (i.match(/☑/g) || []).length >= 12);
-t('募集人の連絡先が入っている', i.includes('080-6817-4796'));
+// 募集代理店欄は代理店名と募集人名だけ。住所・電話・メールは出さない。
+t('募集人の連絡先は出さない', !i.includes('080-6817-4796') && !i.includes('info@hitokachi.com'));
+t('代理店名と募集人名は出る', i.includes('ヒトカチ株式会社') && i.includes('佐々木 嶺'));
 t('個人・法人のブロックがある', i.includes('個人の') && i.includes('法人の'));
 
 console.log('\n--- 検証結果は確定した側だけ書く ---');
@@ -156,10 +158,12 @@ console.log('\n--- 取扱代理店名は提携先と自社の2行 ---');
   t('2行に分かれている', pairSuit.includes('クレスト保険<br>ヒトカチ株式会社'));
   t('取扱者も同じ並び', pairSuit.includes('熊澤 善弘<br>佐々木 嶺'));
 
-  console.log('\n--- 意向把握シートの募集人は連名のまま ---');
+  console.log('\n--- 意向把握シートも代理店ごとに代理店名と募集人名 ---');
   const pairIntent = render(fs.readFileSync(path.join(SRC, 'IntentSheet.html'), 'utf8'), pairModel);
-  t('連名で入る', pairIntent.includes('佐々木 嶺 / 熊澤 善弘'));
-  t('単独なら募集人ひとり', i.includes('佐々木 嶺') && !i.includes(' / '));
+  t('提携先の代理店名と募集人名', pairIntent.includes('クレスト保険') && pairIntent.includes('熊澤 善弘'));
+  t('自社の代理店名と募集人名も', pairIntent.includes('ヒトカチ株式会社') && pairIntent.includes('佐々木 嶺'));
+  t('【代理店】が2回出る', (pairIntent.match(/【代理店】/g) || []).length === 2);
+  t('自社単独なら【代理店】は1回', (i.match(/【代理店】/g) || []).length === 1);
 }
 
 console.log('\n--- 改ページは目印を本物の改ページに差し替えて打つ ---');
@@ -200,6 +204,27 @@ console.log('\n--- 改ページは目印を本物の改ページに差し替え�
   try { ctx.applyPageBreaks_(plain); } catch (e) { threw = true; }
   t('目印が無くても落ちない', !threw && plain.kids.length === 1);
   t('意向把握シートに目印は無い', !i.includes('PAGEBREAKHERE'));
+}
+
+console.log('\n--- 表の幅を本文幅に合わせる ---');
+{
+  // 変換直後の表はレター判・余白1インチの本文幅 468pt で確定してしまう。
+  const fakeTable = (widths) => ({
+    widths: widths.slice(),
+    getColumnWidth(c) { if (c >= this.widths.length) throw new Error('範囲外'); return this.widths[c]; },
+    setColumnWidth(c, w) { this.widths[c] = w; }
+  });
+  const t1 = fakeTable([100, 200, 168]);   // 合計 468pt
+  const t2 = fakeTable([468]);
+  const body = {
+    getPageWidth: () => 595.28, getMarginLeft: () => 22, getMarginRight: () => 22,
+    getTables: () => [t1, t2]
+  };
+  ctx.fitTablesToPage_(body);
+  const sum = (t) => t.widths.reduce((a, b) => a + b, 0);
+  t('本文幅いっぱいに広がる', Math.abs(sum(t1) - 551.28) < 0.01);
+  t('列の比率は保つ', Math.abs(t1.widths[0] / t1.widths[1] - 0.5) < 0.001);
+  t('1列の表も同じ', Math.abs(sum(t2) - 551.28) < 0.01);
 }
 
 if (process.argv.includes('--write')) {
