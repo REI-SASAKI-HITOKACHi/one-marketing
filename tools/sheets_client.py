@@ -30,6 +30,8 @@ TOKEN_URL = "https://oauth2.googleapis.com/token"
 API = "https://sheets.googleapis.com/v4/spreadsheets"
 SCOPE = "https://www.googleapis.com/auth/spreadsheets"
 ENV_KEY = "GOOGLE_SHEETS_SA_KEY"
+ENV_KEY_FILE = "GOOGLE_SHEETS_SA_KEY_FILE"
+KITEI_KEY_FILE = os.path.expanduser("~/.config/one-hitter/sa-key.json")
 
 
 def _b64u(raw: bytes) -> str:
@@ -39,9 +41,18 @@ def _b64u(raw: bytes) -> str:
 def load_credentials() -> dict:
     raw = os.environ.get(ENV_KEY)
     if not raw:
+        # 鍵をコマンドラインに晒さずに済むよう、ファイルからも読めるようにしている。
+        # 優先順位: 環境変数 → GOOGLE_SHEETS_SA_KEY_FILE で指定したパス → 既定のパス
+        path = os.environ.get(ENV_KEY_FILE) or KITEI_KEY_FILE
+        if os.path.exists(path):
+            with open(path, encoding="utf-8") as f:
+                raw = f.read()
+    if not raw:
         sys.exit(
-            f"環境変数 {ENV_KEY} が設定されていません。\n"
-            "docs/sheets-api-setup.md の手順で、サービスアカウントの鍵を環境変数に登録してください。"
+            f"サービスアカウントの鍵が見つかりません。\n"
+            f"  環境変数 {ENV_KEY} に鍵そのものを入れるか、\n"
+            f"  {KITEI_KEY_FILE} に鍵のJSONを置いてください（{ENV_KEY_FILE} でパス指定も可）。\n"
+            "手順は docs/sheets-api-setup.md。"
         )
     raw = raw.strip()
     if not raw.startswith("{"):
