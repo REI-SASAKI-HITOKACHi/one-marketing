@@ -12,6 +12,15 @@ GOOGLE_SHEETS_SA_KEY から読む。このファイルにも、リポジトリ�
   python3 tools/drive_client.py list <folderId>
   python3 tools/drive_client.py get  <fileId> <保存先パス>
   python3 tools/drive_client.py sync <folderId> <保存先ディレクトリ>   # 未取得のものだけ落とす
+  python3 tools/drive_client.py mkdir <フォルダ名> [親フォルダId]
+  python3 tools/drive_client.py upload <ローカルパス> [親フォルダId] [Drive上の名前]
+
+※ mkdir は使える（フォルダは容量を消費しないため）。
+※ upload は My Drive に対しては使えない。
+  サービスアカウントには保存容量が割り当てられておらず、
+  「Service Accounts do not have storage quota」で失敗する。
+  共有ドライブ（Google Workspace）があればそこには置ける。
+  そうでない場合、ファイルの受け渡しはオーナーのアカウント経由で行うこと。
 """
 import json
 import os
@@ -98,8 +107,81 @@ def main():
             got += 1
         print(f"取得 {got} 件 / 既取得 {skipped} 件 / 合計 {len(files)} 件")
 
+    elif op == "mkdir":
+        op_mkdir(sys.argv[2:])
+
+    elif op == "upload":
+        op_upload(sys.argv[2:])
+
     else:
         raise SystemExit(__doc__)
+
+
+
+
+def op_upload(argv):
+    """upload <ローカルパス> [親フォルダId] [Drive上の名前]
+
+    サービスアカウントの権限でアップロードする。
+    親フォルダを指定する場合、そのフォルダがサービスアカウント
+    （鍵の client_email）に「編集者」で共有されている必要がある。
+    """
+    import mimetypes
+    import uuid
+
+    path = pathlib.Path(argv[0])
+    if not path.exists():
+        sys.exit(f"ファイルがありません: {path}")
+    parent = argv[1] if len(argv) > 1 else None
+    name = argv[2] if len(argv) > 2 else path.name
+
+    meta = {"name": name}
+    if parent:
+        meta["parents"] = [parent]
+    ctype = mimetypes.guess_type(str(path))[0] or "application/octet-stream"
+
+    boundary = "----onehitter" + uuid.uuid4().hex
+    body = b""
+    body += f"--{boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n".encode()
+    body += json.dumps(meta, ensure_ascii=False).encode() + b"\r\n"
+    body += f"--{boundary}\r\nContent-Type: {ctype}\r\n\r\n".encode()
+    body += path.read_bytes() + b"\r\n"
+    body += f"--{boundary}--\r\n".encode()
+
+    req = urllib.request.Request(
+        "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true",
+        data=body, method="POST",
+        headers={
+            "Authorization": f"Bearer {_token()}",
+            "Content-Type": f"multipart/related; boundary={boundary}",
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=300) as r:
+            res = json.loads(r.read().decode())
+    except urllib.error.HTTPError as e:
+        sys.exit(f"Drive API {e.code}: {e.read().decode(errors='replace')[:500]}")
+    print("アップロード:", res.get("name"), res.get("id"))
+    print("URL: https://drive.google.com/file/d/%s/view" % res.get("id"))
+
+
+def op_mkdir(argv):
+    """mkdir <フォルダ名> [親フォルダId]"""
+    meta = {"name": argv[0], "mimeType": "application/vnd.google-apps.folder"}
+    if len(argv) > 1:
+        meta["parents"] = [argv[1]]
+    req = urllib.request.Request(
+        "https://www.googleapis.com/drive/v3/files?supportsAllDrives=true",
+        data=json.dumps(meta, ensure_ascii=False).encode(), method="POST",
+        headers={"Authorization": f"Bearer {_token()}",
+                 "Content-Type": "application/json; charset=UTF-8"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            res = json.loads(r.read().decode())
+    except urllib.error.HTTPError as e:
+        sys.exit(f"Drive API {e.code}: {e.read().decode(errors='replace')[:500]}")
+    print("フォルダ作成:", res.get("name"), res.get("id"))
 
 
 if __name__ == "__main__":
