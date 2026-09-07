@@ -46,6 +46,7 @@ const data = {
   sourceNotMaturity: true, sourceSpare: true, sourceNotLoan: true,
   riskTolerance: ctx.RISK_YES,
   productType: ['変額', '終身'],
+  estimatedDate: '2026-07-20', initialDate: '2026-08-05', finalDate: '2026-08-10',
   needs: ['death', 'medical', 'cancer', 'education', 'pension'],
   savings: '①ある方が良い',
   wishPeriod: '一生涯',
@@ -108,9 +109,11 @@ t('取扱代理店名が入っている', s.includes('ヒトカチ株式会社')
 
 console.log('\n--- 意向把握シートの中身 ---');
 const i = rendered['IntentSheet.html'];
-t('確認日が西暦スラッシュ表記', i.includes('2026/08/01'));
+t('確認日が西暦スラッシュ表記', i.includes('2026/08/05'));
 // 推定・当初・最終の3列すべてに確認日が入る（推定の欄が空白のままだと不備になる）。
-t('確認日が3列とも入っている', (i.match(/2026\/08\/01/g) || []).length, 3);
+t('確認日が3列とも入っている',
+  [i.includes('2026/07/20'), i.includes('2026/08/05'), i.includes('2026/08/10')],
+  [true, true, true]);
 t('当初のご意向にチェックが5件', (i.match(/☑/g) || []).length >= 5);
 t('未選択の項目は空チェック', i.includes('☐'));
 // 推定のご意向は入力欄がないので、自動で入らないと列が丸ごと空欄になる。

@@ -109,7 +109,7 @@ var FIELD_DEFS = [
   { key: 'customerName', label: '契約者氏名',   type: 'text',   section: '基本', required: true,  defaultMode: 'form',
     note: '保存先の顧客フォルダ名にも使う' },
   { key: 'confirmDate',  label: '確認日',       type: 'date',   section: '基本', required: true,  defaultMode: 'form',
-    note: '適合性の確認日／意向把握シートの「当初のご意向」確認日' },
+    note: '適合性の確認日。意向の確認日を空欄にしたときは、この日付が入る' },
   { key: 'productType',  label: '保険種類',     type: 'multi',  section: '基本', defaultMode: 'form',
     options: PRODUCT_TYPE_KEYS,
     note: '当てはまるものをすべて選ぶ（変額終身なら「変額」と「終身」の2つ）。'
@@ -180,14 +180,20 @@ var FIELD_DEFS = [
   { key: 'savings',    label: '貯蓄部分を必要とされますか', type: 'radio', section: '意向', required: true, defaultMode: 'form',
     options: [SAVINGS_YES, SAVINGS_NO],
     note: '保険種類を選ぶと自動で入る。違うときだけ手で直す' },
+  // 確認日は推定・当初・最終の3つ。帳票の確認日行がそのまま3列あるため。
+  // 適合性の確認は提案より前に行うので、基本情報の「確認日」とは別の日になりうる
+  // （適合性確認シート別紙「確認日について」）。
+  { key: 'estimatedDate', label: '推定のご意向 確認日', type: 'date', section: '意向', defaultMode: 'form',
+    note: '空欄なら確認日と同じ日付を入れる' },
+  { key: 'initialDate',   label: '当初のご意向 確認日', type: 'date', section: '意向', defaultMode: 'form',
+    note: '空欄なら確認日と同じ日付を入れる。'
+        + '適合性の確認は提案より前に行うので、基本情報の「確認日」より後になることがある' },
+  { key: 'finalDate',     label: '最終のご意向 確認日', type: 'date', section: '意向', defaultMode: 'form',
+    note: '空欄なら当初のご意向 確認日と同じ日付を入れる' },
   { key: 'wishPeriod',  label: '保険期間のご希望',   type: 'text', section: '意向', defaultMode: 'form' },
   { key: 'wishAmount',  label: '保険金額のご希望',   type: 'text', section: '意向', defaultMode: 'form' },
   { key: 'wishPremium', label: '保険料のご希望',     type: 'text', section: '意向', defaultMode: 'form' },
   { key: 'wishOther',   label: 'その他のご希望',     type: 'text', section: '意向', defaultMode: 'form' },
-  { key: 'estimatedDate', label: '推定のご意向 確認日', type: 'date', section: '意向', defaultMode: 'form',
-    note: '空欄なら確認日と同じ日付を入れる。帳票の「推定のご意向」列の確認日欄に入る' },
-  { key: 'finalDate',   label: '最終のご意向 確認日', type: 'date', section: '意向', defaultMode: 'form',
-    note: '空欄なら確認日と同じ日付を入れる' },
 
   // ---- 既定では非表示。設定シートで form にすれば使える ----
   { key: 'estimatedNeeds',   label: '推定のご意向（保障分野）',   type: 'needs', section: '任意', defaultMode: 'hidden',
@@ -338,9 +344,12 @@ function autoIntentFor_(productType) {
  * @param {boolean} withEstimated 推定のご意向も入れるか
  */
 function applyAutoIntent_(data, withEstimated) {
-  // 推定のご意向の確認日は、法人でも当初と同じ日を入れる。
-  // 空欄だと帳票の「推定のご意向」列の確認日欄だけが空白になる。
-  if (withEstimated && !data.estimatedDate) data.estimatedDate = data.confirmDate;
+  // 意向の確認日は、空欄なら確認日から順に埋める。法人でもここは同じ。
+  // 埋めないと帳票の確認日欄が空白のまま出る。
+  if (!data.initialDate) data.initialDate = data.confirmDate;
+  if (!data.finalDate)   data.finalDate   = data.initialDate;
+  // 推定は「自動で入れる」を切ってあれば列ごと空欄にする。
+  if (withEstimated && !data.estimatedDate) data.estimatedDate = data.initialDate;
 
   if (data.contractType === '法人') return data;
 

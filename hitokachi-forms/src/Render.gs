@@ -123,8 +123,11 @@ function buildModel_(d, answers, agent, agencyName) {
 
     confirmDateJp: formatJpDate_(d.confirmDate),
     confirmDateSlash: formatSlashDate_(d.confirmDate),
-    estimatedDateSlash: formatSlashDate_(d.estimatedDate || d.confirmDate),
-    finalDateSlash: formatSlashDate_(d.finalDate || d.confirmDate),
+    // 3つの確認日は applyAutoIntent_ が空欄を埋める。ここで取り繕うと、
+    // 「推定のご意向を自動で入れる」を「いいえ」にしても日付だけ出てしまう。
+    estimatedDateSlash: formatSlashDate_(d.estimatedDate),
+    initialDateSlash: formatSlashDate_(d.initialDate || d.confirmDate),
+    finalDateSlash: formatSlashDate_(d.finalDate || d.initialDate || d.confirmDate),
     verifyDateJp: formatJpDate_(d.verifyDate),
     verifierName: d.verifierName || '',
     verifyResult: d.verifyResult || '',

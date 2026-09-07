@@ -197,10 +197,13 @@ fs.writeFileSync(inFile, JSON.stringify([RECORD], null, 2));
 execFileSync('node', [path.join(ROOT, 'tools', 'build-bulk-import.js'),
   '--in', inFile, '--out', outFile], { cwd: ROOT, stdio: 'pipe' });
 
-const tsv = fs.readFileSync(outFile, 'utf8').trim().split('\n').map(l => l.split('\t'));
+// trim() は使わない。行末の空欄（末尾のタブ）まで削られて列がずれる。
+const tsv = fs.readFileSync(outFile, 'utf8').replace(/\n+$/, '').split('\n')
+  .map(l => l.split('\t'));
 t('見出し行とデータ行が出る', tsv.length, 2);
 t('先頭は状態列', tsv[0][0], '状態');
 t('契約者氏名が入っている', tsv[1][2], '加藤学');
+t('見出しとデータの列数が揃っている', tsv[1].length, tsv[0].length);
 
 console.log('\n--- 取り込み：見出しで列を突き合わせる ---');
 {

@@ -299,6 +299,55 @@ console.log('\n--- 連名の相手は代理店マスタから決まる ---');
   t('検証でも相方を求めない',           ctx.validate_(ctx.applyFieldConfig_(base, conf), conf), []);
 }
 
+console.log('\n--- 意向の確認日は3つ ---');
+{
+  const ctx = makeContext();
+  const conf = ctx.getFieldConfig_();
+  const base = {
+    contractType: '個人', customerName: '山田 太郎', agency: 'ヒトカチ株式会社',
+    agent: '佐々木 嶺', confirmDate: '2026-08-01', productType: ['医療']
+  };
+
+  const auto = ctx.applyFieldConfig_(base, conf);
+  t('推定は確認日と同じ', auto.estimatedDate, '2026-08-01');
+  t('当初も確認日と同じ', auto.initialDate,   '2026-08-01');
+  t('最終も確認日と同じ', auto.finalDate,     '2026-08-01');
+
+  // 適合性の確認は提案より前に行うので、意向の確認日はあとの日付になりうる。
+  const later = ctx.applyFieldConfig_(
+    Object.assign({}, base, { initialDate: '2026-08-05' }), conf);
+  t('当初を入れればそちら',       later.initialDate, '2026-08-05');
+  t('最終は当初に合わせる',       later.finalDate,   '2026-08-05');
+  t('基本情報の確認日は動かない', later.confirmDate, '2026-08-01');
+
+  const all = ctx.applyFieldConfig_(Object.assign({}, base, {
+    estimatedDate: '2026-07-20', initialDate: '2026-08-05', finalDate: '2026-08-10'
+  }), conf);
+  t('3つとも別の日にできる',
+    [all.estimatedDate, all.initialDate, all.finalDate],
+    ['2026-07-20', '2026-08-05', '2026-08-10']);
+
+  t('一括入力シートにも3列ある',
+    ctx.bulkColumns_().filter(c => /のご意向 確認日$/.test(c.label)).map(c => c.key),
+    ['estimatedDate', 'initialDate', 'finalDate']);
+}
+
+console.log('\n--- 推定を自動で入れない設定 ---');
+{
+  const ctx = makeContext({
+    '設定': [['キー', '値', '説明'], ['推定のご意向を自動で入れる', 'いいえ', '']]
+  });
+  const out = ctx.applyFieldConfig_({
+    contractType: '個人', customerName: '山田 太郎', agency: 'ヒトカチ株式会社',
+    agent: '佐々木 嶺', confirmDate: '2026-08-01', productType: ['医療']
+  }, ctx.getFieldConfig_());
+  // 日付だけ入って中身が空だと、推定の意向を確認したように見えてしまう。
+  t('推定の意向は入らない', out.estimatedNeeds, []);
+  t('推定の日付も入らない', out.estimatedDate, '');
+  t('当初は入る',           out.needs, ['medical']);
+  t('当初の日付も入る',     out.initialDate, '2026-08-01');
+}
+
 console.log('\n--- 法人の意向は自動で入れない ---');
 {
   const ctx = makeContext();
@@ -313,7 +362,9 @@ console.log('\n--- 法人の意向は自動で入れない ---');
   t('貯蓄部分も入れない',           out.savings, '');
   t('意向は入力が要る',
     ctx.validate_(out, conf).some(e => e.indexOf('ご希望の保障分野') >= 0), true);
-  t('推定の確認日だけは入れる',     out.estimatedDate, '2026-08-01');
+  t('確認日は法人でも入れる',
+    [out.estimatedDate, out.initialDate, out.finalDate],
+    ['2026-08-01', '2026-08-01', '2026-08-01']);
 
   const filled = ctx.applyFieldConfig_(
     Object.assign({}, corp, { needs: ['business'], savings: ctx.SAVINGS_NO }), conf);
