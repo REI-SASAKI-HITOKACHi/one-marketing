@@ -7,6 +7,8 @@ lp/ 配下は Artifact 用に <html> や <head> を持たない断片として�
   python3 tools/build-site.py php       →  deploy/htdocs/  （PHPでフォームを受ける）
   python3 tools/build-site.py netlify   →  deploy/netlify/ （Netlify Formsが受ける）
 """
+import html
+import json
 import pathlib
 import re
 import shutil
@@ -43,9 +45,17 @@ TARGETS = {
 
 BASE_URL = "https://lp.one-hitter.jp"
 
+# 計測の設定と、埋め込むスクリプトの置き場所
+TRACKING_DIR = ROOT / "tracking"
+MEASUREMENT_JSON = TRACKING_DIR / "measurement.json"
+EVENTS_JS = TRACKING_DIR / "events.js"
+THANKS_TEMPLATE = ROOT / "tools" / "templates" / "thanks.html"
+
 PAGES = {
     "aircon": {
         "dir": "aircon",
+        "lp_id": "aircon",
+        "lp_variant": "A",
         "title": "エアコンクリーニング 10,780円／60分｜東京・千葉・神奈川｜ONE HITTER",
         "desc": "フィルター掃除では届かない、熱交換器と送風ファンの黒カビを分解洗浄。"
                 "ノーマルエアコン10,780円（税込）・60分、お見積り以上の追加請求はありません。"
@@ -58,6 +68,10 @@ PAGES = {
     # パターンAに対するA/Bテスト用の対抗案。ヒーローだけが違う
     "aircon-b": {
         "dir": "aircon-b",
+        # 計測上は同じ「エアコン」の商品で、ヒーローだけが違う対抗案。
+        # lp_id を揃え lp_variant で分けることで、GA4で A/B を並べて比べられる。
+        "lp_id": "aircon",
+        "lp_variant": "B",
         "title": "エアコン分解洗浄 1台10,780円／60分 最短即日｜東京・千葉・神奈川｜ONE HITTER",
         "desc": "エアコンを分解し、熱交換器と送風ファンを専用機材で洗浄。"
                 "ノーマル10,780円（税込）・60分、お掃除機能付き17,380円（税込）・120分。"
@@ -69,6 +83,8 @@ PAGES = {
     },
     "mizumawari": {
         "dir": "mizumawari",
+        "lp_id": "mizumawari",
+        "lp_variant": "A",
         "title": "水まわりクリーニング まとめて依頼で1箇所3,300円おトク｜ONE HITTER",
         "desc": "キッチン・浴室・レンジフード・洗濯機・追い焚き配管。2箇所目からは同時施工価格。"
                 "浴室＋キッチンで33,660円（税込）、半日で完了。東京・千葉・神奈川、最短即日。",
@@ -79,10 +95,12 @@ PAGES = {
     },
     "nenmatsu": {
         "dir": "nenmatsu",
-        "label": "年末大掃除",
+        "lp_id": "nenmatsu",
+        "lp_variant": "A",
         "title": "年末大掃除 11月までなら通常価格｜レンジフード・浴室・キッチン｜ONE HITTER",
         "desc": "12月は繁忙期料金として1箇所につき3,300円が加算されます。11月30日までのご予約なら通常価格。"
                 "レンジフード＋浴室で33,660円（税込）、半日で完了。東京・千葉・神奈川、自社施工。",
+        "label": "年末大掃除",
         "og": "nenmatsu/img/og.jpg",
         "og_line1": "年末の大掃除は、11月までが安い",
         "og_line2": "レンジフード＋浴室 33,660円（税込）・12月から+3,300円／箇所",
@@ -144,6 +162,137 @@ FORM_NETLIFY = """<form class="form" name="reserve-{dir}" method="post"
         <input id="f-x" name="x_field" type="text" tabindex="-1" autocomplete="off">
       </div>"""
 
+# 計測タグの差し込み口。HEAD の中にあるこの目印を、実物のタグに置き換える。
+TRACKING_SLOT = "<!-- ASP・広告計測タグはこの下に貼ってください -->"
+
+
+def load_measurement() -> dict:
+    """tracking/measurement.json を読む。無ければ「全部空」として扱う。
+
+    IDが空でもビルドは通り、タグは出力されない。計測の仕組みだけ先に入れておき、
+    GA4の準備ができたら設定ファイルを書き換えて再ビルドすればよい、という作りにしている。
+    """
+    if not MEASUREMENT_JSON.exists():
+        return {}
+    data = json.loads(MEASUREMENT_JSON.read_text(encoding="utf-8"))
+    # "_readme" や "_note" は人間向けのメモなので、出力には持ち込まない
+    return prune_notes(data)
+
+
+def prune_notes(node):
+    if isinstance(node, dict):
+        return {k: prune_notes(v) for k, v in node.items() if not k.startswith("_")}
+    if isinstance(node, list):
+        return [prune_notes(v) for v in node]
+    return node
+
+
+def tel_for(cfg: dict, dir_name: str) -> str:
+    """このLPで表示する電話番号。コールトラッキングの発番があればそちらを使う。"""
+    call = cfg.get("call_tracking") or {}
+    return ((call.get("numbers") or {}).get(dir_name) or "").strip() \
+        or (call.get("default_number") or DEFAULT_TEL).strip()
+
+
+DEFAULT_TEL = "080-8043-8259"
+
+
+def swap_tel(src: str, number: str) -> str:
+    """LPに書かれている既定の番号を、計測用の発番に差し替える。
+
+    LPのソース（lp/ 配下）には手を触れず、書き出すときだけ差し替える。
+    表示用（ハイフンあり）と tel: リンク用（ハイフンなし）の両方が本文にあるので、
+    どちらも置き換える。番号を戻したいときは measurement.json を空にするだけでよい。
+    """
+    if number == DEFAULT_TEL:
+        return src
+    digits = re.sub(r"[^0-9]", "", number)
+    src = src.replace(DEFAULT_TEL, number)
+    src = src.replace(re.sub(r"[^0-9]", "", DEFAULT_TEL), digits)
+    return src
+
+
+def tracking_head(cfg: dict, page: dict, tel: str = "") -> str:
+    """<head> に入れる分。gtag の読み込みと、このページが何なのかの申告。"""
+    ga4 = ((cfg.get("ga4") or {}).get("measurement_id") or "").strip()
+    ads = ((cfg.get("google_ads") or {}).get("conversion_id") or "").strip()
+    phone_label = ((cfg.get("google_ads") or {}).get("phone_conversion_label") or "").strip()
+    pixel = ((cfg.get("meta") or {}).get("pixel_id") or "").strip()
+
+    out = ["<!-- ONE HITTER 計測タグ／設定は tracking/measurement.json、設計は docs/measurement-spec.md -->"]
+    out.append("<script>window.OH_M=" + json.dumps(
+        {"page": page, "google_ads": cfg.get("google_ads") or {}, "debug": bool(cfg.get("debug"))},
+        ensure_ascii=False, separators=(",", ":")) + ";</script>")
+
+    if ga4 or ads:
+        # 読み込みは1本でよい。gtag('config') を並べれば両方に届く。
+        first = ga4 or ads
+        lines = ['<script async src="https://www.googletagmanager.com/gtag/js?id=%s"></script>' % first,
+                 "<script>",
+                 "window.dataLayer=window.dataLayer||[];",
+                 "function gtag(){dataLayer.push(arguments);}",
+                 "gtag('js',new Date());"]
+        if ga4:
+            lines.append("gtag('config','%s',{'lp_id':'%s','lp_variant':'%s'});"
+                         % (ga4, page["lp_id"], page["lp_variant"]))
+        if ads:
+            lines.append("gtag('config','%s');" % ads)
+        if ads and phone_label and tel:
+            # Google広告の「電話番号の動的挿入」。広告経由で来た人にだけ、
+            # ページ上の電話番号をGoogle広告専用の転送番号に自動で差し替える。
+            # 転送先は結局この番号なので、受電の仕方は変わらない。追加費用は無い。
+            # ここに書く番号は、ページに表示されている番号と一致していないと差し替わらない。
+            lines.append("gtag('config','%s/%s',{'phone_conversion_number':'%s'});"
+                         % (ads, phone_label, tel))
+        lines.append("</script>")
+        out += lines
+    else:
+        out.append("<!-- GA4・広告タグは未設定。tracking/measurement.json にIDを入れて再ビルドすると出力されます -->")
+
+    if pixel:
+        out += ["<script>",
+                "!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?"
+                "n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;"
+                "n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;"
+                "t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}"
+                "(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');",
+                "fbq('init','%s');fbq('track','PageView');" % pixel,
+                "</script>"]
+
+    return "\n".join(out)
+
+
+def tracking_body() -> str:
+    """</body> の直前に入れる分。クリックや送信を拾う本体。"""
+    js = EVENTS_JS.read_text(encoding="utf-8") if EVENTS_JS.exists() else ""
+    if not js:
+        return ""
+    return "<script>\n" + js + "</script>"
+
+
+def build_thanks(cfg: dict, meta: dict, out: pathlib.Path) -> None:
+    """送信完了ページを組み立てる。
+
+    ここは「Netlify Forms が受理した後にしか出ない画面」なので、成果
+    （generate_lead）を数える場所として一番信用できる。
+    以前は aircon と mizumawari の2枚を手で置いていたため、あとから足した
+    aircon-b の分が無く、送信すると404になっていた。テンプレートから
+    全ページ分を生成するように変えて、取りこぼしが起きないようにする。
+    """
+    tpl = THANKS_TEMPLATE.read_text(encoding="utf-8")
+    tel = tel_for(cfg, meta["dir"])
+    page = {"kind": "thanks", "lp_id": meta["lp_id"], "lp_variant": meta["lp_variant"],
+            "lead_value": (cfg.get("lead_value") or {}).get(meta["dir"], 0)}
+
+    doc = (tpl.replace("%%DIR%%", meta["dir"])
+              .replace("%%TEL_HREF%%", re.sub(r"[^0-9]", "", tel))
+              .replace("%%TEL_TEXT%%", html.escape(tel))
+              .replace("%%TRACKING_HEAD%%", tracking_head(cfg, page, tel))
+              .replace("%%TRACKING_BODY%%", tracking_body()))
+
+    (out / meta["dir"] / "thanks.html").write_text(doc, encoding="utf-8")
+
+
 HP_CSS = (
     "\n/* 自動投稿よけ。人間には見せない */\n"
     ".hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}\n"
@@ -182,7 +331,7 @@ def make_og(src: pathlib.Path, dst: pathlib.Path, line1: str, line2: str) -> Non
     out.save(dst, quality=82, optimize=True, progressive=True)
 
 
-def build_page(name: str, meta: dict, target: str, out: pathlib.Path) -> None:
+def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict) -> None:
     src = (ROOT / "lp" / name / "index.html").read_text(encoding="utf-8")
 
     if FORM_OPEN not in src:
@@ -198,12 +347,35 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path) -> None:
     src = src[:line_end] + HP_CSS.rstrip("\n") + src[line_end:]
 
     src = src.replace("</body>", "")  # 断片には無いはずだが念のため
-    head_meta = {k: v for k, v in meta.items() if not k.startswith("og_") and k != "label"}
+
+    # 断片の先頭に Artifact 時代の <title> が残っていて、包むと <body> の中に
+    # 2つ目のタイトルが入っていた。GA4は page_title を見るので、紛れの元になる。
+    # 正しいタイトルは HEAD 側で付けているので、こちらは落とす。
+    src = re.sub(r"^\s*<title>.*?</title>\s*", "", src, count=1, flags=re.S)
+    head_meta = {k: v for k, v in meta.items()
+                 if not k.startswith("og_") and k not in ("label", "lp_id", "lp_variant")}
     doc = HEAD.format(base=BASE_URL, **head_meta) + src + TAIL
+
+    # 電話番号を計測用の発番に差し替える（設定が空なら何も起きない）
+    tel = tel_for(cfg, meta["dir"])
+    doc = swap_tel(doc, tel)
 
     dst = out / meta["dir"]
     dst.mkdir(parents=True, exist_ok=True)
-    (dst / "index.html").write_text(strip_comments(doc), encoding="utf-8")
+    doc = strip_comments(doc)
+
+    # 計測タグの差し込み。コメントを落としたあとに入れる
+    # （strip_comments に消されないようにするため）。
+    page = {"kind": "lp", "lp_id": meta["lp_id"], "lp_variant": meta["lp_variant"]}
+    if TRACKING_SLOT not in doc:
+        # strip_comments が目印ごと消すので、</head> を手がかりに入れる
+        doc = doc.replace("</head>", tracking_head(cfg, page, tel) + "\n</head>", 1)
+    else:
+        doc = doc.replace(TRACKING_SLOT, tracking_head(cfg, page, tel), 1)
+    doc = doc.replace("</body>", tracking_body() + "\n</body>", 1)
+
+    (dst / "index.html").write_text(doc, encoding="utf-8")
+    build_thanks(cfg, meta, out)
 
     img_src = ROOT / "lp" / name / "img"
     img_dst = dst / "img"
@@ -223,6 +395,15 @@ if __name__ == "__main__":
         raise SystemExit(f"配信先は {' / '.join(TARGETS)} のいずれかです")
     out = TARGETS[target]["out"]
     out.mkdir(parents=True, exist_ok=True)
+    cfg = load_measurement()
+
+    ga4 = ((cfg.get("ga4") or {}).get("measurement_id") or "").strip() or "未設定"
+    ads = ((cfg.get("google_ads") or {}).get("conversion_id") or "").strip() or "未設定"
     print(f"[{target}] → {out.relative_to(ROOT)}/")
+    print(f"  計測： GA4 {ga4} ／ Google広告 {ads}")
+
     for name, meta in PAGES.items():
-        build_page(name, meta, target, out)
+        tel = tel_for(cfg, meta["dir"])
+        if tel != DEFAULT_TEL:
+            print(f"  {meta['dir']}: 電話番号を {tel} に差し替え（コールトラッキング）")
+        build_page(name, meta, target, out, cfg)
