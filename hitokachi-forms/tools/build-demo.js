@@ -39,7 +39,7 @@ const formCss = form.match(/<style>([\s\S]*?)<\/style>/)[1];
 const formJs = form.match(/<script>([\s\S]*?)<\/script>/)[1]
   .replace('var BOOT = <?!= boot ?>;', 'var BOOT = DEMO_BOOT;');
 
-const page = `<title>適合性確認シート 作成デモ</title>
+const page = `<title>ヒトカチ 帳票作成システム</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap">
 <style>
 /* ---- デモの外枠。入力画面そのものの見た目には手を入れない ---- */
@@ -240,13 +240,13 @@ var DEMO_AGENTS = [
 ];
 
 /**
- * 代理店マスタの代わり。共同募集の相方はここに登録された名前から選ぶ。
+ * 代理店マスタの代わり。連名の相手（coAgent）は代理店ごとに1人決まる。
  * Config.gs の getAgencies_ は設定スプレッドシートを読むので、丸ごと差し替える。
  */
 var DEMO_AGENCIES = [
-  { name: 'ヒトカチ株式会社', folderId: 'demo-agency', coAgents: [] },
+  { name: 'ヒトカチ株式会社', folderId: 'demo-agency', coAgents: [], coAgent: '' },
   { name: 'クレスト保険', folderId: 'demo-agency-2',
-    coAgents: ['熊澤 善弘', '小川 康之', '矢野 克臣'] }
+    coAgents: ['熊澤 善弘', '小川 康之', '矢野 克臣'], coAgent: '熊澤 善弘' }
 ];
 getAgencies_ = function () { return DEMO_AGENCIES; };
 
@@ -272,6 +272,10 @@ var DEMO_BOOT = {
   agencies: DEMO_AGENCIES.map(function (a) { return { name: a.name, coAgents: a.coAgents }; }),
   agents: DEMO_AGENTS,
   needs: NEEDS,
+  productTypes: PRODUCT_TYPES.map(function (p) {
+    return { key: p.key, needs: p.needs, savings: p.savings };
+  }),
+  savingsYes: SAVINGS_YES,
   defaults: { contractType: '個人' },
   fields: FIELD_DEFS.map(function (f) {
     var o = {
@@ -287,15 +291,16 @@ var DEMO_BOOT = {
 };
 
 /** 保存先の当たりを、仮の一覧から再現する。Drive は見ない。 */
-function demoResolveDestination(customerName) {
+function demoResolveDestination(customerName, agencyName) {
   var target = normalizeName_(customerName);
   var hits = DEMO_EXISTING_FOLDERS
     .filter(function (n) { return normalizeName_(n) === target; })
     .map(function (n, i) { return { id: 'demo-folder-' + i, name: n }; });
+  var agency = agencyName || DEMO_AGENCIES[0].name;
   return {
-    agencyName: 'ヒトカチ株式会社',
+    agencyName: agency,
     agencyFolderId: 'demo-agency',
-    agencyFolderName: 'ヒトカチ株式会社 共有フォルダ',
+    agencyFolderName: agency + ' 共有フォルダ',
     customerName: customerName,
     newFolderName: sanitizeFileName_(customerName),
     candidates: hits,
@@ -320,7 +325,7 @@ function demoPrepare(raw) {
     advice: judge_(data, conf),   // 「使わない」項目に依存する判定は参考判定を出さない
     judgeKeys: JUDGE_KEYS,
     judgeLabels: JUDGE_LABELS,
-    destination: demoResolveDestination(data.customerName)
+    destination: demoResolveDestination(data.customerName, data.agency)
   };
 }
 
