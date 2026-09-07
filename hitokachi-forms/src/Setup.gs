@@ -329,7 +329,10 @@ function ensureFieldsSheet_(ss) {
       f.label,
       f.section,
       MODE_LABELS[mode],
-      prev ? prev.fixed : (f.defaultValue == null ? '' : f.defaultValue),
+      // 固定値が空欄のままだと、帳票のその欄が空白で出る（検証結果など）。
+      // 既存の入力があればそれを残し、空欄のときだけ既定値で埋める。
+      (prev && prev.fixed !== '' && prev.fixed != null)
+        ? prev.fixed : (f.defaultValue == null ? '' : f.defaultValue),
       !!f.required,
       options,
       f.note || ''
