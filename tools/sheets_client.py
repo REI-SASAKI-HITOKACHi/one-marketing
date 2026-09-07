@@ -169,13 +169,19 @@ def op_read(argv):
 
 
 def op_write(argv):
-    """write <id> <range> <values.json>  — values.json は二次元配列"""
+    """write <id> <range> <values.json> [RAW|USER_ENTERED]  — values.json は二次元配列
+
+    ★注意★ 既定の USER_ENTERED は「人がセルに打ち込んだ」ものとして解釈するため、
+    "09012345678" のような電話番号は数値と見なされ、先頭の0が消える。
+    電話番号・郵便番号・伝票番号など、0で始まりうる値を書くときは
+    第4引数に RAW を渡すか、値の先頭に ' を付けること。
+    """
     token = access_token(load_credentials())
     with open(argv[2], encoding="utf-8") as f:
         values = json.load(f)
     res = call(token, f"/{argv[0]}/values/{urllib.parse.quote(argv[1], safe='')}",
                method="PUT", payload={"values": values},
-               query={"valueInputOption": "USER_ENTERED"})
+               query={"valueInputOption": (argv[3] if len(argv) > 3 else "USER_ENTERED")})
     print("更新:", res.get("updatedRange"), res.get("updatedCells"), "セル")
 
 
