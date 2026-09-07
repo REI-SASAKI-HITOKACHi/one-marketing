@@ -31,11 +31,68 @@ SITE_NAME = "one-hitter-lp"
 TEAM_SLUG = "case-foot-kid"
 
 
+TOKEN_KITEI = os.path.expanduser("~/.config/one-hitter/netlify-token.txt")
+
+
 def token() -> str:
+    """トークンはこの順で読む。コマンドラインには書かない。
+      1. 環境変数 NETLIFY_TOKEN
+      2. 環境変数 NETLIFY_TOKEN_FILE で指定したパス
+      3. ~/.config/one-hitter/netlify-token.txt
+    """
     t = os.environ.get("NETLIFY_TOKEN", "").strip()
+    if t:
+        return t
+    path = os.environ.get("NETLIFY_TOKEN_FILE", "").strip() or TOKEN_KITEI
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            t = f.read().strip()
     if not t:
-        sys.exit("NETLIFY_TOKEN が設定されていません。")
+        sys.exit(
+            "Netlifyトークンが見つかりません。\n"
+            f"  環境変数 NETLIFY_TOKEN に入れるか、{TOKEN_KITEI} に置いてください。"
+        )
     return t
+
+
+def kenshou(base_url: str, paths=("/",)) -> int:
+    """配信後の検証。200が返るだけでは足りない。
+    HTMLとして解釈される Content-Type になっているかまで見る。
+    ステータスだけ見て済ませたせいで、アンケートが text/plain で配信され、
+    お客様の画面にHTMLのソースがそのまま出ていた（2026-09-08）。
+    """
+    import urllib.error
+
+    ng = 0
+    for p in paths:
+        url = base_url.rstrip("/") + p
+        req = urllib.request.Request(url, method="GET",
+                                     headers={"User-Agent": "one-hitter-deploy-check"})
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                code = r.status
+                ctype = r.headers.get("Content-Type", "")
+                body = r.read(200)
+        except urllib.error.HTTPError as e:
+            code, ctype, body = e.code, e.headers.get("Content-Type", ""), b""
+        except Exception as e:
+            print(f"  ！ {url} 取得できず: {e}")
+            ng += 1
+            continue
+
+        ok_code = code == 200
+        ok_type = "text/html" in ctype.lower()
+        ok_body = body.lstrip()[:15].lower().startswith(b"<!doctype") or b"<html" in body.lower()
+        mark = "OK" if (ok_code and ok_type and ok_body) else "★NG"
+        print(f"  {mark} {url}")
+        print(f"       status={code} content-type={ctype or '(なし)'}")
+        if not ok_type:
+            print("       → HTMLとして配信されていない。ブラウザにソースがそのまま出る")
+        if not ok_body:
+            print("       → 先頭がHTMLに見えない")
+        if not (ok_code and ok_type and ok_body):
+            ng += 1
+    return ng
 
 
 def call(method: str, path: str, body=None, raw: bytes | None = None,
@@ -166,9 +223,19 @@ def main() -> None:
         print(f"フォーム通知を追加： {address}")
 
     site = call("GET", f"/sites/{site_id}")
-    print("\n公開URL: " + (site["ssl_url"] or site["url"]))
-    print("  案A: " + (site["ssl_url"] or site["url"]) + "/aircon/")
-    print("  案B: " + (site["ssl_url"] or site["url"]) + "/mizumawari/")
+    base = site["ssl_url"] or site["url"]
+    print("\n公開URL: " + base)
+
+    # ★配信したら必ず中身を見る。200が返るだけでは足りない。
+    print("\n配信後の検証")
+    time.sleep(4)
+    paths = sorted({"/" + str(pathlib.PurePosixPath(f).parent) + "/"
+                    if str(pathlib.PurePosixPath(f).parent) != "." else "/"
+                    for f in files if f.endswith(".html")})
+    ng = kenshou(base, tuple(paths))
+    if ng:
+        sys.exit(f"\n★ {ng} 件が正しく配信されていません。上の内容を確認してください。")
+    print("  すべてHTMLとして配信されています。")
 
 
 if __name__ == "__main__":
