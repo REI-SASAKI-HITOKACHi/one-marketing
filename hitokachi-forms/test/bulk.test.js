@@ -29,9 +29,9 @@ const CO_AGENTS = [
   ['存在しない代理店', '幽霊 太郎', false, true, '代理店マスタに無いので無視される']
 ];
 const AGENTS = [
-  ['氏名', 'メールアドレス', '電話番号', '郵便番号', '住所1', '住所2', '所属代理店', 'ログイン用アドレス', '有効'],
-  ['佐々木 嶺', 'info@hitokachi.com', '080-6817-4796', '134-0081', '東京都 江戸川区 北葛西', '５－１４－１１', 'ヒトカチ株式会社', '', true],
-  ['髙橋 知史', 's-takahashi@hitokachi.com', '080-2238-7592', '134-0081', '東京都 江戸川区 北葛西', '５－１４－１１', 'ヒトカチ株式会社', '', true]
+  ['氏名', 'メールアドレス', '電話番号', '郵便番号', '住所1', '住所2', '所属代理店', 'ログイン用アドレス', '検証者', '有効'],
+  ['佐々木 嶺', 'info@hitokachi.com', '080-6817-4796', '134-0081', '東京都 江戸川区 北葛西', '５－１４－１１', 'ヒトカチ株式会社', '', '', true],
+  ['髙橋 知史', 's-takahashi@hitokachi.com', '080-2238-7592', '134-0081', '東京都 江戸川区 北葛西', '５－１４－１１', 'ヒトカチ株式会社', '', '佐々木 嶺', true]
 ];
 
 /**
@@ -161,7 +161,7 @@ console.log('\n--- 1行をデータに戻す ---');
     __message: '',
     customerName: '種田 裕貴',
     agency: 'ヒトカチ株式会社',
-    agent: '佐々木 嶺',
+    author: '佐々木 嶺', agent: '佐々木 嶺',
     contractType: '個人',
     confirmDate: new Date(2026, 7, 1),
     age: 31,
@@ -232,7 +232,7 @@ console.log('\n--- 検証：不正な数値を弾く ---');
   const conf = ctx.getFieldConfig_();
   const base = {
     contractType: '個人', customerName: '山田 太郎', agency: 'ヒトカチ株式会社',
-    agent: '佐々木 嶺', confirmDate: '2026-08-01',
+    author: '佐々木 嶺', agent: '佐々木 嶺', confirmDate: '2026-08-01',
     age: 40, occupation: '会社員', occupationClass: '左記以外',
     income: 500, assets: 100, annualPremium: 80, payYears: 10,
     experience: ['株式'], premiumSource: ['預貯金・給与'],
@@ -259,7 +259,7 @@ console.log('\n--- 検証：不正な数値を弾く ---');
   console.log('\n--- 検証：法人契約では個人向け項目を求めない ---');
   const corp = {
     contractType: '法人', customerName: '有限会社大原商店', agency: 'ヒトカチ株式会社',
-    agent: '佐々木 嶺', confirmDate: '2026-08-01',
+    author: '佐々木 嶺', agent: '佐々木 嶺', confirmDate: '2026-08-01',
     experience: [], premiumSource: [],
     riskTolerance: ctx.RISK_YES, needs: ['business'], savings: '②なくても良い'
   };
@@ -275,7 +275,7 @@ console.log('\n--- 連名の相手は代理店マスタから決まる ---');
   const conf = ctx.getFieldConfig_();
   const base = {
     contractType: '個人', customerName: '山田 太郎', agency: '提携代理店B',
-    agent: '佐々木 嶺', confirmDate: '2026-08-01', productType: ['終身'],
+    author: '佐々木 嶺', agent: '佐々木 嶺', confirmDate: '2026-08-01', productType: ['終身'],
     age: 40, occupation: '会社員', income: 500, assets: 100,
     experience: ['株式'], premiumSource: ['預貯金・給与'], riskTolerance: ctx.RISK_YES
   };
@@ -299,13 +299,39 @@ console.log('\n--- 連名の相手は代理店マスタから決まる ---');
   t('検証でも相方を求めない',           ctx.validate_(ctx.applyFieldConfig_(base, conf), conf), []);
 }
 
+console.log('\n--- 検証実施者は作成者から入る ---');
+{
+  const ctx = makeContext({
+    '設定': [['キー', '値', '説明'], ['既定の検証実施者', '髙橋 知史', '']]
+  });
+  const conf = ctx.getFieldConfig_();
+  const base = {
+    contractType: '個人', customerName: '山田 太郎', agency: 'ヒトカチ株式会社',
+    agent: '佐々木 嶺', confirmDate: '2026-08-01', productType: ['医療']
+  };
+  const made = (author) => ctx.applyFieldConfig_(Object.assign({}, base, { author }), conf);
+
+  t('佐々木が作成 → 髙橋',   made('佐々木 嶺').verifierName, '髙橋 知史');
+  t('髙橋が作成 → 佐々木',   made('髙橋 知史').verifierName, '佐々木 嶺');
+  t('検証日は確認日と同じ',  made('佐々木 嶺').verifyDate, '2026-08-01');
+  t('検証結果は固定値',      made('佐々木 嶺').verifyResult, '');
+
+  t('作成者は入力欄がある',   ctx.FIELD_DEFS[0].key, 'author');
+  t('作成者は必須',           !!ctx.FIELD_DEFS[0].required, true);
+  t('検証実施者に入力欄は無い',
+    ctx.getFieldConfig_().verifierName.mode, 'fixed');
+  t('作成者を入れないと止まる',
+    ctx.validate_(ctx.applyFieldConfig_(base, conf), conf)
+      .some(e => e.indexOf('作成者') >= 0), true);
+}
+
 console.log('\n--- 意向の確認日は3つ ---');
 {
   const ctx = makeContext();
   const conf = ctx.getFieldConfig_();
   const base = {
     contractType: '個人', customerName: '山田 太郎', agency: 'ヒトカチ株式会社',
-    agent: '佐々木 嶺', confirmDate: '2026-08-01', productType: ['医療']
+    author: '佐々木 嶺', agent: '佐々木 嶺', confirmDate: '2026-08-01', productType: ['医療']
   };
 
   const auto = ctx.applyFieldConfig_(base, conf);
@@ -339,7 +365,7 @@ console.log('\n--- 推定を自動で入れない設定 ---');
   });
   const out = ctx.applyFieldConfig_({
     contractType: '個人', customerName: '山田 太郎', agency: 'ヒトカチ株式会社',
-    agent: '佐々木 嶺', confirmDate: '2026-08-01', productType: ['医療']
+    author: '佐々木 嶺', agent: '佐々木 嶺', confirmDate: '2026-08-01', productType: ['医療']
   }, ctx.getFieldConfig_());
   // 日付だけ入って中身が空だと、推定の意向を確認したように見えてしまう。
   t('推定の意向は入らない', out.estimatedNeeds, []);
@@ -354,7 +380,7 @@ console.log('\n--- 法人の意向は自動で入れない ---');
   const conf = ctx.getFieldConfig_();
   const corp = {
     contractType: '法人', customerName: '株式会社テスト', agency: 'ヒトカチ株式会社',
-    agent: '佐々木 嶺', confirmDate: '2026-08-01', productType: ['終身']
+    author: '佐々木 嶺', agent: '佐々木 嶺', confirmDate: '2026-08-01', productType: ['終身']
   };
   const out = ctx.applyFieldConfig_(corp, conf);
   // 同じ終身保険でも、個人なら死亡保障、法人なら事業保障や退職金準備になる。
@@ -381,7 +407,7 @@ console.log('\n--- 保険種類で作る帳票が変わる ---');
   // 適合性確認シートのための入力（年齢・年収・投資経験など）を一切入れていない行。
   const thin = {
     contractType: '個人', customerName: '鈴木 花子', agency: 'ヒトカチ株式会社',
-    agent: '佐々木 嶺', confirmDate: '2026-08-01',
+    author: '佐々木 嶺', agent: '佐々木 嶺', confirmDate: '2026-08-01',
     needs: ['death'], savings: '①ある方が良い'
   };
   const check = (over) => ctx.validate_(ctx.applyFieldConfig_(Object.assign({}, thin, over), conf), conf);
@@ -469,7 +495,7 @@ console.log('\n--- 作った帳票は並び順ではなく種類で取り出す 
 
   const base = {
     contractType: '個人', customerName: '山田 太郎', agency: 'ヒトカチ株式会社',
-    agent: '佐々木 嶺', confirmDate: '2026-08-01',
+    author: '佐々木 嶺', agent: '佐々木 嶺', confirmDate: '2026-08-01',
     age: 40, occupation: '会社員', income: 500, assets: 300,
     experience: ['株式'], premiumSource: ['預貯金・給与'],
     riskTolerance: ctx.RISK_YES, needs: ['death'], savings: '①ある方が良い'

@@ -52,6 +52,16 @@ function setup() {
       + '\n連名にする人の「代表」にチェックを入れてください。');
   }
 
+  // 検証実施者が決まらないと、帳票の検証実施者欄が空欄で出る。
+  var noVerifier = agentsWithoutVerifier_();
+  if (noVerifier.length) {
+    Logger.log('【注意】次の募集人は、検証実施者が決まりません。'
+      + 'この人が作成した帳票は、検証実施者欄が空欄で出ます。\n'
+      + noVerifier.map(function (n) { return '  ・' + n; }).join('\n')
+      + '\n「募集人マスタ」のその人の行の「検証者」に、別の人を入れてください'
+      + '（設定シートの「' + SETTING_DEFAULT_VERIFIER + '」その人の行が主にこれに当たります）。');
+  }
+
   var url = ss.getUrl();
   Logger.log('設定スプレッドシート: ' + url);
   return url;
@@ -115,6 +125,10 @@ function ensureSettingsSheet_(ss) {
      '保険種類にこの語が含まれる契約だけ、適合性確認シートを作ります'
      + '（読点かカンマで複数書けます）。それ以外は意向把握シートだけ作ります。'
      + '保険種類が空欄の行は両方作ります。'],
+    [SETTING_DEFAULT_VERIFIER, '髙橋 知史',
+     '適合性確認シートの「検証実施者氏名」に入る人です。作成者から決まります。'
+     + 'この人以外が作成した帳票は、すべてこの人が検証実施者になります。'
+     + 'この人自身が作成した帳票は、募集人マスタのこの人の行の「検証者」を使います。'],
     ['推定のご意向を自動で入れる', 'はい',
      '意向把握シートの「推定のご意向」欄を、保険種類から自動で埋めます'
      + '（当初のご意向と同じ内容）。「いいえ」にすると空欄のままになります。']
@@ -199,26 +213,41 @@ function ensureCoAgentsSheet_(ss) {
 
 function ensureAgentsSheet_(ss) {
   var sh = getOrCreateSheet_(ss, SHEET_AGENTS);
+
+  // 旧レイアウトに「検証者」を割り込ませる。見出しを上書きするだけだと、
+  // 有効のチェックが「検証者」として読まれてしまう。
+  var head = sh.getLastColumn() > 0
+    ? sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0].map(String) : [];
+  if (head[8] === '有効' && head.indexOf('検証者') < 0) {
+    sh.insertColumnBefore(9);
+  }
+
   ensureHeader_(sh, [
     '氏名', 'メールアドレス', '電話番号', '郵便番号', '住所1', '住所2',
-    '所属代理店', 'ログイン用アドレス', '有効'
+    '所属代理店', 'ログイン用アドレス', '検証者', '有効'
   ]);
   if (sh.getLastRow() < 2) {
     var addr = ['134-0081', '東京都 江戸川区 北葛西', '５－１４－１１ クオーディア西葛西５０３'];
-    sh.getRange(2, 1, 3, 9).setValues([
+    sh.getRange(2, 1, 3, 10).setValues([
       ['佐々木 嶺', 'info@hitokachi.com', '080-6817-4796'].concat(addr)
-        .concat(['ヒトカチ株式会社', '', true]),
+        .concat(['ヒトカチ株式会社', '', '', true]),
+      // 既定の検証実施者その人。この行だけは「検証者」を入れておく必要がある。
       ['髙橋 知史', 's-takahashi@hitokachi.com', '080-2238-7592'].concat(addr)
-        .concat(['ヒトカチ株式会社', '', true]),
+        .concat(['ヒトカチ株式会社', '', '佐々木 嶺', true]),
       // 過去の帳票に登場するが連絡先が分かっていない募集人。
       // 空欄のままでも動くが、意向把握シートの連絡先欄が空白になる。
-      ['青木 典子', '', '', '', '', '', 'ヒトカチ株式会社', '', true]
+      ['青木 典子', '', '', '', '', '', 'ヒトカチ株式会社', '', '', true]
     ]);
   }
   checkboxColumn_(sh, '有効', 60);
   agencyNameColumn_(sh, '所属代理店', 200);
+  agentNameColumn_(sh, '検証者', 60);
   setNotes_(sh, {
     '所属代理店': '「代理店マスタ」に登録した代理店から選びます（プルダウン）。',
+    '検証者': 'この人が作成した帳票を検証する人です（プルダウン）。\n\n'
+      + '空欄でかまいません。空欄なら設定シートの「既定の検証実施者」が入ります。\n'
+      + '既定の検証実施者その人の行だけは、ここを埋めてください。\n'
+      + '空欄だと自分で自分を検証することになるので、検証実施者欄が空欄で出ます。',
     '氏名': '自社（ヒトカチ株式会社）の募集人です。\n'
       + '適合性確認シートの「取扱者名」と、意向把握シートの「募集人」に入ります。\n\n'
       + '他社の募集人は、ここではなく「代理店募集人マスタ」に登録してください。',
@@ -227,7 +256,7 @@ function ensureAgentsSheet_(ss) {
     'メールアドレス': '意向把握シートの【メール】欄に入ります。空欄なら空白で出力されます。',
     '有効': 'チェックを外すと、入力フォームの募集人の選択肢に出なくなります。'
   });
-  sh.autoResizeColumns(1, 9);
+  sh.autoResizeColumns(1, 10);
 }
 
 /**
@@ -377,6 +406,28 @@ function agencyNameColumn_(sh, headerName, rows) {
 
 /** 代理店名プルダウンが参照する、代理店マスタの行数。 */
 var AGENCY_LIST_ROWS = 500;
+
+/**
+ * 募集人マスタの氏名から選ぶプルダウンを張る（検証者の列に使う）。
+ * 自分自身の氏名列を参照するので、募集人を足せば選択肢も増える。
+ */
+function agentNameColumn_(sh, headerName, rows) {
+  var header = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+  var col = header.indexOf(headerName);
+  if (col < 0) return;
+
+  var source = sh.getParent().getSheetByName(SHEET_AGENTS);
+  if (!source) return;
+
+  sh.getRange(2, col + 1, rows, 1).setDataValidation(
+    SpreadsheetApp.newDataValidation()
+      .requireValueInRange(source.getRange(2, 1, AGENT_LIST_ROWS, 1), true)
+      .setAllowInvalid(false)
+      .build());
+}
+
+/** 検証者プルダウンが参照する、募集人マスタの行数。 */
+var AGENT_LIST_ROWS = 200;
 
 /** 見出しセルに説明のメモを付ける。 */
 function setNotes_(sh, notes) {

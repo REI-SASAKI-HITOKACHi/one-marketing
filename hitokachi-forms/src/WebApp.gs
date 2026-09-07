@@ -30,7 +30,7 @@ function bootstrap_() {
     var o = {
       key: f.key, label: f.label, type: f.type, section: f.section,
       required: !!f.required, unit: f.unit || '', note: f.note || '',
-      showIf: f.showIf || '', mode: conf[f.key].mode,
+      showIf: f.showIf || '', mode: conf[f.key].mode, foldable: !!f.foldable,
       defaultValue: f.defaultValue == null ? '' : f.defaultValue,
       options: f.options || []
     };
@@ -56,7 +56,14 @@ function bootstrap_() {
       return { key: p.key, needs: p.needs, savings: p.savings };
     }),
     savingsYes: SAVINGS_YES,
-    defaults: { contractType: String(getSetting_('既定の契約形態', '個人')) }
+    defaults: {
+      contractType: String(getSetting_('既定の契約形態', '個人')),
+      // ログイン中のアドレスが募集人マスタにあれば、その人を作成者の初期値にする。
+      author: (function () {
+        var me = getAgentByEmail_(currentUserEmail_());
+        return me ? me.name : '';
+      })()
+    }
   };
 }
 

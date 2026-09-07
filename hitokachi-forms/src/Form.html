@@ -138,14 +138,18 @@ function renderForm() {
     if (!fs.length) return;
     var card = el('div', { class: 'card' }, [el('h2', { text: sectionTitle(section) })]);
 
-    // 意向は保険種類から自動で入るので、既定では畳んでおく。
-    // 出しっぱなしにすると、触らなくてよい欄が画面の半分を占める。
+    // 意向のうち、保険種類から自動で入るものは畳んでおく。
+    // 確認日だけは畳まない。3つとも埋まっていないと帳票が完成しないため。
     if (section === '意向') {
+      fs.filter(function (f) { return !f.foldable; })
+        .forEach(function (f) { card.appendChild(renderField(f)); });
+
       var body = el('div', { id: 'intentBody' });
-      fs.forEach(function (f) { body.appendChild(renderField(f)); });
+      fs.filter(function (f) { return f.foldable; })
+        .forEach(function (f) { body.appendChild(renderField(f)); });
       body.hidden = true;
       card.appendChild(el('div', { class: 'foldNote',
-        text: '保険種類から自動で入ります。違う内容にするときだけ開いてください。' }));
+        text: 'ご意向と貯蓄部分は保険種類から自動で入ります。違う内容にするときだけ開いてください。' }));
       card.appendChild(el('button', {
         id: 'intentToggle', class: 'fold', type: 'button', text: '意向を手入力する',
         onclick: function () { toggleIntent(); }
@@ -219,7 +223,10 @@ function control(f) {
     });
     sel.appendChild(el('option', { value: '', text: '選択してください' }));
     list.forEach(function (o) { sel.appendChild(el('option', { value: o, text: o })); });
-    if (list.length === 1) { sel.value = list[0]; setValue(f.key, list[0]); }
+    // 作成者はログイン中の人を選んでおく。毎回選び直すのは手間なので。
+    var initial = (f.key === 'author' && BOOT.defaults && BOOT.defaults.author) || '';
+    if (initial && list.indexOf(initial) >= 0) { sel.value = initial; setValue(f.key, initial); }
+    else if (list.length === 1) { sel.value = list[0]; setValue(f.key, list[0]); }
     return sel;
   }
 

@@ -233,11 +233,17 @@ function renderSheet(name, model) {
 var DEMO_AGENTS = [
   { name: '佐々木 嶺', email: 'info@hitokachi.com', tel: '080-6817-4796',
     zip: '134-0081', address1: '東京都 江戸川区 北葛西',
-    address2: '５－１４－１１ クオーディア西葛西５０３', agency: 'ヒトカチ株式会社' },
+    address2: '５－１４－１１ クオーディア西葛西５０３', agency: 'ヒトカチ株式会社',
+    verifier: '' },
+  // 既定の検証実施者その人。この人が作成したときの検証者だけ、行に持たせる。
   { name: '髙橋 知史', email: 's-takahashi@hitokachi.com', tel: '080-2238-7592',
     zip: '134-0081', address1: '東京都 江戸川区 北葛西',
-    address2: '５－１４－１１ クオーディア西葛西５０３', agency: 'ヒトカチ株式会社' }
+    address2: '５－１４－１１ クオーディア西葛西５０３', agency: 'ヒトカチ株式会社',
+    verifier: '佐々木 嶺' },
+  { name: '青木 典子', email: '', tel: '', zip: '', address1: '', address2: '',
+    agency: 'ヒトカチ株式会社', verifier: '' }
 ];
+getAgents_ = function () { return DEMO_AGENTS; };
 
 /**
  * 代理店マスタの代わり。連名の相手（coAgent）は代理店ごとに1人決まる。
@@ -250,8 +256,11 @@ var DEMO_AGENCIES = [
 ];
 getAgencies_ = function () { return DEMO_AGENCIES; };
 
-// 設定シートは読めないので、保険種類の判定は既定のキーワードで動かす。
-getSetting_ = function (key, fallback) { return fallback; };
+// 設定シートは読めないので、既定値で動かす。既定の検証実施者だけは指定する。
+getSetting_ = function (key, fallback) {
+  if (key === SETTING_DEFAULT_VERIFIER) return '髙橋 知史';
+  return fallback;
+};
 
 /** 「既にこの顧客のフォルダがある」状況を再現するための仮の一覧。 */
 var DEMO_EXISTING_FOLDERS = ['種田 裕貴', '石川 康幸', '三好 雄策', '田中'];
@@ -276,12 +285,12 @@ var DEMO_BOOT = {
     return { key: p.key, needs: p.needs, savings: p.savings };
   }),
   savingsYes: SAVINGS_YES,
-  defaults: { contractType: '個人' },
+  defaults: { contractType: '個人', author: '佐々木 嶺' },
   fields: FIELD_DEFS.map(function (f) {
     var o = {
       key: f.key, label: f.label, type: f.type, section: f.section,
       required: !!f.required, unit: f.unit || '', note: f.note || '',
-      showIf: f.showIf || '', mode: DEMO_FIELD_CONFIG[f.key].mode,
+      showIf: f.showIf || '', mode: DEMO_FIELD_CONFIG[f.key].mode, foldable: !!f.foldable,
       defaultValue: f.defaultValue == null ? '' : f.defaultValue,
       options: f.options || []
     };

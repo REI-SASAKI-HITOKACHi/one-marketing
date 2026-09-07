@@ -12,7 +12,9 @@ var LOG_HEADER = [
   '入力からの参考判定', '参考判定と食い違った項目',
   '保存先フォルダ名', 'フォルダ新規作成', 'フォルダURL',
   '適合性確認シートURL', '意向把握シートURL',
-  '入力内容(JSON)'
+  '入力内容(JSON)',
+  // ここから下は後から足した列。既存の行がずれないよう末尾に置いている。
+  '作成者', '検証実施者'
 ];
 
 /**
@@ -52,7 +54,8 @@ function appendLog_(data, summary, advice, result) {
     result.folderName, result.folderCreated ? '新規' : '既存', result.folderUrl,
     fileUrlByKind_(result.files, 'suitability'),
     fileUrlByKind_(result.files, 'intent'),
-    JSON.stringify(data)
+    JSON.stringify(data),
+    data.author, data.verifierName
   ]);
 }
 

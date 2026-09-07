@@ -181,6 +181,11 @@ function applyFieldConfig_(data, fieldConfig) {
   out.coAgent = coAgentFor_(out.agency);
   if (String(out.coAgent).trim() === String(out.agent).trim()) out.coAgent = '';
 
+  // 検証実施者は作成者から決める（verifierFor_ の説明を参照）。
+  // 決まらないときだけ、項目設定の固定値をそのまま使う。
+  var verifier = verifierFor_(out.author);
+  if (verifier) out.verifierName = verifier;
+
   // 検証日は固定値を空欄にしておけば確認日と同じ日にする。
   // 検証は募集と同じ日に行う運用なので、日付を毎回書き換えずに済ませるため。
   if (fieldConfig.verifyDate && fieldConfig.verifyDate.mode === 'fixed' && !out.verifyDate) {

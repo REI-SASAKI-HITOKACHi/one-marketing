@@ -100,6 +100,10 @@ var OCCUPATION_CLASSES = ['左記以外', 'パート・アルバイト', '学生
 
 var FIELD_DEFS = [
   // ---- 基本（両帳票に効く） ----
+  { key: 'author',       label: '作成者',       type: 'agent',  section: '基本', required: true,  defaultMode: 'form',
+    note: 'この帳票を作る人。適合性確認シートの「検証実施者氏名」はここから決まる'
+        + '（募集人マスタの「検証者」列。空欄なら設定シートの「既定の検証実施者」）。'
+        + '募集人と同じ人でも構わない' },
   { key: 'agency',       label: '取扱代理店',   type: 'agency', section: '基本', required: true,  defaultMode: 'form' },
   { key: 'agent',        label: '募集人',       type: 'agent',  section: '基本', required: true,  defaultMode: 'form',
     note: '自社の募集人。帳票の「取扱者名」と「【募集人】」に入る' },
@@ -171,13 +175,13 @@ var FIELD_DEFS = [
     required: true, defaultMode: 'form', options: [RISK_YES, RISK_NO] },
 
   // ---- 意向把握シート ----
-  { key: 'needs',      label: 'ご希望の保障分野・目的', type: 'needs', section: '意向', required: true, defaultMode: 'form',
+  { key: 'needs',      label: 'ご希望の保障分野・目的', type: 'needs', section: '意向', required: true, defaultMode: 'form', foldable: true,
     note: '保険種類を選ぶと自動で入る。違うときだけ手で直す。'
         + 'この選択は意向把握シートの「1.保障分野・目的」と、'
         + '適合性確認シートの「⑧ お客さまのご意向」の両方に反映されます。'
         + '（適合性⑧は項目が粗いので、がん＋病気は1つに、教育資金＋老後資金は「貯蓄」にまとまります）' },
-  { key: 'needsOther', label: '適合性⑧「その他」の内容', type: 'text', section: '意向', defaultMode: 'form' },
-  { key: 'savings',    label: '貯蓄部分を必要とされますか', type: 'radio', section: '意向', required: true, defaultMode: 'form',
+  { key: 'needsOther', label: '適合性⑧「その他」の内容', type: 'text', section: '意向', defaultMode: 'form', foldable: true },
+  { key: 'savings',    label: '貯蓄部分を必要とされますか', type: 'radio', section: '意向', required: true, defaultMode: 'form', foldable: true,
     options: [SAVINGS_YES, SAVINGS_NO],
     note: '保険種類を選ぶと自動で入る。違うときだけ手で直す' },
   // 確認日は推定・当初・最終の3つ。帳票の確認日行がそのまま3列あるため。
@@ -190,10 +194,10 @@ var FIELD_DEFS = [
         + '適合性の確認は提案より前に行うので、基本情報の「確認日」より後になることがある' },
   { key: 'finalDate',     label: '最終のご意向 確認日', type: 'date', section: '意向', defaultMode: 'form',
     note: '空欄なら当初のご意向 確認日と同じ日付を入れる' },
-  { key: 'wishPeriod',  label: '保険期間のご希望',   type: 'text', section: '意向', defaultMode: 'form' },
-  { key: 'wishAmount',  label: '保険金額のご希望',   type: 'text', section: '意向', defaultMode: 'form' },
-  { key: 'wishPremium', label: '保険料のご希望',     type: 'text', section: '意向', defaultMode: 'form' },
-  { key: 'wishOther',   label: 'その他のご希望',     type: 'text', section: '意向', defaultMode: 'form' },
+  { key: 'wishPeriod',  label: '保険期間のご希望',   type: 'text', section: '意向', defaultMode: 'form', foldable: true },
+  { key: 'wishAmount',  label: '保険金額のご希望',   type: 'text', section: '意向', defaultMode: 'form', foldable: true },
+  { key: 'wishPremium', label: '保険料のご希望',     type: 'text', section: '意向', defaultMode: 'form', foldable: true },
+  { key: 'wishOther',   label: 'その他のご希望',     type: 'text', section: '意向', defaultMode: 'form', foldable: true },
 
   // ---- 既定では非表示。設定シートで form にすれば使える ----
   { key: 'estimatedNeeds',   label: '推定のご意向（保障分野）',   type: 'needs', section: '任意', defaultMode: 'hidden',
@@ -215,8 +219,9 @@ var FIELD_DEFS = [
     note: '固定値を空欄にしておくと、確認日と同じ日付が入る。'
         + '別の日を必ず入れたいときだけ、設定シートの固定値に日付を書く' },
   { key: 'verifierName', label: '検証実施者氏名',   type: 'text',  section: '検証欄', defaultMode: 'fixed',
-    note: '設定シート「項目設定」の固定値に、検証を行う人の氏名を入れる。'
-        + '空欄のままだと帳票の検証実施者欄が空欄で出る' },
+    note: '入力欄は出さず、作成者から自動で決まる（募集人マスタの「検証者」列、'
+        + '空欄なら設定シートの「既定の検証実施者」）。'
+        + 'どちらでも決まらないときだけ、この固定値を使う' },
   { key: 'verifyResult', label: '検証結果',         type: 'radio', section: '検証欄', defaultMode: 'fixed',
     options: ['適', '不適'], defaultValue: '適',
     note: '毎回同じ値を印字する。個別に「不適」にしたい契約があるときは、'

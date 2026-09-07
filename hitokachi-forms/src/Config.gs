@@ -30,6 +30,9 @@ var MODE_FROM_LABEL = {
 var SHEET_SETTINGS = '設定';
 var SHEET_AGENCIES = '代理店マスタ';
 var SHEET_CO_AGENTS = '代理店募集人マスタ';
+
+/** 設定シートのキー名。コードと Setup.gs で同じ文字列を使うため。 */
+var SETTING_DEFAULT_VERIFIER = '既定の検証実施者';
 var SHEET_AGENTS   = '募集人マスタ';
 var SHEET_FIELDS   = '項目設定';
 var SHEET_USERS    = '利用者';
@@ -252,7 +255,8 @@ function getAgents_() {
         address1: String(r['住所1'] || '').trim(),
         address2: String(r['住所2'] || '').trim(),
         agency:   String(r['所属代理店'] || '').trim(),
-        loginEmail: String(r['ログイン用アドレス'] || '').trim()
+        loginEmail: String(r['ログイン用アドレス'] || '').trim(),
+        verifier: String(r['検証者'] || '').trim()
       };
     });
   return MASTER_CACHE_.agents;
@@ -262,6 +266,55 @@ function getAgentByName_(name) {
   var list = getAgents_();
   for (var i = 0; i < list.length; i++) if (list[i].name === name) return list[i];
   return null;
+}
+
+/** ログイン中のアドレスに一致する募集人。作成者の初期値に使う。 */
+function getAgentByEmail_(email) {
+  var e = String(email || '').trim().toLowerCase();
+  if (e === '') return null;
+  var list = getAgents_();
+  for (var i = 0; i < list.length; i++) {
+    if (String(list[i].loginEmail).toLowerCase() === e) return list[i];
+    if (String(list[i].email).toLowerCase() === e) return list[i];
+  }
+  return null;
+}
+
+/**
+ * 適合性確認シートの検証実施者。作成者から決める。
+ *
+ *   1. 募集人マスタのその人の「検証者」列
+ *   2. 空欄なら設定シートの「既定の検証実施者」
+ *
+ * 作成者自身になってしまう場合は空にする。自分の募集を自分で検証した記録は
+ * 検証になっていない。既定の検証実施者その人が作成したときは、その人の行に
+ * 「検証者」を入れておけば 1. で拾われる。
+ *
+ * 募集人を1人足したときも、その人の検証者は既定の人になるので設定は要らない。
+ */
+function verifierFor_(authorName) {
+  var author = String(authorName || '').trim();
+  if (author === '') return '';
+
+  var v = '';
+  try {
+    var a = getAgentByName_(author);
+    if (a && a.verifier) v = a.verifier;
+    if (v === '') v = String(getSetting_(SETTING_DEFAULT_VERIFIER, '')).trim();
+  } catch (e) {
+    return '';
+  }
+  return v === author ? '' : v;
+}
+
+/**
+ * 検証実施者が決まらない募集人。setup() が知らせる。
+ * 既定の検証実施者その人だけは、自分の行の「検証者」で決める必要がある。
+ */
+function agentsWithoutVerifier_() {
+  return getAgents_()
+    .filter(function (a) { return verifierFor_(a.name) === ''; })
+    .map(function (a) { return a.name; });
 }
 
 /**
