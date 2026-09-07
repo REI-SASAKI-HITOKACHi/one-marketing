@@ -211,8 +211,10 @@ function setValue(key, v) {
 function control(f) {
   var t = f.type;
 
-  if (t === 'agency' || t === 'agent' || t === 'select') {
-    var list = t === 'agency' ? agencyNames() : t === 'agent' ? agentNames() : f.options;
+  if (t === 'agency' || t === 'agent' || t === 'author' || t === 'select') {
+    var list = t === 'agency' ? agencyNames()
+      : t === 'agent' ? agentNames()
+      : t === 'author' ? authorNames() : f.options;
     var sel = el('select', {
       id: 'i_' + f.key,
       onchange: function (e) {
@@ -224,7 +226,7 @@ function control(f) {
     sel.appendChild(el('option', { value: '', text: '選択してください' }));
     list.forEach(function (o) { sel.appendChild(el('option', { value: o, text: o })); });
     // 作成者はログイン中の人を選んでおく。毎回選び直すのは手間なので。
-    var initial = (f.key === 'author' && BOOT.defaults && BOOT.defaults.author) || '';
+    var initial = (t === 'author' && BOOT.defaults && BOOT.defaults.author) || '';
     if (initial && list.indexOf(initial) >= 0) { sel.value = initial; setValue(f.key, initial); }
     else if (list.length === 1) { sel.value = list[0]; setValue(f.key, list[0]); }
     return sel;
@@ -356,11 +358,28 @@ function agencyNames() {
   return BOOT.agencies.map(function (a) { return a.name; });
 }
 
+/**
+ * 募集人の選択肢。選んでいる取扱代理店に登録されている人だけを出す。
+ * 自社の代理店なら募集人マスタの所属者、提携先なら代理店募集人マスタの人。
+ * サーバ側の agentNamesForAgency_ と同じ引き方にしてある。
+ */
 function agentNames() {
   var agency = STATE.values.agency;
-  var list = BOOT.agents.filter(function (a) { return !agency || !a.agency || a.agency === agency; });
-  if (!list.length) list = BOOT.agents;
-  return list.map(function (a) { return a.name; });
+  if (!agency) return [];
+  var out = [];
+  BOOT.agents.forEach(function (a) {
+    if (a.agency === agency && out.indexOf(a.name) < 0) out.push(a.name);
+  });
+  BOOT.agencies.forEach(function (ag) {
+    if (ag.name !== agency) return;
+    (ag.coAgents || []).forEach(function (n) { if (out.indexOf(n) < 0) out.push(n); });
+  });
+  return out;
+}
+
+/** 作成者は自社の募集人。代理店を選んでいなくても選べる。 */
+function authorNames() {
+  return BOOT.agents.map(function (a) { return a.name; });
 }
 
 /** 選択肢を入れ替える。今の選択が新しい一覧にも残っていればそのまま。 */

@@ -246,13 +246,14 @@ var DEMO_AGENTS = [
 getAgents_ = function () { return DEMO_AGENTS; };
 
 /**
- * 代理店マスタの代わり。連名の相手（coAgent）は代理店ごとに1人決まる。
+ * 代理店マスタの代わり。coAgents はその代理店の募集人で、取扱代理店を選ぶと
+ * 「募集人」の選択肢になる。
  * Config.gs の getAgencies_ は設定スプレッドシートを読むので、丸ごと差し替える。
  */
 var DEMO_AGENCIES = [
-  { name: 'ヒトカチ株式会社', folderId: 'demo-agency', coAgents: [], coAgent: '' },
+  { name: 'ヒトカチ株式会社', folderId: 'demo-agency', coAgents: [] },
   { name: 'クレスト保険', folderId: 'demo-agency-2',
-    coAgents: ['熊澤 善弘', '小川 康之', '矢野 克臣'], coAgent: '熊澤 善弘' }
+    coAgents: ['熊澤 善弘', '小川 康之', '矢野 克臣'] }
 ];
 getAgencies_ = function () { return DEMO_AGENCIES; };
 
@@ -346,11 +347,12 @@ function demoSubmit(data, choice, rawAnswers) {
 
   var answers = normalizeAnswers_(checked, rawAnswers);
   var summary = summarizeAnswers_(answers);
-  var agent = null;
+  // 所在地・連絡先は自社のものしかないので、作成者の行から取る。
+  var author = null;
   for (var i = 0; i < DEMO_AGENTS.length; i++) {
-    if (DEMO_AGENTS[i].name === checked.agent) agent = DEMO_AGENTS[i];
+    if (DEMO_AGENTS[i].name === checked.author) author = DEMO_AGENTS[i];
   }
-  var model = buildModel_(checked, answers, agent || DEMO_AGENTS[0], checked.agency);
+  var model = buildModel_(checked, answers, author || DEMO_AGENTS[0], checked.agency);
   showSheets(model, checked);
 
   var dest = demoResolveDestination(checked.customerName);

@@ -15,13 +15,15 @@ function generateAndSave_(data, choice, rawAnswers) {
   // 帳票には出さない。ログに残す参考値。入力を取っていない項目に依存する判定は
   // 'unknown' になるので、使っていない入力を根拠にした食い違いはログに載らない。
   var advice = judge_(data, getFieldConfig_());
-  var agent = getAgentByName_(data.agent);
-  if (!agent) throw new Error('募集人「' + data.agent + '」が募集人マスタにありません。');
+  // 帳票に出す所在地・連絡先は自社のものしかないので、作成者の行から取る。
+  // 募集人（data.agent）は提携先の人でありうるので、ここでは引かない。
+  var author = getAgentByName_(data.author);
+  if (!author) throw new Error('作成者「' + data.author + '」が募集人マスタにありません。');
 
   var dest = materializeDestination_(data.agency, data.customerName, choice);
   var folder = DriveApp.getFolderById(dest.id);
 
-  var model = buildModel_(data, answers, agent, data.agency);
+  var model = buildModel_(data, answers, author, data.agency);
   var stamp = Utilities.formatDate(confirmDateAsDate_(data.confirmDate), 'Asia/Tokyo', 'yyyyMMdd');
   var base = sanitizeFileName_(data.customerName) + '_' + stamp;
 
@@ -132,6 +134,16 @@ function validate_(data, fieldConfig) {
     if (empty) errors.push(f.label + 'を入力してください。');
   });
 
+  // 募集人は、選んだ取扱代理店に登録されている人だけ。代理店を選び直したあとに
+  // 前の代理店の人が残っていると、他社の募集人名を載せた帳票ができる。
+  if (data.agency && data.agent && fieldConfig.agent.mode === 'form') {
+    var choices = agentNamesForAgency_(data.agency);
+    if (choices.length && choices.indexOf(String(data.agent).trim()) < 0) {
+      errors.push('募集人「' + data.agent + '」は代理店「' + data.agency
+        + '」に登録されていません。代理店を選び直してから募集人を選んでください。');
+    }
+  }
+
   if (isCorp || !withSuit) return errors;
 
   // 数値の妥当性。負の値を通すと判定③が静かに「はい」になり、しかも年間保険料と
@@ -176,11 +188,6 @@ function applyFieldConfig_(data, fieldConfig) {
       out[f.key] = (v === undefined || v === null) ? (isList ? [] : '') : v;
     }
   });
-  // 連名の相手は選ばせず、代理店マスタから決める（getAgencies_ の説明を参照）。
-  // 自社の募集人と同じ名前が返ってきたときは連名にしない。
-  out.coAgent = coAgentFor_(out.agency);
-  if (String(out.coAgent).trim() === String(out.agent).trim()) out.coAgent = '';
-
   // 検証実施者は作成者から決める（verifierFor_ の説明を参照）。
   // 決まらないときだけ、項目設定の固定値をそのまま使う。
   var verifier = verifierFor_(out.author);

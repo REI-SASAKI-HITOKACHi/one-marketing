@@ -97,7 +97,13 @@ function renderTemplate_(fileName, model) {
  * 入力値と判定結果から、テンプレートに渡す表示用モデルを組み立てる。
  * ここで表示の都合をすべて吸収し、テンプレート側は値を並べるだけにする。
  */
-function buildModel_(d, answers, agent, agencyName) {
+/**
+ * @param {Object} d          入力値
+ * @param {Object} answers    確認画面で確定した「２．」の回答
+ * @param {Object} author     作成者（自社の募集人）。所在地・連絡先はここから取る
+ * @param {string} agencyName 取扱代理店
+ */
+function buildModel_(d, answers, author, agencyName) {
   var isCorp = d.contractType === '法人';
   var income = num_(d.income);
   var assets = num_(d.assets);
@@ -110,13 +116,18 @@ function buildModel_(d, answers, agent, agencyName) {
   var expOther = (d.experience || []).indexOf('その他') >= 0;
   var srcOther = (d.premiumSource || []).indexOf('その他') >= 0;
 
+  var rows = agencyRows_(d, author, agencyName);
+
   return {
     isCorp: isCorp,
     agencyName: agencyName,
-    agent: agent,
-    // 共同募集のときは連名。単独ならそのまま。
-    agentDisplay: d.coAgent ? agent.name + ' / ' + d.coAgent : agent.name,
-    agencyRows: agencyRows_(d, agent, agencyName),
+    // 所在地・連絡先は自社のものしか持っていないので、作成者の行から取る。
+    agent: author,
+    // 提携先の契約は連名。自社が先。単独ならそのまま。
+    agentDisplay: rows.length > 1
+      ? rows[1].person + ' / ' + rows[0].person
+      : rows[0].person,
+    agencyRows: rows,
 
     customerName: d.customerName || '',
     guardianName: d.guardianName || '',
@@ -197,26 +208,29 @@ function buildModel_(d, answers, agent, agencyName) {
 }
 
 /**
- * 適合性確認シートの「取扱代理店名」と「取扱者名」に出す行。
+ * 「取扱代理店名」と「取扱者名」に出す行。
  *
- * 提携先の代理店を選んだ契約は、その代理店と自社の2行で出す。自社しか書かないと
- * 提携先が募集に関わった記録が残らず、提携先しか書かないと自社の記録が残らない。
+ * 募集人は、選んだ取扱代理店に登録されている人から選ぶ。提携先を選んだ契約は
+ * その提携先の募集人になるので、自社の記録が残らない。そこで自社の行を足して
+ * 2行で出す。自社しか書かないと提携先が募集に関わった記録が残らず、
+ * 提携先しか書かないと自社の記録が残らない。
+ *
  * 取扱者名も同じ並びで返すので、どちらの代理店の誰かが行の位置で対応する。
+ * 自社の代理店名と氏名は作成者の行から取る。コードには書かない。
  *
- * 自社の代理店名は募集人マスタの「所属代理店」から取る。コードには書かない。
- *
- * @return {Array} [{ agency, person }]
+ * @param {Object} d      入力値（agent に選んだ募集人が入っている）
+ * @param {Object} author 作成者（自社の募集人）
+ * @return {Array} [{ agency, person }]  提携先の契約なら2行、自社なら1行
  */
-function agencyRows_(d, agent, agencyName) {
+function agencyRows_(d, author, agencyName) {
   var selected = String(agencyName == null ? '' : agencyName).trim();
-  var own = String((agent && agent.agency) || '').trim();
-  var rows = [];
+  var own = String((author && author.agency) || '').trim();
+  var rows = [{ agency: selected || own, person: d.agent || '' }];
 
-  // 提携先の行が先。契約を取り次いだ側から書く。
+  // 提携先の契約なら、自社の行をあとに足す。
   if (selected && own && selected !== own) {
-    rows.push({ agency: selected, person: d.coAgent || '' });
+    rows.push({ agency: own, person: (author && author.name) || '' });
   }
-  rows.push({ agency: own || selected, person: (agent && agent.name) || '' });
   return rows;
 }
 

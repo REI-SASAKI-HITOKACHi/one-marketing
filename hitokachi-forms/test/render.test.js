@@ -48,13 +48,15 @@ const data = {
   productType: ['変額', '終身'],
   estimatedDate: '2026-07-20', initialDate: '2026-08-05', finalDate: '2026-08-10',
   needs: ['death', 'medical', 'cancer', 'education', 'pension'],
+  agent: '佐々木 嶺',
   savings: '①ある方が良い',
   wishPeriod: '一生涯',
   verifyDate: '2026-08-02',
   verifierName: '髙橋 知史',
   verifyResult: '適'
 };
-const agent = {
+// 作成者。所在地・連絡先はここから取る。
+const author = {
   name: '佐々木 嶺', zip: '134-0081',
   address1: '東京都 江戸川区 北葛西',
   address2: '５－１４－１１ クオーディア西葛西５０３',
@@ -66,7 +68,7 @@ const agent = {
 ctx.applyAutoIntent_(data, true);
 
 const answers = ctx.defaultAnswers_(data);
-const model = ctx.buildModel_(data, answers, agent, 'ヒトカチ株式会社');
+const model = ctx.buildModel_(data, answers, author, 'ヒトカチ株式会社');
 
 const sheets = {
   '適合性確認シート': 'SuitabilitySheet.html',
@@ -107,6 +109,7 @@ t('⑤で公社債は空欄', s.includes('□公社債'));
 t('判定がすべて「はい」', (s.match(/■はい/g) || []).length === 6);
 t('別紙が改ページで続いている', s.includes('class="pb"'));
 t('取扱代理店名が入っている', s.includes('ヒトカチ株式会社'));
+t('取扱者名は選んだ募集人', s.includes('佐々木 嶺'));
 
 console.log('\n--- 意向把握シートの中身 ---');
 const i = rendered['IntentSheet.html'];
@@ -132,24 +135,21 @@ t('HTMLコメントを残さない',   !sBody.includes('<!--'));
 console.log('\n--- 取扱代理店名は提携先と自社の2行 ---');
 {
   const rows = (d, agencyName) =>
-    JSON.stringify(ctx.agencyRows_(d, agent, agencyName));
+    JSON.stringify(ctx.agencyRows_(d, author, agencyName));
   const expect = (...pairs) =>
     JSON.stringify(pairs.map(p => ({ agency: p[0], person: p[1] })));
 
   t('自社の契約は1行',
-    rows({}, 'ヒトカチ株式会社') === expect(['ヒトカチ株式会社', '佐々木 嶺']));
+    rows({ agent: '青木 典子' }, 'ヒトカチ株式会社')
+      === expect(['ヒトカチ株式会社', '青木 典子']));
 
-  // 提携先が先。契約を取り次いだ側から書く。取扱者名も同じ並びになる。
+  // 提携先が先。契約を取り次いだ側から書く。自社側は作成者。
   t('提携先の契約は2行',
-    rows({ coAgent: '熊澤 善弘' }, 'クレスト保険')
+    rows({ agent: '熊澤 善弘' }, 'クレスト保険')
       === expect(['クレスト保険', '熊澤 善弘'], ['ヒトカチ株式会社', '佐々木 嶺']));
 
-  t('連名の相手がいなくても提携先の行は出す',
-    rows({}, 'クレスト保険')
-      === expect(['クレスト保険', ''], ['ヒトカチ株式会社', '佐々木 嶺']));
-
-  const pairData = Object.assign({}, data, { coAgent: '熊澤 善弘' });
-  const pairModel = ctx.buildModel_(pairData, ctx.defaultAnswers_(pairData), agent, 'クレスト保険');
+  const pairData = Object.assign({}, data, { agent: '熊澤 善弘' });
+  const pairModel = ctx.buildModel_(pairData, ctx.defaultAnswers_(pairData), author, 'クレスト保険');
   const pairSuit = render(fs.readFileSync(path.join(SRC, 'SuitabilitySheet.html'), 'utf8'), pairModel);
   t('帳票に自社の代理店名が出る', pairSuit.includes('ヒトカチ株式会社'));
   t('帳票に提携先の代理店名も出る', pairSuit.includes('クレスト保険'));

@@ -52,6 +52,7 @@ function onOpenMenu() {
   SpreadsheetApp.getUi()
     .createMenu('帳票作成')
     .addItem('一括入力シートを準備する', 'prepareBulkSheet')
+    .addItem('募集人の選択肢を作り直す', 'refreshAgentChoices')
     .addSeparator()
     .addItem('① 保存先を下見する', 'dryRunBulk')
     .addItem('② 未作成の行をすべて作成する', 'runBulkAll')
@@ -105,7 +106,7 @@ function bulkColumns_() {
           : f.type === 'date' ? 'date'
           : f.type === 'number' ? 'number'
           : (f.type === 'radio' || f.type === 'select') ? 'list'
-          : (f.type === 'agency' || f.type === 'agent') ? 'list'
+          : (f.type === 'agency' || f.type === 'agent' || f.type === 'author') ? 'list'
           : 'text',
       options: bulkOptionsFor_(f)
     });
@@ -121,8 +122,107 @@ function bulkColumns_() {
 
 function bulkOptionsFor_(f) {
   if (f.type === 'agency') return getAgencies_().map(function (a) { return a.name; });
-  if (f.type === 'agent')  return getAgents_().map(function (a) { return a.name; });
+  if (f.type === 'author') return getAgents_().map(function (a) { return a.name; });
+  // 募集人は代理店ごとに違うので、列全体の選択肢は持たない。
+  // 行ごとに、その行で選ばれている代理店の人だけを張る（refreshAgentValidation_）。
+  if (f.type === 'agent') return [];
   return f.options || [];
+}
+
+/* ------------------------------------------------------------------ *
+ * 募集人（代理店を選ぶ → その代理店の募集人を選ぶ）
+ * ------------------------------------------------------------------ */
+
+/**
+ * 募集人の選択肢は代理店ごとに違うので、列にひとつのプルダウンを張れない。
+ * 全代理店ぶんをまとめて出すと、100社×数十人で使いものにならなくなる。
+ * そこで行ごとに、その行で選ばれている代理店の人だけを選択肢にする。
+ *
+ * 代理店の列が編集されたときに onEditBulk_ から呼ばれる。貼り付けなどで
+ * 引っかからなかったときのために、メニューからも作り直せるようにしてある。
+ *
+ * @param {Sheet} sh      一括入力シート
+ * @param {number} from   作り直す先頭行（省略時は全行）
+ * @param {number} count  作り直す行数
+ */
+function refreshAgentValidation_(sh, from, count) {
+  var lastCol = sh.getLastColumn();
+  if (lastCol === 0) return;
+  var keys = sh.getRange(BULK_KEY_ROW, 1, 1, lastCol).getValues()[0].map(String);
+  var agencyCol = keys.indexOf('agency') + 1;
+  var agentCol  = keys.indexOf('agent') + 1;
+  // どちらかの列を「使わない」にしていれば、連動させるものがない。
+  if (agencyCol === 0 || agentCol === 0) return;
+
+  var start = from || BULK_FIRST_ROW;
+  var lastRow = Math.max(sh.getMaxRows(), BULK_FIRST_ROW);
+  var rows = count || (lastRow - start + 1);
+  if (rows < 1) return;
+
+  var agencies = sh.getRange(start, agencyCol, rows, 1).getValues();
+  var current  = sh.getRange(start, agentCol, rows, 1).getValues();
+  var cache = {};
+
+  for (var i = 0; i < rows; i++) {
+    var agency = String(agencies[i][0] || '').trim();
+    if (!(agency in cache)) cache[agency] = agentNamesForAgency_(agency);
+    var list = cache[agency];
+
+    var cell = sh.getRange(start + i, agentCol);
+    if (!list.length) {
+      // 代理店が未選択、または募集人の登録がない代理店。選びようがないので
+      // プルダウンを外すだけにする。突き合わせる一覧が無いのに消すと、
+      // マスタ登録前に取り込んだ行から募集人が黙って消える。
+      cell.setDataValidation(null);
+      continue;
+    }
+    cell.setDataValidation(SpreadsheetApp.newDataValidation()
+      .requireValueInList(list, true).setAllowInvalid(false).build());
+    // 代理店を選び直したときに、前の代理店の人が残ると帳票に他社の名前が出る。
+    var v = String(current[i][0] || '').trim();
+    if (v !== '' && list.indexOf(v) < 0) cell.clearContent();
+  }
+}
+
+/** メニュー用。全行の募集人の選択肢を作り直す。 */
+function refreshAgentChoices() {
+  var sh = settingsSpreadsheet_().getSheetByName(SHEET_BULK);
+  if (!sh) throw new Error('「一括入力」シートがありません。先に「一括入力シートを準備する」を実行してください。');
+  clearMasterCache_();
+  refreshAgentValidation_(sh);
+  SpreadsheetApp.getActive().toast('募集人の選択肢を作り直しました。', '帳票作成', 5);
+}
+
+/**
+ * 代理店の列が編集されたら、その行の募集人の選択肢を作り直す。
+ * setup() が仕掛けるインストール型の onEdit トリガーから呼ばれる。
+ */
+function onEditBulk_(e) {
+  try {
+    if (!e || !e.range) return;
+    var sh = e.range.getSheet();
+    if (sh.getName() !== SHEET_BULK) return;
+
+    var lastCol = sh.getLastColumn();
+    if (lastCol === 0) return;
+    var keys = sh.getRange(BULK_KEY_ROW, 1, 1, lastCol).getValues()[0].map(String);
+    var agencyCol = keys.indexOf('agency') + 1;
+    if (agencyCol === 0) return;
+
+    // 編集範囲が代理店の列にかかっていなければ何もしない
+    // （1セルの編集も、列ごとの貼り付け・フィルダウンも同じ判定で拾える）。
+    var c1 = e.range.getColumn();
+    var c2 = c1 + e.range.getNumColumns() - 1;
+    if (agencyCol < c1 || agencyCol > c2) return;
+
+    var start = Math.max(e.range.getRow(), BULK_FIRST_ROW);
+    var end   = e.range.getRow() + e.range.getNumRows() - 1;
+    if (end < start) return;
+    refreshAgentValidation_(sh, start, end - start + 1);
+  } catch (err) {
+    // トリガーの中で投げても利用者には見えない。入力の邪魔をしないよう握りつぶす。
+    console.error('onEditBulk_: ' + err.message);
+  }
 }
 
 var BULK_RESULT_COLUMNS = ['保存先フォルダ', '適合性確認シート', '意向把握シート'];
@@ -164,6 +264,7 @@ function prepareBulkSheet() {
   applyBulkStatusColors_(sh, cols.length + BULK_RESULT_COLUMNS.length + 2, rows);
 
   if (saved.length) restoreBulkRows_(sh, cols, saved);
+  refreshAgentValidation_(sh);
 
   sh.setColumnWidth(COL_STATUS, 76);
   sh.setColumnWidth(COL_MESSAGE, 300);
@@ -938,6 +1039,8 @@ function importFromStagingSheet() {
   applyBulkStatusColors_(dest, destLastCol, totalRows);
   // insertCheckboxes は値を false にするので、貼り直したあとに書き戻す。
   dest.getRange(startRow, 1, grid.length, destLastCol).setValues(grid);
+  // 追加した行の募集人は、その行の代理店に応じた選択肢にする。
+  refreshAgentValidation_(dest, startRow, grid.length);
 
   // 同じシートをもう一度流し込む事故を防ぐため、取り込み元を空にする。
   src.clear();

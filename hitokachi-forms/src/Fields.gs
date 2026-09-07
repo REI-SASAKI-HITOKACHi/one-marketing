@@ -100,13 +100,16 @@ var OCCUPATION_CLASSES = ['左記以外', 'パート・アルバイト', '学生
 
 var FIELD_DEFS = [
   // ---- 基本（両帳票に効く） ----
-  { key: 'author',       label: '作成者',       type: 'agent',  section: '基本', required: true,  defaultMode: 'form',
-    note: 'この帳票を作る人。適合性確認シートの「検証実施者氏名」はここから決まる'
-        + '（募集人マスタの「検証者」列。空欄なら設定シートの「既定の検証実施者」）。'
-        + '募集人と同じ人でも構わない' },
+  { key: 'author',       label: '作成者',       type: 'author', section: '基本', required: true,  defaultMode: 'form',
+    note: 'この帳票を作る自社の募集人。帳票の所在地・連絡先はこの人のものが入る。'
+        + '提携先の契約では、この人が自社側の取扱者として連名に入る。'
+        + '適合性確認シートの「検証実施者氏名」もここから決まる'
+        + '（募集人マスタの「検証者」列。空欄なら設定シートの「既定の検証実施者」）' },
   { key: 'agency',       label: '取扱代理店',   type: 'agency', section: '基本', required: true,  defaultMode: 'form' },
   { key: 'agent',        label: '募集人',       type: 'agent',  section: '基本', required: true,  defaultMode: 'form',
-    note: '自社の募集人。帳票の「取扱者名」と「【募集人】」に入る' },
+    note: '選んだ取扱代理店に登録されている募集人から選ぶ。'
+        + '自社なら募集人マスタ、提携先なら代理店募集人マスタの人が出る。'
+        + '提携先の人を選ぶと、帳票は「提携先＋自社（作成者）」の連名になる' },
   { key: 'contractType', label: '契約形態',     type: 'radio',  section: '基本', required: true,  defaultMode: 'form',
     options: ['個人', '法人'], defaultValue: '個人',
     note: '法人を選ぶと適合性確認シートの①〜④および2.①〜③が対象外になる' },

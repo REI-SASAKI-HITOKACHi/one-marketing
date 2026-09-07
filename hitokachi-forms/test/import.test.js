@@ -35,6 +35,7 @@ class FakeSheet {
     return 0;
   }
   getLastColumn() { return this.width; }
+  getMaxRows() { return Math.max(this.grid.length, 1); }
   getRange(row, col, numRows = 1, numCols = 1) {
     const sheet = this;
     return {
@@ -150,8 +151,12 @@ function makeContext(sheets) {
   ]);
   sheets['代理店マスタ'] = new FakeSheet('代理店マスタ',
     [['代理店名', '共有フォルダID', '有効', '備考'], ['ヒトカチ株式会社', 'FOLDER_A', true, '']]);
-  sheets['募集人マスタ'] = new FakeSheet('募集人マスタ',
-    [['氏名', 'メールアドレス', '電話番号', '郵便番号', '住所1', '住所2', '所属代理店', 'ログイン用アドレス', '有効']]);
+  sheets['募集人マスタ'] = new FakeSheet('募集人マスタ', [
+    ['氏名', 'メールアドレス', '電話番号', '郵便番号', '住所1', '住所2',
+     '所属代理店', 'ログイン用アドレス', '検証者', '有効'],
+    ['佐々木 嶺', '', '', '', '', '', 'ヒトカチ株式会社', '', '', true],
+    ['髙橋 知史', '', '', '', '', '', 'ヒトカチ株式会社', '', '佐々木 嶺', true]
+  ]);
   return ctx;
 }
 

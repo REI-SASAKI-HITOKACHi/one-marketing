@@ -43,15 +43,6 @@ function setup() {
       + '\n代理店マスタにその代理店を追加するか、代理店名を選び直してください。');
   }
 
-  // 相手が決められない代理店は、黙って単独名義の帳票ができる。
-  var noRep = agenciesWithoutRepresentative_();
-  if (noRep.length) {
-    Logger.log('【注意】次の代理店は「代理店募集人マスタ」に2人以上の登録がありますが、'
-      + '「代表」に印が付いていません。このままだと連名になりません。\n'
-      + noRep.map(function (n) { return '  ・' + n; }).join('\n')
-      + '\n連名にする人の「代表」にチェックを入れてください。');
-  }
-
   // 検証実施者が決まらないと、帳票の検証実施者欄が空欄で出る。
   var noVerifier = agentsWithoutVerifier_();
   if (noVerifier.length) {
@@ -73,6 +64,8 @@ function setup() {
  * onOpen / onEdit をそのまま書いても呼ばれない。インストール型で仕掛ける。
  *
  *   onOpenMenu … 「帳票作成」メニューを出す
+ *   onEditBulk_ … 一括入力シートで代理店を選んだら、その行の
+ *                 「募集人」の選択肢をその代理店の人に入れ替える
  */
 function ensureMenuTrigger_(ss) {
   var existing = ScriptApp.getProjectTriggers().map(function (t) {
@@ -88,11 +81,14 @@ function ensureMenuTrigger_(ss) {
     }
   }
 
-  // 以前は「共同募集の相方」の連動プルダウンのために onEdit も仕掛けていた。
-  // 相方を代理店マスタから決めるようにして不要になったので、残っていれば外す。
-  ScriptApp.getProjectTriggers().forEach(function (t) {
-    if (t.getHandlerFunction() === 'onEditBulk_') ScriptApp.deleteTrigger(t);
-  });
+  if (existing.indexOf('onEditBulk_') < 0) {
+    try {
+      ScriptApp.newTrigger('onEditBulk_').forSpreadsheet(ss).onEdit().create();
+    } catch (e) {
+      Logger.log('連動プルダウンのトリガーを作れませんでした: ' + e.message
+        + '\nメニューの「募集人の選択肢を作り直す」で代用できます。');
+    }
+  }
 }
 
 function getOrCreateSheet_(ss, name) {
@@ -172,42 +168,38 @@ function ensureAgenciesSheet_(ss) {
 function ensureCoAgentsSheet_(ss) {
   var sh = getOrCreateSheet_(ss, SHEET_CO_AGENTS);
 
-  // 旧レイアウト（代理店名／氏名／有効／備考）に「代表」を割り込ませる。
-  // 見出しを上書きするだけだと、有効のチェックが「代表」として読まれてしまう。
+  // 「代表」列は使わなくなった。募集人は入力時に代理店から選ぶ。
+  // 見出しだけ直すと有効のチェックが備考として読まれるので、列ごと消す。
   var head = sh.getLastColumn() > 0
     ? sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0].map(String) : [];
-  if (head[2] === '有効' && head.indexOf('代表') < 0) {
-    sh.insertColumnBefore(3);
-  }
+  var rep = head.indexOf('代表');
+  if (rep >= 0) sh.deleteColumn(rep + 1);
 
-  ensureHeader_(sh, ['代理店名', '氏名', '代表', '有効', '備考']);
+  ensureHeader_(sh, ['代理店名', '氏名', '有効', '備考']);
   if (sh.getLastRow() < 2) {
-    sh.getRange(2, 1, 3, 5).setValues([
-      ['クレスト保険', '熊澤 善弘', true,  true, ''],
-      ['クレスト保険', '小川 康之', false, true, ''],
-      ['クレスト保険', '矢野 克臣', false, true, '']
+    sh.getRange(2, 1, 3, 4).setValues([
+      ['クレスト保険', '熊澤 善弘', true, ''],
+      ['クレスト保険', '小川 康之', true, ''],
+      ['クレスト保険', '矢野 克臣', true, '']
     ]);
   }
   // 100社 × 最大30人を見込んで、チェックボックスは 3000 行ぶん。
-  checkboxColumn_(sh, '代表', 3000);
   checkboxColumn_(sh, '有効', 3000);
   agencyNameColumn_(sh, '代理店名', 3000);
   setNotes_(sh, {
     '代理店名': '「代理店マスタ」に登録した代理店から選びます（プルダウン）。\n'
       + '手で打つ必要はありません。代理店を先に登録してください。\n\n'
       + '同じ代理店の人は、何行に分けても構いません（並び順も自由）。',
-    '氏名': '共同募集（連名）をする相手の氏名です。\n\n'
-      + '帳票には「佐々木 嶺 / 熊澤 善弘」のように連名で入ります。',
-    '代表': 'その代理店と連名にする人に、1人だけチェックを入れます。\n\n'
-      + 'その代理店に1人しか登録がなければ、チェックは要りません\n'
-      + '（自動でその人と連名になります）。\n'
-      + '2人以上いてチェックが1つも無いと、連名になりません。',
-    '有効': 'チェックを外すと、その人は連名の相手に選ばれなくなります。\n'
+    '氏名': 'その代理店の募集人です。\n\n'
+      + '入力画面で取扱代理店にこの代理店を選ぶと、\n'
+      + 'ここに登録した人が「募集人」の選択肢に出ます。\n'
+      + '選ぶと帳票は「提携先＋自社（作成者）」の連名になります。',
+    '有効': 'チェックを外すと、その人は募集人の選択肢に出なくなります。\n'
       + '退職した人は行を消さずにチェックを外してください。'
   });
   sh.setColumnWidth(1, 220);
   sh.setColumnWidth(2, 160);
-  sh.setColumnWidth(5, 360);
+  sh.setColumnWidth(4, 360);
   sh.setFrozenRows(1);
 }
 

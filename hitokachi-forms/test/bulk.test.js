@@ -17,16 +17,16 @@ const AGENCIES = [
   ['提携代理店C', 'FOLDER_C', true, ''],
   ['提携代理店D', 'FOLDER_D', true, '']
 ];
-/** 代理店ごとの共同募集の相手。1人1行。 */
+/** 代理店ごとの募集人。1人1行。入力画面の「募集人」の選択肢になる。 */
 const CO_AGENTS = [
-  ['代理店名', '氏名', '代表', '有効', '備考'],
-  ['提携代理店B', '熊澤 善弘', true,  true,  '代表なのでこの人と連名になる'],
-  ['提携代理店B', '小川 康之', false, true,  ''],
-  ['提携代理店B', '退職 済',   true,  false, '無効なので代表にもならない'],
-  ['提携代理店C', '矢野 克臣', false, true,  '1人しかいないので代表の印は要らない'],
-  ['提携代理店D', '甲野 一郎', false, true,  '2人いて代表がいない'],
-  ['提携代理店D', '乙野 二郎', false, true,  ''],
-  ['存在しない代理店', '幽霊 太郎', false, true, '代理店マスタに無いので無視される']
+  ['代理店名', '氏名', '有効', '備考'],
+  ['提携代理店B', '熊澤 善弘', true,  ''],
+  ['提携代理店B', '小川 康之', true,  ''],
+  ['提携代理店B', '退職 済',   false, '無効なので選択肢に出ない'],
+  ['提携代理店C', '矢野 克臣', true,  ''],
+  ['提携代理店D', '甲野 一郎', true,  ''],
+  ['提携代理店D', '乙野 二郎', true,  ''],
+  ['存在しない代理店', '幽霊 太郎', true, '代理店マスタに無いので無視される']
 ];
 const AGENTS = [
   ['氏名', 'メールアドレス', '電話番号', '郵便番号', '住所1', '住所2', '所属代理店', 'ログイン用アドレス', '検証者', '有効'],
@@ -119,7 +119,9 @@ console.log('\n--- 列の組み立て ---');
   t('代理店はプルダウン',         byKey('agency').kind, 'list');
   t('代理店の選択肢はマスタから', byKey('agency').options,
     ['ヒトカチ株式会社', '提携代理店B', '提携代理店C', '提携代理店D']);
-  t('募集人の選択肢もマスタから', byKey('agent').options, ['佐々木 嶺', '髙橋 知史']);
+  // 募集人は行ごとに代理店で絞るので、列全体の選択肢は持たない。
+  t('募集人は列の選択肢を持たない', byKey('agent').options, []);
+  t('作成者は自社の募集人から',     byKey('author').options, ['佐々木 嶺', '髙橋 知史']);
   t('年齢は数値',                 byKey('age').kind, 'number');
   t('年収の見出しに単位が付く',    byKey('income').label, '年収（万円）');
   t('確認日は日付',               byKey('confirmDate').kind, 'date');
@@ -269,34 +271,54 @@ console.log('\n--- 検証：不正な数値を弾く ---');
     ctx.validate_(ctx.applyFieldConfig_(Object.assign({}, corp, { contractType: '個人' }), conf), conf).length > 0, true);
 }
 
-console.log('\n--- 連名の相手は代理店マスタから決まる ---');
+console.log('\n--- 募集人は代理店に連動し、提携先なら連名になる ---');
 {
   const ctx = makeContext();
   const conf = ctx.getFieldConfig_();
   const base = {
-    contractType: '個人', customerName: '山田 太郎', agency: '提携代理店B',
-    author: '佐々木 嶺', agent: '佐々木 嶺', confirmDate: '2026-08-01', productType: ['終身'],
+    author: '佐々木 嶺', contractType: '個人', customerName: '山田 太郎',
+    confirmDate: '2026-08-01', productType: ['終身'],
     age: 40, occupation: '会社員', income: 500, assets: 100,
     experience: ['株式'], premiumSource: ['預貯金・給与'], riskTolerance: ctx.RISK_YES
   };
-  const display = (over) => {
-    const d = ctx.applyFieldConfig_(Object.assign({}, base, over), conf);
-    return ctx.buildModel_(d, ctx.defaultAnswers_(d), ctx.getAgentByName_('佐々木 嶺'), d.agency)
-      .agentDisplay;
+  const rows = (agency, agent) => {
+    const d = ctx.applyFieldConfig_(Object.assign({}, base, { agency, agent }), conf);
+    return ctx.buildModel_(d, ctx.defaultAnswers_(d), ctx.getAgentByName_('佐々木 嶺'), agency);
   };
 
-  t('代表がいる代理店はその人と連名',   display({}), '佐々木 嶺 / 熊澤 善弘');
-  t('1人しかいなければその人と連名',    display({ agency: '提携代理店C' }), '佐々木 嶺 / 矢野 克臣');
-  // 誰と連名にすべきか決められないまま適当な1人を出すと、募集していない人の名前が載る。
-  t('2人いて代表が無ければ単独名義',    display({ agency: '提携代理店D' }), '佐々木 嶺');
-  t('登録がない代理店は単独名義',       display({ agency: 'ヒトカチ株式会社' }), '佐々木 嶺');
-  t('無効な人は代表にならない',
-    ctx.getAgencyByName_('提携代理店B').coAgent, '熊澤 善弘');
+  console.log('\n--- 自社の契約 ---');
+  const own = rows('ヒトカチ株式会社', '髙橋 知史');
+  t('取扱代理店は1行',   own.agencyRows.map(r => r.agency), ['ヒトカチ株式会社']);
+  t('取扱者は選んだ募集人', own.agencyRows.map(r => r.person), ['髙橋 知史']);
+  t('連名にはならない',   own.agentDisplay, '髙橋 知史');
 
-  t('代表が決まらない代理店を知らせる', ctx.agenciesWithoutRepresentative_(), ['提携代理店D']);
-  t('入力欄は無くなった',               ctx.FIELD_DEFS.filter(f => f.key === 'coAgent').length, 0);
-  t('一括入力シートにも列がない',       ctx.bulkColumns_().filter(c => c.key === 'coAgent').length, 0);
-  t('検証でも相方を求めない',           ctx.validate_(ctx.applyFieldConfig_(base, conf), conf), []);
+  console.log('\n--- 提携先の契約 ---');
+  const pair = rows('提携代理店B', '熊澤 善弘');
+  // 提携先が上。契約を取り次いだ側から書く。自社側は作成者。
+  t('取扱代理店は2行',
+    pair.agencyRows.map(r => r.agency), ['提携代理店B', 'ヒトカチ株式会社']);
+  t('取扱者も同じ並び',
+    pair.agencyRows.map(r => r.person), ['熊澤 善弘', '佐々木 嶺']);
+  t('意向把握は自社が先の連名', pair.agentDisplay, '佐々木 嶺 / 熊澤 善弘');
+  t('連絡先は自社のもの', pair.agent.name, '佐々木 嶺');
+
+  console.log('\n--- 代理店に登録されていない募集人は弾く ---');
+  const check = (agency, agent) =>
+    ctx.validate_(ctx.applyFieldConfig_(Object.assign({}, base, { agency, agent }), conf), conf);
+  t('自社の人を提携先の契約に入れると弾く',
+    check('提携代理店B', '髙橋 知史').some(e => e.indexOf('登録されていません') >= 0), true);
+  t('他社の人を自社の契約に入れると弾く',
+    check('ヒトカチ株式会社', '熊澤 善弘').some(e => e.indexOf('登録されていません') >= 0), true);
+  t('その代理店の人なら通る', check('提携代理店B', '小川 康之'), []);
+  t('自社の人も通る',         check('ヒトカチ株式会社', '佐々木 嶺'), []);
+
+  console.log('\n--- 一括入力シートの募集人 ---');
+  const cols = ctx.bulkColumns_();
+  const byKey = k => cols.filter(c => c.key === k)[0];
+  // 全代理店ぶんをまとめて出すと、100社×数十人で使いものにならない。
+  t('列全体の選択肢は持たない', byKey('agent').options, []);
+  t('作成者は自社の全員',       byKey('author').options, ['佐々木 嶺', '髙橋 知史']);
+  t('相方の列は無い',           cols.filter(c => c.key === 'coAgent').length, 0);
 }
 
 console.log('\n--- 検証実施者は作成者から入る ---');

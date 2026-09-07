@@ -146,23 +146,14 @@ function agencyKey_(name) {
 }
 
 /**
- * 代理店の一覧。
- *
- *   coAgents … 「代理店募集人マスタ」に登録された、その代理店側の募集人
- *   coAgent  … そのうち連名に使う1人（下記）
- *
- * ■ 連名の相手を選ばせない理由
- *
- * 代理店を選べば連名の相手は決まる、という運用にしている。入力欄を1つ減らすため。
- * 相手は「その代理店に1人しかいなければその人」、複数いるなら「代表」に印が
- * 付いている人。どちらでも決まらないときは連名にしない。誰と連名にするか
- * 決められないまま適当な1人を選ぶと、募集していない人の名前が帳票に載る。
+ * 代理店の一覧。coAgents は「代理店募集人マスタ」に登録された、その代理店の募集人。
+ * 入力画面の「募集人」の選択肢は、選んだ代理店に応じてここから作る
+ * （agentNamesForAgency_）。
  */
 function getAgencies_() {
   if (MASTER_CACHE_.agencies) return MASTER_CACHE_.agencies;
 
   var byAgency = {};
-  var repByAgency = {};
   readTableIfExists_(SHEET_CO_AGENTS).forEach(function (r) {
     if (!isTrue_(r['有効'])) return;
     var key = agencyKey_(r['代理店名']);
@@ -171,47 +162,46 @@ function getAgencies_() {
     if (!byAgency[key]) byAgency[key] = [];
     // 同じ人を二度書いても選択肢は1つ。
     if (byAgency[key].indexOf(person) < 0) byAgency[key].push(person);
-    // 代表が複数行に付いていたら、先に書いてあるほうを使う。
-    if (isTrue_(r['代表']) && !repByAgency[key]) repByAgency[key] = person;
   });
 
   MASTER_CACHE_.agencies = readTable_(SHEET_AGENCIES)
     .filter(function (r) { return isTrue_(r['有効']) && String(r['代理店名']).trim() !== ''; })
     .map(function (r) {
       var name = String(r['代理店名']).trim();
-      var key = agencyKey_(name);
-      var list = byAgency[key] || [];
       return {
         name: name,
         folderId: folderIdFromInput_(r['共有フォルダID']),
-        coAgents: list,
-        coAgent: repByAgency[key] || (list.length === 1 ? list[0] : '')
+        coAgents: byAgency[agencyKey_(name)] || []
       };
     });
   return MASTER_CACHE_.agencies;
 }
 
 /**
- * この代理店と連名にする募集人の氏名。決まらなければ空文字（単独名義）。
+ * その代理店で選べる募集人の氏名。
+ *
+ * 自社の代理店を選べば「募集人マスタ」の所属者、提携先を選べば
+ * 「代理店募集人マスタ」に登録されたその代理店の人が出る。どちらも同じ
+ * 引き方にしてあるので、自社かどうかをコードで判定する必要はない。
+ *
  * マスタが読めない場面（テストなど）でも落とさない。
  */
-function coAgentFor_(agencyName) {
+function agentNamesForAgency_(agencyName) {
+  var name = String(agencyName || '').trim();
+  if (name === '') return [];
   try {
-    var a = getAgencyByName_(String(agencyName || '').trim());
-    return (a && a.coAgent) || '';
+    var out = [];
+    getAgents_().forEach(function (a) {
+      if (a.agency === name && out.indexOf(a.name) < 0) out.push(a.name);
+    });
+    var ag = getAgencyByName_(name);
+    ((ag && ag.coAgents) || []).forEach(function (n) {
+      if (out.indexOf(n) < 0) out.push(n);
+    });
+    return out;
   } catch (e) {
-    return '';
+    return [];
   }
-}
-
-/**
- * 募集人が複数いるのに「代表」が決まっていない代理店。
- * この状態だと連名にならないまま帳票ができるので、setup() が知らせる。
- */
-function agenciesWithoutRepresentative_() {
-  return getAgencies_()
-    .filter(function (a) { return a.coAgents.length > 1 && !a.coAgent; })
-    .map(function (a) { return a.name; });
 }
 
 /**
