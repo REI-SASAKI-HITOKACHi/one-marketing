@@ -9,18 +9,27 @@
    * ブラウザで「ぎりぎり収まる」高さだと本番では溢れる。
    * A4 の本文域は約 1027px。1枚目を 850px 前後に収めて余裕を持たせている。
    * ここの数値を大きくするときは、必ず実際の PDF でページ数を確かめること。
+   *
+   * ■ 書き方の決めごと
+   *
+   * ・検証結果は確定した側だけを書く。「適 ・ 不適」を並べて片方を太字にすると、
+   *   印刷したときにどちらだったのか見分けが付かない。
+   * ・取扱代理店名と取扱者名は、提携先の代理店を選んだ契約なら提携先と自社の
+   *   2行になる（Render.gs の agencyRows_）。行の位置で対応するので、
+   *   両方とも同じ並びで出すこと。
+   * ・本文に HTML コメントを書かないこと。描画結果にそのまま残る。
    */
   body { font-family: "Noto Sans JP", "Yu Gothic", sans-serif; font-size: 9pt; line-height: 1.4; }
   .cls { font-size: 7.5pt; text-align: left; margin: 0; }
   h1 { font-size: 12.5pt; text-align: center; margin: 3pt 0 5pt; }
-  h2 { font-size: 10.5pt; margin: 9pt 0 3pt; }
+  h2 { font-size: 10.5pt; margin: 7pt 0 3pt; }
   p { margin: 2pt 0; }
-  .note { font-size: 8pt; line-height: 1.3; }
+  .note { font-size: 8pt; line-height: 1.25; }
   table { border-collapse: collapse; width: 100%; margin: 2pt 0; }
   td { border: 1px solid #000; padding: 2pt 4pt; vertical-align: middle; font-size: 9pt; }
   td.n { text-align: center; width: 20pt; }
   td.lbl { background-color: #f2f2f2; width: 68pt; }
-  td.opt { font-size: 8.5pt; line-height: 1.45; }
+  td.opt { font-size: 8.5pt; line-height: 1.35; }
   td.ans { text-align: center; width: 74pt; white-space: nowrap; }
   td.mid { text-align: center; }
   td.vert { text-align: center; width: 24pt; background-color: #f2f2f2; }
@@ -109,15 +118,16 @@
   <tr>
     <td class="lbl">（契約者が未成年の場合）親権者氏名</td><td><?= m.guardianName ?><?= m.guardianName ? '　様' : '' ?></td>
     <td class="lbl">検証結果</td>
-    <td class="mid"><? if (m.verifyResult === '適') { ?><b>適</b> ・ 不適<? } else if (m.verifyResult === '不適') { ?>適 ・ <b>不適</b><? } else { ?>適 ・ 不適<? } ?></td>
+    <td class="mid"><?= m.verifyResult || "\u3000" ?></td>
   </tr>
   <tr>
-    <td class="lbl">契約者からみた続柄</td><td><?= m.guardianRelation || "\u3000" ?></td>
-    <td class="lbl">取扱代理店名</td><td colspan="2"><?= m.agencyName ?></td>
+    <td class="lbl">契約者からみた続柄</td><td colspan="4"><?= m.guardianRelation || "\u3000" ?></td>
   </tr>
   <tr>
-    <td class="lbl">取扱者名</td><td><?= m.agentDisplay ?></td>
-    <td colspan="3"></td>
+    <td class="lbl">取扱代理店名</td>
+    <td colspan="2"><? for (var i = 0; i < m.agencyRows.length; i++) { ?><? if (i) { ?><br><? } ?><?= m.agencyRows[i].agency ?><? } ?></td>
+    <td class="lbl">取扱者名</td>
+    <td><? for (var i = 0; i < m.agencyRows.length; i++) { ?><? if (i) { ?><br><? } ?><?= m.agencyRows[i].person || "\u3000" ?><? } ?></td>
   </tr>
 </table>
 

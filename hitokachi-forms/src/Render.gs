@@ -116,6 +116,7 @@ function buildModel_(d, answers, agent, agencyName) {
     agent: agent,
     // 共同募集のときは連名。単独ならそのまま。
     agentDisplay: d.coAgent ? agent.name + ' / ' + d.coAgent : agent.name,
+    agencyRows: agencyRows_(d, agent, agencyName),
 
     customerName: d.customerName || '',
     guardianName: d.guardianName || '',
@@ -193,6 +194,30 @@ function buildModel_(d, answers, agent, agencyName) {
     wishOther:   d.wishOther   || '',
     changeLog:   normalizeChangeLog_(d.changeLog)
   };
+}
+
+/**
+ * 適合性確認シートの「取扱代理店名」と「取扱者名」に出す行。
+ *
+ * 提携先の代理店を選んだ契約は、その代理店と自社の2行で出す。自社しか書かないと
+ * 提携先が募集に関わった記録が残らず、提携先しか書かないと自社の記録が残らない。
+ * 取扱者名も同じ並びで返すので、どちらの代理店の誰かが行の位置で対応する。
+ *
+ * 自社の代理店名は募集人マスタの「所属代理店」から取る。コードには書かない。
+ *
+ * @return {Array} [{ agency, person }]
+ */
+function agencyRows_(d, agent, agencyName) {
+  var selected = String(agencyName == null ? '' : agencyName).trim();
+  var own = String((agent && agent.agency) || '').trim();
+  var rows = [];
+
+  // 提携先の行が先。契約を取り次いだ側から書く。
+  if (selected && own && selected !== own) {
+    rows.push({ agency: selected, person: d.coAgent || '' });
+  }
+  rows.push({ agency: own || selected, person: (agent && agent.name) || '' });
+  return rows;
 }
 
 /** 意向の変化欄。常に3行出して、入力がない行は空欄にする。 */
