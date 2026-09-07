@@ -479,9 +479,12 @@ console.log('\n--- 検証欄は固定値で印字する ---');
   t('固定値の日付があればそちら',
     c.applyFieldConfig_({ confirmDate: '2026-08-01' }, conf).verifyDate, '2026-08-05');
 
-  const hidden = makeContext({ __modes: { verifyDate: 'hidden' } });
-  t('使わないなら確認日も入れない',
-    hidden.applyFieldConfig_({ confirmDate: '2026-08-01' }, hidden.getFieldConfig_()).verifyDate, '');
+  // 項目設定シートに古い「使わない」が残っていても、検証欄は自動で入る。
+  // シートの設定だけで空欄になると、帳票を見るまで気づけない。
+  const stale = makeContext({ __modes: { verifyDate: 'hidden', verifyResult: 'hidden' } });
+  const staleOut = stale.applyFieldConfig_({ confirmDate: '2026-08-01' }, stale.getFieldConfig_());
+  t('古い設定が残っていても検証日は入る', staleOut.verifyDate, '2026-08-01');
+  t('検証結果も入る',                     staleOut.verifyResult, '適');
 }
 
 console.log('\n--- チェックボックスの表記ゆれ ---');

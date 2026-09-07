@@ -9,7 +9,7 @@
    * ブラウザで「ぎりぎり収まる」高さだと本番では溢れる。
    * ドキュメント側はブラウザの約 1.31 倍の高さで組む（実際の改ページ位置から実測）。
    * 余白 22pt のとき、ブラウザ換算で約 814px までが 1 ページに入る。
-   * 1 枚目は 640px 前後に収めてある（余裕 2 割）。ここを大きくするときは、
+   * 1 枚目は 730px 前後に収めてある（余裕 1 割）。ここを大きくするときは、
    * 必ず実際の PDF でページ数を確かめること。ブラウザで収まっていても当てにならない。
    *
    * 改ページは CSS ではなく、目印の段落（.pbm）を Render.gs の applyPageBreaks_ が
@@ -24,17 +24,17 @@
    *   両方とも同じ並びで出すこと。
    * ・本文に HTML コメントを書かないこと。描画結果にそのまま残る。
    */
-  body { font-family: "Noto Sans JP", "Yu Gothic", sans-serif; font-size: 8.5pt; line-height: 1.25; }
-  .cls { font-size: 7pt; text-align: left; margin: 0; }
-  h1 { font-size: 11.5pt; text-align: center; margin: 2pt 0 4pt; }
-  h2 { font-size: 9.5pt; margin: 4pt 0 2pt; }
-  p { margin: 1pt 0; font-size: 7pt; line-height: 1.2; }
-  .note { font-size: 7pt; line-height: 1.15; }
+  body { font-family: "Noto Sans JP", "Yu Gothic", sans-serif; font-size: 9pt; line-height: 1.25; }
+  .cls { font-size: 7.5pt; text-align: left; margin: 0; }
+  h1 { font-size: 12pt; text-align: center; margin: 3pt 0 5pt; }
+  h2 { font-size: 10pt; margin: 5pt 0 2pt; }
+  p { margin: 1pt 0; font-size: 7.5pt; line-height: 1.2; }
+  .note { font-size: 7.5pt; line-height: 1.2; }
   table { border-collapse: collapse; width: 100%; margin: 1pt 0; }
-  td { border: 1px solid #000; padding: 0.5pt 3pt; vertical-align: middle; font-size: 8.5pt; }
+  td { border: 1px solid #000; padding: 1pt 4pt; vertical-align: middle; font-size: 9pt; }
   td.n { text-align: center; width: 18pt; }
   td.lbl { background-color: #f2f2f2; width: 64pt; }
-  td.opt { font-size: 8pt; line-height: 1.2; }
+  td.opt { font-size: 8.5pt; line-height: 1.22; }
   td.ans { text-align: center; width: 70pt; white-space: nowrap; }
   td.mid { text-align: center; }
   td.vert { text-align: center; width: 22pt; background-color: #f2f2f2; }
@@ -42,7 +42,7 @@
   /* .pb はブラウザで下見するとき用。本番の改ページは .pbm の目印で打つ。 */
   .pb { page-break-before: always; }
   .pbm { font-size: 1pt; margin: 0; color: #ffffff; }
-  .foot { font-size: 7pt; margin-top: 4pt; }
+  .foot { font-size: 7.5pt; margin-top: 6pt; }
 </style></head>
 <body>
 

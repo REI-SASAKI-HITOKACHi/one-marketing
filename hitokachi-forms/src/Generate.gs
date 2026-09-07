@@ -188,15 +188,28 @@ function applyFieldConfig_(data, fieldConfig) {
       out[f.key] = (v === undefined || v === null) ? (isList ? [] : '') : v;
     }
   });
+  // ---- 検証欄 ----
+  // 入力欄を出さず自動で決める。項目設定シートに古い設定（「使わない」）が
+  // 残っていても効くように、「入力する」以外はすべて自動扱いにする。
+  // シートの設定だけで空欄になると、帳票を見るまで気づけない。
+  var manual = function (key) {
+    return fieldConfig[key] && fieldConfig[key].mode === 'form';
+  };
+
   // 検証実施者は作成者から決める（verifierFor_ の説明を参照）。
   // 決まらないときだけ、項目設定の固定値をそのまま使う。
   var verifier = verifierFor_(out.author);
   if (verifier) out.verifierName = verifier;
 
-  // 検証日は固定値を空欄にしておけば確認日と同じ日にする。
-  // 検証は募集と同じ日に行う運用なので、日付を毎回書き換えずに済ませるため。
-  if (fieldConfig.verifyDate && fieldConfig.verifyDate.mode === 'fixed' && !out.verifyDate) {
-    out.verifyDate = out.confirmDate;
+  // 検証日は確認日と同じ日。固定値に日付を入れてあればそちら。
+  if (!manual('verifyDate') && !out.verifyDate) {
+    out.verifyDate = coerceFixed_(fieldByKey_('verifyDate'), fieldConfig.verifyDate.fixedValue)
+      || out.confirmDate;
+  }
+
+  // 検証結果は固定値（空欄なら既定の「適」）。
+  if (!manual('verifyResult') && !out.verifyResult) {
+    out.verifyResult = coerceFixed_(fieldByKey_('verifyResult'), fieldConfig.verifyResult.fixedValue);
   }
 
   // 保険種類から「ご意向」を補うのは、hidden の項目を空にしたあと。

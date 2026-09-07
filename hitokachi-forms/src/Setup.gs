@@ -317,9 +317,14 @@ function ensureFieldsSheet_(ss) {
     });
   }
 
+  // 検証欄は自動で決めるようになった。古いシートの「使わない」が残っていると
+  // 実際の動きと表示が食い違うので、固定値扱いに直す。
+  var AUTO_KEYS = ['verifyDate', 'verifierName', 'verifyResult'];
+
   var rows = FIELD_DEFS.map(function (f) {
     var prev = existing[f.key];
     var mode = (prev && prev.mode) ? prev.mode : (f.defaultMode || 'form');
+    if (AUTO_KEYS.indexOf(f.key) >= 0 && mode === 'hidden') mode = 'fixed';
     var options = f.options ? f.options.join(' / ')
       : (f.type === 'needs'
           ? NEEDS.map(function (n) { return n.label; }).join(' / ')
