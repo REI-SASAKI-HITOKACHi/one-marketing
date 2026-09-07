@@ -405,7 +405,9 @@ console.log('\n--- 保険種類からご意向を自動で入れる ---');
   const auto = (s) => ctx.autoIntentFor_(s);
   t('医療 → 病気・ケガ・介護', auto('医療保険').needs, ['medical']);
   t('医療は貯蓄なし',          auto('医療保険').savings, ctx.SAVINGS_NO);
-  t('変額終身 → 死亡＋老後',   auto('変額終身保険').needs, ['death', 'pension']);
+  // 変額保険は死亡保障を伴う商品。老後資金だけだと意向が実態と食い違う。
+  t('変額 → 死亡＋老後',       auto('変額保険').needs, ['death', 'pension']);
+  t('変額終身も同じ',           auto('変額終身保険').needs, ['death', 'pension']);
   t('変額終身は貯蓄あり',      auto('変額終身保険').savings, ctx.SAVINGS_YES);
   t('定期は貯蓄なし',          auto('定期保険').savings, ctx.SAVINGS_NO);
   t('医療＋終身は貯蓄ありに倒す', auto(['医療', '終身']).savings, ctx.SAVINGS_YES);

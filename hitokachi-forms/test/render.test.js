@@ -162,6 +162,46 @@ console.log('\n--- 取扱代理店名は提携先と自社の2行 ---');
   t('単独なら募集人ひとり', i.includes('佐々木 嶺') && !i.includes(' / '));
 }
 
+console.log('\n--- 改ページは目印を本物の改ページに差し替えて打つ ---');
+{
+  // CSS の page-break-before は Google ドキュメントへの変換で無視される。
+  // テンプレートの目印が消えないと、帳票に PAGEBREAKHERE がそのまま出る。
+  t('別紙の前に目印がある', s.includes('PAGEBREAKHERE'));
+
+  // ドキュメント側の最小の代役。段落の並びと改ページの差し込みだけを見る。
+  const para = (text) => ({
+    text, type: 'PARAGRAPH', parent: null,
+    getType() { return 'PARAGRAPH'; }, getParent() { return this.parent; }
+  });
+  const body = {
+    kids: [para('社外秘'), para('PAGEBREAKHERE'), para('【別紙】')],
+    getChildIndex(el) { return this.kids.indexOf(el); },
+    insertPageBreak(i) { this.kids.splice(i, 0, { type: 'PAGE_BREAK', getType: () => 'PAGE_BREAK' }); },
+    removeChild(el) { this.kids.splice(this.kids.indexOf(el), 1); },
+    findText(pattern) {
+      for (const k of this.kids) {
+        if (k.text && k.text.indexOf(pattern) >= 0) return { getElement: () => k };
+      }
+      return null;
+    }
+  };
+  body.kids.forEach(k => { k.parent = { getType: () => 'BODY_SECTION' }; });
+  ctx.DocumentApp = { ElementType: { PARAGRAPH: 'PARAGRAPH', BODY_SECTION: 'BODY_SECTION' } };
+
+  ctx.applyPageBreaks_(body);
+  t('目印が改ページに変わった',
+    body.kids.map(k => k.type).join(',') === 'PARAGRAPH,PAGE_BREAK,PARAGRAPH');
+  t('目印の文字は残らない', !body.kids.some(k => k.text === 'PAGEBREAKHERE'));
+
+  // 目印が無い帳票（意向把握シート）でも落ちない。
+  const plain = Object.assign({}, body, { kids: [para('一枚だけ')] });
+  plain.kids[0].parent = { getType: () => 'BODY_SECTION' };
+  let threw = false;
+  try { ctx.applyPageBreaks_(plain); } catch (e) { threw = true; }
+  t('目印が無くても落ちない', !threw && plain.kids.length === 1);
+  t('意向把握シートに目印は無い', !i.includes('PAGEBREAKHERE'));
+}
+
 if (process.argv.includes('--write')) {
   fs.mkdirSync(OUT, { recursive: true });
   for (const [file, html] of Object.entries(rendered)) {

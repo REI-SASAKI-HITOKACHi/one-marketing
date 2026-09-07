@@ -213,8 +213,17 @@ function autoEstimatedIntent_() {
   }
 }
 
-/** 設定シートの固定値（文字列）を、項目の型に合わせて解釈する。 */
+/**
+ * 設定シートの固定値（文字列）を、項目の型に合わせて解釈する。
+ *
+ * 固定値が空欄なら項目の既定値を使う。設定シートに値を入れ忘れると帳票の
+ * その欄が空白で出るので（検証結果がこれだった）、コード側で補う。
+ * 印字したくない項目は、扱いを「使わない」にする。
+ */
 function coerceFixed_(field, raw) {
+  if (raw == null || raw === '') {
+    raw = (field.defaultValue == null ? '' : field.defaultValue);
+  }
   if (field.type === 'multi' || field.type === 'needs') {
     return String(raw == null ? '' : raw).split(/[,、\n]/)
       .map(function (s) { return s.trim(); })

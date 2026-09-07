@@ -52,6 +52,40 @@ function formatSlashDate_(v) {
   return Utilities.formatDate(d, 'Asia/Tokyo', 'yyyy/MM/dd');
 }
 
+/**
+ * 改ページの目印。
+ *
+ * CSS の page-break-before は Google ドキュメントへの変換で無視される。
+ * テンプレートにこの文字列だけの段落を置いておき、変換後に本物の改ページへ
+ * 差し替える（applyPageBreaks_）。正規表現の特殊文字を含めないこと。
+ * findText はパターンとして解釈する。
+ */
+var PAGE_BREAK_MARKER = 'PAGEBREAKHERE';
+
+/**
+ * 目印の段落を本物の改ページに差し替える。
+ * 差し替えられなかったときは目印がそのまま帳票に出るので、気づける。
+ */
+function applyPageBreaks_(body) {
+  // 目印は多くて数個。無限ループを避けるため上限を置く。
+  for (var i = 0; i < 20; i++) {
+    var found = body.findText(PAGE_BREAK_MARKER);
+    if (!found) return;
+
+    var para = found.getElement();
+    while (para && para.getType() !== DocumentApp.ElementType.PARAGRAPH) {
+      para = para.getParent();
+    }
+    // 段落が本文の直下にないと差し込む位置を決められない（表の中など）。
+    if (!para || !para.getParent()
+        || para.getParent().getType() !== DocumentApp.ElementType.BODY_SECTION) {
+      return;
+    }
+    body.insertPageBreak(body.getChildIndex(para));
+    body.removeChild(para);
+  }
+}
+
 function chk_(on) { return on ? '■' : '□'; }
 function box_(on) { return on ? '☑' : '☐'; }
 
@@ -78,6 +112,7 @@ function htmlToPdfBlob_(html, name, parentFolderId) {
     body.setPageWidth(A4_WIDTH_PT).setPageHeight(A4_HEIGHT_PT);
     body.setMarginTop(MARGIN_PT).setMarginBottom(MARGIN_PT)
         .setMarginLeft(MARGIN_PT).setMarginRight(MARGIN_PT);
+    applyPageBreaks_(body);
     doc.saveAndClose();
 
     var pdf = DriveApp.getFileById(docId).getAs('application/pdf');

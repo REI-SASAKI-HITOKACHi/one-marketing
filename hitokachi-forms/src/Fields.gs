@@ -62,7 +62,8 @@ var SUIT_NEEDS = [
  * 「適合性確認シートが必要な保険種類」で決める（判断の置き場所を 1 つにするため）。
  */
 var PRODUCT_TYPES = [
-  { key: '変額', keywords: ['変額'],             needs: ['pension'], savings: SAVINGS_YES },
+  // 変額保険は死亡保障を伴う商品なので、死亡保障も立てる。
+  { key: '変額', keywords: ['変額'], needs: ['death', 'pension'], savings: SAVINGS_YES },
   { key: '終身', keywords: ['終身'],             needs: ['death'],   savings: SAVINGS_YES },
   { key: '定期', keywords: ['定期', '収入保障'], needs: ['death'],   savings: SAVINGS_NO  },
   { key: '医療', keywords: ['医療'],             needs: ['medical'], savings: SAVINGS_NO  },

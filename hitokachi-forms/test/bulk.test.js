@@ -336,7 +336,8 @@ console.log('\n--- 検証実施者は作成者から入る ---');
   t('佐々木が作成 → 髙橋',   made('佐々木 嶺').verifierName, '髙橋 知史');
   t('髙橋が作成 → 佐々木',   made('髙橋 知史').verifierName, '佐々木 嶺');
   t('検証日は確認日と同じ',  made('佐々木 嶺').verifyDate, '2026-08-01');
-  t('検証結果は固定値',      made('佐々木 嶺').verifyResult, '');
+  // 固定値が空欄でも、項目の既定値で補う（設定シートの入れ忘れで空白にしない）。
+  t('検証結果は既定値で埋まる', made('佐々木 嶺').verifyResult, '適');
 
   t('作成者は入力欄がある',   ctx.FIELD_DEFS[0].key, 'author');
   t('作成者は必須',           !!ctx.FIELD_DEFS[0].required, true);
