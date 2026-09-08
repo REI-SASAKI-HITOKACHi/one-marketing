@@ -845,6 +845,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     <p class="foot-links"><a href="https://one-hitter.jp/privacy_policy/" target="_blank" rel="noopener">個人情報の取扱いについて</a>　<a href="https://one-hitter.jp/" target="_blank" rel="noopener">公式サイト</a></p>
     <p class="fine">
       表示価格はすべて税込です。5〜7月・12月は各料金に3,300円が加算されます。<br>
+      2台以上のご注文には、ページからのお申し込み特典として2,200円（税込）を差し引きます（1台のみのご注文は対象外です）。<br>
       駐車スペースをご用意いただけない場合は、コインパーキング等の駐車場代を実費でご請求します。<br>
       「98.6%が勧めたい」は自社実施のご利用者アンケートに基づく結果です（実施期間：2023年1月〜2025年12月／回答209名中206名）。<br>
       効果には個人差があります。設備の状態によっては施工をお受けできない場合があります。
@@ -884,6 +885,13 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
       total += v * qty;
       lines.push(o.dataset.nm + ' ' + fmt(v) + ' × ' + qty + '台');
     });
+
+    // エアコンにはセット価格が無いので、2台以上のときだけ
+    // ページからのお申し込み特典を引く。1台のみは対象外（2026-09-08 オーナー決定）
+    if (qty >= 2){
+      total -= 2200;
+      lines.push('ネット申込特典 −' + fmt(2200));
+    }
 
     totalEl.textContent = fmt(total);
     bdEl.innerHTML = lines.join('<br>') + (qty >= 4 ? '<br><b>※4台以上は個別にお見積りします</b>' : '');

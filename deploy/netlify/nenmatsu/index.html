@@ -493,7 +493,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
           <span class="save">6,600円 の差</span>
         </div>
         <div class="big"><span class="num">33,660</span><span class="unit">円</span><span class="unit" style="font-size:13px">／11月30日まで</span></div>
-        <div class="note">レンジフードクリーニング 18,480円 ＋ 浴室クリーニング 15,180円（2箇所目の同時施工価格・税込）<br>12月以降は繁忙期料金として1箇所につき3,300円が加算されます。</div>
+        <div class="note">レンジフードクリーニング 18,480円 ＋ 浴室クリーニング 15,180円（セット価格・税込）<br>12月以降は繁忙期料金として1箇所につき3,300円が加算されます。</div>
       </div>
     </div>
 
@@ -708,7 +708,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     <div class="sec-h">
       <span class="eyebrow">Builder</span>
       <h2>気になる場所を選ぶと、<br>金額が出ます</h2>
-      <p>2箇所目からは自動的に同時施工価格になります。この金額以上の請求は発生しません。</p>
+      <p>2箇所以上のご依頼で、セット価格が設定されている箇所にはセット価格を適用します。この金額以上の請求は発生しません。</p>
     </div>
 
     <div class="builder">
@@ -981,7 +981,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     </div>
     <details open>
       <summary>2箇所以上頼むと、なぜ安くなるのですか？</summary>
-      <p>同じお宅に一度お伺いすれば、移動と機材の準備が1回で済むためです。その分を同時施工価格としてお返ししています。</p>
+      <p>同じお宅に一度お伺いすれば、移動と機材の準備が1回で済むためです。その分をセット価格としてお返ししています。</p>
     </details>
     <details>
       <summary>全部やると、どのくらい時間がかかりますか？</summary>
@@ -1088,7 +1088,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     <p class="fine">
       表示価格はすべて税込です。5〜7月・12月は各料金に3,300円が加算されます。<br>
       駐車スペースをご用意いただけない場合は、コインパーキング等の駐車場代を実費でご請求します。<br>
-      同時施工価格は、2箇所目以降にご依頼いただいた場合に適用されます。<br>
+      セット価格は、2箇所以上のご依頼で、セット価格が設定されている箇所に適用されます。セット価格の設定がない箇所（洗濯機・トイレ）は単品価格です。コンロはキッチンと同時のときにセット価格となります。いずれのセット価格も付かない組み合わせでは、ページからのお申し込み特典として2,200円（税込）を差し引きます（2箇所以上のご依頼が対象）。<br>
       「98.6%が勧めたい」は自社実施のご利用者アンケートに基づく結果です（実施期間：2023年1月〜2025年12月／回答209名中206名）。<br>
       汚れの状態により、落としきれない場合があります。設備の状態によっては施工をお受けできない場合があります。
     </p>
@@ -1119,34 +1119,55 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
 
     // The most expensive item is charged at its standalone price;
     // every additional item takes the simultaneous-service price.
+    // どの箇所を単品のまま残すか。
+    // 「いちばん高い箇所」を単品にしていたが誤りだった。トイレ＋浴室のように
+    // セット価格を持たない箇所が混ざると、高いほうの浴室が単品側に回り、
+    // 残ったトイレにはセット価格が無いので割引が1円も出ていなかった。
+    // 正しくは「割引額（単品−セット）がいちばん小さい箇所」を単品に残す。
+    // 出典：パンフレット印字p10・p11／data/prices.json
+    var kitchen = chosen.some(function(p){ return p.dataset.nm === 'キッチンクリーニング'; });
+
+    // コンロのセット価格は、原則キッチンと同時のときだけ（パンフレット印字p10・p11）
+    function setKakaku(p){
+      var s = parseInt(p.dataset.single,10), t = parseInt(p.dataset.set,10);
+      return (p.dataset.nm === 'コンロクリーニング' && !kitchen) ? s : t;
+    }
+
     var order = chosen.slice().sort(function(a,b){
-      return parseInt(b.dataset.single,10) - parseInt(a.dataset.single,10);
+      return (parseInt(a.dataset.single,10) - setKakaku(a))
+           - (parseInt(b.dataset.single,10) - setKakaku(b));
     });
 
     var single = 0, total = 0, names = [];
+    chosen.forEach(function(p){ single += parseInt(p.dataset.single,10); names.push(p.dataset.nm); });
     order.forEach(function(p, i){
-      var s = parseInt(p.dataset.single,10);
-      var t = parseInt(p.dataset.set,10);
-      single += s;
-      total  += (i === 0) ? s : t;
-      names.push(p.dataset.nm);
+      total += (i === 0) ? parseInt(p.dataset.single,10) : setKakaku(p);
     });
+
+    // どの箇所にもセット価格が付かない組み合わせ（洗濯機＋トイレ など）は、
+    // 2箇所以上のときだけページからのお申し込み特典を引く。
+    // 1箇所だけのご注文は対象外（2026-09-08 オーナー決定）
+    var netto = (chosen.length >= 2 && single - total === 0) ? 2200 : 0;
+    total -= netto;
 
     picks.forEach(function(p){
       var cell = p.parentNode.querySelector('[data-role=pr]');
       var s = parseInt(p.dataset.single,10);
-      var t = parseInt(p.dataset.set,10);
-      var isFirst = order.length && order[0] === p;
-      if (p.checked && !isFirst && t < s){
-        cell.innerHTML = '<span class="set">' + fmt(t) + '</span><em>同時施工価格</em>';
+      var t = setKakaku(p);
+      var isTanpin = order.length && order[0] === p;
+      if (p.checked && !isTanpin && t < s){
+        cell.innerHTML = '<span class="set">' + fmt(t) + '</span><em>セット価格</em>';
       } else {
-        cell.innerHTML = fmt(s) + '<em>' + p.dataset.dur + '</em>';
+        // 所要時間は行の左側に既に出ている。ここは「セット価格」との対比だけを示す
+        cell.innerHTML = fmt(s) + '<em>単品価格</em>';
       }
     });
 
     var saved = single - total;
     singleEl.textContent = fmt(single);
-    savedEl.textContent  = saved > 0 ? '−' + fmt(saved) : '0円';
+    savedEl.textContent  = saved > 0
+      ? '−' + fmt(saved) + (netto ? '（ネット申込特典）' : '')
+      : '0円';
     totalEl.textContent  = fmt(total);
     menuField.value = names.length ? names.join('、') : '（未選択）';
 
@@ -1156,7 +1177,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
       totalEl.textContent  = '—';
       hintEl.textContent = '気になる場所をひとつ以上お選びください。';
     } else if (chosen.length === 1){
-      hintEl.textContent = 'もう1箇所追加すると、2箇所目から同時施工価格が適用されます。';
+      hintEl.textContent = 'もう1箇所追加すると、セット価格が付く箇所にセット価格が適用されます。';
     } else {
       hintEl.textContent = '所要時間の目安は約' + (chosen.length <= 2 ? '半日' : '1日') +
         '。5〜7月・12月は各箇所に3,300円が加算されます。';
