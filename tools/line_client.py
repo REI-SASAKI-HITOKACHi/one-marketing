@@ -20,6 +20,11 @@ LINE Messaging API クライアント（内部用グループへの送信）
   python3 tools/line_client.py push --file message.txt
   python3 tools/line_client.py push --to Cxxxxxxxx "本文"
   python3 tools/line_client.py quota
+  python3 tools/line_client.py image <画像の公開URL> --text "添える一言"
+
+※ 画像はLINE側が実体を取りに来るので、httpsの公開URLが必要（10MBまで）。
+  送信前にURLを実際に叩いて、画像として取得できるかを確かめている。
+  ここを省くとLINE側で無言で失敗して届かない。
 """
 
 import argparse
@@ -124,6 +129,44 @@ def op_quota(a):
     print("今月の送信数:", used.get("totalUsage"))
 
 
+def op_image(a):
+    """画像を送る。LINEは画像の実体を取りに来るので、公開URLが要る。"""
+    to = a.to or group_id()
+    prev = a.preview or a.url
+    for u in (a.url, prev):
+        if not u.startswith("https://"):
+            sys.exit(f"画像URLはhttpsである必要があります: {u}")
+
+    # 送る前に、そのURLが本当に画像として取得できるか確かめる。
+    # ここを省くと、LINE側で無言で失敗して届かない。
+    for name, u in (("originalContentUrl", a.url), ("previewImageUrl", prev)):
+        req = urllib.request.Request(u, method="GET",
+                                     headers={"User-Agent": "one-hitter-line-check"})
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                ctype = r.headers.get("Content-Type", "")
+                size = len(r.read(1024 * 1024 * 11))
+        except Exception as e:
+            sys.exit(f"{name} を取得できません: {u} ({e})")
+        if not ctype.lower().startswith("image/"):
+            sys.exit(f"{name} が画像ではありません: {u} content-type={ctype}")
+        if size > 10 * 1024 * 1024:
+            sys.exit(f"{name} が10MBを超えています: {u}")
+        print(f"  確認 {name}: {ctype} / {size} bytes")
+
+    msgs = []
+    if a.text:
+        msgs.append({"type": "text", "text": a.text})
+    msgs.append({"type": "image", "originalContentUrl": a.url, "previewImageUrl": prev})
+
+    if a.dry_run:
+        print(f"[確認のみ・送信しません] 宛先 {to}")
+        print(json.dumps(msgs, ensure_ascii=False, indent=1))
+        return
+    call("/message/push", "POST", {"to": to, "messages": msgs})
+    print(f"送信しました。宛先 {to} ／ 画像 {a.url}")
+
+
 def op_push(a):
     if a.file:
         with open(a.file, encoding="utf-8") as f:
@@ -166,8 +209,15 @@ def main():
     sp.add_argument("--to", help="送信先。省略するとグループID")
     sp.add_argument("--dry-run", action="store_true", help="送らずに内容だけ表示する")
 
+    si = sub.add_parser("image", help="画像を送る（公開URLが必要）")
+    si.add_argument("url", help="画像の公開URL（https・10MBまで）")
+    si.add_argument("--preview", help="サムネイルのURL。省略すると本体と同じ")
+    si.add_argument("--text", help="画像の前に添えるテキスト")
+    si.add_argument("--to", help="送信先。省略するとグループID")
+    si.add_argument("--dry-run", action="store_true", help="送らずに内容だけ表示する")
+
     a = p.parse_args()
-    {"whoami": op_whoami, "quota": op_quota, "push": op_push}[a.cmd](a)
+    {"whoami": op_whoami, "quota": op_quota, "push": op_push, "image": op_image}[a.cmd](a)
 
 
 if __name__ == "__main__":
