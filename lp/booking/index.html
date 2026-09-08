@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ご予約｜ONE HITTER ワンヒッター株式会社</title>
+<meta name="description" content="ワンヒッター株式会社のご予約ページです。空いている日時をその場で選べます。">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0E7C93">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=Shippori+Mincho+B1:wght@600&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
+
+<style>
+/* デザイントークンは lp/nenmatsu/index.html と共通。トーン&マナーを揃えるため丸ごと持ってきています。 */
+:root{
+  --ground:#FAF7F2;
+  --surface:#FFFFFF;
+  --surface-2:#F2EFE9;
+  --ink:#14323D;
+  --ink-soft:#40606C;
+  --muted:#566B73;
+  --line:#E2DDD4;
+  --line-strong:#C8C0B4;
+  --accent:#0E7C93;
+  --accent-deep:#0A5C6E;
+  --accent-soft:#DDEEF1;
+  --cta:#C4461D;
+  --cta-deep:#A83714;
+  --cta-fg:#FFFFFF;
+  --cta-shadow:#8C3212;
+  --cta-text:#A83714;
+  --marker:linear-gradient(transparent 58%,#FFE566 58%);
+  --on-accent:#FFFFFF;
+  --invert:#0F2A38;
+  --invert-ink:#C9D9DE;
+  --invert-line:#1F3C48;
+  --ok:#1E7A5A;
+  --gold:#9A7420;
+  --gold-soft:#F5EEDC;
+  --star:#E0A32A;
+  --shadow:0 2px 10px rgba(20,40,50,.10);
+  --shadow-lift:4px 4px 16px rgba(20,40,50,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C171C;
+    --surface:#12222A;
+    --surface-2:#183039;
+    --ink:#E6EFF1;
+    --ink-soft:#BCCFD5;
+    --muted:#8CA3AB;
+    --line:#223942;
+    --line-strong:#39555F;
+    --accent:#4EC0D4;
+    --accent-deep:#8BDCEA;
+    --accent-soft:#0F3541;
+    --cta:#F0764B;
+    --cta-deep:#D9552A;
+    --cta-fg:#0C171C;
+    --cta-shadow:#A8481F;
+    --cta-text:#E27E5E;
+    --marker:linear-gradient(transparent 58%,#C9A020 58%);
+    --on-accent:#08222A;
+    --invert:#08151A;
+    --invert-ink:#B9CBD1;
+    --invert-line:#1B2E36;
+    --ok:#4FBF95;
+    --gold:#DCB55E;
+    --gold-soft:#2A2413;
+    --star:#F0C25A;
+    --shadow:0 2px 10px rgba(0,0,0,.45);
+    --shadow-lift:4px 4px 16px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C171C;
+  --surface:#12222A;
+  --surface-2:#183039;
+  --ink:#E6EFF1;
+  --ink-soft:#BCCFD5;
+  --muted:#8CA3AB;
+  --line:#223942;
+  --line-strong:#39555F;
+  --accent:#4EC0D4;
+  --accent-deep:#8BDCEA;
+  --accent-soft:#0F3541;
+  --cta:#F0764B;
+  --cta-deep:#D9552A;
+  --cta-fg:#0C171C;
+  --cta-shadow:#A8481F;
+  --cta-text:#E27E5E;
+  --marker:linear-gradient(transparent 58%,#C9A020 58%);
+  --on-accent:#08222A;
+  --invert:#08151A;
+  --invert-ink:#B9CBD1;
+  --invert-line:#1B2E36;
+  --ok:#4FBF95;
+  --gold:#DCB55E;
+  --gold-soft:#2A2413;
+  --star:#F0C25A;
+  --shadow:0 2px 10px rgba(0,0,0,.45);
+  --shadow-lift:4px 4px 16px rgba(0,0,0,.4);
+}
+
+*{box-sizing:border-box;}
+[hidden]{display:none !important;}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:16px;line-height:1.8;-webkit-font-smoothing:antialiased;padding-bottom:40px;
+}
+h1,h2{margin:0;line-height:1.3;letter-spacing:.01em;text-wrap:balance;font-weight:900;}
+h3{margin:0;line-height:1.45;text-wrap:balance;font-weight:900;}
+p{margin:0;}
+a{color:var(--accent-deep);}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+.wrap{max-width:620px;margin:0 auto;padding:0 18px;}
+.eyebrow{font-family:"Barlow",sans-serif;font-weight:600;font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);}
+.num{font-family:"Barlow",sans-serif;font-variant-numeric:tabular-nums;font-weight:700;}
+
+/* 自動投稿よけ。人間には見せない */
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+
+/* ヘッダー */
+.bar{background:var(--surface);border-bottom:1px solid var(--line);}
+.bar-in{max-width:620px;margin:0 auto;padding:9px 18px;display:flex;align-items:center;gap:14px;}
+.logo{display:flex;flex-direction:column;line-height:1.15;}
+.logo b{font-family:"Barlow",sans-serif;font-weight:700;letter-spacing:.08em;font-size:16px;}
+.logo small{font-size:9.5px;color:var(--muted);}
+.bar .tel{margin-left:auto;display:flex;flex-direction:column;line-height:1.2;text-align:right;text-decoration:none;color:inherit;}
+.bar .tel .n{font-family:"Barlow",sans-serif;font-weight:700;font-size:16px;}
+.bar .tel small{font-size:9.5px;color:var(--muted);}
+
+/* 導入 */
+.intro{padding:26px 0 16px;display:flex;flex-direction:column;gap:10px;}
+.intro h1{font-size:clamp(21px,5.4vw,28px);}
+.intro .lead{font-size:14px;color:var(--ink-soft);}
+.ctx{display:flex;flex-wrap:wrap;gap:6px;}
+.ctx span{font-size:11.5px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line);
+  padding:2px 10px;border-radius:99px;}
+
+/* 進捗 */
+.progress{position:sticky;top:0;z-index:20;background:var(--ground);padding:8px 0 10px;}
+.progress .track{display:block;height:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:99px;overflow:hidden;}
+.progress .fill{display:block;height:100%;width:25%;background:var(--accent);transition:width .25s ease;}
+.progress .lab{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:5px;}
+
+/* フォーム */
+.survey-form{display:flex;flex-direction:column;gap:14px;}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 18px;
+  display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);}
+.q > .head{display:flex;flex-direction:column;gap:4px;}
+.q h2{font-size:16.5px;line-height:1.55;}
+.q .why{font-size:12px;color:var(--muted);line-height:1.7;}
+.tag-req,.tag-opt{font-family:"Barlow",sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.1em;
+  padding:2px 8px;border-radius:99px;align-self:flex-start;}
+.tag-req{background:var(--cta);color:var(--cta-fg);}
+.tag-opt{background:var(--surface-2);color:var(--muted);border:1px solid var(--line);}
+
+/* 選択肢 */
+.opts{display:flex;flex-direction:column;gap:8px;}
+.opts.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+@media(max-width:400px){.opts.grid{grid-template-columns:1fr;}}
+.opt{position:relative;}
+.opt input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer;}
+.opt .box{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;min-height:48px;
+  border:1.5px solid var(--line-strong);border-radius:10px;padding:9px 13px;background:var(--surface);
+  font-size:14.5px;font-weight:700;transition:.12s;}
+.opt .mark{width:20px;height:20px;border-radius:50%;border:2px solid var(--line-strong);
+  display:grid;place-items:center;font-size:12px;color:transparent;}
+.opt.check .mark{border-radius:5px;}
+.opt input:checked + .box{border-color:var(--accent);background:var(--accent-soft);}
+.opt input:checked + .box .mark{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+.opt input:focus-visible + .box{outline:3px solid var(--accent);outline-offset:2px;}
+.opt .sub{grid-column:2;font-size:11px;font-weight:500;color:var(--muted);line-height:1.5;}
+.opt.done .box{opacity:.82;}
+.opts-note{font-size:11.5px;color:var(--muted);line-height:1.7;}
+
+/* 入力欄 */
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:13px;font-weight:700;}
+.field input,.field textarea{padding:12px 14px;border:1.5px solid var(--line-strong);border-radius:8px;
+  font-family:inherit;font-size:16px;background:var(--surface);color:var(--ink);width:100%;line-height:1.7;}
+.field textarea{min-height:76px;resize:vertical;}
+.field .hint{font-size:11.5px;color:var(--muted);line-height:1.6;}
+
+/* ボタン */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:8px;font-weight:700;
+  text-decoration:none;border:0;cursor:pointer;font-family:inherit;font-size:15px;padding:13px 18px;line-height:1.4;
+  background:var(--cta);color:var(--cta-fg);transition:background .15s ease,transform .15s ease;}
+.btn:hover{background:var(--cta-deep);}
+.btn:active{transform:translateY(1px);}
+.btn.lg{font-size:17px;padding:16px 20px;width:100%;min-height:58px;border-radius:9999px;letter-spacing:.03em;
+  box-shadow:0 4px 0 0 var(--cta-shadow);}
+.btn.lg:active{box-shadow:0 1px 0 0 var(--cta-shadow);transform:translateY(3px);}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong);}
+.btn.ghost:hover{background:var(--surface-2);}
+.btn.line{background:#06C755;color:#fff;}
+.btn.line:hover{background:#05A445;}
+.btn.tel{background:var(--accent);color:var(--on-accent);}
+.btn.tel:hover{background:var(--accent-deep);}
+.btn.sm{font-size:13.5px;padding:10px 14px;}
+.nav{display:flex;gap:10px;align-items:center;padding:2px 0 8px;}
+.nav .btn{flex:1 1 0;}
+.nav .btn.ghost{flex:0 0 auto;min-width:92px;}
+.err{font-size:13px;font-weight:700;color:var(--cta-text);min-height:1.2em;}
+
+/* 「今すぐ相談したい」「紹介したい」などの分岐ボックス */
+.branch{background:var(--accent-soft);border:1.5px solid var(--accent);border-radius:10px;padding:14px 15px;
+  display:flex;flex-direction:column;gap:10px;}
+.branch b{font-size:14px;color:var(--accent-deep);}
+.branch p{font-size:12.5px;color:var(--ink-soft);line-height:1.75;}
+.branch .row{display:flex;gap:8px;flex-wrap:wrap;}
+.branch .row .btn{flex:1 1 140px;}
+
+/* 完了画面 */
+.done{display:flex;flex-direction:column;gap:14px;}
+.done h2,.done h3,.done .thanks strong{word-break:auto-phrase;}
+.done .thanks{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:24px 20px;
+  display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);}
+.done .thanks h2{font-size:20px;}
+.done .thanks p{font-size:13.5px;color:var(--ink-soft);}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 18px;
+  display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);}
+.card.hero-card{border:2px solid var(--accent);}
+.card.small{padding:16px 15px;}
+.card h3{font-size:16px;}
+.card.small h3{font-size:14px;}
+.card p{font-size:13px;color:var(--ink-soft);line-height:1.8;}
+.card.small p{font-size:12px;}
+.quote{background:var(--surface-2);border:1px dashed var(--line-strong);border-radius:10px;padding:14px 15px;
+  font-size:14px;line-height:1.9;white-space:pre-wrap;color:var(--ink);}
+.copy-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.copy-row .btn{flex:1 1 160px;}
+.copied{font-size:12.5px;font-weight:700;color:var(--ok);}
+.step-list{margin:0;padding-left:1.2em;font-size:12.5px;color:var(--muted);line-height:1.9;}
+
+footer{background:var(--invert);color:var(--invert-ink);padding:30px 0 26px;margin-top:34px;}
+footer .wrap{display:flex;flex-direction:column;gap:8px;}
+footer b{color:#fff;font-size:14px;}
+footer p{font-size:12px;line-height:1.8;}
+footer a{color:var(--invert-ink);}
+
+/* ============ 予約ページ固有 ============ */
+
+/* トップの「電話で予約する」。フォームが合わない方をここで受け止める */
+.denwa{display:flex;flex-direction:column;gap:9px;background:var(--surface);
+  border:2px solid var(--accent);border-radius:12px;padding:15px 16px;box-shadow:var(--shadow);}
+.denwa .btn{width:100%;min-height:56px;font-size:17px;}
+.denwa .lab{font-size:12.5px;color:var(--muted);line-height:1.7;}
+.denwa .lab b{color:var(--ink);}
+.matawa{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;}
+.matawa::before,.matawa::after{content:"";flex:1 1 auto;height:1px;background:var(--line);}
+
+
+/* メニューの行。個数を増減できるようにしている（エアコンは複数台が普通のため） */
+.menu-list{display:flex;flex-direction:column;gap:8px;}
+.menu-row{display:grid;grid-template-columns:1fr auto;gap:10px 12px;align-items:center;
+  border:1.5px solid var(--line-strong);border-radius:10px;padding:11px 13px;background:var(--surface);
+  transition:.12s;}
+.menu-row.on{border-color:var(--accent);background:var(--accent-soft);}
+.menu-row .nm{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.menu-row .nm b{font-size:14.5px;font-weight:700;line-height:1.5;}
+.menu-row .nm small{font-size:11.5px;color:var(--muted);}
+.stepper{display:flex;align-items:center;gap:4px;}
+.stepper button{width:40px;height:40px;border-radius:8px;border:1.5px solid var(--line-strong);
+  background:var(--surface);color:var(--ink);font-size:20px;line-height:1;font-family:inherit;
+  cursor:pointer;display:grid;place-items:center;}
+.stepper button:disabled{opacity:.35;cursor:default;}
+.stepper .n{min-width:32px;text-align:center;font-family:"Barlow",sans-serif;font-weight:700;font-size:17px;}
+
+/* 合計 */
+.total{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:14px 15px;
+  display:flex;flex-direction:column;gap:6px;}
+.total .ln{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--ink-soft);}
+.total .ln.sum{font-size:17px;font-weight:900;color:var(--ink);border-top:1px solid var(--line-strong);
+  padding-top:8px;margin-top:2px;}
+.total .ln .v{font-family:"Barlow",sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.total .ln.off .v{color:var(--ok);}
+.total .ln.add .v{color:var(--cta-text);}
+.total .note{font-size:11.5px;color:var(--muted);line-height:1.7;}
+
+/* 日付と時刻 */
+.days{display:flex;flex-direction:column;gap:10px;}
+.day{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:12px 13px;
+  display:flex;flex-direction:column;gap:9px;}
+.day .dl{font-size:14px;font-weight:700;}
+.day .dl .we{color:var(--cta-text);}
+.times{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:7px;}
+.times button{min-height:44px;border-radius:8px;border:1.5px solid var(--line-strong);background:var(--surface);
+  color:var(--ink);font-family:"Barlow",sans-serif;font-weight:700;font-size:15px;cursor:pointer;}
+.times button.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+.loading{font-size:13px;color:var(--muted);padding:18px 0;text-align:center;}
+.more{align-self:center;}
+
+/* 確認 */
+.kakunin{display:flex;flex-direction:column;gap:0;}
+.kakunin .r{display:grid;grid-template-columns:88px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);
+  font-size:13.5px;line-height:1.7;}
+.kakunin .r:last-child{border-bottom:0;}
+.kakunin .r dt{color:var(--muted);font-size:12.5px;}
+.kakunin .r dd{margin:0;font-weight:700;word-break:break-word;}
+
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="bar-in">
+    <span class="logo"><b>ONE HITTER</b><small>ワンヒッター株式会社</small></span>
+    <a class="tel" href="tel:080-8043-8259"><span class="n">080-8043-8259</span><small>受付 渡辺／8:00–20:00</small></a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="intro">
+    <span class="eyebrow">Booking</span>
+    <h1>空いている日時から<br>そのままご予約いただけます。</h1>
+    <p class="lead">前回ご利用いただいたお客様専用のページです。所要 <b>約2分</b>。担当の空き状況をそのまま出しているので、そのままご予約いただけます。お電話でも承ります。</p>
+    <div class="ctx"><span>東京・千葉・神奈川</span><span>表示はすべて税込</span><span>追加請求なし</span></div>
+  </div>
+
+  <!-- フォームが合わない方、急ぎの方の逃げ道。いちばん上に置く -->
+  <div class="denwa">
+    <a class="btn tel" href="tel:080-8043-8259">電話で予約する（担当：渡辺）</a>
+    <span class="lab"><b>080-8043-8259／受付 8:00〜20:00</b><br>
+      日程のご相談や、フォームに無いご依頼はお電話が早いです。</span>
+  </div>
+  <p class="matawa">または、下から日時を選ぶ</p>
+
+  <div class="progress" id="progress">
+    <span class="track"><span class="fill" id="bar"></span></span>
+    <span class="lab"><span id="steplab">1 / 4</span><span id="steptitle">ご希望の内容</span></span>
+  </div>
+
+  <div class="survey-form">
+
+    <!-- ===================== 1. メニュー ===================== -->
+    <section class="q" id="s1">
+      <div class="head">
+        <span class="tag-req">必須</span>
+        <h2>ご希望の内容をお選びください</h2>
+        <p class="why">箇所数だけお選びいただければ大丈夫です。オプション（防カビコート・室外機など）は、担当からの確認のお電話で承ります。</p>
+      </div>
+      <div class="menu-list" id="menus"></div>
+      <div class="total" id="total" hidden></div>
+      <p class="err" id="e1"></p>
+      <div class="nav"><button class="btn lg" id="n1">日時を選ぶ</button></div>
+    </section>
+
+    <!-- ===================== 2. 日時 ===================== -->
+    <section class="q" id="s2" hidden>
+      <div class="head">
+        <span class="tag-req">必須</span>
+        <h2>ご希望の日時をお選びください</h2>
+        <p class="why">担当（渡辺）のいまの空き状況です。ここに出ている枠なら、そのままお伺いできます。作業時間は<b id="yotei-fun">—</b>を見込んでいます。</p>
+      </div>
+      <div id="slots"><p class="loading">空き状況を確認しています…</p></div>
+      <p class="err" id="e2"></p>
+      <div class="nav">
+        <button class="btn ghost" data-back="1">もどる</button>
+        <button class="btn lg" id="n2">お客様情報へ</button>
+      </div>
+    </section>
+
+    <!-- ===================== 3. お客様情報 ===================== -->
+    <section class="q" id="s3" hidden>
+      <div class="head">
+        <span class="tag-req">必須</span>
+        <h2>ご連絡先をお願いします</h2>
+        <p class="why">前回とお変わりなければ、お名前とお電話番号だけで結構です。ご住所は当日の道順の確認に使います。</p>
+      </div>
+      <div class="field">
+        <label for="f-name">お名前</label>
+        <input id="f-name" type="text" autocomplete="name" placeholder="例）田中 太郎">
+      </div>
+      <div class="field">
+        <label for="f-tel">お電話番号</label>
+        <input id="f-tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="例）090-1234-5678">
+        <span class="hint">前日に確認のご連絡を差し上げます。</span>
+      </div>
+      <div class="field">
+        <label for="f-addr">ご住所</label>
+        <input id="f-addr" type="text" autocomplete="street-address" placeholder="例）千葉県船橋市〇〇1-2-3 〇〇マンション101">
+      </div>
+      <div class="field">
+        <label for="f-note">ご要望（任意）</label>
+        <textarea id="f-note" placeholder="例）駐車場はありません／2階のエアコンです／前回と同じ場所です"></textarea>
+      </div>
+      <div class="hp"><label>この欄は入力しないでください<input type="text" id="f-hp" tabindex="-1" autocomplete="off"></label></div>
+      <p class="err" id="e3"></p>
+      <div class="nav">
+        <button class="btn ghost" data-back="2">もどる</button>
+        <button class="btn lg" id="n3">内容を確認する</button>
+      </div>
+    </section>
+
+    <!-- ===================== 4. 確認 ===================== -->
+    <section class="q" id="s4" hidden>
+      <div class="head">
+        <h2>この内容でよろしいですか</h2>
+        <p class="why">送信いただいた時点では、まだ確定ではありません。担当から確認のお電話を差し上げて、そこで確定します。</p>
+      </div>
+      <dl class="kakunin" id="kakunin"></dl>
+      <div class="total" id="total2"></div>
+      <p class="err" id="e4"></p>
+      <div class="nav">
+        <button class="btn ghost" data-back="3">もどる</button>
+        <button class="btn lg" id="send">この内容で予約する</button>
+      </div>
+    </section>
+
+    <!-- ===================== 完了 ===================== -->
+    <section class="done" id="done" hidden>
+      <div class="thanks">
+        <h2>ご予約ありがとうございます。</h2>
+        <p id="done-when"></p>
+        <p>担当の渡辺より、確認のお電話を差し上げます。<br>その時点で確定となります。</p>
+      </div>
+      <div class="card small">
+        <h3>ご変更・キャンセル</h3>
+        <p>お電話をお願いします。前日までにご連絡いただければ費用はかかりません。</p>
+        <a class="btn tel" href="tel:080-8043-8259">080-8043-8259 に電話する</a>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <b>ワンヒッター株式会社（ONE HITTER）</b>
+    <p>対応エリア：東京都・千葉県・神奈川県<br>受付 8:00–20:00　<a href="tel:080-8043-8259">080-8043-8259</a></p>
+    <p>表示価格はすべて税込です。お見積り以上の追加請求はいたしません。</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+  var S = {"menus": [{"n": "エアコンクリーニング（ノーマル）","t": 10780,"d": 10780,"m": 60},{"n": "エアコンクリーニング（お掃除機能付き）","t": 17380,"d": 17380,"m": 120},{"n": "洗濯機クリーニング","t": 17380,"d": 17380,"m": 120},{"n": "レンジフードクリーニング","t": 18480,"d": 15180,"m": 90},{"n": "レンジフード（プロペラ式）","t": 10780,"d": 10780,"m": 60},{"n": "キッチンクリーニング","t": 18480,"d": 15180,"m": 120},{"n": "浴室クリーニング","t": 18480,"d": 15180,"m": 120},{"n": "追い焚き配管クリーニング","t": 19910,"d": 16610,"m": 90},{"n": "コンロクリーニング","t": 10780,"d": 6050,"m": 60},{"n": "トイレクリーニング","t": 10780,"d": 10780,"m": 60},{"n": "洗面台クリーニング","t": 10780,"d": 7480,"m": 60},{"n": "お掃除時短コーティング","t": 21780,"d": 21780,"m": 60}],"hanbouki": {"tsuki": [5,6,7,12],"gaku": 3300},"souki": {"1": 0.15,"2": 0.15,"3": 0.1,"4": 0.1,"5": 0.0,"6": 0.0,"7": 0.0,"8": 0.1,"9": 0.1,"10": 0.1,"11": 0.0,"12": 0.0},"netTokuten": 2200,"api": "","tel": "080-8043-8259"};
+  var $ = function(id){ return document.getElementById(id); };
+
+  var state = {
+    qty: {},          // メニュー名 -> 個数
+    date: '', time: '',
+    slots: null,
+  };
+
+  /* ---------------- 金額と所要時間 ----------------
+     ルールは data/prices.json のとおり。
+       ・2箇所目以降は同時施工価格
+       ・早期予約割引は複数箇所（＝同時施工割引）とは併用しない
+       ・5,6,7,12月は1箇所あたり繁忙期加算
+     ここで出すのはあくまで概算。確定は担当が電話でお伝えする。 */
+  function erabareta(){
+    return S.menus.filter(function(m){ return (state.qty[m.n] || 0) > 0; });
+  }
+  function kasho(){
+    var n = 0;
+    S.menus.forEach(function(m){ n += (state.qty[m.n] || 0); });
+    return n;
+  }
+  function shoyouFun(){
+    var f = 0;
+    S.menus.forEach(function(m){ f += (state.qty[m.n] || 0) * m.m; });
+    return f;
+  }
+  function kingaku(){
+    var n = kasho();
+    if (!n) { return null; }
+
+    /* 1箇所ずつに展開する */
+    var tan = [];
+    S.menus.forEach(function(m){
+      for (var i = 0; i < (state.qty[m.n] || 0); i++) { tan.push(m); }
+    });
+
+    /* コンロのセット価格は、原則キッチンと同時のときだけ（パンフレットp10・p11） */
+    var kitchen = (state.qty['キッチンクリーニング'] || 0) > 0;
+    function setKakaku(m){
+      return (m.n === 'コンロクリーニング' && !kitchen) ? m.t : m.d;
+    }
+
+    var tanpin = 0;
+    tan.forEach(function(m){ tanpin += m.t; });
+
+    var shoukei;
+    if (n === 1) {
+      shoukei = tan[0].t;
+    } else {
+      /* ★単品のまま残すのは「割引額がいちばん小さい1箇所」。
+         いちばん高い箇所を単品にすると、セット価格を持つ箇所が単品側へ追いやられ、
+         割引が消える（例：トイレ＋浴室で割引0になっていた）。 */
+      var narabi = tan.slice().sort(function(a, b){
+        return (a.t - setKakaku(a)) - (b.t - setKakaku(b));
+      });
+      shoukei = narabi[0].t;
+      for (var i = 1; i < narabi.length; i++) { shoukei += setKakaku(narabi[i]); }
+    }
+    var setBiki = tanpin - shoukei;
+
+    var tsuki = state.date ? parseInt(state.date.slice(5, 7), 10) : 0;
+
+    /* 早期予約割引は1箇所のときだけ（複数箇所は同時施工割引がすでに効いている） */
+    var ritsu = (n === 1 && tsuki) ? (S.souki[tsuki] || 0) : 0;
+    var waribiki = Math.round(shoukei * ritsu);
+
+    /* どの組み合わせでもセット価格が付かないときの、ネット申込特典。
+       1箇所だけのご注文は対象外（2026-09-08 オーナー決定） */
+    var netto = (n >= 2 && setBiki === 0) ? S.netTokuten : 0;
+
+    var kasan = (tsuki && S.hanbouki.tsuki.indexOf(tsuki) >= 0) ? S.hanbouki.gaku * n : 0;
+
+    return {
+      kasho: n, tanpin: tanpin, shoukei: shoukei, setBiki: setBiki,
+      ritsu: ritsu, waribiki: waribiki, netto: netto,
+      kasan: kasan, gokei: shoukei - waribiki - netto + kasan,
+    };
+  }
+  function yen(v){ return '¥' + v.toLocaleString('ja-JP'); }
+  function funHyouji(f){
+    if (f < 60) { return f + '分'; }
+    var h = Math.floor(f / 60), m = f % 60;
+    return h + '時間' + (m ? m + '分' : '');
+  }
+
+  /* ---------------- メニューの描画 ---------------- */
+  function menuByName(n){
+    for (var i = 0; i < S.menus.length; i++) { if (S.menus[i].n === n) { return S.menus[i]; } }
+    return null;
+  }
+  function drawMenus(){
+    var box = $('menus');
+    box.innerHTML = '';
+    S.menus.forEach(function(m){
+      var row = document.createElement('div');
+      row.className = 'menu-row';
+      row.innerHTML =
+        '<div class="nm"><b></b><small></small></div>' +
+        '<div class="stepper">' +
+          '<button type="button" aria-label="減らす">−</button>' +
+          '<span class="n">0</span>' +
+          '<button type="button" aria-label="増やす">＋</button>' +
+        '</div>';
+      row.querySelector('b').textContent = m.n;
+      row.querySelector('small').textContent = yen(m.t) + '（税込）／ ' + funHyouji(m.m);
+      var btns = row.querySelectorAll('.stepper button');
+      btns[0].addEventListener('click', function(){ kaeru(m.n, -1, row); });
+      btns[1].addEventListener('click', function(){ kaeru(m.n, 1, row); });
+      row._m = m;
+      box.appendChild(row);
+    });
+    drawTotal();
+  }
+  function kaeru(name, d, row){
+    var v = (state.qty[name] || 0) + d;
+    if (v < 0) { v = 0; }
+    if (v > 9) { v = 9; }
+    state.qty[name] = v;
+    row.querySelector('.n').textContent = String(v);
+    row.querySelector('.stepper button').disabled = (v === 0);
+    row.classList.toggle('on', v > 0);
+    /* 箇所数が変わると所要時間が変わる＝すでに選んだ枠が使えるとは限らないので消す */
+    state.date = ''; state.time = ''; state.slots = null;
+    drawTotal();
+  }
+
+  function totalHTML(k){
+    if (!k) { return ''; }
+    var h = [];
+    h.push(ln('単品でのご依頼なら（' + k.kasho + '箇所）', yen(k.tanpin), ''));
+    if (k.setBiki) {
+      h.push(ln('セット価格の割引', '−' + yen(k.setBiki), 'off'));
+      h.push('<p class="note">同時にご依頼いただく箇所は、セット価格を適用しています。</p>');
+    }
+    if (k.netto) {
+      h.push(ln('ネット申込特典', '−' + yen(k.netto), 'off'));
+      h.push('<p class="note">セット価格の対象がない組み合わせのため、'
+             + 'このページからのお申し込み特典を適用しています。</p>');
+    }
+    if (k.waribiki) {
+      h.push(ln('早期予約割引 ' + Math.round(k.ritsu * 100) + '%OFF', '−' + yen(k.waribiki), 'off'));
+    }
+    if (k.kasan) {
+      h.push(ln('繁忙期加算（' + k.kasho + '箇所）', '+' + yen(k.kasan), 'add'));
+    }
+    h.push(ln('概算合計（税込）', yen(k.gokei), 'sum'));
+    h.push('<p class="note">現地の状況により変わることがあります。確定金額は担当からのお電話でお伝えします。' +
+           (state.date ? '' : '日時をお選びいただくと、割引と加算を反映した金額になります。') + '</p>');
+    return h.join('');
+  }
+  function ln(l, v, cls){
+    return '<div class="ln ' + (cls || '') + '"><span>' + l + '</span><span class="v">' + v + '</span></div>';
+  }
+  function drawTotal(){
+    var k = kingaku();
+    var box = $('total');
+    box.hidden = !k;
+    box.innerHTML = totalHTML(k);
+  }
+
+  /* ---------------- 空き枠 ----------------
+     Apps Script は fetch だとCORSで詰まりやすいので、JSONPで取りに行く。 */
+  var jsonpN = 0;
+  function jsonp(url){
+    return new Promise(function(res, rej){
+      var name = '__cb' + (++jsonpN) + '_' + Date.now();
+      var sc = document.createElement('script');
+      var t = setTimeout(function(){ owari(); rej(new Error('timeout')); }, 20000);
+      function owari(){
+        clearTimeout(t);
+        delete window[name];
+        if (sc.parentNode) { sc.parentNode.removeChild(sc); }
+      }
+      window[name] = function(d){ owari(); res(d); };
+      sc.onerror = function(){ owari(); rej(new Error('network')); };
+      sc.src = url + (url.indexOf('?') < 0 ? '?' : '&') + 'callback=' + name;
+      document.body.appendChild(sc);
+    });
+  }
+
+  function loadSlots(){
+    var box = $('slots');
+    if (!S.api) {
+      box.innerHTML = '<p class="loading">ただいま日時の自動表示を準備しています。<br>' +
+        'お手数ですが <a href="tel:080-8043-8259">080-8043-8259</a> までお電話ください。</p>';
+      return;
+    }
+    box.innerHTML = '<p class="loading">空き状況を確認しています…</p>';
+    jsonp(S.api + '?action=slots&minutes=' + shoyouFun()).then(function(d){
+      if (!d || !d.ok) { throw new Error((d && d.error) || 'error'); }
+      state.slots = d.slots || [];
+      drawSlots();
+    }).catch(function(){
+      box.innerHTML = '<p class="loading">空き状況をうまく取得できませんでした。<br>' +
+        'お手数ですが <a href="tel:080-8043-8259">080-8043-8259</a> までお電話ください。</p>';
+    });
+  }
+
+  var MISERU = 5;   // 最初は5日ぶんだけ出す。長いリストは選びにくい
+  function drawSlots(){
+    var box = $('slots');
+    box.innerHTML = '';
+    if (!state.slots.length) {
+      box.innerHTML = '<p class="loading">申し訳ありません、3週間先まで空きがありませんでした。<br>' +
+        'お手数ですが <a href="tel:080-8043-8259">080-8043-8259</a> までご相談ください。</p>';
+      return;
+    }
+    var wrap = document.createElement('div');
+    wrap.className = 'days';
+    state.slots.slice(0, MISERU).forEach(function(d){
+      var el = document.createElement('div');
+      el.className = 'day';
+      var lab = document.createElement('div');
+      lab.className = 'dl';
+      lab.textContent = d.label;
+      if (/（[土日]）/.test(d.label)) { lab.innerHTML = '<span class="we">' + d.label + '</span>'; }
+      el.appendChild(lab);
+      var tl = document.createElement('div');
+      tl.className = 'times';
+      d.times.forEach(function(t){
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = t;
+        if (state.date === d.date && state.time === t) { b.className = 'on'; }
+        b.addEventListener('click', function(){
+          state.date = d.date; state.time = t;
+          drawSlots();
+          $('e2').textContent = '';
+        });
+        tl.appendChild(b);
+      });
+      el.appendChild(tl);
+      wrap.appendChild(el);
+    });
+    box.appendChild(wrap);
+    if (state.slots.length > MISERU) {
+      var more = document.createElement('button');
+      more.type = 'button';
+      more.className = 'btn ghost sm more';
+      more.textContent = 'もっと先の日程を見る';
+      more.addEventListener('click', function(){ MISERU += 7; drawSlots(); });
+      box.appendChild(more);
+    }
+  }
+
+  /* ---------------- 画面の進行 ---------------- */
+  var STEPS = ['s1', 's2', 's3', 's4'];
+  var TITLES = ['ご希望の内容', '日時', 'ご連絡先', '確認'];
+  var ima = 1;
+  function go(n){
+    ima = n;
+    STEPS.forEach(function(id, i){ $(id).hidden = (i + 1 !== n); });
+    $('done').hidden = true;
+    $('progress').hidden = false;
+    $('bar').style.width = (n / 4 * 100) + '%';
+    $('steplab').textContent = n + ' / 4';
+    $('steptitle').textContent = TITLES[n - 1];
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  $('n1').addEventListener('click', function(){
+    if (!kasho()) { $('e1').textContent = 'ご希望の内容を1つ以上お選びください。'; return; }
+    $('e1').textContent = '';
+    $('yotei-fun').textContent = 'およそ' + funHyouji(shoyouFun());
+    go(2);
+    loadSlots();
+  });
+
+  $('n2').addEventListener('click', function(){
+    if (!state.date) { $('e2').textContent = 'ご希望の日時をお選びください。'; return; }
+    $('e2').textContent = '';
+    go(3);
+  });
+
+  $('n3').addEventListener('click', function(){
+    var name = $('f-name').value.trim();
+    var tel = $('f-tel').value.trim();
+    var addr = $('f-addr').value.trim();
+    if (!name) { $('e3').textContent = 'お名前をご入力ください。'; return; }
+    if (!/[0-9]{9,}/.test(tel.replace(/[^0-9]/g, ''))) {
+      $('e3').textContent = 'お電話番号をご確認ください。'; return;
+    }
+    if (addr.length < 6) { $('e3').textContent = 'ご住所をご入力ください。'; return; }
+    $('e3').textContent = '';
+    drawKakunin();
+    go(4);
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-back]'), function(b){
+    b.addEventListener('click', function(){ go(parseInt(b.getAttribute('data-back'), 10)); });
+  });
+
+  function menuText(){
+    var a = [];
+    S.menus.forEach(function(m){
+      var q = state.qty[m.n] || 0;
+      if (q > 0) { a.push(m.n + (q > 1 ? ' ×' + q : '')); }
+    });
+    return a.join('／');
+  }
+  function nichijiText(){
+    var d = null;
+    (state.slots || []).forEach(function(x){ if (x.date === state.date) { d = x; } });
+    return (d ? d.label : state.date) + ' ' + state.time + '〜';
+  }
+  function drawKakunin(){
+    var k = kingaku();
+    var rows = [
+      ['ご希望', menuText()],
+      ['日時', nichijiText()],
+      ['所要', 'およそ' + funHyouji(shoyouFun())],
+      ['お名前', $('f-name').value.trim() + ' 様'],
+      ['お電話', $('f-tel').value.trim()],
+      ['ご住所', $('f-addr').value.trim()],
+    ];
+    var note = $('f-note').value.trim();
+    if (note) { rows.push(['ご要望', note]); }
+    $('kakunin').innerHTML = rows.map(function(r){
+      return '<div class="r"><dt>' + r[0] + '</dt><dd></dd></div>';
+    }).join('');
+    Array.prototype.forEach.call($('kakunin').querySelectorAll('dd'), function(dd, i){
+      dd.textContent = rows[i][1];
+    });
+    $('total2').innerHTML = totalHTML(k);
+  }
+
+  /* ---------------- 送信 ----------------
+     Content-Type は text/plain。application/json にするとブラウザが
+     プリフライトを飛ばし、Apps Script がそれに答えられないため。 */
+  var okuttechuu = false;
+  $('send').addEventListener('click', function(){
+    if (okuttechuu) { return; }
+    if ($('f-hp').value) { return; }   // 自動投稿よけ
+    if (!S.api) {
+      $('e4').textContent = 'ただいま送信の準備中です。お手数ですが ' + S.tel + ' までお電話ください。';
+      return;
+    }
+    var k = kingaku();
+    var body = {
+      name: $('f-name').value.trim(),
+      tel: $('f-tel').value.trim(),
+      address: $('f-addr').value.trim(),
+      note: $('f-note').value.trim(),
+      date: state.date, time: state.time,
+      menu: menuText(),
+      minutes: shoyouFun(),
+      amount: k ? k.gokei : 0,
+    };
+    okuttechuu = true;
+    $('send').disabled = true;
+    $('send').textContent = '送信しています…';
+    $('e4').textContent = '';
+
+    fetch(S.api, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(body),
+    }).then(function(r){ return r.json(); }).then(function(d){
+      if (!d || !d.ok) { throw new Error((d && (d.message || d.error)) || '送信できませんでした'); }
+      $('done-when').textContent = d.label + '〜 でお伺いします。';
+      STEPS.forEach(function(id){ $(id).hidden = true; });
+      $('progress').hidden = true;
+      $('done').hidden = false;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }).catch(function(err){
+      okuttechuu = false;
+      $('send').disabled = false;
+      $('send').textContent = 'この内容で予約する';
+      $('e4').textContent = String(err.message || err) +
+        '　お手数ですが ' + S.tel + ' までお電話ください。';
+    });
+  });
+
+  drawMenus();
+  go(1);
+})();
+</script>
+
+</body>
+</html>
