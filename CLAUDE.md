@@ -8,6 +8,29 @@
 > 会話の履歴が無くても引き継げる形でまとまっている。
 > 重要な事実が判明したときと、作業の区切りごとに更新すること。
 >
+> ## 🔒 LPのURLは変えないこと
+> **下記5本はオーナーがアフィリエイトの遷移先として登録済み。** URLが変わると広告が死ぬ。
+>
+> | | URL |
+> |---|---|
+> | エアコン パターンA | `https://one-hitter-lp.netlify.app/aircon/` |
+> | エアコン パターンB | `https://one-hitter-lp.netlify.app/aircon-b/` |
+> | 水まわりセット | `https://one-hitter-lp.netlify.app/mizumawari/` |
+> | 年末大掃除 | `https://one-hitter-lp.netlify.app/nenmatsu/` |
+> | ご利用後アンケート | `https://one-hitter-lp.netlify.app/survey/` |
+>
+> - `lp/` 配下のディレクトリ名、`tools/build-site.py` の `PAGES` のキー、
+>   Netlifyのサイト名（`one-hitter-lp`）は**変更しない**。
+> - **配信は必ず統合済みブランチから行う。** Netlifyの配信はサイト全体の
+>   ファイル一覧を差し替えるので、手元に無いページは本番から消える。
+>   `tools/deploy-netlify.py` の `KOTEI_URL` が配信前に止めるようにしてあるが、
+>   止まったら「なぜ欠けているのか」を先に確かめること。
+> - **どうしてもURLを変える必要が出たときは、変更する前にオーナーへ
+>   「アフィリエイトの遷移先設定を変更してください」と依頼する。**
+>   依頼と確認が済むまでURLを変えない。
+> - 独自ドメイン（`lp.one-hitter.jp`）を当てる場合、`.netlify.app` のURLは
+>   引き続き使えるので既存の登録は生きる。切り替えを促す場合も上記の依頼を先に。
+
 > ## ⚠️ 別会社のプロジェクトが同居している
 > **`hitokachi-forms/` は ヒトカチ株式会社 の帳票自動作成システムで、この会社とは無関係。**
 > そこで作業するときは、**このファイルの内容もCMOセーブデータも読む必要はない。**

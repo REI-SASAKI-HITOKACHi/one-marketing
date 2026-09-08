@@ -34,6 +34,42 @@ TEAM_SLUG = "case-foot-kid"
 TOKEN_KITEI = os.path.expanduser("~/.config/one-hitter/netlify-token.txt")
 
 
+# アフィリエイトに登録済みのURL。オーナーが広告側に設定しているので、
+# **これらのパスは変えない。** ディレクトリ名を変える、PAGES から外す、
+# 別ブランチから不足した状態で配信する — いずれもURLを死なせる。
+# 配信前にここで止める。変更が必要になったときは、先にオーナーへ
+# アフィリエイト設定の変更を依頼すること。
+KOTEI_URL = [
+    "aircon/index.html",        # エアコン パターンA
+    "aircon-b/index.html",      # エアコン パターンB（A/B対抗案）
+    "mizumawari/index.html",    # 水まわりセット
+    "nenmatsu/index.html",      # 年末大掃除
+    "survey/index.html",        # ご利用後アンケート
+]
+
+
+def kotei_url_check(files: dict) -> None:
+    """登録済みURLが配信物から消えていないか確かめる。
+
+    Netlifyの配信はサイト全体のファイル一覧を差し替える方式なので、
+    手元のビルドに無いページは本番から消える。実際、CMO戦略ブランチと
+    交互に配信していたときに年末LPが404になっていた（2026-09-06）。
+    """
+    nai = [u for u in KOTEI_URL if "/" + u not in files]
+    if not nai:
+        return
+    print("\n配信を中止しました。登録済みのURLが配信物にありません。\n")
+    for u in nai:
+        print(f"  欠落: /{u.rsplit('/', 1)[0]}/")
+    print(
+        "\nこのまま配信すると、上のページが本番から消えます。\n"
+        "  - ブランチが古い、または統合できていない可能性があります\n"
+        "  - 意図してURLを変える場合は、先にオーナーへ\n"
+        "    アフィリエイト設定の変更を依頼してから KOTEI_URL を直してください\n"
+    )
+    sys.exit(1)
+
+
 def token() -> str:
     """トークンはこの順で読む。コマンドラインには書かない。
       1. 環境変数 NETLIFY_TOKEN
@@ -187,6 +223,7 @@ def main() -> None:
 
     files = collect()
     print(f"配信対象 {len(files)} ファイル")
+    kotei_url_check(files)
 
     deploy = call("POST", f"/sites/{site_id}/deploys",
                   {"files": {k: v[1] for k, v in files.items()}})
