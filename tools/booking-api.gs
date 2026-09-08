@@ -51,15 +51,30 @@ var SETTEI = {
   sheetId: '1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64',
   yoyakuTab: '予約_Web',
 
-  /** 受付時間（施工の開始時刻として提示する範囲） */
-  kaishiJikoku: 9,   // 9:00 より前は出さない
-  shuuryouJikoku: 18, // 18:00 までに終わる枠だけ出す
+  /**
+   * 受付時間。2026-09-08のMTGで決定（議題#5）。
+   * 「9:00-21:00 ／ 施工開始・施工終了時刻」
+   */
+  kaishiJikoku: 9,    // 9:00 より前には始めない
+  shuuryouJikoku: 21, // 21:00 までに終わる枠だけ出す
 
   /** 前後に確保する移動時間（分） */
   idouFun: 60,
 
-  /** 夜勤明けの休息（分）。当日0:00〜9:00に終わる予定があれば、その終了時刻＋これ以降にする */
-  kyuusokuFun: 360,
+  /**
+   * 夜勤のルール。2026-09-08のMTGで決定（前回#6の調整欄）。
+   *   ・9月中は夜勤あり。Googleカレンダーに夜勤日を入れる
+   *   ・夜勤明けは 13:00 以降なら受注可能
+   *   ・夜勤前は 18:00 に施工完了まで受注可能
+   *   ・10月以降は週休2日・1日12時間（曜日はカレンダーの予定で判断する）
+   *
+   * 夜勤の見分け方：時刻の入った予定のうち、yakinHanteiJi 以降に始まって
+   * 翌日にまたがるもの。「バイト 21:00〜翌05:00」などが該当する。
+   * タイトルでは判定しない（呼び方が変わっても壊れないようにするため）。
+   */
+  yakinHanteiJi: 18,      // この時刻以降に始まり日をまたぐ予定を夜勤とみなす
+  yakinAkeSaihayaku: 13,  // 夜勤明けの日は13:00以降から
+  yakinMaeShuuryou: 18,   // 夜勤がある日は18:00までに施工完了
 
   /** 何日先まで出すか。当日と翌日は出さない（準備が要るため） */
   saitanNichi: 2,
@@ -133,7 +148,7 @@ function kaesu_(obj, callback) {
  * 「空き」の判定に入れているもの
  *   ・既存の予定（時刻の入っているものだけ。終日予定＝TODOは無視する）
  *   ・既存の予定の前後 SETTEI.idouFun 分（移動時間）
- *   ・夜勤明けの休息（当日の早朝に終わる予定があれば、終了＋SETTEI.kyuusokuFun 以降）
+ *   ・夜勤明けの日は13:00以降、夜勤に入る日は18:00までに施工完了（MTGで決定）
  */
 function akiWaku_(shoyouFun) {
   var cal = CalendarApp.getCalendarById(SETTEI.calendarId);
@@ -151,13 +166,20 @@ function akiWaku_(shoyouFun) {
   var yotei = cal.getEvents(tasuNichi_(kaishi, -1), owari);
 
   var fusagi = [];
+  var yakin = [];   // 夜勤（日をまたぐ勤務）の {s, e}
   yotei.forEach(function (ev) {
     // 終日予定は塞がりとして扱わない。
     // このカレンダーの終日予定はTODO（tools/todo-calendar.gs が入れるもの）で、
     // 実際の施工・バイト・通院はすべて時刻の入った予定になっている。
     // 終日予定で丸一日を塞ぐと、TODOが1件あるだけでその日が予約できなくなる。
     if (ev.isAllDayEvent()) { return; }
-    fusagi.push({ s: ev.getStartTime().getTime(), e: ev.getEndTime().getTime() });
+    var s = ev.getStartTime();
+    var e = ev.getEndTime();
+    fusagi.push({ s: s.getTime(), e: e.getTime() });
+    // 夜勤かどうか。夕方以降に始まって、日をまたいで終わるもの
+    if (s.getHours() >= SETTEI.yakinHanteiJi && !onajiHi_(s, e)) {
+      yakin.push({ s: s.getTime(), e: e.getTime() });
+    }
   });
 
   var idouMs = SETTEI.idouFun * 60000;
@@ -168,19 +190,24 @@ function akiWaku_(shoyouFun) {
     var hi = tasuNichi_(kyou, i);
     var key = Utilities.formatDate(hi, tz, 'yyyy-MM-dd');
 
-    // その日の早朝に終わる予定（夜勤明け）があれば、休息を確保する
-    var asaOwari = 0;
     var hiHajime = hi.getTime();
-    var kuji = new Date(hi); kuji.setHours(SETTEI.kaishiJikoku, 0, 0, 0);
-    fusagi.forEach(function (f) {
-      if (f.e > hiHajime && f.e <= kuji.getTime() && f.e > asaOwari) { asaOwari = f.e; }
-    });
-    var saihayaku = kuji.getTime();
-    if (asaOwari) {
-      saihayaku = Math.max(saihayaku, asaOwari + SETTEI.kyuusokuFun * 60000);
-    }
+    var tsugiNoHi = tasuNichi_(hi, 1).getTime();
 
-    var shimeKiri = new Date(hi); shimeKiri.setHours(SETTEI.shuuryouJikoku, 0, 0, 0);
+    // 夜勤明けの日か（前夜の夜勤が、この日にかかって終わる）
+    var akeDa = yakin.some(function (y) {
+      return y.e > hiHajime && y.e < tsugiNoHi;
+    });
+    // この日に夜勤に入るか
+    var yakinBi = yakin.some(function (y) {
+      return y.s >= hiHajime && y.s < tsugiNoHi;
+    });
+
+    var saihayaku = new Date(hi);
+    saihayaku.setHours(akeDa ? SETTEI.yakinAkeSaihayaku : SETTEI.kaishiJikoku, 0, 0, 0);
+    saihayaku = saihayaku.getTime();
+
+    var shimeKiri = new Date(hi);
+    shimeKiri.setHours(yakinBi ? SETTEI.yakinMaeShuuryou : SETTEI.shuuryouJikoku, 0, 0, 0);
 
     var kouho = [];
     var kizami = SETTEI.kizamiFun * 60000;
@@ -363,6 +390,13 @@ function tasuNichi_(d, n) {
   x.setDate(x.getDate() + n);
   x.setHours(0, 0, 0, 0);
   return x;
+}
+
+/** 2つの日時が同じ日か */
+function onajiHi_(a, b) {
+  return a.getFullYear() === b.getFullYear() &&
+         a.getMonth() === b.getMonth() &&
+         a.getDate() === b.getDate();
 }
 
 function youbi_(d) {
