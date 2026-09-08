@@ -65,7 +65,7 @@ TSUIKA_CSS = """
 
 /* トップの「電話で予約する」。フォームが合わない方をここで受け止める */
 .denwa{display:flex;flex-direction:column;gap:9px;background:var(--surface);
-  border:2px solid var(--accent);border-radius:12px;padding:15px 16px;box-shadow:var(--shadow);}
+  border:2px solid var(--accent);border-radius:2px;padding:15px 16px;box-shadow:var(--shadow);}
 .denwa .btn{width:100%;min-height:56px;font-size:17px;}
 .denwa .lab{font-size:12.5px;color:var(--muted);line-height:1.7;}
 .denwa .lab b{color:var(--ink);}
@@ -76,39 +76,39 @@ TSUIKA_CSS = """
 /* メニューの行。個数を増減できるようにしている（エアコンは複数台が普通のため） */
 .menu-list{display:flex;flex-direction:column;gap:8px;}
 .menu-row{display:grid;grid-template-columns:1fr auto;gap:10px 12px;align-items:center;
-  border:1.5px solid var(--line-strong);border-radius:10px;padding:11px 13px;background:var(--surface);
+  border:1.5px solid var(--line-strong);border-radius:2px;padding:11px 13px;background:var(--surface);
   transition:.12s;}
 .menu-row.on{border-color:var(--accent);background:var(--accent-soft);}
 .menu-row .nm{display:flex;flex-direction:column;gap:2px;min-width:0;}
 .menu-row .nm b{font-size:14.5px;font-weight:700;line-height:1.5;}
 .menu-row .nm small{font-size:11.5px;color:var(--muted);}
 .stepper{display:flex;align-items:center;gap:4px;}
-.stepper button{width:40px;height:40px;border-radius:8px;border:1.5px solid var(--line-strong);
+.stepper button{width:40px;height:40px;border-radius:2px;border:1.5px solid var(--line-strong);
   background:var(--surface);color:var(--ink);font-size:20px;line-height:1;font-family:inherit;
   cursor:pointer;display:grid;place-items:center;}
 .stepper button:disabled{opacity:.35;cursor:default;}
-.stepper .n{min-width:32px;text-align:center;font-family:"Barlow",sans-serif;font-weight:700;font-size:17px;}
+.stepper .n{min-width:32px;text-align:center;font-family:"Oswald",sans-serif;font-weight:700;font-size:17px;}
 
 /* 合計 */
-.total{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:14px 15px;
+.total{background:var(--surface-2);border:1px solid var(--line);border-radius:2px;padding:14px 15px;
   display:flex;flex-direction:column;gap:6px;}
 .total .ln{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--ink-soft);}
 .total .ln.sum{font-size:17px;font-weight:900;color:var(--ink);border-top:1px solid var(--line-strong);
   padding-top:8px;margin-top:2px;}
-.total .ln .v{font-family:"Barlow",sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.total .ln .v{font-family:"Oswald",sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap;}
 .total .ln.off .v{color:var(--ok);}
 .total .ln.add .v{color:var(--cta-text);}
 .total .note{font-size:11.5px;color:var(--muted);line-height:1.7;}
 
 /* 日付と時刻 */
 .days{display:flex;flex-direction:column;gap:10px;}
-.day{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:12px 13px;
+.day{border:1px solid var(--line);border-radius:2px;background:var(--surface);padding:12px 13px;
   display:flex;flex-direction:column;gap:9px;}
 .day .dl{font-size:14px;font-weight:700;}
 .day .dl .we{color:var(--cta-text);}
 .times{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:7px;}
-.times button{min-height:44px;border-radius:8px;border:1.5px solid var(--line-strong);background:var(--surface);
-  color:var(--ink);font-family:"Barlow",sans-serif;font-weight:700;font-size:15px;cursor:pointer;}
+.times button{min-height:44px;border-radius:2px;border:1.5px solid var(--line-strong);background:var(--surface);
+  color:var(--ink);font-family:"Oswald",sans-serif;font-weight:700;font-size:15px;cursor:pointer;}
 .times button.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
 .loading{font-size:13px;color:var(--muted);padding:18px 0;text-align:center;}
 .more{align-self:center;}
@@ -172,7 +172,7 @@ TEMPLATE = r"""<!doctype html>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=Shippori+Mincho+B1:wght@600&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Oswald:wght@500;600&family=Shippori+Mincho+B1:wght@600;800&display=swap">
 
 <style>
 {{CSS}}

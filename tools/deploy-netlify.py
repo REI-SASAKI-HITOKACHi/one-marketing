@@ -34,6 +34,17 @@ TEAM_SLUG = "case-foot-kid"
 TOKEN_KITEI = os.path.expanduser("~/.config/one-hitter/netlify-token.txt")
 
 
+# 年末・アンケート・予約は、独自ドメインが通るまで別サイトに分かれている
+# （docs/LP配信のルール.md）。ここから配信するときの、配信元と必須ファイル。
+# 1サイトに統合できたら、この表ごと消してよい。
+BUNKATSU = {
+    "one-hitter-nenmatsu": {"src": "nenmatsu", "hissu": ["/index.html", "/thanks.html"]},
+    "one-hitter-survey":   {"src": "survey",   "hissu": ["/index.html"]},
+    # 予約フォームは lp/booking/ を build-booking.py が直接書き出す
+    "one-hitter-booking":  {"src": None,       "hissu": ["/index.html"],
+                            "root": "lp/booking"},
+}
+
 # アフィリエイトに登録済みのURL。オーナーが広告側に設定しているので、
 # **これらのパスは変えない。** ディレクトリ名を変える、PAGES から外す、
 # 別ブランチから不足した状態で配信する — いずれもURLを死なせる。
@@ -148,13 +159,14 @@ def call(method: str, path: str, body=None, raw: bytes | None = None,
         sys.exit(f"Netlify APIエラー {e.code} {method} {url}\n{detail}")
 
 
-def collect() -> dict[str, tuple[pathlib.Path, str]]:
+def collect(src: pathlib.Path | None = None) -> dict[str, tuple[pathlib.Path, str]]:
     """配信するファイルを {'/aircon/index.html': (path, sha1)} の形で集める。"""
+    src = src or SRC
     files = {}
-    for p in sorted(SRC.rglob("*")):
+    for p in sorted(src.rglob("*")):
         if p.is_dir():
             continue
-        rel = "/" + p.relative_to(SRC).as_posix()
+        rel = "/" + p.relative_to(src).as_posix()
         files[rel] = (p, hashlib.sha1(p.read_bytes()).hexdigest())
     return files
 
@@ -170,7 +182,7 @@ def save_state(site: dict) -> None:
                                  "url": site["ssl_url"] or site["url"]}, indent=2) + "\n")
 
 
-def find_existing_site() -> dict | None:
+def find_existing_site(name: str = SITE_NAME) -> dict | None:
     """チームの中から、名前が一致する既存サイトを探す。
 
     状態ファイル（deploy/.netlify-site.json）はリポジトリに入れていないので、
@@ -179,7 +191,7 @@ def find_existing_site() -> dict | None:
     無ければ作る前に、まず名前で探す。
     """
     for site in (call("GET", f"/{TEAM_SLUG}/sites") or []):
-        if site["name"] == SITE_NAME:
+        if site["name"] == name:
             return site
     return None
 
@@ -189,6 +201,9 @@ def main() -> None:
     ap.add_argument("--create", action="store_true", help="サイトを新規作成する")
     ap.add_argument("--notify", action="append", default=[],
                     help="フォーム送信の通知先メールアドレス（複数可）")
+    ap.add_argument("--site", default=SITE_NAME,
+                    help="配信先のNetlifyサイト名。既定は " + SITE_NAME
+                         + "。分割サイト： " + " / ".join(BUNKATSU))
     args = ap.parse_args()
 
     if not SRC.exists():
@@ -201,6 +216,24 @@ def main() -> None:
             print(f"  - {site['name']}")
         if any(site["name"] == SITE_NAME for site in existing):
             sys.exit(f"{SITE_NAME} は既にあります。--create を外して実行してください。")
+
+    bunkatsu = BUNKATSU.get(args.site)
+    if args.site != SITE_NAME and not bunkatsu:
+        sys.exit(f"知らないサイトです： {args.site}")
+
+    if bunkatsu:
+        # 分割サイトは、そのページのディレクトリをサイトの直下として配信する
+        src = (ROOT / bunkatsu["root"]) if bunkatsu.get("root") else (SRC / bunkatsu["src"])
+        if not src.exists():
+            sys.exit(f"{src} がありません。先に build-site.py を実行してください。")
+        files = collect(src)
+        nai = [u for u in bunkatsu["hissu"] if u not in files]
+        if nai:
+            sys.exit(f"配信を中止しました。{args.site} に必要なファイルがありません： {nai}")
+        site = find_existing_site(args.site)
+        if not site:
+            sys.exit(f"{args.site} が見つかりません。手で作られたサイトのはずです。")
+        return haishin(site["id"], files, site.get("ssl_url") or site.get("url"), args)
 
     site_id = load_site_id()
 
@@ -224,7 +257,12 @@ def main() -> None:
     files = collect()
     print(f"配信対象 {len(files)} ファイル")
     kotei_url_check(files)
+    return haishin(site_id, files, None, args)
 
+
+def haishin(site_id: str, files: dict, base: str | None, args) -> None:
+    """集めたファイルをそのサイトへ配信し、配信後に中身まで確かめる。"""
+    print(f"配信対象 {len(files)} ファイル")
     deploy = call("POST", f"/sites/{site_id}/deploys",
                   {"files": {k: v[1] for k, v in files.items()}})
     required = set(deploy.get("required", []))

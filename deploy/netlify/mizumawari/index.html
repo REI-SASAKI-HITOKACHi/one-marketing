@@ -999,8 +999,6 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
   function update(){
     var chosen = picks.filter(function(p){ return p.checked; });
 
-    // The most expensive item is charged at its standalone price;
-    // every additional item takes the simultaneous-service price.
     // どの箇所を単品のまま残すか。
     // 「いちばん高い箇所」を単品にしていたが誤りだった。トイレ＋浴室のように
     // セット価格を持たない箇所が混ざると、高いほうの浴室が単品側に回り、
