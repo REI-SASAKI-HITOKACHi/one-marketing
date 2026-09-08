@@ -324,6 +324,17 @@ GCPプロジェクト：`one-hitter-sheets`（番号 844550773178）
   （URLを変えるときは同ファイル先頭の `SURVEY_BASE` を書き換える）
 - 価格改定の決定と、料金の正データ化（`data/prices.json`）
 - LINE Messaging API の手順書 `docs/line-messaging-api-手順書.md`（全41ステップ）
+- **グループLINE（佐々木・渡辺・CMO）稼働**。送信 `tools/line_client.py`、受信ログは
+  スプシ `LINE_ログ` タブ（Apps Script `tools/line-webhook.gs`）。グループID `Cdaad037f60f5bc8b2c8138ce0afffc78`
+- **アンケートの配信不具合を修正**（2026-09-08）。`/` に拡張子なしで登録され `text/plain` で
+  配信されていた。`/index.html` で配信し直し。`tools/deploy-netlify.py` に `kenshou()` を組み込み、
+  以後は配信のたびに content-type と本文先頭まで自動で検証する
+- **渡辺さんへの指示文の型を確定**（`docs/渡辺さんへの指示文の型.md`）。
+  労い → 結論 → 区切り → why → 背景。**毎回、感謝か褒めを入れる**
+- **既存客向け Web予約フォームを作成**（2026-09-08）: https://one-hitter-booking.netlify.app/
+  Netlify site_id `83984fb0-5839-421b-bb99-63c8aff47fb9`。
+  ページ生成 `tools/build-booking.py`（料金は `data/prices.json` から自動）、
+  バックエンド `tools/booking-api.gs`（Apps Script）。**手順は `docs/予約フォーム-導入手順.md`**
 
 ### 進行中・待ち
 
