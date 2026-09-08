@@ -437,12 +437,20 @@ for r in rows:
         data.append(('除外', '直近3ヶ月に施工済み', '', '')); continue
     if keiro == '楽ラクーン':
         data.append(('除外', '楽ラクーン経由（フォロー連絡不可）', '', '')); continue
+    # 空室クリーニングは退去後の原状回復。住んでいる人がいないので、
+    # 「その後いかがですか」という声かけが成り立たない（2026-09-08 オーナー指示）
+    if g(r, '施工メニュー（内訳）').split('／')[0].split('×')[0].strip() == '空室':
+        data.append(('除外', '空室クリーニングのお客様（オーナー指示）', '', '')); continue
     num, err = bangou(g(r, 'TEL'))
     if not num:
         data.append(('SMS不可', err + '／公式LINEか電話で拾う', '', '')); continue
     if num in mizumi:
         data.append(('除外', '同じ電話番号が他の行にもある', num, '')); continue
     mizumi.add(num)
+    # 台帳の氏名が壊れている行。「ご　さん」→「ごさま」のような送信を止める
+    if re.fullmatch(r'[ぁ-んァ-ヶー]', sei(g(r, '氏名'))):
+        data.append(('保留', f'氏名の表記を確認してください（台帳:{g(r, "氏名")}）',
+                     num, '')); continue
     keitou = g(r, '送信系統')
     hon = honbun(r, keitou)
     if not hon:
