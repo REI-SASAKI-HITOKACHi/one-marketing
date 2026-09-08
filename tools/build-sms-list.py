@@ -193,29 +193,39 @@ def menu_hitotsu(uchiwake):
     return IIKAE.get(namae, namae + 'のクリーニング' if namae else '')
 
 
-# 本文のひな形。オーナーが data/sms-template.txt を書き換えたら、
-# このスクリプトを流し直すだけで全員ぶんが作り直される。
-HINAGATA_PATH = f'{ROOT}/data/sms-template.txt'
+# 本文のひな形は「送信系統ごと」に持つ。
+#
+# 本舗経由のお客様には、おそうじ本舗として営業する。
+# ワンヒッターへの打診（OH打診）は、和真が現場で接客しながら人が判断すること。
+# SMSで一律にやることではない（2026-09-08 オーナー指摘）。
+#
+# ひな形が空の系統は「保留」になり、本文もSMSリンクも作らない。
+# 誤って送ることがないようにするため。
+HINAGATA_PATH = {
+    '自社': f'{ROOT}/data/sms-template.txt',
+    '本舗': f'{ROOT}/data/sms-template-honpo.txt',
+}
 
 
-def hinagata():
-    """# で始まる行を落として、本文のひな形だけ返す"""
+def hinagata(path):
+    """# で始まる行を落として、本文のひな形だけ返す。空なら空リストを返す"""
     gyou = []
-    for ln in open(HINAGATA_PATH, encoding='utf-8').read().split('\n'):
+    for ln in open(path, encoding='utf-8').read().split('\n'):
         if ln.lstrip().startswith('#'):
             continue
         gyou.append(ln)
-    # 前後の空行を落とす
     while gyou and not gyou[0].strip():
         gyou.pop(0)
     while gyou and not gyou[-1].strip():
         gyou.pop()
-    if not gyou:
-        sys.exit(f'{HINAGATA_PATH} に本文がありません。')
     return gyou
 
 
-HINAGATA = hinagata()
+HINAGATA = {k: hinagata(v) for k, v in HINAGATA_PATH.items()}
+if not HINAGATA['自社']:
+    sys.exit(f"{HINAGATA_PATH['自社']} に本文がありません。")
+for k, v in HINAGATA.items():
+    print(f'ひな形 {k}:', '未確定（この系統は保留になります）' if not v else f'{len(v)}行')
 SASHIKOMI = re.compile(r'"([^"]+)"')
 
 
@@ -235,9 +245,12 @@ def honbun(r, keitou):
         '予約URL': LP,
         '電話番号': TEL_UKETSUKE,
     }
+    kata = HINAGATA.get(keitou if keitou in HINAGATA else '自社', [])
+    if not kata:
+        return ''          # ひな形が無い系統は本文を作らない
     shiranai = set()
     dekita = []
-    for ln in HINAGATA:
+    for ln in kata:
         kara = False
 
         def hiku(m):
@@ -289,7 +302,14 @@ for r in rows:
     if num in mizumi:
         data.append(('除外', '同じ電話番号が他の行にもある', num, '')); continue
     mizumi.add(num)
-    data.append(('送信可', '', num, honbun(r, g(r, '送信系統'))))
+    keitou = g(r, '送信系統')
+    hon = honbun(r, keitou)
+    if not hon:
+        data.append(('保留', f'{keitou}向けの文面が未確定。'
+                     f'{HINAGATA_PATH.get(keitou, "")} を埋めると送信可になります',
+                     num, ''))
+        continue
+    data.append(('送信可', '', num, hon))
 
 # ============================== 並べ替えとバッチ ==============================
 def yuusen(r):
