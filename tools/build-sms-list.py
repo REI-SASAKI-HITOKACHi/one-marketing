@@ -115,6 +115,9 @@ rows = []
 for r in nama[midashi_gyou + 1:]:
     if not any(str(c).strip() for c in r):
         continue
+    # 前回の実行で入れたテスト行は読み飛ばす（毎回入れ直すため）
+    if any(str(c).strip().startswith('【実機テスト】') for c in r[:3]):
+        continue
     d = {}
     for k, i in ichi.items():
         d[k] = str(r[i]).strip() if (i is not None and i < len(r)) else ''
@@ -190,32 +193,80 @@ def menu_hitotsu(uchiwake):
     return IIKAE.get(namae, namae + 'のクリーニング' if namae else '')
 
 
+# 本文のひな形。オーナーが data/sms-template.txt を書き換えたら、
+# このスクリプトを流し直すだけで全員ぶんが作り直される。
+HINAGATA_PATH = f'{ROOT}/data/sms-template.txt'
+
+
+def hinagata():
+    """# で始まる行を落として、本文のひな形だけ返す"""
+    gyou = []
+    for ln in open(HINAGATA_PATH, encoding='utf-8').read().split('\n'):
+        if ln.lstrip().startswith('#'):
+            continue
+        gyou.append(ln)
+    # 前後の空行を落とす
+    while gyou and not gyou[0].strip():
+        gyou.pop(0)
+    while gyou and not gyou[-1].strip():
+        gyou.pop()
+    if not gyou:
+        sys.exit(f'{HINAGATA_PATH} に本文がありません。')
+    return gyou
+
+
+HINAGATA = hinagata()
+SASHIKOMI = re.compile(r'"([^"]+)"')
+
+
 def honbun(r, keitou):
-    """1人ずつの本文を組み立てる。長くしすぎない"""
-    na = sei(g(r, '氏名'))
-    toki = itsu(g(r, '最終施工日'))
-    men = menu_hitotsu(g(r, '施工メニュー（内訳）'))
-    osu = g(r, '今回おすすめ').replace('・', 'と')
+    """ひな形の "…" を1人ずつの値に差し替える。
+    差し替えるものが空だった行は、その行ごと落とす。
+    （「昨年11月に…でお世話になりました」が「に でお世話になりました」に
+      なってしまうのを防ぐため）"""
+    atai = {
+        '顧客名': sei(g(r, '氏名')),
+        'フルネーム': g(r, '氏名'),
+        '名乗り': ('おそうじ本舗の渡辺です' if keitou == '本舗'
+                   else 'ハウスクリーニング ワンヒッターの渡辺です'),
+        '施工時期': itsu(g(r, '最終施工日')),
+        '前回メニュー': menu_hitotsu(g(r, '施工メニュー（内訳）')),
+        'おすすめ': g(r, '今回おすすめ').replace('・', 'と'),
+        '予約URL': LP,
+        '電話番号': TEL_UKETSUKE,
+    }
+    shiranai = set()
+    dekita = []
+    for ln in HINAGATA:
+        kara = False
 
-    # 送信主体。本舗経由のお客様は、屋号を出し分ける
-    nanori = ('おそうじ本舗江戸川中央店の渡辺です'
-              if keitou == '本舗' else 'ハウスクリーニング ワンヒッターの渡辺です')
+        def hiku(m):
+            nonlocal kara
+            key = m.group(1)
+            if key not in atai:
+                shiranai.add(key)
+                return m.group(0)      # 知らない目印はそのまま残す
+            v = atai[key]
+            if not v:
+                kara = True
+            return v
 
-    a = [f'{na}さま']
-    if toki and men:
-        a.append(f'{toki}に{men}でお世話になりました、{nanori}。')
-    elif men:
-        a.append(f'先日は{men}をご利用いただき、ありがとうございました。{nanori}。')
-    else:
-        a.append(f'いつもご利用ありがとうございます。{nanori}。')
-    a.append('その後、お掃除した箇所の調子はいかがでしょうか。')
-    a.append('12月から1箇所あたり3,300円の繁忙期加算がかかります。'
-             '11月末までのご予約なら通常価格です。')
-    if osu:
-        a.append(f'{osu}もあわせてご検討いただけます。')
-    a.append(f'ご予約・ご相談はこちら\n{LP}')
-    a.append('ご不要でしたらご返信ください。以後お送りしません。')
-    return '\n'.join(a)
+        atarashii_gyou = SASHIKOMI.sub(hiku, ln)
+        if kara:
+            continue                    # 差し替えるものが空なら、その行は出さない
+        dekita.append(atarashii_gyou)
+    if shiranai:
+        SHIRANAI.update(shiranai)
+    # 続いた空行はひとつにまとめる
+    out = []
+    for ln in dekita:
+        if not ln.strip() and (not out or not out[-1].strip()):
+            continue
+        out.append(ln)
+    return '\n'.join(out).strip()
+
+
+SHIRANAI = set()   # ひな形に出てきた、知らない差し込みの目印
 
 
 def sms_link(num, text):
@@ -285,6 +336,20 @@ kumi = list(zip(range(len(rows)), atarashii))
 kumi.sort(key=lambda x: (0 if x[1][8] == '送信可' else 1,
                          juni.get(x[0], 9999)))
 atarashii = [x[1] for x in kumi]
+
+# ============================== 実機テスト用の行 ==============================
+# D列の「▶送る」がスマホで効くかどうかは、実機で試すしかない。
+# 本物のお客様の行で試すと誤送信の危険があるので、いちばん上に
+# 自分あて（受付番号）の行を固定で置く。
+TEST_TEL = '08080438259'
+TEST_HONBUN = ('【テスト】この画面が宛先と本文入りで開いていれば成功です。\n'
+               'そのまま送信して、届いたらグループLINEに一言ください。')
+test_gyou = ['テスト', '【実機テスト】自分あて', "'" + TEST_TEL,
+             f'=HYPERLINK("{sms_link(TEST_TEL, TEST_HONBUN)}","▶ 送る")',
+             TEST_HONBUN, '', '', '9/9', 'テスト',
+             'D列が効くかを確かめるための行。消して構いません', '', '', '',
+             '', '', '', '', '', '', '', '', '', '', '', '']
+atarashii.insert(0, test_gyou[:len(ATAMA)])
 
 # ============================== 書き込み ==============================
 meta = call(f'/{SS}')
@@ -423,6 +488,12 @@ print()
 print('本文の長さ  最短', min(len(x[4]) for x in okr),
       '／ 最長', max(len(x[4]) for x in okr),
       '／ 平均', sum(len(x[4]) for x in okr) // len(okr))
+if SHIRANAI:
+    print()
+    print('★ ひな形に、知らない差し込みの目印がありました:',
+          '、'.join(sorted(SHIRANAI)))
+    print('  そのまま本文に残っています。data/sms-template.txt の説明を見てください。')
+
 print()
 print('--- 本文の例（先頭3件）---')
 for x in okr[:3]:
