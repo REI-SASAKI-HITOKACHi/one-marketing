@@ -29,6 +29,7 @@
 使い方: python3 tools/build-sms-list.py
 """
 import importlib.util
+import datetime
 import json
 import re
 import subprocess
@@ -66,16 +67,48 @@ YOYAKU_FORM = 'https://one-hitter-booking.netlify.app/?src=sms'
 # お客様がフォームを開いても日時が出ず、送信もできない（電話案内が出るだけ）。
 # その状態で220人へ送るのは事故なので、シートの先頭に警告を出す。
 def yoyaku_ikiteruka():
-    """(使える?, 理由) を返す。見に行けなかったときは使える扱いにしない"""
+    """予約フォームが本当に予約を受け付けられるか、本番ページを見て確かめる。
+    (使える?, 理由) を返す。見に行けなかったときは「使える」と言わない。
+
+    見るのは2つ。
+      1. 空き枠のファイル（slots.json）があって、内容が古すぎないか
+      2. Netlifyのフォームが登録されているか
+         配信後のHTMLに data-netlify が残っていたら、それは未登録の印。
+         年末LPで実際に起きた（POSTが404になっていた／2026-09-08）。
+    """
+    moto = YOYAKU_FORM.split('?')[0].rstrip('/')
     try:
-        with urllib.request.urlopen(YOYAKU_FORM.split('?')[0], timeout=20) as res:
+        with urllib.request.urlopen(moto + '/', timeout=20) as res:
             html = res.read().decode('utf-8', 'replace')
     except Exception as e:
         return False, f'予約フォームを確認できませんでした（{e}）'
-    if re.search(r'"api"\s*:\s*""', html):
-        return False, ('予約フォームの受付機能がまだ動いていません。'
-                       'Apps Script の /exec URL が未設定です（TODO T022）。'
-                       'お客様が開いても日時が出ず、予約を送れません。')
+
+    if 'data-netlify' in html:
+        return False, ('予約フォームの受け口が登録されていません。'
+                       '配信後のHTMLに data-netlify が残っています。'
+                       'このまま送るとお客様が申し込めません。')
+    if re.search(r'"api"\s*:\s*""', html) and 'slots.json' not in html:
+        return False, ('予約フォームが空き枠を読む先を持っていません。'
+                       'tools/build-slots.py と配信をやり直してください。')
+
+    try:
+        with urllib.request.urlopen(moto + '/slots.json', timeout=20) as res:
+            d = json.loads(res.read().decode('utf-8'))
+    except Exception as e:
+        return False, f'空き枠のファイル（slots.json）を読めませんでした（{e}）'
+
+    waku = sum(len(x.get('times', [])) for x in (d.get('buckets', {}).get('120') or []))
+    if not waku:
+        return False, '空き枠が1つも出ていません。カレンダーと build-slots.py を確認してください。'
+
+    try:
+        tsukurareta = datetime.datetime.fromisoformat(d['generated'])
+        keika = (datetime.datetime.now(tsukurareta.tzinfo) - tsukurareta).total_seconds() / 3600
+    except Exception:
+        return False, '空き枠のファイルに作成時刻がありません。'
+    if keika > d.get('staleHours', 6):
+        return False, (f'空き枠の情報が{keika:.0f}時間前のものです。'
+                       'tools/build-slots.py をやり直してから送ってください。')
     return True, ''
 
 

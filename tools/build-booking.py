@@ -25,6 +25,10 @@ OUT = ROOT / "lp" / "booking" / "index.html"
 # Apps Script のウェブアプリURL。デプロイ後にここを差し替える。
 # 空のままでも画面は動くが、空き枠は「準備中」と出る。
 API_URL = ""
+# 空き枠の置き場所。tools/build-slots.py が作る。ページと同じオリジンなのでCORSにならない
+SLOTS_URL = "./slots.json"
+# Netlifyフォームの名前。デプロイ時にNetlifyが検出して受け口を作る
+FORM_NAME = "yoyaku"
 
 TEL = "080-8043-8259"
 
@@ -120,6 +124,7 @@ TSUIKA_CSS = """
 .kakunin .r:last-child{border-bottom:0;}
 .kakunin .r dt{color:var(--muted);font-size:12.5px;}
 .kakunin .r dd{margin:0;font-weight:700;word-break:break-word;}
+.slots-toki{margin:.5rem 0 0;font-size:.78rem;color:#6b7280;text-align:right}
 """
 
 
@@ -150,6 +155,10 @@ def build() -> str:
         },
         "netTokuten": NET_TOKUTEN,
         "api": API_URL,
+        # 空き枠は静的ファイルから読む。Apps Scriptを入れた場合は api が優先される
+        "slots": SLOTS_URL,
+        # 予約の送信先。Netlifyフォーム（同じオリジンにPOSTする）
+        "form": FORM_NAME,
         "tel": TEL,
     }
 
@@ -232,6 +241,7 @@ TEMPLATE = r"""<!doctype html>
         <p class="why">担当（渡辺）のいまの空き状況です。ここに出ている枠なら、そのままお伺いできます。作業時間は<b id="yotei-fun">—</b>を見込んでいます。</p>
       </div>
       <div id="slots"><p class="loading">空き状況を確認しています…</p></div>
+      <p class="slots-toki" id="slots-toki"></p>
       <p class="err" id="e2"></p>
       <div class="nav">
         <button class="btn ghost" data-back="1">もどる</button>
@@ -496,22 +506,51 @@ TEMPLATE = r"""<!doctype html>
     });
   }
 
+  /* 所要分に足りる、いちばん短いバケツを選ぶ */
+  function bucketKey(d){
+    var need = shoyouFun();
+    var keys = Object.keys(d.buckets || {}).map(Number).sort(function(a, b){ return a - b; });
+    if (!keys.length) { return null; }
+    for (var i = 0; i < keys.length; i++) { if (keys[i] >= need) { return String(keys[i]); } }
+    return String(keys[keys.length - 1]);
+  }
+
+  var slotsCache = null;
   function loadSlots(){
     var box = $('slots');
-    if (!S.api) {
-      box.innerHTML = '<p class="loading">ただいま日時の自動表示を準備しています。<br>' +
-        'お手数ですが <a href="tel:{{TEL}}">{{TEL}}</a> までお電話ください。</p>';
-      return;
-    }
     box.innerHTML = '<p class="loading">空き状況を確認しています…</p>';
-    jsonp(S.api + '?action=slots&minutes=' + shoyouFun()).then(function(d){
-      if (!d || !d.ok) { throw new Error((d && d.error) || 'error'); }
-      state.slots = d.slots || [];
-      drawSlots();
-    }).catch(function(){
+
+    function shippai(){
       box.innerHTML = '<p class="loading">空き状況をうまく取得できませんでした。<br>' +
         'お手数ですが <a href="tel:{{TEL}}">{{TEL}}</a> までお電話ください。</p>';
-    });
+    }
+    function egaku(d){
+      slotsCache = d;
+      var k = bucketKey(d);
+      state.slots = (k && d.buckets[k]) || [];
+      var m = $('slots-toki');
+      if (m) { m.textContent = d.generatedLabel ? d.generatedLabel + ' 時点の空き状況です' : ''; }
+      if (!state.slots.length) {
+        box.innerHTML = '<p class="loading">この内容で空いている枠が見つかりませんでした。<br>' +
+          'お手数ですが <a href="tel:{{TEL}}">{{TEL}}</a> までご相談ください。</p>';
+        return;
+      }
+      drawSlots();
+    }
+
+    /* Apps Script が入っていればそちらを優先する（将来そちらへ戻すときのため） */
+    if (S.api) {
+      jsonp(S.api + '?action=slots&minutes=' + shoyouFun()).then(function(d){
+        if (!d || !d.ok) { throw new Error((d && d.error) || 'error'); }
+        state.slots = d.slots || [];
+        drawSlots();
+      }).catch(shippai);
+      return;
+    }
+    if (slotsCache) { egaku(slotsCache); return; }
+    fetch(S.slots + '?t=' + Date.now(), { cache: 'no-store' })
+      .then(function(r){ if (!r.ok) { throw new Error('http ' + r.status); } return r.json(); })
+      .then(egaku).catch(shippai);
   }
 
   var MISERU = 5;   // 最初は5日ぶんだけ出す。長いリストは選びにくい
@@ -643,39 +682,45 @@ TEMPLATE = r"""<!doctype html>
   }
 
   /* ---------------- 送信 ----------------
-     Content-Type は text/plain。application/json にするとブラウザが
-     プリフライトを飛ばし、Apps Script がそれに答えられないため。 */
+     Netlifyフォームへ、同じオリジンの "/" に application/x-www-form-urlencoded でPOSTする。
+     別ドメインではないのでCORSにならない。項目名は、HTMLの下にある
+     控えのフォーム（name="yoyaku"）と必ず一致させること。 */
   var okuttechuu = false;
   $('send').addEventListener('click', function(){
     if (okuttechuu) { return; }
     if ($('f-hp').value) { return; }   // 自動投稿よけ
-    if (!S.api) {
-      $('e4').textContent = 'ただいま送信の準備中です。お手数ですが ' + S.tel + ' までお電話ください。';
-      return;
-    }
     var k = kingaku();
-    var body = {
-      name: $('f-name').value.trim(),
-      tel: $('f-tel').value.trim(),
-      address: $('f-addr').value.trim(),
-      note: $('f-note').value.trim(),
-      date: state.date, time: state.time,
-      menu: menuText(),
-      minutes: shoyouFun(),
-      amount: k ? k.gokei : 0,
+    var atai = {
+      'form-name': S.form,
+      'お名前': $('f-name').value.trim(),
+      'お電話番号': $('f-tel').value.trim(),
+      'ご住所': $('f-addr').value.trim(),
+      'ご希望日': state.date,
+      'ご希望時刻': state.time,
+      'ご希望の内容': menuText(),
+      '所要の目安（分）': String(shoyouFun()),
+      '概算金額': k ? String(k.gokei) : '',
+      'ご要望': $('f-note').value.trim(),
+      '流入元': (new URLSearchParams(location.search)).get('src') || '',
+      '空き枠の取得時刻': (slotsCache && slotsCache.generated) || '',
     };
+    var body = Object.keys(atai).map(function(kk){
+      return encodeURIComponent(kk) + '=' + encodeURIComponent(atai[kk]);
+    }).join('&');
+
     okuttechuu = true;
     $('send').disabled = true;
     $('send').textContent = '送信しています…';
     $('e4').textContent = '';
 
-    fetch(S.api, {
+    fetch('/', {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(body),
-    }).then(function(r){ return r.json(); }).then(function(d){
-      if (!d || !d.ok) { throw new Error((d && (d.message || d.error)) || '送信できませんでした'); }
-      $('done-when').textContent = d.label + '〜 でお伺いします。';
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body,
+    }).then(function(r){
+      if (!r.ok) { throw new Error('送信できませんでした（' + r.status + '）'); }
+      var hi = state.slots.filter(function(x){ return x.date === state.date; })[0];
+      $('done-when').textContent = (hi ? hi.label : state.date) + ' ' + state.time + '〜 でお伺いします。';
       STEPS.forEach(function(id){ $(id).hidden = true; });
       $('progress').hidden = true;
       $('done').hidden = false;
@@ -693,6 +738,25 @@ TEMPLATE = r"""<!doctype html>
   go(1);
 })();
 </script>
+
+<!-- Netlifyがデプロイ時にこのフォームを見つけて受け口を作る。画面には出さない。
+     送信はJavaScriptから同じ項目名でPOSTする。
+     ★name を変えたら、送信側（atai）も必ず合わせること。 -->
+<form name="yoyaku" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="hidden" name="form-name" value="yoyaku">
+  <input type="text" name="bot-field">
+  <input type="text" name="お名前">
+  <input type="text" name="お電話番号">
+  <input type="text" name="ご住所">
+  <input type="text" name="ご希望日">
+  <input type="text" name="ご希望時刻">
+  <input type="text" name="ご希望の内容">
+  <input type="text" name="所要の目安（分）">
+  <input type="text" name="概算金額">
+  <textarea name="ご要望"></textarea>
+  <input type="text" name="流入元">
+  <input type="text" name="空き枠の取得時刻">
+</form>
 
 </body>
 </html>
