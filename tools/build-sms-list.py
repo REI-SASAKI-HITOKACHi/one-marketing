@@ -34,9 +34,12 @@ import re
 import subprocess
 import sys
 import urllib.parse
+import urllib.request
 from collections import Counter
 
 ROOT = '/home/user/one-marketing'
+# --dry-run … シートには一切書かない。文面を直したときの確認用。
+DRY = '--dry-run' in sys.argv
 spec = importlib.util.spec_from_file_location('sc', f'{ROOT}/tools/sheets_client.py')
 sc = importlib.util.module_from_spec(spec)
 sys.modules['sc'] = sc
@@ -57,6 +60,24 @@ TAB = '冬季見込み客_2026'
 #   お客様が申し込めないページへ送るところだった。実測で確認済み。
 MOUSHIKOMI = 'https://one-hitter-lp.netlify.app/nenmatsu/?src=sms#form'
 YOYAKU_FORM = 'https://one-hitter-booking.netlify.app/?src=sms'
+
+# 予約フォームが「予約を受け付けられる状態か」を、本番ページを見て確かめる。
+# Apps Script の /exec URL が未設定（api が空）のあいだは、
+# お客様がフォームを開いても日時が出ず、送信もできない（電話案内が出るだけ）。
+# その状態で220人へ送るのは事故なので、シートの先頭に警告を出す。
+def yoyaku_ikiteruka():
+    """(使える?, 理由) を返す。見に行けなかったときは使える扱いにしない"""
+    try:
+        with urllib.request.urlopen(YOYAKU_FORM.split('?')[0], timeout=20) as res:
+            html = res.read().decode('utf-8', 'replace')
+    except Exception as e:
+        return False, f'予約フォームを確認できませんでした（{e}）'
+    if re.search(r'"api"\s*:\s*""', html):
+        return False, ('予約フォームの受付機能がまだ動いていません。'
+                       'Apps Script の /exec URL が未設定です（TODO T022）。'
+                       'お客様が開いても日時が出ず、予約を送れません。')
+    return True, ''
+
 
 TEL_UKETSUKE = '080-8043-8259'    # ワンヒッターの受付（和真）
 TEL_HONPO = '080-1344-3137'       # おそうじ本舗としての受付（和真）
@@ -199,6 +220,29 @@ IIKAE = {
 }
 
 
+# 「その後、○○は快適に使用できていますでしょうか」と続けるための言い方。
+# IIKAE から「クリーニング」を取って、モノの名前だけにする。
+# 台帳の表記がそのまま使えるものは書かない（見つからなければ表記のまま返す）。
+IIKAE_MONO = {
+    'エアコン(ノーマル)': 'エアコン',
+    'エアコン(ロボ)': 'お掃除機能付きエアコン',
+    '天カセ': '天井カセットエアコン',
+    'まるごと(備考に内容)': 'お住まい',
+    '追い焚き': '追い焚き配管',
+    '床WAX': '床',
+}
+
+
+def menu_mono(uchiwake):
+    """「浴室×3／エアコン(ロボ)×2」→「浴室」。クリーニングという語を付けない"""
+    if not uchiwake:
+        return ''
+    namae = uchiwake.split('／')[0].split('×')[0].strip()
+    if not namae:
+        return ''
+    return IIKAE_MONO.get(namae, namae)
+
+
 def menu_hitotsu(uchiwake):
     """「浴室×3／エアコン(ロボ)×2」→「浴室クリーニング」。いちばん多いものを1つ"""
     if not uchiwake:
@@ -313,10 +357,16 @@ def honbun(r, keitou):
                    else 'ハウスクリーニング ワンヒッターの渡辺です'),
         '施工時期': itsu(g(r, '最終施工日')),
         '前回メニュー': menu_hitotsu(g(r, '施工メニュー（内訳）')),
+        # 「その後、○○は快適に…」用。半角丸かっこ・全角丸かっこのどちらでも拾う
+        '前回施工(クリーニング除く)': menu_mono(g(r, '施工メニュー（内訳）')),
+        '前回施工（クリーニング除く）': menu_mono(g(r, '施工メニュー（内訳）')),
         'おすすめ': g(r, '今回おすすめ').replace('・', 'と'),
         'ご提案': teian(r),
         '申込フォームURL': MOUSHIKOMI,
         '予約フォームURL': YOYAKU_FORM,
+        '予約フォーム': YOYAKU_FORM,
+        # 法人のお客様に「ご自宅の汚れ」と書かないための入れ替え
+        'ご自宅': ('店舗・オフィス' if g(r, '法人/個人') == '法人' else 'ご自宅'),
         '電話番号': TEL_UKETSUKE,
         '本舗の電話番号': TEL_HONPO,
     }
@@ -446,7 +496,44 @@ test_gyou = ['テスト', '【実機テスト】自分あて', "'" + TEST_TEL,
              '', '', '', '', '', '', '', '', '', '', '', '']
 atarashii.insert(0, test_gyou[:len(ATAMA)])
 
+def shuukei():
+    print()
+    print('=== 集計 ===')
+    for k, v in Counter(x[8] for x in atarashii).most_common():
+        print(f'{v:5}  {k}')
+    print()
+    print('系統別（送信可のみ）')
+    okr = [x for x in atarashii if x[8] == '送信可']
+    print(' ', dict(Counter(x[12] for x in okr)))
+    print(' 優先別:', dict(sorted(Counter(x[0] for x in okr).items())))
+    print()
+    # SMSは全角70文字で1通。超えると分割して送られる（受け取れない端末もある）
+    naga = [len(x[4]) for x in okr]
+    print('本文の長さ  最短', min(naga), '／ 最長', max(naga),
+          '／ 平均', sum(naga) // len(naga))
+    print('  70文字超:', sum(1 for n in naga if n > 70), '件（長文SMSとして分割されます）')
+    # 差し込みが空で行ごと落ちたものを数える。文面が痩せていないかの確認
+    kake = [x for x in okr if '渡辺でございます' not in x[4] and 'おそうじ本舗' not in x[4]]
+    if kake:
+        print('★ 名乗りの行が落ちた本文:', len(kake),
+              '件（最終施工日か施工メニューが台帳に無い方）')
+    if SHIRANAI:
+        print()
+        print('★ ひな形に、知らない差し込みの目印がありました:',
+              '、'.join(sorted(SHIRANAI)))
+        print('  そのまま本文に残っています。data/sms-template.txt の説明を見てください。')
+    print()
+    print('--- 本文の例（先頭3件）---')
+    for x in okr[:3]:
+        print(f'\n[{x[1]}]\n{x[4]}')
+
+
 # ============================== 書き込み ==============================
+if DRY:
+    shuukei()
+    print('\n--dry-run のためシートには書いていません。')
+    sys.exit(0)
+
 meta = call(f'/{SS}')
 sh = next(s for s in meta['sheets'] if s['properties']['title'] == TAB)
 SID = sh['properties']['sheetId']
@@ -456,7 +543,12 @@ if gp['columnCount'] < len(ATAMA):
         'properties': {'sheetId': SID, 'gridProperties': {'columnCount': len(ATAMA)}},
         'fields': 'gridProperties.columnCount'}}]})
 
-SETSUMEI = ('スマホでの送信作業用。C列の番号かD列の「▶送る」をタップ → SMSが開く → '
+YOYAKU_OK, YOYAKU_RIYUU = yoyaku_ikiteruka()
+if not YOYAKU_OK:
+    print('\n★★ 送信を始めてはいけません:', YOYAKU_RIYUU, '\n')
+
+SETSUMEI = ('' if YOYAKU_OK else '【送信は保留してください】' + YOYAKU_RIYUU + ' ') + (
+           'スマホでの送信作業用。C列の番号かD列の「▶送る」をタップ → SMSが開く → '
             '送信 → F列で「送信済み」を選ぶ。D列が反応しない端末では、'
             'E列の本文をコピーしてください。'
             'スケジュールマッチング経由で送ってはいけない先は、F列で「対象外」にしてください。')
@@ -570,26 +662,4 @@ req.append({'updateSheetProperties': {
 call(f'/{SS}:batchUpdate', 'POST', {'requests': req})
 print('書式をつけました')
 
-print()
-print('=== 集計 ===')
-for k, v in Counter(x[8] for x in atarashii).most_common():
-    print(f'{v:5}  {k}')
-print()
-print('系統別（送信可のみ）')
-okr = [x for x in atarashii if x[8] == '送信可']
-print(' ', dict(Counter(x[12] for x in okr)))
-print(' 優先別:', dict(sorted(Counter(x[0] for x in okr).items())))
-print()
-print('本文の長さ  最短', min(len(x[4]) for x in okr),
-      '／ 最長', max(len(x[4]) for x in okr),
-      '／ 平均', sum(len(x[4]) for x in okr) // len(okr))
-if SHIRANAI:
-    print()
-    print('★ ひな形に、知らない差し込みの目印がありました:',
-          '、'.join(sorted(SHIRANAI)))
-    print('  そのまま本文に残っています。data/sms-template.txt の説明を見てください。')
-
-print()
-print('--- 本文の例（先頭3件）---')
-for x in okr[:3]:
-    print(f'\n[{x[1]}]\n{x[4]}')
+shuukei()
