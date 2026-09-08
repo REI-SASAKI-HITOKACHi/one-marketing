@@ -28,6 +28,10 @@ API_URL = ""
 
 TEL = "080-8043-8259"
 
+# ネット申込特典（税込）。セット価格がどれも付かない組み合わせのときだけ引く。
+# 1箇所だけのご注文は対象外（2026-09-08 オーナー決定）。
+NET_TOKUTEN = 2200
+
 # 所要時間が prices.json に無いメニューの既定値（分）
 KITEI_SHOYOU = 60
 
@@ -144,6 +148,7 @@ def build() -> str:
             8: souki["8-10月"], 9: souki["8-10月"], 10: souki["8-10月"],
             11: souki["11-12月"], 12: souki["11-12月"],
         },
+        "netTokuten": NET_TOKUTEN,
         "api": API_URL,
         "tel": TEL,
     }
@@ -341,15 +346,35 @@ TEMPLATE = r"""<!doctype html>
     var n = kasho();
     if (!n) { return null; }
 
-    /* 1箇所ずつの価格を並べ、高い順に。1つ目は単体価格、2つ目以降は同時施工価格 */
+    /* 1箇所ずつに展開する */
     var tan = [];
     S.menus.forEach(function(m){
       for (var i = 0; i < (state.qty[m.n] || 0); i++) { tan.push(m); }
     });
-    tan.sort(function(a, b){ return b.t - a.t; });
 
-    var shoukei = 0;
-    tan.forEach(function(m, i){ shoukei += (i === 0 ? m.t : m.d); });
+    /* コンロのセット価格は、原則キッチンと同時のときだけ（パンフレットp10・p11） */
+    var kitchen = (state.qty['キッチンクリーニング'] || 0) > 0;
+    function setKakaku(m){
+      return (m.n === 'コンロクリーニング' && !kitchen) ? m.t : m.d;
+    }
+
+    var tanpin = 0;
+    tan.forEach(function(m){ tanpin += m.t; });
+
+    var shoukei;
+    if (n === 1) {
+      shoukei = tan[0].t;
+    } else {
+      /* ★単品のまま残すのは「割引額がいちばん小さい1箇所」。
+         いちばん高い箇所を単品にすると、セット価格を持つ箇所が単品側へ追いやられ、
+         割引が消える（例：トイレ＋浴室で割引0になっていた）。 */
+      var narabi = tan.slice().sort(function(a, b){
+        return (a.t - setKakaku(a)) - (b.t - setKakaku(b));
+      });
+      shoukei = narabi[0].t;
+      for (var i = 1; i < narabi.length; i++) { shoukei += setKakaku(narabi[i]); }
+    }
+    var setBiki = tanpin - shoukei;
 
     var tsuki = state.date ? parseInt(state.date.slice(5, 7), 10) : 0;
 
@@ -357,12 +382,16 @@ TEMPLATE = r"""<!doctype html>
     var ritsu = (n === 1 && tsuki) ? (S.souki[tsuki] || 0) : 0;
     var waribiki = Math.round(shoukei * ritsu);
 
+    /* どの組み合わせでもセット価格が付かないときの、ネット申込特典。
+       1箇所だけのご注文は対象外（2026-09-08 オーナー決定） */
+    var netto = (n >= 2 && setBiki === 0) ? S.netTokuten : 0;
+
     var kasan = (tsuki && S.hanbouki.tsuki.indexOf(tsuki) >= 0) ? S.hanbouki.gaku * n : 0;
 
     return {
-      kasho: n, shoukei: shoukei, ritsu: ritsu, waribiki: waribiki,
-      kasan: kasan, gokei: shoukei - waribiki + kasan,
-      doujiBiki: tan.length > 1,
+      kasho: n, tanpin: tanpin, shoukei: shoukei, setBiki: setBiki,
+      ritsu: ritsu, waribiki: waribiki, netto: netto,
+      kasan: kasan, gokei: shoukei - waribiki - netto + kasan,
     };
   }
   function yen(v){ return '¥' + v.toLocaleString('ja-JP'); }
@@ -416,9 +445,15 @@ TEMPLATE = r"""<!doctype html>
   function totalHTML(k){
     if (!k) { return ''; }
     var h = [];
-    h.push(ln('小計（' + k.kasho + '箇所）', yen(k.shoukei), ''));
-    if (k.doujiBiki) {
-      h.push('<p class="note">2箇所目以降は同時施工価格を適用しています。</p>');
+    h.push(ln('単品でのご依頼なら（' + k.kasho + '箇所）', yen(k.tanpin), ''));
+    if (k.setBiki) {
+      h.push(ln('セット価格の割引', '−' + yen(k.setBiki), 'off'));
+      h.push('<p class="note">同時にご依頼いただく箇所は、セット価格を適用しています。</p>');
+    }
+    if (k.netto) {
+      h.push(ln('ネット申込特典', '−' + yen(k.netto), 'off'));
+      h.push('<p class="note">セット価格の対象がない組み合わせのため、'
+             + 'このページからのお申し込み特典を適用しています。</p>');
     }
     if (k.waribiki) {
       h.push(ln('早期予約割引 ' + Math.round(k.ritsu * 100) + '%OFF', '−' + yen(k.waribiki), 'off'));
