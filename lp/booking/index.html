@@ -246,6 +246,16 @@ footer a{color:var(--invert-ink);}
 
 /* ============ 予約ページ固有 ============ */
 
+/* トップの「電話で予約する」。フォームが合わない方をここで受け止める */
+.denwa{display:flex;flex-direction:column;gap:9px;background:var(--surface);
+  border:2px solid var(--accent);border-radius:12px;padding:15px 16px;box-shadow:var(--shadow);}
+.denwa .btn{width:100%;min-height:56px;font-size:17px;}
+.denwa .lab{font-size:12.5px;color:var(--muted);line-height:1.7;}
+.denwa .lab b{color:var(--ink);}
+.matawa{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;}
+.matawa::before,.matawa::after{content:"";flex:1 1 auto;height:1px;background:var(--line);}
+
+
 /* メニューの行。個数を増減できるようにしている（エアコンは複数台が普通のため） */
 .menu-list{display:flex;flex-direction:column;gap:8px;}
 .menu-row{display:grid;grid-template-columns:1fr auto;gap:10px 12px;align-items:center;
@@ -310,9 +320,17 @@ footer a{color:var(--invert-ink);}
   <div class="intro">
     <span class="eyebrow">Booking</span>
     <h1>空いている日時から<br>そのままご予約いただけます。</h1>
-    <p class="lead">前回ご利用いただいたお客様専用のページです。所要 <b>約2分</b>。担当の空き状況をそのまま出しているので、電話のやりとりなしでお決めいただけます。</p>
+    <p class="lead">前回ご利用いただいたお客様専用のページです。所要 <b>約2分</b>。担当の空き状況をそのまま出しているので、そのままご予約いただけます。お電話でも承ります。</p>
     <div class="ctx"><span>東京・千葉・神奈川</span><span>表示はすべて税込</span><span>追加請求なし</span></div>
   </div>
+
+  <!-- フォームが合わない方、急ぎの方の逃げ道。いちばん上に置く -->
+  <div class="denwa">
+    <a class="btn tel" href="tel:080-8043-8259">電話で予約する（担当：渡辺）</a>
+    <span class="lab"><b>080-8043-8259／受付 8:00〜20:00</b><br>
+      日程のご相談や、フォームに無いご依頼はお電話が早いです。</span>
+  </div>
+  <p class="matawa">または、下から日時を選ぶ</p>
 
   <div class="progress" id="progress">
     <span class="track"><span class="fill" id="bar"></span></span>
