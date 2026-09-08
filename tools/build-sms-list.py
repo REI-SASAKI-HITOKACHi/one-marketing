@@ -50,7 +50,12 @@ TAB = '冬季見込み客_2026'
 #   MOUSHIKOMI  … いま送れるもの。年末LPの申込フォームに直接着地する
 #   YOYAKU_FORM … 既存客向けの予約フォーム。空き枠から選べる。
 #                 T022（Apps Scriptのデプロイ）が終わったら MOUSHIKOMI をこちらに差し替える
-MOUSHIKOMI = 'https://one-hitter-nenmatsu.netlify.app/?src=sms#form'
+#
+# ★ 2026-09-08、誘導先を one-hitter-nenmatsu.netlify.app から
+#   one-hitter-lp.netlify.app/nenmatsu/ へ変えた。
+#   前者は申込フォームが動いていなかった（POSTが404、遷移先のthanksも404）。
+#   お客様が申し込めないページへ送るところだった。実測で確認済み。
+MOUSHIKOMI = 'https://one-hitter-lp.netlify.app/nenmatsu/?src=sms#form'
 YOYAKU_FORM = 'https://one-hitter-booking.netlify.app/?src=sms'
 
 TEL_UKETSUKE = '080-8043-8259'    # ワンヒッターの受付（和真）
