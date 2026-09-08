@@ -44,8 +44,18 @@ spec.loader.exec_module(sc)
 
 SS = '1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64'
 TAB = '冬季見込み客_2026'
-LP = 'https://one-hitter-nenmatsu.netlify.app/?src=sms'
-TEL_UKETSUKE = '080-8043-8259'
+# 誘導先。既存のお客様なので、売り込みのページではなく申込フォームへ直接送る
+# （2026-09-08 オーナー指示「LPではなく申込フォームを送る」）
+#
+#   MOUSHIKOMI  … いま送れるもの。年末LPの申込フォームに直接着地する
+#   YOYAKU_FORM … 既存客向けの予約フォーム。空き枠から選べる。
+#                 T022（Apps Scriptのデプロイ）が終わったら MOUSHIKOMI をこちらに差し替える
+MOUSHIKOMI = 'https://one-hitter-nenmatsu.netlify.app/?src=sms#form'
+YOYAKU_FORM = 'https://one-hitter-booking.netlify.app/?src=sms'
+
+TEL_UKETSUKE = '080-8043-8259'    # ワンヒッターの受付（和真）
+TEL_HONPO = '080-1344-3137'       # おそうじ本舗としての受付（和真）
+# ★この2つを取り違えないこと。本舗のお客様にワンヒッターの番号を出してはいけない。
 
 # 1日の目標。これを超えて送れた日のために、本文は全員分そろえておく
 MOKUHYOU = 20
@@ -193,6 +203,63 @@ def menu_hitotsu(uchiwake):
     return IIKAE.get(namae, namae + 'のクリーニング' if namae else '')
 
 
+# ============================== 次にすすめる箇所 ==============================
+# 2026-09-08 オーナー決定のルール。
+#   ・前回がエアコン                    → 水まわりをすすめる
+#   ・前回がエアコン以外で1年以上たっている → 同じ箇所をもう一度
+#   ・前回がエアコン以外で1年未満        → まだやっていない別の箇所
+#
+# 料金には触れない。箇所の提案だけをする。
+
+MIZUMAWARI = '浴室やキッチンなどの水まわり'
+
+# まだやっていない箇所を出すときの順番。上から、まだの箇所を選ぶ
+HOKA_NO_JUNBAN = [
+    ('浴室', '浴室クリーニング'),
+    ('レンジフード', 'レンジフードクリーニング'),
+    ('換気扇', '換気扇クリーニング'),
+    ('キッチン', 'キッチンクリーニング'),
+    ('洗濯機', '洗濯機クリーニング'),
+    ('トイレ', 'トイレクリーニング'),
+    ('洗面台', '洗面台クリーニング'),
+]
+
+
+def yatta(uchiwake):
+    """施工メニュー（内訳）から、やったことのある箇所の名前を集める"""
+    out = set()
+    for koma in (uchiwake or '').split('／'):
+        na = koma.split('×')[0].strip()
+        if na:
+            out.add(na)
+    return out
+
+
+def eakon_ka(na):
+    return na.startswith('エアコン') or na in ('天カセ',)
+
+
+def teian(r):
+    """次にすすめる箇所を1つ返す"""
+    uchiwake = g(r, '施工メニュー（内訳）')
+    zenkai = (uchiwake.split('／')[0].split('×')[0].strip()) if uchiwake else ''
+    if not zenkai:
+        return ''
+    if eakon_ka(zenkai):
+        return MIZUMAWARI
+    try:
+        keika = float(g(r, '経過(月)') or 0)
+    except ValueError:
+        keika = 0
+    if keika >= 12:
+        return menu_hitotsu(uchiwake)          # 同じ箇所をもう一度
+    sumi = yatta(uchiwake)
+    for na, iikata in HOKA_NO_JUNBAN:
+        if na not in sumi:
+            return iikata                       # まだやっていない別の箇所
+    return MIZUMAWARI
+
+
 # 本文のひな形は「送信系統ごと」に持つ。
 #
 # 本舗経由のお客様には、おそうじ本舗として営業する。
@@ -242,8 +309,11 @@ def honbun(r, keitou):
         '施工時期': itsu(g(r, '最終施工日')),
         '前回メニュー': menu_hitotsu(g(r, '施工メニュー（内訳）')),
         'おすすめ': g(r, '今回おすすめ').replace('・', 'と'),
-        '予約URL': LP,
+        'ご提案': teian(r),
+        '申込フォームURL': MOUSHIKOMI,
+        '予約フォームURL': YOYAKU_FORM,
         '電話番号': TEL_UKETSUKE,
+        '本舗の電話番号': TEL_HONPO,
     }
     kata = HINAGATA.get(keitou if keitou in HINAGATA else '自社', [])
     if not kata:
