@@ -12,6 +12,9 @@
    カードを積み上げない。持ち上げるのは価格と見積り欄だけ。
    =========================================================== */
 :root{
+  /* 広告の受け皿なので、OSのダークモードに追従させない。
+     清潔感がこのLPの訴求そのものなので、暗転すると意味が変わる */
+  color-scheme:light;
   --ink:#0D3B5C;          /* 深い青。ヘッダー・追従バー・帯に使う。
                              黒にしていたが、この業種のLPで黒を地に使う例が無い。
                              大手7社（本舗・革命・ベアーズ・ダスキン・カジタク・
@@ -42,36 +45,6 @@
   --on-ink-2:#A8C2D2;
   --ok:#1B6B4F;
   --scrim:243,247,249;    /* = --paper。写真の上に敷く白 */
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --ink:#0C2D45; --ink-2:#123E5C;
-    --paper:#0B1720; --paper-2:#12232E;
-    --surface:#12232E;
-    --text:#E7EEF2; --text-2:#B3C4CE;
-    --steel:#8FA4B0;
-    --rule:#20323F; --rule-2:#37505F;
-    --cta:#FF7A4D; --cta-deep:#C0300C; --cta-soft:#2A1610;
-    --cta-fill:#B72C0A; --cta-fill-h:#8F2408; --cta-ink:#FFB894;
-    --aqua:#5AC8DC; --aqua-ink:#6FD0E4; --aqua-fill:#0C5F6B; --aqua-soft:#0A2A33;
-    --on-ink:#EDF4F8; --on-ink-2:#A8C2D2;
-    --ok:#4FBF95;
-    --scrim:11,23,32;
-  }
-}
-:root[data-theme="dark"]{
-    --ink:#0C2D45; --ink-2:#123E5C;
-  --paper:#0B1720; --paper-2:#12232E;
-  --surface:#12232E;
-  --text:#E7EEF2; --text-2:#B3C4CE;
-  --steel:#8FA4B0;
-  --rule:#20323F; --rule-2:#37505F;
-  --cta:#FF7A4D; --cta-deep:#C0300C; --cta-soft:#2A1610;
-  --cta-fill:#B72C0A; --cta-fill-h:#8F2408; --cta-ink:#FFB894;
-  --aqua:#5AC8DC; --aqua-ink:#6FD0E4; --aqua-fill:#0C5F6B; --aqua-soft:#0A2A33;
-  --on-ink:#EDF4F8; --on-ink-2:#A8C2D2;
-  --ok:#4FBF95;
-  --scrim:11,23,32;
 }
 
 *{box-sizing:border-box;}

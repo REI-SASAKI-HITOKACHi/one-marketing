@@ -393,6 +393,24 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict)
           f"画像{len(list(img_dst.iterdir()))}点")
 
 
+def copy_kanseihin(out: pathlib.Path) -> None:
+    """完成した文書としてソースにあるページを、そのまま配信先へ写す。
+
+    アンケート（lp/survey/）は断片ではなく <html> から始まる完成品なので
+    PAGES を通らない。以前はビルドを経由せず deploy/ に直接置かれていて、
+    ソースを直しても配信物に反映されず、両者がずれていた（2026-09-06）。
+    """
+    for name in ("survey",):
+        src = ROOT / "lp" / name / "index.html"
+        if not src.exists():
+            continue
+        dst = out / name
+        dst.mkdir(parents=True, exist_ok=True)
+        (dst / "index.html").write_text(
+            strip_comments(src.read_text(encoding="utf-8")), encoding="utf-8")
+        print(f"{dst.relative_to(ROOT)}/index.html  （完成品をそのまま複製）")
+
+
 if __name__ == "__main__":
     target = sys.argv[1] if len(sys.argv) > 1 else "php"
     if target not in TARGETS:
@@ -411,3 +429,5 @@ if __name__ == "__main__":
         if tel != DEFAULT_TEL:
             print(f"  {meta['dir']}: 電話番号を {tel} に差し替え（コールトラッキング）")
         build_page(name, meta, target, out, cfg)
+
+    copy_kanseihin(out)
