@@ -1,3 +1,16 @@
 dist/
 deploy/one-hitter-lp.zip
 deploy/.netlify-site.json
+
+# サービスアカウントの鍵（絶対にコミットしない）
+*-service-account*.json
+*sa-key*.json
+*.pem
+credentials.json
+
+# Python のキャッシュ
+__pycache__/
+*.pyc
+
+# 一時作業ファイル（顧客の個人情報を含むためコミットしない）
+scratch-*.json
