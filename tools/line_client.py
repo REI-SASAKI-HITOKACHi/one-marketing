@@ -229,6 +229,48 @@ def midoku_check(a):
     sys.exit(1)
 
 
+def op_midoku(a):
+    """未読の返信を一覧する。--kakunin 行番号 で、その行だけ確認済みにする。
+
+    ★一括で全部に印を付けないこと。読んでいない受信まで消えてしまう。
+    """
+    m = midoku_henshin()
+    if m is None:
+        sys.exit('LINE_ログを読めませんでした。')
+    if not a.kakunin:
+        if not m:
+            print('未確認の返信はありません。')
+            return
+        print(f'未確認の返信 {len(m)}件\n')
+        for gyou, itsu, honbun in m:
+            print(f'[{gyou}行目] {itsu}')
+            for ln in honbun.split('\n'):
+                print(f'  {ln}')
+            print()
+        print('読んだら: python3 tools/line_client.py midoku --kakunin <行番号> ...')
+        return
+
+    import datetime
+    import importlib.util
+    import urllib.parse
+    here = os.path.dirname(os.path.abspath(__file__))
+    spec = importlib.util.spec_from_file_location('sc', f'{here}/sheets_client.py')
+    sc = importlib.util.module_from_spec(spec)
+    sys.modules['sc'] = sc
+    spec.loader.exec_module(sc)
+    tok = sc.access_token(sc.load_credentials())
+    kyou = datetime.date.today().isoformat()
+    mada = {g for g, _, _ in m}
+    for gyou in a.kakunin:
+        if gyou not in mada:
+            print(f'{gyou}行目は未確認の受信ではありません。飛ばします。')
+            continue
+        path = urllib.parse.quote(f'/{SS_LOG}/values/{TAB_LOG}!H{gyou}', safe='/:?&=,!')
+        sc.call(tok, path, method='PUT', payload={'values': [[f'{kyou} 確認済']]},
+                query={'valueInputOption': 'USER_ENTERED'})
+        print(f'{gyou}行目を確認済みにしました。')
+
+
 def op_push(a):
     if a.file:
         with open(a.file, encoding="utf-8") as f:
@@ -281,12 +323,18 @@ def main():
     si.add_argument("--preview", help="サムネイルのURL。省略すると本体と同じ")
     si.add_argument("--text", help="画像の前に添えるテキスト")
     si.add_argument("--to", help="送信先。省略するとグループID")
+    sm = sub.add_parser("midoku", help="未確認の返信を見る／確認済みにする")
+    sm.add_argument("--kakunin", type=int, nargs="+", metavar="行番号",
+                    help="読んだ行だけを確認済みにする。一括で付けないこと")
+    sm.set_defaults(func=op_midoku)
+
     si.add_argument("--dry-run", action="store_true", help="送らずに内容だけ表示する")
     si.add_argument("--midoku-ok", action="store_true",
                     help="未読の返信を読んだうえで送る")
 
     a = p.parse_args()
-    {"whoami": op_whoami, "quota": op_quota, "push": op_push, "image": op_image}[a.cmd](a)
+    {"whoami": op_whoami, "quota": op_quota, "push": op_push,
+     "image": op_image, "midoku": op_midoku}[a.cmd](a)
 
 
 if __name__ == "__main__":
