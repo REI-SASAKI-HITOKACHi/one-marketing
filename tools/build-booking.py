@@ -125,6 +125,11 @@ TSUIKA_CSS = """
 .kakunin .r dt{color:var(--muted);font-size:12.5px;}
 .kakunin .r dd{margin:0;font-weight:700;word-break:break-word;}
 .slots-toki{margin:.5rem 0 0;font-size:.78rem;color:#6b7280;text-align:right}
+.hikae{margin-top:1rem}
+.hikae .ln{display:flex;justify-content:space-between;gap:1rem;padding:.45rem 0;border-bottom:1px solid rgba(0,0,0,.07);font-size:.9rem}
+.hikae .ln:last-of-type{border-bottom:0}
+.hikae .ln .v{text-align:right;font-weight:600;word-break:break-all}
+.hikae-memo{margin:.8rem 0 .9rem;font-size:.85rem}
 """
 
 
@@ -303,6 +308,17 @@ TEMPLATE = r"""<!doctype html>
         <p id="done-when"></p>
         <p>担当の渡辺より、確認のお電話を差し上げます。<br>その時点で確定となります。</p>
       </div>
+
+      <!-- お客様の手元に何も残らないと「いつ予約したっけ」となる。
+           控えをこの画面に出して、スクショか カレンダー登録で残せるようにする
+           （2026-09-09 和真さんの実機テストでの指摘） -->
+      <div class="card hikae">
+        <h3>ご予約内容（控え）</h3>
+        <div id="done-hikae"></div>
+        <p class="hikae-memo">この画面を<b>スクリーンショットで保存</b>していただくと安心です。</p>
+        <a class="btn ghost" id="done-cal" href="#" target="_blank" rel="noopener">Googleカレンダーに登録する</a>
+      </div>
+
       <div class="card small">
         <h3>ご変更・キャンセル</h3>
         <p>お電話をお願いします。前日までにご連絡いただければ費用はかかりません。</p>
@@ -685,6 +701,47 @@ TEMPLATE = r"""<!doctype html>
      Netlifyフォームへ、同じオリジンの "/" に application/x-www-form-urlencoded でPOSTする。
      別ドメインではないのでCORSにならない。項目名は、HTMLの下にある
      控えのフォーム（name="yoyaku"）と必ず一致させること。 */
+  /* 完了画面の控え。お客様の手元に残るのはこれだけなので、
+     日時・内容・概算・連絡先まで出す。 */
+  function kakuHikae(hyouji, atai){
+    var gyou = [
+      ['日時', hyouji + '〜'],
+      ['ご希望の内容', atai['ご希望の内容']],
+      ['所要の目安', funHyouji(Number(atai['所要の目安（分）']))],
+      ['概算金額（税込）', atai['概算金額'] ? '¥' + Number(atai['概算金額']).toLocaleString() : '—'],
+      ['お名前', atai['お名前'] + ' 様'],
+      ['ご住所', atai['ご住所']],
+      ['お電話', atai['お電話番号']],
+      ['担当', '渡辺（' + S.tel + '）'],
+    ];
+    $('done-hikae').innerHTML = gyou.map(function(x){
+      return '<div class="ln"><span>' + x[0] + '</span><span class="v">' + x[1] + '</span></div>';
+    }).join('');
+
+    /* Googleカレンダーに入れられるリンク。ダウンロードではなくURLなので確実に開く */
+    function utc(d){
+      return d.getUTCFullYear() +
+        ('0' + (d.getUTCMonth() + 1)).slice(-2) + ('0' + d.getUTCDate()).slice(-2) + 'T' +
+        ('0' + d.getUTCHours()).slice(-2) + ('0' + d.getUTCMinutes()).slice(-2) + '00Z';
+    }
+    /* 端末のタイムゾーンに頼らない。施工日時は必ず日本時間（UTC+9）として組む。
+       端末の時刻設定がずれていても、カレンダーに正しい時刻が入るようにするため。 */
+    var hd = state.date.split('-');
+    var ht = state.time.split(':');
+    var hajime = new Date(Date.UTC(+hd[0], +hd[1] - 1, +hd[2], +ht[0] - 9, +ht[1]));
+    var owari = new Date(hajime.getTime() + Number(atai['所要の目安（分）'] || 120) * 60000);
+    var url = 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+      '&text=' + encodeURIComponent('ハウスクリーニング（ワンヒッター）') +
+      '&dates=' + utc(hajime) + '/' + utc(owari) +
+      '&location=' + encodeURIComponent(atai['ご住所']) +
+      '&details=' + encodeURIComponent(
+        atai['ご希望の内容'] + '\n概算 ' +
+        (atai['概算金額'] ? '¥' + Number(atai['概算金額']).toLocaleString() : '—') +
+        '\n担当 渡辺 ' + S.tel +
+        '\n※確認のお電話をもって確定となります');
+    $('done-cal').href = url;
+  }
+
   var okuttechuu = false;
   $('send').addEventListener('click', function(){
     if (okuttechuu) { return; }
@@ -720,7 +777,9 @@ TEMPLATE = r"""<!doctype html>
     }).then(function(r){
       if (!r.ok) { throw new Error('送信できませんでした（' + r.status + '）'); }
       var hi = state.slots.filter(function(x){ return x.date === state.date; })[0];
-      $('done-when').textContent = (hi ? hi.label : state.date) + ' ' + state.time + '〜 でお伺いします。';
+      var hyouji = (hi ? hi.label : state.date) + ' ' + state.time;
+      $('done-when').textContent = hyouji + '〜 でお伺いします。';
+      kakuHikae(hyouji, atai);
       STEPS.forEach(function(id){ $(id).hidden = true; });
       $('progress').hidden = true;
       $('done').hidden = false;
