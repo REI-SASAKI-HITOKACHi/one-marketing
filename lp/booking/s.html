@@ -32,6 +32,7 @@
          padding:15px 12px; border-radius:10px; font-size:17px; font-weight:700; margin:10px 0;
          border:0; cursor:pointer; background:#0E7C93; color:#fff; }
   .btn.sub2 { background:transparent; color:inherit; border:1.5px solid rgba(128,128,128,.5); }
+  .dare { font-size:15px; margin-top:4px; }
   .note { font-size:13px; color:#667; }
   .err { color:#b3261e; font-weight:700; }
 </style>
@@ -44,6 +45,7 @@
   <div class="box">
     <div>宛先</div>
     <div class="to" id="to">—</div>
+    <div class="dare" id="dare"></div>
   </div>
 
   <a class="btn" id="go" href="#">SMSアプリを開く</a>
@@ -64,33 +66,48 @@
 (function(){
   function $(id){ return document.getElementById(id); }
 
-  /* 「#」より後ろを読む。to=電話番号 / b=本文（どちらも encodeURIComponent 済み） */
-  var h = (location.hash || '').replace(/^#/, '');
-  var p = {};
-  h.split('&').forEach(function(kv){
-    var i = kv.indexOf('=');
-    if (i > 0) { p[kv.slice(0, i)] = decodeURIComponent(kv.slice(i + 1)); }
-  });
-  var to = (p.to || '').replace(/[^0-9+]/g, '');
-  var body = p.b || '';
+  var imaNoUrl = '';
 
-  if (!to) {
-    $('msg').innerHTML = '<span class="err">宛先が読み取れませんでした。'
-      + 'シートのD列「▶送る」から開きなおしてください。</span>';
-    return;
+  /* ★「#」より後ろだけが変わったとき、ブラウザはページを読み込み直さない。
+     シートから次の人のリンクを開いても、前の人の内容が出たままになる
+     （2026-09-10 和真さん報告
+      「一つ開いて次のを開いても前の情報のまま更新されずタブを閉じて再度開くと飛ぶ」）。
+     そのため hashchange でも必ずやり直す。ここを消さないこと。 */
+  function yomu(hiraku){
+    var h = (location.hash || '').replace(/^#/, '');
+    var p = {};
+    h.split('&').forEach(function(kv){
+      var i = kv.indexOf('=');
+      if (i > 0) { p[kv.slice(0, i)] = decodeURIComponent(kv.slice(i + 1)); }
+    });
+    var to = (p.to || '').replace(/[^0-9+]/g, '');
+    var body = p.b || '';
+
+    if (!to) {
+      $('msg').innerHTML = '<span class="err">宛先が読み取れませんでした。'
+        + 'シートのD列「▶ 送る」から開きなおしてください。</span>';
+      return;
+    }
+    $('to').textContent = to;
+    /* 本文の1行目（「〇〇さま」）を出す。次の人に変わったことが一目で分かるように */
+    $('dare').textContent = (body.split('\n')[0] || '');
+    $('body').value = body;
+    $('msg').textContent = '';
+
+    /* iPhone は sms:番号&body=… 、Android は sms:番号?body=… で開く。
+       ここを取り違えると、本文が入らないか、そもそも開かない。 */
+    var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+              || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    var url = 'sms:' + to + (iOS ? '&' : '?') + 'body=' + encodeURIComponent(body);
+    $('go').href = url;
+    imaNoUrl = url;
+
+    if (hiraku) { setTimeout(function(){ location.href = url; }, 250); }
   }
-  $('to').textContent = to;
-  $('body').value = body;
-
-  /* iPhone は sms:番号&body=… 、Android は sms:番号?body=… で開く。
-     ここを取り違えると、本文が入らないか、そもそも開かない。 */
-  var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-            || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  var url = 'sms:' + to + (iOS ? '&' : '?') + 'body=' + encodeURIComponent(body);
-  $('go').href = url;
 
   $('copy').addEventListener('click', function(){
     var t = $('body');
+    var body = t.value;
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(body).then(function(){
         $('msg').textContent = '本文をコピーしました。SMSアプリに貼ってください。';
@@ -104,9 +121,8 @@
     }
   });
 
-  /* すぐにSMSアプリを開きにいく。開けなかったときのために、
-     上のボタンとコピー欄はそのまま残しておく。 */
-  setTimeout(function(){ location.href = url; }, 250);
+  window.addEventListener('hashchange', function(){ yomu(true); });
+  yomu(true);
 })();
 </script>
 </body>
