@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | 役割ID | `web-inflow` |
-| セッション | （新設。作成後に追記） |
+| セッション | `session_01HwV73zaWrzevyCzW9zip39`（ネット流入施策スレッド：SNS・メディア） |
 | ブランチ | `claude/web-inflow` |
 
 ## ミッション
