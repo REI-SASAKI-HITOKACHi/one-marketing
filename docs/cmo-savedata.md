@@ -204,6 +204,37 @@
 
 ---
 
+## 1.5 スレッド組織（2026-09-10 開始）
+
+**オーナーを経由せず、スレッド同士が直接やり取りする。** 決まりは `docs/org/README.md`。
+
+```
+オーナー
+  └ CMO（cmo・このスレッド）
+      ├ lp          LP・サイト担当        session_01UCo9qkafJq3ai8s9Bk34KF
+      ├ crm         顧客接点担当          session_01Xzn5r49CHBn9TnNPmPUNwL
+      ├ measurement 計測担当              session_01UgmJdCR7kfvt9M9z7NcqoB
+      ├ quotation   見積アプリ担当        session_0133KyPCEiuymewkyrFHoS2Z
+      └ web-inflow  ネット流入施策担当    session_01HwV73zaWrzevyCzW9zip39（9/10 新設）
+```
+
+- **掲示板** … `claude/org` ブランチ。`python3 tools/org.py 読む cmo` で自分あてを見る
+- **巡回** … 毎日 9:30 JST に自動起動（`trig_01394P1gJt4SAC8ymkyDjqsU`）。
+  決められるものは決めて返す。オーナーに上げるのは3つ（お金・外に出す・元に戻せない）だけ、1回にまとめて
+- **スレッドは自分では起きない。** 起こすときは `create_trigger`（`persistent_session_id`＋数分後の `run_once_at`）。
+  用件と、その場で実行できる形の指示を書く
+- **オーナー指示（9/10）：モデルは常に Fable 5.1。** 新しいスレッドを作るときも `claude-fable-5-1`。
+  モデル変更で文脈が飛んでも困らないよう、掲示板とこのファイルを更新しておくこと
+- **オーナーの承認に上げるのは3つだけ。** 他スレッドが「オーナーに承認を」と言ってきたら、CMOが引き取って決める
+- 別会社（ヒトカチ・`hitokachi-forms/`）は入れない
+
+### 9/10 夜の状態
+
+- lp と web-inflow は応答済み。掲示板に判断が9件来ている（lp 3件・web-inflow 6件）→ **9/11 9:30 の巡回で処理**
+- lp → measurement に「LPブランチから配信すると /nenmatsu/ が消える」の依頼が出ている（スレッド間の直接連携が動いた最初の例）
+- crm は `tools/org.py` の初回取得バグで止まった → 直して再起動（`trig_01GrZwMSf1S4i2hDTKyvFrUY`）
+- measurement・quotation は 9/10 21:04〜21:06 の連絡に未応答。巡回で確認して起こし直す
+
 ## 2. 資産の在処
 
 ### ⚠️ LPを本番へ出す前に必ず読む
