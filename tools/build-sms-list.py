@@ -302,60 +302,13 @@ def menu_hitotsu(uchiwake):
 
 
 # ============================== 次にすすめる箇所 ==============================
-# 2026-09-08 オーナー決定のルール。
-#   ・前回がエアコン                    → 水まわりをすすめる
-#   ・前回がエアコン以外で1年以上たっている → 同じ箇所をもう一度
-#   ・前回がエアコン以外で1年未満        → まだやっていない別の箇所
+# ── 次のおすすめ箇所を自動で決める仕組みについて ──
 #
-# 料金には触れない。箇所の提案だけをする。
-
-MIZUMAWARI = '浴室やキッチンなどの水まわり'
-
-# まだやっていない箇所を出すときの順番。上から、まだの箇所を選ぶ
-HOKA_NO_JUNBAN = [
-    ('浴室', '浴室クリーニング'),
-    ('レンジフード', 'レンジフードクリーニング'),
-    ('換気扇', '換気扇クリーニング'),
-    ('キッチン', 'キッチンクリーニング'),
-    ('洗濯機', '洗濯機クリーニング'),
-    ('トイレ', 'トイレクリーニング'),
-    ('洗面台', '洗面台クリーニング'),
-]
-
-
-def yatta(uchiwake):
-    """施工メニュー（内訳）から、やったことのある箇所の名前を集める"""
-    out = set()
-    for koma in (uchiwake or '').split('／'):
-        na = koma.split('×')[0].strip()
-        if na:
-            out.add(na)
-    return out
-
-
-def eakon_ka(na):
-    return na.startswith('エアコン') or na in ('天カセ',)
-
-
-def teian(r):
-    """次にすすめる箇所を1つ返す"""
-    uchiwake = g(r, '施工メニュー（内訳）')
-    zenkai = (uchiwake.split('／')[0].split('×')[0].strip()) if uchiwake else ''
-    if not zenkai:
-        return ''
-    if eakon_ka(zenkai):
-        return MIZUMAWARI
-    try:
-        keika = float(g(r, '経過(月)') or 0)
-    except ValueError:
-        keika = 0
-    if keika >= 12:
-        return menu_hitotsu(uchiwake)          # 同じ箇所をもう一度
-    sumi = yatta(uchiwake)
-    for na, iikata in HOKA_NO_JUNBAN:
-        if na not in sumi:
-            return iikata                       # まだやっていない別の箇所
-    return MIZUMAWARI
+# 2026-09-10 オーナー判断で取りやめ。
+#   「オススメメニューの構想は複雑化（エラー確率上昇）するから一旦取りやめる」
+# 前回メニューと経過月から次の箇所を出す teian() は削除した。
+# 本舗の文面は、9〜11月の季節提案を全員に同じ文で出す固定文にしてある。
+# 復活させたくなったら git log でこのコミットを見ること。
 
 
 # 本文のひな形は「送信系統ごと」に持つ。
@@ -409,8 +362,6 @@ def honbun(r, keitou):
         # 「その後、○○は快適に…」用。半角丸かっこ・全角丸かっこのどちらでも拾う
         '前回施工(クリーニング除く)': menu_mono(g(r, '施工メニュー（内訳）')),
         '前回施工（クリーニング除く）': menu_mono(g(r, '施工メニュー（内訳）')),
-        'おすすめ': g(r, '今回おすすめ').replace('・', 'と'),
-        'ご提案': teian(r),
         '申込フォームURL': MOUSHIKOMI,
         '予約フォームURL': YOYAKU_FORM,
         '予約フォーム': YOYAKU_FORM,
@@ -491,6 +442,23 @@ for r in rows:
                      f'{HINAGATA_PATH.get(keitou, "")} を埋めると送信可になります',
                      num, ''))
         continue
+    # 名乗りの行が落ちた本文は送らない。
+    # 「"施工時期"に"前回メニュー"を担当させていただきました、…の渡辺でございます」の行は
+    # 台帳に最終施工日か施工メニューが無いと丸ごと落ちる。落ちると、
+    # 誰から届いたのか分からないSMSになってしまう（2026-09-10）。
+    if '渡辺でございます' not in hon:
+        data.append(('保留', '最終施工日か施工メニューが台帳に無く、名乗りの行が'
+                     '作れませんでした。台帳を埋めると送信可になります', num, ''))
+        continue
+    # 本舗のお客様に、ワンヒッターのものを出していないかを1行ずつ確かめる。
+    # 「本舗顧客には本舗として営業する」（2026-09-08 オーナー指示）
+    if keitou == '本舗':
+        moreta = [w for w in ('ワンヒッター', 'one-hitter', 'ONE HITTER', TEL_UKETSUKE)
+                  if w in hon]
+        if moreta:
+            data.append(('保留', 'ワンヒッターのものが本舗の文面に混ざっています:'
+                         + '、'.join(moreta), num, ''))
+            continue
     data.append(('送信可', '', num, hon))
 
 # ============================== 並べ替えとバッチ ==============================
@@ -580,6 +548,34 @@ def shuukei():
               '、'.join(sorted(SHIRANAI)))
         print('  そのまま本文に残っています。data/sms-template.txt の説明を見てください。')
     print()
+    # 本舗の文面は「前回のクリーニングから1年以上経過しております」と言い切っている。
+    # 経過が1年未満の方に送ると事実と違うので、件数を必ず出す（2026-09-10）。
+    i_ke = ATAMA.index('経過(月)')
+    mijikai = []
+    for x in okr:
+        if x[12] != '本舗':
+            continue
+        try:
+            k = float(x[i_ke] or 0)
+        except ValueError:
+            k = 0
+        if k < 12:
+            mijikai.append((x[1], k))
+    if mijikai:
+        print('★ 本舗で「1年以上経過」に当てはまらない方:', len(mijikai), '件')
+        print('  文面は「前回のクリーニングから1年以上経過しております」と書いています。')
+        print('  例:', '、'.join(f'{na}({k}ヶ月)' for na, k in mijikai[:5]))
+        print()
+    for kt in ('自社', '本舗'):
+        rei = [x for x in okr if x[12] == kt]
+        if not rei:
+            continue
+        n2 = [len(x[4]) for x in rei]
+        print(f'--- {kt} の本文の例（{len(rei)}件・最長{max(n2)}文字）---')
+        print()
+        print(f'[{rei[0][1]}]')
+        print(rei[0][4])
+        print()
     print('--- 本文の例（先頭3件）---')
     for x in okr[:3]:
         print(f'\n[{x[1]}]\n{x[4]}')
