@@ -57,32 +57,39 @@ def repo():
     return r.stdout.strip()
 
 
+def origin_url():
+    return run('git', '-C', repo(), 'remote', 'get-url', 'origin').stdout.strip()
+
+
 def youi():
-    """掲示板のブランチを手元に用意する。無ければ作る"""
-    moto = repo()
+    """掲示板のブランチを手元に用意する。無ければ作る。
+
+    ★手元のリポジトリからではなく、origin のURLから直接 clone する。
+      手元のリポジトリには claude/org が「origin/claude/org」としてしか無いので、
+      そこから --branch claude/org で clone すると失敗する
+      （2026-09-10、顧客接点スレッドが最初に叩いたときに起きた）。"""
+    url = origin_url()
     if not os.path.isdir(os.path.join(WORK, '.git')):
         os.makedirs(os.path.dirname(WORK), exist_ok=True)
-        r = run('git', '-C', moto, 'fetch', 'origin', BRANCH)
-        if r.returncode:
+        r = run('git', 'ls-remote', '--heads', url, BRANCH)
+        if r.returncode == 0 and r.stdout.strip():
+            c = run('git', 'clone', '--branch', BRANCH, '--single-branch', url, WORK)
+            if c.returncode:
+                sys.exit('掲示板を取ってこられませんでした:\n' + c.stderr)
+        else:
             # 掲示板がまだ無い。空のブランチとして作る
-            run('git', 'clone', '--no-checkout', moto, WORK)
+            run('git', 'init', WORK)
             run('git', '-C', WORK, 'checkout', '--orphan', BRANCH)
-            run('git', '-C', WORK, 'reset', '--hard')
-            os.makedirs(os.path.join(WORK, 'inbox'), exist_ok=True)
-            os.makedirs(os.path.join(WORK, 'status'), exist_ok=True)
+            run('git', '-C', WORK, 'remote', 'add', 'origin', url)
+            for d in ('inbox', 'status'):
+                os.makedirs(os.path.join(WORK, d), exist_ok=True)
             open(os.path.join(WORK, 'README.md'), 'w', encoding='utf-8').write(
                 'ワンヒッターのスレッド掲示板。tools/org.py が読み書きする。\n'
                 '直接編集してもよいが、書式は docs/org/README.md に従うこと。\n')
             run('git', '-C', WORK, 'add', '-A')
             run('git', '-C', WORK, 'commit', '-m', '掲示板を作った')
-            # 元のリポジトリのoriginを引き継ぐ
-            url = run('git', '-C', moto, 'remote', 'get-url', 'origin').stdout.strip()
-            run('git', '-C', WORK, 'remote', 'set-url', 'origin', url)
             osu()
             return
-        run('git', 'clone', '--branch', BRANCH, '--single-branch', moto, WORK)
-        url = run('git', '-C', moto, 'remote', 'get-url', 'origin').stdout.strip()
-        run('git', '-C', WORK, 'remote', 'set-url', 'origin', url)
     hiku()
 
 
