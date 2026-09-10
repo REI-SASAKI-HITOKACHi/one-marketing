@@ -347,6 +347,18 @@ for k, v in HINAGATA.items():
 SASHIKOMI = re.compile(r'"([^"]+)"')
 
 
+def ichinen_ijou(r):
+    """前回から1年以上たっている方にだけ出す一文。それ以外は空を返す"""
+    try:
+        keika = float(g(r, '経過(月)') or 0)
+    except ValueError:
+        keika = 0
+    if keika < 12:
+        return ''
+    return ('前回のクリーニングから1年以上経過しておりますので、'
+            '現在の状況をお聴きしたくご連絡を差し上げました。')
+
+
 def honbun(r, keitou):
     """ひな形の "…" を1人ずつの値に差し替える。
     差し替えるものが空だった行は、その行ごと落とす。
@@ -369,6 +381,10 @@ def honbun(r, keitou):
         'ご自宅': ('店舗・オフィス' if g(r, '法人/個人') == '法人' else 'ご自宅'),
         '電話番号': TEL_UKETSUKE,
         '本舗の電話番号': TEL_HONPO,
+        # 経過が1年に満たない方には出さない（この行ごと消える）。
+        # 文面が「1年以上経過しております」と言い切っているため、
+        # 事実と違うことを書かないようにする（2026-09-10 オーナー判断）。
+        '1年以上経過のひとこと': ichinen_ijou(r),
     }
     kata = HINAGATA.get(keitou if keitou in HINAGATA else '自社', [])
     if not kata:
@@ -577,7 +593,8 @@ def shuukei():
     # 本舗の文面は「前回のクリーニングから1年以上経過しております」と言い切っている。
     # 経過が1年未満の方に送ると事実と違うので、件数を必ず出す（2026-09-10）。
     i_ke = ATAMA.index('経過(月)')
-    mijikai = []
+    IJOU = '1年以上経過しております'
+    mijikai, machigai = [], []
     for x in okr:
         if x[12] != '本舗':
             continue
@@ -585,13 +602,29 @@ def shuukei():
             k = float(x[i_ke] or 0)
         except ValueError:
             k = 0
-        if k < 12:
-            mijikai.append((x[1], k))
+        if k >= 12:
+            continue
+        mijikai.append((x[1], k))
+        if IJOU in x[4]:            # ここに入ったら文面と事実が食い違っている
+            machigai.append(x[1])
     if mijikai:
-        print('★ 本舗で「1年以上経過」に当てはまらない方:', len(mijikai), '件')
-        print('  文面は「前回のクリーニングから1年以上経過しております」と書いています。')
+        print('本舗で経過1年未満の方:', len(mijikai),
+              '件（「1年以上経過しております」の一文は出していません）')
         print('  例:', '、'.join(f'{na}({k}ヶ月)' for na, k in mijikai[:5]))
         print()
+    if machigai:
+        print('★★ 1年未満の方に「1年以上経過」と書いています:', len(machigai), '件')
+        print('   送信を止めてください。', '、'.join(machigai[:5]))
+        print()
+    # 一文が落ちた側の文面も1件出す。落ちたあとの文のつながりを目で見るため
+    for x in okr:
+        if x[12] == '本舗' and IJOU not in x[4]:
+            print('--- 本舗・経過1年未満の例（上の一文が落ちた形）---')
+            print()
+            print(f'[{x[1]}]')
+            print(x[4])
+            print()
+            break
     for kt in ('自社', '本舗'):
         rei = [x for x in okr if x[12] == kt]
         if not rei:
