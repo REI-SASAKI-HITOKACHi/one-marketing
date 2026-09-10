@@ -310,7 +310,15 @@ REI-SASAKI-HITOKACHi/one-marketing
 
 ### 認証情報（**リポジトリには一切入れない**）
 
-すべてオーナーのGoogleドライブにある。
+**2026-09-10 から、Driveの1文書に一本化：「ワンヒッター_認証情報（ここだけ）」**
+https://docs.google.com/document/d/1hz8GKLt99NeTkqkJzOp8nrdPLBQeJrp3puLEaFrqenM/edit
+
+- 認証情報はここ以外に書かない。チャット・LINE・git・掲示板に貼らない
+- 値をチャットに書き戻さない。各スレッドはURLを受け取って読む
+- 旧「Netlify_トークン」文書は転記後に削除する（タイトルに【統合先へ転記して削除】を付けた）
+- ★空欄（未受領）：LINE公式アカウント／CMSログイン／GA4測定ID／SNS各アカウント／KDDI APIキー／ネームギア／ロリポップ
+
+（以下は一本化前の記録）
 
 | 名前 | Driveのファイル名 | 用途 |
 |---|---|---|
