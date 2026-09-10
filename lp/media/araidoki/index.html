@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>洗いどき｜そのエアコン、今洗うべき？ 30秒で判定</title>
+<meta name="description" content="エアコン・レンジフード・浴室・洗濯機を、今プロに頼むべきかを正直に判定します。「今は不要」と言うこともあります。">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0E7C93">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=Shippori+Mincho+B1:wght@600&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
+<style>
+/* デザイントークンは lp/nenmatsu/index.html と共通。トーン&マナーを揃えるため丸ごと持ってきています。 */
+:root{
+  --ground:#FAF7F2;
+  --surface:#FFFFFF;
+  --surface-2:#F2EFE9;
+  --ink:#14323D;
+  --ink-soft:#40606C;
+  --muted:#566B73;
+  --line:#E2DDD4;
+  --line-strong:#C8C0B4;
+  --accent:#0E7C93;
+  --accent-deep:#0A5C6E;
+  --accent-soft:#DDEEF1;
+  --cta:#C4461D;
+  --cta-deep:#A83714;
+  --cta-fg:#FFFFFF;
+  --cta-shadow:#8C3212;
+  --cta-text:#A83714;
+  --marker:linear-gradient(transparent 58%,#FFE566 58%);
+  --on-accent:#FFFFFF;
+  --invert:#0F2A38;
+  --invert-ink:#C9D9DE;
+  --invert-line:#1F3C48;
+  --ok:#1E7A5A;
+  --gold:#9A7420;
+  --gold-soft:#F5EEDC;
+  --star:#E0A32A;
+  --shadow:0 2px 10px rgba(20,40,50,.10);
+  --shadow-lift:4px 4px 16px rgba(20,40,50,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C171C;
+    --surface:#12222A;
+    --surface-2:#183039;
+    --ink:#E6EFF1;
+    --ink-soft:#BCCFD5;
+    --muted:#8CA3AB;
+    --line:#223942;
+    --line-strong:#39555F;
+    --accent:#4EC0D4;
+    --accent-deep:#8BDCEA;
+    --accent-soft:#0F3541;
+    --cta:#F0764B;
+    --cta-deep:#D9552A;
+    --cta-fg:#0C171C;
+    --cta-shadow:#A8481F;
+    --cta-text:#E27E5E;
+    --marker:linear-gradient(transparent 58%,#C9A020 58%);
+    --on-accent:#08222A;
+    --invert:#08151A;
+    --invert-ink:#B9CBD1;
+    --invert-line:#1B2E36;
+    --ok:#4FBF95;
+    --gold:#DCB55E;
+    --gold-soft:#2A2413;
+    --star:#F0C25A;
+    --shadow:0 2px 10px rgba(0,0,0,.45);
+    --shadow-lift:4px 4px 16px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C171C;
+  --surface:#12222A;
+  --surface-2:#183039;
+  --ink:#E6EFF1;
+  --ink-soft:#BCCFD5;
+  --muted:#8CA3AB;
+  --line:#223942;
+  --line-strong:#39555F;
+  --accent:#4EC0D4;
+  --accent-deep:#8BDCEA;
+  --accent-soft:#0F3541;
+  --cta:#F0764B;
+  --cta-deep:#D9552A;
+  --cta-fg:#0C171C;
+  --cta-shadow:#A8481F;
+  --cta-text:#E27E5E;
+  --marker:linear-gradient(transparent 58%,#C9A020 58%);
+  --on-accent:#08222A;
+  --invert:#08151A;
+  --invert-ink:#B9CBD1;
+  --invert-line:#1B2E36;
+  --ok:#4FBF95;
+  --gold:#DCB55E;
+  --gold-soft:#2A2413;
+  --star:#F0C25A;
+  --shadow:0 2px 10px rgba(0,0,0,.45);
+  --shadow-lift:4px 4px 16px rgba(0,0,0,.4);
+}
+
+*{box-sizing:border-box;}
+[hidden]{display:none !important;}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:16px;line-height:1.8;-webkit-font-smoothing:antialiased;padding-bottom:40px;
+}
+h1,h2{margin:0;line-height:1.3;letter-spacing:.01em;text-wrap:balance;font-weight:900;}
+h3{margin:0;line-height:1.45;text-wrap:balance;font-weight:900;}
+p{margin:0;}
+a{color:var(--accent-deep);}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+.wrap{max-width:620px;margin:0 auto;padding:0 18px;}
+.eyebrow{font-family:"Barlow",sans-serif;font-weight:600;font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);}
+.num{font-family:"Barlow",sans-serif;font-variant-numeric:tabular-nums;font-weight:700;}
+
+/* 自動投稿よけ。人間には見せない */
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+
+/* ヘッダー */
+.bar{background:var(--surface);border-bottom:1px solid var(--line);}
+.bar-in{max-width:620px;margin:0 auto;padding:9px 18px;display:flex;align-items:center;gap:14px;}
+.logo{display:flex;flex-direction:column;line-height:1.15;}
+.logo b{font-family:"Barlow",sans-serif;font-weight:700;letter-spacing:.08em;font-size:16px;}
+.logo small{font-size:9.5px;color:var(--muted);}
+.bar .tel{margin-left:auto;display:flex;flex-direction:column;line-height:1.2;text-align:right;text-decoration:none;color:inherit;}
+.bar .tel .n{font-family:"Barlow",sans-serif;font-weight:700;font-size:16px;}
+.bar .tel small{font-size:9.5px;color:var(--muted);}
+
+/* 導入 */
+.intro{padding:26px 0 16px;display:flex;flex-direction:column;gap:10px;}
+.intro h1{font-size:clamp(21px,5.4vw,28px);}
+.intro .lead{font-size:14px;color:var(--ink-soft);}
+.ctx{display:flex;flex-wrap:wrap;gap:6px;}
+.ctx span{font-size:11.5px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line);
+  padding:2px 10px;border-radius:99px;}
+
+/* 進捗 */
+.progress{position:sticky;top:0;z-index:20;background:var(--ground);padding:8px 0 10px;}
+.progress .track{display:block;height:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:99px;overflow:hidden;}
+.progress .fill{display:block;height:100%;width:25%;background:var(--accent);transition:width .25s ease;}
+.progress .lab{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:5px;}
+
+/* フォーム */
+.survey-form{display:flex;flex-direction:column;gap:14px;}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 18px;
+  display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);}
+.q > .head{display:flex;flex-direction:column;gap:4px;}
+.q h2{font-size:16.5px;line-height:1.55;}
+.q .why{font-size:12px;color:var(--muted);line-height:1.7;}
+.tag-req,.tag-opt{font-family:"Barlow",sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.1em;
+  padding:2px 8px;border-radius:99px;align-self:flex-start;}
+.tag-req{background:var(--cta);color:var(--cta-fg);}
+.tag-opt{background:var(--surface-2);color:var(--muted);border:1px solid var(--line);}
+
+/* 選択肢 */
+.opts{display:flex;flex-direction:column;gap:8px;}
+.opts.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+@media(max-width:400px){.opts.grid{grid-template-columns:1fr;}}
+.opt{position:relative;}
+.opt input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer;}
+.opt .box{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;min-height:48px;
+  border:1.5px solid var(--line-strong);border-radius:10px;padding:9px 13px;background:var(--surface);
+  font-size:14.5px;font-weight:700;transition:.12s;}
+.opt .mark{width:20px;height:20px;border-radius:50%;border:2px solid var(--line-strong);
+  display:grid;place-items:center;font-size:12px;color:transparent;}
+.opt.check .mark{border-radius:5px;}
+.opt input:checked + .box{border-color:var(--accent);background:var(--accent-soft);}
+.opt input:checked + .box .mark{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+.opt input:focus-visible + .box{outline:3px solid var(--accent);outline-offset:2px;}
+.opt .sub{grid-column:2;font-size:11px;font-weight:500;color:var(--muted);line-height:1.5;}
+.opt.done .box{opacity:.82;}
+.opts-note{font-size:11.5px;color:var(--muted);line-height:1.7;}
+
+/* 入力欄 */
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:13px;font-weight:700;}
+.field input,.field textarea{padding:12px 14px;border:1.5px solid var(--line-strong);border-radius:8px;
+  font-family:inherit;font-size:16px;background:var(--surface);color:var(--ink);width:100%;line-height:1.7;}
+.field textarea{min-height:76px;resize:vertical;}
+.field .hint{font-size:11.5px;color:var(--muted);line-height:1.6;}
+
+/* ボタン */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:8px;font-weight:700;
+  text-decoration:none;border:0;cursor:pointer;font-family:inherit;font-size:15px;padding:13px 18px;line-height:1.4;
+  background:var(--cta);color:var(--cta-fg);transition:background .15s ease,transform .15s ease;}
+.btn:hover{background:var(--cta-deep);}
+.btn:active{transform:translateY(1px);}
+.btn.lg{font-size:17px;padding:16px 20px;width:100%;min-height:58px;border-radius:9999px;letter-spacing:.03em;
+  box-shadow:0 4px 0 0 var(--cta-shadow);}
+.btn.lg:active{box-shadow:0 1px 0 0 var(--cta-shadow);transform:translateY(3px);}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong);}
+.btn.ghost:hover{background:var(--surface-2);}
+.btn.line{background:#06C755;color:#fff;}
+.btn.line:hover{background:#05A445;}
+.btn.tel{background:var(--accent);color:var(--on-accent);}
+.btn.tel:hover{background:var(--accent-deep);}
+.btn.sm{font-size:13.5px;padding:10px 14px;}
+.nav{display:flex;gap:10px;align-items:center;padding:2px 0 8px;}
+.nav .btn{flex:1 1 0;}
+.nav .btn.ghost{flex:0 0 auto;min-width:92px;}
+.err{font-size:13px;font-weight:700;color:var(--cta-text);min-height:1.2em;}
+
+/* 「今すぐ相談したい」「紹介したい」などの分岐ボックス */
+.branch{background:var(--accent-soft);border:1.5px solid var(--accent);border-radius:10px;padding:14px 15px;
+  display:flex;flex-direction:column;gap:10px;}
+.branch b{font-size:14px;color:var(--accent-deep);}
+.branch p{font-size:12.5px;color:var(--ink-soft);line-height:1.75;}
+.branch .row{display:flex;gap:8px;flex-wrap:wrap;}
+.branch .row .btn{flex:1 1 140px;}
+
+/* 完了画面 */
+.done{display:flex;flex-direction:column;gap:14px;}
+.done h2,.done h3,.done .thanks strong{word-break:auto-phrase;}
+.done .thanks{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:24px 20px;
+  display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);}
+.done .thanks h2{font-size:20px;}
+.done .thanks p{font-size:13.5px;color:var(--ink-soft);}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 18px;
+  display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);}
+.card.hero-card{border:2px solid var(--accent);}
+.card.small{padding:16px 15px;}
+.card h3{font-size:16px;}
+.card.small h3{font-size:14px;}
+.card p{font-size:13px;color:var(--ink-soft);line-height:1.8;}
+.card.small p{font-size:12px;}
+.quote{background:var(--surface-2);border:1px dashed var(--line-strong);border-radius:10px;padding:14px 15px;
+  font-size:14px;line-height:1.9;white-space:pre-wrap;color:var(--ink);}
+.copy-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.copy-row .btn{flex:1 1 160px;}
+.copied{font-size:12.5px;font-weight:700;color:var(--ok);}
+.step-list{margin:0;padding-left:1.2em;font-size:12.5px;color:var(--muted);line-height:1.9;}
+
+footer{background:var(--invert);color:var(--invert-ink);padding:30px 0 26px;margin-top:34px;}
+footer .wrap{display:flex;flex-direction:column;gap:8px;}
+footer b{color:#fff;font-size:14px;}
+footer p{font-size:12px;line-height:1.8;}
+footer a{color:var(--invert-ink);}
+
+/* ============ 相談所 固有 ============ */
+.logo b{letter-spacing:.02em;font-family:"Shippori Mincho B1",serif;font-size:19px;}
+.bar .unei{margin-left:auto;font-size:10.5px;color:var(--muted);text-align:right;line-height:1.5;}
+.intro .honest{font-size:12.5px;color:var(--muted);line-height:1.7;border-left:3px solid var(--accent);padding-left:10px;}
+
+/* 対象の選択 */
+.targets{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.targets .opt .box{min-height:64px;font-size:15.5px;}
+
+/* 判定 */
+.verdict{border-radius:12px;padding:20px 18px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);
+  border:2px solid var(--line);background:var(--surface);}
+.verdict .kind{font-family:"Barlow",sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--muted);}
+.verdict h2{font-size:clamp(19px,5vw,24px);line-height:1.5;}
+.verdict.pro{border-color:var(--cta);}
+.verdict.pro h2{color:var(--cta-text);}
+.verdict.diy{border-color:var(--accent);}
+.verdict.diy h2{color:var(--accent-deep);}
+.verdict.wait{border-color:var(--ok);}
+.verdict.wait h2{color:var(--ok);}
+.verdict .konkyo{font-size:14px;line-height:1.85;color:var(--ink);}
+.verdict .meyasu{font-size:11.5px;color:var(--muted);line-height:1.7;}
+
+/* 概算 */
+.gaisan{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:14px 15px;display:flex;flex-direction:column;gap:6px;}
+.gaisan .ln{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;color:var(--ink-soft);}
+.gaisan .ln.sum{font-size:19px;font-weight:900;color:var(--ink);border-top:1px solid var(--line-strong);padding-top:8px;margin-top:2px;}
+.gaisan .ln .v{font-family:"Barlow",sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.gaisan .note{font-size:11.5px;color:var(--muted);line-height:1.7;}
+
+/* DIY手順 */
+.diy-steps{margin:0;padding-left:1.3em;font-size:13.5px;line-height:1.9;color:var(--ink);}
+.diy-steps li.stop{color:var(--cta-text);font-weight:700;list-style:"⚠ ";}
+
+/* 次の一手 */
+.next{display:flex;flex-direction:column;gap:8px;}
+.next .btn{width:100%;}
+
+/* 手配フォーム */
+.field select{padding:12px 14px;border:1.5px solid var(--line-strong);border-radius:8px;font-family:inherit;font-size:16px;
+  background:var(--surface);color:var(--ink);width:100%;}
+.field input[type=file]{padding:10px;font-size:14px;}
+.agree{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.7;}
+.agree input{width:20px;height:20px;margin-top:2px;flex:0 0 auto;}
+.maegaki{font-size:12.5px;color:var(--ink-soft);line-height:1.8;background:var(--surface-2);border-radius:8px;padding:10px 12px;}
+.thumbs{display:flex;gap:6px;flex-wrap:wrap;}
+.thumbs img{width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--line);}
+
+/* 運営者ページ */
+.unei-tbl{display:grid;grid-template-columns:110px 1fr;gap:8px 12px;font-size:13.5px;line-height:1.8;}
+.unei-tbl dt{color:var(--muted);}
+.unei-tbl dd{margin:0;}
+
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <a class="logo" href="./" style="text-decoration:none;color:inherit"><b>洗いどき</b><small>araidoki｜掃除の相談所</small></a>
+    <span class="unei">運営：ワンヒッター株式会社<br><a href="./unei.html" style="color:inherit">運営者情報</a></span>
+  </div>
+</header>
+<main class="wrap">
+
+  <div class="intro">
+    <span class="eyebrow">araidoki</span>
+    <h1>そのエアコン、今洗うべき？<br>30秒で判定します。</h1>
+    <p class="lead">プロに頼むべきかどうかを、正直にお答えします。<b>「今は不要」とお伝えすることもあります。</b>必要なときだけ、必要な分だけ。</p>
+    <p class="honest">運営はハウスクリーニング業者（ワンヒッター株式会社）ですが、判定はあらかじめ決めた基準で行い、手配のご希望がなければ連絡は一切しません。</p>
+  </div>
+
+  <div class="progress" id="progress">
+    <span class="track"><span class="fill" id="bar" style="width:25%"></span></span>
+    <span class="lab"><span id="steplab">1 / 4</span><span id="steptitle">何を洗う？</span></span>
+  </div>
+
+  <form class="survey-form" id="f" onsubmit="return false;" novalidate>
+
+    <!-- ステップ1：対象 -->
+    <section class="step" data-step="1">
+      <div class="q">
+        <div class="head"><h2>どこが気になりますか？</h2><p class="why">1つ選んでください。あとから他の場所も判定できます。</p></div>
+        <div class="targets" id="targets"></div>
+        <p class="err" id="e1"></p>
+      </div>
+    </section>
+
+    <!-- ステップ2：状態 -->
+    <section class="step" data-step="2" hidden>
+      <div id="qs"></div>
+      <div class="nav">
+        <button type="button" class="btn ghost" data-back="1">戻る</button>
+        <button type="button" class="btn lg" id="judge">判定する</button>
+      </div>
+      <p class="err" id="e2"></p>
+    </section>
+
+    <!-- ステップ3：判定 -->
+    <section class="step" data-step="3" hidden>
+      <div id="verdict"></div>
+      <div class="q" id="gaisan-box" hidden>
+        <div class="head"><h2>頼む場合の料金の目安</h2><p class="why">運営会社の料金表（税込）から出しています。提携事業者を手配する場合は、確定前に事業者名と料金を必ずお知らせします。</p></div>
+        <div class="gaisan" id="gaisan"></div>
+      </div>
+      <div class="q" id="diy-box" hidden>
+        <div class="head"><h2>ご自分でできること</h2><p class="why">ここまでで直ることが多いです。⚠ の先は分解が要るので、無理をしないでください。</p></div>
+        <ol class="diy-steps" id="diy"></ol>
+      </div>
+      <div class="next" id="next"></div>
+      <div class="nav"><button type="button" class="btn ghost" data-back="2">戻る</button></div>
+    </section>
+
+    <!-- ステップ4：手配 -->
+    <section class="step" data-step="4" hidden>
+      <div class="q">
+        <div class="head"><h2 id="tehai-title">手配のご相談</h2></div>
+        <p class="maegaki">手配のご希望は、運営会社（ワンヒッター株式会社）が受け付け、お住まいの地域とご希望日に合う事業者をご案内します。作業を行う事業者名は、確定前に必ずお知らせします。</p>
+        <div class="field"><label for="f-name">お名前</label><input id="f-name" type="text" autocomplete="name" placeholder="例：山田"></div>
+        <div class="field"><label for="f-tel">お電話番号</label><input id="f-tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="例：09012345678"><p class="hint">日程のご相談に1回だけお電話します。営業の電話はしません。</p></div>
+        <div class="field"><label for="f-area">お住まいの地域</label><select id="f-area"><option value="">選んでください</option><option value="東京都 江戸川区">東京都 江戸川区</option><option value="東京都 江東区">東京都 江東区</option><option value="東京都 葛飾区">東京都 葛飾区</option><option value="東京都 その他">東京都 その他</option><option value="千葉県 浦安市">千葉県 浦安市</option><option value="千葉県 市川市">千葉県 市川市</option><option value="千葉県 その他">千葉県 その他</option><option value="神奈川県">神奈川県</option><option value="その他">その他</option></select></div>
+        <div class="field"><label for="f-when">ご希望の時期</label><select id="f-when"><option value="">選んでください</option><option>今週中</option><option>2週間以内</option><option>1か月以内</option><option>時期は相談したい</option></select></div>
+        <div class="field"><label for="f-photo">写真（任意・3枚まで）</label><input id="f-photo" type="file" accept="image/*" multiple><p class="hint">気になる場所を撮ってください。お部屋全体や表札など、お住まいが分かるものは写さないでください。</p><div class="thumbs" id="thumbs"></div></div>
+        <div class="field"><label for="f-note">気になること（任意）</label><textarea id="f-note" placeholder="例：2台まとめて頼みたい／賃貸なので養生をしっかりしてほしい"></textarea></div>
+        <label class="agree"><input type="checkbox" id="f-agree"><span>入力内容（お名前・連絡先・住所・ご希望内容・写真）を、作業を行う提携事業者に提供することに同意します。</span></label>
+        <input type="text" id="f-hp" name="bot-field" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+        <p class="err" id="e4"></p>
+        <button type="button" class="btn lg" id="send">この内容で相談する</button>
+        <div class="nav"><button type="button" class="btn ghost" data-back="3">戻る</button></div>
+      </div>
+    </section>
+
+    <!-- 完了 -->
+    <section class="step" data-step="5" hidden>
+      <div class="q done">
+        <div class="head"><h2>受け付けました。</h2></div>
+        <p class="why" style="font-size:13.5px">運営会社（ワンヒッター株式会社）から、<b>日程のご相談のお電話を1回</b>差し上げます。提携事業者が作業する場合は、その際に事業者名と料金をお伝えし、ご了承いただいてから確定します。</p>
+        <div class="branch"><b>控え</b><p id="hikae" style="white-space:pre-wrap"></p></div>
+      </div>
+    </section>
+  </form>
+
+<script>
+var D = {"判定": {"pro": {"見出し": "プロに頼む時期です", "短": "プロが要る", "色": "cta"}, "diy": {"見出し": "まずはご自分でできることがあります", "短": "自分でできる", "色": "accent"}, "wait": {"見出し": "今は洗わなくて大丈夫です", "短": "今は不要", "色": "ok"}}, "共通": {"前回": {"問い": "前回、業者に内部まで洗ってもらったのはいつですか？", "選択肢": [{"値": "1y", "表示": "1年以内"}, {"値": "2y", "表示": "1〜2年前"}, {"値": "3y", "表示": "2〜3年前"}, {"値": "old", "表示": "3年以上前・覚えていない"}, {"値": "never", "表示": "一度もない"}]}}, "対象": [{"id": "aircon", "表示": "エアコン", "メニュー": "エアコンクリーニング（ノーマル）", "メニュー_お掃除機能付き": "エアコンクリーニング（お掃除機能付き）", "追加質問": [{"id": "kind", "問い": "お掃除機能（自動フィルター掃除）は付いていますか？", "選択肢": [{"値": "normal", "表示": "付いていない・分からない"}, {"値": "auto", "表示": "付いている", "サブ": "本体が厚く、フィルターを自動で掃除する機構があるタイプ"}]}, {"id": "sym", "問い": "当てはまるものを全部選んでください", "複数": true, "選択肢": [{"値": "smell", "表示": "運転すると、においがする", "重み": 2}, {"値": "black", "表示": "吹き出し口に黒い点や汚れが見える", "重み": 2}, {"値": "sneeze", "表示": "つけるとくしゃみ・せきが出る", "重み": 2}, {"値": "weak", "表示": "風が弱くなった気がする", "重み": 1}, {"値": "leak", "表示": "水が垂れてきたことがある", "重み": 3}, {"値": "none", "表示": "特に気になることはない", "重み": 0, "排他": true}]}, {"id": "env", "問い": "お住まいの環境で当てはまるものは？", "複数": true, "選択肢": [{"値": "pet", "表示": "ペットがいる", "重み": 1}, {"値": "smoke", "表示": "室内で喫煙する", "重み": 1}, {"値": "kitchen", "表示": "キッチンの近くにある", "重み": 1}, {"値": "allday", "表示": "ほぼ一日中つけている（夏・冬）", "重み": 1}, {"値": "none", "表示": "特になし", "重み": 0, "排他": true}]}], "ルール": [{"条件": {"sym含む": ["leak"]}, "判定": "pro", "根拠": "水が垂れるのは、内部のドレン（排水路）が詰まりかけているサインです。放置すると壁や床を傷めることがあるので、内部の洗浄をおすすめします。"}, {"条件": {"前回": ["1y"], "症状重み以下": 1}, "判定": "wait", "根拠": "1年以内に内部洗浄をされていて、目立った症状もないので、今すぐ洗う必要はありません。フィルターを2週間に1度水洗いすれば、次の夏まで持ちます。"}, {"条件": {"前回": ["1y"], "症状重み以上": 2}, "判定": "diy", "根拠": "1年以内に洗っているのに症状が出ているなら、まずフィルターとルーバー（吹き出し口の羽根）を拭いてみてください。それでも変わらなければ、内部の状態を写真でお送りください。"}, {"条件": {"前回": ["2y"], "症状重み以下": 0, "環境重み以下": 0}, "判定": "wait", "根拠": "2年以内で症状も環境の負荷もないので、まだ大丈夫です。次のシーズン前に一度点検すると安心です。"}, {"条件": {"前回": ["2y"], "症状重み以下": 1}, "判定": "diy", "根拠": "フィルターの水洗いと吹き出し口の拭き掃除で改善することが多い状態です。2〜3週間試して、においや黒い点が残るなら内部洗浄の時期です。"}, {"条件": {"前回": ["2y"], "症状重み以上": 2}, "判定": "pro", "根拠": "1〜2年でにおいや黒い点が出ているのは、内部の熱交換器やファンにカビが付いているサインです。フィルター掃除では届かない場所なので、分解洗浄が要ります。"}, {"条件": {"前回": ["3y", "old", "never"], "症状重み以下": 0, "環境重み以下": 0}, "判定": "diy", "根拠": "症状が無くても、2年以上内部を洗っていないエアコンは内部に汚れが溜まっていることがほとんどです。まず吹き出し口を覗いて、黒い点があれば写真をお送りください。無ければ、次のシーズン前の洗浄を目安にしてください。"}, {"条件": {"前回": ["3y", "old", "never"]}, "判定": "pro", "根拠": "2年以上内部を洗っていない状態で、症状か環境の負荷があります。内部のカビは運転のたびに部屋に出ます。分解して内部から洗う時期です。"}], "DIYの手順": ["電源を切り、フィルターを外して、ぬるま湯で水洗いする（洗剤は不要）", "吹き出し口の羽根（ルーバー）を、固く絞った布で拭く", "室外機の周りに物を置かない（吸い込みが悪くなると効きが落ちる）", "ここから先（熱交換器・送風ファン）は分解が要るので、ご自分では触らないでください"]}, {"id": "hood", "表示": "レンジフード（換気扇）", "メニュー": "レンジフードクリーニング", "追加質問": [{"id": "sym", "問い": "当てはまるものを全部選んでください", "複数": true, "選択肢": [{"値": "drip", "表示": "油がフードの縁に垂れている・ベタつく", "重み": 2}, {"値": "noise", "表示": "音が大きくなった", "重み": 2}, {"値": "weak", "表示": "煙を吸わなくなった", "重み": 2}, {"値": "filter", "表示": "フィルターが目詰まりしている", "重み": 1}, {"値": "none", "表示": "特に気になることはない", "重み": 0, "排他": true}]}, {"id": "env", "問い": "料理の頻度は？", "選択肢": [{"値": "daily", "表示": "ほぼ毎日、炒め物や揚げ物をする", "重み": 2}, {"値": "some", "表示": "週に数回", "重み": 1}, {"値": "rare", "表示": "あまり料理しない", "重み": 0}]}], "ルール": [{"条件": {"前回": ["1y"], "症状重み以下": 1}, "判定": "wait", "根拠": "1年以内に分解洗浄されていれば、まだ大丈夫です。フィルターだけ月1回、つけ置き洗いをしてください。"}, {"条件": {"症状重み以下": 1, "環境重み以下": 1, "前回": ["1y", "2y"]}, "判定": "diy", "根拠": "フィルターのつけ置き洗い（40℃のお湯＋台所用洗剤に30分）で改善する段階です。ファン本体の油は分解しないと落ちないので、そこは無理に触らないでください。"}, {"条件": {"症状重み以上": 2}, "判定": "pro", "根拠": "油が垂れる・音が大きい・吸わないは、ファン（シロッコファン）の羽根に油が層になって付いているサインです。フィルターを洗っても直りません。分解洗浄の時期です。"}, {"条件": {"前回": ["3y", "old", "never"], "環境重み以上": 1}, "判定": "pro", "根拠": "毎日料理する家のレンジフードは、2年でファンの羽根が油で埋まります。分解しないと落ちない場所です。"}, {"条件": {}, "判定": "diy", "根拠": "まずフィルターのつけ置き洗いをしてください。ファンの羽根が油で黒くなっているのが見えたら、写真をお送りください。"}], "DIYの手順": ["フィルターを外し、40℃のお湯に台所用洗剤を溶かして30分つけ置き", "古い歯ブラシで目に沿ってこする。ステンレスたわしは傷になるので使わない", "フードの外側は、水で薄めた台所用洗剤で拭く", "ファン本体（シロッコファン）の取り外しは、メーカーの手順が要ります。無理に外すと戻せなくなるので、そこからはプロに"]}, {"id": "bath", "表示": "浴室", "メニュー": "浴室クリーニング", "追加質問": [{"id": "sym", "問い": "当てはまるものを全部選んでください", "複数": true, "選択肢": [{"値": "mold", "表示": "こすっても落ちない黒カビがある（ゴムパッキン・目地）", "重み": 2}, {"値": "scale", "表示": "鏡や蛇口の白い汚れが落ちない", "重み": 1}, {"値": "smell", "表示": "排水口や浴槽のフチからにおいがする", "重み": 2}, {"値": "apron", "表示": "浴槽の横のカバー（エプロン）を外したことがない", "重み": 2}, {"値": "none", "表示": "特に気になることはない", "重み": 0, "排他": true}]}], "ルール": [{"条件": {"症状重み以下": 0}, "判定": "wait", "根拠": "目立った汚れが無いなら、今は洗わなくて大丈夫です。入浴後に壁を水で流して換気扇を回すだけで、カビの発生をかなり抑えられます。"}, {"条件": {"sym含む": ["apron"], "前回": ["3y", "old", "never"]}, "判定": "pro", "根拠": "浴槽のエプロン内部は、外したことがなければ、ほぼ確実にカビと髪の毛が溜まっています。においの原因になりやすい場所で、高圧洗浄が要ります。"}, {"条件": {"症状重み以上": 3}, "判定": "pro", "根拠": "落ちない黒カビ・におい・エプロン未開放が重なっています。市販の洗剤で落ちない段階なので、専用の薬剤と機材で洗う時期です。"}, {"条件": {}, "判定": "diy", "根拠": "市販のカビ取り剤（塩素系）を塗ってラップで密閉し、30分置いてから流す方法で落ちることが多い段階です。落ちなければ写真をお送りください。"}], "DIYの手順": ["換気扇を回し、ゴム手袋をして、塩素系カビ取り剤を黒カビに塗る", "ラップやキッチンペーパーで覆って30分置き、水で流す（こすらない）", "鏡の白い汚れは、クエン酸水（水200mlに小さじ1）を吹いて10分置いて拭く", "塩素系と酸性（クエン酸）を同時に使わない。有毒ガスが出ます", "エプロン内部と排水管の奥は、専用の機材が要るのでプロに"]}, {"id": "washer", "表示": "洗濯機", "メニュー": "洗濯機クリーニング", "追加質問": [{"id": "sym", "問い": "当てはまるものを全部選んでください", "複数": true, "選択肢": [{"値": "flakes", "表示": "洗濯物に黒いカスが付く", "重み": 3}, {"値": "smell", "表示": "洗濯物や洗濯機がにおう", "重み": 2}, {"値": "cleaner", "表示": "市販の洗濯槽クリーナーを使っても変わらない", "重み": 2}, {"値": "none", "表示": "特に気になることはない", "重み": 0, "排他": true}]}], "ルール": [{"条件": {"sym含む": ["flakes"]}, "判定": "pro", "根拠": "黒いカスは、洗濯槽の裏側に付いたカビが剥がれて出てきたものです。市販のクリーナーでは、剥がれたカビが逆に増えることがあります。分解して槽の裏を直接洗う時期です。"}, {"条件": {"sym含む": ["cleaner"]}, "判定": "pro", "根拠": "市販のクリーナーで変わらないなら、槽の裏の汚れが厚くなっています。分解洗浄でないと落ちません。"}, {"条件": {"症状重み以下": 0, "前回": ["1y", "2y"]}, "判定": "wait", "根拠": "症状が無ければ、月1回の市販クリーナーと、使用後にフタを開けて乾かす習慣で十分です。"}, {"条件": {}, "判定": "diy", "根拠": "まず市販の洗濯槽クリーナー（酸素系より塩素系のほうが効きます）を試してください。黒いカスが出てきたら、それが槽の裏のカビです。写真をお送りください。"}], "DIYの手順": ["塩素系の洗濯槽クリーナーを入れ、高水位で「槽洗浄」コースか、標準コースを回す", "使用後はフタを開けて乾かす。洗濯物を入れっぱなしにしない", "糸くずフィルターは毎回捨てる", "槽の分解は、戻せなくなる事故が多いのでプロに"]}], "手配": {"前置き": "手配のご希望は、運営会社（ワンヒッター株式会社）が受け付け、お住まいの地域とご希望日に合う事業者をご案内します。作業を行う事業者名は、確定前に必ずお知らせします。", "同意文": "入力内容（お名前・連絡先・住所・ご希望内容・写真）を、作業を行う提携事業者に提供することに同意します。", "エリア": ["東京都 江戸川区", "東京都 江東区", "東京都 葛飾区", "東京都 その他", "千葉県 浦安市", "千葉県 市川市", "千葉県 その他", "神奈川県", "その他"]}, "料金": {"エアコンクリーニング（ノーマル）": {"単体": 10780, "同時施工": null, "所要": "60分"}, "エアコンクリーニング（お掃除機能付き）": {"単体": 17380, "同時施工": null, "所要": "120分"}, "洗濯機クリーニング": {"単体": 17380, "同時施工": 17380, "所要": "120分"}, "レンジフードクリーニング": {"単体": 18480, "同時施工": 15180, "所要": "90分"}, "レンジフード（プロペラ式）": {"単体": 10780, "同時施工": null, "所要": ""}, "キッチンクリーニング": {"単体": 18480, "同時施工": 15180, "所要": "120分"}, "浴室クリーニング": {"単体": 18480, "同時施工": 15180, "所要": "120分"}, "追い焚き配管クリーニング": {"単体": 19910, "同時施工": 16610, "所要": "90分"}, "コンロクリーニング": {"単体": 10780, "同時施工": 6050, "所要": "60分"}, "トイレクリーニング": {"単体": 10780, "同時施工": 10780, "所要": "60分"}, "洗面台クリーニング": {"単体": 10780, "同時施工": 7480, "所要": "60分"}, "お掃除時短コーティング": {"単体": 21780, "同時施工": null, "所要": "60分"}}, "繁忙期": {"月": [5, 6, 7, 12], "金額": 3300}, "確認済み": false};
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var form = $('f');
+  var state = { target:null, ans:{}, verdict:null, rule:null, files:[] };
+  var STEP_TITLES = {1:'何を洗う？',2:'いまの状態',3:'判定',4:'手配のご相談',5:'完了'};
+
+  function go(n){
+    var steps = form.querySelectorAll('.step');
+    for (var i=0;i<steps.length;i++) steps[i].hidden = (steps[i].getAttribute('data-step') !== String(n));
+    document.querySelector('.intro').hidden = (n !== 1);   /* 2歩目からは導入文を畳んで、質問を上に出す */
+    $('bar').style.width = (Math.min(n,4)*25) + '%';
+    $('steplab').textContent = Math.min(n,4) + ' / 4';
+    $('steptitle').textContent = STEP_TITLES[n];
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  form.addEventListener('click', function(e){
+    var b = e.target.closest('[data-back]'); if (b) go(Number(b.getAttribute('data-back')));
+  });
+
+  function opt(name, o, multi){
+    var t = multi ? 'checkbox' : 'radio';
+    var sub = o.サブ ? '<span class="sub">'+o.サブ+'</span>' : '';
+    return '<label class="opt'+(multi?' check':'')+'"><input type="'+t+'" name="ui_'+name+'" value="'+o.値+'"'+(o.排他?' data-ex="1"':'')+'><span class="box"><span class="mark">✓</span><span>'+o.表示+'</span>'+sub+'</span></label>';
+  }
+
+  /* ステップ1 */
+  $('targets').innerHTML = D.対象.map(function(t){ return opt('target', {値:t.id, 表示:t.表示}, false); }).join('');
+  $('targets').addEventListener('change', function(e){
+    state.target = D.対象.filter(function(t){ return t.id === e.target.value; })[0];
+    state.ans = {};
+    drawQs(); go(2);
+  });
+
+  /* ステップ2 */
+  function drawQs(){
+    var t = state.target;
+    var html = '<div class="q"><div class="head"><h2>'+D.共通.前回.問い+'</h2></div><div class="opts">'+
+      D.共通.前回.選択肢.map(function(o){ return opt('prev', o, false); }).join('')+'</div></div>';
+    t.追加質問.forEach(function(q){
+      html += '<div class="q" style="margin-top:14px"><div class="head"><h2>'+q.問い+'</h2>'+(q.複数?'<p class="why">複数選べます</p>':'')+'</div><div class="opts">'+
+        q.選択肢.map(function(o){ return opt(q.id, o, !!q.複数); }).join('')+'</div></div>';
+    });
+    $('qs').innerHTML = html;
+  }
+  $('qs').addEventListener('change', function(e){
+    var el = e.target; if (el.type !== 'checkbox') return;
+    var group = $('qs').querySelectorAll('input[name="'+el.name+'"]');
+    if (el.checked && el.getAttribute('data-ex')) {
+      for (var i=0;i<group.length;i++) if (group[i] !== el) group[i].checked = false;
+    } else if (el.checked) {
+      for (var j=0;j<group.length;j++) if (group[j].getAttribute('data-ex')) group[j].checked = false;
+    }
+  });
+
+  function collect(){
+    var t = state.target, a = {};
+    var p = $('qs').querySelector('input[name="ui_prev"]:checked');
+    if (!p) return '「前回いつ洗ったか」を選んでください。';
+    a.prev = p.value;
+    for (var i=0;i<t.追加質問.length;i++) {
+      var q = t.追加質問[i];
+      var sel = [].slice.call($('qs').querySelectorAll('input[name="ui_'+q.id+'"]:checked')).map(function(x){ return x.value; });
+      if (!sel.length) return '「'+q.問い+'」に答えてください。';
+      a[q.id] = q.複数 ? sel : sel[0];
+    }
+    state.ans = a; return '';
+  }
+
+  function weight(q, vals){
+    var w = 0; (Array.isArray(vals)?vals:[vals]).forEach(function(v){
+      var o = q.選択肢.filter(function(x){ return x.値 === v; })[0]; if (o && o.重み) w += o.重み; });
+    return w;
+  }
+  function qById(id){ return state.target.追加質問.filter(function(q){ return q.id === id; })[0]; }
+
+  /* 固定分岐。ルールは上から順に見て、最初に当たったものを採用する */
+  function hantei(){
+    var a = state.ans, t = state.target;
+    var symW = qById('sym') ? weight(qById('sym'), a.sym) : 0;
+    var envW = qById('env') ? weight(qById('env'), a.env) : 0;
+    for (var i=0;i<t.ルール.length;i++) {
+      var r = t.ルール[i], c = r.条件, ok = true;
+      if (c.前回 && c.前回.indexOf(a.prev) < 0) ok = false;
+      if (ok && c.sym含む) { var s = Array.isArray(a.sym)?a.sym:[a.sym]; ok = c.sym含む.some(function(v){ return s.indexOf(v) >= 0; }); }
+      if (ok && c.症状重み以下 !== undefined && !(symW <= c.症状重み以下)) ok = false;
+      if (ok && c.症状重み以上 !== undefined && !(symW >= c.症状重み以上)) ok = false;
+      if (ok && c.環境重み以下 !== undefined && !(envW <= c.環境重み以下)) ok = false;
+      if (ok && c.環境重み以上 !== undefined && !(envW >= c.環境重み以上)) ok = false;
+      if (ok) return r;
+    }
+    return {判定:'diy', 根拠:'状態がはっきりしないので、まずご自分でできることから試してください。写真を送っていただければ確認します。'};
+  }
+
+  function yen(n){ return '¥' + Number(n).toLocaleString('ja-JP'); }
+  function menuName(){
+    var t = state.target;
+    if (t.id === 'aircon' && state.ans.kind === 'auto') return t['メニュー_お掃除機能付き'];
+    return t.メニュー;
+  }
+  function drawGaisan(){
+    var name = menuName(), p = D.料金[name];
+    var m = new Date().getMonth() + 1, busy = D.繁忙期.月.indexOf(m) >= 0;
+    var total = p.単体 + (busy ? D.繁忙期.金額 : 0);
+    var html = '<div class="ln"><span>'+name+'（1か所）</span><span class="v">'+yen(p.単体)+'</span></div>';
+    if (busy) html += '<div class="ln"><span>繁忙期加算（'+D.繁忙期.月.join('・')+'月）</span><span class="v">+'+yen(D.繁忙期.金額)+'</span></div>';
+    html += '<div class="ln sum"><span>目安（税込）</span><span class="v">'+yen(total)+'</span></div>';
+    if (p.同時施工 && p.同時施工 < p.単体) html += '<div class="note">他の場所と同時に頼む場合、2か所目以降は '+yen(p.同時施工)+'（税込）です。</div>';
+    if (p.所要) html += '<div class="note">作業時間の目安：'+p.所要+'</div>';
+    html += '<div class="note">目安です。設置状況や汚れの程度で変わることがあり、その場合は作業前にご説明し、ご了承なく追加はしません。</div>';
+    $('gaisan').innerHTML = html;
+    state.gaisan = total;
+  }
+
+  $('judge').addEventListener('click', function(){
+    var msg = collect(); $('e2').textContent = msg; if (msg) return;
+    var r = hantei(); state.rule = r; state.verdict = r.判定;
+    var v = D.判定[r.判定];
+    $('verdict').innerHTML = '<div class="verdict '+r.判定+'"><span class="kind">'+state.target.表示+'｜判定</span><h2>'+v.見出し+'</h2><p class="konkyo">'+r.根拠+'</p><p class="meyasu">この判定は、いただいた回答から一般的な基準で出した目安です。' + (D.確認済み ? '基準は現場責任者が確認しています。' : '') + '</p></div>';
+    $('gaisan-box').hidden = (r.判定 !== 'pro'); if (r.判定 === 'pro') drawGaisan();
+    $('diy-box').hidden = (r.判定 === 'pro');
+    if (r.判定 !== 'pro') {
+      $('diy').innerHTML = (state.target.DIYの手順||[]).map(function(s,i,arr){ return '<li'+(i===arr.length-1?' class="stop"':'')+'>'+s+'</li>'; }).join('');
+    }
+    var nx = '';
+    if (r.判定 === 'pro') nx += '<button type="button" class="btn lg" data-go="4" data-mode="tehai">手配を相談する（無料・電話は1回だけ）</button>';
+    if (r.判定 === 'diy') nx += '<button type="button" class="btn lg" data-go="4" data-mode="photo">写真を送って確認してもらう（無料）</button>';
+    if (r.判定 === 'wait') nx += '<a class="btn lg line" href="https://lin.ee/7kD9WGN" target="_blank" rel="noopener">次の洗いどきに知らせてもらう（LINE）</a>';
+    nx += '<button type="button" class="btn ghost" data-go="1">別の場所も判定する</button>';
+    $('next').innerHTML = nx; go(3);
+  });
+  $('next').addEventListener('click', function(e){
+    var b = e.target.closest('[data-go]'); if (!b) return;
+    var n = Number(b.getAttribute('data-go'));
+    if (n === 4) $('tehai-title').textContent = (b.getAttribute('data-mode') === 'photo') ? '写真で確認してもらう' : '手配のご相談';
+    if (n === 1) { var r = $('targets').querySelector('input:checked'); if (r) r.checked = false; }
+    go(n);
+  });
+
+  /* 写真のサムネイル（判定には使っていない） */
+  $('f-photo').addEventListener('change', function(){
+    state.files = [].slice.call(this.files).slice(0,3);
+    $('thumbs').innerHTML = '';
+    state.files.forEach(function(f){ var img = document.createElement('img'); img.src = URL.createObjectURL(f); $('thumbs').appendChild(img); });
+  });
+
+  /* 送信。Netlify Forms へ同じ項目名でPOSTする（下の hidden form と合わせること） */
+  var sending = false;
+  $('send').addEventListener('click', function(){
+    if (sending || $('f-hp').value) return;
+    var name = $('f-name').value.trim(), tel = $('f-tel').value.trim().replace(/[^0-9+]/g,'');
+    if (!name) return $('e4').textContent = 'お名前を入れてください。';
+    if (tel.length < 10) return $('e4').textContent = 'お電話番号を確認してください。';
+    if (!$('f-area').value) return $('e4').textContent = 'お住まいの地域を選んでください。';
+    if (!$('f-agree').checked) return $('e4').textContent = '提携事業者への情報提供に同意いただけない場合は、お受けできません。';
+    $('e4').textContent = '';
+    var fd = new FormData();
+    var atai = {
+      'form-name': 'araidoki-tehai',
+      '対象': state.target.表示,
+      '判定': D.判定[state.verdict].短,
+      '回答': JSON.stringify(state.ans),
+      '概算': state.gaisan ? String(state.gaisan) : '',
+      'お名前': name, 'お電話番号': tel, '地域': $('f-area').value, '希望時期': $('f-when').value,
+      '気になること': $('f-note').value.trim(),
+      '同意': '提携事業者への情報提供に同意',
+      '流入元': (new URLSearchParams(location.search)).get('src') || ''
+    };
+    Object.keys(atai).forEach(function(k){ fd.append(k, atai[k]); });
+    state.files.forEach(function(f, i){ fd.append('写真' + (i+1), f, f.name); });
+    sending = true; $('send').disabled = true; $('send').textContent = '送信しています…';
+    fetch(location.pathname, { method:'POST', body: fd }).then(function(r){
+      if (!r.ok) throw new Error('送信できませんでした（' + r.status + '）');
+      $('hikae').textContent = '対象：'+atai['対象']+'\n判定：'+atai['判定']+'\n地域：'+atai['地域']+'\n希望時期：'+(atai['希望時期']||'—');
+      go(5);
+    }).catch(function(err){
+      sending = false; $('send').disabled = false; $('send').textContent = 'この内容で相談する';
+      $('e4').textContent = String(err.message || err) + '　時間をおいてもう一度お試しください。';
+    });
+  });
+
+  go(1);
+})();
+</script>
+
+<!-- Netlifyがデプロイ時にこのフォームを見つけて受け口を作る。画面には出さない。
+     ★name を変えたら、送信側（atai）も必ず合わせること。 -->
+<form name="araidoki-tehai" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data" hidden>
+  <input type="hidden" name="form-name" value="araidoki-tehai">
+  <input type="text" name="bot-field">
+  <input type="text" name="対象"><input type="text" name="判定"><input type="text" name="回答"><input type="text" name="概算">
+  <input type="text" name="お名前"><input type="text" name="お電話番号"><input type="text" name="地域"><input type="text" name="希望時期">
+  <input type="text" name="気になること"><input type="text" name="同意"><input type="text" name="流入元">
+  <input type="file" name="写真1"><input type="file" name="写真2"><input type="file" name="写真3">
+</form>
+
+</main>
+<footer>
+  <div class="wrap">
+    <b>洗いどき｜掃除の相談所</b>
+    <p>
+      運営：ワンヒッター株式会社（ハウスクリーニング業）<br>
+      判定は目安です。実際の状態は、作業前に現物を確認してご説明します。<br>
+      <a href="./unei.html">運営者情報</a>
+      <a href="https://one-hitter.jp/privacy_policy/" target="_blank" rel="noopener">個人情報の取扱いについて</a>
+    </p>
+  </div>
+</footer>
+</body>
+</html>
