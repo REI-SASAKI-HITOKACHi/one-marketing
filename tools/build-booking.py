@@ -277,6 +277,7 @@ TEMPLATE = r"""<!doctype html>
       <div class="field">
         <label for="f-note">ご要望（任意）</label>
         <textarea id="f-note" placeholder="例）駐車場はありません／2階のエアコンです／前回と同じ場所です"></textarea>
+        <span class="hint">お車を停められる場所が無い場合は、近くのコインパーキング代を実費でご請求いたします。あらかじめご了承ください。</span>
       </div>
       <div class="hp"><label>この欄は入力しないでください<input type="text" id="f-hp" tabindex="-1" autocomplete="off"></label></div>
       <p class="err" id="e3"></p>
@@ -489,6 +490,7 @@ TEMPLATE = r"""<!doctype html>
     }
     h.push(ln('概算合計（税込）', yen(k.gokei), 'sum'));
     h.push('<p class="note">現地の状況により変わることがあります。確定金額は担当からのお電話でお伝えします。' +
+           'お車を停められる場所が無い場合は、コインパーキング代が実費で加わります。' +
            (state.date ? '' : '日時をお選びいただくと、割引と加算を反映した金額になります。') + '</p>');
     return h.join('');
   }
@@ -708,7 +710,8 @@ TEMPLATE = r"""<!doctype html>
       ['日時', hyouji + '〜'],
       ['ご希望の内容', atai['ご希望の内容']],
       ['所要の目安', funHyouji(Number(atai['所要の目安（分）']))],
-      ['概算金額（税込）', atai['概算金額'] ? '¥' + Number(atai['概算金額']).toLocaleString() : '—'],
+      ['概算金額（税込）', (atai['概算金額'] ? '¥' + Number(atai['概算金額']).toLocaleString() : '—')
+        + '<br><small>お車を停められる場所が無い場合は、コインパーキング代が実費で加わります。</small>'],
       ['お名前', atai['お名前'] + ' 様'],
       ['ご住所', atai['ご住所']],
       ['お電話', atai['お電話番号']],

@@ -407,9 +407,26 @@ def honbun(r, keitou):
 SHIRANAI = set()   # ひな形に出てきた、知らない差し込みの目印
 
 
+# D列「▶送る」の行き先。
+#
+# 直に sms:番号?body=… を書くと、スマホのスプレッドシートアプリでは
+# タップしても何も起きない。HYPERLINK() が開くのは http/https/mailto だけで、
+# sms: は対象外だから（2026-09-10 和真さん報告
+# 「送るタップで開かないから手打ちで送るねー」）。
+#
+# そこで https のページを1枚はさんで、そこから sms: を開く。
+SMS_PAGE = 'https://one-hitter-booking.netlify.app/s.html'
+
+
 def sms_link(num, text):
-    """タップするとSMSが宛先・本文入りで開く。RFC5724 の sms:番号?body=…"""
-    return 'sms:' + num + '?body=' + urllib.parse.quote(text, safe='')
+    """タップするとSMSが宛先・本文入りで開く。
+
+    ★宛先と本文は「#」より後ろ（フラグメント）に入れる。
+      フラグメントはサーバーに送られないので、Netlifyのアクセス記録に
+      お客様の電話番号も本文も残らない。「?」に変えないこと。
+    """
+    return (SMS_PAGE + '#to=' + urllib.parse.quote(num, safe='')
+            + '&b=' + urllib.parse.quote(text, safe=''))
 
 
 # ============================== 判定 ==============================
