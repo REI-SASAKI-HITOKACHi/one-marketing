@@ -83,6 +83,10 @@ def site_id(tok, create: bool) -> str:
     if not create:
         sys.exit(f"{STATE} がありません。初回は --create を付けてください。")
     s = call(tok, "POST", "/sites", {"name": SITE_NAME})
+    # 新しいサイトは ignore_html_forms が true で作られ、Netlify Forms が検出されない。
+    # 手配フォームを受け取るために、ここで明示的に有効にする（2026-09-10 に実際に踏んだ）
+    call(tok, "PATCH", f"/sites/{s['id']}",
+         {"processing_settings": {"html": {"pretty_urls": True}, "ignore_html_forms": False}})
     STATE.write_text(json.dumps({"site_id": s["id"], "name": s["name"], "url": s["ssl_url"]},
                                 ensure_ascii=False, indent=2), encoding="utf-8")
     print("サイトを作りました:", s["name"], s["ssl_url"])
