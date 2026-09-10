@@ -502,13 +502,20 @@ ATAMA = ['優先', '顧客名', '電話番号', '▶SMSを開く', '送信する
          '今回おすすめ', '主な流入経路', '利用年', '元の電話番号表記', '予備']
 
 atarashii = []
+RINKU = []      # D列に付けるリンク。atarashii と同じ並び
 for i, r in enumerate(rows):
     kubun, riyuu, num, hon = data[i]
     link = ''
     if kubun == '送信可':
-        # 数式に " が入ると壊れるので、本文側の " は全角に寄せる
-        t = hon.replace('"', '”')
-        link = f'=HYPERLINK("{sms_link(num, hon)}","▶ 送る")'
+        # ★=HYPERLINK() は使わない。
+        #   iPhoneのスプレッドシートアプリでは、HYPERLINK() の結果をタップしても
+        #   セルが選ばれるだけでリンクが開かない（2026-09-10 和真さんのスクショで確認）。
+        #   セルの文字そのものにリンクを付ける（textFormatRuns）と、
+        #   リンクとして扱われてタップで開ける。付ける処理はこの下でまとめて行う。
+        link = '▶ 送る'
+        RINKU.append(sms_link(num, hon))
+    else:
+        RINKU.append('')
     atarashii.append([
         g(r, '優先'), g(r, '氏名'), ("'" + num) if num else '', link, hon,
         g(r, '送信済み'), g(r, '返信メモ'), batch.get(i, ''), kubun, riyuu,
@@ -519,10 +526,11 @@ for i, r in enumerate(rows):
 
 # 送信可を上に、そのなかは送る順。送らない人は下へ
 juni = {v: k for k, v in enumerate(okuru)}
-kumi = list(zip(range(len(rows)), atarashii))
+kumi = list(zip(range(len(rows)), atarashii, RINKU))
 kumi.sort(key=lambda x: (0 if x[1][8] == '送信可' else 1,
                          juni.get(x[0], 9999)))
 atarashii = [x[1] for x in kumi]
+RINKU = [x[2] for x in kumi]        # 並べ替えたら、リンクも同じ順に並べ直す
 
 # ============================== 実機テスト用の行 ==============================
 # D列の「▶送る」がスマホで効くかどうかは、実機で試すしかない。
@@ -532,11 +540,12 @@ TEST_TEL = '08080438259'
 TEST_HONBUN = ('【テスト】この画面が宛先と本文入りで開いていれば成功です。\n'
                'そのまま送信して、届いたらグループLINEに一言ください。')
 test_gyou = ['テスト', '【実機テスト】自分あて', "'" + TEST_TEL,
-             f'=HYPERLINK("{sms_link(TEST_TEL, TEST_HONBUN)}","▶ 送る")',
+             '▶ 送る',
              TEST_HONBUN, '', '', '9/9', 'テスト',
              'D列が効くかを確かめるための行。消して構いません', '', '', '',
              '', '', '', '', '', '', '', '', '', '', '', '']
 atarashii.insert(0, test_gyou[:len(ATAMA)])
+RINKU.insert(0, sms_link(TEST_TEL, TEST_HONBUN))
 
 def shuukei():
     print()
@@ -618,9 +627,9 @@ if not YOYAKU_OK:
     print('\n★★ 送信を始めてはいけません:', YOYAKU_RIYUU, '\n')
 
 SETSUMEI = ('' if YOYAKU_OK else '【送信は保留してください】' + YOYAKU_RIYUU + ' ') + (
-           'スマホでの送信作業用。C列の番号かD列の「▶送る」をタップ → SMSが開く → '
-            '送信 → F列で「送信済み」を選ぶ。D列が反応しない端末では、'
-            'E列の本文をコピーしてください。'
+           'スマホでの送信作業用。D列の「▶ 送る」をタップ → 出てきたリンクを開く → '
+            'SMSが宛先と本文入りで開く → 送信 → F列で「送信済み」を選ぶ。'
+            '開かないときは、E列の本文をコピーして貼ってください（手打ちはしないこと）。'
             'スケジュールマッチング経由で送ってはいけない先は、F列で「対象外」にしてください。')
 
 # いったん広めに消してから書き直す
@@ -731,5 +740,37 @@ req.append({'updateSheetProperties': {
 
 call(f'/{SS}:batchUpdate', 'POST', {'requests': req})
 print('書式をつけました')
+
+# ============================== D列に本物のリンクを付ける ==============================
+#
+# ★ここが「▶送る」が効くかどうかの分かれ目。
+#
+# =HYPERLINK() で書くと、iPhoneのスプレッドシートアプリではタップしても
+# セルが選ばれるだけで、リンクが開かない
+# （2026-09-10 和真さんのスクリーンショットで確認。
+#   タップすると「カット／コピー／ペースト」が出るだけだった）。
+#
+# セルの文字そのものにリンクを付ける（textFormatRuns の link）と、
+# アプリ側がリンクとして扱うので、タップで開ける。
+# パソコンのブラウザでは、どちらの書き方でも青い文字になって開ける。
+gyou_cells = []
+for u in RINKU:
+    if u:
+        gyou_cells.append({'values': [{
+            'userEnteredValue': {'stringValue': '▶ 送る'},
+            'textFormatRuns': [{'startIndex': 0, 'format': {'link': {'uri': u}}}]}]})
+    else:
+        gyou_cells.append({'values': [{'userEnteredValue': {'stringValue': ''}}]})
+# 1回のリクエストに詰め込みすぎると通らないので、200行ずつに分ける
+for hajime in range(0, len(gyou_cells), 200):
+    kata = gyou_cells[hajime:hajime + 200]
+    call(f'/{SS}:batchUpdate', 'POST', {'requests': [{'updateCells': {
+        'range': {'sheetId': SID,
+                  'startRowIndex': 5 + hajime, 'endRowIndex': 5 + hajime + len(kata),
+                  'startColumnIndex': 3, 'endColumnIndex': 4},
+        'rows': kata,
+        'fields': 'userEnteredValue,textFormatRuns'}}]})
+print('D列にリンクを付けました:', sum(1 for u in RINKU if u), '件')
+
 
 shuukei()
