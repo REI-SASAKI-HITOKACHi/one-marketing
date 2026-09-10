@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | 役割ID | `crm` |
-| セッション | `session_01Xzn5r49CHBn9TnNPmPUNwL`（【OH】顧客接点担当｜SMS文面・公式LINE・返信受付） |
+| セッション | `session_01Xzn5r49CHBn9TnNPmPUNwL`（顧客接点担当｜SMS文面・公式LINE・返信受付） |
 | ブランチ | `claude/crm-sms-line` |
 
 ## ミッション

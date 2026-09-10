@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | 役割ID | `measurement` |
-| セッション | `session_01UgmJdCR7kfvt9M9z7NcqoB`（【OH】計測担当｜GA4・広告タグ・電話CV） |
+| セッション | `session_01UgmJdCR7kfvt9M9z7NcqoB`（計測担当｜GA4・広告タグ・電話CV） |
 | ブランチ | `claude/measurement-ga4-calltracking` |
 
 ## ミッション
