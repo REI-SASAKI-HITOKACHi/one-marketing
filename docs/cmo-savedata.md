@@ -316,7 +316,19 @@ https://docs.google.com/document/d/1hz8GKLt99NeTkqkJzOp8nrdPLBQeJrp3puLEaFrqenM/
 - 認証情報はここ以外に書かない。チャット・LINE・git・掲示板に貼らない
 - 値をチャットに書き戻さない。各スレッドはURLを受け取って読む
 - 旧「Netlify_トークン」文書は転記後に削除する（タイトルに【統合先へ転記して削除】を付けた）
-- ★空欄（未受領）：LINE公式アカウント／CMSログイン／GA4測定ID／SNS各アカウント／KDDI APIキー／ネームギア／ロリポップ
+- **2026-09-10 夜、オーナーが記入。CMOが確認済み：**
+  - サービスアカウント鍵を**作り直した**（新鍵ID先頭 `ac06d974`）。CMO環境に入れてシート読み取り成功。
+    **旧鍵（ID先頭 `b3171104`）はオーナーがGCPで削除する**（T018 完了へ）
+  - Netlify：手元と一致
+  - LINE内部用：手元と同じチャネル（@601sglns）。文書の「グループID」欄には basic ID が入っているが、
+    本物のグループID（Cで始まる）はCMO環境にあるので問題なし
+  - **LINE公式アカウント（お客様向け・友だち330人）のトークンを受領。** `~/.config/one-hitter/line-official-token.txt`。
+    bot/info で確認：表示名 OneHitter(ワンヒッター)・basic ID @366ysqyc・チャネルID 2011544394。
+    **内部用（line-token.txt）と取り違えないこと**
+  - CMSログイン：文書にあり（LP担当が保有しているかを掲示板で確認中）
+  - **GA4：既存プロパティにオーナーがログインできる。LP用の測定ID `G-DLJCTKGTDN` を作成済み** → 計測担当へ渡した
+  - Instagram：ビジネスアカウント・管理者はオーナー／Facebook：管理者はオーナー
+  - ★まだ空欄：Googleビジネスプロフィールの管理者／KDDI／ネームギア／ロリポップ／info@メール
 
 （以下は一本化前の記録）
 
