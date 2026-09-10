@@ -2,6 +2,14 @@
 
 ワンヒッター株式会社（ONE HITTER）のマーケティング資産を管理するリポジトリ。
 
+## 👥 スレッド組織
+
+作業を始めるとき、いちばん最初に `python3 tools/org.py 読む quotation` を実行する。
+決まりは `docs/org/README.md`。オーナーに上げてよいのは
+「お金を使う」「外に出す」「元に戻せない」の3つだけ。それ以外はCMOが決める。
+
+このスレッドの担当は `docs/org/roles/quotation.md`（見積・請求アプリ）。
+
 ## オーナーの希望（進め方）
 
 - **質問がまとまって出るときは、テキストで並べずカード形式（AskUserQuestion）で聞くこと。**
@@ -20,6 +28,8 @@
 | `docs/tracking-setup.md` | ユニークコール（電話CV計測）の導入手順 |
 | `docs/sns-operation-memo.md` | SNS運用（着手前のメモ） |
 | `apps/estimate-app/` | 見積作成Webアプリ（GAS）。改修版のソースと移行手順 |
+| `docs/org/` | スレッド組織の決まりと役割定義（共有ブランチ `claude/org` が正） |
+| `tools/org.py` | 掲示板の読み書き（`読む` / `書く` / `現況`） |
 
 ## 前提
 
