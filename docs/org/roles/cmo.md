@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | 役割ID | `cmo` |
-| セッション | `session_01Bt8QH7kLFJ122YUdL5xSdF`（One Hitter CMO戦略） |
+| セッション | `session_01Bt8QH7kLFJ122YUdL5xSdF`（【OH】CMO｜統括・予約フォーム・SMS配信） |
 | ブランチ | `claude/one-hitter-cmo-strategy-5qk4ux` |
 
 ## ミッション

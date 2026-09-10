@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | 役割ID | `lp` |
-| セッション | `session_01UCo9qkafJq3ai8s9Bk34KF`（LP概要案プレゼン） |
+| セッション | `session_01UCo9qkafJq3ai8s9Bk34KF`（【OH】LP・サイト担当｜LP4本・公式サイト・料金表） |
 | ブランチ | `claude/lp-outline-presentation-8fahl3` |
 
 ## ミッション
