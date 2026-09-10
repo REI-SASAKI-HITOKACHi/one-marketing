@@ -93,6 +93,18 @@ PAGES = {
         "og_line1": "水まわりは、まとめて頼むほど安い",
         "og_line2": "浴室＋キッチン 33,660円（税込）・東京 千葉 神奈川",
     },
+    "nenmatsu": {
+        "dir": "nenmatsu",
+        "lp_id": "nenmatsu",
+        "lp_variant": "A",
+        "title": "年末大掃除 11月までなら通常価格｜レンジフード・浴室・キッチン｜ONE HITTER",
+        "desc": "12月は繁忙期料金として1箇所につき3,300円が加算されます。11月30日までのご予約なら通常価格。"
+                "レンジフード＋浴室で33,660円（税込）、半日で完了。東京・千葉・神奈川、自社施工。",
+        "label": "年末大掃除",
+        "og": "nenmatsu/img/og.jpg",
+        "og_line1": "年末の大掃除は、11月までが安い",
+        "og_line2": "レンジフード＋浴室 33,660円（税込）・12月から+3,300円／箇所",
+    },
 }
 
 HEAD = """<!doctype html>
@@ -207,7 +219,9 @@ def tracking_head(cfg: dict, page: dict, tel: str = "") -> str:
     phone_label = ((cfg.get("google_ads") or {}).get("phone_conversion_label") or "").strip()
     pixel = ((cfg.get("meta") or {}).get("pixel_id") or "").strip()
 
-    out = ["<!-- ONE HITTER 計測タグ／設定は tracking/measurement.json、設計は docs/measurement-spec.md -->"]
+    # 設定は tracking/measurement.json、設計は docs/measurement-spec.md。
+    # 内部のファイル名を公開ページのソースに出さないため、注記はここに置いてHTMLには入れない
+    out = []
     out.append("<script>window.OH_M=" + json.dumps(
         {"page": page, "google_ads": cfg.get("google_ads") or {}, "debug": bool(cfg.get("debug"))},
         ensure_ascii=False, separators=(",", ":")) + ";</script>")
@@ -235,7 +249,9 @@ def tracking_head(cfg: dict, page: dict, tel: str = "") -> str:
         lines.append("</script>")
         out += lines
     else:
-        out.append("<!-- GA4・広告タグは未設定。tracking/measurement.json にIDを入れて再ビルドすると出力されます -->")
+        # GA4・広告タグは未設定。tracking/measurement.json にIDを入れて再ビルドすると出力される。
+        # 未設定であることを公開ページのソースに書く必要はないので、何も出さない
+        pass
 
     if pixel:
         out += ["<script>",
@@ -377,6 +393,24 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict)
           f"画像{len(list(img_dst.iterdir()))}点")
 
 
+def copy_kanseihin(out: pathlib.Path) -> None:
+    """完成した文書としてソースにあるページを、そのまま配信先へ写す。
+
+    アンケート（lp/survey/）は断片ではなく <html> から始まる完成品なので
+    PAGES を通らない。以前はビルドを経由せず deploy/ に直接置かれていて、
+    ソースを直しても配信物に反映されず、両者がずれていた（2026-09-06）。
+    """
+    for name in ("survey",):
+        src = ROOT / "lp" / name / "index.html"
+        if not src.exists():
+            continue
+        dst = out / name
+        dst.mkdir(parents=True, exist_ok=True)
+        (dst / "index.html").write_text(
+            strip_comments(src.read_text(encoding="utf-8")), encoding="utf-8")
+        print(f"{dst.relative_to(ROOT)}/index.html  （完成品をそのまま複製）")
+
+
 if __name__ == "__main__":
     target = sys.argv[1] if len(sys.argv) > 1 else "php"
     if target not in TARGETS:
@@ -395,3 +429,5 @@ if __name__ == "__main__":
         if tel != DEFAULT_TEL:
             print(f"  {meta['dir']}: 電話番号を {tel} に差し替え（コールトラッキング）")
         build_page(name, meta, target, out, cfg)
+
+    copy_kanseihin(out)
