@@ -524,7 +524,7 @@ GCPプロジェクト：`one-hitter-sheets`（番号 844550773178）
 | 作業5分 | ロリポップで info@ → case.foot.kid@gmail.com の転送（「サーバーに残す」必須）。手順 `docs/info@メールを全スレッドで読めるようにする.md`（measurementブランチ） | 5分 |
 | 作業10分 | LINE Official Account Manager のチャットで、嶺さん・和真さんのユーザーID（URLの U…）を認証情報ドキュメントに貼る（公式LINEクーポンの内部テスト用） | 10分 |
 | 作業10分 | 見積アプリのGAS貼り付けとデプロイ（割引が効いていなかった不具合の修正） | 10分 |
-| 作業 | レントラックスの出稿条件・ヒアリングシート（期限9/12を過ぎている）に、用意したGoogleドキュメントの材料を貼って提出 | 15分 |
+| 作業 | レントラックスの出稿条件・ヒアリングシート（期限9/12を過ぎている）に材料を貼って提出。**材料：https://docs.google.com/document/d/1pMiIsCTd11BLtLDTJx8GmSyYF2zXNOrhQDxfMZl4OCg/edit**（9/11 作成・7章） | 15分 |
 | 作業 | araidoki.jp の取得は**不要になった**（洗いどき却下） | — |
 
 
