@@ -14,7 +14,8 @@
 使い方：
   python3 tools/derive-soushin-keitou.py            # 差分を表示するだけ
   python3 tools/derive-soushin-keitou.py --write    # 送信系統列に書く（先に控えを取ること）
-  --cache <path> … 台帳48タブの読み込み結果をJSONに控える／控えがあれば読む（APIの回数制限よけ）
+  --cache <path> … 控えの場所（既定 ~/.cache/one-hitter/meigi-cache.json。gitの外）
+  --saidoku      … 控えが新しくても台帳48タブを読み直す
 """
 import collections, datetime, importlib.util, json, pathlib, re, sys, urllib.parse
 
@@ -55,14 +56,46 @@ def yomu_shikou():
     return jobs
 
 
+CACHE_KITEI = pathlib.Path.home() / '.cache' / 'one-hitter' / 'meigi-cache.json'   # gitの外（電話番号と氏名が入る）
+CACHE_JUMYOU = 12 * 3600   # 秒。これより古い控えは読み直す（台帳は毎日増える）
+
+
+def jobs_yomu(cache=None, saidoku=False):
+    """施工の一覧を返す。控えがあって新しければそれを使う。"""
+    import time
+    cache = pathlib.Path(cache) if cache else CACHE_KITEI
+    if cache.exists() and not saidoku and time.time() - cache.stat().st_mtime < CACHE_JUMYOU:
+        return [(datetime.date.fromisoformat(a), b, c, d) for a, b, c, d in json.load(open(cache))]
+    jobs = yomu_shikou()
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    json.dump([(str(a), b, c, d) for a, b, c, d in jobs], open(cache, 'w'), ensure_ascii=False)
+    return jobs
+
+
+def meigi_hyou(cache=None):
+    """電話番号→(名義, 最新施工日) と 氏名→(名義, 最新施工日) の2つの辞書を返す。
+    名義は 自社／本舗。決められないお客様は入っていない。
+    他のツール（build-sms-list.py など）はこれで送信系統を照合する。"""
+    jobs = jobs_yomu(cache)
+    by_tel, by_name = collections.defaultdict(list), collections.defaultdict(list)
+    for j in jobs:
+        if j[3] not in MEIGI: continue
+        if j[1]: by_tel[j[1]].append(j)
+        if j[2]: by_name[j[2]].append(j)
+    saishin = lambda L: (lambda j: (MEIGI[j[3]], str(j[0])))(max(L, key=lambda c: c[0]))
+    return {k: saishin(L) for k, L in by_tel.items()}, {k: saishin(L) for k, L in by_name.items()}
+
+
+def meigi_shiraberu(hyou, tel, name):
+    """(名義, 最新施工日) か None。電話番号で引き、無ければ氏名で引く。"""
+    by_tel, by_name = hyou
+    return by_tel.get(tel_norm(tel)) or by_name.get(name_norm(name))
+
+
 def main():
     write = '--write' in sys.argv
-    cache = pathlib.Path(sys.argv[sys.argv.index('--cache') + 1]) if '--cache' in sys.argv else None
-    if cache and cache.exists():
-        jobs = [(datetime.date.fromisoformat(a), b, c, d) for a, b, c, d in json.load(open(cache))]
-    else:
-        jobs = yomu_shikou()
-        if cache: json.dump([(str(a), b, c, d) for a, b, c, d in jobs], open(cache, 'w'), ensure_ascii=False)
+    cache = sys.argv[sys.argv.index('--cache') + 1] if '--cache' in sys.argv else None
+    jobs = jobs_yomu(cache, saidoku='--saidoku' in sys.argv)
     by_tel, by_name = collections.defaultdict(list), collections.defaultdict(list)
     for j in jobs:
         if j[1]: by_tel[j[1]].append(j)

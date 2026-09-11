@@ -445,6 +445,28 @@ def sms_link(num, text):
             + '&b=' + urllib.parse.quote(text, safe=''))
 
 
+# ============================== 名義の照合（再発防止） ==============================
+# 2026-09-11 の事故：送信系統=自社 の行にワンヒッター名義の文面を作り、実際は本舗名義が最新の
+# お客様3名に送ってしまった。送信系統列を信じて作っていたのが原因。
+# 以後、送信系統は「台帳の最新の施工の名義」と1行ずつ突き合わせ、
+# 食い違う行・名義が分からない行は 送信可 にしない（tools/derive-soushin-keitou.py と同じ決まり）。
+_spec2 = importlib.util.spec_from_file_location('dsk', f'{ROOT}/tools/derive-soushin-keitou.py')
+dsk = importlib.util.module_from_spec(_spec2); _spec2.loader.exec_module(dsk)
+MEIGI_HYOU = dsk.meigi_hyou()
+print('名義の控え:', len(MEIGI_HYOU[0]), '番号／', len(MEIGI_HYOU[1]), '氏名（', dsk.CACHE_KITEI, '）')
+
+
+def meigi_kuichigai(r):
+    """送信系統と台帳の最新名義が食い違えば理由の文字列、合っていれば ''。"""
+    keitou = g(r, '送信系統')
+    m = dsk.meigi_shiraberu(MEIGI_HYOU, g(r, '元の電話番号表記') or g(r, 'TEL'), g(r, '氏名'))
+    if not m:
+        return '台帳に名義（One Hitter／本舗）の記録が無く、どちらの名乗りで送るか決められません'
+    if m[0] != keitou:
+        return f'送信系統が「{keitou}」ですが、台帳の最新の施工（{m[1]}）は{m[0]}名義です。送信系統を直してください'
+    return ''
+
+
 # ============================== 判定 ==============================
 mizumi = set()
 data = []   # (区分, 理由, 番号, 本文)
@@ -469,6 +491,9 @@ for r in rows:
         data.append(('保留', f'氏名の表記を確認してください（台帳:{g(r, "氏名")}）',
                      num, '')); continue
     keitou = g(r, '送信系統')
+    kuichigai = meigi_kuichigai(r)
+    if kuichigai and not g(r, '送信済み'):
+        data.append(('保留', kuichigai, num, '')); continue
     hon = honbun(r, keitou)
     if not hon:
         data.append(('保留', f'{keitou}向けの文面が未確定。'
@@ -492,6 +517,9 @@ for r in rows:
             data.append(('保留', 'ワンヒッターのものが本舗の文面に混ざっています:'
                          + '、'.join(moreta), num, ''))
             continue
+    # 逆も見る。自社の文面には必ずワンヒッターの名乗りがあること
+    if keitou == '自社' and 'ワンヒッター' not in hon:
+        data.append(('保留', '自社の文面にワンヒッターの名乗りがありません', num, '')); continue
     data.append(('送信可', '', num, hon))
 
 # ============================== 並べ替えとバッチ ==============================
