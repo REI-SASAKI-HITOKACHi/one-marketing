@@ -125,6 +125,11 @@ echo "本文" | python3 tools/org.py 依頼 --from <自分> --to <相手> --件�
 | `docs/tracking-setup.md` | ユニークコール（電話CV計測）の導入手順 |
 | `lp/survey/` | ご利用後アンケート（新版。作り直したもの、未公開） |
 | `docs/survey-redesign.md` | アンケート再設計の仕様書。自社ページ1本に一本化（配信は現場QRが主・SMSが補助） |
+| `docs/measurement-audit.md` | 計測の棚卸し。いま何が測れていて何が測れていないか |
+| `docs/measurement-spec.md` | **計測設計書。イベントとコンバージョンの定義はこれが正** |
+| `docs/measurement-owner-steps.md` | オーナーの作業手順（GA4・広告・電話計測） |
+| `docs/calltracking-vendors.md` | コールトラッキング事業者の比較（出典URL付き） |
+| `tracking/` | 計測の設定と埋め込みスクリプト。`measurement.json` にIDを入れて再ビルドする |
 | `docs/sns-operation-memo.md` | SNS運用（着手前のメモ） |
 | `docs/org/` | スレッド組織の決まり・役割定義。**まずここを読む** |
 | `tools/org.py` | スレッド間の掲示板。`読む` `依頼` `返信` `完了` `現況` |
@@ -140,3 +145,6 @@ echo "本文" | python3 tools/org.py 依頼 --from <自分> --to <相手> --件�
 ## 禁止
 
 - CMSの認証情報など、資格情報を一切コミットしないこと。
+  （`tracking/measurement.json` に入れてよいのは、公開ページのHTMLに出る測定IDだけ。
+  APIキー・トークンの類は入れない）
+- 計測を確かめずに配信しないこと。**配信の前に必ず `python3 tools/check-tracking.py` を通す。**

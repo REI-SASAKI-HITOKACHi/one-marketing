@@ -1072,6 +1072,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
   }
 
   // 見積り合計の読み取り。「10,780円」→ 10780
+<<<<<<< HEAD
   function estimateTotal() {
     var el = document.getElementById('total');
     if (!el) return 0;
@@ -1079,6 +1080,27 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     return isNaN(n) ? 0 : n;
   }
 
+=======
+  //
+  // 数字を全部つなげてはいけない。予約フォームの金額欄には
+  // 「（1箇所）¥10,780 ／ 概算合計（税込）¥10,780」のように複数の数字が並ぶので、
+  // 素朴に非数字を落とすと 11078010780 という桁外れの値になる。実際にそうなった。
+  // 合計の行（.sum）があればそこを見て、無ければ最後に出てくる金額を合計とみなす。
+  function readYen(el) {
+    if (!el) return 0;
+    var target = el;
+    if (el.querySelector) target = el.querySelector('.sum .v') || el.querySelector('.sum') || el;
+    var hit = (target.textContent || '').match(/[0-9][0-9,]*/g);
+    if (!hit || !hit.length) return 0;
+    var n = parseInt(hit[hit.length - 1].replace(/,/g, ''), 10);
+    return isNaN(n) ? 0 : n;
+  }
+
+  function estimateTotal() {
+    return readYen(document.getElementById('total'));
+  }
+
+>>>>>>> origin/claude/measurement-ga4-calltracking
   // ---------------------------------------------------------------
   // 3. エリア判定ボタン（対応エリアかどうかの結果まで記録する）
   // ---------------------------------------------------------------
@@ -1224,6 +1246,72 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
   }
 
   // ---------------------------------------------------------------
+<<<<<<< HEAD
+=======
+  // 5-c. Web予約フォーム（4画面のウィザード。ページ遷移が起きない）
+  //
+  //   知りたいのは「SMSのリンクを開いた人のうち、何人が予約したか」。
+  //   送信そのものは Netlify Forms に「流入元」として記録されているので、
+  //   ここで足すのは分母（開いた人）と、どの画面で脱落したか。
+  // ---------------------------------------------------------------
+  if (PAGE.kind === 'booking') {
+    var bStarted = false;
+    function bStart() {
+      if (bStarted) return;
+      bStarted = true;
+      send('booking_start', {});
+    }
+    // 入口は3つとも見る。ボタン式の選択肢は focus も change も伴わないことがある
+    document.addEventListener('focusin', bStart);
+    document.addEventListener('change', bStart);
+    document.addEventListener('click', bStart);
+
+    var bSeen = {};
+    var bSteps = ['s1', 's2', 's3', 's4'];
+
+    // 送信ボタンを押した時点の概算金額を控えておく。
+    // 完了画面では金額の欄が隠れるので、押した瞬間に読む。
+    var bTotal = 0;
+    var sendBtn = document.getElementById('send');
+    if (sendBtn) {
+      sendBtn.addEventListener('click', function () {
+        var n = readYen(document.getElementById('total'));
+        if (n > 0) bTotal = n;
+        send('booking_submit', { estimate_total: bTotal });
+      });
+    }
+
+    var bDone = false;
+    function bWatch() {
+      for (var i = 0; i < bSteps.length; i++) {
+        var el = document.getElementById(bSteps[i]);
+        if (el && !el.hidden && !bSeen[bSteps[i]]) {
+          bSeen[bSteps[i]] = true;
+          send('booking_step', { step_number: i + 1 });
+        }
+      }
+      var done = document.getElementById('done');
+      if (done && !done.hidden && !bDone) {
+        bDone = true;
+        // ここは送信が受理されてから出る画面。予約1件として数えてよい。
+        var lead = { estimate_total: bTotal };
+        if (bTotal > 0) { lead.value = bTotal; lead.currency = 'JPY'; }
+        send('generate_lead', lead);
+      }
+    }
+
+    if (window.MutationObserver) {
+      var bmo = new MutationObserver(bWatch);
+      bSteps.concat(['done']).forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) bmo.observe(el, { attributes: true, attributeFilter: ['hidden'] });
+      });
+    }
+    bWatch();   // 最初の画面の分
+  }
+
+  // ---------------------------------------------------------------
+>>>>>>> origin/claude/measurement-ga4-calltracking
   // 6. どこまで読まれたか（25 / 50 / 75 / 90%）
   //    GA4の拡張計測にも90%のスクロールはあるが、あちらは1段階しかない。
   //    どの節で離脱しているかを見たいので、自前で4段階を送る。
