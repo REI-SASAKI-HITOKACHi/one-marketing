@@ -434,7 +434,9 @@ SHIRANAI = set()   # ひな形に出てきた、知らない差し込みの目�
 # 「送るタップで開かないから手打ちで送るねー」）。
 #
 # そこで https のページを1枚はさんで、そこから sms: を開く。
-SMS_PAGE = 'https://onehitter-yoyaku.netlify.app/s.html'
+# 社内用ホスト（送る人だけが開く）。お客様向けホストには置かない（2026-09-12 事故：sms: を組み立てる
+#   ページを顧客向けホストに同居させていたのが、フィッシング判定の有力な原因）
+SMS_PAGE = 'https://oh-naibu-sms-k7q3x.netlify.app/s.html'
 
 
 def sms_link(num, text):
