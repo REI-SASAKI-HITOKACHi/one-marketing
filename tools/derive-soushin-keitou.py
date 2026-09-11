@@ -87,9 +87,11 @@ def meigi_hyou(cache=None):
 
 
 def meigi_shiraberu(hyou, tel, name):
-    """(名義, 最新施工日) か None。電話番号で引き、無ければ氏名で引く。"""
+    """(名義, 最新施工日) か None。電話番号で引いたものと氏名で引いたものを合わせ、いちばん新しい施工の名義を返す。
+    台帳には同じお客様でも電話番号が空の行・別の番号の行があるので（2026-09-11 に2件確認）、片方だけでは最新を取り逃す。"""
     by_tel, by_name = hyou
-    return by_tel.get(tel_norm(tel)) or by_name.get(name_norm(name))
+    kouho = [x for x in (by_tel.get(tel_norm(tel)), by_name.get(name_norm(name))) if x]
+    return max(kouho, key=lambda x: x[1]) if kouho else None
 
 
 def main():
