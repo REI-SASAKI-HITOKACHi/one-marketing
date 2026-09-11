@@ -155,7 +155,7 @@ BEK = {   # 見出しの別名。新しい並びでも古い並びでも同じ�
 }
 
 nama = json.loads(subprocess.run(
-    ['python3', f'{ROOT}/tools/sheets_client.py', 'read', SS, f'{TAB}!A1:Z1000'],
+    ['python3', f'{ROOT}/tools/sheets_client.py', 'read', SS, f'{TAB}!A1:Z2000'],   # 2026-09-11 2022年だけの顧客43名を足して1000行を超えた。1000のままだと末尾が読めず、作り直しで消えずに残る
     capture_output=True, text=True).stdout)
 
 midashi_gyou = None
@@ -604,12 +604,13 @@ def shuukei():
     print(' 優先別:', dict(sorted(Counter(x[0] for x in okr).items())))
     print()
     # SMSは全角70文字で1通。超えると分割して送られる（受け取れない端末もある）
-    naga = [len(x[4]) for x in okr]
+    I_HON = ATAMA.index('送信する本文')   # 2026-09-11 にE列とF列を入れ替えたので、位置ではなく名前で引く
+    naga = [len(x[I_HON]) for x in okr]
     print('本文の長さ  最短', min(naga), '／ 最長', max(naga),
           '／ 平均', sum(naga) // len(naga))
     print('  70文字超:', sum(1 for n in naga if n > 70), '件（長文SMSとして分割されます）')
     # 差し込みが空で行ごと落ちたものを数える。文面が痩せていないかの確認
-    kake = [x for x in okr if '渡辺でございます' not in x[4] and 'おそうじ本舗' not in x[4]]
+    kake = [x for x in okr if '渡辺でございます' not in x[I_HON] and 'おそうじ本舗' not in x[I_HON]]
     if kake:
         print('★ 名乗りの行が落ちた本文:', len(kake),
               '件（最終施工日か施工メニューが台帳に無い方）')
@@ -634,7 +635,7 @@ def shuukei():
         if k >= 12:
             continue
         mijikai.append((x[1], k))
-        if IJOU in x[4]:            # ここに入ったら文面と事実が食い違っている
+        if IJOU in x[I_HON]:        # ここに入ったら文面と事実が食い違っている
             machigai.append(x[1])
     if mijikai:
         print('本舗で経過1年未満の方:', len(mijikai),
@@ -647,26 +648,26 @@ def shuukei():
         print()
     # 一文が落ちた側の文面も1件出す。落ちたあとの文のつながりを目で見るため
     for x in okr:
-        if x[12] == '本舗' and IJOU not in x[4]:
+        if x[12] == '本舗' and IJOU not in x[I_HON]:
             print('--- 本舗・経過1年未満の例（上の一文が落ちた形）---')
             print()
             print(f'[{x[1]}]')
-            print(x[4])
+            print(x[I_HON])
             print()
             break
     for kt in ('自社', '本舗'):
         rei = [x for x in okr if x[12] == kt]
         if not rei:
             continue
-        n2 = [len(x[4]) for x in rei]
+        n2 = [len(x[I_HON]) for x in rei]
         print(f'--- {kt} の本文の例（{len(rei)}件・最長{max(n2)}文字）---')
         print()
         print(f'[{rei[0][1]}]')
-        print(rei[0][4])
+        print(rei[0][I_HON])
         print()
     print('--- 本文の例（先頭3件）---')
     for x in okr[:3]:
-        print(f'\n[{x[1]}]\n{x[4]}')
+        print(f'\n[{x[1]}]\n{x[I_HON]}')
 
 
 # ============================== 書き込み ==============================
@@ -695,7 +696,7 @@ SETSUMEI = ('' if YOYAKU_OK else '【送信は保留してください】' + YOY
             'スケジュールマッチング経由で送ってはいけない先は、E列で「対象外」にしてください。')
 
 # いったん広めに消してから書き直す
-call(f'/{SS}/values/{TAB}!A1:Y1000:clear', 'POST', {})
+call(f'/{SS}/values/{TAB}!A1:Y2000:clear', 'POST', {})
 call(f'/{SS}/values/{TAB}!A1', 'PUT', {'values': [
     ['冬季見込み客リスト 2026／SMS送信シート'],
     [SETSUMEI],

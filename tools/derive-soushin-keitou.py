@@ -9,13 +9,19 @@
   2024〜2026年：各月タブの「売上種類」列（One Hitter／本舗／下請）
   2023年      ：「売上種類」列が無く、先頭の「流入経路」列に 本舗／One Hitter／本舗(ロイ)／下請 が入っている
                 （その年の集計行が「自社件数／本舗件数／下請件数」なので、これが名義）
+  2022年      ：名義の列が無い。**全件「本舗」固定**として扱う
+                （オーナー決定 2026-09-11「2022年にしか施工履歴が無いお客様（携帯番号あり44名）を
+                  冬季SMSの第3波に入れる。名乗りは全員おそうじ本舗名義」）。
+                控えには '本舗(2022固定)' と書き、台帳に名義の記録がある年と見分けがつくようにしている。
+                2022年より新しい施工があれば、そちらの名義が勝つ（最新の施工の名義、という決まりのまま）。
+                6月・7月タブは見出しが「日付」、7月に「MM/DD」だけの日付が1行あるので、それも読む。
   下請、空欄  ：決められないので変えない
 
 使い方：
   python3 tools/derive-soushin-keitou.py            # 差分を表示するだけ
   python3 tools/derive-soushin-keitou.py --write    # 送信系統列に書く（先に控えを取ること）
   --cache <path> … 控えの場所（既定 ~/.cache/one-hitter/meigi-cache.json。gitの外）
-  --saidoku      … 控えが新しくても台帳48タブを読み直す
+  --saidoku      … 控えが新しくても台帳55タブ（2022年の7タブを含む）を読み直す
 """
 import collections, datetime, importlib.util, json, pathlib, re, sys, urllib.parse
 
@@ -32,12 +38,15 @@ def tok_get():
         _tok = sc.access_token(sc.load_credentials())
     return _tok
 
-BOOKS = {'2023': '1mOGaxy5viO4peUUQqgJYQ9gp0tuev2c_Y8DrdDy-y3M',
+BOOKS = {'2022': '1-NNZCK6LtyTxvecHOgAHnHRJ6FP_4in_6ht-92a_YME',   # 名義列なし → 全件「本舗」固定（オーナー決定 2026-09-11）
+         '2023': '1mOGaxy5viO4peUUQqgJYQ9gp0tuev2c_Y8DrdDy-y3M',
          '2024': '1Q-dJ0Rh2AeYGhNYUyqoKOkG_Kgq4e1M0KcwkhMFb0J4',
          '2025': '1cpN2tu6NNIA5FSAAC3ejCK0jNNFNfn7GCwq0ghggK3o',
          '2026': '1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64'}
 SS = BOOKS['2026']; TAB = '冬季見込み客_2026'
-MEIGI = {'One Hitter': '自社', '本舗': '本舗', '本舗(ロイ)': '本舗'}
+MEIGI = {'One Hitter': '自社', '本舗': '本舗', '本舗(ロイ)': '本舗',
+         '本舗(2022固定)': '本舗'}   # 2022年台帳の全行。オーナー決定 2026-09-11（上の説明を参照）
+MEIGI_2022 = '本舗(2022固定)'
 
 
 def tel_norm(t): return re.sub(r'\D', '', str(t or ''))
@@ -51,14 +60,17 @@ def yomu_shikou():
         tabs = [s['properties']['title'] for s in meta['sheets'] if re.match(r'^\d{1,2}月_売上', s['properties']['title'])]
         for tab in tabs:
             v = sc.call(tok_get(), f"/{ss}/values/{urllib.parse.quote(tab + '!A1:T500', safe='')}").get('values', [])
-            hi = next((i for i, r in enumerate(v) if '施工日付' in r), None)
+            hi = next((i for i, r in enumerate(v) if '施工日付' in r or (y == '2022' and '日付' in r)), None)
             if hi is None: continue
-            h = v[hi]; ix = {c: i for i, c in enumerate(h)}
-            g = lambda r, k: (r[ix[k]] if k in ix and ix[k] < len(r) else '').strip()
+            h = ['施工日付' if c == '日付' else c for c in v[hi]]; ix = {c: i for i, c in enumerate(h)}   # 2022の6・7月は「日付」
+            g = lambda r, k: str(r[ix[k]] if k in ix and ix[k] < len(r) else '').strip()
             for r in v[hi + 1:]:
-                m = re.match(r'(\d{4})/(\d{1,2})/(\d{1,2})', g(r, '施工日付'))
+                hizuke = g(r, '施工日付')
+                if y == '2022' and re.fullmatch(r'\d{1,2}/\d{1,2}', hizuke): hizuke = '2022/' + hizuke   # 年の無い日付（2022の7月に1行）
+                m = re.match(r'(\d{4})/(\d{1,2})/(\d{1,2})', hizuke)
                 if not m: continue
-                meigi = g(r, '売上種類') if '売上種類' in ix else g(r, '流入経路')   # 2023 は流入経路列が名義
+                if y == '2022': meigi = MEIGI_2022                                   # 2022 は名義列なし → 本舗固定（オーナー決定）
+                else: meigi = g(r, '売上種類') if '売上種類' in ix else g(r, '流入経路')   # 2023 は流入経路列が名義
                 jobs.append((datetime.date(int(m[1]), int(m[2]), int(m[3])), tel_norm(g(r, 'TEL(-無し)')),
                              name_norm(g(r, '氏名')), meigi))
     return jobs
@@ -110,7 +122,7 @@ def main():
     for j in jobs:
         if j[1]: by_tel[j[1]].append(j)
         if j[2]: by_name[j[2]].append(j)
-    v = sc.call(tok_get(), f"/{SS}/values/{urllib.parse.quote(TAB + '!A1:Y1000', safe='')}")['values']
+    v = sc.call(tok_get(), f"/{SS}/values/{urllib.parse.quote(TAB + '!A1:Y2000', safe='')}")['values']
     hi = next(i for i, row in enumerate(v) if '送信系統' in row); h = v[hi]; ix = {c: i for i, c in enumerate(h)}
     g = lambda row, k: (row[ix[k]] if ix.get(k) is not None and ix[k] < len(row) else '')
     col = ix['送信系統']
