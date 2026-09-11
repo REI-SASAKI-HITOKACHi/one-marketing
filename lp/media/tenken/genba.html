@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>現場フォーム｜無料点検</title>
+<meta name="description" content="スタッフ用">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0E7C93">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=Shippori+Mincho+B1:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
+<style>
+/* デザイントークンは lp/nenmatsu/index.html と共通。トーン&マナーを揃えるため丸ごと持ってきています。 */
+:root{
+  --ground:#FAF7F2;
+  --surface:#FFFFFF;
+  --surface-2:#F2EFE9;
+  --ink:#14323D;
+  --ink-soft:#40606C;
+  --muted:#566B73;
+  --line:#E2DDD4;
+  --line-strong:#C8C0B4;
+  --accent:#0E7C93;
+  --accent-deep:#0A5C6E;
+  --accent-soft:#DDEEF1;
+  --cta:#C4461D;
+  --cta-deep:#A83714;
+  --cta-fg:#FFFFFF;
+  --cta-shadow:#8C3212;
+  --cta-text:#A83714;
+  --marker:linear-gradient(transparent 58%,#FFE566 58%);
+  --on-accent:#FFFFFF;
+  --invert:#0F2A38;
+  --invert-ink:#C9D9DE;
+  --invert-line:#1F3C48;
+  --ok:#1E7A5A;
+  --gold:#9A7420;
+  --gold-soft:#F5EEDC;
+  --star:#E0A32A;
+  --shadow:0 2px 10px rgba(20,40,50,.10);
+  --shadow-lift:4px 4px 16px rgba(20,40,50,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C171C;
+    --surface:#12222A;
+    --surface-2:#183039;
+    --ink:#E6EFF1;
+    --ink-soft:#BCCFD5;
+    --muted:#8CA3AB;
+    --line:#223942;
+    --line-strong:#39555F;
+    --accent:#4EC0D4;
+    --accent-deep:#8BDCEA;
+    --accent-soft:#0F3541;
+    --cta:#F0764B;
+    --cta-deep:#D9552A;
+    --cta-fg:#0C171C;
+    --cta-shadow:#A8481F;
+    --cta-text:#E27E5E;
+    --marker:linear-gradient(transparent 58%,#C9A020 58%);
+    --on-accent:#08222A;
+    --invert:#08151A;
+    --invert-ink:#B9CBD1;
+    --invert-line:#1B2E36;
+    --ok:#4FBF95;
+    --gold:#DCB55E;
+    --gold-soft:#2A2413;
+    --star:#F0C25A;
+    --shadow:0 2px 10px rgba(0,0,0,.45);
+    --shadow-lift:4px 4px 16px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C171C;
+  --surface:#12222A;
+  --surface-2:#183039;
+  --ink:#E6EFF1;
+  --ink-soft:#BCCFD5;
+  --muted:#8CA3AB;
+  --line:#223942;
+  --line-strong:#39555F;
+  --accent:#4EC0D4;
+  --accent-deep:#8BDCEA;
+  --accent-soft:#0F3541;
+  --cta:#F0764B;
+  --cta-deep:#D9552A;
+  --cta-fg:#0C171C;
+  --cta-shadow:#A8481F;
+  --cta-text:#E27E5E;
+  --marker:linear-gradient(transparent 58%,#C9A020 58%);
+  --on-accent:#08222A;
+  --invert:#08151A;
+  --invert-ink:#B9CBD1;
+  --invert-line:#1B2E36;
+  --ok:#4FBF95;
+  --gold:#DCB55E;
+  --gold-soft:#2A2413;
+  --star:#F0C25A;
+  --shadow:0 2px 10px rgba(0,0,0,.45);
+  --shadow-lift:4px 4px 16px rgba(0,0,0,.4);
+}
+
+*{box-sizing:border-box;}
+[hidden]{display:none !important;}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:16px;line-height:1.8;-webkit-font-smoothing:antialiased;padding-bottom:40px;
+}
+h1,h2{margin:0;line-height:1.3;letter-spacing:.01em;text-wrap:balance;font-weight:900;}
+h3{margin:0;line-height:1.45;text-wrap:balance;font-weight:900;}
+p{margin:0;}
+a{color:var(--accent-deep);}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+.wrap{max-width:620px;margin:0 auto;padding:0 18px;}
+.eyebrow{font-family:"Barlow",sans-serif;font-weight:600;font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);}
+.num{font-family:"Barlow",sans-serif;font-variant-numeric:tabular-nums;font-weight:700;}
+
+/* 自動投稿よけ。人間には見せない */
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+
+/* ヘッダー */
+.bar{background:var(--surface);border-bottom:1px solid var(--line);}
+.bar-in{max-width:620px;margin:0 auto;padding:9px 18px;display:flex;align-items:center;gap:14px;}
+.logo{display:flex;flex-direction:column;line-height:1.15;}
+.logo b{font-family:"Barlow",sans-serif;font-weight:700;letter-spacing:.08em;font-size:16px;}
+.logo small{font-size:9.5px;color:var(--muted);}
+.bar .tel{margin-left:auto;display:flex;flex-direction:column;line-height:1.2;text-align:right;text-decoration:none;color:inherit;}
+.bar .tel .n{font-family:"Barlow",sans-serif;font-weight:700;font-size:16px;}
+.bar .tel small{font-size:9.5px;color:var(--muted);}
+
+/* 導入 */
+.intro{padding:26px 0 16px;display:flex;flex-direction:column;gap:10px;}
+.intro h1{font-size:clamp(21px,5.4vw,28px);}
+.intro .lead{font-size:14px;color:var(--ink-soft);}
+.ctx{display:flex;flex-wrap:wrap;gap:6px;}
+.ctx span{font-size:11.5px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line);
+  padding:2px 10px;border-radius:99px;}
+
+/* 進捗 */
+.progress{position:sticky;top:0;z-index:20;background:var(--ground);padding:8px 0 10px;}
+.progress .track{display:block;height:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:99px;overflow:hidden;}
+.progress .fill{display:block;height:100%;width:25%;background:var(--accent);transition:width .25s ease;}
+.progress .lab{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:5px;}
+
+/* フォーム */
+.survey-form{display:flex;flex-direction:column;gap:14px;}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 18px;
+  display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);}
+.q > .head{display:flex;flex-direction:column;gap:4px;}
+.q h2{font-size:16.5px;line-height:1.55;}
+.q .why{font-size:12px;color:var(--muted);line-height:1.7;}
+.tag-req,.tag-opt{font-family:"Barlow",sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.1em;
+  padding:2px 8px;border-radius:99px;align-self:flex-start;}
+.tag-req{background:var(--cta);color:var(--cta-fg);}
+.tag-opt{background:var(--surface-2);color:var(--muted);border:1px solid var(--line);}
+
+/* 選択肢 */
+.opts{display:flex;flex-direction:column;gap:8px;}
+.opts.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+@media(max-width:400px){.opts.grid{grid-template-columns:1fr;}}
+.opt{position:relative;}
+.opt input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer;}
+.opt .box{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;min-height:48px;
+  border:1.5px solid var(--line-strong);border-radius:10px;padding:9px 13px;background:var(--surface);
+  font-size:14.5px;font-weight:700;transition:.12s;}
+.opt .mark{width:20px;height:20px;border-radius:50%;border:2px solid var(--line-strong);
+  display:grid;place-items:center;font-size:12px;color:transparent;}
+.opt.check .mark{border-radius:5px;}
+.opt input:checked + .box{border-color:var(--accent);background:var(--accent-soft);}
+.opt input:checked + .box .mark{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+.opt input:focus-visible + .box{outline:3px solid var(--accent);outline-offset:2px;}
+.opt .sub{grid-column:2;font-size:11px;font-weight:500;color:var(--muted);line-height:1.5;}
+.opt.done .box{opacity:.82;}
+.opts-note{font-size:11.5px;color:var(--muted);line-height:1.7;}
+
+/* 入力欄 */
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:13px;font-weight:700;}
+.field input,.field textarea{padding:12px 14px;border:1.5px solid var(--line-strong);border-radius:8px;
+  font-family:inherit;font-size:16px;background:var(--surface);color:var(--ink);width:100%;line-height:1.7;}
+.field textarea{min-height:76px;resize:vertical;}
+.field .hint{font-size:11.5px;color:var(--muted);line-height:1.6;}
+
+/* ボタン */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:8px;font-weight:700;
+  text-decoration:none;border:0;cursor:pointer;font-family:inherit;font-size:15px;padding:13px 18px;line-height:1.4;
+  background:var(--cta);color:var(--cta-fg);transition:background .15s ease,transform .15s ease;}
+.btn:hover{background:var(--cta-deep);}
+.btn:active{transform:translateY(1px);}
+.btn.lg{font-size:17px;padding:16px 20px;width:100%;min-height:58px;border-radius:9999px;letter-spacing:.03em;
+  box-shadow:0 4px 0 0 var(--cta-shadow);}
+.btn.lg:active{box-shadow:0 1px 0 0 var(--cta-shadow);transform:translateY(3px);}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong);}
+.btn.ghost:hover{background:var(--surface-2);}
+.btn.line{background:#06C755;color:#fff;}
+.btn.line:hover{background:#05A445;}
+.btn.tel{background:var(--accent);color:var(--on-accent);}
+.btn.tel:hover{background:var(--accent-deep);}
+.btn.sm{font-size:13.5px;padding:10px 14px;}
+.nav{display:flex;gap:10px;align-items:center;padding:2px 0 8px;}
+.nav .btn{flex:1 1 0;}
+.nav .btn.ghost{flex:0 0 auto;min-width:92px;}
+.err{font-size:13px;font-weight:700;color:var(--cta-text);min-height:1.2em;}
+
+/* 「今すぐ相談したい」「紹介したい」などの分岐ボックス */
+.branch{background:var(--accent-soft);border:1.5px solid var(--accent);border-radius:10px;padding:14px 15px;
+  display:flex;flex-direction:column;gap:10px;}
+.branch b{font-size:14px;color:var(--accent-deep);}
+.branch p{font-size:12.5px;color:var(--ink-soft);line-height:1.75;}
+.branch .row{display:flex;gap:8px;flex-wrap:wrap;}
+.branch .row .btn{flex:1 1 140px;}
+
+/* 完了画面 */
+.done{display:flex;flex-direction:column;gap:14px;}
+.done h2,.done h3,.done .thanks strong{word-break:auto-phrase;}
+.done .thanks{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:24px 20px;
+  display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);}
+.done .thanks h2{font-size:20px;}
+.done .thanks p{font-size:13.5px;color:var(--ink-soft);}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 18px;
+  display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);}
+.card.hero-card{border:2px solid var(--accent);}
+.card.small{padding:16px 15px;}
+.card h3{font-size:16px;}
+.card.small h3{font-size:14px;}
+.card p{font-size:13px;color:var(--ink-soft);line-height:1.8;}
+.card.small p{font-size:12px;}
+.quote{background:var(--surface-2);border:1px dashed var(--line-strong);border-radius:10px;padding:14px 15px;
+  font-size:14px;line-height:1.9;white-space:pre-wrap;color:var(--ink);}
+.copy-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.copy-row .btn{flex:1 1 160px;}
+.copied{font-size:12.5px;font-weight:700;color:var(--ok);}
+.step-list{margin:0;padding-left:1.2em;font-size:12.5px;color:var(--muted);line-height:1.9;}
+
+footer{background:var(--invert);color:var(--invert-ink);padding:30px 0 26px;margin-top:34px;}
+footer .wrap{display:flex;flex-direction:column;gap:8px;}
+footer b{color:#fff;font-size:14px;}
+footer p{font-size:12px;line-height:1.8;}
+footer a{color:var(--invert-ink);}
+
+/* ============ lp/media 共通 ============ */
+.logo b{letter-spacing:.02em;font-family:"Shippori Mincho B1",serif;font-size:18px;}
+.bar .unei{margin-left:auto;font-size:10.5px;color:var(--muted);text-align:right;line-height:1.5;}
+.meiji{font-size:13px;line-height:1.8;color:var(--ink);background:var(--surface);border:2px solid var(--accent);border-radius:10px;padding:12px 14px;}
+.meiji b{color:var(--accent-deep);}
+.note{font-size:12.5px;color:var(--muted);line-height:1.7;}
+.field select{padding:12px 14px;border:1.5px solid var(--line-strong);border-radius:8px;font-family:inherit;font-size:16px;background:var(--surface);color:var(--ink);width:100%;}
+.field input[type=file]{padding:10px;font-size:14px;}
+.field input[type=date]{padding:12px 14px;border:1.5px solid var(--line-strong);border-radius:8px;font-family:inherit;font-size:16px;background:var(--surface);color:var(--ink);width:100%;}
+.agree{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.7;}
+.agree input{width:20px;height:20px;margin-top:2px;flex:0 0 auto;}
+.thumbs{display:flex;gap:6px;flex-wrap:wrap;}
+.thumbs img,.thumbs video{width:72px;height:72px;object-fit:cover;border-radius:6px;border:1px solid var(--line);}
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px;}
+.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top;line-height:1.6;}
+.tbl th{color:var(--muted);font-weight:500;white-space:nowrap;width:34%;}
+.tbl td .v{font-family:"Barlow",sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.akawaku{border:3px solid var(--cta);border-radius:10px;padding:14px 15px;background:var(--surface);font-size:13.5px;line-height:1.85;}
+.akawaku h3{color:var(--cta-text);font-size:16px;margin-bottom:6px;}
+.unei-tbl{display:grid;grid-template-columns:110px 1fr;gap:8px 12px;font-size:13.5px;line-height:1.8;}
+.unei-tbl dt{color:var(--muted);}
+.unei-tbl dd{margin:0;}
+.photo{margin:0;}
+.photo img{width:100%;height:auto;display:block;border-radius:10px;border:1px solid var(--line);}
+.photo figcaption{font-size:12px;color:var(--muted);line-height:1.6;margin-top:6px;}
+.photo .stamp{display:inline-block;font-size:10.5px;letter-spacing:.06em;background:var(--invert);color:#fff;border-radius:4px;padding:2px 7px;margin-right:6px;}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.pair .photo img{aspect-ratio:1/1;object-fit:cover;}
+.qr{display:flex;flex-direction:column;align-items:center;gap:8px;background:#fff;border-radius:12px;padding:16px;border:1px solid var(--line);}
+.qr canvas,.qr img{width:220px;height:220px;}
+.pin{max-width:320px;margin:40px auto;}
+@media print{.bar,footer,.noprint{display:none !important;} body{background:#fff;color:#000;padding:0;} .wrap{max-width:none;} .akawaku{border-color:#c00;}}
+
+
+.hero{display:flex;flex-direction:column;gap:10px;}
+.menus{display:grid;grid-template-columns:1fr;gap:10px;}
+.menu{border:1.5px solid var(--line);border-radius:12px;padding:14px 15px;background:var(--surface);display:flex;flex-direction:column;gap:6px;}
+.menu h3{font-size:17px;}
+.menu .m{font-size:13px;color:var(--muted);line-height:1.7;}
+.slots{display:flex;flex-direction:column;gap:8px;}
+.slot-day{font-size:13px;color:var(--muted);}
+.times{display:flex;flex-wrap:wrap;gap:6px;}
+.times label{cursor:pointer;}
+.times input{position:absolute;opacity:0;}
+.times span{display:inline-block;border:1.5px solid var(--line-strong);border-radius:8px;padding:6px 12px;font-family:"Barlow",sans-serif;font-size:15px;background:var(--surface);}
+.times input:checked+span{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-deep);font-weight:700;}
+.nowaku{background:var(--surface-2);border-radius:10px;padding:12px 14px;font-size:13.5px;line-height:1.8;}
+.fusen{font-size:12.5px;color:var(--muted);line-height:1.7;}
+.shoken{display:grid;grid-template-columns:1fr;gap:8px;}
+.big{font-size:22px;font-family:"Barlow",sans-serif;}
+.keiyaku-sum{background:var(--surface-2);border-radius:10px;padding:12px 14px;}
+.shomen h2{font-size:16px;margin-top:18px;border-left:4px solid var(--accent);padding-left:8px;}
+.shomen .tbl th{width:30%;}
+.shomen .sign{margin-top:12px;font-size:13px;}
+.small-btns{display:flex;gap:8px;flex-wrap:wrap;}
+
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <a class="logo" href="./" style="text-decoration:none;color:inherit"><b>無料点検</b><small>ワンヒッター｜頼む前に、中を見ます</small></a>
+    <span class="unei">運営：ワンヒッター株式会社<br><a href="./unei.html" style="color:inherit">運営者情報</a></span>
+  </div>
+</header>
+<main class="wrap">
+
+  <div class="pin" id="pin">
+    <div class="q"><div class="head"><h2>現場フォーム</h2><p class="why">スタッフ用です。</p></div>
+      <div class="field"><label for="pin-in">番号</label><input id="pin-in" type="tel" inputmode="numeric" autocomplete="off"></div>
+      <button type="button" class="btn lg" id="pin-ok">開く</button><p class="err" id="pin-err"></p></div>
+  </div>
+
+  <form class="survey-form" id="f" onsubmit="return false;" novalidate hidden>
+    <div class="intro"><span class="eyebrow">スタッフ用</span><h1>点検の記録</h1>
+      <p class="lead" style="font-size:14px">写真を撮って、3つ選んで、送るだけ。報告書の文章は自動で作ります。<br><b>お客様と一緒に画面を見てから</b>入力してください。</p></div>
+
+    <div class="q">
+      <div class="field"><label for="g-id">受付番号（申込メールにある T… の番号。ついで点検なら空欄）</label><input id="g-id" type="text" autocomplete="off" placeholder="例：T20261015-AB3K"></div>
+      <div class="field"><label for="g-name">お客様のお名前</label><input id="g-name" type="text" autocomplete="off" placeholder="例：山田"></div>
+      <div class="field"><label for="g-menu">見た場所</label><select id="g-menu"><option value="">選んでください</option><option value="A">洗濯槽の裏側（内視鏡カメラ）</option><option value="B">追い焚き配管の中（ATP測定器（ルミテスター））</option><option value="C">エアコン施工中の汚水（他の台のご案内）</option></select></div>
+      <div class="field"><label for="g-tsuide">きっかけ</label><select id="g-tsuide"><option>申込があった点検</option><option>施工のついで</option></select></div>
+      <div class="field"><label for="g-kishu">機種・年数（分かれば）</label><input id="g-kishu" type="text" placeholder="例：パナソニック 縦型 2018年ごろ"></div>
+      <div class="field" id="atp-box" hidden><label for="g-atp">ATPの数値（RLU）</label><input id="g-atp" type="number" inputmode="numeric" placeholder="例：1200"><p class="hint">採水前に「これから測ります」と一言。数値はそのままお見せする。</p></div>
+    </div>
+
+    <div class="q">
+      <div class="head"><h2>写真（3〜5枚）と動画（1本・30秒まで）</h2><p class="why">お宅が分かるもの（表札・部屋全体・私物）を写さない。槽の中・循環口・バケツだけ。</p></div>
+      <div class="field"><label for="g-photo">写真</label><input id="g-photo" type="file" accept="image/*" capture="environment" multiple><div class="thumbs" id="thumbs"></div></div>
+      <div class="field"><label for="g-video">動画（任意）</label><input id="g-video" type="file" accept="video/*" capture="environment"><p class="hint">内視鏡アプリで録った動画をここに。大きすぎると送れないことがあります（目安30秒）。</p></div>
+    </div>
+
+    <div class="q">
+      <div class="head"><h2>所見（1つ）</h2><p class="why">見たままで。「危険」「壊れる」は言わない・書かない。</p></div>
+      <div class="opts shoken"><label class="opt"><input type="radio" name="shoken" value="要洗浄"><span class="box"><span class="mark">✓</span><span>要洗浄<span class="sub">洗浄をおすすめします</span></span></span></label><label class="opt"><input type="radio" name="shoken" value="様子見"><span class="box"><span class="mark">✓</span><span>様子見<span class="sub">今回は様子見でよいと思います</span></span></span></label><label class="opt"><input type="radio" name="shoken" value="不要"><span class="box"><span class="mark">✓</span><span>不要<span class="sub">今回は不要です</span></span></span></label></div>
+      <div class="field" style="margin-top:8px"><label for="g-hitokoto">お客様に伝えた一言（報告書にそのまま載ります）</label><textarea id="g-hitokoto" placeholder="例：槽の裏側の下のほうに黒いカビが帯状に付いていました。市販のクリーナーでは届かない場所です。"></textarea></div>
+    </div>
+
+    <div class="q">
+      <div class="head"><h2>その場のご案内</h2><p class="why">所見が「要洗浄」のときだけ。ご案内は1回。「今回は結構です」と言われたら、ここで終わり。</p></div>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="annai" value="QRを出した"><span class="box"><span class="mark">✓</span><span>ご案内して、申込QRを出した</span></span></label>
+        <label class="opt"><input type="radio" name="annai" value="決めない→報告書"><span class="box"><span class="mark">✓</span><span>「今晩、報告書を送ります」で帰る</span></span></label>
+        <label class="opt"><input type="radio" name="annai" value="案内なし"><span class="box"><span class="mark">✓</span><span>ご案内していない（不要・様子見・ついで）</span></span></label>
+      </div>
+      <div id="qrbox" class="qr" hidden style="margin-top:10px"><div id="qrcode"></div><p class="note" style="text-align:center">お客様のスマホで読んでもらう。料金と日程はお客様の画面に出ます。</p><a id="qrlink" href="#" target="_blank" rel="noopener" class="note">このスマホで開く（お客様に渡す場合）</a></div>
+      <button type="button" class="btn ghost" id="mkqr" style="margin-top:8px">申込QRを出す</button>
+    </div>
+
+    <div class="q">
+      <input type="text" id="g-hp" name="bot-field" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true">
+      <p class="err" id="ge"></p>
+      <button type="button" class="btn lg" id="send">記録を送る</button>
+    </div>
+
+    <section class="q done" id="done" hidden><div class="head"><h2>送りました。</h2></div>
+      <p class="why" style="font-size:13.5px">報告書は今日18時までに自動で作って、お客様へ送ります。次の現場へどうぞ。</p>
+      <button type="button" class="btn ghost" onclick="location.reload()">次の記録</button></section>
+  </form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+
+var $ = function(id){ return document.getElementById(id); };
+var Q = new URLSearchParams(location.search);
+function uketsukeId(prefix){
+  var d = new Date(), p = function(n){ return (n<10?'0':'')+n; };
+  var r = Math.random().toString(36).slice(2,6).toUpperCase();
+  return prefix + d.getFullYear() + p(d.getMonth()+1) + p(d.getDate()) + '-' + r;
+}
+function postForm(formName, atai, files, onOk, onErr){
+  var fd = new FormData(); fd.append('form-name', formName);
+  Object.keys(atai).forEach(function(k){ fd.append(k, atai[k] == null ? '' : String(atai[k])); });
+  (files||[]).forEach(function(f){ fd.append(f.name, f.file, f.file.name); });
+  fetch(location.pathname, { method:'POST', body: fd }).then(function(r){
+    if (!r.ok) throw new Error('送信できませんでした（' + r.status + '）'); onOk();
+  }).catch(function(e){ onErr(String(e.message || e) + '　電波の良い場所で、もう一度お試しください。'); });
+}
+function jpDate(iso){ if(!iso) return ''; var d = new Date(iso+'T00:00:00'); if (isNaN(d)) return iso;
+  return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日（'+'日月火水木金土'[d.getDay()]+'）'; }
+function addDays(iso, n){ var d = new Date(iso+'T00:00:00'); d.setDate(d.getDate()+n); var p=function(x){return (x<10?'0':'')+x;}; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+
+var MENUS = [{"id": "A", "表示": "洗濯槽の裏側", "短": "洗濯槽", "道具": "内視鏡カメラ", "所要": "5〜8分", "施工": "洗濯機クリーニング", "対象": "縦型の洗濯機（ドラム式は槽のすき間にカメラが入らないため対象外）", "見えるもの": "洗濯槽と外側の槽のあいだに溜まっている黒いカビ（画面でその場でご覧いただきます）", "次回": "1年後"}, {"id": "B", "表示": "追い焚き配管の中", "短": "追い焚き", "道具": "ATP測定器（ルミテスター）", "所要": "8〜12分", "施工": "追い焚き配管クリーニング", "対象": "追い焚き機能のある浴室", "見えるもの": "配管から出てくる水の汚れを数値（ATP）で測ります。数値はその場でお見せします", "次回": "半年後"}];
+(function(){
+  var PIN = '2026';
+  function open(){ $('pin').hidden = true; $('f').hidden = false; }
+  try { if (localStorage.getItem('genba-ok') === '1') open(); } catch(e) {}
+  $('pin-ok').addEventListener('click', function(){
+    if ($('pin-in').value.trim() === PIN) { try { localStorage.setItem('genba-ok','1'); } catch(e) {} open(); } else $('pin-err').textContent = '番号が違います。';
+  });
+  $('g-menu').addEventListener('change', function(){ $('atp-box').hidden = (this.value !== 'B'); });
+  var files = [];
+  $('g-photo').addEventListener('change', function(){
+    files = [].slice.call(this.files).slice(0,5); $('thumbs').innerHTML = '';
+    files.forEach(function(f){ var img = document.createElement('img'); img.src = URL.createObjectURL(f); $('thumbs').appendChild(img); });
+  });
+  function keiyakuUrl(){
+    var id = $('g-id').value.trim() || uketsukeId('G'); $('g-id').value = id;
+    var u = new URL('moushikomi.html', location.href);
+    u.searchParams.set('id', id); u.searchParams.set('menu', $('g-menu').value || 'A'); u.searchParams.set('name', $('g-name').value.trim());
+    return u.toString();
+  }
+  $('mkqr').addEventListener('click', function(){
+    if (!$('g-menu').value || $('g-menu').value === 'C') return $('ge').textContent = 'エアコンの他の台は、通常の見積・予約の型で。QRは洗濯槽／追い焚きのみ。';
+    var url = keiyakuUrl(); $('qrcode').innerHTML = ''; new QRCode($('qrcode'), { text:url, width:220, height:220 });
+    $('qrlink').href = url; $('qrbox').hidden = false;
+    var r = document.querySelector('input[name="annai"][value="QRを出した"]'); if (r) r.checked = true;
+  });
+  var sending = false;
+  $('send').addEventListener('click', function(){
+    if (sending || $('g-hp').value) return;
+    var sh = document.querySelector('input[name="shoken"]:checked'), an = document.querySelector('input[name="annai"]:checked');
+    if (!$('g-name').value.trim()) return $('ge').textContent = 'お客様のお名前を入れてください。';
+    if (!$('g-menu').value) return $('ge').textContent = '見た場所を選んでください。';
+    if ($('g-menu').value !== 'C' && files.length < 1) return $('ge').textContent = '写真を1枚以上。';
+    if (!sh) return $('ge').textContent = '所見を1つ選んでください。';
+    if (!an) return $('ge').textContent = 'その場のご案内の結果を選んでください。';
+    if (sh.value === '要洗浄' && an.value === '案内なし' && $('g-tsuide').value !== '施工のついで') return $('ge').textContent = '要洗浄なら、ご案内を1回してください（お断りされたら「報告書を送ります」を選ぶ）。';
+    $('ge').textContent = '';
+    var menu = $('g-menu').value, mname = menu === 'C' ? 'エアコン施工中の汚水' : MENUS.filter(function(x){return x.id===menu;})[0].表示;
+    var atai = { '受付番号': $('g-id').value.trim() || uketsukeId('G'), 'お名前': $('g-name').value.trim(), '見た場所': mname, 'メニューID': menu, 'きっかけ': $('g-tsuide').value,
+      '機種年数': $('g-kishu').value.trim(), 'ATP': $('g-atp').value, '所見': sh.value, '一言': $('g-hitokoto').value.trim(), 'その場の案内': an.value, '送信時刻': new Date().toISOString() };
+    var fl = files.map(function(f,i){ return {name:'写真'+(i+1), file:f}; });
+    if ($('g-video').files[0]) fl.push({name:'動画1', file:$('g-video').files[0]});
+    sending = true; $('send').disabled = true; $('send').textContent = '送信しています…（動画があると時間がかかります）';
+    postForm('tenken-genba', atai, fl, function(){ $('f').querySelectorAll('.q:not(#done), .intro').forEach(function(el){ el.hidden = true; }); $('done').hidden = false; window.scrollTo(0,0); },
+      function(msg){ sending = false; $('send').disabled = false; $('send').textContent = '記録を送る'; $('ge').textContent = msg; });
+  });
+})();
+</script>
+
+<!-- Netlifyがデプロイ時にこのフォームを見つけて受け口を作る。画面には出さない。
+     ★name を変えたら、送信側も必ず合わせること。 -->
+<form name="tenken-genba" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data" hidden>
+  <input type="hidden" name="form-name" value="tenken-genba"><input type="text" name="bot-field"><input type="text" name="受付番号"><input type="text" name="お名前"><input type="text" name="見た場所"><input type="text" name="メニューID"><input type="text" name="きっかけ"><input type="text" name="機種年数"><input type="text" name="ATP"><input type="text" name="所見"><input type="text" name="一言"><input type="text" name="その場の案内"><input type="text" name="送信時刻"><input type="file" name="写真1"><input type="file" name="写真2"><input type="file" name="写真3"><input type="file" name="写真4"><input type="file" name="写真5"><input type="file" name="動画1">
+</form>
+
+</main>
+<footer>
+  <div class="wrap">
+    <b>無料点検</b>
+    <p>
+      運営：ワンヒッター株式会社（ハウスクリーニング業）／〒134-0081 東京都江戸川区北葛西5-14-11／080-8043-8259<br>
+      スタッフ用ページ<br>
+      <a href="./unei.html">運営者情報</a>
+      <a href="https://one-hitter.jp/privacy_policy/" target="_blank" rel="noopener">個人情報の取扱いについて</a>
+    </p>
+  </div>
+</footer>
+</body>
+</html>
