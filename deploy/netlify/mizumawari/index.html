@@ -961,6 +961,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
       <input type="hidden" name="form-name" value="reserve-mizumawari">
       <input type="hidden" name="subject" value="【LP予約】水まわりセット">
       <input type="hidden" name="lp" value="mizumawari">
+      <input type="hidden" name="order_id" value="">
       <div class="hp" aria-hidden="true">
         <label for="f-x">この欄には入力しないでください</label>
         <input id="f-x" name="x_field" type="text" tabindex="-1" autocomplete="off">
@@ -1510,6 +1511,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
 
   log('計測スクリプト読み込み完了', PAGE, 'gtag=' + (typeof window.gtag === 'function'));
 })();
-</script>
+</script><script>(function(){function mkid(){var d=new Date();var p=function(n){return(n<10?'0':'')+n;};var r='';var c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';for(var i=0;i<4;i++){r+=c.charAt(Math.floor(Math.random()*c.length));}return 'OH-'+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-mizumawari-'+r;}
+var f=document.querySelector('form.form');if(!f)return;f.addEventListener('submit',function(){var id=mkid();var h=f.querySelector('input[name="order_id"]');if(h){h.value=id;}try{sessionStorage.setItem('oh_order_id',id);}catch(e){}},true);})();</script><!-- ONE HITTER 計測タグ --><script>(function(){var cb=function(){};var s=document.createElement('script');s.type='text/javascript';s.src='https://www.rentracks.jp/js/itp/rt.track.js?t='+(new Date()).getTime();if(s.readyState){s.onreadystatechange=function(){if(s.readyState==='loaded'||s.readyState==='complete'){s.onreadystatechange=null;cb();}};}else{s.onload=function(){cb();};}document.getElementsByTagName('head')[0].appendChild(s);})();</script>
 </body>
 </html>
