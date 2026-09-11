@@ -63,7 +63,7 @@ PY
 
 | サイト | 中身 | 配信してよいスレッド |
 |---|---|---|
-| `one-hitter-lp.netlify.app` | aircon / aircon-b / mizumawari | LP・計測・CMO（上のルールを守ること） |
+| `one-hitter-lp.netlify.app` | aircon / aircon-b / mizumawari / **nenmatsu / survey**（5本ともアフィリエイトの遷移先として登録済み。URLを変えない） | **LP担当だけ**（2026-09-11 決定。他のスレッドは変更をLP担当に依頼する。計測担当は 9/10 に自分からは配信しないと決めた） |
 | `one-hitter-nenmatsu.netlify.app` | nenmatsu | CMO |
 | `one-hitter-survey.netlify.app` | survey | CMO |
 
@@ -74,10 +74,13 @@ PY
 独自ドメイン `lp.one-hitter.jp` が通った時点で、**1サイトに統合する方針**です（オーナー判断）。
 統合後はこの分散も解消します。
 
-## 現在の状態（2026-09-07 確認済み）
+## 現在の状態（2026-09-11 訂正）
 
-4本すべてで、ライト固定・src/cid記録・計測の土台が入っており、
-`thanks.html` も3本とも200を返しています。
+**2026-09-10 に計測担当が本番を実測したところ、`/aircon/` `/aircon-b/` `/mizumawari/` の3本には
+`src`/`cid` の記録（`id="h-src"` `id="h-cid"`）が入っていませんでした。** `/nenmatsu/` には入っています。
+9/07の「4本すべてで入っている」は、CMOブランチのソースを見た記述で、本番（LP担当のブランチの版）とは
+一致していませんでした。次に `one-hitter-lp` へ配信するとき、LP担当がCMOブランチの `lp/*/index.html` の
+`h-src`/`h-cid` を取り込んでから配信すること（計測担当の指摘 20260910-10-cmo）。
 
 ## 2026-09-08 追記：配信後は必ず中身を見る（アンケートが text/plain で出ていた件）
 

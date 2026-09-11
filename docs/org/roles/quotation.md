@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | 役割ID | `quotation` |
-| セッション | `session_0133KyPCEiuymewkyrFHoS2Z`（見積アプリ改善） |
+| セッション | `session_0133KyPCEiuymewkyrFHoS2Z`（見積アプリ担当｜現場の見積ツール（GAS）） |
 | ブランチ | `claude/quotation-app-performance-discount-7gr1e8` |
 
 ## ミッション

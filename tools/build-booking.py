@@ -17,6 +17,11 @@ import pathlib
 import re
 import sys
 
+# 計測タグ（GA4・広告タグ）の文字列をもらう窓口。
+# 測定IDが空なら何も返さないので、IDが無い状態でも壊れない。
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from tracking_tags import head as keisoku_head, body as keisoku_body
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PRICES = ROOT / "data" / "prices.json"
 SURVEY = ROOT / "lp" / "survey" / "index.html"
@@ -170,7 +175,14 @@ def build() -> str:
     css = base_css() + "\n" + TSUIKA_CSS
     js_setting = json.dumps(setting, ensure_ascii=False, indent=0).replace("\n", "")
 
-    return TEMPLATE.replace("{{CSS}}", css).replace("{{SETTEI}}", js_setting).replace("{{TEL}}", TEL)
+    html = (TEMPLATE.replace("{{CSS}}", css)
+                    .replace("{{SETTEI}}", js_setting)
+                    .replace("{{TEL}}", TEL))
+
+    # 計測タグを差し込む。テンプレートには手を入れず、書き出すときだけ足す。
+    html = html.replace("</head>", keisoku_head("booking", "booking", tel=TEL) + "\n</head>", 1)
+    html = html.replace("</body>", keisoku_body() + "\n</body>", 1)
+    return html
 
 
 TEMPLATE = r"""<!doctype html>
@@ -196,7 +208,7 @@ TEMPLATE = r"""<!doctype html>
 
 <header class="bar">
   <div class="bar-in">
-    <span class="logo"><b>ONE HITTER</b><small>ワンヒッター株式会社</small></span>
+    <span class="logo"><b>ONE HITTER</b><small id="bar-sub">ワンヒッター株式会社</small></span>
     <a class="tel" href="tel:{{TEL}}"><span class="n">{{TEL}}</span><small>受付 渡辺／8:00–20:00</small></a>
   </div>
 </header>
@@ -206,7 +218,7 @@ TEMPLATE = r"""<!doctype html>
   <div class="intro">
     <span class="eyebrow">Booking</span>
     <h1>空いている日時から<br>そのままご予約いただけます。</h1>
-    <p class="lead">前回ご利用いただいたお客様専用のページです。所要 <b>約2分</b>。担当の空き状況をそのまま出しているので、そのままご予約いただけます。お電話でも承ります。</p>
+    <p class="lead" id="lead">前回ご利用いただいたお客様専用のページです。所要 <b>約2分</b>。担当の空き状況をそのまま出しているので、そのままご予約いただけます。お電話でも承ります。</p>
     <div class="ctx"><span>東京・千葉・神奈川</span><span>表示はすべて税込</span><span>追加請求なし</span></div>
   </div>
 
@@ -231,6 +243,7 @@ TEMPLATE = r"""<!doctype html>
         <span class="tag-req">必須</span>
         <h2>ご希望の内容をお選びください</h2>
         <p class="why">箇所数だけお選びいただければ大丈夫です。オプション（防カビコート・室外機など）は、担当からの確認のお電話で承ります。</p>
+        <p class="why" id="shinrai" hidden>ご利用後のアンケートで <b>98.6%</b> の方が「他の人にすすめたい」と回答（2023年1月〜2025年12月・209名中206名）</p>
       </div>
       <div class="menu-list" id="menus"></div>
       <div class="total" id="total" hidden></div>
@@ -259,7 +272,7 @@ TEMPLATE = r"""<!doctype html>
       <div class="head">
         <span class="tag-req">必須</span>
         <h2>ご連絡先をお願いします</h2>
-        <p class="why">前回とお変わりなければ、お名前とお電話番号だけで結構です。ご住所は当日の道順の確認に使います。</p>
+        <p class="why" id="why3">前回とお変わりなければ、お名前とお電話番号だけで結構です。ご住所は当日の道順の確認に使います。</p>
       </div>
       <div class="field">
         <label for="f-name">お名前</label>
@@ -308,6 +321,7 @@ TEMPLATE = r"""<!doctype html>
         <h2>ご予約ありがとうございます。</h2>
         <p id="done-when"></p>
         <p>担当の渡辺より、確認のお電話を差し上げます。<br>その時点で確定となります。</p>
+        <p id="done-first" hidden>はじめての方には、お電話で作業内容と料金をご説明してから確定します。</p>
       </div>
 
       <!-- お客様の手元に何も残らないと「いつ予約したっけ」となる。
@@ -342,6 +356,19 @@ TEMPLATE = r"""<!doctype html>
 (function(){
   'use strict';
   var S = {{SETTEI}};
+  // SNS（Instagram／Facebook／Googleビジネスプロフィール）から来た初見の方向けに、
+  // 「前回ご利用のお客様専用」の文言だけ差し替える。SMS経由の既存客の画面は変えない。
+  // （2026-09-11 ネット流入担当の指摘 20260911-01-cmo）
+  try {
+    var srcSns = (new URLSearchParams(location.search)).get('src') || '';
+    if (srcSns === 'ig' || srcSns === 'fb' || srcSns === 'gbp') {
+      document.getElementById('lead').innerHTML = 'はじめての方もこのページからご予約いただけます。所要 <b>約2分</b>。ご予約前に、まず料金の目安が出ます。お電話でも承ります。';
+      document.getElementById('bar-sub').textContent = 'ワンヒッター株式会社｜ハウスクリーニング（東京・千葉・神奈川）';
+      document.getElementById('why3').textContent = 'ご住所は、お伺いできる範囲かの確認と当日の道順に使います。営業のご連絡には使いません。';
+      document.getElementById('shinrai').hidden = false;
+      document.getElementById('done-first').hidden = false;
+    }
+  } catch (e) {}
   var $ = function(id){ return document.getElementById(id); };
 
   var state = {
