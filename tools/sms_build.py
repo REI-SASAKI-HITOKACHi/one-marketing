@@ -51,6 +51,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATES = os.path.join(ROOT, "data", "sms-templates.json")
 PRICES = os.path.join(ROOT, "data", "prices.json")
 
+sys.path.insert(0, os.path.join(ROOT, "tools"))
+import meigi_check as MC  # noqa: E402  名乗りの照合（2026-09-11 の事故の再発防止）
+
 # KDDI Message Cast の課金は「文字数に応じて課金通数が異なる」とだけ公表されており、
 # 換算表は非公開（2026-09-06 時点、公式サイトで確認）。
 # ここでは国内SMSの慣行である「全角70文字ごとに1通」を仮置きしている。
@@ -250,7 +253,7 @@ def cmd_check() -> int:
     print("== テンプレートの検算 ==")
     print(f"（{UNIT_CHARS}文字＝1通 / {PRICE_PER_UNIT}円・税込 で計算）\n")
     sample = {
-        "氏名": "末武　俊康",
+        "氏名": "山田　太郎",  # 検算用の架空の名前。実在のお客様の名前を書かないこと
         "今回おすすめ": "換気扇・浴室",
         "経過(月)": "8.2",
         "最終施工日": "2025/12/29",
@@ -273,8 +276,29 @@ def cmd_check() -> int:
             if n not in (peak, same_day, 1000):
                 flags.append(f"NG:料金{n}円が prices.json と合わない")
                 ng += 1
-        print(f"[{t['id']}] {t['対象']}")
+        # 名乗りの照合（本文の側）。相手方の社名・受付番号・URLが混ざっていないか
+        meigi = t.get("名義")
+        if not meigi:
+            flags.append("NG:名義が書かれていない")
+            ng += 1
+        else:
+            for i in MC.honbun_ihan(meigi, body):
+                flags.append(f"NG:{i}")
+                ng += 1
+        print(f"[{t['id']}] {t['対象']}（名義 {meigi or '不明'}）")
         print(f"     {c}文字 / {u}通分 / {u * PRICE_PER_UNIT:.2f}円  {' '.join(flags) or 'OK'}")
+    print()
+
+    # 宛先の照合が使える状態かを、ここで一度だけ確かめる
+    print("== 宛先の名義照合（台帳と突き合わせる） ==")
+    hyou, err = MC.hyou_yomu()
+    if hyou is None:
+        print(f"  ★台帳を読めません: {err}")
+        print("  → この状態では宛先を照合できないので、お客様への配信をしないこと")
+        ng += 1
+    else:
+        by_tel, by_name = hyou
+        print(f"  OK 電話番号で引ける人 {len(by_tel)}名 ／ 氏名で引ける人 {len(by_name)}名")
     print()
     if PRICE_IS_PROVISIONAL:
         print(f"※ 単価{PRICE_PER_UNIT}円は公表下限。KDDIの提示が{WITHDRAW_LINE}円(税込)を超えたら NTT CPaaS に切り替える。")
@@ -291,6 +315,14 @@ def cmd_build(args) -> int:
     want_pr = set(x.strip() for x in args.priority.split(",")) if args.priority else None
     with open(args.csv, encoding="utf-8-sig", newline="") as f:
         rows = list(csv.DictReader(f))
+
+    # ★宛先の名義は、台帳の最新の施工から引く。列の値は信じない（2026-09-11 の事故の再発防止）
+    hyou, meigi_err = MC.hyou_yomu()
+    if hyou is None:
+        print(f"★台帳を読めないので、名義を照合できません: {meigi_err}", file=sys.stderr)
+        print("  照合できない相手には送らない決まりなので、1件も送信対象にしません。", file=sys.stderr)
+        print("  環境変数 GOOGLE_SHEETS_SA_KEY を設定してから、もう一度実行してください。", file=sys.stderr)
+        return 2
 
     queue, skipped, seen = [], [], set()
     for row in rows:
@@ -321,6 +353,18 @@ def cmd_build(args) -> int:
             continue
         seen.add(tel)
         body = render(by_id[tid]["本文"], row)
+
+        # ここから名乗りの照合。2つとも通らない限り送信対象にしない
+        tsukau = by_id[tid].get("名義")
+        ok, riyuu = MC.atesaki_ok(hyou, row.get("TEL"), row.get("氏名"), tsukau)
+        if not ok:
+            # 集計が1件ずつばらけないよう、理由は種類だけにする（最新施工日は人によって違うため）
+            skipped.append((row, "名乗りの照合に通らない：" + riyuu.split("（")[0]))
+            continue
+        ihan = MC.honbun_ihan(tsukau, body)
+        if ihan:
+            skipped.append((row, f"本文に相手方のものが混ざっている：{ihan[0]}"))
+            continue
         queue.append(
             {
                 "tel": tel,  # 文字列。数値化しないこと

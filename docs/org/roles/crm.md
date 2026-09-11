@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | 役割ID | `crm` |
-| セッション | `session_01Xzn5r49CHBn9TnNPmPUNwL`（顧客接点スレッド：SMS・公式LINE） |
+| セッション | `session_01Xzn5r49CHBn9TnNPmPUNwL`（顧客接点担当｜SMS文面・公式LINE・返信受付） |
 | ブランチ | `claude/crm-sms-line` |
 
 ## ミッション
@@ -28,3 +28,9 @@
 - **LINE webhookには署名の検証が無い。** お客様の個人情報をこの経路に流さないこと
 - 冬季見込み客SMSの実行は現在CMOが持っている（`tools/build-sms-list.py`）。
   二重に動かさないこと。文面設計で関わるときは掲示板で先に声をかける
+
+
+## 必須の規則（2026-09-11 オーナー指示）
+
+お客様に届くもの（SMS・公式LINE・メール・電話台本）は、**名乗りを台帳の「最新の施工の名義」と機械で照合してから**作る。
+`tools/derive-soushin-keitou.py` の `meigi_hyou()` を使う。食い違う相手・照合できない相手には送らない。詳細は `docs/org/README.md` 4.5。

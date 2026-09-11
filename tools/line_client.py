@@ -20,10 +20,18 @@ LINE Messaging API のクライアント。紹介クーポンの作成・配布�
   python3 tools/line_client.py coupon-list
   python3 tools/line_client.py coupon-get --id <couponId>
 
-  python3 tools/line_client.py push --to <userId> --coupon <couponId> --confirm SEND
+  python3 tools/line_client.py push --to <userId> --tel 09012345678 --name "山田　太郎" \
+      --coupon <couponId> --confirm SEND
       該当者1名にクーポンメッセージを送る。
 
-  python3 tools/line_client.py push --to <userId> --text "..." --confirm SEND
+  python3 tools/line_client.py push --to <userId> --internal --text "..." --confirm SEND
+      社内（嶺・和真・CMO）あて。名義の照合を省く。★お客様には使わない。
+
+★お客様あてには --tel か --name が必須です（名義の照合に使います）
+  公式LINEは**ワンヒッター名義**です。本舗のお客様には出しません。
+  2026-09-11、本舗名義のお客様3名にワンヒッターの文面が届く事故がありました。
+  台帳の列を信じず、最新の施工の名義と機械で照合します（tools/meigi_check.py）。
+  **照合できない相手には送りません。** 台帳が読めないときも送りません。
 
   python3 tools/line_client.py quota
       今月の無料メッセージ通数と消化数。プラン変更の判断に使う。
@@ -62,6 +70,9 @@ import os
 import sys
 import urllib.error
 import urllib.request
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import meigi_check as MC  # noqa: E402  名乗りの照合（2026-09-11 の事故の再発防止）
 
 API = "https://api.line.me/v2/bot"
 ENV = "LINE_CHANNEL_ACCESS_TOKEN"
@@ -167,6 +178,32 @@ def cmd_push(a):
     if not a.coupon and not a.text:
         print("エラー: --coupon か --text のどちらかが要ります。", file=sys.stderr)
         return 2
+
+    # ★名乗りの照合。公式LINEはワンヒッター名義なので、本舗のお客様には出さない。
+    #   2026-09-11、本舗名義のお客様3名にワンヒッターの文面が届いた事故があった。
+    #   「台帳の列を信じない。最新の施工の名義と機械で照合する。照合できない相手には送らない」
+    if a.internal:
+        print("※ 社内あて（--internal）として、名乗りの照合を省きます。")
+        print("  ★お客様には使わないこと。")
+    else:
+        if not (a.tel or a.name):
+            print("エラー: お客様あてには --tel か --name が要ります（名義の照合に使います）。", file=sys.stderr)
+            print("  社内の動作確認なら --internal を付けてください。", file=sys.stderr)
+            return 2
+        hyou, err = MC.hyou_yomu()
+        if hyou is None:
+            print(f"エラー: 台帳を読めないので名義を照合できません: {err}", file=sys.stderr)
+            print("  照合できない相手には送らない決まりです。GOOGLE_SHEETS_SA_KEY を設定してください。", file=sys.stderr)
+            return 2
+        ok, riyuu = MC.atesaki_ok(hyou, a.tel, a.name, "自社")
+        if not ok:
+            print(f"エラー: このお客様に公式LINEを送れません。{riyuu}", file=sys.stderr)
+            print("  公式LINEはワンヒッター名義です。本舗のお客様には出しません。", file=sys.stderr)
+            return 2
+        print(f"名義の照合: OK（{riyuu}）")
+        for i in MC.honbun_ihan("自社", (a.text or "")):
+            print(f"エラー: 本文が名乗りのルールに反します — {i}", file=sys.stderr)
+            return 2
     msgs = []
     if a.text:
         msgs.append({"type": "text", "text": a.text})
@@ -204,11 +241,15 @@ def main():
     x.add_argument("--confirm")
     x.set_defaults(fn=cmd_coupon_close)
 
-    s = sub.add_parser("push", help="1名に送る")
+    s = sub.add_parser("push", help="1名に送る（お客様あては名義の照合を通す）")
     s.add_argument("--to", required=True, help="LINEのユーザーID")
     s.add_argument("--text")
     s.add_argument("--coupon", help="couponId")
     s.add_argument("--confirm")
+    s.add_argument("--tel", help="お客様の電話番号。台帳の名義を引くのに使う")
+    s.add_argument("--name", help="お客様の氏名。台帳の名義を引くのに使う")
+    s.add_argument("--internal", action="store_true",
+                   help="社内（嶺・和真・CMO）あて。名義の照合を省く。★お客様には使わない")
     s.set_defaults(fn=cmd_push)
 
     a = p.parse_args()
