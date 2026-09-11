@@ -461,17 +461,33 @@ HTMLファイルを新規作成しなくて済み、デプロイ時のファイ�
 
 [Apps Scriptプロジェクトを開く](https://script.google.com/d/1YGd7GG__SJU__fBu3TAtqbO3kp6uG3YHz2eUYSg3oU8kDwZF36zz8x4T/edit)
 
-### 手順0：バックアップ（作成済み・作業不要）
+### 手順0：バックアップと、戻すための番号を控える
 
-2026-09-05時点の本番3点を複製済み。差し替えて問題が出たらここから戻せる。
+**貼る前に必ずやること（30秒）。**
+
+> **「デプロイを管理」を開き、いま動いているバージョン番号を控える。**
+>
+> 問題が出たら、同じ画面でそのバージョンを選び直すだけで完全に元に戻る。
+> これがいちばん確実で速い戻し方。
+
+シート2点は複製済み（2026-09-05時点）。作業不要。
 
 | 対象 | バックアップ |
 |---|---|
-| Apps Scriptプロジェクト | [`[BACKUP 20260905] 見積アプリ GAS（改修前）`](https://script.google.com/d/1uHncVsNpFAVkXlwxgd5XIxjhA3KChQNgCc2skGkZDbkCPrTC1RyfxRFU/edit) |
 | マスタ | [`[BACKUP 20260905] 見積アプリ_マスタ入力テンプレート（改修前）`](https://docs.google.com/spreadsheets/d/1AHUZHCoLfQUcgAtbDnvAiiFu36VTbV4xi0xLa6v3nak/edit) |
 | 帳票/DB | [`[BACKUP 20260905] 【アプリ】見積-請求書（改修前）`](https://docs.google.com/spreadsheets/d/1jyjN2xAUT-F_YjDJuy3mokaDmad9vJYzxehv1yKHPUc/edit) |
 
-ソースは `docs/production-snapshot/` にも保存してある。
+**Apps Scriptプロジェクト自体の複製はありません。** `adminBackup()` はシート2点しか
+コピーしない作りです（2026-09-11 Driveで実機確認。以前ここに載っていたGASバックアップの
+リンクは存在しないファイルを指していたため削除しました）。
+
+コードの控えは次の2つ：
+
+- **GAS自身のバージョン履歴**（上で控える番号）。いちばん確実
+- `docs/production-snapshot/` の4ファイル（2026-09-06 時点の本番ソース）
+
+なお本番スクリプトは 2026-09-07 に更新された記録があり、`production-snapshot/` より
+新しい可能性があります。**手順0のバージョン番号を控えることが、確実な戻し方です。**
 
 ### 手順1：4ファイルを貼り替える（新規作成なし）
 
@@ -692,9 +708,9 @@ bash apps/estimate-app/tools/run-all.sh   # 下記すべてを一括実行
 
 | 状況 | 戻し方 |
 |---|---|
-| コードを戻したい | 「デプロイを管理」→ バージョン履歴から旧バージョンを選び直す。または手順0で控えた4ファイルを貼り戻す（`Admin.gs` と `Calc.html` は削除してよい） |
+| コードを戻したい | **「デプロイを管理」→ 手順0で控えたバージョン番号を選び直す。** これだけで元に戻る |
 | マスタを戻したい | `adminNormalize*()` が作った新シートを削除し、`<シート名>_旧_YYYYMMDD_HHmm` を元の名前にリネームし直す |
-| 全部戻したい | 手順0の `[BACKUP 20260905] …` 3点から中身を戻す |
+| 全部戻したい | 上のコード復旧に加えて、手順0の `[BACKUP 20260905] …` 2点からシートの中身を戻す |
 | コードだけ元に戻したい | `docs/production-snapshot/` の4ファイルを貼り戻し、`Invoice`／`Admin`／`Calc` を削除する |
 | 追加した列を消したい | 消さなくてよい。旧コードは列名でなくヘッダー検索で動くため、右端の追加列があっても影響しない |
 
