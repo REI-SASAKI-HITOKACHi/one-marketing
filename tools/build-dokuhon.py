@@ -178,7 +178,7 @@ def offer_html(b: dict, ctx: dict) -> str:
     <p class="proof">ご利用後のアンケートで「他の人にすすめたい」 {K.SURVEY}。Googleのクチコミ ★5.0（{K.REVIEW_COUNT}件・{K.REVIEW_ASOF}）。東京都・千葉県・神奈川県。</p>
     <div class="tenken"><b>まだ決めない、という方へ</b>
       <p>{b["tenken"]}</p>
-      <a class="btn sec" id="btn-tenken" href="{C.TENKEN_URL}/">無料で中を見てもらう</a></div>
+      <a class="btn sec" id="btn-tenken" href="{C.TENKEN_URL}/">無料点検を申し込む（洗濯槽・追い焚き配管）</a></div>
   </section>
 """
 
