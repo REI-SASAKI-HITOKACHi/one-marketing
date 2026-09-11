@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>カード設置のご連絡｜ワンヒッター 読本</title>
+<meta name="description" content="施設の方の設置連絡フォーム">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0E7C93">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=Shippori+Mincho+B1:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
+<style>
+/* デザイントークンは lp/nenmatsu/index.html と共通。トーン&マナーを揃えるため丸ごと持ってきています。 */
+:root{
+  --ground:#FAF7F2;
+  --surface:#FFFFFF;
+  --surface-2:#F2EFE9;
+  --ink:#14323D;
+  --ink-soft:#40606C;
+  --muted:#566B73;
+  --line:#E2DDD4;
+  --line-strong:#C8C0B4;
+  --accent:#0E7C93;
+  --accent-deep:#0A5C6E;
+  --accent-soft:#DDEEF1;
+  --cta:#C4461D;
+  --cta-deep:#A83714;
+  --cta-fg:#FFFFFF;
+  --cta-shadow:#8C3212;
+  --cta-text:#A83714;
+  --marker:linear-gradient(transparent 58%,#FFE566 58%);
+  --on-accent:#FFFFFF;
+  --invert:#0F2A38;
+  --invert-ink:#C9D9DE;
+  --invert-line:#1F3C48;
+  --ok:#1E7A5A;
+  --gold:#9A7420;
+  --gold-soft:#F5EEDC;
+  --star:#E0A32A;
+  --shadow:0 2px 10px rgba(20,40,50,.10);
+  --shadow-lift:4px 4px 16px rgba(20,40,50,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C171C;
+    --surface:#12222A;
+    --surface-2:#183039;
+    --ink:#E6EFF1;
+    --ink-soft:#BCCFD5;
+    --muted:#8CA3AB;
+    --line:#223942;
+    --line-strong:#39555F;
+    --accent:#4EC0D4;
+    --accent-deep:#8BDCEA;
+    --accent-soft:#0F3541;
+    --cta:#F0764B;
+    --cta-deep:#D9552A;
+    --cta-fg:#0C171C;
+    --cta-shadow:#A8481F;
+    --cta-text:#E27E5E;
+    --marker:linear-gradient(transparent 58%,#C9A020 58%);
+    --on-accent:#08222A;
+    --invert:#08151A;
+    --invert-ink:#B9CBD1;
+    --invert-line:#1B2E36;
+    --ok:#4FBF95;
+    --gold:#DCB55E;
+    --gold-soft:#2A2413;
+    --star:#F0C25A;
+    --shadow:0 2px 10px rgba(0,0,0,.45);
+    --shadow-lift:4px 4px 16px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C171C;
+  --surface:#12222A;
+  --surface-2:#183039;
+  --ink:#E6EFF1;
+  --ink-soft:#BCCFD5;
+  --muted:#8CA3AB;
+  --line:#223942;
+  --line-strong:#39555F;
+  --accent:#4EC0D4;
+  --accent-deep:#8BDCEA;
+  --accent-soft:#0F3541;
+  --cta:#F0764B;
+  --cta-deep:#D9552A;
+  --cta-fg:#0C171C;
+  --cta-shadow:#A8481F;
+  --cta-text:#E27E5E;
+  --marker:linear-gradient(transparent 58%,#C9A020 58%);
+  --on-accent:#08222A;
+  --invert:#08151A;
+  --invert-ink:#B9CBD1;
+  --invert-line:#1B2E36;
+  --ok:#4FBF95;
+  --gold:#DCB55E;
+  --gold-soft:#2A2413;
+  --star:#F0C25A;
+  --shadow:0 2px 10px rgba(0,0,0,.45);
+  --shadow-lift:4px 4px 16px rgba(0,0,0,.4);
+}
+
+*{box-sizing:border-box;}
+[hidden]{display:none !important;}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:16px;line-height:1.8;-webkit-font-smoothing:antialiased;padding-bottom:40px;
+}
+h1,h2{margin:0;line-height:1.3;letter-spacing:.01em;text-wrap:balance;font-weight:900;}
+h3{margin:0;line-height:1.45;text-wrap:balance;font-weight:900;}
+p{margin:0;}
+a{color:var(--accent-deep);}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+.wrap{max-width:620px;margin:0 auto;padding:0 18px;}
+.eyebrow{font-family:"Barlow",sans-serif;font-weight:600;font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);}
+.num{font-family:"Barlow",sans-serif;font-variant-numeric:tabular-nums;font-weight:700;}
+
+/* 自動投稿よけ。人間には見せない */
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+
+/* ヘッダー */
+.bar{background:var(--surface);border-bottom:1px solid var(--line);}
+.bar-in{max-width:620px;margin:0 auto;padding:9px 18px;display:flex;align-items:center;gap:14px;}
+.logo{display:flex;flex-direction:column;line-height:1.15;}
+.logo b{font-family:"Barlow",sans-serif;font-weight:700;letter-spacing:.08em;font-size:16px;}
+.logo small{font-size:9.5px;color:var(--muted);}
+.bar .tel{margin-left:auto;display:flex;flex-direction:column;line-height:1.2;text-align:right;text-decoration:none;color:inherit;}
+.bar .tel .n{font-family:"Barlow",sans-serif;font-weight:700;font-size:16px;}
+.bar .tel small{font-size:9.5px;color:var(--muted);}
+
+/* 導入 */
+.intro{padding:26px 0 16px;display:flex;flex-direction:column;gap:10px;}
+.intro h1{font-size:clamp(21px,5.4vw,28px);}
+.intro .lead{font-size:14px;color:var(--ink-soft);}
+.ctx{display:flex;flex-wrap:wrap;gap:6px;}
+.ctx span{font-size:11.5px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line);
+  padding:2px 10px;border-radius:99px;}
+
+/* 進捗 */
+.progress{position:sticky;top:0;z-index:20;background:var(--ground);padding:8px 0 10px;}
+.progress .track{display:block;height:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:99px;overflow:hidden;}
+.progress .fill{display:block;height:100%;width:25%;background:var(--accent);transition:width .25s ease;}
+.progress .lab{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:5px;}
+
+/* フォーム */
+.survey-form{display:flex;flex-direction:column;gap:14px;}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 18px;
+  display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);}
+.q > .head{display:flex;flex-direction:column;gap:4px;}
+.q h2{font-size:16.5px;line-height:1.55;}
+.q .why{font-size:12px;color:var(--muted);line-height:1.7;}
+.tag-req,.tag-opt{font-family:"Barlow",sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.1em;
+  padding:2px 8px;border-radius:99px;align-self:flex-start;}
+.tag-req{background:var(--cta);color:var(--cta-fg);}
+.tag-opt{background:var(--surface-2);color:var(--muted);border:1px solid var(--line);}
+
+/* 選択肢 */
+.opts{display:flex;flex-direction:column;gap:8px;}
+.opts.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+@media(max-width:400px){.opts.grid{grid-template-columns:1fr;}}
+.opt{position:relative;}
+.opt input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer;}
+.opt .box{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;min-height:48px;
+  border:1.5px solid var(--line-strong);border-radius:10px;padding:9px 13px;background:var(--surface);
+  font-size:14.5px;font-weight:700;transition:.12s;}
+.opt .mark{width:20px;height:20px;border-radius:50%;border:2px solid var(--line-strong);
+  display:grid;place-items:center;font-size:12px;color:transparent;}
+.opt.check .mark{border-radius:5px;}
+.opt input:checked + .box{border-color:var(--accent);background:var(--accent-soft);}
+.opt input:checked + .box .mark{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+.opt input:focus-visible + .box{outline:3px solid var(--accent);outline-offset:2px;}
+.opt .sub{grid-column:2;font-size:11px;font-weight:500;color:var(--muted);line-height:1.5;}
+.opt.done .box{opacity:.82;}
+.opts-note{font-size:11.5px;color:var(--muted);line-height:1.7;}
+
+/* 入力欄 */
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:13px;font-weight:700;}
+.field input,.field textarea{padding:12px 14px;border:1.5px solid var(--line-strong);border-radius:8px;
+  font-family:inherit;font-size:16px;background:var(--surface);color:var(--ink);width:100%;line-height:1.7;}
+.field textarea{min-height:76px;resize:vertical;}
+.field .hint{font-size:11.5px;color:var(--muted);line-height:1.6;}
+
+/* ボタン */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:8px;font-weight:700;
+  text-decoration:none;border:0;cursor:pointer;font-family:inherit;font-size:15px;padding:13px 18px;line-height:1.4;
+  background:var(--cta);color:var(--cta-fg);transition:background .15s ease,transform .15s ease;}
+.btn:hover{background:var(--cta-deep);}
+.btn:active{transform:translateY(1px);}
+.btn.lg{font-size:17px;padding:16px 20px;width:100%;min-height:58px;border-radius:9999px;letter-spacing:.03em;
+  box-shadow:0 4px 0 0 var(--cta-shadow);}
+.btn.lg:active{box-shadow:0 1px 0 0 var(--cta-shadow);transform:translateY(3px);}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong);}
+.btn.ghost:hover{background:var(--surface-2);}
+.btn.line{background:#06C755;color:#fff;}
+.btn.line:hover{background:#05A445;}
+.btn.tel{background:var(--accent);color:var(--on-accent);}
+.btn.tel:hover{background:var(--accent-deep);}
+.btn.sm{font-size:13.5px;padding:10px 14px;}
+.nav{display:flex;gap:10px;align-items:center;padding:2px 0 8px;}
+.nav .btn{flex:1 1 0;}
+.nav .btn.ghost{flex:0 0 auto;min-width:92px;}
+.err{font-size:13px;font-weight:700;color:var(--cta-text);min-height:1.2em;}
+
+/* 「今すぐ相談したい」「紹介したい」などの分岐ボックス */
+.branch{background:var(--accent-soft);border:1.5px solid var(--accent);border-radius:10px;padding:14px 15px;
+  display:flex;flex-direction:column;gap:10px;}
+.branch b{font-size:14px;color:var(--accent-deep);}
+.branch p{font-size:12.5px;color:var(--ink-soft);line-height:1.75;}
+.branch .row{display:flex;gap:8px;flex-wrap:wrap;}
+.branch .row .btn{flex:1 1 140px;}
+
+/* 完了画面 */
+.done{display:flex;flex-direction:column;gap:14px;}
+.done h2,.done h3,.done .thanks strong{word-break:auto-phrase;}
+.done .thanks{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:24px 20px;
+  display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);}
+.done .thanks h2{font-size:20px;}
+.done .thanks p{font-size:13.5px;color:var(--ink-soft);}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 18px;
+  display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);}
+.card.hero-card{border:2px solid var(--accent);}
+.card.small{padding:16px 15px;}
+.card h3{font-size:16px;}
+.card.small h3{font-size:14px;}
+.card p{font-size:13px;color:var(--ink-soft);line-height:1.8;}
+.card.small p{font-size:12px;}
+.quote{background:var(--surface-2);border:1px dashed var(--line-strong);border-radius:10px;padding:14px 15px;
+  font-size:14px;line-height:1.9;white-space:pre-wrap;color:var(--ink);}
+.copy-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.copy-row .btn{flex:1 1 160px;}
+.copied{font-size:12.5px;font-weight:700;color:var(--ok);}
+.step-list{margin:0;padding-left:1.2em;font-size:12.5px;color:var(--muted);line-height:1.9;}
+
+footer{background:var(--invert);color:var(--invert-ink);padding:30px 0 26px;margin-top:34px;}
+footer .wrap{display:flex;flex-direction:column;gap:8px;}
+footer b{color:#fff;font-size:14px;}
+footer p{font-size:12px;line-height:1.8;}
+footer a{color:var(--invert-ink);}
+
+/* ============ lp/media 共通 ============ */
+.logo b{letter-spacing:.02em;font-family:"Shippori Mincho B1",serif;font-size:18px;}
+.bar .unei{margin-left:auto;font-size:10.5px;color:var(--muted);text-align:right;line-height:1.5;}
+.meiji{font-size:13px;line-height:1.8;color:var(--ink);background:var(--surface);border:2px solid var(--accent);border-radius:10px;padding:12px 14px;}
+.meiji b{color:var(--accent-deep);}
+.note{font-size:12.5px;color:var(--muted);line-height:1.7;}
+.field select{padding:12px 14px;border:1.5px solid var(--line-strong);border-radius:8px;font-family:inherit;font-size:16px;background:var(--surface);color:var(--ink);width:100%;}
+.field input[type=file]{padding:10px;font-size:14px;}
+.field input[type=date]{padding:12px 14px;border:1.5px solid var(--line-strong);border-radius:8px;font-family:inherit;font-size:16px;background:var(--surface);color:var(--ink);width:100%;}
+.agree{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.7;}
+.agree input{width:20px;height:20px;margin-top:2px;flex:0 0 auto;}
+.thumbs{display:flex;gap:6px;flex-wrap:wrap;}
+.thumbs img,.thumbs video{width:72px;height:72px;object-fit:cover;border-radius:6px;border:1px solid var(--line);}
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px;}
+.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top;line-height:1.6;}
+.tbl th{color:var(--muted);font-weight:500;white-space:nowrap;width:34%;}
+.tbl td .v{font-family:"Barlow",sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.akawaku{border:3px solid var(--cta);border-radius:10px;padding:14px 15px;background:var(--surface);font-size:13.5px;line-height:1.85;}
+.akawaku h3{color:var(--cta-text);font-size:16px;margin-bottom:6px;}
+.unei-tbl{display:grid;grid-template-columns:110px 1fr;gap:8px 12px;font-size:13.5px;line-height:1.8;}
+.unei-tbl dt{color:var(--muted);}
+.unei-tbl dd{margin:0;}
+.photo{margin:0;}
+.photo img{width:100%;height:auto;display:block;border-radius:10px;border:1px solid var(--line);}
+.photo figcaption{font-size:12px;color:var(--muted);line-height:1.6;margin-top:6px;}
+.photo .stamp{display:inline-block;font-size:10.5px;letter-spacing:.06em;background:var(--invert);color:#fff;border-radius:4px;padding:2px 7px;margin-right:6px;}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.pair .photo img{aspect-ratio:1/1;object-fit:cover;}
+.qr{display:flex;flex-direction:column;align-items:center;gap:8px;background:#fff;border-radius:12px;padding:16px;border:1px solid var(--line);}
+.qr canvas,.qr img{width:220px;height:220px;}
+.pin{max-width:320px;margin:40px auto;}
+@media print{.bar,footer,.noprint{display:none !important;} body{background:#fff;color:#000;padding:0;} .wrap{max-width:none;} .akawaku{border-color:#c00;}}
+
+
+.book h2{font-family:"Shippori Mincho B1",serif;font-size:clamp(20px,5.4vw,25px);line-height:1.45;margin:34px 0 12px;}
+.book h2 small{display:block;font-family:"Barlow",sans-serif;font-size:11px;letter-spacing:.18em;color:var(--accent);margin-bottom:6px;}
+.book p{font-size:15.5px;line-height:2;margin:0 0 14px;}
+.book .quote{border-left:4px solid var(--accent);padding:6px 0 6px 14px;margin:14px 0;font-size:14px;line-height:1.9;color:var(--ink-soft);background:var(--surface);border-radius:0 8px 8px 0;}
+.book .quote cite{display:block;font-style:normal;font-size:11.5px;color:var(--muted);margin-top:6px;}
+.book .quote a{color:var(--muted);}
+.book .photo{margin:14px 0 18px;}
+.book .kazu{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0;}
+.book .kazu div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;}
+.book .kazu b{display:block;font-family:"Barlow",sans-serif;font-size:30px;line-height:1.1;color:var(--accent-deep);}
+.book .kazu span{font-size:12px;color:var(--muted);line-height:1.6;display:block;margin-top:4px;}
+.book ul{padding-left:1.3em;font-size:15px;line-height:1.95;margin:0 0 14px;}
+.book .dekiru{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:0 0 10px;}
+.book .dekiru b{display:block;margin-bottom:4px;}
+.book .dekiru.ng b{color:var(--cta-text);}
+.title{padding:26px 0 8px;}
+.title h1{font-family:"Shippori Mincho B1",serif;font-size:clamp(23px,6.4vw,30px);line-height:1.5;}
+.title .sub{font-size:14px;color:var(--ink-soft);margin-top:10px;line-height:1.8;}
+.title .who{font-size:12px;color:var(--muted);margin-top:8px;}
+.toc{font-size:13.5px;line-height:1.9;color:var(--ink-soft);background:var(--surface-2);border-radius:10px;padding:12px 16px;margin:18px 0 6px;}
+.toc ol{margin:0;padding-left:1.4em;}
+.shouhin{border:2px solid var(--accent);border-radius:12px;padding:16px;background:var(--surface);margin:10px 0 14px;}
+.shouhin h3{font-size:18px;margin-bottom:6px;}
+.shouhin .ln{display:flex;justify-content:space-between;gap:10px;font-size:14px;line-height:1.8;}
+.shouhin .ln.sum{font-size:20px;font-weight:900;border-top:1px solid var(--line-strong);padding-top:6px;margin-top:4px;}
+.shouhin .v{font-family:"Barlow",sans-serif;white-space:nowrap;}
+.shouhin .btn{width:100%;margin-top:10px;}
+.tenken{border:1.5px solid var(--line-strong);border-radius:12px;padding:14px 16px;background:var(--surface-2);}
+.proof{font-size:12.5px;color:var(--muted);line-height:1.8;margin-top:10px;}
+.sources{font-size:11.5px;color:var(--muted);line-height:1.8;margin-top:26px;border-top:1px solid var(--line);padding-top:12px;}
+.sources ol{padding-left:1.4em;margin:6px 0 0;}
+.sources a{color:var(--muted);word-break:break-all;}
+.ending{font-family:"Shippori Mincho B1",serif;font-size:16px;line-height:2;margin:26px 0 10px;}
+.dl{display:flex;gap:8px;flex-wrap:wrap;}
+
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <a class="logo" href="../" style="text-decoration:none;color:inherit"><b>読本</b><small>ワンヒッター｜家の中の見えない汚れ</small></a>
+    <span class="unei">運営：ワンヒッター株式会社<br><a href="../unei.html" style="color:inherit">運営者情報</a></span>
+  </div>
+</header>
+<main class="wrap">
+
+  <div class="intro">
+    <span class="eyebrow">設置のご連絡（1分）</span>
+    <h1>カードを置いていただける施設の方へ</h1>
+    <p class="lead" style="font-size:14.5px">ありがとうございます。設置場所だけお知らせください。折り返し、貴施設専用のQRカード（PDF）と、毎週の閲覧数のお知らせをお送りします。</p>
+  </div>
+  <form class="survey-form" id="f" onsubmit="return false;" novalidate>
+    <div class="q">
+      <div class="field"><label for="s-name">施設名</label><input id="s-name" type="text" autocomplete="organization" placeholder="例：◯◯レディースクリニック／◯◯ペットショップ"></div>
+      <div class="field"><label for="s-houjin">運営法人の正式名称（分かれば）</label><input id="s-houjin" type="text" placeholder="例：医療法人社団◯◯会／株式会社◯◯／個人"><p class="hint" id="s-houjin-hint"></p></div>
+      <div class="field"><label for="s-kind">施設の種別</label><select id="s-kind"><option value="">選んでください</option>
+        <option>産婦人科・産院</option><option>小児科</option><option>子育て支援・保育</option><option>ベビー用品店</option>
+        <option>ペットショップ</option><option>動物病院</option><option>トリミング</option><option>その他</option></select></div>
+      <div class="field"><label for="s-tantou">ご担当者名</label><input id="s-tantou" type="text" autocomplete="name"></div>
+      <div class="field"><label for="s-mail">メールアドレス（週次のお知らせ先）</label><input id="s-mail" type="email" inputmode="email" autocomplete="email"></div>
+      <div class="field"><label for="s-addr">施設の住所</label><input id="s-addr" type="text" autocomplete="street-address"></div>
+      <div class="field"><label for="s-place">カードを置く場所</label><select id="s-place"><option value="">選んでください</option><option>受付・レジ横</option><option>待合</option><option>掲示板</option><option>その他</option></select></div>
+      <div class="field"><label>カードの用意</label>
+        <label class="agree"><input type="radio" name="print" value="PDFを自分で印刷"><span>PDFを送ってもらい、施設で印刷する（A6・普通紙で構いません）</span></label>
+        <label class="agree"><input type="radio" name="print" value="印刷して郵送"><span>印刷したカードを郵送してほしい（1〜2週間）</span></label></div>
+      <label class="agree"><input type="checkbox" id="s-agree"><span>カードはいつでも撤去できること、週次のお知らせはメール1通で止められることを確認しました。</span></label>
+      <input type="text" id="s-hp" name="bot-field" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true">
+      <p class="err" id="se"></p>
+      <button type="button" class="btn lg" id="send">この内容で送る</button>
+    </div>
+    <section class="q done" id="done" hidden>
+      <div class="head"><h2>ありがとうございます。</h2></div>
+      <p class="why" style="font-size:13.5px">貴施設のID：<b id="d-id" class="num"></b><br>このIDの入ったQRカード（PDF）を、いただいたメールアドレスへ1営業日以内にお送りします。下は、貴施設専用の読本のQRです（このままスクリーンショットで使っていただいても構いません）。</p>
+      <div class="qr"><div id="qrcode"></div><p class="note" id="d-url" style="word-break:break-all;text-align:center"></p></div>
+      <p class="note" id="d-houshuu" style="margin-top:10px"></p>
+    </section>
+  </form>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var Q = new URLSearchParams(location.search);
+  var NASHI = ['医療法人','社会福祉法人','学校法人','特定非営利','区立','市立','都立','県立','国立'];
+  function houshuuKata(h){ for (var i=0;i<NASHI.length;i++) if (h.indexOf(NASHI[i]) >= 0) return '報酬なし型'; return '12%型'; }
+  $('s-houjin').addEventListener('input', function(){
+    $('s-houjin-hint').textContent = (houshuuKata(this.value) === '報酬なし型') ? '医療法人・社会福祉法人・学校法人・自治体などの施設には紹介料をお支払いしません（情報提供のみ）。' : '';
+  });
+  function makeId(){ var s = ''; var a = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; for (var i=0;i<6;i++) s += a[Math.floor(Math.random()*a.length)]; return 'F' + s; }
+  var sending = false;
+  $('send').addEventListener('click', function(){
+    if (sending || $('s-hp').value) return;
+    var pr = document.querySelector('input[name="print"]:checked');
+    if (!$('s-name').value.trim()) return $('se').textContent = '施設名を入れてください。';
+    if (!$('s-kind').value) return $('se').textContent = '施設の種別を選んでください。';
+    if (!$('s-mail').value.trim()) return $('se').textContent = 'メールアドレスを入れてください（QRカードの送付先です）。';
+    if (!$('s-place').value) return $('se').textContent = 'カードを置く場所を選んでください。';
+    if (!pr) return $('se').textContent = 'カードの用意を選んでください。';
+    if (!$('s-agree').checked) return $('se').textContent = '確認にチェックをお願いします。';
+    var id = Q.get('f') || makeId();
+    var kind = $('s-kind').value, hen = (/産|小児|子育て|保育|ベビー/.test(kind)) ? 'akachan' : (/ペット|動物|トリミング/.test(kind)) ? 'pet' : 'akachan';
+    var url = 'https://one-hitter-dokuhon.netlify.app/' + hen + '/?src=' + id;
+    var atai = { '施設ID': id, '施設名': $('s-name').value.trim(), '法人名': $('s-houjin').value.trim(), '報酬型': houshuuKata($('s-houjin').value), '種別': kind, '読本': hen,
+      '担当者': $('s-tantou').value.trim(), 'メール': $('s-mail').value.trim(), '住所': $('s-addr').value.trim(), '設置場所': $('s-place').value, 'カード': pr.value, '読本URL': url, '送信時刻': new Date().toISOString() };
+    var fd = new FormData(); fd.append('form-name', 'dokuhon-setti'); Object.keys(atai).forEach(function(k){ fd.append(k, atai[k]); });
+    sending = true; $('send').disabled = true; $('send').textContent = '送信しています…';
+    fetch(location.pathname, {method:'POST', body:fd}).then(function(r){ if (!r.ok) throw new Error('送信できませんでした（'+r.status+'）');
+      $('d-id').textContent = id; $('d-url').textContent = url; new QRCode($('qrcode'), {text:url, width:220, height:220});
+      $('d-houshuu').textContent = (atai['報酬型'] === '12%型') ? '貴施設のカードからご利用があった場合、ご利用額の12%を月末締め・翌月末にお支払いします（支払通知を自動でお送りします）。' : '貴施設には紹介料をお支払いしない形（情報提供のみ）でお願いしています。';
+      $('f').querySelector('.q').hidden = true; document.querySelector('.intro').hidden = true; $('done').hidden = false; window.scrollTo(0,0);
+    }).catch(function(e){ sending = false; $('send').disabled = false; $('send').textContent = 'この内容で送る'; $('se').textContent = String(e.message||e); });
+  });
+})();
+</script>
+<form name="dokuhon-setti" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="hidden" name="form-name" value="dokuhon-setti"><input type="text" name="bot-field">
+  <input type="text" name="施設ID"><input type="text" name="施設名"><input type="text" name="法人名"><input type="text" name="報酬型"><input type="text" name="種別"><input type="text" name="読本">
+  <input type="text" name="担当者"><input type="text" name="メール"><input type="text" name="住所"><input type="text" name="設置場所"><input type="text" name="カード"><input type="text" name="読本URL"><input type="text" name="送信時刻">
+</form>
+
+</main>
+<footer>
+  <div class="wrap">
+    <b>読本</b>
+    <p>
+      運営：ワンヒッター株式会社（ハウスクリーニング業）／〒134-0081 東京都江戸川区北葛西5-14-11／080-8043-8259<br>
+      <br>
+      <a href="../unei.html">運営者情報</a>
+      <a href="https://one-hitter.jp/privacy_policy/" target="_blank" rel="noopener">個人情報の取扱いについて</a>
+    </p>
+  </div>
+</footer>
+</body>
+</html>
