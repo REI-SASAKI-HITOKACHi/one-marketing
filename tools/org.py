@@ -40,6 +40,7 @@ YAKUWARI = {
     'measurement': '計測担当（GA4・広告タグ・電話CV）',
     'quotation':   '見積アプリ担当',
     'web-inflow':  'ネット流入施策担当（SNS＋メディア）',
+    'browser':     'ブラウザ担当（オーナーのPCで画面操作）',
     'owner':       'オーナー（佐々木 嶺）',
 }
 
