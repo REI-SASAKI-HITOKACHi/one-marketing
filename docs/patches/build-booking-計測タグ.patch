@@ -1,0 +1,30 @@
+--- /tmp/build-booking.py	2026-09-11 00:01:23.338065950 +0000
++++ /tmp/build-booking-new.py	2026-09-11 00:02:42.034339619 +0000
+@@ -17,6 +17,11 @@
+ import re
+ import sys
+ 
++# 計測タグ（GA4・広告タグ）の文字列をもらう窓口。
++# 測定IDが空なら何も返さないので、IDが無い状態でも壊れない。
++sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
++from tracking_tags import head as keisoku_head, body as keisoku_body
++
+ ROOT = pathlib.Path(__file__).resolve().parent.parent
+ PRICES = ROOT / "data" / "prices.json"
+ SURVEY = ROOT / "lp" / "survey" / "index.html"
+@@ -170,7 +175,14 @@
+     css = base_css() + "\n" + TSUIKA_CSS
+     js_setting = json.dumps(setting, ensure_ascii=False, indent=0).replace("\n", "")
+ 
+-    return TEMPLATE.replace("{{CSS}}", css).replace("{{SETTEI}}", js_setting).replace("{{TEL}}", TEL)
++    html = (TEMPLATE.replace("{{CSS}}", css)
++                    .replace("{{SETTEI}}", js_setting)
++                    .replace("{{TEL}}", TEL))
++
++    # 計測タグを差し込む。テンプレートには手を入れず、書き出すときだけ足す。
++    html = html.replace("</head>", keisoku_head("booking", "booking", tel=TEL) + "\n</head>", 1)
++    html = html.replace("</body>", keisoku_body() + "\n</body>", 1)
++    return html
+ 
+ 
+ TEMPLATE = r"""<!doctype html>
