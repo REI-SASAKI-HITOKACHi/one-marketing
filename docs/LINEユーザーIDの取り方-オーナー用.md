@@ -48,8 +48,8 @@
 8. こういう形になっているはずです
 
 ```
-https://chat.line.biz/@366ysqyc/chat/U1234567890abcdef1234567890abcdef
-                                    ↑ この「U」から始まる部分がユーザーIDです
+https://chat.line.biz/@366ysqyc/chat/Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                                    ↑ この「U」から始まる部分がユーザーIDです（上は架空の例）
 ```
 
 9. **アドレス欄を丸ごとコピー**する（IDだけ抜き出さなくて大丈夫です。こちらでやります）
