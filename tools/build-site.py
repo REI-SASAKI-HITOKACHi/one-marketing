@@ -165,6 +165,10 @@ FORM_NETLIFY = """<form class="form" name="reserve-{dir}" method="post"
 # 計測タグの差し込み口。HEAD の中にあるこの目印を、実物のタグに置き換える。
 TRACKING_SLOT = "<!-- ASP・広告計測タグはこの下に貼ってください -->"
 
+# 差し込んだ計測タグの先頭に置く目印。inject-tracking.py が
+# 「前に入れた分」を見分けて入れ替えるのに使う。社内のパスは書かない。
+TRACKING_MARK = "<!-- ONE HITTER 計測タグ -->"
+
 
 def load_measurement() -> dict:
     """tracking/measurement.json を読む。無ければ「全部空」として扱う。
@@ -221,7 +225,12 @@ def tracking_head(cfg: dict, page: dict, tel: str = "") -> str:
 
     # 設定は tracking/measurement.json、設計は docs/measurement-spec.md。
     # 内部のファイル名を公開ページのソースに出さないため、注記はここに置いてHTMLには入れない
-    out = []
+    # （LP担当の判断。2026-09-10）。
+    #
+    # ただし目印そのものは要る。tools/inject-tracking.py が「前に入れた分」を
+    # 見分けるのに使っており、目印が無いと二重に差し込まれる（実際にそうなった）。
+    # パスを含まない1語だけの目印にして、両方の要求を満たす。
+    out = [TRACKING_MARK]
     out.append("<script>window.OH_M=" + json.dumps(
         {"page": page, "google_ads": cfg.get("google_ads") or {}, "debug": bool(cfg.get("debug"))},
         ensure_ascii=False, separators=(",", ":")) + ";</script>")
@@ -233,9 +242,17 @@ def tracking_head(cfg: dict, page: dict, tel: str = "") -> str:
                  "<script>",
                  "window.dataLayer=window.dataLayer||[];",
                  "function gtag(){dataLayer.push(arguments);}",
-                 "gtag('js',new Date());"]
+                 "gtag('js',new Date());",
+                 # 流入元（?src=）を、page_view を含む全イベントに付ける。
+                 # config に載せるので、events.js が動く前の page_view にも乗る。
+                 # これが無いと「どのQR・どの施設・どのSMSから来たか」を
+                 # GA4のレポートで分解できない。フォームの hidden 欄は
+                 # 送信した人の分しか残らないので、閲覧数は取れない。
+                 "var oh_src=new URLSearchParams(location.search).get('src')||'direct';",
+                 "var oh_cid=new URLSearchParams(location.search).get('cid')||'';"]
         if ga4:
-            lines.append("gtag('config','%s',{'lp_id':'%s','lp_variant':'%s'});"
+            lines.append("gtag('config','%s',{'lp_id':'%s','lp_variant':'%s',"
+                         "'traffic_src':oh_src,'traffic_cid':oh_cid});"
                          % (ga4, page["lp_id"], page["lp_variant"]))
         if ads:
             lines.append("gtag('config','%s');" % ads)

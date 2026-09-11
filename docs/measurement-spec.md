@@ -181,6 +181,17 @@ GA4の自動収集イベント（`page_view`、`session_start`、`first_visit`�
 | `percent_scrolled` | `25` / `50` / `75` / `90` |
 | `estimate_total` | 料金シミュレーターの合計額（円・税込）。触っていなければ `0` |
 | `phone_number` | `tel:` リンクの番号（数字のみ）。コールトラッキングの番号が入っていれば、その番号 |
+| **`traffic_src`** | **`?src=` の値**（`sms` / `qr-watanabe` / 施設ID など）。無ければ `direct` |
+| `traffic_cid` | `?cid=` の値。無ければ送らない |
+
+### `traffic_src` は全イベント＋`page_view` に付きます
+
+`?src=` は **`gtag('config')` にも載せている**ので、**`page_view` にも付きます。**
+これが無いと「QRを見た人が何人開いたか」「どの施設のカードから来たか」を
+**レポートで分解できません。**フォームの hidden 欄は送信した人の分しか残らないので、
+閲覧数は取れません。
+
+**GA4で使うには、カスタムディメンションの登録が要ります**（`docs/ga4-管理画面の手順.md` 第2章）。
 
 `link_position` は、押されたリンクの祖先をたどって決めています
 （`.sticky` → `sticky`、`.bar` → `header`、`#form` → `form` …）。

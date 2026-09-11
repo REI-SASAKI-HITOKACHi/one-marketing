@@ -22,13 +22,16 @@
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
+<!-- ONE HITTER 計測タグ -->
 <script>window.OH_M={"page":{"kind":"lp","lp_id":"aircon","lp_variant":"A"},"google_ads":{"conversion_id":"","labels":{"generate_lead":"","phone_click":"","line_click":""},"phone_conversion_label":""},"debug":false};</script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-DLJCTKGTDN"></script>
 <script>
 window.dataLayer=window.dataLayer||[];
 function gtag(){dataLayer.push(arguments);}
 gtag('js',new Date());
-gtag('config','G-DLJCTKGTDN',{'lp_id':'aircon','lp_variant':'A'});
+var oh_src=new URLSearchParams(location.search).get('src')||'direct';
+var oh_cid=new URLSearchParams(location.search).get('cid')||'';
+gtag('config','G-DLJCTKGTDN',{'lp_id':'aircon','lp_variant':'A','traffic_src':oh_src,'traffic_cid':oh_cid});
 </script>
 </head>
 <body>
@@ -988,12 +991,22 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
   // Metaの標準イベント名への読み替え
   var META_MAP = { generate_lead: 'Lead', phone_click: 'Contact', line_click: 'Contact' };
 
+  // 流入元（?src= / ?cid=）。QR・SMS・施設カードなど、どこから来たかの目印。
+  // head 側の gtag('config') にも同じ値を載せてあるので page_view にも付くが、
+  // 個々のイベントにも付けておくと、GA4で「この施設からの電話クリック」まで割れる。
+  var Q = null;
+  try { Q = new URLSearchParams(location.search); } catch (e) { Q = null; }
+  var SRC = (Q && Q.get('src')) || 'direct';
+  var CID = (Q && Q.get('cid')) || '';
+
   function send(name, params) {
     var p = params || {};
     // どのLPのどのパターンかは、全イベントに必ず付ける
     p.lp_id = PAGE.lp_id;
     p.lp_variant = PAGE.lp_variant;
     p.page_kind = PAGE.kind;
+    p.traffic_src = SRC;
+    if (CID) p.traffic_cid = CID;
 
     log(name, p);
 
