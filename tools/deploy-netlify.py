@@ -38,7 +38,11 @@ TOKEN_KITEI = os.path.expanduser("~/.config/one-hitter/netlify-token.txt")
 # （docs/LP配信のルール.md）。ここから配信するときの、配信元と必須ファイル。
 # 1サイトに統合できたら、この表ごと消してよい。
 BUNKATSU = {
-    "one-hitter-nenmatsu": {"src": "nenmatsu", "hissu": ["/index.html", "/thanks.html"]},
+    # 年末LPの正は one-hitter-lp/nenmatsu/（アフィリエイト登録済み）。
+    # この別サイトは中身を持たず、301で寄せるだけにする（オーナー承認 2026-09-11）。
+    # 同じページを2サイトに置いていたため、片方だけ配信して金額が食い違った（2026-09-08）。
+    "one-hitter-nenmatsu": {"src": None, "hissu": ["/_redirects"],
+                            "root": "lp/nenmatsu-redirect"},
     "one-hitter-survey":   {"src": "survey",   "hissu": ["/index.html"]},
     # 予約フォームは lp/booking/ を build-booking.py が直接書き出す
     "one-hitter-booking":  {"src": None,       "hissu": ["/index.html"],

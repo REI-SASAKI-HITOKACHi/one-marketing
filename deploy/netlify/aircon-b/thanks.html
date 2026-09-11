@@ -221,15 +221,6 @@ gtag('config','G-DLJCTKGTDN',{'lp_id':'aircon','lp_variant':'B'});
   }
 
   // 見積り合計の読み取り。「10,780円」→ 10780
-<<<<<<< HEAD
-  function estimateTotal() {
-    var el = document.getElementById('total');
-    if (!el) return 0;
-    var n = parseInt((el.textContent || '').replace(/[^0-9]/g, ''), 10);
-    return isNaN(n) ? 0 : n;
-  }
-
-=======
   //
   // 数字を全部つなげてはいけない。予約フォームの金額欄には
   // 「（1箇所）¥10,780 ／ 概算合計（税込）¥10,780」のように複数の数字が並ぶので、
@@ -249,7 +240,6 @@ gtag('config','G-DLJCTKGTDN',{'lp_id':'aircon','lp_variant':'B'});
     return readYen(document.getElementById('total'));
   }
 
->>>>>>> origin/claude/measurement-ga4-calltracking
   // ---------------------------------------------------------------
   // 3. エリア判定ボタン（対応エリアかどうかの結果まで記録する）
   // ---------------------------------------------------------------
@@ -395,8 +385,6 @@ gtag('config','G-DLJCTKGTDN',{'lp_id':'aircon','lp_variant':'B'});
   }
 
   // ---------------------------------------------------------------
-<<<<<<< HEAD
-=======
   // 5-c. Web予約フォーム（4画面のウィザード。ページ遷移が起きない）
   //
   //   知りたいのは「SMSのリンクを開いた人のうち、何人が予約したか」。
@@ -460,7 +448,6 @@ gtag('config','G-DLJCTKGTDN',{'lp_id':'aircon','lp_variant':'B'});
   }
 
   // ---------------------------------------------------------------
->>>>>>> origin/claude/measurement-ga4-calltracking
   // 6. どこまで読まれたか（25 / 50 / 75 / 90%）
   //    GA4の拡張計測にも90%のスクロールはあるが、あちらは1段階しかない。
   //    どの節で離脱しているかを見たいので、自前で4段階を送る。
