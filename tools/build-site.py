@@ -400,15 +400,24 @@ def copy_kanseihin(out: pathlib.Path) -> None:
     PAGES を通らない。以前はビルドを経由せず deploy/ に直接置かれていて、
     ソースを直しても配信物に反映されず、両者がずれていた（2026-09-06）。
     """
+    cfg = load_measurement()
     for name in ("survey",):
         src = ROOT / "lp" / name / "index.html"
         if not src.exists():
             continue
+        doc = strip_comments(src.read_text(encoding="utf-8"))
+
+        # 完成品にも計測タグを入れる。ソース（lp/survey/）には手を触れず、
+        # 書き出すときだけ足す。測定IDが空なら何も出ないので壊れない。
+        # 入れないと「QRを見た人のうち何人が答えたか」が永久に分からない。
+        page = {"kind": name, "lp_id": name, "lp_variant": "A"}
+        doc = doc.replace("</head>", tracking_head(cfg, page) + "\n</head>", 1)
+        doc = doc.replace("</body>", tracking_body() + "\n</body>", 1)
+
         dst = out / name
         dst.mkdir(parents=True, exist_ok=True)
-        (dst / "index.html").write_text(
-            strip_comments(src.read_text(encoding="utf-8")), encoding="utf-8")
-        print(f"{dst.relative_to(ROOT)}/index.html  （完成品をそのまま複製）")
+        (dst / "index.html").write_text(doc, encoding="utf-8")
+        print(f"{dst.relative_to(ROOT)}/index.html  （完成品をそのまま複製＋計測タグ）")
 
 
 if __name__ == "__main__":

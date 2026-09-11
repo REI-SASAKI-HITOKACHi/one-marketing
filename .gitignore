@@ -3,3 +3,7 @@ deploy/one-hitter-lp.zip
 deploy/.netlify-site.json
 __pycache__/
 *.pyc
+
+# 認証情報を含むため置かない（KDDI Message Cast のアカウント情報）
+*デモアカウント通知書*
+*アカウント通知書*
