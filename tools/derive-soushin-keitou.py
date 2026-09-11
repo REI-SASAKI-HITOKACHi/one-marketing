@@ -22,7 +22,15 @@ import collections, datetime, importlib.util, json, pathlib, re, sys, urllib.par
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 spec = importlib.util.spec_from_file_location('sc', ROOT / 'tools' / 'sheets_client.py')
 sc = importlib.util.module_from_spec(spec); spec.loader.exec_module(sc)
-tok = sc.access_token(sc.load_credentials())
+_tok = None
+
+
+def tok_get():
+    """認証は最初に使うときだけ行う。import しただけでは認証しない（認証の無い環境で import しても落ちない。顧客接点担当の指摘 2026-09-11）。"""
+    global _tok
+    if _tok is None:
+        _tok = sc.access_token(sc.load_credentials())
+    return _tok
 
 BOOKS = {'2023': '1mOGaxy5viO4peUUQqgJYQ9gp0tuev2c_Y8DrdDy-y3M',
          '2024': '1Q-dJ0Rh2AeYGhNYUyqoKOkG_Kgq4e1M0KcwkhMFb0J4',
@@ -39,10 +47,10 @@ def name_norm(n): return re.sub(r'\s', '', str(n or ''))
 def yomu_shikou():
     jobs = []
     for y, ss in BOOKS.items():
-        meta = sc.call(tok, f'/{ss}', query={'fields': 'sheets.properties.title'})
+        meta = sc.call(tok_get(), f'/{ss}', query={'fields': 'sheets.properties.title'})
         tabs = [s['properties']['title'] for s in meta['sheets'] if re.match(r'^\d{1,2}月_売上', s['properties']['title'])]
         for tab in tabs:
-            v = sc.call(tok, f"/{ss}/values/{urllib.parse.quote(tab + '!A1:T500', safe='')}").get('values', [])
+            v = sc.call(tok_get(), f"/{ss}/values/{urllib.parse.quote(tab + '!A1:T500', safe='')}").get('values', [])
             hi = next((i for i, r in enumerate(v) if '施工日付' in r), None)
             if hi is None: continue
             h = v[hi]; ix = {c: i for i, c in enumerate(h)}
@@ -102,7 +110,7 @@ def main():
     for j in jobs:
         if j[1]: by_tel[j[1]].append(j)
         if j[2]: by_name[j[2]].append(j)
-    v = sc.call(tok, f"/{SS}/values/{urllib.parse.quote(TAB + '!A1:Y1000', safe='')}")['values']
+    v = sc.call(tok_get(), f"/{SS}/values/{urllib.parse.quote(TAB + '!A1:Y1000', safe='')}")['values']
     hi = next(i for i, row in enumerate(v) if '送信系統' in row); h = v[hi]; ix = {c: i for i, c in enumerate(h)}
     g = lambda row, k: (row[ix[k]] if ix.get(k) is not None and ix[k] < len(row) else '')
     col = ix['送信系統']
@@ -134,7 +142,7 @@ def main():
         print('\n--write を付けると送信系統列に書きます'); return
     data = [{'range': f"{TAB}!{chr(ord('A') + col)}{x[0]}", 'values': [[x[3]]]} for x in henkou]
     for i in range(0, len(data), 100):
-        sc.call(tok, f'/{SS}/values:batchUpdate', method='POST',
+        sc.call(tok_get(), f'/{SS}/values:batchUpdate', method='POST',
                 payload={'valueInputOption': 'RAW', 'data': data[i:i + 100]})
     print(f'書きました: {len(data)} セル')
 
