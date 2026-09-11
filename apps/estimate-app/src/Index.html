@@ -12,6 +12,13 @@
     </div>
   </header>
 
+  <nav class="channel-tabs" id="channelTabs" role="tablist" aria-label="受注経路">
+    <button type="button" class="channel-tab is-active" role="tab" aria-selected="true"
+            data-action="set-channel" data-channel="normal">通常見積</button>
+    <button type="button" class="channel-tab" role="tab" aria-selected="false"
+            data-action="set-channel" data-channel="web">WEB経由見積</button>
+  </nav>
+
   <main class="container">
     <div id="loading" class="loading">読み込み中...</div>
 
@@ -19,6 +26,8 @@
 
     <div id="app" class="hidden">
       <div id="masterWarnings" class="alert warning hidden"></div>
+
+      <div id="channelNote" class="channel-note"></div>
 
       <section class="card">
         <h2>1. 案件情報</h2>
@@ -93,6 +102,12 @@
         </label>
         <div id="setPricingHint" class="mini-info"></div>
 
+        <label class="check-row" id="netBenefitRow" hidden>
+          <input id="netBenefitManual" type="checkbox">
+          <span>ネット申込特典を適用</span>
+        </label>
+        <div id="netBenefitHint" class="mini-info" hidden></div>
+
         <label class="check-row">
           <input id="discountManual" type="checkbox">
           <span>自動割引ルールを適用</span>
@@ -111,7 +126,6 @@
         <div class="button-row">
           <button type="button" class="secondary" data-action="add-adjustment">＋ 値引きを追加</button>
           <button type="button" class="secondary" data-action="add-surcharge">＋ 割増を追加</button>
-          <button type="button" class="secondary" id="netBenefitButton" data-action="add-net-benefit" hidden></button>
         </div>
 
         <hr class="divider">
@@ -173,6 +187,13 @@
 
         <label for="searchProjectType">案件タイプ</label>
         <select id="searchProjectType"></select>
+
+        <label for="searchChannel">受注経路</label>
+        <select id="searchChannel">
+          <option value="">すべて</option>
+          <option value="通常">通常</option>
+          <option value="WEB経由">WEB経由</option>
+        </select>
 
         <button type="button" class="secondary full" data-action="search">検索</button>
 

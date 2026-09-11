@@ -383,21 +383,27 @@ function calcLive(payload, overrides) {
 
 const AUTO = { autoDiscountEnabled: true };
 
-// 繁忙期加算の¥3,300は料金表が税込。課税対象には税抜3,000で載る（合計は税込3,300増える）
-check('A-1 5月メイン1台 → 繁忙期3,000（税込3,300）',
-  calcLive({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).busyAmount, 3000);
-check('A-1b 5月メイン1台の合計は14,080（予約フォームと同額）',
-  calcLive({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).grandTotal, 14080);
-check('A-2 7月メイン20台 → 60,000',
-  calcLive({ workDate: '2026-07-10', details: [{ menuId: 'M001', qty: 20 }] }).busyAmount, 60000);
+// 通常見積（既定のタブ）は改修前のまま。繁忙期加算は税抜として加算する。
+check('A-1 5月メイン1台 → 繁忙期3,300（通常見積）',
+  calcLive({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).busyAmount, 3300);
+check('A-1b 5月メイン1台の合計は14,410（改修前と同じ）',
+  calcLive({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).grandTotal, 14410);
+check('A-2 7月メイン20台 → 66,000（通常見積）',
+  calcLive({ workDate: '2026-07-10', details: [{ menuId: 'M001', qty: 20 }] }).busyAmount, 66000);
+
+// WEB経由見積タブだけ、¥3,300を税込として扱う
+check('A-1w WEB経由なら繁忙期3,000（税込3,300）',
+  calcLive({ channel: 'web', workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).busyAmount, 3000);
+check('A-1x WEB経由の合計は14,080（予約フォームと同額）',
+  calcLive({ channel: 'web', workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).grandTotal, 14080);
 
 // 本番マスタは未正規化なので同時施工価格ルールがまだ無い。
-// adminNormalizeDiscountRules() を通すまで2箇所以上の金額は予約フォームより高い。
+// adminNormalizeDiscountRules() を通すまで、WEB経由タブでも予約フォームより高い。
 check('A-2b 本番マスタ（未正規化）には同時施工価格ルールがまだ無い',
   ctx.discountRules.filter(r => r.ruleType === '同時施工価格').length, 0);
-check('A-2c そのため2箇所以上でも同時施工割引は0（正規化が必要）',
-  calcLive({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] })
-    .setDiscountApplied, 0);
+check('A-2c そのためWEB経由でも同時施工割引は0（正規化が必要）',
+  calcLive({ channel: 'web', workDate: '2026-11-15',
+    details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] }).setDiscountApplied, 0);
 check('A-3 12月は繁忙期',
   calcLive({ workDate: '2026-12-05', details: [{ menuId: 'M001', qty: 1 }] }).busyAuto, true);
 check('A-4 8月は繁忙期でない',

@@ -92,7 +92,10 @@ const CTX = {
   busySurcharge: 3300,
   busySurchargeUnit: '数量ごと',
   autoDiscountEnabled: true,
+  busySurchargeTaxIncluded: true,
+  setPricingEnabled: true,
   largeDiscountRatio: 0.30,
+  netBenefit: { name: 'ネット申込特典', amount: 2200, note: 'このページからのお申し込み特典' },
   menuMap: MENUS,
   discountRules: RULES,
   submitTargets: [
@@ -165,6 +168,43 @@ roundTrip('調整行あり', {
     { name: '高所作業費', kind: 'surcharge', mode: 'amount', value: 5000, taxType: '課税' }
   ]
 });
+
+/* --- WEB経由見積。受注経路がレコードに残り、読み直しても同じ金額になること --- */
+
+const web = roundTrip('WEB経由見積', {
+  channel: 'web',
+  projectType: '自社', customerName: 'テスト太郎', workDate: '2026-11-20',
+  details: [{ menuId: 'M001', qty: 2 }]
+});
+
+check('WEB経由：受注経路がレコードに残る', web.record['受注経路'], 'WEB経由');
+check('WEB経由：ネット申込特典が自動で付く', web.record['ネット特典額'], 2000);
+check('WEB経由：読み直しても同じ経路', web.restored.channel, 'web');
+
+const webBusy = roundTrip('WEB経由・繁忙期', {
+  channel: 'web',
+  projectType: '自社', customerName: 'テスト太郎', workDate: '2026-05-20',
+  details: [{ menuId: 'M001', qty: 1 }]
+});
+
+check('WEB経由：繁忙期加算は税抜3,000で保存される', webBusy.record['繁忙期加算額'], 3000);
+check('WEB経由：合計は予約フォームと同じ14,080', webBusy.record['合計金額'], 14080);
+
+const normal = roundTrip('通常見積（受注経路の既定）', {
+  projectType: '自社', customerName: 'テスト太郎', workDate: '2026-05-20',
+  details: [{ menuId: 'M001', qty: 1 }]
+});
+
+check('通常見積：受注経路は「通常」', normal.record['受注経路'], '通常');
+check('通常見積：繁忙期加算は改修前のまま3,300', normal.record['繁忙期加算額'], 3300);
+check('通常見積：ネット特典は付かない', normal.record['ネット特典額'], 0);
+
+// 受注経路の列が無い古い見積を読んでも通常見積として動くこと
+check('タブ追加前の見積（受注経路が空欄）は通常見積として復元する', (() => {
+  const r = Object.assign({}, normal.record);
+  delete r['受注経路'];
+  return sandbox.rebuildCalcFromRecord_(r, CTX).channelLabel;
+})(), '通常');
 
 const target = roundTrip('合計指定あり', {
   projectType: '自社', customerName: 'テスト太郎', workDate: '2026-05-20',

@@ -98,10 +98,10 @@ const r=engine.calculate(
    menuMap:{M1:{name:"テスト",menuType:"メイン",unitPrice:10000,unitPriceRaw:10000,taxType:"課税",
                 busyTarget:true,busySurchargeRaw:3300,discountTarget:true,multipleDiscountTarget:false}},
    discountRules:[{ruleType:"繁忙期",target:"全体",startMonth:5,endMonth:7,value:3300,priority:10}]});
-// 繁忙期加算 3,300 は税込なので課税対象には 3,000 で載る（2台ぶんで 6,000）
-if(r.grandTotal!==28600) throw new Error("埋め込みエンジンの計算結果が想定と違う: "+r.grandTotal);
-if(r.busyAmount!==6000) throw new Error("繁忙期加算が税抜に戻っていない: "+r.busyAmount);
-console.log("  ✓ 埋め込んだ計算エンジンがサーバー側で動作（20,000+6,000+税=28,600）");
+// 通常見積なので繁忙期加算は税抜のまま（2台ぶんで 6,600）
+if(r.grandTotal!==29260) throw new Error("埋め込みエンジンの計算結果が想定と違う: "+r.grandTotal);
+if(r.channelLabel!=="通常") throw new Error("既定の受注経路が通常見積でない: "+r.channelLabel);
+console.log("  ✓ 埋め込んだ計算エンジンがサーバー側で動作（通常見積 20,000+6,600+税=29,260）");
 '
 
 echo

@@ -454,7 +454,7 @@ function apiSearchEstimates(criteria) {
 
     // 検索に使う列だけ読む。203列を全部読むと遅い。
     const wanted = ['estimate_id', '作成日時', '顧客名', '案件名', '案件タイプ',
-      '合計金額', 'PDF_URL', '例外フラグ', 'invoice_id'];
+      '合計金額', 'PDF_URL', '例外フラグ', 'invoice_id', '受注経路'];
     const rows = readColumns_(sheet, wanted);
 
     const results = rows
@@ -463,6 +463,7 @@ function apiSearchEstimates(criteria) {
           && matchText_(r['顧客名'], c.customerName)
           && matchText_(r['案件名'], c.projectName)
           && matchText_(r['案件タイプ'], c.projectType)
+          && matchChannel_(r['受注経路'], c.channel)
           && matchDate_(r['作成日時'], c.createdDate);
       })
       .sort(function (a, b) {
@@ -476,6 +477,7 @@ function apiSearchEstimates(criteria) {
           customer_name: r['顧客名'] || '',
           project_name: r['案件名'] || '',
           project_type: r['案件タイプ'] || '',
+          channel: r['受注経路'] || '通常',
           total_amount: toNumber_(r['合計金額']),
           total_amount_display: formatYen_(toNumber_(r['合計金額'])),
           pdf_url: r['PDF_URL'] || '',
@@ -589,9 +591,11 @@ function apiLoadEstimateForClone(estimateId) {
         remarks: r['備考'] || '',
         selfRecipientEmail: r['宛先メール'] || '',
         highwayFee: toNumber_(r['高速代']),
+        channel: r['受注経路'] || '',
         busyManual: parseBooleanLoose_(r['繁忙期_手動設定']),
         discountManual: parseBooleanLoose_(r['割引_手動設定']),
         setPricingManual: parseBooleanLoose_(r['同時施工_手動設定']),
+        netBenefitManual: parseBooleanLoose_(r['ネット特典_手動設定']),
         adjustments: parseAdjustmentsJson_(r['調整_JSON']),
         targetTotal: 0,
         details: details
@@ -668,9 +672,13 @@ function buildEstimateRecord_(payload, ctx, calc, estimateId) {
     /* --- 変則割引（今回追加） --- */
     自動割引種別: calc.autoDiscountType || '',
     自動割引額: calc.autoDiscountApplied,
+    受注経路: calc.channelLabel,
     同時施工_自動判定: boolText_(calc.setPricingAuto),
     同時施工_手動設定: boolText_(calc.setPricingOn),
     同時施工割引額: calc.setDiscountApplied,
+    ネット特典_自動判定: boolText_(calc.netBenefitAuto),
+    ネット特典_手動設定: boolText_(calc.netBenefitOn),
+    ネット特典額: calc.netBenefitApplied,
     明細値引き合計: calc.lineDiscountTotal,
     調整合計額: calc.adjustmentTotal,
     合計指定額: calc.targetTotal || '',
@@ -731,9 +739,11 @@ function rebuildCalcFromRecord_(record, ctx) {
     remarks: record['備考'] || '',
     workDate: toDateInputValue_(record['作業予定日']),
     highwayFee: toNumber_(record['高速代']),
+    channel: record['受注経路'] || '',
     busyManual: parseBooleanLoose_(record['繁忙期_手動設定']),
     discountManual: parseBooleanLoose_(record['割引_手動設定']),
     setPricingManual: parseBooleanLoose_(record['同時施工_手動設定']),
+    netBenefitManual: parseBooleanLoose_(record['ネット特典_手動設定']),
     adjustments: parseAdjustmentsJson_(record['調整_JSON']),
     targetTotal: 0, // 保存済みの調整行をそのまま使うので再逆算しない
     details: details
@@ -1357,6 +1367,18 @@ function buildNetBenefit_(discountRules) {
   };
 }
 
+/**
+ * 受注経路での絞り込み。空欄は「通常」とみなす。
+ * 2026-09のタブ追加より前の見積には受注経路が入っていないが、
+ * それらはすべて通常見積なので、空欄＝通常として扱ってよい。
+ */
+function matchChannel_(value, wanted) {
+  const w = String(wanted || '').trim();
+  if (!w || w === 'すべて') return true;
+  const v = String(value || '').trim() || '通常';
+  return v === w;
+}
+
 function readDiscountRules_(masterSs, warnings) {
   const sheet = masterSs.getSheetByName(APP.SHEET_DISCOUNT);
   if (!sheet) {
@@ -1913,7 +1935,8 @@ function getEstimateHeaders_() {
   // ここから下が2026-09改修の追加列。既存列の位置は動かさず右端に足す。
   headers.push('request_id', '要代表者確認', '自動割引種別', '自動割引額', '明細値引き合計',
     '調整合計額', '合計指定額', '調整_JSON',
-    '同時施工_自動判定', '同時施工_手動設定', '同時施工割引額');
+    '同時施工_自動判定', '同時施工_手動設定', '同時施工割引額',
+    '受注経路', 'ネット特典_自動判定', 'ネット特典_手動設定', 'ネット特典額');
 
   for (let i = 1; i <= APP.MAX_ADJUSTMENT_SLOTS; i++) {
     headers.push('調整' + pad2_(i) + '_名称', '調整' + pad2_(i) + '_金額');

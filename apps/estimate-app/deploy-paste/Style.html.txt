@@ -13,6 +13,9 @@
     --warning-line: #fed7aa;
     --danger-bg: #fef2f2;
     --danger-line: #fecaca;
+    --accent: #1d4ed8;
+    --accent-bg: #eff6ff;
+    --accent-line: #bfdbfe;
   }
 
   * { box-sizing: border-box; }
@@ -36,6 +39,37 @@
 
   .app-title { font-size: 20px; font-weight: 800; }
   .app-subtitle { color: var(--muted); font-size: 13px; margin-top: 2px; }
+
+  /* 受注経路タブ。ヘッダーと同じく上に貼り付けて、スクロールしても切替が見えるようにする */
+  .channel-tabs {
+    position: sticky;
+    top: 61px;
+    z-index: 9;
+    display: flex;
+    gap: 6px;
+    background: #ffffff;
+    border-bottom: 1px solid var(--line);
+    padding: 8px 16px 0;
+  }
+
+  .channel-tab {
+    flex: 1 1 0;
+    min-height: 44px;
+    padding: 10px 8px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    border-radius: 0;
+    cursor: pointer;
+  }
+
+  .channel-tab.is-active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
 
   .container { padding: 14px; max-width: 720px; margin: 0 auto; }
 
@@ -126,6 +160,16 @@
     background: var(--danger-bg);
     border: 1px solid var(--danger-line);
     color: #7f1d1d;
+  }
+
+  /* いま選んでいる受注経路で何が変わるかの説明。常に出す */
+  .channel-note {
+    background: var(--accent-bg);
+    border: 1px solid var(--accent-line);
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 13px;
+    line-height: 1.55;
   }
 
   .note {

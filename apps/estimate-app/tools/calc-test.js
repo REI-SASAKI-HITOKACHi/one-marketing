@@ -80,6 +80,11 @@ function run(payload, ctxOverrides) {
   return CalcEngine.calculate(payload, ctx(ctxOverrides));
 }
 
+/** WEB経由見積（予約フォームと同じ料金ルール） */
+function runWeb(payload, ctxOverrides) {
+  return CalcEngine.calculate(Object.assign({ channel: 'web' }, payload), ctx(ctxOverrides));
+}
+
 /* ===================== テストランナー ===================== */
 
 let pass = 0;
@@ -98,26 +103,21 @@ function group(title) { console.log('\n' + title); }
 
 group('C. 繁忙期');
 
-// 繁忙期加算の ¥3,300 は料金表が税込。帳票は税抜表示なので 3,000 で載り、
-// 消費税を足すと ¥3,300 になる（オーナー確認済み・予約フォームと同じ扱い）。
-check('C-1 5月メイン1台 → 税込3,300＝税抜3,000を加算',
-  run({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).busyAmount, 3000);
+// 通常見積は改修前のまま。繁忙期加算 ¥3,300 は税抜として加算する。
+check('C-1 5月メイン1台 → 3,300加算',
+  run({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).busyAmount, 3300);
 
-check('C-1b 5月メイン1台の合計は税込で 9,800×1.1 + 3,300',
-  run({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).grandTotal, 14080);
+check('C-1b 5月メイン1台の合計は (9,800+3,300)×1.1',
+  run({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).grandTotal, 14410);
 
-check('C-2 7月メイン20台 → 数量20×3,000',
-  run({ workDate: '2026-07-10', details: [{ menuId: 'M001', qty: 20 }] }).busyAmount, 60000);
+check('C-2 7月メイン20台 → 数量20×3,300',
+  run({ workDate: '2026-07-10', details: [{ menuId: 'M001', qty: 20 }] }).busyAmount, 66000);
 
-check('C-2b PDF繁忙期行 数量20/単価3,000/金額60,000', (() => {
+check('C-2b PDF繁忙期行 数量20/単価3,300/金額66,000', (() => {
   const r = run({ workDate: '2026-07-10', details: [{ menuId: 'M001', qty: 20 }] });
   const row = r.pdfRows.find(x => x.name === '繁忙期加算');
   return [row.qty, row.unitPrice, row.amount];
-})(), [20, 3000, 60000]);
-
-check('C-2c 設定で税抜扱いにすれば従来どおり3,300で載る',
-  run({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] },
-    { busySurchargeTaxIncluded: false }).busyAmount, 3300);
+})(), [20, 3300, 66000]);
 
 check('C-3 12月は対象',
   run({ workDate: '2026-12-05', details: [{ menuId: 'M001', qty: 1 }] }).busyAuto, true);
@@ -129,7 +129,7 @@ check('C-5 オプションのみ → 繁忙期0',
   run({ workDate: '2026-05-20', details: [{ menuId: 'O002', qty: 3 }] }).busyAmount, 0);
 
 check('C-6 メイン+オプション → メイン数量のみ加算',
-  run({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 2 }, { menuId: 'O002', qty: 5 }] }).busyAmount, 6000);
+  run({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 2 }, { menuId: 'O002', qty: 5 }] }).busyAmount, 6600);
 
 check('C-7 法人案件で対象6台 → 割増なし',
   run({ workDate: '2026-05-20', projectType: '法人', details: [{ menuId: 'M001', qty: 6 }] }).busyAuto, false);
@@ -137,9 +137,35 @@ check('C-7 法人案件で対象6台 → 割増なし',
 check('C-8 法人案件で対象5台 → 割増あり',
   run({ workDate: '2026-05-20', projectType: '法人', details: [{ menuId: 'M001', qty: 5 }] }).busyAuto, true);
 
-// %指定は税抜の明細金額に掛けるので税込換算しない
-check('C-9 空室清掃30% → 52,800×30%（%指定は換算しない）',
+check('C-9 空室清掃30% → 52,800×30%',
   run({ workDate: '2026-05-20', details: [{ menuId: 'M015', qty: 1 }] }).busyAmount, 15840);
+
+group('CW. 繁忙期（WEB経由見積）');
+
+// WEB経由だけ、¥3,300 を税込として扱う。帳票は税抜表示なので 3,000 で載り、
+// 消費税を足すと ¥3,300 になる（予約フォームと同額）。
+check('CW-1 5月メイン1台 → 税込3,300＝税抜3,000を加算',
+  runWeb({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).busyAmount, 3000);
+
+check('CW-1b 合計は予約フォームと同じ14,080',
+  runWeb({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).grandTotal, 14080);
+
+check('CW-2 7月メイン20台 → 数量20×3,000',
+  runWeb({ workDate: '2026-07-10', details: [{ menuId: 'M001', qty: 20 }] }).busyAmount, 60000);
+
+check('CW-2b PDF繁忙期行 数量20/単価3,000/金額60,000', (() => {
+  const r = runWeb({ workDate: '2026-07-10', details: [{ menuId: 'M001', qty: 20 }] });
+  const row = r.pdfRows.find(x => x.name === '繁忙期加算');
+  return [row.qty, row.unitPrice, row.amount];
+})(), [20, 3000, 60000]);
+
+// %指定は税抜の明細金額に掛けるので、経路によらず換算しない
+check('CW-3 空室清掃30%はWEB経由でも換算しない',
+  runWeb({ workDate: '2026-05-20', details: [{ menuId: 'M015', qty: 1 }] }).busyAmount, 15840);
+
+check('CW-4 設定で税抜扱いに戻せば通常見積と同じになる',
+  runWeb({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] },
+    { busySurchargeTaxIncluded: false }).busyAmount, 3300);
 
 /* ===================== D. 自動割引 ===================== */
 
@@ -174,16 +200,19 @@ check('D-8 11月 業務用2台 → 5,000×2',
 check('D-9 混在6台は総台数で判定しメニューごとの単価を適用（ノーマル3+ロボ3 → 500×3+1,000×3）',
   run({ workDate: '2026-11-20', details: [{ menuId: 'M001', qty: 3 }, { menuId: 'M002', qty: 3 }] }, AUTO).autoDiscountApplied, 4500);
 
-// 早期予約割引は1箇所のみのご依頼に限る（予約フォームと同条件）。
-// 2箇所以上は同時施工価格と複数台割引の側で見る。
-check('D-10 1箇所のみなら早期予約割引',
-  run({ workDate: '2026-01-20', details: [{ menuId: 'M001', qty: 1 }] }, AUTO).autoDiscountType, '早期予約割引');
+// 通常見積は改修前のまま。箇所数を問わず早期予約割引が優先される。
+check('D-10 早期予約と複数台の併用時は早期予約のみ',
+  run({ workDate: '2026-01-20', details: [{ menuId: 'M001', qty: 10 }] }, AUTO).autoDiscountType, '早期予約割引');
 
-check('D-10b 2箇所以上では早期予約割引を使わず複数台割引を見る',
-  run({ workDate: '2026-01-20', details: [{ menuId: 'M001', qty: 10 }] }, AUTO).autoDiscountType, '複数台割引');
+// WEB経由だけ、早期予約割引を1箇所のみのご依頼に限る（予約フォームと同条件）
+check('D-10b WEB経由・1箇所のみなら早期予約割引',
+  runWeb({ workDate: '2026-01-20', details: [{ menuId: 'M001', qty: 1 }] }, AUTO).autoDiscountType, '早期予約割引');
 
-check('D-10c 2箇所以上で複数台割引にも該当しなければ自動割引なし',
-  run({ workDate: '2026-01-20', details: [{ menuId: 'M001', qty: 2 }] }, AUTO).autoDiscountApplied, 0);
+check('D-10c WEB経由・2箇所以上では早期予約割引を使わず複数台割引を見る',
+  runWeb({ workDate: '2026-01-20', details: [{ menuId: 'M001', qty: 10 }] }, AUTO).autoDiscountType, '複数台割引');
+
+check('D-10d WEB経由・2箇所以上で複数台割引にも該当しなければ自動割引なし',
+  runWeb({ workDate: '2026-01-20', details: [{ menuId: 'M001', qty: 2 }] }, AUTO).autoDiscountApplied, 0);
 
 check('D-11 50台超は例外表示',
   run({ workDate: '2026-11-20', details: [{ menuId: 'M001', qty: 51 }] }, AUTO)
@@ -395,104 +424,147 @@ check('R-2 復元してもPDF明細行が一致する', (() => {
   return JSON.stringify(a.pdfRows) === JSON.stringify(b.pdfRows);
 })(), true);
 
-group('S. 同時施工価格（予約フォームとの金額合わせ）');
+group('S. 同時施工価格（WEB経由見積のみ）');
+
+check('S-0 通常見積では同時施工価格を使わない',
+  run({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] })
+    .setDiscountApplied, 0);
+
+check('S-0b 通常見積の合計は改修前のまま（16,800×2×1.1）',
+  run({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] })
+    .grandTotal, 36960);
 
 check('S-1 1箇所のみなら同時施工割引は効かない',
-  run({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }] }).setDiscountApplied, 0);
+  runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }] }).setDiscountApplied, 0);
 
 check('S-2 浴室＋キッチン → 2箇所目を13,800にして3,000引く',
-  run({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] })
+  runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] })
     .setDiscountApplied, 3000);
 
 check('S-2b 浴室＋キッチンの合計は予約フォームと同じ33,660円',
-  run({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] })
+  runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] })
     .grandTotal, 33660);
 
 // 割引額がいちばん小さい1箇所を単品価格に残す。トイレは同時施工価格が無いので
 // そちらを単品に残し、浴室のほうを13,800にするのが安い。
 check('S-3 浴室＋トイレ → 割引が小さいトイレを単品に残す',
-  run({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M011', qty: 1 }] })
+  runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M011', qty: 1 }] })
     .grandTotal, 25960);
 
 check('S-4 キッチン＋コンロ → コンロが5,500になる',
-  run({ workDate: '2026-11-15', details: [{ menuId: 'M006', qty: 1 }, { menuId: 'M009', qty: 1 }] })
+  runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M006', qty: 1 }, { menuId: 'M009', qty: 1 }] })
     .grandTotal, 24530);
 
 check('S-5 コンロはキッチンが無いと同時施工価格にならない',
-  run({ workDate: '2026-11-15', details: [{ menuId: 'M009', qty: 1 }, { menuId: 'M011', qty: 1 }] })
+  runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M009', qty: 1 }, { menuId: 'M011', qty: 1 }] })
     .setDiscountApplied, 0);
 
 check('S-6 同じメニュー2箇所でも2箇所目に同時施工価格が効く',
-  run({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 2 }] }).setDiscountApplied, 3000);
+  runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 2 }] }).setDiscountApplied, 3000);
 
 check('S-7 オプションは箇所数に数えない',
-  run({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'O002', qty: 3 }] })
+  runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'O002', qty: 3 }] })
     .setDiscountApplied, 0);
 
 check('S-8 設定でOFFにすれば適用しない',
-  run({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] },
+  runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] },
     { setPricingEnabled: false }).setDiscountApplied, 0);
 
 check('S-9 画面で手動OFFにすれば適用しない',
-  run({ workDate: '2026-11-15', setPricingManual: false,
+  runWeb({ workDate: '2026-11-15', setPricingManual: false,
     details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] }).setDiscountApplied, 0);
 
 check('S-10 PDFに「同時施工割引」行が出る', (() => {
-  const r = run({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] });
+  const r = runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] });
   const row = r.pdfRows.find(x => x.name === '同時施工割引');
   return [!!row, row ? row.amount : 0];
 })(), [true, -3000]);
 
 check('S-11 繁忙期と同時施工割引が両方かかる（6月・浴室＋キッチン）',
-  run({ workDate: '2026-06-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] })
+  runWeb({ workDate: '2026-06-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] })
     .grandTotal, 40260);
 
-group('N. ネット申込特典（税込指定の調整行）');
+group('N. ネット申込特典（WEB経由見積のみ・自動適用）');
 
-check('N-1 税込2,200の値引きは課税対象から2,000を引く', (() => {
-  const r = run({
-    workDate: '2026-11-15',
-    details: [{ menuId: 'M001', qty: 2 }],
-    adjustments: [CalcEngine.netBenefitAdjustment(ctx())]
-  });
-  return [r.appliedAdjustments[0].amount, r.grandTotal];
-})(), [2000, 19360]);
+// 適用条件は予約フォームと同じ。2箇所以上で、同時施工割引が付かない組み合わせのときだけ。
+// 1箇所のみのご依頼には付けない。
+
+check('N-0 通常見積では特典そのものが無い',
+  run({ workDate: '2026-11-15', details: [{ menuId: 'M001', qty: 2 }] }).netBenefitExists, false);
+
+check('N-1 WEB経由・エアコン2台 → 自動で適用される',
+  runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M001', qty: 2 }] }).netBenefitAuto, true);
+
+check('N-1b 明細に載るのは税抜2,000',
+  runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M001', qty: 2 }] }).netBenefitApplied, 2000);
+
+check('N-1c 合計は予約フォームと同じ19,360',
+  runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M001', qty: 2 }] }).grandTotal, 19360);
 
 check('N-2 合計は税込でちょうど2,200安くなる', (() => {
-  const base = run({ workDate: '2026-11-15', details: [{ menuId: 'M001', qty: 2 }] });
-  const withNet = run({
-    workDate: '2026-11-15',
-    details: [{ menuId: 'M001', qty: 2 }],
-    adjustments: [CalcEngine.netBenefitAdjustment(ctx())]
-  });
-  return base.grandTotal - withNet.grandTotal;
+  const base = runWeb({ workDate: '2026-11-15', netBenefitManual: false, details: [{ menuId: 'M001', qty: 2 }] });
+  const on = runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M001', qty: 2 }] });
+  return base.grandTotal - on.grandTotal;
 })(), 2200);
 
-check('N-3 2箇所以上で同時施工割引が付かないときは画面に案内を出す',
-  run({ workDate: '2026-11-15', details: [{ menuId: 'M001', qty: 2 }] })
-    .exceptionReasons.some(t => t.indexOf('予約フォームだと') >= 0), true);
+check('N-3 1箇所のみのご依頼には付けない',
+  runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M001', qty: 1 }] }).netBenefitAuto, false);
 
-check('N-4 特典を足したあとは案内を出さない',
-  run({
-    workDate: '2026-11-15',
-    details: [{ menuId: 'M001', qty: 2 }],
-    adjustments: [CalcEngine.netBenefitAdjustment(ctx())]
-  }).exceptionReasons.some(t => t.indexOf('予約フォームだと') >= 0), false);
+check('N-3b 1箇所のみの合計は特典なしのまま',
+  runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M001', qty: 1 }] }).grandTotal, 10780);
 
-check('N-5 同時施工割引が付く内容では案内を出さない',
-  run({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] })
-    .exceptionReasons.some(t => t.indexOf('予約フォームだと') >= 0), false);
+check('N-4 同時施工割引が付く組み合わせには付けない',
+  runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] })
+    .netBenefitAuto, false);
 
-check('N-6 税込指定でも保存→復元で金額が変わらない', (() => {
-  const payload = {
-    workDate: '2026-11-15',
-    details: [{ menuId: 'M001', qty: 2 }],
-    adjustments: [CalcEngine.netBenefitAdjustment(ctx())]
-  };
+check('N-5 オプションは箇所数に数えないので、本メニュー1つなら付かない',
+  runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M001', qty: 1 }, { menuId: 'O002', qty: 2 }] })
+    .netBenefitAuto, false);
+
+check('N-6 手動でOFFにできる',
+  runWeb({ workDate: '2026-11-15', netBenefitManual: false, details: [{ menuId: 'M001', qty: 2 }] })
+    .netBenefitApplied, 0);
+
+check('N-7 手動でONにすれば条件外でも付けられる',
+  runWeb({ workDate: '2026-11-15', netBenefitManual: true, details: [{ menuId: 'M001', qty: 1 }] })
+    .netBenefitApplied, 2000);
+
+check('N-8 自動判定と違う設定にしたら確認事項に出る',
+  runWeb({ workDate: '2026-11-15', netBenefitManual: false, details: [{ menuId: 'M001', qty: 2 }] })
+    .exceptionReasons.some(t => t.indexOf('ネット申込特典の手動設定') >= 0), true);
+
+check('N-9 PDFに「ネット申込特典」行が出る', (() => {
+  const r = runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M001', qty: 2 }] });
+  const row = r.pdfRows.find(x => x.name === 'ネット申込特典');
+  return [!!row, row ? row.amount : 0];
+})(), [true, -2000]);
+
+check('N-10 保存→復元で金額が変わらない', (() => {
+  const payload = { channel: 'web', workDate: '2026-11-15', details: [{ menuId: 'M001', qty: 2 }] };
   const a = run(payload);
-  const b = run({ workDate: payload.workDate, details: payload.details, adjustments: a.appliedAdjustments });
+  const b = run({
+    channel: a.channelLabel, workDate: payload.workDate, details: payload.details,
+    netBenefitManual: a.netBenefitOn, setPricingManual: a.setPricingOn,
+    busyManual: a.busyManual, discountManual: a.autoDiscountOn,
+    adjustments: a.appliedAdjustments
+  });
   return [a.grandTotal, b.grandTotal, a.grandTotal === b.grandTotal];
 })(), [19360, 19360, true]);
+
+group('CH. 受注経路の記録');
+
+check('CH-1 既定は通常見積',
+  run({ workDate: '2026-11-15', details: [{ menuId: 'M001', qty: 1 }] }).channelLabel, '通常');
+
+check('CH-2 WEB経由は「WEB経由」として残る',
+  runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M001', qty: 1 }] }).channelLabel, 'WEB経由');
+
+// 保存レコードには日本語ラベルで入るので、読み直したときに同じ経路に戻ること
+check('CH-3 保存ラベル「WEB経由」から読み直しても同じ経路',
+  run({ channel: 'WEB経由', workDate: '2026-11-15', details: [{ menuId: 'M001', qty: 1 }] }).channel, 'web');
+
+check('CH-4 空欄は通常見積として扱う（タブ追加前の見積）',
+  run({ channel: '', workDate: '2026-11-15', details: [{ menuId: 'M001', qty: 1 }] }).channel, 'normal');
 
 /* ===================== 結果 ===================== */
 

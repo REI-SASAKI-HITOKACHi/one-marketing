@@ -24,9 +24,11 @@
     requestId: '',
     invoice: null,
     originalEstimateId: '',
+    channel: 'normal',
     busyTouched: false,
     discountTouched: false,
     setPricingTouched: false,
+    netBenefitTouched: false,
     creating: false
   };
 
@@ -67,6 +69,7 @@
     setupProjectTypeOptions();
     setupSearchProjectTypeOptions();
     setupStaffOptions();
+    renderChannelTabs();
 
     byId('highwayLink').href = state.settings['高速料金検索URL'] || '#';
     byId('lineNoticeText').textContent =
@@ -110,6 +113,7 @@
       state.busyTouched = false;
       state.discountTouched = false;
       state.setPricingTouched = false;
+      state.netBenefitTouched = false;
       recalc();
     });
 
@@ -128,6 +132,11 @@
       recalc();
     });
 
+    byId('netBenefitManual').addEventListener('change', function () {
+      state.netBenefitTouched = true;
+      recalc();
+    });
+
     document.addEventListener('click', function (e) {
       var el = e.target.closest('[data-action]');
       if (!el) return;
@@ -141,7 +150,7 @@
       else if (action === 'toggle-line-discount') toggleLineDiscount(index);
       else if (action === 'add-adjustment') addAdjustment('discount');
       else if (action === 'add-surcharge') addAdjustment('surcharge');
-      else if (action === 'add-net-benefit') addNetBenefit();
+      else if (action === 'set-channel') setChannel(el.getAttribute('data-channel'));
       else if (action === 'remove-adjustment') removeAdjustment(index);
       else if (action === 'clear-target') clearTargetTotal();
       else if (action === 'create') createEstimate();
@@ -528,6 +537,8 @@
       busyManual: state.busyTouched ? byId('busyManual').checked : null,
       discountManual: state.discountTouched ? byId('discountManual').checked : null,
       setPricingManual: state.setPricingTouched ? byId('setPricingManual').checked : null,
+      netBenefitManual: state.netBenefitTouched ? byId('netBenefitManual').checked : null,
+      channel: state.channel,
       details: state.lines
         .filter(function (l) { return l.menuId; })
         .map(function (l) {
@@ -568,6 +579,7 @@
     if (!state.busyTouched) byId('busyManual').checked = !!calc.busyManual;
     if (!state.discountTouched) byId('discountManual').checked = !!calc.autoDiscountOn;
     if (!state.setPricingTouched) byId('setPricingManual').checked = !!calc.setPricingOn;
+    if (!state.netBenefitTouched) byId('netBenefitManual').checked = !!calc.netBenefitOn;
 
     byId('busyHint').textContent = calc.busyAuto
       ? '自動判定：' + calc.month + '月は繁忙期です。'
@@ -575,7 +587,7 @@
 
     byId('setPricingHint').innerHTML = buildSetPricingHint(calc);
     byId('autoDiscountHint').innerHTML = buildAutoDiscountHint(calc);
-    renderNetBenefitButton(calc);
+    renderNetBenefitRow(calc);
     byId('targetTotalHint').textContent = buildTargetHint(calc);
 
     var s = calc.summaryDisplay;
@@ -586,6 +598,7 @@
     if (calc.lineDiscountTotal > 0) rows.push(['明細値引き', '-' + s.lineDiscountTotal]);
     if (calc.busyAmount > 0) rows.push(['繁忙期加算', s.busyAmount]);
     if (calc.setDiscountApplied > 0) rows.push(['同時施工割引', '-' + s.setDiscountApplied]);
+    if (calc.netBenefitApplied > 0) rows.push([calc.netBenefitName || 'ネット申込特典', '-' + s.netBenefitApplied]);
     if (calc.autoDiscountApplied > 0) rows.push([calc.autoDiscountType || '自動割引', '-' + s.autoDiscountApplied]);
 
     calc.appliedAdjustments.forEach(function (a) {
@@ -613,6 +626,9 @@
   }
 
   function buildSetPricingHint(calc) {
+    if (calc.channel !== 'web') {
+      return '通常見積では同時施工価格は使いません。WEB経由見積のタブに切り替えると適用されます。';
+    }
     if (calc.mainUnitCount < 2) {
       return '1箇所のみのご依頼です。同時施工価格は2箇所以上のときに効きます。';
     }
@@ -631,33 +647,62 @@
     return head;
   }
 
-  /** ネット申込特典のボタン。マスタに登録があるときだけ出す。 */
-  function renderNetBenefitButton(calc) {
-    var btn = byId('netBenefitButton');
-    var net = state.calcContext && state.calcContext.netBenefit;
+  /**
+   * ネット申込特典。WEB経由見積のときだけ出す。
+   * 2箇所以上で同時施工割引が付かない組み合わせのときに自動でONになる
+   * （1箇所のみのご依頼には付かない）。予約フォームと同じ条件。
+   */
+  function renderNetBenefitRow(calc) {
+    var row = byId('netBenefitRow');
+    var hint = byId('netBenefitHint');
 
-    if (!net || !(Number(net.amount) > 0)) {
-      btn.hidden = true;
+    if (!calc.netBenefitExists) {
+      row.hidden = true;
+      hint.hidden = true;
       return;
     }
 
-    var already = state.adjustments.some(function (a) { return a.name === net.name; });
-    btn.hidden = already;
-    btn.textContent = '＋ ' + net.name + ' -' + fmtYen(net.amount) + '（税込）';
+    row.hidden = false;
+    hint.hidden = false;
+    hint.innerHTML = (calc.netBenefitAvailable ? '自動判定：適用します。' : '自動判定：適用しません。')
+      + '<br><span class="mini">' + esc(calc.netBenefitDetail) + '</span>';
   }
 
-  function addNetBenefit() {
-    var adj = CalcEngine.netBenefitAdjustment(state.calcContext);
-    if (!adj) return;
-    if (state.adjustments.some(function (a) { return a.name === adj.name; })) return;
+  /* ===================== 受注経路タブ ===================== */
 
-    state.adjustments.push({
-      name: adj.name, kind: adj.kind, mode: adj.mode, value: adj.value,
-      base: adj.base, taxType: adj.taxType, note: adj.note
-    });
+  var CHANNEL_NOTES = {
+    normal: '<strong>通常見積</strong>：これまでどおりの料金です。'
+      + '同時施工価格とネット申込特典は使いません。',
+    web: '<strong>WEB経由見積</strong>：公開中の予約フォームと同じ金額になります。'
+      + '2箇所以上のご依頼は同時施工価格、繁忙期加算 ¥3,300 は税込扱い、'
+      + '早期予約割引は1箇所のみのご依頼に限ります。'
+      + 'ネット申込特典 −¥2,200 は、2箇所以上で同時施工割引が付かないときだけ自動で付きます。'
+  };
 
-    renderAdjustments();
+  function setChannel(channel) {
+    var next = channel === 'web' ? 'web' : 'normal';
+    if (next === state.channel) return;
+
+    state.channel = next;
+
+    // 経路が変わると自動判定の前提が全部変わるので、手動の上書きは解除する
+    state.busyTouched = false;
+    state.discountTouched = false;
+    state.setPricingTouched = false;
+    state.netBenefitTouched = false;
+
+    renderChannelTabs();
     recalc();
+  }
+
+  function renderChannelTabs() {
+    var tabs = document.querySelectorAll('.channel-tab');
+    for (var i = 0; i < tabs.length; i++) {
+      var on = tabs[i].getAttribute('data-channel') === state.channel;
+      tabs[i].classList.toggle('is-active', on);
+      tabs[i].setAttribute('aria-selected', on ? 'true' : 'false');
+    }
+    byId('channelNote').innerHTML = CHANNEL_NOTES[state.channel];
   }
 
   function buildAutoDiscountHint(calc) {
@@ -888,7 +933,8 @@
         customerName: val('searchCustomerName'),
         projectName: val('searchProjectName'),
         createdDate: val('searchCreatedDate'),
-        projectType: val('searchProjectType')
+        projectType: val('searchProjectType'),
+        channel: val('searchChannel')
       });
   }
 
@@ -907,6 +953,7 @@
         + '作成日：' + esc(r.created_at) + '<br>'
         + '案件名：' + esc(r.project_name) + '<br>'
         + '案件タイプ：' + esc(r.project_type) + '<br>'
+        + '受注経路：' + esc(r.channel || '通常') + '<br>'
         + '合計：' + esc(r.total_amount_display)
         + (r.invoice_id ? '<br>請求書：' + esc(r.invoice_id) : '')
         + '</div>'
@@ -989,9 +1036,13 @@
     state.busyTouched = true;
     state.discountTouched = true;
     state.setPricingTouched = true;
+    state.netBenefitTouched = true;
     byId('busyManual').checked = !!p.busyManual;
     byId('discountManual').checked = !!p.discountManual;
     byId('setPricingManual').checked = !!p.setPricingManual;
+    byId('netBenefitManual').checked = !!p.netBenefitManual;
+    state.channel = CalcEngine.normalizeChannel(p.channel);
+    renderChannelTabs();
 
     recalc();
     window.scrollTo({ top: 0, behavior: 'smooth' });

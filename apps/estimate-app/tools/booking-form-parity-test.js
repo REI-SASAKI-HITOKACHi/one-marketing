@@ -19,10 +19,13 @@
  *   Q2 同時施工価格を予約フォームと同じ解釈で見積アプリにも入れる
  *   Q3 ネット申込特典 −¥2,200 はページ限定。見積では任意の割引行として足す
  *
- * 比較は「同じ受注条件」で行う。つまり
- *   ・自動割引ON（フォームは常に早期予約割引を出すため）
- *   ・フォームが特典を出す組み合わせでは、見積側にもネット申込特典の行を足す
- * 参考として、納品時の既定（自動割引OFF・特典なし）の金額も併記する。
+ * 見積アプリ側は **WEB経由見積タブ**（channel: 'web'）で計算する。
+ * 通常見積タブは改修前の料金のままなので、ここでは比較しない
+ * （通常見積が変わっていないことは calc-test.js の C / D / S-0 群で見ている）。
+ *
+ * 自動割引はONにして比較する。予約フォームは常に早期予約割引を出すため。
+ * 参考として、納品時の既定（auto_discount_enabled = FALSE）の金額も併記する。
+ * ネット申込特典はWEB経由タブで自動適用されるので、こちら側で足す必要はない。
  */
 'use strict';
 
@@ -170,16 +173,25 @@ function appCtx(autoDiscount) {
   };
 }
 
-function appPrice(basket, month, autoDiscount, withNetBenefit) {
+function appPrice(basket, month, autoDiscount) {
   const details = basket.map(b => {
     const m = byName[b.appMenu];
     if (!m) throw new Error('メニューマスタに無い：' + b.appMenu);
     return { menuId: m.menuId, qty: b.qty };
   });
-  const ctx = appCtx(autoDiscount);
-  const adjustments = withNetBenefit ? [engine.netBenefitAdjustment(ctx)] : [];
   const workDate = '2026-' + pad(month) + '-15';
-  return engine.calculate({ workDate, details, adjustments }, ctx);
+  return engine.calculate({ channel: 'web', workDate, details }, appCtx(autoDiscount));
+}
+
+/** 通常見積タブ（改修前の料金）。変わっていないことの確認用 */
+function normalPrice(basket, month) {
+  const details = basket.map(b => {
+    const m = byName[b.appMenu];
+    if (!m) throw new Error('メニューマスタに無い：' + b.appMenu);
+    return { menuId: m.menuId, qty: b.qty };
+  });
+  const workDate = '2026-' + pad(month) + '-15';
+  return engine.calculate({ workDate, details }, appCtx(false));
 }
 
 /* ===================== 比較 ===================== */
@@ -236,10 +248,10 @@ if (!adminNet || Number(adminNet[1]) !== NET_BENEFIT.amount) {
 
 /* --- 突き合わせ --- */
 
-console.log('\n予約フォーム vs 見積アプリ（すべて税込で比較）');
-console.log('「同条件」＝自動割引ON＋フォームが特典を出す組み合わせにはネット申込特典を足した場合\n');
-console.log('  ' + 'ケース'.padEnd(26) + 'フォーム'.padStart(11) + '同条件'.padStart(11)
-  + '差額'.padStart(9) + '   既定(割引OFF)'.padStart(16) + '  内訳');
+console.log('\n予約フォーム vs 見積アプリ WEB経由見積タブ（すべて税込で比較）');
+console.log('「WEB経由」＝自動割引ONの場合。「通常見積」は改修前の料金のまま\n');
+console.log('  ' + 'ケース'.padEnd(26) + 'フォーム'.padStart(11) + 'WEB経由'.padStart(11)
+  + '差額'.padStart(9) + '  通常見積'.padStart(12) + '  内訳');
 console.log('  ' + '-'.repeat(104));
 
 const gaps = [];
@@ -247,12 +259,11 @@ const gaps = [];
 CASES.forEach(c => {
   const basket = c.basket.map(b => Object.assign({}, b, { appMenu: NAME_MAP[b.name] }));
 
-  let f, same, shipped;
+  let f, same, normal;
   try {
     f = formPrice(basket, c.month);
-    // フォームがネット申込特典を出す条件（2箇所以上・セット割引が付かない）を同条件側でも再現する
-    same = appPrice(basket, c.month, true, f.netto > 0);
-    shipped = appPrice(basket, c.month, false, false);
+    same = appPrice(basket, c.month, true);
+    normal = normalPrice(basket, c.month);
   } catch (e) {
     console.log('  ' + c.label.padEnd(26) + '  スキップ：' + e.message);
     gaps.push({ label: c.label, diff: NaN });
@@ -268,7 +279,7 @@ CASES.forEach(c => {
 
   console.log('  ' + c.label.padEnd(26) + yen(f.total).padStart(11) + yen(same.grandTotal).padStart(11)
     + (diff === 0 ? '一致' : (diff > 0 ? '+' : '') + yen(diff)).padStart(9)
-    + yen(shipped.grandTotal).padStart(16)
+    + yen(normal.grandTotal).padStart(12)
     + '  ' + why.join(' / '));
 
   if (diff !== 0) gaps.push({ label: c.label, diff, form: f, app: same });
@@ -289,12 +300,17 @@ if (gaps.length === 0 && mismatches.length === 0) {
   ・2箇所以上は同時施工価格。割引額がいちばん小さい1箇所だけ単品価格、残りは同時施工単価。
     コンロはキッチンと同時のときだけ ¥5,500（税抜）。
   ・早期予約割引は1箇所のみのご依頼に限る。2箇所以上は同時施工価格を優先。
-  ・ネット申込特典 −¥2,200（税込）はページ限定。見積では画面のボタンから足す。
+  ・ネット申込特典 −¥2,200（税込）は、2箇所以上で同時施工割引が付かないときだけ自動で付く。
+    1箇所のみのご依頼には付けない。
+
+  ■ 通常見積タブとの差
+  右端の「通常見積」列は改修前の料金そのまま。ここは今回一切変えていない。
+  受注経路は見積レコードの「受注経路」列に残るので、あとから区別できる。
 
   ■ 納品時の既定との差
-  自動割引は auto_discount_enabled = FALSE で納品するため、
-  「既定(割引OFF)」列は1箇所のみのご依頼でフォームより高く出る（早期予約割引が載らないため）。
-  2箇所以上は同時施工価格が既定でONなので、ネット申込特典を除けば既定でも一致する。
+  自動割引は auto_discount_enabled = FALSE で納品するため、WEB経由タブでも
+  1箇所のみのご依頼はフォームより高く出る（早期予約割引が載らないため）。
+  2箇所以上は同時施工価格とネット申込特典が既定でONなので、既定のままでも一致する。
 `);
   console.log(`✅ 全 ${CASES.length} 通り一致\n`);
   process.exit(0);
