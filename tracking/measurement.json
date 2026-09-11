@@ -7,12 +7,10 @@
     "手順は docs/measurement-owner-steps.md、設計は docs/measurement-spec.md。",
     "※ここに入れてよいのは公開前提の測定IDだけ。APIキー・トークンの類は絶対に書かないこと。"
   ],
-
   "ga4": {
-    "measurement_id": "",
-    "_note": "GA4の測定ID。G- で始まる。オーナー手順書の第1章で取得する。"
+    "measurement_id": "G-DLJCTKGTDN",
+    "_note": "GA4の測定ID。LP用（オーナーが2026-09-10に作成、CMO経由で受領）。これは公開ページのHTMLに出る文字列で、パスワードではない。"
   },
-
   "google_ads": {
     "conversion_id": "",
     "_note1": "Google広告のコンバージョンID。AW- で始まる。広告を出すまで空でよい。",
@@ -22,7 +20,6 @@
       "line_click": ""
     },
     "_note2": "labels のキーはイベント名と同じにすること。値は AW-XXXX/ の右側の文字列だけを入れる。",
-
     "phone_conversion_label": "",
     "_note3": [
       "Google広告の「電話番号の動的挿入」用のラベル。追加費用はかからない。",
@@ -34,12 +31,10 @@
       "　 両方入れると、押しただけの分と実際の通話の分で二重に数えてしまう。"
     ]
   },
-
   "meta": {
     "pixel_id": "",
     "_note": "MetaのピクセルID（数字のみ）。Instagram/Facebook広告を出すときだけ。"
   },
-
   "call_tracking": {
     "_note1": "コールトラッキングの発番を入れると、そのLPだけ表示・発信先の番号が差し替わる。",
     "_note2": "空なら default_number のまま。ハイフンあり・なしどちらでもよい。",
@@ -50,13 +45,11 @@
       "mizumawari": ""
     }
   },
-
   "lead_value": {
     "_note": "フォーム送信1件あたりの想定価値（円）。入札の最適化に使う。0 なら送らない。",
     "aircon": 0,
     "aircon-b": 0,
     "mizumawari": 0
   },
-
   "debug": false
 }
