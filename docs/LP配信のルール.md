@@ -64,7 +64,7 @@ PY
 | サイト | 中身 | 配信してよいスレッド |
 |---|---|---|
 | `one-hitter-lp.netlify.app` | aircon / aircon-b / mizumawari / **nenmatsu / survey**（5本ともアフィリエイトの遷移先として登録済み。URLを変えない） | **LP担当だけ**（2026-09-11 決定。他のスレッドは変更をLP担当に依頼する。計測担当は 9/10 に自分からは配信しないと決めた） |
-| `one-hitter-nenmatsu.netlify.app` | nenmatsu | CMO |
+| `one-hitter-nenmatsu.netlify.app` | **中身なし。`/*` を `one-hitter-lp.netlify.app/nenmatsu/` へ301するだけ**（2026-09-11 オーナー承認・配信済み。`lp/nenmatsu-redirect/_redirects`。クエリ `?src=&cid=` は引き継がれる） | CMO |
 | `one-hitter-survey.netlify.app` | survey | CMO |
 
 **ZIPでの配信はサイト全体を置き換えます。** 一部だけを上げると、
