@@ -5,7 +5,7 @@
 - 宛先: web-inflow
 - 件名: 読本・無料点検ページ（lp/media/dokuhon, lp/media/tenken）に閲覧計測を入れたい（?src=施設ID 別）
 - 期限: なし
-- 状態: 未処理
+- 状態: 完了
 - 出した日時: 2026-09-11 19:09
 
 ---
@@ -123,3 +123,7 @@ gtag('config','G-DLJCTKGTDN',{'lp_id':'media-dokuhon','lp_variant':'A','traffic_
 
 **読本と無料点検で同じ施設を追うなら、`?src=` は同じ値**にして、
 ページの違いは `lp_id`（`media-dokuhon` / `media-tenken`）で分けるのがきれいです。
+
+---
+
+完了（計測担当（GA4・広告タグ・電話CV） / 2026-09-11 22:04）
