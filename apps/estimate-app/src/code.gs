@@ -83,6 +83,7 @@ const SETTING_ALIASES = {
   busy_surcharge_unit: '繁忙期加算単位',
   busy_surcharge_tax_included: '繁忙期加算_税込',
   auto_discount_enabled: '自動割引有効',
+  auto_discount_enabled_web: '自動割引有効_WEB経由',
   set_pricing_enabled: '同時施工価格有効',
   large_discount_alert_ratio: '大幅値引き警告率',
 
@@ -163,6 +164,7 @@ function buildCalcContext_(ctx) {
     busySurchargeUnit: ctx.busySurchargeUnit,
     busySurchargeTaxIncluded: ctx.busySurchargeTaxIncluded,
     autoDiscountEnabled: ctx.autoDiscountEnabled,
+    autoDiscountEnabledWeb: ctx.autoDiscountEnabledWeb,
     setPricingEnabled: ctx.setPricingEnabled,
     largeDiscountRatio: ctx.largeDiscountRatio,
     netBenefit: ctx.netBenefit,
@@ -1043,6 +1045,7 @@ function buildContextFromSheets_() {
     busySurchargeUnit: String(settings['繁忙期加算単位'] || '数量ごと').trim(),
     busySurchargeTaxIncluded: parseBooleanLoose_(settings['繁忙期加算_税込']),
     autoDiscountEnabled: parseBooleanLoose_(settings['自動割引有効']),
+    autoDiscountEnabledWeb: parseBooleanLoose_(settings['自動割引有効_WEB経由']),
     setPricingEnabled: parseBooleanLoose_(settings['同時施工価格有効']),
     largeDiscountRatio: normalizeRate_(settings['大幅値引き警告率'] || 0.30) || 0.30,
     netBenefit: buildNetBenefit_(discountRules),
@@ -1159,6 +1162,8 @@ function applyDefaultSettingsValues_(s) {
   // 繁忙期加算 ¥3,300 は料金表が元から税込（オーナー確認済み・docs/price-master.md）
   if (isBlank_(s['繁忙期加算_税込'])) s['繁忙期加算_税込'] = 'TRUE';
   if (isBlank_(s['自動割引有効'])) s['自動割引有効'] = 'FALSE';
+  // WEB経由見積は予約フォームと金額を揃えるため既定でON（通常見積は上のFALSEのまま）
+  if (isBlank_(s['自動割引有効_WEB経由'])) s['自動割引有効_WEB経由'] = 'TRUE';
   // 同時施工価格は公開中の予約フォームと同じ金額を出すためのものなので既定でON
   if (isBlank_(s['同時施工価格有効'])) s['同時施工価格有効'] = 'TRUE';
   if (!s['大幅値引き警告率']) s['大幅値引き警告率'] = '0.30';

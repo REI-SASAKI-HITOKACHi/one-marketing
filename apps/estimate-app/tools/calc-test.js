@@ -171,7 +171,7 @@ check('CW-4 設定で税抜扱いに戻せば通常見積と同じになる',
 
 group('D. 自動割引');
 
-const AUTO = { autoDiscountEnabled: true };
+const AUTO = { autoDiscountEnabled: true, autoDiscountEnabledWeb: true };
 
 check('D-1 1月 早期予約15%',
   run({ workDate: '2026-01-20', details: [{ menuId: 'M001', qty: 1 }] }, AUTO).autoDiscountApplied, 1470);
@@ -583,6 +583,36 @@ check('F-7 通常見積では照合しない', (() => {
   const r = run({ workDate: '2026-11-15', formQuotedTotal: 17000, details: [{ menuId: 'M001', qty: 2 }] });
   return r.exceptionReasons.some(t => t.indexOf('提示額') >= 0);
 })(), false);
+
+group('AD. 自動割引の設定を受注経路ごとに分ける');
+
+// 納品時の想定：通常見積はOFF（現場周知が済むまで）、WEB経由はON（フォームと揃える）
+const SHIPPED = { autoDiscountEnabled: false, autoDiscountEnabledWeb: true };
+
+check('AD-1 納品時の設定：通常見積には自動割引が載らない',
+  run({ workDate: '2026-01-20', details: [{ menuId: 'M001', qty: 1 }] }, SHIPPED).autoDiscountApplied, 0);
+
+check('AD-2 納品時の設定：WEB経由には載る（1月・1箇所 → 15%）',
+  runWeb({ workDate: '2026-01-20', details: [{ menuId: 'M001', qty: 1 }] }, SHIPPED).autoDiscountApplied, 1470);
+
+check('AD-3 納品時の設定で、WEB経由1箇所の合計が予約フォームと一致する',
+  runWeb({ workDate: '2026-01-20', details: [{ menuId: 'M001', qty: 1 }] }, SHIPPED).grandTotal, 9163);
+
+check('AD-4 通常見積の同じ内容は改修前のまま',
+  run({ workDate: '2026-01-20', details: [{ menuId: 'M001', qty: 1 }] }, SHIPPED).grandTotal, 10780);
+
+check('AD-5 WEB側もOFFにすれば載らない',
+  runWeb({ workDate: '2026-01-20', details: [{ menuId: 'M001', qty: 1 }] },
+    { autoDiscountEnabled: false, autoDiscountEnabledWeb: false }).autoDiscountApplied, 0);
+
+// 設定が未登録の古いマスタでも動くこと（WEB用が空なら通常用の設定に従う）
+check('AD-6 WEB用の設定が空欄なら通常用の設定に従う',
+  runWeb({ workDate: '2026-01-20', details: [{ menuId: 'M001', qty: 1 }] },
+    { autoDiscountEnabled: true, autoDiscountEnabledWeb: '' }).autoDiscountApplied, 1470);
+
+check('AD-7 通常見積の設定はWEB用の設定に影響されない',
+  run({ workDate: '2026-01-20', details: [{ menuId: 'M001', qty: 1 }] },
+    { autoDiscountEnabled: false, autoDiscountEnabledWeb: true }).autoDiscountApplied, 0);
 
 group('CH. 受注経路の記録');
 

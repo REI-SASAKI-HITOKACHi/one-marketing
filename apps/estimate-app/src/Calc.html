@@ -643,9 +643,13 @@ var CalcEngine = (function () {
     var netBenefitOn = isBlank(p.netBenefitManual) ? netInfo.available : parseBool(p.netBenefitManual);
     var netBenefitApplied = (netBenefitOn && netInfo.exists) ? netInfo.candidate : 0;
 
-    /* --- 自動割引 --- */
+    /* --- 自動割引。受注経路ごとに設定を分ける --- */
+    // 通常見積は現場への周知が済むまでOFF、WEB経由はフォームと金額を揃えるためON、
+    // という運び方ができるようにマスタの設定を2つに分けてある。
     var autoInfo = calcAutoDiscount(month, lines, ctx, setInfo.unitCount, web);
-    var autoEnabledBySetting = parseBool(ctx.autoDiscountEnabled);
+    var autoEnabledBySetting = web
+      ? (isBlank(ctx.autoDiscountEnabledWeb) ? parseBool(ctx.autoDiscountEnabled) : parseBool(ctx.autoDiscountEnabledWeb))
+      : parseBool(ctx.autoDiscountEnabled);
     var autoDefault = autoEnabledBySetting && autoInfo.available;
     var autoDiscountOn = isBlank(p.discountManual) ? autoDefault : parseBool(p.discountManual);
     var autoDiscountApplied = autoDiscountOn ? autoInfo.amount : 0;

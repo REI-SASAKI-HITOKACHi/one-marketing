@@ -167,10 +167,34 @@ function appCtx(autoDiscount) {
   return {
     taxRate: 0.10, busySurcharge: 3300, busySurchargeUnit: '数量ごと',
     busySurchargeTaxIncluded: true,
-    autoDiscountEnabled: autoDiscount, setPricingEnabled: true,
+    autoDiscountEnabled: autoDiscount, autoDiscountEnabledWeb: autoDiscount,
+    setPricingEnabled: true,
     largeDiscountRatio: 0.30, netBenefit: NET_BENEFIT,
     menuMap, discountRules: rules
   };
+}
+
+/**
+ * 納品時の設定そのもの。
+ * 通常見積の自動割引はOFF（現場周知が済むまで）、WEB経由はON（フォームと揃える）。
+ * この設定で9通り一致するなら、デプロイした瞬間から金額が揃っている。
+ */
+const SHIPPED = {
+  taxRate: 0.10, busySurcharge: 3300, busySurchargeUnit: '数量ごと',
+  busySurchargeTaxIncluded: true,
+  autoDiscountEnabled: false, autoDiscountEnabledWeb: true,
+  setPricingEnabled: true,
+  largeDiscountRatio: 0.30, netBenefit: NET_BENEFIT,
+  menuMap, discountRules: rules
+};
+
+function shippedPrice(basket, month) {
+  const details = basket.map(b => {
+    const m = byName[b.appMenu];
+    if (!m) throw new Error('メニューマスタに無い：' + b.appMenu);
+    return { menuId: m.menuId, qty: b.qty };
+  });
+  return engine.calculate({ channel: 'web', workDate: '2026-' + pad(month) + '-15', details }, SHIPPED);
 }
 
 function appPrice(basket, month, autoDiscount) {
@@ -249,7 +273,7 @@ if (!adminNet || Number(adminNet[1]) !== NET_BENEFIT.amount) {
 /* --- 突き合わせ --- */
 
 console.log('\n予約フォーム vs 見積アプリ WEB経由見積タブ（すべて税込で比較）');
-console.log('「WEB経由」＝自動割引ONの場合。「通常見積」は改修前の料金のまま\n');
+console.log('納品時の設定そのもので比較（通常見積の自動割引はOFF、WEB経由はON）\n');
 console.log('  ' + 'ケース'.padEnd(26) + 'フォーム'.padStart(11) + 'WEB経由'.padStart(11)
   + '差額'.padStart(9) + '  通常見積'.padStart(12) + '  内訳');
 console.log('  ' + '-'.repeat(104));
@@ -262,7 +286,7 @@ CASES.forEach(c => {
   let f, same, normal;
   try {
     f = formPrice(basket, c.month);
-    same = appPrice(basket, c.month, true);
+    same = shippedPrice(basket, c.month);
     normal = normalPrice(basket, c.month);
   } catch (e) {
     console.log('  ' + c.label.padEnd(26) + '  スキップ：' + e.message);
@@ -307,10 +331,10 @@ if (gaps.length === 0 && mismatches.length === 0) {
   右端の「通常見積」列は改修前の料金そのまま。ここは今回一切変えていない。
   受注経路は見積レコードの「受注経路」列に残るので、あとから区別できる。
 
-  ■ 納品時の既定との差
-  自動割引は auto_discount_enabled = FALSE で納品するため、WEB経由タブでも
-  1箇所のみのご依頼はフォームより高く出る（早期予約割引が載らないため）。
-  2箇所以上は同時施工価格とネット申込特典が既定でONなので、既定のままでも一致する。
+  ■ 納品時の設定
+  auto_discount_enabled = FALSE（通常見積）／auto_discount_enabled_web = TRUE（WEB経由）。
+  この表は納品時の設定そのもので計算しているので、**デプロイした瞬間から9通り揃う**。
+  通常見積に自動割引が載らない点は変わらないので、電話・紹介のお客様の金額は動かない。
 `);
   console.log(`✅ 全 ${CASES.length} 通り一致\n`);
   process.exit(0);

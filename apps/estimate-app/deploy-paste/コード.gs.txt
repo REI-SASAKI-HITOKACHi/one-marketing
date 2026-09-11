@@ -95,6 +95,7 @@ const SETTING_ALIASES = {
   busy_surcharge_unit: '繁忙期加算単位',
   busy_surcharge_tax_included: '繁忙期加算_税込',
   auto_discount_enabled: '自動割引有効',
+  auto_discount_enabled_web: '自動割引有効_WEB経由',
   set_pricing_enabled: '同時施工価格有効',
   large_discount_alert_ratio: '大幅値引き警告率',
 
@@ -787,9 +788,13 @@ var CalcEngine = (function () {
     var netBenefitOn = isBlank(p.netBenefitManual) ? netInfo.available : parseBool(p.netBenefitManual);
     var netBenefitApplied = (netBenefitOn && netInfo.exists) ? netInfo.candidate : 0;
 
-    /* --- 自動割引 --- */
+    /* --- 自動割引。受注経路ごとに設定を分ける --- */
+    // 通常見積は現場への周知が済むまでOFF、WEB経由はフォームと金額を揃えるためON、
+    // という運び方ができるようにマスタの設定を2つに分けてある。
     var autoInfo = calcAutoDiscount(month, lines, ctx, setInfo.unitCount, web);
-    var autoEnabledBySetting = parseBool(ctx.autoDiscountEnabled);
+    var autoEnabledBySetting = web
+      ? (isBlank(ctx.autoDiscountEnabledWeb) ? parseBool(ctx.autoDiscountEnabled) : parseBool(ctx.autoDiscountEnabledWeb))
+      : parseBool(ctx.autoDiscountEnabled);
     var autoDefault = autoEnabledBySetting && autoInfo.available;
     var autoDiscountOn = isBlank(p.discountManual) ? autoDefault : parseBool(p.discountManual);
     var autoDiscountApplied = autoDiscountOn ? autoInfo.amount : 0;
@@ -1143,6 +1148,7 @@ function buildCalcContext_(ctx) {
     busySurchargeUnit: ctx.busySurchargeUnit,
     busySurchargeTaxIncluded: ctx.busySurchargeTaxIncluded,
     autoDiscountEnabled: ctx.autoDiscountEnabled,
+    autoDiscountEnabledWeb: ctx.autoDiscountEnabledWeb,
     setPricingEnabled: ctx.setPricingEnabled,
     largeDiscountRatio: ctx.largeDiscountRatio,
     netBenefit: ctx.netBenefit,
@@ -2023,6 +2029,7 @@ function buildContextFromSheets_() {
     busySurchargeUnit: String(settings['繁忙期加算単位'] || '数量ごと').trim(),
     busySurchargeTaxIncluded: parseBooleanLoose_(settings['繁忙期加算_税込']),
     autoDiscountEnabled: parseBooleanLoose_(settings['自動割引有効']),
+    autoDiscountEnabledWeb: parseBooleanLoose_(settings['自動割引有効_WEB経由']),
     setPricingEnabled: parseBooleanLoose_(settings['同時施工価格有効']),
     largeDiscountRatio: normalizeRate_(settings['大幅値引き警告率'] || 0.30) || 0.30,
     netBenefit: buildNetBenefit_(discountRules),
@@ -2139,6 +2146,8 @@ function applyDefaultSettingsValues_(s) {
   // 繁忙期加算 ¥3,300 は料金表が元から税込（オーナー確認済み・docs/price-master.md）
   if (isBlank_(s['繁忙期加算_税込'])) s['繁忙期加算_税込'] = 'TRUE';
   if (isBlank_(s['自動割引有効'])) s['自動割引有効'] = 'FALSE';
+  // WEB経由見積は予約フォームと金額を揃えるため既定でON（通常見積は上のFALSEのまま）
+  if (isBlank_(s['自動割引有効_WEB経由'])) s['自動割引有効_WEB経由'] = 'TRUE';
   // 同時施工価格は公開中の予約フォームと同じ金額を出すためのものなので既定でON
   if (isBlank_(s['同時施工価格有効'])) s['同時施工価格有効'] = 'TRUE';
   if (!s['大幅値引き警告率']) s['大幅値引き警告率'] = '0.30';
@@ -4164,14 +4173,20 @@ function adminDeployAll() {
   out.push('3. Webアプリを開いて動作確認する（受入テスト）');
   out.push('4. 問題なければ デプロイを管理 → 編集 → バージョン「新バージョン」→ デプロイ');
   out.push('');
-  out.push('※ 自動割引は auto_discount_enabled = FALSE で納品しています。');
-  out.push('   現場に周知してから TRUE にしてください。');
+  out.push('※ 画面の上に「通常見積 / WEB経由見積」のタブがあります。既定は通常見積。');
   out.push('');
-  out.push('※ 今回から、公開中の予約フォームと金額が揃います。');
-  out.push('   ・2箇所以上のご依頼は同時施工価格（浴室・キッチン・レンジフードなら1箇所目以外 ¥13,800）');
-  out.push('   ・繁忙期加算 ¥3,300 は税込として扱います（これまでは実質 ¥3,630 でした）');
-  out.push('   ・ネット申込特典 −¥2,200 は画面のボタンから足します（既定では付きません）');
-  out.push('   1箇所のみのご依頼だけは、auto_discount_enabled が FALSE の間フォームより高く出ます。'); 
+  out.push('■ 通常見積タブ（改修前と同じ。金額は1円も変わりません）');
+  out.push('   ・繁忙期加算 ¥3,300 は税抜として加算（従来どおり）');
+  out.push('   ・同時施工価格・ネット申込特典は使わない');
+  out.push('   ・自動割引は auto_discount_enabled = FALSE。現場に周知してから TRUE にしてください');
+  out.push('');
+  out.push('■ WEB経由見積タブ（公開中の予約フォームと同じ金額）');
+  out.push('   ・2箇所以上は同時施工価格（浴室・キッチン・レンジフードなら1箇所目以外 ¥13,800）');
+  out.push('   ・繁忙期加算 ¥3,300 は税込として扱う');
+  out.push('   ・ネット申込特典 −¥2,200 は2箇所以上で同時施工割引が付かないときだけ自動で付く');
+  out.push('   ・自動割引は auto_discount_enabled_web = TRUE（フォームと金額を揃えるため）');
+  out.push('');
+  out.push('※ どちらで作ったかは見積レコードの「受注経路」列に残ります。'); 
 
   const message = out.join('\n');
   console.log(message);
@@ -4271,6 +4286,7 @@ function upsertMissingSettings_(masterSs) {
 
   const defaults = [
     ['auto_discount_enabled', 'FALSE', '早期予約割引・複数台割引の自動判定を使うか', 'TRUEにすると自動で割引が載る。現場周知後に切り替えること'],
+    ['auto_discount_enabled_web', 'TRUE', 'WEB経由見積で早期予約割引・複数台割引を使うか', '予約フォームと金額を揃えるためON。通常見積は上の auto_discount_enabled（FALSE）が効く'],
     ['set_pricing_enabled', 'TRUE', '2箇所以上のとき同時施工価格を適用するか', '公開中の予約フォームと金額を揃えるための設定。OFFにするとフォームより高い見積が出る'],
     ['busy_surcharge_tax_included', 'TRUE', '繁忙期加算額が税込で書かれているか', 'TRUEなら課税対象に載せる前に税抜へ戻す。料金表の¥3,300は税込（オーナー確認済み）'],
     ['large_discount_alert_ratio', '0.30', '手動値引きが明細小計のこの割合以上なら警告', ''],
@@ -4627,7 +4643,8 @@ function adminDiagnose() {
 
   add('');
   add('■ 自動割引の設定');
-  add('  auto_discount_enabled： ' + (parseBooleanLoose_(settings['自動割引有効']) ? 'TRUE（自動で割引が載ります）' : 'FALSE（自動割引は載りません）'));
+  add('  auto_discount_enabled　　： ' + (parseBooleanLoose_(settings['自動割引有効']) ? 'TRUE（通常見積に自動で割引が載ります）' : 'FALSE（通常見積に自動割引は載りません）'));
+  add('  auto_discount_enabled_web： ' + (parseBooleanLoose_(settings['自動割引有効_WEB経由']) ? 'TRUE（WEB経由見積に自動で割引が載ります）' : 'FALSE（WEB経由見積に自動割引は載りません）'));
   add('  set_pricing_enabled　： ' + (parseBooleanLoose_(settings['同時施工価格有効']) ? 'TRUE（2箇所以上で同時施工価格を適用）' : 'FALSE（同時施工価格は適用しません）'));
   add('  税率　　　　　　　　： ' + normalizeRate_(settings['税率']));
   add('  繁忙期加算　　　　　： ' + settings['繁忙期加算額'] + ' / ' + settings['繁忙期加算単位']
@@ -4648,9 +4665,9 @@ function adminDiagnose() {
   const net = buildNetBenefit_(rules);
   add('  ネット申込特典　　　： ' + (net ? net.amount + '円（税込・既定では付けません）' : '未登録'));
 
-  if (!parseBooleanLoose_(settings['自動割引有効'])) {
-    add('  ⚠ 1箇所のみのご依頼では、予約フォームが早期予約割引を載せるのに対し、見積アプリは載せません。');
-    add('    金額を揃えるなら auto_discount_enabled を TRUE にしてください（オーナー判断）。');
+  if (!parseBooleanLoose_(settings['自動割引有効_WEB経由'])) {
+    add('  ⚠ WEB経由見積の1箇所のみのご依頼で、予約フォームより高い見積が出ます。');
+    add('    金額を揃えるなら auto_discount_enabled_web を TRUE にしてください。');
   }
 
   add('');

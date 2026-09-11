@@ -1,5 +1,6 @@
 設定キー	設定値	説明	備考_現場入力
 auto_discount_enabled	FALSE	早期予約割引・複数台割引の自動判定を使うか	TRUEにすると自動で割引が載る。現場周知後に切り替えること
+auto_discount_enabled_web	TRUE	WEB経由見積で早期予約割引・複数台割引を使うか	予約フォームと金額を揃えるためON。通常見積は auto_discount_enabled（FALSE）が効く
 set_pricing_enabled	TRUE	2箇所以上のとき同時施工価格を適用するか	公開中の予約フォームと金額を揃えるための設定。OFFにするとフォームより高い見積が出る
 busy_surcharge_tax_included	TRUE	繁忙期加算額が税込で書かれているか	TRUEなら課税対象に載せる前に税抜へ戻す。料金表の¥3,300は税込（オーナー確認済み）
 large_discount_alert_ratio	0.30	手動値引きが明細小計のこの割合以上なら警告を出す	
