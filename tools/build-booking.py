@@ -347,8 +347,10 @@ TEMPLATE = r"""<!doctype html>
 <footer>
   <div class="wrap">
     <b>ワンヒッター株式会社（ONE HITTER）</b>
-    <p>対応エリア：東京都・千葉県・神奈川県<br>受付 8:00–20:00　<a href="tel:{{TEL}}">{{TEL}}</a></p>
+    <p>〒134-0081 東京都江戸川区北葛西5-14-11　代表取締役 佐々木 沙樹<br>対応エリア：東京都・千葉県・神奈川県<br>受付 8:00–20:00　<a href="tel:{{TEL}}">{{TEL}}</a></p>
     <p>表示価格はすべて税込です。お見積り以上の追加請求はいたしません。</p>
+    <p>このページはワンヒッター株式会社が運営する予約受付ページです。ご入力いただいた内容は、ご予約の確認と施工のご連絡にのみ使います。<br>
+    <a href="https://one-hitter.jp/" rel="noopener">公式サイト</a>　／　<a href="https://one-hitter.jp/privacy_policy/" rel="noopener">個人情報の取扱い</a>　／　<a href="https://one-hitter.jp/greeting/" rel="noopener">代表あいさつ</a></p>
   </div>
 </footer>
 

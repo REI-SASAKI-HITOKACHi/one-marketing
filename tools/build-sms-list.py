@@ -29,6 +29,7 @@
 使い方: python3 tools/build-sms-list.py
 """
 import importlib.util
+import os
 import datetime
 import json
 import re
@@ -60,7 +61,9 @@ TAB = '冬季見込み客_2026'
 #   前者は申込フォームが動いていなかった（POSTが404、遷移先のthanksも404）。
 #   お客様が申し込めないページへ送るところだった。実測で確認済み。
 MOUSHIKOMI = 'https://one-hitter-lp.netlify.app/nenmatsu/?src=sms#form'
-YOYAKU_FORM = 'https://one-hitter-booking.netlify.app/?src=sms'
+# 2026-09-12：one-hitter-booking.netlify.app が Google セーフブラウジングに判定され
+#   Chrome でフィッシング警告が出たため、新ホストへ移した（変更36）。
+YOYAKU_FORM = 'https://onehitter-yoyaku.netlify.app/?src=sms'
 
 # 予約フォームが「予約を受け付けられる状態か」を、本番ページを見て確かめる。
 # Apps Script の /exec URL が未設定（api が空）のあいだは、
@@ -431,7 +434,7 @@ SHIRANAI = set()   # ひな形に出てきた、知らない差し込みの目�
 # 「送るタップで開かないから手打ちで送るねー」）。
 #
 # そこで https のページを1枚はさんで、そこから sms: を開く。
-SMS_PAGE = 'https://one-hitter-booking.netlify.app/s.html'
+SMS_PAGE = 'https://onehitter-yoyaku.netlify.app/s.html'
 
 
 def sms_link(num, text):
@@ -589,8 +592,11 @@ test_gyou = ['テスト', '【実機テスト】自分あて', "'" + TEST_TEL,
              '', TEST_HONBUN, '', '9/9', 'テスト',
              'D列が効くかを確かめるための行。消して構いません', '', '', '',
              '', '', '', '', '', '', '', '', '', '', '', '']
-atarashii.insert(0, test_gyou[:len(ATAMA)])
-RINKU.insert(0, sms_link(TEST_TEL, TEST_HONBUN))
+# 2026-09-12：テスト行は「送信可」の先頭に残って1件目に当たるので、既定では入れない。
+#   実機テストが要るときだけ SMS_TEST_ROW=1 を付けて実行する。
+if os.environ.get('SMS_TEST_ROW') == '1':
+    atarashii.insert(0, test_gyou[:len(ATAMA)])
+    RINKU.insert(0, sms_link(TEST_TEL, TEST_HONBUN))
 
 def shuukei():
     print()

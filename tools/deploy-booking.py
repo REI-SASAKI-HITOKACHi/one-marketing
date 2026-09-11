@@ -26,8 +26,13 @@ SRC = ROOT / "lp" / "booking"
 API = "https://api.netlify.com/api/v1"
 
 # 予約フォームのサイト。ここを書き換えないこと（LPサイトと取り違えないため）
-SITE_ID = "83984fb0-5839-421b-bb99-63c8aff47fb9"
-SITE_NAME = "one-hitter-booking"
+# 2026-09-12：旧ホスト one-hitter-booking.netlify.app が Google セーフブラウジングに
+# 「安全でない」と判定された（お客様から Chrome の警告の報告）ため、新ホストへ移した。
+# 旧サイトにも同じ内容を配信し続ける（送信済みSMSのリンク先として残す）：--old を付ける。
+SITE_ID = "39408b76-e5d0-46f4-bee8-418ef6cfb36a"
+SITE_NAME = "onehitter-yoyaku"
+OLD_SITE_ID = "83984fb0-5839-421b-bb99-63c8aff47fb9"
+OLD_SITE_NAME = "one-hitter-booking"
 TOKEN_KITEI = os.path.expanduser("~/.config/one-hitter/netlify-token.txt")
 
 
@@ -73,7 +78,12 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--notify", action="append", default=[])
+    ap.add_argument("--old", action="store_true",
+                    help="旧ホスト one-hitter-booking.netlify.app にも同じ内容を配信する（送信済みSMSのリンク先）")
     a = ap.parse_args()
+    global SITE_ID, SITE_NAME
+    if a.old:
+        SITE_ID, SITE_NAME = OLD_SITE_ID, OLD_SITE_NAME
 
     if not SRC.exists():
         sys.exit(f"{SRC} がありません。先に python3 tools/build-booking.py を実行してください。")

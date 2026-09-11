@@ -34,7 +34,8 @@ spec.loader.exec_module(sc)
 
 SS = '1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64'
 TAB = '予約_Web'
-SITE_ID = '83984fb0-5839-421b-bb99-63c8aff47fb9'
+SITE_IDS = ['39408b76-e5d0-46f4-bee8-418ef6cfb36a',   # onehitter-yoyaku（2026-09-12〜）
+            '83984fb0-5839-421b-bb99-63c8aff47fb9']   # one-hitter-booking（旧。送信済みSMSのリンク先）
 TOKEN_KITEI = os.path.expanduser('~/.config/one-hitter/netlify-token.txt')
 JST = ZoneInfo('Asia/Tokyo')
 
@@ -69,10 +70,14 @@ def main() -> None:
     ap.add_argument('--no-line', action='store_true')
     a = ap.parse_args()
 
-    forms = [f for f in netlify(f'/sites/{SITE_ID}/forms') if f['name'] == 'yoyaku']
+    forms = []
+    for sid in SITE_IDS:
+        forms += [f for f in netlify(f'/sites/{sid}/forms') if f['name'] == 'yoyaku']
     if not forms:
         sys.exit('yoyaku フォームが見つかりません。フォームの登録を確認してください。')
-    subs = netlify(f"/forms/{forms[0]['id']}/submissions")
+    subs = []
+    for f in forms:
+        subs += netlify(f"/forms/{f['id']}/submissions")
     print(f'Netlifyに届いている申し込み: {len(subs)}件')
 
     tok = sc.access_token(sc.load_credentials())
