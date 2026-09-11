@@ -13,3 +13,6 @@ __pycache__/
 
 # 一時作業ファイル（顧客の個人情報を含むためコミットしない）
 scratch-*.json
+
+# 顧客の電話番号を含む控えは git に入れない（2026-09-11。~/.cache/one-hitter/backup/ に置く）
+data/backup/*.json
