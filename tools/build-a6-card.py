@@ -1,25 +1,21 @@
 #!/usr/bin/env python3
-"""読本（一般向けの読み物）への入口になる A6 カードを、印刷入稿できる形で作る。
+"""読本への入口になる A6 カード（v2）。産院の待合・ペットショップのレジ横に置く1枚。
 
-産院・小児科・ペットショップ・動物病院などの受付に置いてもらう1枚。
-QR を読むと読本サイト（DOKUHON_URL）が開く。カードは読み物への入口であって、広告ではない。
+v1 は「デザインが悪い・シチュエーションを想定していない」と差し戻し（2026-09-11）。
+設計は docs/読本-設計メモ.md：待合のパステル色の紙の中で目立つのは、白地に黒の大きな明朝。色を使わない。
+施設が普通紙に自分で印刷しても成立するよう、ベタ塗りをしない。
 
-方針（ここを外すと施設に置いてもらえなくなる）:
-  - 子どもやペットの画像は使わない。文字と QR だけ。
-  - 「掃除しませんか」の類の売り込み文言を入れない。読むだけ・無料であることだけを言う。
-  - 電話番号は UNEI_TEL（ワンヒッターの番号）以外を絶対に印字しない。
-  - どの施設に置いたカードから読まれたかを知るため、QR の URL に ?src=<施設ID> を入れる。
-    施設IDは裏面の隅にも小さく刷る（どのカードがどこのものかを現物で確認できるように）。
+  表：数字1つ（読本の冒頭と同じ）＋1文。QRは下1/4。「読むだけ・無料」は小さく
+  裏：読本の題名、URL（QRが読めない人用）、出典、運営者、施設ID
+
+見出しは2案（A 数字型／B 問い型）。オーナーが選ぶ。
+文言は tools/dokuhon_content.py の CARD から取る（読本の冒頭と同じ数字・同じ出典にするため）。
 
 使い方:
-  python3 tools/build-a6-card.py                          # 両案・施設ID=card
-  python3 tools/build-a6-card.py --src sanin01 --variant akachan
-  python3 tools/build-a6-card.py --bleed                  # 3mm の塗り足し付き（印刷所入稿用）
-  出力: dist/dokuhon/card-<案>-<施設ID>-front.png / -back.png / card-<案>-<施設ID>.pdf
-        （dist/ は .gitignore 済み）
-
-A6 = 105×148mm。300dpi で 1240×1748px。PDF は Pillow の PDF 保存（2ページ：表・裏）。
-フォントは IPA Pゴシック（この環境に明朝が無いので、ゴシックのみ）。
+  python3 tools/build-a6-card.py                       # 全案・施設ID=card
+  python3 tools/build-a6-card.py --src F7K2QX --variant akachan --headline A
+  python3 tools/build-a6-card.py --bleed               # 3mm 塗り足し（印刷所入稿）
+  出力: dist/dokuhon/card-<案>-<見出し>-<施設ID>-{front,back}.png と .pdf
 """
 import argparse
 import pathlib
@@ -30,214 +26,193 @@ from PIL import Image, ImageDraw, ImageFont
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from media_common import DOKUHON_URL, UNEI, UNEI_ADDR, UNEI_TEL  # noqa: E402
+import dokuhon_content as K  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "dist" / "dokuhon"
-FONT = "/usr/share/fonts/opentype/ipafont-gothic/ipagp.ttf"
+FONTS = ROOT / "assets" / "fonts"
+MINCHO = FONTS / "ShipporiMinchoB1-800.ttf"
+MINCHO_B = FONTS / "ShipporiMinchoB1-700.ttf"
+GOTHIC = FONTS / "ZenKakuGothicNew-500.ttf"
+GOTHIC_R = FONTS / "ZenKakuGothicNew-400.ttf"
 
 DPI = 300
 A6_MM = (105, 148)
 BLEED_MM = 3
-QR_MM = 34
 MARGIN_MM = 9
+QR_MM = 30
 
-# サイトの配色（lp/media と同じ）
-GROUND = (0xFA, 0xF7, 0xF2)
-INK = (0x14, 0x32, 0x3D)
-ACCENT = (0x0E, 0x7C, 0x93)
-CTA = (0xC4, 0x46, 0x1D)   # カードでは使わない（売り込み色を避ける）。定義だけ揃えておく
-MUTED = (0x5A, 0x6B, 0x72)
-
-# 見出しの \n は改行の指定。字数で自動折り返しすると「エ／アコン」のように語の途中で切れるので、読点と文節で切る
-VARIANTS = {
-    "akachan": {
-        "headline": "赤ちゃんが来る前に、\nエアコンの中を\n見たことがありますか。",
-        "sub": "江戸川区のハウスクリーニング店が、写真で全部お見せします（読むだけ・無料）",
-        "path": "/akachan/",
-        "dokuhon": "読本：赤ちゃんが来る前に知っておきたい、家の中の見えない汚れ",
-    },
-    "pet": {
-        "headline": "この子が来る前に、\nエアコンの中を\n見たことがありますか。",
-        "sub": "江戸川区のハウスクリーニング店が、写真で全部お見せします（読むだけ・無料）",
-        "path": "/pet/",
-        "dokuhon": "読本：この子が来る前に知っておきたい、家の中の見えない汚れ",
-    },
-}
-
-BACK_TITLE = "このカードについて"
-BACK_BODY = (
-    "この読み物は、江戸川区北葛西のハウスクリーニング店 ワンヒッター株式会社 が作りました。"
-    "エアコンや浴室の中に、目に見えないまま何が溜まっているかを、"
-    "現場の写真と東京都の調査の数字でお話しします。"
-)
-BACK_NOTE = "読み物の末尾に、当社のクリーニングと無料点検のご案内があります。"
-QR_CAPTION = "スマホのカメラで読み取ってください"
+PAPER = (255, 255, 255)
+INK = (0x17, 0x1A, 0x1C)
+INK2 = (0x4A, 0x50, 0x54)
+INK3 = (0x7C, 0x83, 0x88)
+ACCENT = (0x0E, 0x6E, 0x82)
 
 
 def mm(v: float) -> int:
     return round(v * DPI / 25.4)
 
 
-def font(size):
-    return ImageFont.truetype(FONT, size)
+def font(path: pathlib.Path, size: int) -> ImageFont.FreeTypeFont:
+    if not path.exists():
+        sys.exit(f"フォントがありません: {path}（python3 tools/fetch-fonts.py）")
+    return ImageFont.truetype(str(path), size)
 
 
-def wrap(text, f, max_w):
-    """日本語は単語で切れないので、1文字ずつ幅を測って折り返す（build-shorts.py と同じ）"""
-    lines, cur = [], ""
-    for ch in text:
-        if ch == "\n":
-            lines.append(cur); cur = ""; continue
-        if f.getlength(cur + ch) > max_w and cur:
-            lines.append(cur); cur = ch
-        else:
-            cur += ch
-    if cur:
-        lines.append(cur)
-    return lines
+def wrap(text: str, f: ImageFont.FreeTypeFont, width: int) -> list:
+    """字数ではなく描画幅で折り返す。\\n は強制改行。行頭に句読点・閉じ括弧が来ないようにする"""
+    out = []
+    for para in text.split("\n"):
+        line = ""
+        for ch in para:
+            if f.getlength(line + ch) <= width or not line:
+                line += ch
+            else:
+                if ch in "、。」）":
+                    line += ch
+                    continue
+                out.append(line)
+                line = ch
+        out.append(line)
+    return out
 
 
-def draw_block(d, text, size, x, y, max_w, color=INK, line_gap=1.5, align="left"):
-    """折り返して描き、次の y を返す"""
-    f = font(size)
-    lh = int(size * line_gap)
-    for i, ln in enumerate(wrap(text, f, max_w)):
-        xx = x + (max_w - f.getlength(ln)) if align == "right" else x
-        d.text((xx, y + i * lh), ln, font=f, fill=color)
-    return y + len(wrap(text, f, max_w)) * lh
-
-
-def fit_headline(text, max_w, max_h, start=104, floor=56, max_lines=3):
-    """見出しは 3 行以内・枠内に収まる最大の文字サイズを探す（案ごとに字数が違うため）"""
-    size = start
-    while size > floor:
-        f = font(size)
-        lines = wrap(text, f, max_w)
-        lh = int(size * 1.4)
-        if len(lines) <= max_lines and len(lines) * lh <= max_h:
-            return size, lines, lh
-        size -= 4
-    f = font(floor)
-    return floor, wrap(text, f, max_w), int(floor * 1.4)
-
-
-def qr_url(variant: str, src: str) -> str:
-    return f"{DOKUHON_URL}{VARIANTS[variant]['path']}?src={src}"
-
-
-def qr_image(url: str, px: int) -> Image.Image:
-    """紙は汚れる・折れるので誤り訂正は H。ドットがぼけないよう NEAREST で目標サイズに揃える"""
-    q = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=2)
-    q.add_data(url)
-    q.make(fit=True)
-    im = q.make_image(fill_color=INK, back_color="white").convert("RGB")
-    return im.resize((px, px), Image.NEAREST)
-
-
-def new_page(bleed: bool):
-    """A6 の紙面。--bleed のときは四辺 3mm 広い紙面を作り、描画原点をその分ずらす"""
-    b = mm(BLEED_MM) if bleed else 0
-    w, h = mm(A6_MM[0]) + 2 * b, mm(A6_MM[1]) + 2 * b
-    img = Image.new("RGB", (w, h), GROUND)
-    return img, b
-
-
-def front_image(variant: str, src: str = "card", bleed: bool = False) -> Image.Image:
-    v = VARIANTS[variant]
-    img, b = new_page(bleed)
-    d = ImageDraw.Draw(img)
-    pw, ph = mm(A6_MM[0]), mm(A6_MM[1])
-    m = mm(MARGIN_MM)
-    x0, x1 = b + m, b + pw - m
-    cw = x1 - x0
-
-    # 上 55%：見出し
-    head_area_h = int(ph * 0.55) - m - mm(6)
-    size, lines, lh = fit_headline(v["headline"], cw, head_area_h)
-    y = b + m + mm(4)
-    f = font(size)
+def draw_lines(d: ImageDraw.ImageDraw, x: int, y: int, lines: list, f: ImageFont.FreeTypeFont, fill, lh: float, spacing: float = 0) -> int:
     for ln in lines:
-        d.text((x0, y), ln, font=f, fill=INK)
-        y += lh
-
-    # 細い罫線（アクセント色）
-    y = b + int(ph * 0.55)
-    d.rectangle((x0, y, x1, y + mm(0.6)), fill=ACCENT)
-    y += mm(5)
-
-    # サブ
-    y = draw_block(d, v["sub"], 40, x0, y, cw, color=INK, line_gap=1.55)
-
-    # 下：QR（左）と読み取り案内（右）
-    qpx = mm(QR_MM)
-    qy = b + ph - m - qpx
-    qr = qr_image(qr_url(variant, src), qpx)
-    img.paste(qr, (x0, qy))
-    tx = x0 + qpx + mm(4)
-    tw = x1 - tx
-    ty = qy + mm(3)
-    ty = draw_block(d, QR_CAPTION, 38, tx, ty, tw, color=INK, line_gap=1.45)
-    ty += mm(3)
-    draw_block(d, v["dokuhon"], 28, tx, ty, tw, color=MUTED, line_gap=1.5)
-    return img
+        d.text((x, y), ln, font=f, fill=fill)
+        y += round(f.size * lh)
+    return y
 
 
-def back_image(variant: str, src: str = "card", bleed: bool = False) -> Image.Image:
-    img, b = new_page(bleed)
-    d = ImageDraw.Draw(img)
-    pw, ph = mm(A6_MM[0]), mm(A6_MM[1])
+def canvas(bleed: bool):
+    w, h = mm(A6_MM[0]), mm(A6_MM[1])
+    b = mm(BLEED_MM) if bleed else 0
+    im = Image.new("RGB", (w + 2 * b, h + 2 * b), PAPER)
+    return im, b, w, h
+
+
+def front(variant: str, headline: str, src: str, bleed: bool) -> Image.Image:
+    im, b, w, h = canvas(bleed)
+    d = ImageDraw.Draw(im)
     m = mm(MARGIN_MM)
-    x0, x1 = b + m, b + pw - m
+    x0, x1 = b + m, b + w - m
     cw = x1 - x0
+    card = K.CARD[variant]
+    url = f"{DOKUHON_URL}{card['path']}?src={src}"
 
-    y = b + m + mm(4)
-    y = draw_block(d, BACK_TITLE, 60, x0, y, cw, color=INK, line_gap=1.3)
+    y = b + mm(11)
+    if headline == "A":
+        # 数字型：数字＋単位が幅に収まる最大サイズ（上限22mm）。その下に1文、出典
+        num, unit = card["num"], card["unit"]
+        size = mm(22)
+        while size > mm(10):
+            fn, fu = font(MINCHO, size), font(MINCHO, round(size * 0.42))
+            if fn.getlength(num) + mm(1.5) + fu.getlength(unit) <= cw:
+                break
+            size -= mm(0.5)
+        d.text((x0, y), num, font=fn, fill=INK)
+        base = y + size  # ベースライン付近に単位をそろえる
+        d.text((x0 + fn.getlength(num) + mm(1.5), base - round(size * 0.42) - mm(0.6)), unit, font=fu, fill=INK)
+        y += round(size * 1.18) + mm(4)
+        fl = font(MINCHO_B, mm(5.2))
+        y = draw_lines(d, x0, y, wrap(card["line"], fl, cw), fl, INK, 1.7)
+        fs = font(GOTHIC_R, mm(2.6))
+        y += mm(2.5)
+        y = draw_lines(d, x0, y, wrap(card["num_src"], fs, cw), fs, INK3, 1.5)
+    else:
+        # 問い型：\n の位置で切り、いちばん長い行が幅に収まる最大サイズ（上限9.5mm）
+        segs = card["question"].split("\n")
+        size = mm(9.5)
+        while size > mm(5):
+            fq = font(MINCHO_B, size)
+            if max(fq.getlength(t) for t in segs) <= cw:
+                break
+            size -= mm(0.25)
+        y += mm(4)
+        y = draw_lines(d, x0, y, segs, fq, INK, 1.55)
+
+    # 下段：QR＋読み物の題名。上段との間に細い罫
+    qy = b + h - m - mm(QR_MM)
+    d.line([(x0, qy - mm(6)), (x1, qy - mm(6))], fill=INK, width=mm(0.25))
+    qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_M, border=0, box_size=10)
+    qr.add_data(url)
+    qr.make(fit=True)
+    qim = qr.make_image(fill_color=INK, back_color=PAPER).convert("RGB").resize((mm(QR_MM), mm(QR_MM)), Image.NEAREST)
+    im.paste(qim, (x0, qy))
+    tx = x0 + mm(QR_MM) + mm(5)
+    ft = font(MINCHO_B, mm(4.2))
+    ty = qy + mm(1)
+    ty = draw_lines(d, tx, ty, wrap(card["title"], ft, x1 - tx), ft, INK, 1.5)
+    fs = font(GOTHIC, mm(3.1))
+    ty += mm(2.5)
+    ty = draw_lines(d, tx, ty, wrap("スマホのカメラをかざすと開きます。読むだけ・無料。3分。", fs, x1 - tx), fs, INK2, 1.6)
+    return im
+
+
+def back(variant: str, src: str, bleed: bool) -> Image.Image:
+    im, b, w, h = canvas(bleed)
+    d = ImageDraw.Draw(im)
+    m = mm(MARGIN_MM)
+    x0, x1 = b + m, b + w - m
+    cw = x1 - x0
+    card = K.CARD[variant]
+    url = f"{DOKUHON_URL}{card['path']}"
+
+    y = b + mm(12)
+    ft = font(MINCHO_B, mm(5.4))
+    y = draw_lines(d, x0, y, wrap(card["title"], ft, cw), ft, INK, 1.55)
     y += mm(2)
-    d.rectangle((x0, y, x0 + mm(18), y + mm(0.6)), fill=ACCENT)
-    y += mm(7)
-    y = draw_block(d, BACK_BODY, 40, x0, y, cw, color=INK, line_gap=1.7)
+    fb = font(GOTHIC_R, mm(3.4))
+    y = draw_lines(d, x0, y, wrap(card["back"], fb, cw), fb, INK2, 1.75)
+    y += mm(5)
+    fh = font(GOTHIC, mm(3.0))
+    y = draw_lines(d, x0, y, ["目次"], fh, INK3, 1.6)
+    fc = font(MINCHO_B, mm(3.6))
+    y = draw_lines(d, x0, y, card["toc"], fc, INK, 1.8)
+    y += mm(4)
+    d.line([(x0, y), (x0 + mm(14), y)], fill=ACCENT, width=mm(0.35))
+    y += mm(4)
+    fs = font(GOTHIC_R, mm(2.9))
+    y = draw_lines(d, x0, y, wrap("QRが読めないときは、このアドレスを開いてください。", fs, cw), fs, INK3, 1.6)
+    fu = font(GOTHIC, mm(3.2))
+    y = draw_lines(d, x0, y, [url.replace("https://", "")], fu, INK, 1.6)
 
-    # 小さい文字：運営情報と案内。電話番号は UNEI_TEL のみ
-    sy = b + ph - m - mm(28)
-    sy = draw_block(d, f"運営：{UNEI}", 30, x0, sy, cw, color=INK, line_gap=1.6)
-    sy = draw_block(d, UNEI_ADDR, 30, x0, sy, cw, color=INK, line_gap=1.6)
-    sy = draw_block(d, UNEI_TEL, 30, x0, sy, cw, color=INK, line_gap=1.6)
-    sy += mm(2)
-    draw_block(d, BACK_NOTE, 30, x0, sy, cw, color=MUTED, line_gap=1.6)
-
-    # 施設ID（既定の card のときは刷らない）
+    # 奥付
+    fy = b + h - m - mm(16)
+    fz = font(GOTHIC_R, mm(2.8))
+    lines = [f"書いたのは {UNEI}（ハウスクリーニング）", UNEI_ADDR, f"電話 {UNEI_TEL}", "読み物の末尾に、当社のクリーニングと無料点検のご案内があります。"]
+    fy = draw_lines(d, x0, fy, lines, fz, INK3, 1.55)
     if src != "card":
-        f = font(22)
-        t = f"設置施設ID：{src}"
-        d.text((x1 - f.getlength(t), b + ph - mm(5) - 22), t, font=f, fill=MUTED)
-    return img
+        fid = font(GOTHIC_R, mm(2.4))
+        t = f"設置施設ID {src}"
+        d.text((x1 - fid.getlength(t), b + h - m - mm(1.5)), t, font=fid, fill=INK3)
+    return im
 
 
-def build(variant: str, src: str = "card", bleed: bool = False) -> list:
+def build(variant: str, headline: str, src: str, bleed: bool) -> list:
     OUT.mkdir(parents=True, exist_ok=True)
-    front = front_image(variant, src, bleed)
-    back = back_image(variant, src, bleed)
-    stem = f"card-{variant}-{src}"
-    paths = [OUT / f"{stem}-front.png", OUT / f"{stem}-back.png", OUT / f"{stem}.pdf"]
-    front.save(paths[0], dpi=(DPI, DPI))
-    back.save(paths[1], dpi=(DPI, DPI))
-    front.save(paths[2], "PDF", resolution=DPI, save_all=True, append_images=[back])
-    return paths
+    f = front(variant, headline, src, bleed)
+    bk = back(variant, src, bleed)
+    stem = f"card-{variant}-{headline}-{src}"
+    f.save(OUT / f"{stem}-front.png")
+    bk.save(OUT / f"{stem}-back.png")
+    f.save(OUT / f"{stem}.pdf", "PDF", resolution=DPI, save_all=True, append_images=[bk])
+    return [OUT / f"{stem}-front.png", OUT / f"{stem}-back.png", OUT / f"{stem}.pdf"]
 
 
 def main():
-    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--src", default="card", help="設置施設ID（QR の ?src= と裏面に入る）")
-    ap.add_argument("--variant", default="all", choices=["all", *VARIANTS])
-    ap.add_argument("--bleed", action="store_true", help="四辺 3mm の塗り足しを付ける")
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--src", default="card")
+    ap.add_argument("--variant", default="all", choices=["all", *K.CARD.keys()])
+    ap.add_argument("--headline", default="all", choices=["all", "A", "B"])
+    ap.add_argument("--bleed", action="store_true")
     a = ap.parse_args()
-    if not all(c.isalnum() or c in "-_" for c in a.src):
-        sys.exit("--src は英数字と - _ だけにしてください（URL とファイル名に使うため）")
-    variants = list(VARIANTS) if a.variant == "all" else [a.variant]
-    for v in variants:
-        for p in build(v, a.src, a.bleed):
-            print(f"{p.relative_to(ROOT)}  {p.stat().st_size / 1e3:.0f}KB")
-        print(f"  QR → {qr_url(v, a.src)}")
+    vs = list(K.CARD) if a.variant == "all" else [a.variant]
+    hs = ["A", "B"] if a.headline == "all" else [a.headline]
+    for v in vs:
+        for hl in hs:
+            for p in build(v, hl, a.src, a.bleed):
+                print("書き出し:", p.relative_to(ROOT))
 
 
 if __name__ == "__main__":
