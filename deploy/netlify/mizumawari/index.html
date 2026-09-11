@@ -22,13 +22,16 @@
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
+<!-- ONE HITTER 計測タグ -->
 <script>window.OH_M={"page":{"kind":"lp","lp_id":"mizumawari","lp_variant":"A"},"google_ads":{"conversion_id":"","labels":{"generate_lead":"","phone_click":"","line_click":""},"phone_conversion_label":""},"debug":false};</script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-DLJCTKGTDN"></script>
 <script>
 window.dataLayer=window.dataLayer||[];
 function gtag(){dataLayer.push(arguments);}
 gtag('js',new Date());
-gtag('config','G-DLJCTKGTDN',{'lp_id':'mizumawari','lp_variant':'A'});
+var oh_src=new URLSearchParams(location.search).get('src')||'direct';
+var oh_cid=new URLSearchParams(location.search).get('cid')||'';
+gtag('config','G-DLJCTKGTDN',{'lp_id':'mizumawari','lp_variant':'A','traffic_src':oh_src,'traffic_cid':oh_cid});
 </script>
 </head>
 <body>
@@ -930,6 +933,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
       <input type="hidden" name="form-name" value="reserve-mizumawari">
       <input type="hidden" name="subject" value="【LP予約】水まわりセット">
       <input type="hidden" name="lp" value="mizumawari">
+      <input type="hidden" name="order_id" value="">
       <div class="hp" aria-hidden="true">
         <label for="f-x">この欄には入力しないでください</label>
         <input id="f-x" name="x_field" type="text" tabindex="-1" autocomplete="off">
@@ -1151,12 +1155,22 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
   // Metaの標準イベント名への読み替え
   var META_MAP = { generate_lead: 'Lead', phone_click: 'Contact', line_click: 'Contact' };
 
+  // 流入元（?src= / ?cid=）。QR・SMS・施設カードなど、どこから来たかの目印。
+  // head 側の gtag('config') にも同じ値を載せてあるので page_view にも付くが、
+  // 個々のイベントにも付けておくと、GA4で「この施設からの電話クリック」まで割れる。
+  var Q = null;
+  try { Q = new URLSearchParams(location.search); } catch (e) { Q = null; }
+  var SRC = (Q && Q.get('src')) || 'direct';
+  var CID = (Q && Q.get('cid')) || '';
+
   function send(name, params) {
     var p = params || {};
     // どのLPのどのパターンかは、全イベントに必ず付ける
     p.lp_id = PAGE.lp_id;
     p.lp_variant = PAGE.lp_variant;
     p.page_kind = PAGE.kind;
+    p.traffic_src = SRC;
+    if (CID) p.traffic_cid = CID;
 
     log(name, p);
 
@@ -1500,6 +1514,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
 
   log('計測スクリプト読み込み完了', PAGE, 'gtag=' + (typeof window.gtag === 'function'));
 })();
-</script>
+</script><script>(function(){function mkid(){var d=new Date();var p=function(n){return(n<10?'0':'')+n;};var r='';var c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';for(var i=0;i<4;i++){r+=c.charAt(Math.floor(Math.random()*c.length));}return 'OH-'+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-mizumawari-'+r;}
+var f=document.querySelector('form.form');if(!f)return;f.addEventListener('submit',function(){var id=mkid();var h=f.querySelector('input[name="order_id"]');if(h){h.value=id;}try{sessionStorage.setItem('oh_order_id',id);}catch(e){}},true);})();</script><!-- ONE HITTER 計測タグ --><script>(function(){var cb=function(){};var s=document.createElement('script');s.type='text/javascript';s.src='https://www.rentracks.jp/js/itp/rt.track.js?t='+(new Date()).getTime();if(s.readyState){s.onreadystatechange=function(){if(s.readyState==='loaded'||s.readyState==='complete'){s.onreadystatechange=null;cb();}};}else{s.onload=function(){cb();};}document.getElementsByTagName('head')[0].appendChild(s);})();</script>
 </body>
 </html>

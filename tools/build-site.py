@@ -157,6 +157,7 @@ FORM_NETLIFY = """<form class="form" name="reserve-{dir}" method="post"
       <input type="hidden" name="form-name" value="reserve-{dir}">
       <input type="hidden" name="subject" value="【LP予約】{label}">
       <input type="hidden" name="lp" value="{dir}">
+      <input type="hidden" name="order_id" value="">
       <div class="hp" aria-hidden="true">
         <label for="f-x">この欄には入力しないでください</label>
         <input id="f-x" name="x_field" type="text" tabindex="-1" autocomplete="off">
@@ -164,6 +165,10 @@ FORM_NETLIFY = """<form class="form" name="reserve-{dir}" method="post"
 
 # 計測タグの差し込み口。HEAD の中にあるこの目印を、実物のタグに置き換える。
 TRACKING_SLOT = "<!-- ASP・広告計測タグはこの下に貼ってください -->"
+
+# 差し込んだ計測タグの先頭に置く目印。inject-tracking.py が
+# 「前に入れた分」を見分けて入れ替えるのに使う。社内のパスは書かない。
+TRACKING_MARK = "<!-- ONE HITTER 計測タグ -->"
 
 
 def load_measurement() -> dict:
@@ -221,7 +226,12 @@ def tracking_head(cfg: dict, page: dict, tel: str = "") -> str:
 
     # 設定は tracking/measurement.json、設計は docs/measurement-spec.md。
     # 内部のファイル名を公開ページのソースに出さないため、注記はここに置いてHTMLには入れない
-    out = []
+    # （LP担当の判断。2026-09-10）。
+    #
+    # ただし目印そのものは要る。tools/inject-tracking.py が「前に入れた分」を
+    # 見分けるのに使っており、目印が無いと二重に差し込まれる（実際にそうなった）。
+    # パスを含まない1語だけの目印にして、両方の要求を満たす。
+    out = [TRACKING_MARK]
     out.append("<script>window.OH_M=" + json.dumps(
         {"page": page, "google_ads": cfg.get("google_ads") or {}, "debug": bool(cfg.get("debug"))},
         ensure_ascii=False, separators=(",", ":")) + ";</script>")
@@ -233,9 +243,17 @@ def tracking_head(cfg: dict, page: dict, tel: str = "") -> str:
                  "<script>",
                  "window.dataLayer=window.dataLayer||[];",
                  "function gtag(){dataLayer.push(arguments);}",
-                 "gtag('js',new Date());"]
+                 "gtag('js',new Date());",
+                 # 流入元（?src=）を、page_view を含む全イベントに付ける。
+                 # config に載せるので、events.js が動く前の page_view にも乗る。
+                 # これが無いと「どのQR・どの施設・どのSMSから来たか」を
+                 # GA4のレポートで分解できない。フォームの hidden 欄は
+                 # 送信した人の分しか残らないので、閲覧数は取れない。
+                 "var oh_src=new URLSearchParams(location.search).get('src')||'direct';",
+                 "var oh_cid=new URLSearchParams(location.search).get('cid')||'';"]
         if ga4:
-            lines.append("gtag('config','%s',{'lp_id':'%s','lp_variant':'%s'});"
+            lines.append("gtag('config','%s',{'lp_id':'%s','lp_variant':'%s',"
+                         "'traffic_src':oh_src,'traffic_cid':oh_cid});"
                          % (ga4, page["lp_id"], page["lp_variant"]))
         if ads:
             lines.append("gtag('config','%s');" % ads)
@@ -274,6 +292,115 @@ def tracking_body() -> str:
     return "<script>\n" + js + "</script>"
 
 
+# ---------------------------------------------------------------------------
+# アフィリエイト（レントラックス）のITPトラッキングタグ
+#
+# 先方から受領した2本（docs/vendor/rentracks/ に原本）をそのまま使う。
+#   PID16436_lp-tag.txt              … LPに置く
+#   PID16436_cv-tag_ThanksPage.txt   … サンクスページに置く
+#
+# 先方の設置手順書（★【RENTRACKS】ITP対応トラッキングタグの設置につきまして.pdf）で
+# 確認したこと：
+#   - 置き場所は </body> の直前が推奨
+#   - LPとサンクスページのドメインが同じなら、追加の対応は不要（手順書4ページ）
+#     当社は one-hitter-lp.netlify.app/mizumawari/ と .../mizumawari/thanks で
+#     ドメインが同じなので、対応不要にあたる
+#   - _rt.cinfo は必須。成果を特定する識別記号を、UTF-8のURLエンコードで渡す
+#     （変数のご説明.pdf。最大500文字）
+#   - _rt.price は定額案件なので 0 固定、_rt.reward は -1 固定
+# ---------------------------------------------------------------------------
+
+# 先方のタグと同じ読み込み部分。LP用とCV用で中身が同じなので関数にしてある。
+RT_LOADER = ("var s=document.createElement('script');s.type='text/javascript';"
+             "s.src='https://www.rentracks.jp/js/itp/rt.track.js?t='+(new Date()).getTime();"
+             "if(s.readyState){s.onreadystatechange=function(){"
+             "if(s.readyState==='loaded'||s.readyState==='complete'){"
+             "s.onreadystatechange=null;cb();}};}else{s.onload=function(){cb();};}"
+             "document.getElementsByTagName('head')[0].appendChild(s);")
+
+# 目印は <script> の**外**に置くこと。`<!--` は JavaScript では行コメントとして
+# 解釈されるので、スクリプトの中に書くとその行が丸ごと死ぬ。
+# （2026-09-11：中に書いてしまい、読み込み部分ごとコメントアウトされて
+#  `return` が関数の外に残り、タグが一切動かなかった。ブラウザで検知）
+RT_MARK = "<!-- ONE HITTER 計測タグ -->"
+
+
+def rentracks_on(cfg: dict, dir_name: str) -> bool:
+    """このLPにレントラックスのタグを出すかどうか。
+
+    登録している掲載先だけに出す。登録していないLPに出しても成果にはならないし、
+    出す理由が無いものを公開ページに載せない。
+    """
+    rt = cfg.get("rentracks") or {}
+    if not (rt.get("sid") or "").strip() or not (rt.get("pid") or "").strip():
+        return False
+    return dir_name in (rt.get("pages") or [])
+
+
+def order_id_script(dir_name: str) -> str:
+    """申込1件ごとの注文IDを作る。**全LP共通。**
+
+    送信ボタンが押された瞬間にIDを作り、2か所に置く。
+      1. フォームの隠し欄 `order_id` … Netlify Forms の受信内容に残る＝当社の記録
+      2. sessionStorage           … サンクスページへ引き継ぐため
+
+    アフィリエイトの成果（`_rt.cinfo`）はこのIDで特定するが、
+    **アフィリエイトを使わないLPでも、受注と問い合わせを1対1で結ぶのに要る。**
+    全LPで出しておくほうが、空欄の列が混ざるより後々わかりやすい。
+    """
+    return ("<script>(function(){"
+            # 注文ID：OH-年月日-LP名-4桁。英数字とハイフンだけなので
+            # URLエンコードしても文字が増えない（レントラックスの上限500文字に対して十分短い）。
+            # 紛らわしい文字（I・O・0・1）は使わない。電話で読み上げることがあるため。
+            "function mkid(){var d=new Date();"
+            "var p=function(n){return(n<10?'0':'')+n;};"
+            "var r='';var c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';"
+            "for(var i=0;i<4;i++){r+=c.charAt(Math.floor(Math.random()*c.length));}"
+            "return 'OH-'+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-%s-'+r;}\n"
+            "var f=document.querySelector('form.form');if(!f)return;"
+            "f.addEventListener('submit',function(){"
+            "var id=mkid();"
+            "var h=f.querySelector('input[name=\"order_id\"]');if(h){h.value=id;}"
+            "try{sessionStorage.setItem('oh_order_id',id);}catch(e){}"
+            "},true);"
+            "})();</script>") % dir_name
+
+
+def rentracks_lp(cfg: dict, dir_name: str) -> str:
+    """LP側。トラッキングIDのCookieを置くだけで、変数は要らない。"""
+    if not rentracks_on(cfg, dir_name):
+        return ""
+    return (RT_MARK + "<script>(function(){var cb=function(){};" + RT_LOADER + "})();</script>")
+
+
+def rentracks_cv(cfg: dict, dir_name: str) -> str:
+    """サンクスページ側。ここが成果の発火点。
+
+    **注文IDがあるときだけ発火する。** 直接このURLを開かれた場合や、
+    読み込み直した場合に成果を二重に立てないため。
+    先方の却下条件にも「重複」が入っているので、こちらで防いでおく。
+    """
+    if not rentracks_on(cfg, dir_name):
+        return ""
+    rt = cfg["rentracks"]
+    return (RT_MARK + "<script>(function(){"
+            "var id='';try{id=sessionStorage.getItem('oh_order_id')||'';}catch(e){}"
+            # 直接開かれたときは何もしない（空の成果を立てない）
+            "if(!id){return;}"
+            # 一度きり。読み込み直しでもう一度発火させない
+            "try{sessionStorage.removeItem('oh_order_id');}catch(e){}"
+            "var cb=function(){"
+            "_rt.sid=%s;_rt.pid=%s;_rt.price=0;_rt.reward=-1;"
+            # 氏名・電話・メールは渡さない。渡す必要が無く、
+            # 渡せば個人情報を社外へ出すことになる（docs/レントラックス-成果計測の設計.md）
+            "_rt.cname='';_rt.ctel='';_rt.cemail='';"
+            "_rt.cinfo=encodeURIComponent(id);"
+            "rt_tracktag();};"
+            + RT_LOADER +
+            "})();</script>") % (rt["sid"], rt["pid"])
+
+
+
 def build_thanks(cfg: dict, meta: dict, out: pathlib.Path) -> None:
     """送信完了ページを組み立てる。
 
@@ -292,7 +419,8 @@ def build_thanks(cfg: dict, meta: dict, out: pathlib.Path) -> None:
               .replace("%%TEL_HREF%%", re.sub(r"[^0-9]", "", tel))
               .replace("%%TEL_TEXT%%", html.escape(tel))
               .replace("%%TRACKING_HEAD%%", tracking_head(cfg, page, tel))
-              .replace("%%TRACKING_BODY%%", tracking_body()))
+              .replace("%%TRACKING_BODY%%",
+                       tracking_body() + rentracks_cv(cfg, meta["dir"])))
 
     (out / meta["dir"] / "thanks.html").write_text(doc, encoding="utf-8")
 
@@ -376,7 +504,10 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict)
         doc = doc.replace("</head>", tracking_head(cfg, page, tel) + "\n</head>", 1)
     else:
         doc = doc.replace(TRACKING_SLOT, tracking_head(cfg, page, tel), 1)
-    doc = doc.replace("</body>", tracking_body() + "\n</body>", 1)
+    # アフィリエイトのタグは </body> の直前（先方の手順書の推奨位置）。
+    # 登録している掲載先のLPにだけ出る。
+    doc = doc.replace("</body>", tracking_body() + order_id_script(meta["dir"])
+                   + rentracks_lp(cfg, meta["dir"]) + "\n</body>", 1)
 
     (dst / "index.html").write_text(doc, encoding="utf-8")
     build_thanks(cfg, meta, out)
@@ -400,15 +531,24 @@ def copy_kanseihin(out: pathlib.Path) -> None:
     PAGES を通らない。以前はビルドを経由せず deploy/ に直接置かれていて、
     ソースを直しても配信物に反映されず、両者がずれていた（2026-09-06）。
     """
+    cfg = load_measurement()
     for name in ("survey",):
         src = ROOT / "lp" / name / "index.html"
         if not src.exists():
             continue
+        doc = strip_comments(src.read_text(encoding="utf-8"))
+
+        # 完成品にも計測タグを入れる。ソース（lp/survey/）には手を触れず、
+        # 書き出すときだけ足す。測定IDが空なら何も出ないので壊れない。
+        # 入れないと「QRを見た人のうち何人が答えたか」が永久に分からない。
+        page = {"kind": name, "lp_id": name, "lp_variant": "A"}
+        doc = doc.replace("</head>", tracking_head(cfg, page) + "\n</head>", 1)
+        doc = doc.replace("</body>", tracking_body() + "\n</body>", 1)
+
         dst = out / name
         dst.mkdir(parents=True, exist_ok=True)
-        (dst / "index.html").write_text(
-            strip_comments(src.read_text(encoding="utf-8")), encoding="utf-8")
-        print(f"{dst.relative_to(ROOT)}/index.html  （完成品をそのまま複製）")
+        (dst / "index.html").write_text(doc, encoding="utf-8")
+        print(f"{dst.relative_to(ROOT)}/index.html  （完成品をそのまま複製＋計測タグ）")
 
 
 if __name__ == "__main__":

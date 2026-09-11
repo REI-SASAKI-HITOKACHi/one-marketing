@@ -14,3 +14,6 @@ __pycache__/
 
 # 一時作業ファイル（顧客の個人情報を含むためコミットしない）
 scratch-*.json
+
+# 顧客の電話番号を含む控え（リポジトリに置かない。控えは ~/.cache/one-hitter/backup/）
+data/backup/*.json

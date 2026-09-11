@@ -134,6 +134,75 @@ def check_target(target: str, cfg: dict) -> None:
                 if path.exists() and digits in path.read_text(encoding="utf-8"):
                     bad(f"{target}/{other['dir']}/{fname}: {d} 用の番号 {number} が紛れ込んでいます")
 
+    # 注文IDの欄と、それを埋めるスクリプトが対になっているか。
+    # 片方だけだと、受注と申込を結ぶ鍵が空のまま溜まる。
+    for meta in build_site.PAGES.values():
+        path = out / meta["dir"] / "index.html"
+        if not path.exists():
+            continue
+        doc = path.read_text(encoding="utf-8")
+        has_field = 'name="order_id"' in doc
+        has_maker = "sessionStorage.setItem('oh_order_id'" in doc
+        if has_field != has_maker:
+            bad(f"{target}/{meta['dir']}/index.html: 注文IDの"
+                + ("欄はあるのに、作るスクリプトがありません" if has_field
+                   else "スクリプトはあるのに、入れる欄がありません"))
+
+    check_rentracks(target, cfg, out)
+
+
+def check_rentracks(target: str, cfg: dict, out) -> None:
+    """アフィリエイト（レントラックス）のタグを見る。
+
+    ここで落としたい事故は3つ。
+      1. 登録していない掲載先にタグが出ている（＝出す理由が無いものを公開している）
+      2. 目印の `<!--` が <script> の中に入って、タグが丸ごと死んでいる
+         （2026-09-11 に実際に起きた。JavaScriptでは `<!--` が行コメントになる）
+      3. 氏名・電話・メールを先方へ渡してしまっている
+    """
+    rt = cfg.get("rentracks") or {}
+    sid, pid = (rt.get("sid") or "").strip(), (rt.get("pid") or "").strip()
+    pages = rt.get("pages") or []
+    if not sid or not pid:
+        if pages:
+            bad("measurement.json: rentracks.pages が入っているのに sid / pid が空です")
+        return
+
+    for meta in build_site.PAGES.values():
+        d = meta["dir"]
+        want = d in pages
+        for fname in ("index.html", "thanks.html"):
+            path = out / d / fname
+            if not path.exists():
+                continue
+            doc = path.read_text(encoding="utf-8")
+            has = "rentracks.jp/js/itp/rt.track.js" in doc
+            where = f"{target}/{d}/{fname}"
+            if has and not want:
+                bad(f"{where}: レントラックスのタグが出ています。"
+                    f"掲載先として登録しているのは {' / '.join(pages) or '（なし）'} だけです")
+            if want and not has:
+                bad(f"{where}: レントラックスのタグがありません")
+            if not has:
+                continue
+            if doc.count("rentracks.jp/js/itp/rt.track.js") != 1:
+                bad(f"{where}: レントラックスのタグが2つ以上あります（成果を二重に数えます）")
+            # `<!--` が <script> の中にあると、その行が丸ごとコメントになって死ぬ
+            for block in re.findall(r"<script>(.*?)</script>", doc, re.S):
+                if "rt.track.js" in block and "<!--" in block:
+                    bad(f"{where}: レントラックスのタグの中に <!-- があります。"
+                        "JavaScriptでは行コメントになり、タグが動きません")
+            if fname == "thanks.html":
+                if f"_rt.sid={sid};_rt.pid={pid};" not in doc:
+                    bad(f"{where}: _rt.sid / _rt.pid が measurement.json と違います")
+                if "_rt.price=0;_rt.reward=-1;" not in doc:
+                    bad(f"{where}: 定額案件なので _rt.price は 0、_rt.reward は -1 です")
+                if "_rt.cinfo=encodeURIComponent(" not in doc:
+                    bad(f"{where}: _rt.cinfo（成果の識別記号）が入っていません。先方指定の必須項目です")
+                if "_rt.cname='';_rt.ctel='';_rt.cemail='';" not in doc:
+                    bad(f"{where}: 氏名・電話・メールが空になっていません。"
+                        "これらを入れると、お客様の個人情報を社外へ渡すことになります")
+
 
 def main() -> None:
     cfg = build_site.load_measurement()

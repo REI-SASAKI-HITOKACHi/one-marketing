@@ -32,12 +32,22 @@
   // Metaの標準イベント名への読み替え
   var META_MAP = { generate_lead: 'Lead', phone_click: 'Contact', line_click: 'Contact' };
 
+  // 流入元（?src= / ?cid=）。QR・SMS・施設カードなど、どこから来たかの目印。
+  // head 側の gtag('config') にも同じ値を載せてあるので page_view にも付くが、
+  // 個々のイベントにも付けておくと、GA4で「この施設からの電話クリック」まで割れる。
+  var Q = null;
+  try { Q = new URLSearchParams(location.search); } catch (e) { Q = null; }
+  var SRC = (Q && Q.get('src')) || 'direct';
+  var CID = (Q && Q.get('cid')) || '';
+
   function send(name, params) {
     var p = params || {};
     // どのLPのどのパターンかは、全イベントに必ず付ける
     p.lp_id = PAGE.lp_id;
     p.lp_variant = PAGE.lp_variant;
     p.page_kind = PAGE.kind;
+    p.traffic_src = SRC;
+    if (CID) p.traffic_cid = CID;
 
     log(name, p);
 

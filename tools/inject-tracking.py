@@ -35,9 +35,19 @@ BODY_MARK = "ONE HITTER ／ LP計測スクリプト"
 
 
 def strip_existing(doc: str) -> str:
-    """前回入れた分を取り除く。差し込みを繰り返しても増えないようにする。"""
+    """前回入れた分を取り除く。差し込みを繰り返しても増えないようにする。
+
+    目印のコメントだけに頼らない。目印が消えた版のビルドで作られたページでも
+    確実に外せるよう、OH_M の申告と gtag の読み込みも個別に落とす。
+    （2026-09-11：目印が消えていて、3回実行すると4重に入っていた）
+    """
     # head 側：目印のコメントから </head> の手前まで
     doc = re.sub(re.escape(HEAD_MARK) + r".*?(?=</head>)", "", doc, flags=re.S)
+    # 目印が無い版で入ったもの：OH_M の申告
+    doc = re.sub(r"<script>window\.OH_M=.*?</script>\s*", "", doc, flags=re.S)
+    # 同：gtag の読み込みと、その直後の設定ブロック
+    doc = re.sub(r'<script async src="https://www\.googletagmanager\.com/gtag/js[^"]*"></script>\s*'
+                 r"(?:<script>(?:(?!</script>).)*?gtag\('js'.*?</script>\s*)?", "", doc, flags=re.S)
     # body 側：目印を含む <script> ブロックまるごと。
     # 「</script> を含まない文字の並び」で挟むことで、隣のスクリプトまで
     # 巻き込まないようにしている。

@@ -56,13 +56,16 @@ footer{background:var(--invert);color:var(--invert-ink);padding:26px 0;}
 footer .in{max-width:640px;margin:0 auto;padding:0 22px;font-size:12px;line-height:1.8;}
 footer a{color:var(--invert-ink);}
 </style>
+<!-- ONE HITTER 計測タグ -->
 <script>window.OH_M={"page":{"kind":"thanks","lp_id":"mizumawari","lp_variant":"A","lead_value":0},"google_ads":{"conversion_id":"","labels":{"generate_lead":"","phone_click":"","line_click":""},"phone_conversion_label":""},"debug":false};</script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-DLJCTKGTDN"></script>
 <script>
 window.dataLayer=window.dataLayer||[];
 function gtag(){dataLayer.push(arguments);}
 gtag('js',new Date());
-gtag('config','G-DLJCTKGTDN',{'lp_id':'mizumawari','lp_variant':'A'});
+var oh_src=new URLSearchParams(location.search).get('src')||'direct';
+var oh_cid=new URLSearchParams(location.search).get('cid')||'';
+gtag('config','G-DLJCTKGTDN',{'lp_id':'mizumawari','lp_variant':'A','traffic_src':oh_src,'traffic_cid':oh_cid});
 </script>
 </head>
 <body>
@@ -131,12 +134,22 @@ gtag('config','G-DLJCTKGTDN',{'lp_id':'mizumawari','lp_variant':'A'});
   // Metaの標準イベント名への読み替え
   var META_MAP = { generate_lead: 'Lead', phone_click: 'Contact', line_click: 'Contact' };
 
+  // 流入元（?src= / ?cid=）。QR・SMS・施設カードなど、どこから来たかの目印。
+  // head 側の gtag('config') にも同じ値を載せてあるので page_view にも付くが、
+  // 個々のイベントにも付けておくと、GA4で「この施設からの電話クリック」まで割れる。
+  var Q = null;
+  try { Q = new URLSearchParams(location.search); } catch (e) { Q = null; }
+  var SRC = (Q && Q.get('src')) || 'direct';
+  var CID = (Q && Q.get('cid')) || '';
+
   function send(name, params) {
     var p = params || {};
     // どのLPのどのパターンかは、全イベントに必ず付ける
     p.lp_id = PAGE.lp_id;
     p.lp_variant = PAGE.lp_variant;
     p.page_kind = PAGE.kind;
+    p.traffic_src = SRC;
+    if (CID) p.traffic_cid = CID;
 
     log(name, p);
 
@@ -480,6 +493,6 @@ gtag('config','G-DLJCTKGTDN',{'lp_id':'mizumawari','lp_variant':'A'});
 
   log('計測スクリプト読み込み完了', PAGE, 'gtag=' + (typeof window.gtag === 'function'));
 })();
-</script>
+</script><!-- ONE HITTER 計測タグ --><script>(function(){var id='';try{id=sessionStorage.getItem('oh_order_id')||'';}catch(e){}if(!id){return;}try{sessionStorage.removeItem('oh_order_id');}catch(e){}var cb=function(){_rt.sid=11535;_rt.pid=16436;_rt.price=0;_rt.reward=-1;_rt.cname='';_rt.ctel='';_rt.cemail='';_rt.cinfo=encodeURIComponent(id);rt_tracktag();};var s=document.createElement('script');s.type='text/javascript';s.src='https://www.rentracks.jp/js/itp/rt.track.js?t='+(new Date()).getTime();if(s.readyState){s.onreadystatechange=function(){if(s.readyState==='loaded'||s.readyState==='complete'){s.onreadystatechange=null;cb();}};}else{s.onload=function(){cb();};}document.getElementsByTagName('head')[0].appendChild(s);})();</script>
 </body>
 </html>
