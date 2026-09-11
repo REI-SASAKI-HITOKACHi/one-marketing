@@ -1,57 +1,37 @@
 {
-  "_結論": "★このクーポンは作らない。同じものが既に稼働している（2026-09-11 実機で確認）。",
-  "_既に動いているもの": {
-    "couponId": "01JWGRWJ9XP59WS2T1GY1944Y7",
-    "title": "紹介キャッシュバック_One Hitter",
-    "couponCode": "Viral001",
-    "status": "RUNNING",
-    "期間": "2025-06-01 〜 2027-06-01（JST）",
-    "reward": "cashBack / fixed / 1000円（★割引ではなく、指定口座へのお振込）",
-    "maxTicketPerUser": 1,
-    "maxUseCountPerTicket": -1,
-    "visibility": "UNLISTED",
-    "紹介人数の上限": "なし"
-  },
-  "_作らない理由": [
-    "同じ名前のクーポンが増えると、お客様のクーポン一覧に似たものが並ぶ。",
-    "作成後は修正できず、終了させると獲得済みの方も使えなくなる（復活しない）。間違えたら取り返しがつかない。",
-    "既存のものは説明文まで作り込まれていて、こちらの下書きより内容が厚い。"
+  "_これは何": "紹介クーポン（本番）。POST https://api.line.me/v2/bot/coupon にそのまま送る本文。",
+  "_作成": "2026-09-11 CMO承認（20260911-03-crm の返信）。『作成まで。配布は内部テストが通ってから改めて』",
+  "_制度の根拠": "data/prices.json の 紹介.消費者から消費者 = 定額1,000円。2026-09-11 CMO回答で『紹介した本人の次回料金から一律1,000円割引』に確定。キャッシュバック（口座振込）ではない。",
+  "_旧クーポンとの関係": "01JWGRWJ9XP59WS2T1GY1944Y7『紹介キャッシュバック_One Hitter』は reward.type=cashBack で制度と違う。配布を止めるが終了はさせない（獲得済みの方が使えなくなるため）。経緯は docs/line-referral-coupon.md §3。",
+  "_書かなかったこと": [
+    "『キャッシュバック』『口座へお振込』… 制度が違う",
+    "『紹介先割引￥1,000』… 制度に無い。紹介された方への割引は決まっていない",
+    "『紹介人数に上限はありません』… 制度に無い"
+  ],
+  "_期間": "2026-09-12 00:00 JST 〜 2027-06-01 00:00 JST（旧クーポンの終了日に揃えた）",
+  "_注意": [
+    "★作成後は修正できない。終了させると獲得済みの方も使えなくなり、復活しない",
+    "★maxTicketPerUser は CouponCreateRequest に無いプロパティなので指定していない（推測で足さない）",
+    "★作る前に必ず coupon-list で稼働中のものを見ること"
   ],
 
-  "_制度が資料と食い違っている": {
-    "資料の記載": "docs/cmo-savedata.md と data/prices.json は『消費者→消費者：紹介した本人の次回料金から一律1,000円割引』",
-    "実機の記載": "紹介元＝キャッシュバック1,000円（指定口座へ振込）／紹介先＝割引1,000円 の両建て。1件の紹介で合計2,000円動く",
-    "どちらが正か": "未確定。オーナー確認が要る。CMOへ上げた（2026-09-11）",
-    "★注意": "data/prices.json はこのスレッドの担当外。勝手に直さないこと"
-  },
-
-  "_同時に見つかった稼働中のクーポン": [
-    {
-      "couponId": "01JWGS03Y5KSYEKTYF5R8VRCJ7",
-      "title": "【クーポン】リピート割引",
-      "couponCode": "Rep001",
-      "reward": "discount / fixed / 1000円",
-      "対象": "2回目以降のご利用",
-      "期間": "2025-06-01 〜 2027-06-01",
-      "備考": "説明文に「他のクーポンとの併用はできません」とある"
-    },
-    {
-      "couponId": "01JWGS35GDRKWY9AJ0M33N8JWW",
-      "title": "防カビコーティング無料チケット",
-      "reward": "free",
-      "期間": "2025-05-31 〜 2027-05-31"
+  "title": "ご紹介ありがとうクーポン",
+  "couponCode": "Viral002",
+  "description": "お知り合いをご紹介いただいたお礼のクーポンです。\n\n★次回のご利用料金から1,000円割引\n\n- ご紹介いただいた方がサービスをご利用になり、作業が完了した時点で適用となります。ご予約のみでは適用となりません\n- ご予約の際に、ご紹介いただいた方のお名前をお知らせください\n- 他のクーポン・割引との併用はできません\n- ご利用の際は、この画面をスタッフにご提示ください\n- 使用済みのクーポンはご利用になれません。誤って「使用済み」にしてしまった場合は、スタッフにお申し付けください",
+  "usageCondition": "他のクーポン・割引との併用はできません。ご利用の際はこの画面をスタッフにご提示ください。",
+  "startTimestamp": 1789138800,
+  "endTimestamp": 1811775600,
+  "timezone": "ASIA_TOKYO",
+  "visibility": "UNLISTED",
+  "reward": {
+    "type": "discount",
+    "priceInfo": {
+      "type": "fixed",
+      "fixedAmount": 1000
     }
-  ],
-  "_終了済み": "同名の旧世代3件（2022-2023、ID が NOBt5NlZN など短い形式）はすべて CLOSED。重複稼働はしていない",
-
-  "_確認したAPI仕様": {
-    "出典": "https://raw.githubusercontent.com/line/line-openapi/main/messaging-api.yml（LINE公式のOpenAPI定義）",
-    "必須": ["title", "startTimestamp", "endTimestamp", "timezone", "visibility", "acquisitionCondition", "maxUseCountPerTicket"],
-    "startTimestamp/endTimestamp": "epoch秒。★ミリ秒ではない",
-    "timezone": "ASIA_TOKYO。★『Asia/Tokyo』は通らない",
-    "visibility": "UNLISTED か PUBLIC の2つだけ。★『PRIVATE』は存在しない",
-    "maxUseCountPerTicket": "必須。最大1。無制限は -1",
-    "reward": "type=discount/cashBack/free/gift/others。discount と cashBack だけ priceInfo を持つ（fixed / percentage / explicit）",
-    "エラーの出方": "形が違うと HTTP 400 で {\"message\":\"Internal Server Error\"} としか返らない。原因を教えてくれないので、必ず上の定義と突き合わせること"
-  }
+  },
+  "acquisitionCondition": {
+    "type": "normal"
+  },
+  "maxUseCountPerTicket": 1
 }
