@@ -165,21 +165,27 @@ def frames_wipe(before, after, secs, caption):
         yield img
 
 
-def frames_end(photo, secs, hitokoto, brand="洗いどき"):
+# 締めのCTA。誘導先はLP（2026-09-11 オーナー決定：予約フォームでも相談所でもなくLP）。
+# Instagramの本文にはリンクを貼れないので「プロフィールの『◯◯』のリンクから」と、リンク欄の表示名で指す
+LINK_LABEL = {"aircon": "エアコン", "hood": "水まわり", "bath": "水まわり", "washer": "水まわり", "kitchen": "水まわり"}
+
+
+def frames_end(photo, secs, hitokoto, taishou="aircon"):
     n = int(secs * FPS)
     base, y0, y1 = canvas(photo, 1.06)
     base = base.filter(ImageFilter.GaussianBlur(6))
     dark = Image.new("RGB", (W, H), (0, 0, 0))
     base = Image.blend(base, dark, 0.55)
+    label = LINK_LABEL.get(taishou, "水まわり")
     for i in range(n):
         img = base.copy()
         badge(img)
         y = draw_text(img, hitokoto, 48, 520, max_w=W - 160)
         d = ImageDraw.Draw(img)
         d.rounded_rectangle((120, y + 120, W - 120, y + 260), radius=70, fill=CTA)
-        draw_text(img, "うちはどう？ → 30秒で判定", 50, y + 158, shadow=False)
-        draw_text(img, brand + "｜掃除の相談所", 40, y + 320, color=ACCENT, shadow=False)
-        draw_text(img, "プロフィールのリンクから", 34, y + 390, color=(200, 210, 214), shadow=False)
+        draw_text(img, "分解して、内部から洗います", 50, y + 158, shadow=False)
+        draw_text(img, f"ご予約は プロフィールの「{label}」のリンクから", 38, y + 320, color=ACCENT, shadow=False)
+        draw_text(img, "ワンヒッター｜江戸川区のハウスクリーニング", 32, y + 390, color=(200, 210, 214), shadow=False)
         yield img
 
 
@@ -203,7 +209,7 @@ def build(c: dict):
     for b, a in pairs[:1]:
         seq.append(frames_wipe(b, a, 4.0, "同じ場所を、同じ角度から"))
     # 4. 締め
-    seq.append(frames_end(before[0], 3.5, c["ひとこと"]))
+    seq.append(frames_end(before[0], 3.5, c["ひとこと"], c["対象"]))
 
     OUT.mkdir(parents=True, exist_ok=True)
     out = OUT / f"{c['id']}.mp4"
