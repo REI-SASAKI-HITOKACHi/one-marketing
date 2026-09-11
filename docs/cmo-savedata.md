@@ -218,7 +218,7 @@
       ├ measurement 計測担当              session_01UgmJdCR7kfvt9M9z7NcqoB
       ├ quotation   見積アプリ担当        session_0133KyPCEiuymewkyrFHoS2Z
       ├ web-inflow  ネット流入施策担当    session_01HwV73zaWrzevyCzW9zip39（9/10 新設。**成果物はCMO査読を通す** README 4.8）
-      └ browser     ブラウザ担当          オーナーのPC上のローカルセッション（9/11 オーナー指示で新設。IDは立ち上げ後に記入）
+      └ browser     ブラウザ担当          session_01QaS5WH6P6CCF2Fo5kP5tSb（オーナーのPC上・bridge。9/11 新設。Meta の API 化を同日完了）
 ```
 
 - **掲示板** … `claude/org` ブランチ。`python3 tools/org.py 読む cmo` で自分あてを見る
@@ -527,7 +527,7 @@ GCPプロジェクト：`one-hitter-sheets`（番号 844550773178）
 | 種別 | 内容 | 状態 |
 |---|---|---|
 | オーナー作業 | ブラウザ担当スレッドをPCで立ち上げる（`docs/org/browser-スレッド-立ち上げと最初の仕事.md` 1章。貼るだけ） | 依頼済み 9/11 |
-| ブラウザ担当へ | SNS（Meta）のAPI化／GBP管理者の回復／LINEユーザーID2つ／info@ の転送／見積アプリのGASデプロイ | 掲示板に依頼済み |
+| ブラウザ担当へ | ~~SNS（Meta）のAPI化~~ **完了 9/11**（認証情報ドキュメント第11節。無期限のシステムユーザートークン）／GBP管理者の回復／LINEユーザーID2つ／info@ の転送／見積アプリのGASデプロイ／GA4 `traffic_src` 登録 | 残り5件 |
 | オーナー作業 | 内視鏡 DHWC125Ⅱ ¥7,580 の購入（決定済み） | 未 |
 | オーナー作業 | レントラックス：提出物（材料 https://docs.google.com/document/d/1pMiIsCTd11BLtLDTJx8GmSyYF2zXNOrhQDxfMZl4OCg/edit ）の提出／新着メールへの返信は計測担当が下書き、送信だけオーナー | 未 |
 | オーナー作業 | リアライズへのメール（CNAME・プライバシーポリシー・GBP移管・GA4）を info@ から送信 | 未確認 |
