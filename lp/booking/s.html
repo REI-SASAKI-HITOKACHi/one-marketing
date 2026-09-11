@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>SMSを開く｜社内用</title>
+<!--
+  社内用。冬季見込み客シートのD列「▶送る」から開く。
+
+  なぜこのページが要るか：
+  Googleスプレッドシートの HYPERLINK() は http/https/mailto しか開かない。
+  sms: を直に書いても、スマホのシートアプリではタップしても何も起きない
+  （2026-09-10 和真さん報告「送るタップで開かないから手打ちで送るねー」）。
+  そこで https のこのページを経由して、ここから sms: を開く。
+
+  ★お客様の番号と本文は「#」より後ろ（フラグメント）に入れる。
+  フラグメントはサーバーに送られないので、Netlifyのアクセス記録に
+  お客様の電話番号も本文も残らない。「?」に変えないこと。
+-->
+<style>
+  :root { color-scheme: light dark; }
+  body { margin:0; padding:20px 16px; font:16px/1.7 system-ui,-apple-system,"Hiragino Sans",sans-serif; }
+  .wrap { max-width:640px; margin:0 auto; }
+  h1 { font-size:18px; margin:0 0 4px; }
+  .sub { color:#667; font-size:13px; margin:0 0 16px; }
+  .box { border:1px solid rgba(128,128,128,.35); border-radius:10px; padding:12px; margin:12px 0; }
+  .to { font-weight:700; font-size:17px; }
+  textarea { width:100%; box-sizing:border-box; min-height:220px; font:15px/1.7 inherit;
+             border:1px solid rgba(128,128,128,.35); border-radius:8px; padding:10px; background:transparent; color:inherit; }
+  .btn { display:block; width:100%; box-sizing:border-box; text-align:center; text-decoration:none;
+         padding:15px 12px; border-radius:10px; font-size:17px; font-weight:700; margin:10px 0;
+         border:0; cursor:pointer; background:#0E7C93; color:#fff; }
+  .btn.sub2 { background:transparent; color:inherit; border:1.5px solid rgba(128,128,128,.5); }
+  .dare { font-size:15px; margin-top:4px; }
+  .note { font-size:13px; color:#667; }
+  .err { color:#b3261e; font-weight:700; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>SMSを開きます</h1>
+  <p class="sub">開かないときは、下の本文をコピーして、いつものSMSアプリに貼ってください。</p>
+
+  <div class="box">
+    <div>宛先</div>
+    <div class="to" id="to">—</div>
+    <div class="dare" id="dare"></div>
+  </div>
+
+  <a class="btn" id="go" href="#">SMSアプリを開く</a>
+  <button class="btn sub2" id="copy">本文をコピーする</button>
+  <p class="note" id="msg"></p>
+
+  <div class="box">
+    <div class="note">送信する本文</div>
+    <textarea id="body" readonly></textarea>
+  </div>
+
+  <p class="note">
+    このページは社内用です。お客様には見せません。<br>
+    宛先と本文は「#」より後ろに入っているので、サーバーには記録されません。
+  </p>
+</div>
+<script>
+(function(){
+  function $(id){ return document.getElementById(id); }
+
+  var imaNoUrl = '';
+
+  /* ★「#」より後ろだけが変わったとき、ブラウザはページを読み込み直さない。
+     シートから次の人のリンクを開いても、前の人の内容が出たままになる
+     （2026-09-10 和真さん報告
+      「一つ開いて次のを開いても前の情報のまま更新されずタブを閉じて再度開くと飛ぶ」）。
+     そのため hashchange でも必ずやり直す。ここを消さないこと。 */
+  function yomu(hiraku){
+    var h = (location.hash || '').replace(/^#/, '');
+    var p = {};
+    h.split('&').forEach(function(kv){
+      var i = kv.indexOf('=');
+      if (i > 0) { p[kv.slice(0, i)] = decodeURIComponent(kv.slice(i + 1)); }
+    });
+    var to = (p.to || '').replace(/[^0-9+]/g, '');
+    var body = p.b || '';
+
+    if (!to) {
+      $('msg').innerHTML = '<span class="err">宛先が読み取れませんでした。'
+        + 'シートのD列「▶ 送る」から開きなおしてください。</span>';
+      return;
+    }
+    $('to').textContent = to;
+    /* 本文の1行目（「〇〇さま」）を出す。次の人に変わったことが一目で分かるように */
+    $('dare').textContent = (body.split('\n')[0] || '');
+    $('body').value = body;
+    $('msg').textContent = '';
+
+    /* iPhone は sms:番号&body=… 、Android は sms:番号?body=… で開く。
+       ここを取り違えると、本文が入らないか、そもそも開かない。 */
+    var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+              || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    var url = 'sms:' + to + (iOS ? '&' : '?') + 'body=' + encodeURIComponent(body);
+    $('go').href = url;
+    imaNoUrl = url;
+
+    if (hiraku) { setTimeout(function(){ location.href = url; }, 250); }
+  }
+
+  $('copy').addEventListener('click', function(){
+    var t = $('body');
+    var body = t.value;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(body).then(function(){
+        $('msg').textContent = '本文をコピーしました。SMSアプリに貼ってください。';
+      }, function(){ erabu(); });
+    } else { erabu(); }
+    function erabu(){
+      t.removeAttribute('readonly'); t.focus(); t.select();
+      document.execCommand && document.execCommand('copy');
+      t.setAttribute('readonly', 'readonly');
+      $('msg').textContent = '本文を選びました。長押しして「コピー」を選んでください。';
+    }
+  });
+
+  window.addEventListener('hashchange', function(){ yomu(true); });
+  yomu(true);
+})();
+</script>
+</body>
+</html>

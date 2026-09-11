@@ -167,6 +167,110 @@ def op_image(a):
     print(f"送信しました。宛先 {to} ／ 画像 {a.url}")
 
 
+# ============================== 送信前の未読チェック ==============================
+# 2026-09-09、和真さんの返信（15:08）を見ずに次のメッセージを送ってしまった。
+# 返信には「完了画面に何も残らない」という大事な指摘が入っていたのに、
+# それに答えないまま「問題なしです」と送った。手順書に書くだけでは飛ばすので、
+# ツール側で止める。
+#
+# LINE_ログ タブの H列「CMO確認」が空の受信があるあいだは push できない。
+# 読んだら --midoku-ok を付けて送るか、H列に「確認済」を入れる。
+SS_LOG = '1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64'
+TAB_LOG = 'LINE_ログ'
+
+
+def midoku_henshin():
+    """まだ確認していない受信メッセージを返す。読めなかったときは None"""
+    try:
+        import importlib.util
+        import urllib.parse
+        here = os.path.dirname(os.path.abspath(__file__))
+        spec = importlib.util.spec_from_file_location('sc', f'{here}/sheets_client.py')
+        sc = importlib.util.module_from_spec(spec)
+        sys.modules['sc'] = sc
+        spec.loader.exec_module(sc)
+        tok = sc.access_token(sc.load_credentials())
+        path = urllib.parse.quote(f'/{SS_LOG}/values/{TAB_LOG}!A1:H200', safe='/:?&=,!')
+        rows = sc.call(tok, path).get('values', [])
+    except Exception:
+        return None
+    out = []
+    for i, r in enumerate(rows[1:], start=2):
+        def g(j):
+            return str(r[j]).strip() if len(r) > j else ''
+        if g(1) != 'message':
+            continue
+        if g(7):          # H列「CMO確認」が入っていれば確認済み
+            continue
+        out.append((i, g(0), g(5)))
+    return out
+
+
+def midoku_check(a):
+    """未読の返信があるなら、内容を出して止める"""
+    if getattr(a, 'midoku_ok', False):
+        return
+    m = midoku_henshin()
+    if m is None:
+        print('※ LINE_ログを確認できませんでした。返信を見落としていないか、'
+              '自分の目で確かめてから送ってください。', file=sys.stderr)
+        return
+    if not m:
+        return
+    print('\n送信を中止しました。まだ確認していない返信があります。\n', file=sys.stderr)
+    for gyou, itsu, honbun in m:
+        print(f'  [{TAB_LOG} {gyou}行目] {itsu}', file=sys.stderr)
+        for ln in honbun.split('\n'):
+            print(f'    {ln}', file=sys.stderr)
+        print('', file=sys.stderr)
+    print('この内容に答えてから送ってください。\n'
+          '読んだうえで送るなら --midoku-ok を付けてください。\n'
+          f'（{TAB_LOG} のH列「CMO確認」に日付を入れても解除されます）', file=sys.stderr)
+    sys.exit(1)
+
+
+def op_midoku(a):
+    """未読の返信を一覧する。--kakunin 行番号 で、その行だけ確認済みにする。
+
+    ★一括で全部に印を付けないこと。読んでいない受信まで消えてしまう。
+    """
+    m = midoku_henshin()
+    if m is None:
+        sys.exit('LINE_ログを読めませんでした。')
+    if not a.kakunin:
+        if not m:
+            print('未確認の返信はありません。')
+            return
+        print(f'未確認の返信 {len(m)}件\n')
+        for gyou, itsu, honbun in m:
+            print(f'[{gyou}行目] {itsu}')
+            for ln in honbun.split('\n'):
+                print(f'  {ln}')
+            print()
+        print('読んだら: python3 tools/line_client.py midoku --kakunin <行番号> ...')
+        return
+
+    import datetime
+    import importlib.util
+    import urllib.parse
+    here = os.path.dirname(os.path.abspath(__file__))
+    spec = importlib.util.spec_from_file_location('sc', f'{here}/sheets_client.py')
+    sc = importlib.util.module_from_spec(spec)
+    sys.modules['sc'] = sc
+    spec.loader.exec_module(sc)
+    tok = sc.access_token(sc.load_credentials())
+    kyou = datetime.date.today().isoformat()
+    mada = {g for g, _, _ in m}
+    for gyou in a.kakunin:
+        if gyou not in mada:
+            print(f'{gyou}行目は未確認の受信ではありません。飛ばします。')
+            continue
+        path = urllib.parse.quote(f'/{SS_LOG}/values/{TAB_LOG}!H{gyou}', safe='/:?&=,!')
+        sc.call(tok, path, method='PUT', payload={'values': [[f'{kyou} 確認済']]},
+                query={'valueInputOption': 'USER_ENTERED'})
+        print(f'{gyou}行目を確認済みにしました。')
+
+
 def op_push(a):
     if a.file:
         with open(a.file, encoding="utf-8") as f:
@@ -180,6 +284,9 @@ def op_push(a):
     parts = wakeru(text)
     if len(parts) > 5:
         sys.exit(f"本文が長すぎます（{len(parts)}通に分かれます）。1回の送信は5通までです。")
+
+    if not a.dry_run:
+        midoku_check(a)
 
     if a.dry_run:
         print(f"[確認のみ・送信しません] 宛先 {to} ／ {len(parts)}通")
@@ -208,16 +315,26 @@ def main():
     sp.add_argument("--file", help="本文が入ったテキストファイル")
     sp.add_argument("--to", help="送信先。省略するとグループID")
     sp.add_argument("--dry-run", action="store_true", help="送らずに内容だけ表示する")
+    sp.add_argument("--midoku-ok", action="store_true",
+                    help="未読の返信を読んだうえで送る（読まずに付けないこと）")
 
     si = sub.add_parser("image", help="画像を送る（公開URLが必要）")
     si.add_argument("url", help="画像の公開URL（https・10MBまで）")
     si.add_argument("--preview", help="サムネイルのURL。省略すると本体と同じ")
     si.add_argument("--text", help="画像の前に添えるテキスト")
     si.add_argument("--to", help="送信先。省略するとグループID")
+    sm = sub.add_parser("midoku", help="未確認の返信を見る／確認済みにする")
+    sm.add_argument("--kakunin", type=int, nargs="+", metavar="行番号",
+                    help="読んだ行だけを確認済みにする。一括で付けないこと")
+    sm.set_defaults(func=op_midoku)
+
     si.add_argument("--dry-run", action="store_true", help="送らずに内容だけ表示する")
+    si.add_argument("--midoku-ok", action="store_true",
+                    help="未読の返信を読んだうえで送る")
 
     a = p.parse_args()
-    {"whoami": op_whoami, "quota": op_quota, "push": op_push, "image": op_image}[a.cmd](a)
+    {"whoami": op_whoami, "quota": op_quota, "push": op_push,
+     "image": op_image, "midoku": op_midoku}[a.cmd](a)
 
 
 if __name__ == "__main__":

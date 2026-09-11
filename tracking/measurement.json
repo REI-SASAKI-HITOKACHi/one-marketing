@@ -9,7 +9,7 @@
   ],
 
   "ga4": {
-    "measurement_id": "",
+    "measurement_id": "G-DLJCTKGTDN",
     "_note": "GA4の測定ID。G- で始まる。オーナー手順書の第1章で取得する。"
   },
 

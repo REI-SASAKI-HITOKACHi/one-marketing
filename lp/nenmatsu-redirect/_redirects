@@ -1,0 +1,5 @@
+# 年末LPの正は one-hitter-lp.netlify.app/nenmatsu/（アフィリエイト登録済み）。
+# こちらの別サイトは301で寄せる。2サイトに同じページがあると、
+# 片方だけ配信して金額が食い違う事故が起きる（2026-09-08 に発生）。
+# :splat と クエリ（?src= &cid=）は引き継がれるので、SMSの効果測定は続けられる。
+/*  https://one-hitter-lp.netlify.app/nenmatsu/:splat  301

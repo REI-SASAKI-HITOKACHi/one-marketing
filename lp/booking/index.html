@@ -250,6 +250,12 @@ footer a{color:var(--invert-ink);}
 .kakunin .r:last-child{border-bottom:0;}
 .kakunin .r dt{color:var(--muted);font-size:12.5px;}
 .kakunin .r dd{margin:0;font-weight:700;word-break:break-word;}
+.slots-toki{margin:.5rem 0 0;font-size:.78rem;color:#6b7280;text-align:right}
+.hikae{margin-top:1rem}
+.hikae .ln{display:flex;justify-content:space-between;gap:1rem;padding:.45rem 0;border-bottom:1px solid rgba(0,0,0,.07);font-size:.9rem}
+.hikae .ln:last-of-type{border-bottom:0}
+.hikae .ln .v{text-align:right;font-weight:600;word-break:break-all}
+.hikae-memo{margin:.8rem 0 .9rem;font-size:.85rem}
 
 </style>
 </head>
@@ -307,6 +313,7 @@ footer a{color:var(--invert-ink);}
         <p class="why">担当（渡辺）のいまの空き状況です。ここに出ている枠なら、そのままお伺いできます。作業時間は<b id="yotei-fun">—</b>を見込んでいます。</p>
       </div>
       <div id="slots"><p class="loading">空き状況を確認しています…</p></div>
+      <p class="slots-toki" id="slots-toki"></p>
       <p class="err" id="e2"></p>
       <div class="nav">
         <button class="btn ghost" data-back="1">もどる</button>
@@ -337,6 +344,7 @@ footer a{color:var(--invert-ink);}
       <div class="field">
         <label for="f-note">ご要望（任意）</label>
         <textarea id="f-note" placeholder="例）駐車場はありません／2階のエアコンです／前回と同じ場所です"></textarea>
+        <span class="hint">お車を停められる場所が無い場合は、近くのコインパーキング代を実費でご請求いたします。あらかじめご了承ください。</span>
       </div>
       <div class="hp"><label>この欄は入力しないでください<input type="text" id="f-hp" tabindex="-1" autocomplete="off"></label></div>
       <p class="err" id="e3"></p>
@@ -368,6 +376,17 @@ footer a{color:var(--invert-ink);}
         <p id="done-when"></p>
         <p>担当の渡辺より、確認のお電話を差し上げます。<br>その時点で確定となります。</p>
       </div>
+
+      <!-- お客様の手元に何も残らないと「いつ予約したっけ」となる。
+           控えをこの画面に出して、スクショか カレンダー登録で残せるようにする
+           （2026-09-09 和真さんの実機テストでの指摘） -->
+      <div class="card hikae">
+        <h3>ご予約内容（控え）</h3>
+        <div id="done-hikae"></div>
+        <p class="hikae-memo">この画面を<b>スクリーンショットで保存</b>していただくと安心です。</p>
+        <a class="btn ghost" id="done-cal" href="#" target="_blank" rel="noopener">Googleカレンダーに登録する</a>
+      </div>
+
       <div class="card small">
         <h3>ご変更・キャンセル</h3>
         <p>お電話をお願いします。前日までにご連絡いただければ費用はかかりません。</p>
@@ -389,7 +408,7 @@ footer a{color:var(--invert-ink);}
 <script>
 (function(){
   'use strict';
-  var S = {"menus": [{"n": "エアコンクリーニング（ノーマル）","t": 10780,"d": 10780,"m": 60},{"n": "エアコンクリーニング（お掃除機能付き）","t": 17380,"d": 17380,"m": 120},{"n": "洗濯機クリーニング","t": 17380,"d": 17380,"m": 120},{"n": "レンジフードクリーニング","t": 18480,"d": 15180,"m": 90},{"n": "レンジフード（プロペラ式）","t": 10780,"d": 10780,"m": 60},{"n": "キッチンクリーニング","t": 18480,"d": 15180,"m": 120},{"n": "浴室クリーニング","t": 18480,"d": 15180,"m": 120},{"n": "追い焚き配管クリーニング","t": 19910,"d": 16610,"m": 90},{"n": "コンロクリーニング","t": 10780,"d": 6050,"m": 60},{"n": "トイレクリーニング","t": 10780,"d": 10780,"m": 60},{"n": "洗面台クリーニング","t": 10780,"d": 7480,"m": 60},{"n": "お掃除時短コーティング","t": 21780,"d": 21780,"m": 60}],"hanbouki": {"tsuki": [5,6,7,12],"gaku": 3300},"souki": {"1": 0.15,"2": 0.15,"3": 0.1,"4": 0.1,"5": 0.0,"6": 0.0,"7": 0.0,"8": 0.1,"9": 0.1,"10": 0.1,"11": 0.0,"12": 0.0},"netTokuten": 2200,"api": "","tel": "080-8043-8259"};
+  var S = {"menus": [{"n": "エアコンクリーニング（ノーマル）","t": 10780,"d": 10780,"m": 60},{"n": "エアコンクリーニング（お掃除機能付き）","t": 17380,"d": 17380,"m": 120},{"n": "洗濯機クリーニング","t": 17380,"d": 17380,"m": 120},{"n": "レンジフードクリーニング","t": 18480,"d": 15180,"m": 90},{"n": "レンジフード（プロペラ式）","t": 10780,"d": 10780,"m": 60},{"n": "キッチンクリーニング","t": 18480,"d": 15180,"m": 120},{"n": "浴室クリーニング","t": 18480,"d": 15180,"m": 120},{"n": "追い焚き配管クリーニング","t": 19910,"d": 16610,"m": 90},{"n": "コンロクリーニング","t": 10780,"d": 6050,"m": 60},{"n": "トイレクリーニング","t": 10780,"d": 10780,"m": 60},{"n": "洗面台クリーニング","t": 10780,"d": 7480,"m": 60},{"n": "お掃除時短コーティング","t": 21780,"d": 21780,"m": 60}],"hanbouki": {"tsuki": [5,6,7,12],"gaku": 3300},"souki": {"1": 0.15,"2": 0.15,"3": 0.1,"4": 0.1,"5": 0.0,"6": 0.0,"7": 0.0,"8": 0.1,"9": 0.1,"10": 0.1,"11": 0.0,"12": 0.0},"netTokuten": 2200,"api": "","slots": "./slots.json","form": "yoyaku","tel": "080-8043-8259"};
   var $ = function(id){ return document.getElementById(id); };
 
   var state = {
@@ -538,6 +557,7 @@ footer a{color:var(--invert-ink);}
     }
     h.push(ln('概算合計（税込）', yen(k.gokei), 'sum'));
     h.push('<p class="note">現地の状況により変わることがあります。確定金額は担当からのお電話でお伝えします。' +
+           'お車を停められる場所が無い場合は、コインパーキング代が実費で加わります。' +
            (state.date ? '' : '日時をお選びいただくと、割引と加算を反映した金額になります。') + '</p>');
     return h.join('');
   }
@@ -571,22 +591,51 @@ footer a{color:var(--invert-ink);}
     });
   }
 
+  /* 所要分に足りる、いちばん短いバケツを選ぶ */
+  function bucketKey(d){
+    var need = shoyouFun();
+    var keys = Object.keys(d.buckets || {}).map(Number).sort(function(a, b){ return a - b; });
+    if (!keys.length) { return null; }
+    for (var i = 0; i < keys.length; i++) { if (keys[i] >= need) { return String(keys[i]); } }
+    return String(keys[keys.length - 1]);
+  }
+
+  var slotsCache = null;
   function loadSlots(){
     var box = $('slots');
-    if (!S.api) {
-      box.innerHTML = '<p class="loading">ただいま日時の自動表示を準備しています。<br>' +
-        'お手数ですが <a href="tel:080-8043-8259">080-8043-8259</a> までお電話ください。</p>';
-      return;
-    }
     box.innerHTML = '<p class="loading">空き状況を確認しています…</p>';
-    jsonp(S.api + '?action=slots&minutes=' + shoyouFun()).then(function(d){
-      if (!d || !d.ok) { throw new Error((d && d.error) || 'error'); }
-      state.slots = d.slots || [];
-      drawSlots();
-    }).catch(function(){
+
+    function shippai(){
       box.innerHTML = '<p class="loading">空き状況をうまく取得できませんでした。<br>' +
         'お手数ですが <a href="tel:080-8043-8259">080-8043-8259</a> までお電話ください。</p>';
-    });
+    }
+    function egaku(d){
+      slotsCache = d;
+      var k = bucketKey(d);
+      state.slots = (k && d.buckets[k]) || [];
+      var m = $('slots-toki');
+      if (m) { m.textContent = d.generatedLabel ? d.generatedLabel + ' 時点の空き状況です' : ''; }
+      if (!state.slots.length) {
+        box.innerHTML = '<p class="loading">この内容で空いている枠が見つかりませんでした。<br>' +
+          'お手数ですが <a href="tel:080-8043-8259">080-8043-8259</a> までご相談ください。</p>';
+        return;
+      }
+      drawSlots();
+    }
+
+    /* Apps Script が入っていればそちらを優先する（将来そちらへ戻すときのため） */
+    if (S.api) {
+      jsonp(S.api + '?action=slots&minutes=' + shoyouFun()).then(function(d){
+        if (!d || !d.ok) { throw new Error((d && d.error) || 'error'); }
+        state.slots = d.slots || [];
+        drawSlots();
+      }).catch(shippai);
+      return;
+    }
+    if (slotsCache) { egaku(slotsCache); return; }
+    fetch(S.slots + '?t=' + Date.now(), { cache: 'no-store' })
+      .then(function(r){ if (!r.ok) { throw new Error('http ' + r.status); } return r.json(); })
+      .then(egaku).catch(shippai);
   }
 
   var MISERU = 5;   // 最初は5日ぶんだけ出す。長いリストは選びにくい
@@ -718,39 +767,89 @@ footer a{color:var(--invert-ink);}
   }
 
   /* ---------------- 送信 ----------------
-     Content-Type は text/plain。application/json にするとブラウザが
-     プリフライトを飛ばし、Apps Script がそれに答えられないため。 */
+     Netlifyフォームへ、同じオリジンの "/" に application/x-www-form-urlencoded でPOSTする。
+     別ドメインではないのでCORSにならない。項目名は、HTMLの下にある
+     控えのフォーム（name="yoyaku"）と必ず一致させること。 */
+  /* 完了画面の控え。お客様の手元に残るのはこれだけなので、
+     日時・内容・概算・連絡先まで出す。 */
+  function kakuHikae(hyouji, atai){
+    var gyou = [
+      ['日時', hyouji + '〜'],
+      ['ご希望の内容', atai['ご希望の内容']],
+      ['所要の目安', funHyouji(Number(atai['所要の目安（分）']))],
+      ['概算金額（税込）', (atai['概算金額'] ? '¥' + Number(atai['概算金額']).toLocaleString() : '—')
+        + '<br><small>お車を停められる場所が無い場合は、コインパーキング代が実費で加わります。</small>'],
+      ['お名前', atai['お名前'] + ' 様'],
+      ['ご住所', atai['ご住所']],
+      ['お電話', atai['お電話番号']],
+      ['担当', '渡辺（' + S.tel + '）'],
+    ];
+    $('done-hikae').innerHTML = gyou.map(function(x){
+      return '<div class="ln"><span>' + x[0] + '</span><span class="v">' + x[1] + '</span></div>';
+    }).join('');
+
+    /* Googleカレンダーに入れられるリンク。ダウンロードではなくURLなので確実に開く */
+    function utc(d){
+      return d.getUTCFullYear() +
+        ('0' + (d.getUTCMonth() + 1)).slice(-2) + ('0' + d.getUTCDate()).slice(-2) + 'T' +
+        ('0' + d.getUTCHours()).slice(-2) + ('0' + d.getUTCMinutes()).slice(-2) + '00Z';
+    }
+    /* 端末のタイムゾーンに頼らない。施工日時は必ず日本時間（UTC+9）として組む。
+       端末の時刻設定がずれていても、カレンダーに正しい時刻が入るようにするため。 */
+    var hd = state.date.split('-');
+    var ht = state.time.split(':');
+    var hajime = new Date(Date.UTC(+hd[0], +hd[1] - 1, +hd[2], +ht[0] - 9, +ht[1]));
+    var owari = new Date(hajime.getTime() + Number(atai['所要の目安（分）'] || 120) * 60000);
+    var url = 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+      '&text=' + encodeURIComponent('ハウスクリーニング（ワンヒッター）') +
+      '&dates=' + utc(hajime) + '/' + utc(owari) +
+      '&location=' + encodeURIComponent(atai['ご住所']) +
+      '&details=' + encodeURIComponent(
+        atai['ご希望の内容'] + '\n概算 ' +
+        (atai['概算金額'] ? '¥' + Number(atai['概算金額']).toLocaleString() : '—') +
+        '\n担当 渡辺 ' + S.tel +
+        '\n※確認のお電話をもって確定となります');
+    $('done-cal').href = url;
+  }
+
   var okuttechuu = false;
   $('send').addEventListener('click', function(){
     if (okuttechuu) { return; }
     if ($('f-hp').value) { return; }   // 自動投稿よけ
-    if (!S.api) {
-      $('e4').textContent = 'ただいま送信の準備中です。お手数ですが ' + S.tel + ' までお電話ください。';
-      return;
-    }
     var k = kingaku();
-    var body = {
-      name: $('f-name').value.trim(),
-      tel: $('f-tel').value.trim(),
-      address: $('f-addr').value.trim(),
-      note: $('f-note').value.trim(),
-      date: state.date, time: state.time,
-      menu: menuText(),
-      minutes: shoyouFun(),
-      amount: k ? k.gokei : 0,
+    var atai = {
+      'form-name': S.form,
+      'お名前': $('f-name').value.trim(),
+      'お電話番号': $('f-tel').value.trim(),
+      'ご住所': $('f-addr').value.trim(),
+      'ご希望日': state.date,
+      'ご希望時刻': state.time,
+      'ご希望の内容': menuText(),
+      '所要の目安（分）': String(shoyouFun()),
+      '概算金額': k ? String(k.gokei) : '',
+      'ご要望': $('f-note').value.trim(),
+      '流入元': (new URLSearchParams(location.search)).get('src') || '',
+      '空き枠の取得時刻': (slotsCache && slotsCache.generated) || '',
     };
+    var body = Object.keys(atai).map(function(kk){
+      return encodeURIComponent(kk) + '=' + encodeURIComponent(atai[kk]);
+    }).join('&');
+
     okuttechuu = true;
     $('send').disabled = true;
     $('send').textContent = '送信しています…';
     $('e4').textContent = '';
 
-    fetch(S.api, {
+    fetch('/', {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(body),
-    }).then(function(r){ return r.json(); }).then(function(d){
-      if (!d || !d.ok) { throw new Error((d && (d.message || d.error)) || '送信できませんでした'); }
-      $('done-when').textContent = d.label + '〜 でお伺いします。';
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body,
+    }).then(function(r){
+      if (!r.ok) { throw new Error('送信できませんでした（' + r.status + '）'); }
+      var hi = state.slots.filter(function(x){ return x.date === state.date; })[0];
+      var hyouji = (hi ? hi.label : state.date) + ' ' + state.time;
+      $('done-when').textContent = hyouji + '〜 でお伺いします。';
+      kakuHikae(hyouji, atai);
       STEPS.forEach(function(id){ $(id).hidden = true; });
       $('progress').hidden = true;
       $('done').hidden = false;
@@ -768,6 +867,25 @@ footer a{color:var(--invert-ink);}
   go(1);
 })();
 </script>
+
+<!-- Netlifyがデプロイ時にこのフォームを見つけて受け口を作る。画面には出さない。
+     送信はJavaScriptから同じ項目名でPOSTする。
+     ★name を変えたら、送信側（atai）も必ず合わせること。 -->
+<form name="yoyaku" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="hidden" name="form-name" value="yoyaku">
+  <input type="text" name="bot-field">
+  <input type="text" name="お名前">
+  <input type="text" name="お電話番号">
+  <input type="text" name="ご住所">
+  <input type="text" name="ご希望日">
+  <input type="text" name="ご希望時刻">
+  <input type="text" name="ご希望の内容">
+  <input type="text" name="所要の目安（分）">
+  <input type="text" name="概算金額">
+  <textarea name="ご要望"></textarea>
+  <input type="text" name="流入元">
+  <input type="text" name="空き枠の取得時刻">
+</form>
 
 </body>
 </html>

@@ -67,13 +67,36 @@ def kotei_url_check(files: dict) -> None:
     交互に配信していたときに年末LPが404になっていた（2026-09-06）。
     """
     nai = [u for u in KOTEI_URL if "/" + u not in files]
-    if not nai:
+
+    # ガードがファイルの有無しか見ていなかった。中身が古い状態での上書きは
+    # 止められず、実際に src/cid の記録が配信で消えた（計測担当の指摘 2026-09-10）。
+    # 出ているはずの目印が配信物に無ければ、古い土台からのビルドとみなして止める。
+    MEJIRUSHI = {
+        "aircon/index.html":     ['id="h-src"', "color-scheme:light"],
+        "aircon-b/index.html":   ['id="h-src"', "color-scheme:light"],
+        "mizumawari/index.html": ['id="h-src"', "color-scheme:light", "setKakaku"],
+        "nenmatsu/index.html":   ['id="h-src"', "color-scheme:light", "setKakaku"],
+    }
+    furui = []
+    for u, mejirushi in MEJIRUSHI.items():
+        ent = files.get("/" + u)
+        if not ent:
+            continue
+        honbun = ent[0].read_text(encoding="utf-8", errors="ignore")
+        kake = [m for m in mejirushi if m not in honbun]
+        if kake:
+            furui.append((u, kake))
+
+    if not nai and not furui:
         return
-    print("\n配信を中止しました。登録済みのURLが配信物にありません。\n")
+    print("\n配信を中止しました。\n")
     for u in nai:
         print(f"  欠落: /{u.rsplit('/', 1)[0]}/")
+    for u, kake in furui:
+        print(f"  中身が古い: /{u.rsplit('/', 1)[0]}/  無い目印: {', '.join(kake)}")
     print(
-        "\nこのまま配信すると、上のページが本番から消えます。\n"
+        "\nこのまま配信すると、欠落したページは本番から消え、\n"
+        "古い中身のページは本番を古い状態で上書きします。\n"
         "  - ブランチが古い、または統合できていない可能性があります\n"
         "  - 意図してURLを変える場合は、先にオーナーへ\n"
         "    アフィリエイト設定の変更を依頼してから KOTEI_URL を直してください\n"

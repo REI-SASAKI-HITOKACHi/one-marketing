@@ -29,14 +29,18 @@
 使い方: python3 tools/build-sms-list.py
 """
 import importlib.util
+import datetime
 import json
 import re
 import subprocess
 import sys
 import urllib.parse
+import urllib.request
 from collections import Counter
 
 ROOT = '/home/user/one-marketing'
+# --dry-run … シートには一切書かない。文面を直したときの確認用。
+DRY = '--dry-run' in sys.argv
 spec = importlib.util.spec_from_file_location('sc', f'{ROOT}/tools/sheets_client.py')
 sc = importlib.util.module_from_spec(spec)
 sys.modules['sc'] = sc
@@ -50,8 +54,63 @@ TAB = '冬季見込み客_2026'
 #   MOUSHIKOMI  … いま送れるもの。年末LPの申込フォームに直接着地する
 #   YOYAKU_FORM … 既存客向けの予約フォーム。空き枠から選べる。
 #                 T022（Apps Scriptのデプロイ）が終わったら MOUSHIKOMI をこちらに差し替える
-MOUSHIKOMI = 'https://one-hitter-nenmatsu.netlify.app/?src=sms#form'
+#
+# ★ 2026-09-08、誘導先を one-hitter-nenmatsu.netlify.app から
+#   one-hitter-lp.netlify.app/nenmatsu/ へ変えた。
+#   前者は申込フォームが動いていなかった（POSTが404、遷移先のthanksも404）。
+#   お客様が申し込めないページへ送るところだった。実測で確認済み。
+MOUSHIKOMI = 'https://one-hitter-lp.netlify.app/nenmatsu/?src=sms#form'
 YOYAKU_FORM = 'https://one-hitter-booking.netlify.app/?src=sms'
+
+# 予約フォームが「予約を受け付けられる状態か」を、本番ページを見て確かめる。
+# Apps Script の /exec URL が未設定（api が空）のあいだは、
+# お客様がフォームを開いても日時が出ず、送信もできない（電話案内が出るだけ）。
+# その状態で220人へ送るのは事故なので、シートの先頭に警告を出す。
+def yoyaku_ikiteruka():
+    """予約フォームが本当に予約を受け付けられるか、本番ページを見て確かめる。
+    (使える?, 理由) を返す。見に行けなかったときは「使える」と言わない。
+
+    見るのは2つ。
+      1. 空き枠のファイル（slots.json）があって、内容が古すぎないか
+      2. Netlifyのフォームが登録されているか
+         配信後のHTMLに data-netlify が残っていたら、それは未登録の印。
+         年末LPで実際に起きた（POSTが404になっていた／2026-09-08）。
+    """
+    moto = YOYAKU_FORM.split('?')[0].rstrip('/')
+    try:
+        with urllib.request.urlopen(moto + '/', timeout=20) as res:
+            html = res.read().decode('utf-8', 'replace')
+    except Exception as e:
+        return False, f'予約フォームを確認できませんでした（{e}）'
+
+    if 'data-netlify' in html:
+        return False, ('予約フォームの受け口が登録されていません。'
+                       '配信後のHTMLに data-netlify が残っています。'
+                       'このまま送るとお客様が申し込めません。')
+    if re.search(r'"api"\s*:\s*""', html) and 'slots.json' not in html:
+        return False, ('予約フォームが空き枠を読む先を持っていません。'
+                       'tools/build-slots.py と配信をやり直してください。')
+
+    try:
+        with urllib.request.urlopen(moto + '/slots.json', timeout=20) as res:
+            d = json.loads(res.read().decode('utf-8'))
+    except Exception as e:
+        return False, f'空き枠のファイル（slots.json）を読めませんでした（{e}）'
+
+    waku = sum(len(x.get('times', [])) for x in (d.get('buckets', {}).get('120') or []))
+    if not waku:
+        return False, '空き枠が1つも出ていません。カレンダーと build-slots.py を確認してください。'
+
+    try:
+        tsukurareta = datetime.datetime.fromisoformat(d['generated'])
+        keika = (datetime.datetime.now(tsukurareta.tzinfo) - tsukurareta).total_seconds() / 3600
+    except Exception:
+        return False, '空き枠のファイルに作成時刻がありません。'
+    if keika > d.get('staleHours', 6):
+        return False, (f'空き枠の情報が{keika:.0f}時間前のものです。'
+                       'tools/build-slots.py をやり直してから送ってください。')
+    return True, ''
+
 
 TEL_UKETSUKE = '080-8043-8259'    # ワンヒッターの受付（和真）
 TEL_HONPO = '080-1344-3137'       # おそうじ本舗としての受付（和真）
@@ -156,9 +215,15 @@ def bangou(nama):
 
 # ============================== 本文 ==============================
 def sei(shimei):
-    """姓だけ取り出す。「佐藤　有司 実家」「大塚 娘」のような書き方にも耐える"""
-    s = re.split(r'[\s　]+', shimei.strip())
-    return s[0] if s and s[0] else shimei.strip()
+    """姓だけ取り出す。「佐藤　有司 実家」「大塚 娘」のような書き方にも耐える。
+    台帳には「青山リアルティ様（田辺様）」のように敬称や補足が入った行がある。
+    そのまま「さま」を付けると「…様（田辺様）さま」になるので、先に落とす。"""
+    na = shimei.strip()
+    na = re.split(r'[（(]', na)[0].strip()          # 括弧の補足を落とす
+    s = re.split(r'[\s\u3000]+', na)
+    na = s[0] if s and s[0] else na
+    na = re.sub(r'(様|さま|さん|殿|御中)$', '', na)   # 末尾の敬称を落とす
+    return na or shimei.strip()
 
 
 def itsu(saishu):
@@ -191,7 +256,40 @@ IIKAE = {
     'コンロ': 'コンロクリーニング',
     '追い焚き': '追い焚き配管クリーニング',
     '床WAX': '床のワックスがけ',
+    # 台帳の表記ゆれ。内部の書き方がそのままお客様に出ないようにする
+    '洗濯機(ノーマル)': '洗濯機クリーニング',
+    '追焚配管': '追い焚き配管クリーニング',
+    '空室': '空室クリーニング',
 }
+
+
+# 「その後、○○は快適に使用できていますでしょうか」と続けるための言い方。
+# IIKAE から「クリーニング」を取って、モノの名前だけにする。
+# 台帳の表記がそのまま使えるものは書かない（見つからなければ表記のまま返す）。
+IIKAE_MONO = {
+    'エアコン(ノーマル)': 'エアコン',
+    'エアコン(ロボ)': 'お掃除機能付きエアコン',
+    '天カセ': '天井カセットエアコン',
+    'まるごと(備考に内容)': 'お住まい',
+    '追い焚き': '追い焚き配管',
+    '床WAX': '床',
+    '洗濯機(ノーマル)': '洗濯機',
+    '追焚配管': '追い焚き配管',
+    # ★「空室」は空にする。退去後の原状回復なので、住んでいる人がいない。
+    #   「その後、空室は快適に使用できていますでしょうか」は成り立たない。
+    #   空にすると、ひな形のその行だけが丸ごと落ちる。
+    '空室': '',
+}
+
+
+def menu_mono(uchiwake):
+    """「浴室×3／エアコン(ロボ)×2」→「浴室」。クリーニングという語を付けない"""
+    if not uchiwake:
+        return ''
+    namae = uchiwake.split('／')[0].split('×')[0].strip()
+    if not namae:
+        return ''
+    return IIKAE_MONO.get(namae, namae)
 
 
 def menu_hitotsu(uchiwake):
@@ -204,60 +302,13 @@ def menu_hitotsu(uchiwake):
 
 
 # ============================== 次にすすめる箇所 ==============================
-# 2026-09-08 オーナー決定のルール。
-#   ・前回がエアコン                    → 水まわりをすすめる
-#   ・前回がエアコン以外で1年以上たっている → 同じ箇所をもう一度
-#   ・前回がエアコン以外で1年未満        → まだやっていない別の箇所
+# ── 次のおすすめ箇所を自動で決める仕組みについて ──
 #
-# 料金には触れない。箇所の提案だけをする。
-
-MIZUMAWARI = '浴室やキッチンなどの水まわり'
-
-# まだやっていない箇所を出すときの順番。上から、まだの箇所を選ぶ
-HOKA_NO_JUNBAN = [
-    ('浴室', '浴室クリーニング'),
-    ('レンジフード', 'レンジフードクリーニング'),
-    ('換気扇', '換気扇クリーニング'),
-    ('キッチン', 'キッチンクリーニング'),
-    ('洗濯機', '洗濯機クリーニング'),
-    ('トイレ', 'トイレクリーニング'),
-    ('洗面台', '洗面台クリーニング'),
-]
-
-
-def yatta(uchiwake):
-    """施工メニュー（内訳）から、やったことのある箇所の名前を集める"""
-    out = set()
-    for koma in (uchiwake or '').split('／'):
-        na = koma.split('×')[0].strip()
-        if na:
-            out.add(na)
-    return out
-
-
-def eakon_ka(na):
-    return na.startswith('エアコン') or na in ('天カセ',)
-
-
-def teian(r):
-    """次にすすめる箇所を1つ返す"""
-    uchiwake = g(r, '施工メニュー（内訳）')
-    zenkai = (uchiwake.split('／')[0].split('×')[0].strip()) if uchiwake else ''
-    if not zenkai:
-        return ''
-    if eakon_ka(zenkai):
-        return MIZUMAWARI
-    try:
-        keika = float(g(r, '経過(月)') or 0)
-    except ValueError:
-        keika = 0
-    if keika >= 12:
-        return menu_hitotsu(uchiwake)          # 同じ箇所をもう一度
-    sumi = yatta(uchiwake)
-    for na, iikata in HOKA_NO_JUNBAN:
-        if na not in sumi:
-            return iikata                       # まだやっていない別の箇所
-    return MIZUMAWARI
+# 2026-09-10 オーナー判断で取りやめ。
+#   「オススメメニューの構想は複雑化（エラー確率上昇）するから一旦取りやめる」
+# 前回メニューと経過月から次の箇所を出す teian() は削除した。
+# 本舗の文面は、9〜11月の季節提案を全員に同じ文で出す固定文にしてある。
+# 復活させたくなったら git log でこのコミットを見ること。
 
 
 # 本文のひな形は「送信系統ごと」に持つ。
@@ -296,6 +347,18 @@ for k, v in HINAGATA.items():
 SASHIKOMI = re.compile(r'"([^"]+)"')
 
 
+def ichinen_ijou(r):
+    """前回から1年以上たっている方にだけ出す一文。それ以外は空を返す"""
+    try:
+        keika = float(g(r, '経過(月)') or 0)
+    except ValueError:
+        keika = 0
+    if keika < 12:
+        return ''
+    return ('前回のクリーニングから1年以上経過しておりますので、'
+            '現在の状況をお聴きしたくご連絡を差し上げました。')
+
+
 def honbun(r, keitou):
     """ひな形の "…" を1人ずつの値に差し替える。
     差し替えるものが空だった行は、その行ごと落とす。
@@ -308,12 +371,20 @@ def honbun(r, keitou):
                    else 'ハウスクリーニング ワンヒッターの渡辺です'),
         '施工時期': itsu(g(r, '最終施工日')),
         '前回メニュー': menu_hitotsu(g(r, '施工メニュー（内訳）')),
-        'おすすめ': g(r, '今回おすすめ').replace('・', 'と'),
-        'ご提案': teian(r),
+        # 「その後、○○は快適に…」用。半角丸かっこ・全角丸かっこのどちらでも拾う
+        '前回施工(クリーニング除く)': menu_mono(g(r, '施工メニュー（内訳）')),
+        '前回施工（クリーニング除く）': menu_mono(g(r, '施工メニュー（内訳）')),
         '申込フォームURL': MOUSHIKOMI,
         '予約フォームURL': YOYAKU_FORM,
+        '予約フォーム': YOYAKU_FORM,
+        # 法人のお客様に「ご自宅の汚れ」と書かないための入れ替え
+        'ご自宅': ('店舗・オフィス' if g(r, '法人/個人') == '法人' else 'ご自宅'),
         '電話番号': TEL_UKETSUKE,
         '本舗の電話番号': TEL_HONPO,
+        # 経過が1年に満たない方には出さない（この行ごと消える）。
+        # 文面が「1年以上経過しております」と言い切っているため、
+        # 事実と違うことを書かないようにする（2026-09-10 オーナー判断）。
+        '1年以上経過のひとこと': ichinen_ijou(r),
     }
     kata = HINAGATA.get(keitou if keitou in HINAGATA else '自社', [])
     if not kata:
@@ -352,9 +423,26 @@ def honbun(r, keitou):
 SHIRANAI = set()   # ひな形に出てきた、知らない差し込みの目印
 
 
+# D列「▶送る」の行き先。
+#
+# 直に sms:番号?body=… を書くと、スマホのスプレッドシートアプリでは
+# タップしても何も起きない。HYPERLINK() が開くのは http/https/mailto だけで、
+# sms: は対象外だから（2026-09-10 和真さん報告
+# 「送るタップで開かないから手打ちで送るねー」）。
+#
+# そこで https のページを1枚はさんで、そこから sms: を開く。
+SMS_PAGE = 'https://one-hitter-booking.netlify.app/s.html'
+
+
 def sms_link(num, text):
-    """タップするとSMSが宛先・本文入りで開く。RFC5724 の sms:番号?body=…"""
-    return 'sms:' + num + '?body=' + urllib.parse.quote(text, safe='')
+    """タップするとSMSが宛先・本文入りで開く。
+
+    ★宛先と本文は「#」より後ろ（フラグメント）に入れる。
+      フラグメントはサーバーに送られないので、Netlifyのアクセス記録に
+      お客様の電話番号も本文も残らない。「?」に変えないこと。
+    """
+    return (SMS_PAGE + '#to=' + urllib.parse.quote(num, safe='')
+            + '&b=' + urllib.parse.quote(text, safe=''))
 
 
 # ============================== 判定 ==============================
@@ -366,12 +454,20 @@ for r in rows:
         data.append(('除外', '直近3ヶ月に施工済み', '', '')); continue
     if keiro == '楽ラクーン':
         data.append(('除外', '楽ラクーン経由（フォロー連絡不可）', '', '')); continue
+    # 空室クリーニングは退去後の原状回復。住んでいる人がいないので、
+    # 「その後いかがですか」という声かけが成り立たない（2026-09-08 オーナー指示）
+    if g(r, '施工メニュー（内訳）').split('／')[0].split('×')[0].strip() == '空室':
+        data.append(('除外', '空室クリーニングのお客様（オーナー指示）', '', '')); continue
     num, err = bangou(g(r, 'TEL'))
     if not num:
         data.append(('SMS不可', err + '／公式LINEか電話で拾う', '', '')); continue
     if num in mizumi:
         data.append(('除外', '同じ電話番号が他の行にもある', num, '')); continue
     mizumi.add(num)
+    # 台帳の氏名が壊れている行。「ご　さん」→「ごさま」のような送信を止める
+    if re.fullmatch(r'[ぁ-んァ-ヶー]', sei(g(r, '氏名'))):
+        data.append(('保留', f'氏名の表記を確認してください（台帳:{g(r, "氏名")}）',
+                     num, '')); continue
     keitou = g(r, '送信系統')
     hon = honbun(r, keitou)
     if not hon:
@@ -379,6 +475,23 @@ for r in rows:
                      f'{HINAGATA_PATH.get(keitou, "")} を埋めると送信可になります',
                      num, ''))
         continue
+    # 名乗りの行が落ちた本文は送らない。
+    # 「"施工時期"に"前回メニュー"を担当させていただきました、…の渡辺でございます」の行は
+    # 台帳に最終施工日か施工メニューが無いと丸ごと落ちる。落ちると、
+    # 誰から届いたのか分からないSMSになってしまう（2026-09-10）。
+    if '渡辺でございます' not in hon:
+        data.append(('保留', '最終施工日か施工メニューが台帳に無く、名乗りの行が'
+                     '作れませんでした。台帳を埋めると送信可になります', num, ''))
+        continue
+    # 本舗のお客様に、ワンヒッターのものを出していないかを1行ずつ確かめる。
+    # 「本舗顧客には本舗として営業する」（2026-09-08 オーナー指示）
+    if keitou == '本舗':
+        moreta = [w for w in ('ワンヒッター', 'one-hitter', 'ONE HITTER', TEL_UKETSUKE)
+                  if w in hon]
+        if moreta:
+            data.append(('保留', 'ワンヒッターのものが本舗の文面に混ざっています:'
+                         + '、'.join(moreta), num, ''))
+            continue
     data.append(('送信可', '', num, hon))
 
 # ============================== 並べ替えとバッチ ==============================
@@ -405,13 +518,20 @@ ATAMA = ['優先', '顧客名', '電話番号', '▶SMSを開く', '送信する
          '今回おすすめ', '主な流入経路', '利用年', '元の電話番号表記', '予備']
 
 atarashii = []
+RINKU = []      # D列に付けるリンク。atarashii と同じ並び
 for i, r in enumerate(rows):
     kubun, riyuu, num, hon = data[i]
     link = ''
     if kubun == '送信可':
-        # 数式に " が入ると壊れるので、本文側の " は全角に寄せる
-        t = hon.replace('"', '”')
-        link = f'=HYPERLINK("{sms_link(num, hon)}","▶ 送る")'
+        # ★=HYPERLINK() は使わない。
+        #   iPhoneのスプレッドシートアプリでは、HYPERLINK() の結果をタップしても
+        #   セルが選ばれるだけでリンクが開かない（2026-09-10 和真さんのスクショで確認）。
+        #   セルの文字そのものにリンクを付ける（textFormatRuns）と、
+        #   リンクとして扱われてタップで開ける。付ける処理はこの下でまとめて行う。
+        link = '▶ 送る'
+        RINKU.append(sms_link(num, hon))
+    else:
+        RINKU.append('')
     atarashii.append([
         g(r, '優先'), g(r, '氏名'), ("'" + num) if num else '', link, hon,
         g(r, '送信済み'), g(r, '返信メモ'), batch.get(i, ''), kubun, riyuu,
@@ -422,10 +542,11 @@ for i, r in enumerate(rows):
 
 # 送信可を上に、そのなかは送る順。送らない人は下へ
 juni = {v: k for k, v in enumerate(okuru)}
-kumi = list(zip(range(len(rows)), atarashii))
+kumi = list(zip(range(len(rows)), atarashii, RINKU))
 kumi.sort(key=lambda x: (0 if x[1][8] == '送信可' else 1,
                          juni.get(x[0], 9999)))
 atarashii = [x[1] for x in kumi]
+RINKU = [x[2] for x in kumi]        # 並べ替えたら、リンクも同じ順に並べ直す
 
 # ============================== 実機テスト用の行 ==============================
 # D列の「▶送る」がスマホで効くかどうかは、実機で試すしかない。
@@ -435,13 +556,96 @@ TEST_TEL = '08080438259'
 TEST_HONBUN = ('【テスト】この画面が宛先と本文入りで開いていれば成功です。\n'
                'そのまま送信して、届いたらグループLINEに一言ください。')
 test_gyou = ['テスト', '【実機テスト】自分あて', "'" + TEST_TEL,
-             f'=HYPERLINK("{sms_link(TEST_TEL, TEST_HONBUN)}","▶ 送る")',
+             '▶ 送る',
              TEST_HONBUN, '', '', '9/9', 'テスト',
              'D列が効くかを確かめるための行。消して構いません', '', '', '',
              '', '', '', '', '', '', '', '', '', '', '', '']
 atarashii.insert(0, test_gyou[:len(ATAMA)])
+RINKU.insert(0, sms_link(TEST_TEL, TEST_HONBUN))
+
+def shuukei():
+    print()
+    print('=== 集計 ===')
+    for k, v in Counter(x[8] for x in atarashii).most_common():
+        print(f'{v:5}  {k}')
+    print()
+    print('系統別（送信可のみ）')
+    okr = [x for x in atarashii if x[8] == '送信可']
+    print(' ', dict(Counter(x[12] for x in okr)))
+    print(' 優先別:', dict(sorted(Counter(x[0] for x in okr).items())))
+    print()
+    # SMSは全角70文字で1通。超えると分割して送られる（受け取れない端末もある）
+    naga = [len(x[4]) for x in okr]
+    print('本文の長さ  最短', min(naga), '／ 最長', max(naga),
+          '／ 平均', sum(naga) // len(naga))
+    print('  70文字超:', sum(1 for n in naga if n > 70), '件（長文SMSとして分割されます）')
+    # 差し込みが空で行ごと落ちたものを数える。文面が痩せていないかの確認
+    kake = [x for x in okr if '渡辺でございます' not in x[4] and 'おそうじ本舗' not in x[4]]
+    if kake:
+        print('★ 名乗りの行が落ちた本文:', len(kake),
+              '件（最終施工日か施工メニューが台帳に無い方）')
+    if SHIRANAI:
+        print()
+        print('★ ひな形に、知らない差し込みの目印がありました:',
+              '、'.join(sorted(SHIRANAI)))
+        print('  そのまま本文に残っています。data/sms-template.txt の説明を見てください。')
+    print()
+    # 本舗の文面は「前回のクリーニングから1年以上経過しております」と言い切っている。
+    # 経過が1年未満の方に送ると事実と違うので、件数を必ず出す（2026-09-10）。
+    i_ke = ATAMA.index('経過(月)')
+    IJOU = '1年以上経過しております'
+    mijikai, machigai = [], []
+    for x in okr:
+        if x[12] != '本舗':
+            continue
+        try:
+            k = float(x[i_ke] or 0)
+        except ValueError:
+            k = 0
+        if k >= 12:
+            continue
+        mijikai.append((x[1], k))
+        if IJOU in x[4]:            # ここに入ったら文面と事実が食い違っている
+            machigai.append(x[1])
+    if mijikai:
+        print('本舗で経過1年未満の方:', len(mijikai),
+              '件（「1年以上経過しております」の一文は出していません）')
+        print('  例:', '、'.join(f'{na}({k}ヶ月)' for na, k in mijikai[:5]))
+        print()
+    if machigai:
+        print('★★ 1年未満の方に「1年以上経過」と書いています:', len(machigai), '件')
+        print('   送信を止めてください。', '、'.join(machigai[:5]))
+        print()
+    # 一文が落ちた側の文面も1件出す。落ちたあとの文のつながりを目で見るため
+    for x in okr:
+        if x[12] == '本舗' and IJOU not in x[4]:
+            print('--- 本舗・経過1年未満の例（上の一文が落ちた形）---')
+            print()
+            print(f'[{x[1]}]')
+            print(x[4])
+            print()
+            break
+    for kt in ('自社', '本舗'):
+        rei = [x for x in okr if x[12] == kt]
+        if not rei:
+            continue
+        n2 = [len(x[4]) for x in rei]
+        print(f'--- {kt} の本文の例（{len(rei)}件・最長{max(n2)}文字）---')
+        print()
+        print(f'[{rei[0][1]}]')
+        print(rei[0][4])
+        print()
+    print('--- 本文の例（先頭3件）---')
+    for x in okr[:3]:
+        print(f'\n[{x[1]}]\n{x[4]}')
+
 
 # ============================== 書き込み ==============================
+if DRY:
+    shuukei()
+    print('\n--dry-run のためシートには書いていません。')
+    sys.exit(0)
+
 meta = call(f'/{SS}')
 sh = next(s for s in meta['sheets'] if s['properties']['title'] == TAB)
 SID = sh['properties']['sheetId']
@@ -451,9 +655,14 @@ if gp['columnCount'] < len(ATAMA):
         'properties': {'sheetId': SID, 'gridProperties': {'columnCount': len(ATAMA)}},
         'fields': 'gridProperties.columnCount'}}]})
 
-SETSUMEI = ('スマホでの送信作業用。C列の番号かD列の「▶送る」をタップ → SMSが開く → '
-            '送信 → F列で「送信済み」を選ぶ。D列が反応しない端末では、'
-            'E列の本文をコピーしてください。'
+YOYAKU_OK, YOYAKU_RIYUU = yoyaku_ikiteruka()
+if not YOYAKU_OK:
+    print('\n★★ 送信を始めてはいけません:', YOYAKU_RIYUU, '\n')
+
+SETSUMEI = ('' if YOYAKU_OK else '【送信は保留してください】' + YOYAKU_RIYUU + ' ') + (
+           'スマホでの送信作業用。D列の「▶ 送る」をタップ → 出てきたリンクを開く → '
+            'SMSが宛先と本文入りで開く → 送信 → F列で「送信済み」を選ぶ。'
+            '開かないときは、E列の本文をコピーして貼ってください（手打ちはしないこと）。'
             'スケジュールマッチング経由で送ってはいけない先は、F列で「対象外」にしてください。')
 
 # いったん広めに消してから書き直す
@@ -565,26 +774,36 @@ req.append({'updateSheetProperties': {
 call(f'/{SS}:batchUpdate', 'POST', {'requests': req})
 print('書式をつけました')
 
-print()
-print('=== 集計 ===')
-for k, v in Counter(x[8] for x in atarashii).most_common():
-    print(f'{v:5}  {k}')
-print()
-print('系統別（送信可のみ）')
-okr = [x for x in atarashii if x[8] == '送信可']
-print(' ', dict(Counter(x[12] for x in okr)))
-print(' 優先別:', dict(sorted(Counter(x[0] for x in okr).items())))
-print()
-print('本文の長さ  最短', min(len(x[4]) for x in okr),
-      '／ 最長', max(len(x[4]) for x in okr),
-      '／ 平均', sum(len(x[4]) for x in okr) // len(okr))
-if SHIRANAI:
-    print()
-    print('★ ひな形に、知らない差し込みの目印がありました:',
-          '、'.join(sorted(SHIRANAI)))
-    print('  そのまま本文に残っています。data/sms-template.txt の説明を見てください。')
+# ============================== D列に本物のリンクを付ける ==============================
+#
+# ★ここが「▶送る」が効くかどうかの分かれ目。
+#
+# =HYPERLINK() で書くと、iPhoneのスプレッドシートアプリではタップしても
+# セルが選ばれるだけで、リンクが開かない
+# （2026-09-10 和真さんのスクリーンショットで確認。
+#   タップすると「カット／コピー／ペースト」が出るだけだった）。
+#
+# セルの文字そのものにリンクを付ける（textFormatRuns の link）と、
+# アプリ側がリンクとして扱うので、タップで開ける。
+# パソコンのブラウザでは、どちらの書き方でも青い文字になって開ける。
+gyou_cells = []
+for u in RINKU:
+    if u:
+        gyou_cells.append({'values': [{
+            'userEnteredValue': {'stringValue': '▶ 送る'},
+            'textFormatRuns': [{'startIndex': 0, 'format': {'link': {'uri': u}}}]}]})
+    else:
+        gyou_cells.append({'values': [{'userEnteredValue': {'stringValue': ''}}]})
+# 1回のリクエストに詰め込みすぎると通らないので、200行ずつに分ける
+for hajime in range(0, len(gyou_cells), 200):
+    kata = gyou_cells[hajime:hajime + 200]
+    call(f'/{SS}:batchUpdate', 'POST', {'requests': [{'updateCells': {
+        'range': {'sheetId': SID,
+                  'startRowIndex': 5 + hajime, 'endRowIndex': 5 + hajime + len(kata),
+                  'startColumnIndex': 3, 'endColumnIndex': 4},
+        'rows': kata,
+        'fields': 'userEnteredValue,textFormatRuns'}}]})
+print('D列にリンクを付けました:', sum(1 for u in RINKU if u), '件')
 
-print()
-print('--- 本文の例（先頭3件）---')
-for x in okr[:3]:
-    print(f'\n[{x[1]}]\n{x[4]}')
+
+shuukei()

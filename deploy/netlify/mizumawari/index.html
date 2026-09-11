@@ -23,6 +23,13 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
 <script>window.OH_M={"page":{"kind":"lp","lp_id":"mizumawari","lp_variant":"A"},"google_ads":{"conversion_id":"","labels":{"generate_lead":"","phone_click":"","line_click":""},"phone_conversion_label":""},"debug":false};</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DLJCTKGTDN"></script>
+<script>
+window.dataLayer=window.dataLayer||[];
+function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());
+gtag('config','G-DLJCTKGTDN',{'lp_id':'mizumawari','lp_variant':'A'});
+</script>
 </head>
 <body>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -927,6 +934,9 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
         <label for="f-x">この欄には入力しないでください</label>
         <input id="f-x" name="x_field" type="text" tabindex="-1" autocomplete="off">
       </div>
+      
+      <input type="hidden" name="src" id="h-src" value="direct">
+      <input type="hidden" name="cid" id="h-cid" value="">
       <div class="field">
         <div class="lab"><label for="f-name">お名前</label><span class="req">必須</span></div>
         <input id="f-name" name="name" type="text" autocomplete="name" required>
@@ -1094,6 +1104,16 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     }
   });
 })();
+  /* 流入元の記録。?src= と ?cid= を hidden に写す。
+     値は素性が不明なので、長さと文字種を制限してから入れる。 */
+  (function(){
+    var q = new URLSearchParams(location.search);
+    var clean = function(v, n){ return (v || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, n); };
+    var src = clean(q.get('src'), 20) || 'direct';
+    var cid = clean(q.get('cid'), 20);
+    var es = document.getElementById('h-src'); if (es) es.value = src;
+    var ec = document.getElementById('h-cid'); if (ec) ec.value = cid;
+  })();
 </script>
 
 <script>
