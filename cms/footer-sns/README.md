@@ -1,43 +1,63 @@
 # フッターにInstagram・Facebookのリンクを置く
 
-作成 2026-09-11 ／ LP・サイト担当 ／ **反映はまだしない**
+作成 2026-09-11 ／ LP・サイト担当 ／ **反映はまだしない**（CMOがオーナーに一括で上げる）
 
-## 状態：**URL未着**
+依頼元：掲示板 `20260911-01-lp`（ネット流入施策担当）
+背景：公式サイト4ページの外部リンクが公式LINEの1本だけで、SNSへの導線が0件だった
+（`docs/sns-90日運用案.md` 1-1）。CMOが「置く」と決定（`20260910-02-cmo` 返信2）。
 
-ネット流入施策担当（`web-inflow`）から、Instagram・FacebookのURLが届いていません。
-掲示板 `20260910-01-web-inflow`「SNSアカウントの前提条件が埋まりました（誰が管理しているか）」
-で管理者の確認が進んでいる段階です。
+## 貼る内容
 
-**URLが届き次第この原稿を確定します。** 以下は入れる場所と体裁だけ先に決めたものです。
+```html
+<a href="https://www.instagram.com/onehitter.jp/" target="_blank" rel="noopener">Instagram</a>
+<a href="https://www.facebook.com/people/One-Hitter/100084190801350/" target="_blank" rel="noopener">Facebook</a>
+```
 
 ## 入れる場所
 
-フッターの `.foot-links` 相当の位置。現在ここには次が並んでいます。
+フッターの `.foot-links` 相当の行の末尾。現在ここには次が並んでいます。
 
 ```
 個人情報の取扱いについて　｜　公式サイト
 ```
 
-同じ行の末尾にSNSを足します。**新しいブロックは作りません**（フッターの情報量を増やすと
-電話番号と住所が埋もれます）。
+**新しいブロックは作りません。** フッターの情報量を増やすと電話番号と住所が埋もれます。
 
-```html
-<a href="（Instagram URL）" target="_blank" rel="noopener">Instagram</a>
-<a href="（Facebook URL）" target="_blank" rel="noopener">Facebook</a>
-```
+## 決めたこと
 
-## 決めておくこと（CMO宛）
+- **アイコンではなく文字にしました。** CMSへの画像追加が不要で、公式サイトの他のリンクが
+  全て文字なので浮きません
+- `target="_blank"` と `rel="noopener"` を付けます。`noopener` が無いと、
+  開いた先のページから元のタブを操作できてしまいます
 
-1. **アイコンにするか、文字にするか。** 文字を推します。アイコンはCMSに画像を上げる手間が増え、
-   公式サイトの他のリンクが全て文字なので浮きます
-2. **`rel="noopener"` は必須**（付けないと開いた先から元のタブを操作できる）
-3. リソース `2234`（インスタ投稿表示）が既にあります。**フッターのリンクとは別物**ですが、
-   投稿表示を使うなら二重にInstagramへの導線ができます。どちらにするかCMOの判断が要ります
+## URLの確認状況
+
+| | URL | 確認 |
+|---|---|---|
+| Facebook | `https://www.facebook.com/people/One-Hitter/100084190801350/` | **HTTP 200** |
+| Instagram | `https://www.instagram.com/onehitter.jp/` | **未確認（HTTP 429）** |
+
+Instagram は **429（レート制限）** で確認できませんでした。404ではないのでURL自体は
+妥当だと思いますが、断定はしません。**貼る前にブラウザで一度開いて確かめてください。**
+
+## 後で差し替えが要るもの
+
+- **FacebookのURLは `/people/…/数字ID/` 形式です。** オーナーがページにユーザーネームを
+  付けたら短いURLに変わります。差し替えはネット流入担当から再度依頼が来ます
+- **Googleビジネスプロフィールのリンクは未定。** 管理者の確定待ち（CMOが確認中）
+
+## CMOへの判断依頼（1件）
+
+リソース `2234`（インスタ投稿表示）が既にあります。投稿表示を使うなら、
+フッターのリンクと合わせて**Instagramへの導線が二重**になります。どちらにしますか。
+
+こちらの推奨は**フッターのリンクだけ**です。投稿表示はページの読み込みが重くなり、
+投稿が止まると「更新されていない会社」に見えます。
 
 ## 反映後の確認方法
 
 ```bash
-curl -sS https://one-hitter.jp/ | grep -o 'href="https://[^"]*\(instagram\|facebook\)[^"]*"'
+curl -sS https://one-hitter.jp/ | grep -o 'href="https://www\.\(instagram\|facebook\)[^"]*"'
 # Instagram と Facebook のURLが1つずつ出ること
 
 curl -sS https://one-hitter.jp/ | grep -c 'rel="noopener"'
