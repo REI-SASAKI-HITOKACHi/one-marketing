@@ -57,11 +57,24 @@ import meigi_check as MC  # noqa: E402  名乗りの照合（2026-09-11 の事�
 # KDDI Message Cast の課金は「文字数に応じて課金通数が異なる」とだけ公表されており、
 # 換算表は非公開（2026-09-06 時点、公式サイトで確認）。
 # ここでは国内SMSの慣行である「全角70文字ごとに1通」を仮置きしている。
-# ★契約時にKDDIから正式な換算表をもらったら UNIT_CHARS と PRICE_PER_UNIT を直すこと。
+# ★KDDIに1通の文字数上限と超過時の課金単位を質問中（measurement が 2026-09-11 に照会）。
+#   回答が来たら UNIT_CHARS を直すこと。分割分が別の1通として課金されるなら費用が倍になる。
 UNIT_CHARS = 70
-PRICE_PER_UNIT = 9.35  # 円・税込。公表値は「9.35円〜」なので下限。提示額が出たら差し替える
+
+# ★2026-09-11 訂正：以前ここに書いていた 9.35円 は誤りだった。
+#   公式サイトの「9.35円（税込）〜」は最大ボリューム帯（月50,001通〜）の単価で、
+#   当社の配信量（月5,000通未満）には適用されない。
+#   先方から提示された単価は**すべて税抜**（measurement が先方メールで確認）。
+#     〜5,000通       10.0円（税抜） → 11.0円（税込）  ← 当社はここ
+#     5,001〜10,000通  9.5円（税抜） → 10.45円（税込）
+#     10,001〜50,000通 9.0円（税抜） →  9.9円（税込）
+#     50,001通〜       8.5円（税抜） →  9.35円（税込）
+PRICE_PER_UNIT = 11.0  # 円・税込。当社の配信量（月5,000通未満）に適用される単価
 PRICE_IS_PROVISIONAL = True
-WITHDRAW_LINE = 10.0  # 税込10円を超えたら NTT CPaaS に切り替える（撤退ライン）
+
+# 撤退ライン：税込10円を超えたら NTT CPaaS に切り替える（2026-09-05 の決定）
+# ★11.0円は、このラインを超えている。切り替えの判断はCMOへ上げた（2026-09-11）。
+WITHDRAW_LINE = 10.0
 
 MAX_CHARS = 660  # docomo基準。全キャリア宛はこれを上限にする
 
@@ -301,8 +314,13 @@ def cmd_check() -> int:
         print(f"  OK 電話番号で引ける人 {len(by_tel)}名 ／ 氏名で引ける人 {len(by_name)}名")
     print()
     if PRICE_IS_PROVISIONAL:
-        print(f"※ 単価{PRICE_PER_UNIT}円は公表下限。KDDIの提示が{WITHDRAW_LINE}円(税込)を超えたら NTT CPaaS に切り替える。")
-        print("※ 課金の文字数換算はKDDI非公開。契約時にもらう換算表で UNIT_CHARS を直すこと。")
+        if PRICE_PER_UNIT > WITHDRAW_LINE:
+            print(f"★ 単価 {PRICE_PER_UNIT}円（税込）は撤退ライン {WITHDRAW_LINE}円 を超えています。")
+            print("  KDDIの提示は税抜10.0円＝税込11.0円（月5,000通未満の帯）。")
+            print("  NTT CPaaS への切り替えを検討する取り決めです。判断はCMOへ上げ済み。")
+        else:
+            print(f"※ 単価{PRICE_PER_UNIT}円（税込）。撤退ラインは{WITHDRAW_LINE}円。")
+        print("※ 1通の文字数上限と超過時の課金単位はKDDIに照会中。回答が来たら UNIT_CHARS を直すこと。")
     print(("NG が %d 件あります" % ng) if ng else "\nすべてOK")
     return 1 if ng else 0
 
