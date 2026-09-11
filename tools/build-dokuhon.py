@@ -38,12 +38,12 @@ a{color:var(--accent-ink);}
 .serif{font-family:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho",serif;}
 .col{max-width:560px;margin:0 auto;padding:0 22px;}
 /* 冒頭 */
-.opener{min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:64px 22px 48px;max-width:560px;margin:0 auto;}
+.opener{min-height:78svh;display:flex;flex-direction:column;justify-content:center;padding:56px 22px 36px;max-width:560px;margin:0 auto;}
 .opener .num{font-family:"Shippori Mincho B1",serif;font-weight:800;font-size:clamp(84px,26vw,132px);line-height:1;letter-spacing:-.02em;color:var(--ink);}
 .opener .num small{font-size:.42em;letter-spacing:0;margin-left:.06em;}
 .opener .line{font-family:"Shippori Mincho B1",serif;font-weight:700;font-size:clamp(22px,6vw,28px);line-height:1.65;margin-top:26px;text-wrap:balance;}
 .opener .src{font-size:11.5px;color:var(--ink-3);line-height:1.6;margin-top:34px;}
-.opener .down{margin-top:auto;padding-top:40px;font-size:12px;color:var(--ink-3);letter-spacing:.14em;}
+.opener .down{margin-top:auto;padding-top:28px;font-size:12px;color:var(--ink-3);letter-spacing:.14em;}
 /* 章 */
 .ch{padding:56px 0 8px;}
 .ch .no{font-family:"Shippori Mincho B1",serif;font-size:15px;color:var(--accent);border-top:1.5px solid var(--accent);display:inline-block;padding:8px 14px 0 0;}
