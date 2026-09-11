@@ -457,6 +457,7 @@ function prepareInvoiceCalc_(payload, ctx) {
     highwayFee: toNumber_(r['高速代']),
     busyManual: parseBooleanLoose_(r['繁忙期_手動設定']),
     discountManual: parseBooleanLoose_(r['割引_手動設定']),
+    setPricingManual: parseBooleanLoose_(r['同時施工_手動設定']),
     adjustments: buildInvoiceAdjustments_(r, p),
     targetTotal: 0,
     details: extractDetailsFromRecord_(r)
@@ -537,6 +538,7 @@ function rebuildInvoiceCalc_(record, ctx) {
     highwayFee: toNumber_(record['高速代']),
     busyManual: parseBooleanLoose_(record['繁忙期_手動設定']),
     discountManual: parseBooleanLoose_(record['割引_手動設定']),
+    setPricingManual: parseBooleanLoose_(record['同時施工_手動設定']),
     adjustments: parseAdjustmentsJson_(record['調整_JSON']),
     targetTotal: 0,
     details: extractDetailsFromRecord_(record)
@@ -608,6 +610,8 @@ function buildInvoiceRecord_(payload, ctx, prepared, invoiceId, previousInvoiceI
     見積差額: calc.grandTotal - prepared.estimateTotal,
     繁忙期_手動設定: boolText_(calc.busyManual),
     割引_手動設定: boolText_(calc.autoDiscountOn),
+    同時施工_手動設定: boolText_(calc.setPricingOn),
+    同時施工割引額: calc.setDiscountApplied,
     調整合計額: calc.adjustmentTotal,
     調整_JSON: JSON.stringify((calc.appliedAdjustments || []).map(function (a) {
       return {
@@ -847,7 +851,8 @@ function getInvoiceHeaders_() {
 
   // 2026-09改修の追加列。既存列の位置は動かさず右端に足す。
   headers.push('request_id', '見積時合計金額', '見積差額',
-    '繁忙期_手動設定', '割引_手動設定', '調整合計額', '調整_JSON');
+    '繁忙期_手動設定', '割引_手動設定', '調整合計額', '調整_JSON',
+    '同時施工_手動設定', '同時施工割引額');
 
   for (let i = 1; i <= APP.MAX_DETAIL_ROWS; i++) {
     headers.push('明細' + pad2_(i) + '_値引き額');

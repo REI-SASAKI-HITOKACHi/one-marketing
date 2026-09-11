@@ -12,8 +12,17 @@
  * （公開ページから読み取ったもの。仕様変更があれば取り直すこと）。
  * 見積アプリ側は本物の CalcEngine と本番メニューマスタを使う。
  *
- * このテストは「一致すること」を主張しない。
- * **ズレの一覧を出す**のが目的。どう揃えるかは料金の決めごとなのでオーナー判断。
+ * 2026-09-11、CMO判断（掲示板 20260910-06-cmo）により見積アプリ側を揃えた。
+ * 以降このテストは**一致を要求する**。ズレたら失敗する。
+ *
+ *   Q1 繁忙期加算 ¥3,300 は税込（10%を重ねない）
+ *   Q2 同時施工価格を予約フォームと同じ解釈で見積アプリにも入れる
+ *   Q3 ネット申込特典 −¥2,200 はページ限定。見積では任意の割引行として足す
+ *
+ * 比較は「同じ受注条件」で行う。つまり
+ *   ・自動割引ON（フォームは常に早期予約割引を出すため）
+ *   ・フォームが特典を出す組み合わせでは、見積側にもネット申込特典の行を足す
+ * 参考として、納品時の既定（自動割引OFF・特典なし）の金額も併記する。
  */
 'use strict';
 
@@ -128,30 +137,49 @@ menuRows.slice(1).forEach(r => {
   byName[name] = m;
 });
 
+/**
+ * 割引繁忙期マスタの正規化後の内容（Admin.gs の adminNormalizeDiscountRules と同じ値）。
+ * ここを直したら Admin.gs も直すこと。ズレていないかは下の整合チェックで見ている。
+ */
 const rules = [
   { ruleType: '繁忙期', target: '全体', startMonth: 5, endMonth: 7, value: 3300, priority: 10 },
   { ruleType: '繁忙期', target: '全体', startMonth: 12, endMonth: 12, value: 3300, priority: 10 },
   { ruleType: '早期予約割引', target: '全体', startMonth: 1, endMonth: 2, value: 0.15, priority: 20 },
   { ruleType: '早期予約割引', target: '全体', startMonth: 3, endMonth: 4, value: 0.10, priority: 20 },
-  { ruleType: '早期予約割引', target: '全体', startMonth: 8, endMonth: 10, value: 0.10, priority: 20 }
+  { ruleType: '早期予約割引', target: '全体', startMonth: 8, endMonth: 10, value: 0.10, priority: 20 },
+
+  { ruleType: '同時施工価格', target: 'M004', condition: '', value: 13800, priority: 40 },
+  { ruleType: '同時施工価格', target: 'M006', condition: '', value: 13800, priority: 40 },
+  { ruleType: '同時施工価格', target: 'M007', condition: '', value: 13800, priority: 40 },
+  { ruleType: '同時施工価格', target: 'M008', condition: '', value: 15100, priority: 40 },
+  { ruleType: '同時施工価格', target: 'M009', condition: 'M006', value: 5500, priority: 40 },
+  { ruleType: '同時施工価格', target: 'M010', condition: '', value: 6800, priority: 40 },
+
+  { ruleType: 'ネット申込特典', target: 'ネット申込特典', condition: '', value: 2200, priority: 50 }
 ];
+
+const NET_BENEFIT = { name: 'ネット申込特典', amount: 2200, note: 'このページからのお申し込み特典' };
 
 function appCtx(autoDiscount) {
   return {
     taxRate: 0.10, busySurcharge: 3300, busySurchargeUnit: '数量ごと',
-    autoDiscountEnabled: autoDiscount, largeDiscountRatio: 0.30,
+    busySurchargeTaxIncluded: true,
+    autoDiscountEnabled: autoDiscount, setPricingEnabled: true,
+    largeDiscountRatio: 0.30, netBenefit: NET_BENEFIT,
     menuMap, discountRules: rules
   };
 }
 
-function appPrice(basket, month, autoDiscount) {
+function appPrice(basket, month, autoDiscount, withNetBenefit) {
   const details = basket.map(b => {
     const m = byName[b.appMenu];
     if (!m) throw new Error('メニューマスタに無い：' + b.appMenu);
     return { menuId: m.menuId, qty: b.qty };
   });
+  const ctx = appCtx(autoDiscount);
+  const adjustments = withNetBenefit ? [engine.netBenefitAdjustment(ctx)] : [];
   const workDate = '2026-' + pad(month) + '-15';
-  return engine.calculate({ workDate, details }, appCtx(autoDiscount));
+  return engine.calculate({ workDate, details, adjustments }, ctx);
 }
 
 /* ===================== 比較 ===================== */
@@ -183,87 +211,97 @@ const CASES = [
 
 const yen = n => '¥' + Math.round(n).toLocaleString('en-US');
 
+/* --- Admin.gs の正規化テーブルとズレていないか --- */
+
+const adminSrc = fs.readFileSync(path.join(srcDir, 'Admin.gs'), 'utf8');
+const adminSet = {};
+adminSrc.replace(/\['TRUE', 'SET_(\w+)', '同時施工価格', '(\w+)', '', '', '(\w*)', (\d+)/g,
+  (_, id, target, cond, value) => { adminSet[target] = { cond, value: Number(value) }; });
+
+const adminNet = /'ネット申込特典', 'ネット申込特典', '', '', '', (\d+)/.exec(adminSrc);
+
+const mismatches = [];
+rules.filter(r => r.ruleType === '同時施工価格').forEach(r => {
+  const a = adminSet[r.target];
+  if (!a) return mismatches.push(r.target + ' が Admin.gs に無い');
+  if (a.value !== r.value) mismatches.push(r.target + ' の単価が違う（Admin.gs ' + a.value + ' / このテスト ' + r.value + '）');
+  if (a.cond !== (r.condition || '')) mismatches.push(r.target + ' の条件が違う');
+});
+if (Object.keys(adminSet).length !== rules.filter(r => r.ruleType === '同時施工価格').length) {
+  mismatches.push('同時施工価格ルールの件数が Admin.gs と違う（Admin.gs ' + Object.keys(adminSet).length + '件）');
+}
+if (!adminNet || Number(adminNet[1]) !== NET_BENEFIT.amount) {
+  mismatches.push('ネット申込特典の金額が Admin.gs と違う');
+}
+
+/* --- 突き合わせ --- */
+
 console.log('\n予約フォーム vs 見積アプリ（すべて税込で比較）');
-console.log('見積アプリは納品時の既定（自動割引OFF）で計算\n');
-console.log('  ' + 'ケース'.padEnd(26) + 'フォーム'.padStart(11) + 'アプリ'.padStart(11)
-  + '差額'.padStart(11) + '  内訳');
-console.log('  ' + '-'.repeat(88));
+console.log('「同条件」＝自動割引ON＋フォームが特典を出す組み合わせにはネット申込特典を足した場合\n');
+console.log('  ' + 'ケース'.padEnd(26) + 'フォーム'.padStart(11) + '同条件'.padStart(11)
+  + '差額'.padStart(9) + '   既定(割引OFF)'.padStart(16) + '  内訳');
+console.log('  ' + '-'.repeat(104));
 
 const gaps = [];
 
 CASES.forEach(c => {
   const basket = c.basket.map(b => Object.assign({}, b, { appMenu: NAME_MAP[b.name] }));
 
-  let f, a;
+  let f, same, shipped;
   try {
     f = formPrice(basket, c.month);
-    a = appPrice(basket, c.month, false);
+    // フォームがネット申込特典を出す条件（2箇所以上・セット割引が付かない）を同条件側でも再現する
+    same = appPrice(basket, c.month, true, f.netto > 0);
+    shipped = appPrice(basket, c.month, false, false);
   } catch (e) {
     console.log('  ' + c.label.padEnd(26) + '  スキップ：' + e.message);
+    gaps.push({ label: c.label, diff: NaN });
     return;
   }
 
-  const diff = a.grandTotal - f.total;
+  const diff = same.grandTotal - f.total;
   const why = [];
-  if (f.setBiki) why.push('同時施工割引 -' + yen(f.setBiki));
+  if (f.setBiki) why.push('同時施工 -' + yen(f.setBiki));
   if (f.waribiki) why.push('早期予約 -' + yen(f.waribiki));
   if (f.netto) why.push('ネット特典 -' + yen(f.netto));
-  if (f.kasan) why.push('繁忙期 +' + yen(f.kasan) + '（フォーム）');
-  if (a.busyAmount) why.push('繁忙期 +' + yen(a.busyAmount) + '（アプリ・税抜）');
+  if (f.kasan) why.push('繁忙期 +' + yen(f.kasan));
 
-  console.log('  ' + c.label.padEnd(26) + yen(f.total).padStart(11) + yen(a.grandTotal).padStart(11)
-    + (diff === 0 ? '一致' : (diff > 0 ? '+' : '') + yen(diff)).padStart(11)
+  console.log('  ' + c.label.padEnd(26) + yen(f.total).padStart(11) + yen(same.grandTotal).padStart(11)
+    + (diff === 0 ? '一致' : (diff > 0 ? '+' : '') + yen(diff)).padStart(9)
+    + yen(shipped.grandTotal).padStart(16)
     + '  ' + why.join(' / '));
 
-  if (diff !== 0) gaps.push({ label: c.label, diff, form: f, app: a });
+  if (diff !== 0) gaps.push({ label: c.label, diff, form: f, app: same });
 });
 
-console.log('\n' + '='.repeat(92));
-console.log('■ ズレの原因（コードから読み取れたもの）');
-console.log('='.repeat(92));
+console.log('\n' + '='.repeat(104));
 
-console.log(`
-1. 同時施工割引（セット価格）
-   予約フォーム : メニューごとに単品価格 t と同時施工価格 d を持ち、2箇所以上のとき
-                 「割引額がいちばん小さい1箇所」だけ単品、残りは同時施工価格。
-   見積アプリ   : 同時施工価格という概念が無い。常に単価1本。
-   → 2箇所以上のご依頼で、フォームのほうが安く出る。
+if (mismatches.length) {
+  console.log('■ Admin.gs の正規化テーブルとの不一致');
+  mismatches.forEach(m => console.log('  ✗ ' + m));
+  console.log('');
+}
 
-2. ネット申込特典 ¥2,200
-   予約フォーム : 2箇所以上でセット割引が付かない組み合わせのときだけ −¥2,200。
-   見積アプリ   : 無し。
+if (gaps.length === 0 && mismatches.length === 0) {
+  console.log('■ 揃っていること');
+  console.log(`
+  ・繁忙期加算 ¥3,300 は税込。課税対象には ¥3,000 で載せ、消費税を足して ¥3,300 になる。
+  ・2箇所以上は同時施工価格。割引額がいちばん小さい1箇所だけ単品価格、残りは同時施工単価。
+    コンロはキッチンと同時のときだけ ¥5,500（税抜）。
+  ・早期予約割引は1箇所のみのご依頼に限る。2箇所以上は同時施工価格を優先。
+  ・ネット申込特典 −¥2,200（税込）はページ限定。見積では画面のボタンから足す。
 
-3. 早期予約割引の条件
-   予約フォーム : 1箇所のときだけ（複数箇所は同時施工割引を優先）。
-                 率は 1-2月15% / 3-4月10% / 8-10月10%。
-   見積アプリ   : 箇所数の条件が無い。かわりにエアコンの複数台割引を持つ。
-                 いまは auto_discount_enabled=FALSE なので、そもそも割引が載らない。
-
-4. 繁忙期加算の数え方
-   予約フォーム : 選んだ箇所数 × ¥3,300（税込表示）。
-   見積アプリ   : 繁忙期加算対象のメインメニューの数量 × ¥3,300（税抜に加算し、後で課税）。
-   → 本メニューだけなら対象は一致するが、税の扱いが違うため税込額は一致しない。
-     アプリはオプション（室外機セット等）を対象外にしており、フォームには
-     オプションが無いので、いまのところ表面化していない。
+  ■ 納品時の既定との差
+  自動割引は auto_discount_enabled = FALSE で納品するため、
+  「既定(割引OFF)」列は1箇所のみのご依頼でフォームより高く出る（早期予約割引が載らないため）。
+  2箇所以上は同時施工価格が既定でONなので、ネット申込特典を除けば既定でも一致する。
 `);
+  console.log(`✅ 全 ${CASES.length} 通り一致\n`);
+  process.exit(0);
+}
 
-console.log('='.repeat(92));
-console.log('■ 判断が要ること（料金の決めごとなのでオーナー判断）');
-console.log('='.repeat(92));
-console.log(`
-  ・同時施工価格を見積アプリにも入れるか
-    docs/price-master.md では、この解釈自体が [要確認] のまま。
-    「オプション欄の価格は2箇所目以降の同時施工価格」という読みで
-    予約フォームは実装されている。合っているかの確認が要る。
-
-  ・ネット申込特典 ¥2,200 を正式見積にも反映するか
-    フォーム限定の特典なら、見積が高く出るのは正しい。
-    その場合はお客様への説明文言が要る。
-
-  ・早期予約割引を「1箇所のみ」に揃えるか
-    見積アプリ側は現在 auto_discount_enabled=FALSE で無効。
-    有効化するときに条件を合わせないと、同じ月・同じ内容で金額が変わる。
-`);
-
-console.log(`ズレたケース: ${gaps.length} / ${CASES.length}`);
-console.log('※ このテストは一致を要求しない（失敗させない）。ズレの可視化が目的。\n');
+console.log('■ 一致しませんでした');
+gaps.forEach(g => console.log('  ✗ ' + g.label + '：' + (isNaN(g.diff) ? 'スキップ' : yen(g.diff))));
+console.log(`\n❌ ${gaps.length} / ${CASES.length} 通りがズレています。`);
+console.log('   料金の決めごとを変えたのであれば掲示板で共有し、このテストも直すこと。\n');
+process.exit(1);

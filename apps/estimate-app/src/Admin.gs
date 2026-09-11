@@ -71,12 +71,18 @@ function adminDeployAll() {
   out.push('■ 完了。次にやること');
   out.push('══════════════════════════════════════');
   out.push('1. 上の「再診断」に ⚠ が残っていないか確認する');
-  out.push('2. 「有効ルール」が 繁忙期2 / 早期予約割引3 / 複数台割引9 になっているか確認する');
+  out.push('2. 「有効ルール」が 繁忙期2 / 早期予約割引3 / 複数台割引9 / 同時施工価格6 / ネット申込特典1 になっているか確認する');
   out.push('3. Webアプリを開いて動作確認する（受入テスト）');
   out.push('4. 問題なければ デプロイを管理 → 編集 → バージョン「新バージョン」→ デプロイ');
   out.push('');
   out.push('※ 自動割引は auto_discount_enabled = FALSE で納品しています。');
   out.push('   現場に周知してから TRUE にしてください。');
+  out.push('');
+  out.push('※ 今回から、公開中の予約フォームと金額が揃います。');
+  out.push('   ・2箇所以上のご依頼は同時施工価格（浴室・キッチン・レンジフードなら1箇所目以外 ¥13,800）');
+  out.push('   ・繁忙期加算 ¥3,300 は税込として扱います（これまでは実質 ¥3,630 でした）');
+  out.push('   ・ネット申込特典 −¥2,200 は画面のボタンから足します（既定では付きません）');
+  out.push('   1箇所のみのご依頼だけは、auto_discount_enabled が FALSE の間フォームより高く出ます。'); 
 
   const message = out.join('\n');
   console.log(message);
@@ -176,6 +182,8 @@ function upsertMissingSettings_(masterSs) {
 
   const defaults = [
     ['auto_discount_enabled', 'FALSE', '早期予約割引・複数台割引の自動判定を使うか', 'TRUEにすると自動で割引が載る。現場周知後に切り替えること'],
+    ['set_pricing_enabled', 'TRUE', '2箇所以上のとき同時施工価格を適用するか', '公開中の予約フォームと金額を揃えるための設定。OFFにするとフォームより高い見積が出る'],
+    ['busy_surcharge_tax_included', 'TRUE', '繁忙期加算額が税込で書かれているか', 'TRUEなら課税対象に載せる前に税抜へ戻す。料金表の¥3,300は税込（オーナー確認済み）'],
     ['large_discount_alert_ratio', '0.30', '手動値引きが明細小計のこの割合以上なら警告', ''],
     ['pdf_template_spreadsheet_id', '', 'PDF生成専用テンプレートのID', '空なら帳票/DBスプレッドシートを複製する。adminCreatePdfTemplate()で作成'],
     ['line_notice_text', 'メール送信後、LINEで代表者へ一報を入れてください。', '例外時のアプリ表示文言', ''],
@@ -307,6 +315,26 @@ function adminNormalizeDiscountRules() {
     ['TRUE', 'MULTI_BUSINESS_11_20', '複数台割引', '業務用エアコン', '', '', 'totalQty:11-20', 6000, '金額/台', 30, '総台数で判定'],
     ['TRUE', 'MULTI_BUSINESS_21_50', '複数台割引', '業務用エアコン', '', '', 'totalQty:21-50', 7000, '金額/台', 30, '総台数で判定'],
 
+    /* --- 同時施工価格（2箇所目以降の単価・税抜） ---
+     * 公開中の予約フォーム（one-hitter-booking.netlify.app）と同じ金額を出すための表。
+     * 値はメニューマスタの「セット」行（O006/O009/O013〜O016）と一致し、
+     * フォーム側の同時施工価格（税込）を1.1で割った額とも一致する。
+     *   例）浴室 フォーム¥15,180（税込） ÷ 1.1 = ¥13,800 ＝ O014 浴室セット
+     * 条件欄にメニューIDを書くと、そのメニューが同じ見積にある場合だけ適用する。
+     */
+    ['TRUE', 'SET_M004', '同時施工価格', 'M004', '', '', '', 13800, '金額', 40, 'レンジフード（換気扇セット）'],
+    ['TRUE', 'SET_M006', '同時施工価格', 'M006', '', '', '', 13800, '金額', 40, 'キッチン（キッチンセット）'],
+    ['TRUE', 'SET_M007', '同時施工価格', 'M007', '', '', '', 13800, '金額', 40, '浴室（浴室セット）'],
+    ['TRUE', 'SET_M008', '同時施工価格', 'M008', '', '', '', 15100, '金額', 40, '追焚配管'],
+    ['TRUE', 'SET_M009', '同時施工価格', 'M009', '', '', 'M006', 5500, '金額', 40, 'コンロ（キッチンと同時のときだけ）'],
+    ['TRUE', 'SET_M010', '同時施工価格', 'M010', '', '', '', 6800, '金額', 40, '洗面台（洗面台丸洗い）'],
+
+    /* --- ネット申込特典（金額は税込） ---
+     * 予約フォーム限定の特典。見積では既定で付けず、画面のボタンから足す。
+     */
+    ['TRUE', 'NET_BENEFIT', 'ネット申込特典', 'ネット申込特典', '', '', '', 2200, '金額(税込)', 50,
+      'このページからのお申し込み特典'],
+
     ['FALSE', 'INTRO_01_02', '紹介料', '全体', 1, 2, '', 0.05, '率', 90, '顧客割引か紹介元支払か未確定のため計算対象外'],
     ['FALSE', 'INTRO_OTHER', '紹介料', '全体', 3, 12, '', 0.10, '率', 90, '顧客割引か紹介元支払か未確定のため計算対象外']
   ];
@@ -316,8 +344,11 @@ function adminNormalizeDiscountRules() {
 
   const note = message + '\n'
     + '※ 空室清掃の繁忙期30%はメニューマスタ M015 の「繁忙期加算額」欄（30%）で管理しています。\n'
+    + '※ 早期予約割引は1箇所のみのご依頼に限ります。2箇所以上は同時施工価格を適用します（予約フォームと同条件）。\n'
     + '※ 早期予約割引と複数台割引は併用しません（早期予約が優先）。この併用ルールはコード側に実装済みです。\n'
-    + '※ 自動割引を実際に効かせるには、設定マスタの auto_discount_enabled を TRUE にしてください。';
+    + '※ 繁忙期加算 ¥3,300 は税込です。設定マスタ busy_surcharge_tax_included で切り替えられます。\n'
+    + '※ 自動割引を実際に効かせるには、設定マスタの auto_discount_enabled を TRUE にしてください。\n'
+    + '  OFFのままだと、1箇所のみのご依頼で予約フォームより高い見積が出ます（早期予約割引が載らないため）。';
 
   console.log(note);
   return note;
@@ -486,7 +517,7 @@ function adminDiagnose() {
   add('  有効メニュー： ' + menus.length + '件（メイン ' +
     menus.filter(function (m) { return m.menuType === 'メイン'; }).length + ' / オプション ' +
     menus.filter(function (m) { return m.menuType === 'オプション'; }).length + '）');
-  add('  有効ルール　： ' + rules.length + '件（' + ['繁忙期', '早期予約割引', '複数台割引', '紹介料'].map(function (t) {
+  add('  有効ルール　： ' + rules.length + '件（' + DISCOUNT_RULE_TYPES.map(function (t) {
     return t + ' ' + rules.filter(function (r) { return r.ruleType === t; }).length;
   }).join(' / ') + '）');
   add('  テンプレート： ' + Object.keys(templates).join(', '));
@@ -508,8 +539,30 @@ function adminDiagnose() {
   add('');
   add('■ 自動割引の設定');
   add('  auto_discount_enabled： ' + (parseBooleanLoose_(settings['自動割引有効']) ? 'TRUE（自動で割引が載ります）' : 'FALSE（自動割引は載りません）'));
+  add('  set_pricing_enabled　： ' + (parseBooleanLoose_(settings['同時施工価格有効']) ? 'TRUE（2箇所以上で同時施工価格を適用）' : 'FALSE（同時施工価格は適用しません）'));
   add('  税率　　　　　　　　： ' + normalizeRate_(settings['税率']));
-  add('  繁忙期加算　　　　　： ' + settings['繁忙期加算額'] + ' / ' + settings['繁忙期加算単位']);
+  add('  繁忙期加算　　　　　： ' + settings['繁忙期加算額'] + ' / ' + settings['繁忙期加算単位']
+    + (parseBooleanLoose_(settings['繁忙期加算_税込']) ? '（税込。課税対象には税抜へ戻して載せます）' : '（税抜）'));
+
+  const setRules = rules.filter(function (r) { return r.ruleType === '同時施工価格'; });
+  if (setRules.length === 0) {
+    add('  ⚠ 同時施工価格のルールが1件もありません。adminNormalizeDiscountRules() を実行してください。');
+    add('    このままだと2箇所以上のご依頼で、公開中の予約フォームより高い見積が出ます。');
+  } else {
+    add('  同時施工価格　　　　： ' + setRules.map(function (r) {
+      const menu = menus.filter(function (m) { return m.menuId === r.target; })[0];
+      return r.target + (menu ? '(' + menu.name + ')' : '') + ' ' + toNumber_(r.value) + '円'
+        + (r.condition ? '［' + r.condition + 'と同時のときだけ］' : '');
+    }).join(' / '));
+  }
+
+  const net = buildNetBenefit_(rules);
+  add('  ネット申込特典　　　： ' + (net ? net.amount + '円（税込・既定では付けません）' : '未登録'));
+
+  if (!parseBooleanLoose_(settings['自動割引有効'])) {
+    add('  ⚠ 1箇所のみのご依頼では、予約フォームが早期予約割引を載せるのに対し、見積アプリは載せません。');
+    add('    金額を揃えるなら auto_discount_enabled を TRUE にしてください（オーナー判断）。');
+  }
 
   add('');
   add('■ 自動判定の動作確認（マスタの実データで計算）');

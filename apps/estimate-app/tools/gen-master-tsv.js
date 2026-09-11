@@ -15,9 +15,39 @@ const vm = require('vm');
 const srcDir = path.join(__dirname, '..', 'src');
 const outDir = path.join(__dirname, '..', 'master');
 
-const sandbox = { console: console, JSON: JSON, Math: Math, Date: Date, String: String, Number: Number, Object: Object, Array: Array, isNaN: isNaN, isFinite: isFinite };
+const sandbox = { console: { log() {} }, JSON: JSON, Math: Math, Date: Date, String: String, Number: Number, Object: Object, Array: Array, isNaN: isNaN, isFinite: isFinite };
 vm.createContext(sandbox);
 vm.runInContext(fs.readFileSync(path.join(srcDir, 'code.gs'), 'utf8'), sandbox, { filename: 'code.gs' });
+
+/**
+ * 正規化の中身は Admin.gs が持っている。
+ * ここに書き写すとすぐズレるので、Admin.gs をそのまま動かして中身を取り出す。
+ * シートに触る関数は差し替えてあるので、本番には一切アクセスしない。
+ */
+const captured = {};
+
+vm.runInContext(fs.readFileSync(path.join(srcDir, 'Invoice.gs'), 'utf8'), sandbox, { filename: 'Invoice.gs' });
+vm.runInContext(fs.readFileSync(path.join(srcDir, 'Admin.gs'), 'utf8'), sandbox, { filename: 'Admin.gs' });
+
+// 差し替えは全ファイルを読み込んだあとに行う（後から読むファイルの宣言に上書きされないように）
+sandbox.getMasterSs_ = () => ({ getName: () => '(取り出し用ダミー)', getSheetByName: () => null });
+sandbox.clearContextCache_ = () => {};
+sandbox.readMailTemplates_ = () => ({});
+sandbox.replaceSheetWithNormalized_ = (ss, sheetName, headers, rows) => {
+  captured[sheetName] = { headers, rows };
+  return '（取り出しのみ）';
+};
+
+function fromAdmin(sheetName, runner) {
+  captured[sheetName] = null;
+  try { runner(); } catch (e) { /* シート書き込み以外で落ちたときは下で気づける */ }
+  const got = captured[sheetName];
+  if (!got || !got.rows.length) {
+    throw new Error('Admin.gs から「' + sheetName + '」の正規化内容を取り出せませんでした。'
+      + 'replaceSheetWithNormalized_ の呼び出し方が変わっていないか確認してください。');
+  }
+  return got;
+}
 
 function writeTsv(name, headers, rows) {
   const lines = [headers.join('\t')].concat(rows.map(r => r.map(cell => {
@@ -34,26 +64,10 @@ function writeTsv(name, headers, rows) {
 fs.mkdirSync(outDir, { recursive: true });
 console.log('生成:');
 
-/* --- 割引繁忙期マスタ --- */
+/* --- 割引繁忙期マスタ（Admin.gs の adminNormalizeDiscountRules から取得） --- */
 
-writeTsv('割引繁忙期マスタ_正規化.tsv', sandbox.getDiscountHeaders_(), [
-  ['TRUE', 'BUSY_05_07', '繁忙期', '全体', 5, 7, '', 3300, '金額', 10, '5月〜7月。メインメニューの数量ごとに加算'],
-  ['TRUE', 'BUSY_12', '繁忙期', '全体', 12, 12, '', 3300, '金額', 10, '12月。メインメニューの数量ごとに加算'],
-  ['TRUE', 'EARLY_01_02', '早期予約割引', '全体', 1, 2, '', 0.15, '率', 20, '1月〜2月：15%'],
-  ['TRUE', 'EARLY_03_04', '早期予約割引', '全体', 3, 4, '', 0.10, '率', 20, '3月〜4月：10%'],
-  ['TRUE', 'EARLY_08_10', '早期予約割引', '全体', 8, 10, '', 0.10, '率', 20, '8月〜10月：10%'],
-  ['TRUE', 'MULTI_NORMAL_05_10', '複数台割引', 'ノーマルエアコン', '', '', 'totalQty:5-10', 500, '金額/台', 30, '総台数で判定'],
-  ['TRUE', 'MULTI_NORMAL_11_20', '複数台割引', 'ノーマルエアコン', '', '', 'totalQty:11-20', 1000, '金額/台', 30, '総台数で判定'],
-  ['TRUE', 'MULTI_NORMAL_21_50', '複数台割引', 'ノーマルエアコン', '', '', 'totalQty:21-50', 1500, '金額/台', 30, '総台数で判定'],
-  ['TRUE', 'MULTI_ROBO_05_10', '複数台割引', 'ロボ付きエアコン', '', '', 'totalQty:5-10', 1000, '金額/台', 30, '総台数で判定'],
-  ['TRUE', 'MULTI_ROBO_11_20', '複数台割引', 'ロボ付きエアコン', '', '', 'totalQty:11-20', 1500, '金額/台', 30, '総台数で判定'],
-  ['TRUE', 'MULTI_ROBO_21_50', '複数台割引', 'ロボ付きエアコン', '', '', 'totalQty:21-50', 2000, '金額/台', 30, '総台数で判定'],
-  ['TRUE', 'MULTI_BUSINESS_02_10', '複数台割引', '業務用エアコン', '', '', 'totalQty:2-10', 5000, '金額/台', 30, '総台数で判定'],
-  ['TRUE', 'MULTI_BUSINESS_11_20', '複数台割引', '業務用エアコン', '', '', 'totalQty:11-20', 6000, '金額/台', 30, '総台数で判定'],
-  ['TRUE', 'MULTI_BUSINESS_21_50', '複数台割引', '業務用エアコン', '', '', 'totalQty:21-50', 7000, '金額/台', 30, '総台数で判定'],
-  ['FALSE', 'INTRO_01_02', '紹介料', '全体', 1, 2, '', 0.05, '率', 90, '顧客割引か紹介元支払か未確定のため計算対象外'],
-  ['FALSE', 'INTRO_OTHER', '紹介料', '全体', 3, 12, '', 0.10, '率', 90, '顧客割引か紹介元支払か未確定のため計算対象外']
-]);
+const discount = fromAdmin('割引繁忙期マスタ', () => sandbox.adminNormalizeDiscountRules());
+writeTsv('割引繁忙期マスタ_正規化.tsv', discount.headers, discount.rows);
 
 /* --- 差し込みセル定義 --- */
 
@@ -63,8 +77,11 @@ writeTsv('差し込みセル定義_正規化.tsv', sandbox.getCellDefHeaders_(),
 
 writeTsv('設定マスタ_追加分.tsv', ['設定キー', '設定値', '説明', '備考_現場入力'], [
   ['auto_discount_enabled', 'FALSE', '早期予約割引・複数台割引の自動判定を使うか', 'TRUEにすると自動で割引が載る。現場周知後に切り替えること'],
+  ['set_pricing_enabled', 'TRUE', '2箇所以上のとき同時施工価格を適用するか', '公開中の予約フォームと金額を揃えるための設定。OFFにするとフォームより高い見積が出る'],
+  ['busy_surcharge_tax_included', 'TRUE', '繁忙期加算額が税込で書かれているか', 'TRUEなら課税対象に載せる前に税抜へ戻す。料金表の¥3,300は税込（オーナー確認済み）'],
   ['large_discount_alert_ratio', '0.30', '手動値引きが明細小計のこの割合以上なら警告を出す', ''],
   ['pdf_template_spreadsheet_id', '', 'PDF生成専用テンプレートのスプレッドシートID', '空なら帳票/DBを複製する。adminCreatePdfTemplate()で作成できる'],
+  ['line_notice_text', 'メール送信後、LINEで代表者へ一報を入れてください。', '例外時にアプリへ出す文言', ''],
   ['default_closing_day', '月末', '請求締め日の既定値', '提出先マスタに個別指定があればそちらが優先'],
   ['default_payment_site', '翌月末', '支払サイトの既定値', '候補：当月末 / 翌月末 / 翌々月末 / 翌月10日 / 30日 など'],
   ['default_payment_holiday_rule', '', '支払期日が土日のときの調整の既定値', '空 / 前営業日 / 翌営業日。祝日は判定しない'],
@@ -102,5 +119,22 @@ writeTsv('提出先マスタ_請求条件_記入例.tsv',
     ['月末', '30日', '', '月末締め・請求日から30日後'],
     ['', '', '', '空欄なら設定マスタの既定値を使う']
   ]);
+
+/* --- 設定マスタは Admin.gs 側にも同じ一覧がある。キーの取りこぼしを見張る --- */
+
+const adminSrc = fs.readFileSync(path.join(srcDir, 'Admin.gs'), 'utf8');
+const adminBlock = adminSrc.slice(adminSrc.indexOf('function upsertMissingSettings_'));
+const adminKeys = (adminBlock.slice(0, adminBlock.indexOf('];')).match(/\['([a-z_]+)',/g) || [])
+  .map(m => m.slice(2, -2));
+
+const tsvKeys = fs.readFileSync(path.join(outDir, '設定マスタ_追加分.tsv'), 'utf8')
+  .split('\n').slice(1).filter(Boolean).map(l => l.split('\t')[0]);
+
+const missing = adminKeys.filter(k => tsvKeys.indexOf(k) < 0);
+if (missing.length) {
+  console.error('\n❌ Admin.gs にあって 設定マスタ_追加分.tsv に無い設定キー： ' + missing.join(', '));
+  console.error('   gen-master-tsv.js の設定マスタ一覧に足してください。');
+  process.exit(1);
+}
 
 console.log('\n完了。master/ 配下のTSVをスプレッドシートに貼り付けてください。');

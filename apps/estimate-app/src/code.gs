@@ -81,7 +81,9 @@ const SETTING_ALIASES = {
   tax_rate: '税率',
   busy_season_surcharge: '繁忙期加算額',
   busy_surcharge_unit: '繁忙期加算単位',
+  busy_surcharge_tax_included: '繁忙期加算_税込',
   auto_discount_enabled: '自動割引有効',
+  set_pricing_enabled: '同時施工価格有効',
   large_discount_alert_ratio: '大幅値引き警告率',
 
   default_closing_day: '既定_請求締め日',
@@ -159,8 +161,11 @@ function buildCalcContext_(ctx) {
     taxRate: ctx.taxRate,
     busySurcharge: ctx.busySurcharge,
     busySurchargeUnit: ctx.busySurchargeUnit,
+    busySurchargeTaxIncluded: ctx.busySurchargeTaxIncluded,
     autoDiscountEnabled: ctx.autoDiscountEnabled,
+    setPricingEnabled: ctx.setPricingEnabled,
     largeDiscountRatio: ctx.largeDiscountRatio,
+    netBenefit: ctx.netBenefit,
     menuMap: ctx.menuMap,
     discountRules: ctx.discountRules
   };
@@ -586,6 +591,7 @@ function apiLoadEstimateForClone(estimateId) {
         highwayFee: toNumber_(r['高速代']),
         busyManual: parseBooleanLoose_(r['繁忙期_手動設定']),
         discountManual: parseBooleanLoose_(r['割引_手動設定']),
+        setPricingManual: parseBooleanLoose_(r['同時施工_手動設定']),
         adjustments: parseAdjustmentsJson_(r['調整_JSON']),
         targetTotal: 0,
         details: details
@@ -662,6 +668,9 @@ function buildEstimateRecord_(payload, ctx, calc, estimateId) {
     /* --- 変則割引（今回追加） --- */
     自動割引種別: calc.autoDiscountType || '',
     自動割引額: calc.autoDiscountApplied,
+    同時施工_自動判定: boolText_(calc.setPricingAuto),
+    同時施工_手動設定: boolText_(calc.setPricingOn),
+    同時施工割引額: calc.setDiscountApplied,
     明細値引き合計: calc.lineDiscountTotal,
     調整合計額: calc.adjustmentTotal,
     合計指定額: calc.targetTotal || '',
@@ -724,6 +733,7 @@ function rebuildCalcFromRecord_(record, ctx) {
     highwayFee: toNumber_(record['高速代']),
     busyManual: parseBooleanLoose_(record['繁忙期_手動設定']),
     discountManual: parseBooleanLoose_(record['割引_手動設定']),
+    setPricingManual: parseBooleanLoose_(record['同時施工_手動設定']),
     adjustments: parseAdjustmentsJson_(record['調整_JSON']),
     targetTotal: 0, // 保存済みの調整行をそのまま使うので再逆算しない
     details: details
@@ -1010,19 +1020,24 @@ function buildContextFromSheets_() {
   const menuMap = {};
   menus.forEach(function (m) { menuMap[m.menuId] = m; });
 
+  const discountRules = readDiscountRules_(masterSs, warnings);
+
   return {
     settings: settings,
     taxRate: normalizeRate_(settings['税率'] || 0.10) || 0.10,
     busySurcharge: toNumber_(settings['繁忙期加算額'] || 3300),
     busySurchargeUnit: String(settings['繁忙期加算単位'] || '数量ごと').trim(),
+    busySurchargeTaxIncluded: parseBooleanLoose_(settings['繁忙期加算_税込']),
     autoDiscountEnabled: parseBooleanLoose_(settings['自動割引有効']),
+    setPricingEnabled: parseBooleanLoose_(settings['同時施工価格有効']),
     largeDiscountRatio: normalizeRate_(settings['大幅値引き警告率'] || 0.30) || 0.30,
+    netBenefit: buildNetBenefit_(discountRules),
     menus: menus,
     menuMap: menuMap,
     submitTargets: readSubmitTargets_(masterSs, settings),
     staff: readStaff_(masterSs),
     mailTemplates: readMailTemplates_(masterSs, warnings),
-    discountRules: readDiscountRules_(masterSs, warnings),
+    discountRules: discountRules,
     cellDefs: readCellDefs_(masterSs),
     warnings: warnings
   };
@@ -1127,7 +1142,11 @@ function applyDefaultSettingsValues_(s) {
   if (!s['税率']) s['税率'] = '0.10';
   if (!s['繁忙期加算額']) s['繁忙期加算額'] = '3300';
   if (!s['繁忙期加算単位']) s['繁忙期加算単位'] = '数量ごと';
+  // 繁忙期加算 ¥3,300 は料金表が元から税込（オーナー確認済み・docs/price-master.md）
+  if (isBlank_(s['繁忙期加算_税込'])) s['繁忙期加算_税込'] = 'TRUE';
   if (isBlank_(s['自動割引有効'])) s['自動割引有効'] = 'FALSE';
+  // 同時施工価格は公開中の予約フォームと同じ金額を出すためのものなので既定でON
+  if (isBlank_(s['同時施工価格有効'])) s['同時施工価格有効'] = 'TRUE';
   if (!s['大幅値引き警告率']) s['大幅値引き警告率'] = '0.30';
   if (!s['既定_請求締め日']) s['既定_請求締め日'] = '月末';
   if (!s['既定_支払サイト']) s['既定_支払サイト'] = '翌月末';
@@ -1306,7 +1325,11 @@ function readMailTemplates_(masterSs, warnings) {
   return map;
 }
 
-const DISCOUNT_RULE_TYPES = ['繁忙期', '早期予約割引', '複数台割引', '紹介料'];
+const DISCOUNT_RULE_TYPES = ['繁忙期', '早期予約割引', '複数台割引', '紹介料',
+  '同時施工価格', 'ネット申込特典'];
+
+// 月の指定を必要としないルール種別。同時施工価格とネット申込特典は通年。
+const MONTHLESS_RULE_TYPES = ['複数台割引', '同時施工価格', 'ネット申込特典'];
 
 /**
  * 割引繁忙期マスタ。
@@ -1316,6 +1339,24 @@ const DISCOUNT_RULE_TYPES = ['繁忙期', '早期予約割引', '複数台割引
  * 繁忙期も早期予約割引も複数台割引も自動判定が常に不成立になっていた。
  * ここでは並びを判定して両方読めるようにし、重複行も畳む。
  */
+/**
+ * ネット申込特典。予約フォーム限定の特典なので、見積では既定で付けない。
+ * 画面のボタンから調整行として足す（金額は税込。CalcEngine が税抜に戻す）。
+ */
+function buildNetBenefit_(discountRules) {
+  const rule = (discountRules || []).filter(function (r) {
+    return r.ruleType === 'ネット申込特典' && toNumber_(r.value) > 0;
+  })[0];
+
+  if (!rule) return null;
+
+  return {
+    name: String(rule.target || '').trim() || 'ネット申込特典',
+    amount: toNumber_(rule.value),
+    note: String(rule.note || '').trim() || 'このページからのお申し込み特典'
+  };
+}
+
 function readDiscountRules_(masterSs, warnings) {
   const sheet = masterSs.getSheetByName(APP.SHEET_DISCOUNT);
   if (!sheet) {
@@ -1371,7 +1412,8 @@ function readDiscountRowByHeader_(headers, row) {
     condition: String(pickRowValue_(headers, row, ['条件']) || '').trim(),
     value: pickRowValue_(headers, row, ['値']),
     valueType: String(pickRowValue_(headers, row, ['値種別']) || '').trim(),
-    priority: toNumber_(pickRowValue_(headers, row, ['優先度']) || 9999)
+    priority: toNumber_(pickRowValue_(headers, row, ['優先度']) || 9999),
+    note: String(pickRowValue_(headers, row, ['備考', '備考_現場入力']) || '').trim()
   };
 }
 
@@ -1387,7 +1429,8 @@ function readDiscountRowByFixedOrder_(row) {
     condition: String(row[6] || '').trim(),
     value: row[7],
     valueType: String(row[8] || '').trim(),
-    priority: toNumber_(row[9] || 9999)
+    priority: toNumber_(row[9] || 9999),
+    note: String(row[10] || '').trim()
   };
 }
 
@@ -1406,6 +1449,10 @@ function isUsableDiscountRule_(rule) {
   if (rule.ruleType === '複数台割引') {
     return /\d+\s*[-〜~]\s*\d+/.test(String(rule.condition || ''));
   }
+
+  // 同時施工価格は「対象＝メニューID」が要る。ネット申込特典は金額だけで成立する。
+  if (rule.ruleType === '同時施工価格') return !!String(rule.target || '').trim();
+  if (MONTHLESS_RULE_TYPES.indexOf(rule.ruleType) >= 0) return true;
 
   return toNumber_(rule.startMonth) >= 1 && toNumber_(rule.endMonth) >= 1;
 }
@@ -1865,7 +1912,8 @@ function getEstimateHeaders_() {
 
   // ここから下が2026-09改修の追加列。既存列の位置は動かさず右端に足す。
   headers.push('request_id', '要代表者確認', '自動割引種別', '自動割引額', '明細値引き合計',
-    '調整合計額', '合計指定額', '調整_JSON');
+    '調整合計額', '合計指定額', '調整_JSON',
+    '同時施工_自動判定', '同時施工_手動設定', '同時施工割引額');
 
   for (let i = 1; i <= APP.MAX_ADJUSTMENT_SLOTS; i++) {
     headers.push('調整' + pad2_(i) + '_名称', '調整' + pad2_(i) + '_金額');

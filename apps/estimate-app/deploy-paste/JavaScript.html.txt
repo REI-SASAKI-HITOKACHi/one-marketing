@@ -26,6 +26,7 @@
     originalEstimateId: '',
     busyTouched: false,
     discountTouched: false,
+    setPricingTouched: false,
     creating: false
   };
 
@@ -108,6 +109,7 @@
       // 日付が変わると自動判定の前提が変わるので、手動フラグを解除して判定し直す
       state.busyTouched = false;
       state.discountTouched = false;
+      state.setPricingTouched = false;
       recalc();
     });
 
@@ -118,6 +120,11 @@
 
     byId('discountManual').addEventListener('change', function () {
       state.discountTouched = true;
+      recalc();
+    });
+
+    byId('setPricingManual').addEventListener('change', function () {
+      state.setPricingTouched = true;
       recalc();
     });
 
@@ -134,6 +141,7 @@
       else if (action === 'toggle-line-discount') toggleLineDiscount(index);
       else if (action === 'add-adjustment') addAdjustment('discount');
       else if (action === 'add-surcharge') addAdjustment('surcharge');
+      else if (action === 'add-net-benefit') addNetBenefit();
       else if (action === 'remove-adjustment') removeAdjustment(index);
       else if (action === 'clear-target') clearTargetTotal();
       else if (action === 'create') createEstimate();
@@ -446,7 +454,8 @@
 
       var mode = document.createElement('select');
       mode.className = 'mode-select';
-      mode.appendChild(option('amount', '円'));
+      mode.appendChild(option('amount', '円（税抜）'));
+      mode.appendChild(option('amountIncTax', '円（税込）'));
       mode.appendChild(option('rate', '%'));
       mode.value = adj.mode;
       mode.addEventListener('change', function () { updateAdjustment(idx, 'mode', this.value); });
@@ -486,7 +495,9 @@
 
       card.appendChild(el('div', 'note',
         adj.taxType === '課税'
-          ? '課税対象から差し引きます。消費税も連動して変わります。'
+          ? (adj.mode === 'amountIncTax'
+            ? '税込の金額です。課税対象には税抜へ戻して差し引きます（合計はこの額だけ下がります）。'
+            : '課税対象から差し引きます。消費税も連動して変わります。')
           : '税込での調整です。消費税額は変わりません。'));
 
       container.appendChild(card);
@@ -516,6 +527,7 @@
       targetTotal: val('targetTotal'),
       busyManual: state.busyTouched ? byId('busyManual').checked : null,
       discountManual: state.discountTouched ? byId('discountManual').checked : null,
+      setPricingManual: state.setPricingTouched ? byId('setPricingManual').checked : null,
       details: state.lines
         .filter(function (l) { return l.menuId; })
         .map(function (l) {
@@ -531,7 +543,7 @@
         .map(function (a) {
           return {
             name: a.name, kind: a.kind, mode: a.mode,
-            value: a.value, base: a.base, taxType: a.taxType
+            value: a.value, base: a.base, taxType: a.taxType, note: a.note || ''
           };
         })
     };
@@ -555,12 +567,15 @@
   function renderCalc(calc) {
     if (!state.busyTouched) byId('busyManual').checked = !!calc.busyManual;
     if (!state.discountTouched) byId('discountManual').checked = !!calc.autoDiscountOn;
+    if (!state.setPricingTouched) byId('setPricingManual').checked = !!calc.setPricingOn;
 
     byId('busyHint').textContent = calc.busyAuto
       ? '自動判定：' + calc.month + '月は繁忙期です。'
       : '自動判定：' + calc.month + '月は繁忙期ではありません。';
 
+    byId('setPricingHint').innerHTML = buildSetPricingHint(calc);
     byId('autoDiscountHint').innerHTML = buildAutoDiscountHint(calc);
+    renderNetBenefitButton(calc);
     byId('targetTotalHint').textContent = buildTargetHint(calc);
 
     var s = calc.summaryDisplay;
@@ -570,6 +585,7 @@
 
     if (calc.lineDiscountTotal > 0) rows.push(['明細値引き', '-' + s.lineDiscountTotal]);
     if (calc.busyAmount > 0) rows.push(['繁忙期加算', s.busyAmount]);
+    if (calc.setDiscountApplied > 0) rows.push(['同時施工割引', '-' + s.setDiscountApplied]);
     if (calc.autoDiscountApplied > 0) rows.push([calc.autoDiscountType || '自動割引', '-' + s.autoDiscountApplied]);
 
     calc.appliedAdjustments.forEach(function (a) {
@@ -594,6 +610,54 @@
 
     byId('calcSummary').innerHTML = html;
     renderExceptions(calc);
+  }
+
+  function buildSetPricingHint(calc) {
+    if (calc.mainUnitCount < 2) {
+      return '1箇所のみのご依頼です。同時施工価格は2箇所以上のときに効きます。';
+    }
+    if (!calc.setPricingAvailable) {
+      return calc.mainUnitCount + '箇所ですが、同時施工価格が設定されたメニューがありません。';
+    }
+
+    var head = esc(calc.summaryDisplay.setPricingCandidate) + ' 引けます'
+      + '<br><span class="mini">' + esc(calc.setPricingDetail) + '</span>';
+
+    if (!calc.setPricingEnabledBySetting) {
+      head += '<br><span class="warn-inline">設定マスタで同時施工価格はOFFです。'
+        + 'このままだとお客様が予約フォームで見た金額より高い見積になります。</span>';
+    }
+
+    return head;
+  }
+
+  /** ネット申込特典のボタン。マスタに登録があるときだけ出す。 */
+  function renderNetBenefitButton(calc) {
+    var btn = byId('netBenefitButton');
+    var net = state.calcContext && state.calcContext.netBenefit;
+
+    if (!net || !(Number(net.amount) > 0)) {
+      btn.hidden = true;
+      return;
+    }
+
+    var already = state.adjustments.some(function (a) { return a.name === net.name; });
+    btn.hidden = already;
+    btn.textContent = '＋ ' + net.name + ' -' + fmtYen(net.amount) + '（税込）';
+  }
+
+  function addNetBenefit() {
+    var adj = CalcEngine.netBenefitAdjustment(state.calcContext);
+    if (!adj) return;
+    if (state.adjustments.some(function (a) { return a.name === adj.name; })) return;
+
+    state.adjustments.push({
+      name: adj.name, kind: adj.kind, mode: adj.mode, value: adj.value,
+      base: adj.base, taxType: adj.taxType, note: adj.note
+    });
+
+    renderAdjustments();
+    recalc();
   }
 
   function buildAutoDiscountHint(calc) {
@@ -924,8 +988,10 @@
 
     state.busyTouched = true;
     state.discountTouched = true;
+    state.setPricingTouched = true;
     byId('busyManual').checked = !!p.busyManual;
     byId('discountManual').checked = !!p.discountManual;
+    byId('setPricingManual').checked = !!p.setPricingManual;
 
     recalc();
     window.scrollTo({ top: 0, behavior: 'smooth' });

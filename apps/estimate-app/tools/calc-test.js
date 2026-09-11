@@ -31,6 +31,10 @@ const MENUS = {
   M014: { name: '業務用エアコンクリーニング', menuType: 'メイン', rawMenuType: 'メイン', category: '業務用エアコン', unitPrice: 29800, unitPriceRaw: 29800, taxType: '課税', unit: '台', busyTarget: true, busySurchargeRaw: 3300, discountTarget: true, multipleDiscountTarget: true, invoiceReusable: true, note: '', requireCheck: '24,800円〜（2台以上）要確認' },
   M015: { name: '空室清掃', menuType: 'メイン', rawMenuType: 'メイン', category: '空室清掃', unitPrice: 52800, unitPriceRaw: 52800, taxType: '課税', unit: '件', busyTarget: true, busySurchargeRaw: '30%', discountTarget: true, multipleDiscountTarget: false, invoiceReusable: true, note: '', requireCheck: '' },
   O002: { name: '室外機セット', menuType: 'オプション', rawMenuType: 'オプション', category: 'エアコン', unitPrice: 5500, unitPriceRaw: 5500, taxType: '課税', unit: '台', busyTarget: false, busySurchargeRaw: '', discountTarget: false, multipleDiscountTarget: false, invoiceReusable: true, note: '', requireCheck: '' },
+  M006: { name: 'キッチンクリーニング', menuType: 'メイン', rawMenuType: 'メイン', category: 'キッチン', unitPrice: 16800, unitPriceRaw: 16800, taxType: '課税', unit: '箇所', busyTarget: true, busySurchargeRaw: 3300, discountTarget: true, multipleDiscountTarget: false, invoiceReusable: true, note: '', requireCheck: '' },
+  M007: { name: '浴室クリーニング', menuType: 'メイン', rawMenuType: 'メイン', category: '浴室', unitPrice: 16800, unitPriceRaw: 16800, taxType: '課税', unit: '箇所', busyTarget: true, busySurchargeRaw: 3300, discountTarget: true, multipleDiscountTarget: false, invoiceReusable: true, note: '', requireCheck: '' },
+  M009: { name: 'コンロクリーニング', menuType: 'メイン', rawMenuType: 'メイン', category: 'キッチン', unitPrice: 9800, unitPriceRaw: 9800, taxType: '課税', unit: '箇所', busyTarget: true, busySurchargeRaw: 3300, discountTarget: true, multipleDiscountTarget: false, invoiceReusable: true, note: '', requireCheck: '' },
+  M011: { name: 'トイレクリーニング', menuType: 'メイン', rawMenuType: 'メイン', category: 'トイレ', unitPrice: 9800, unitPriceRaw: 9800, taxType: '課税', unit: '箇所', busyTarget: true, busySurchargeRaw: 3300, discountTarget: true, multipleDiscountTarget: false, invoiceReusable: true, note: '', requireCheck: '' },
   O017: { name: 'カバー光沢仕上げ', menuType: 'オプション', rawMenuType: 'オプション', category: 'レンジフード', unitPrice: 0, unitPriceRaw: '', taxType: '課税', unit: '箇所', busyTarget: false, busySurchargeRaw: '', discountTarget: false, multipleDiscountTarget: false, invoiceReusable: true, note: '', requireCheck: '' }
 };
 
@@ -48,7 +52,14 @@ const RULES = [
   { ruleType: '複数台割引', target: 'ロボ付きエアコン', startMonth: '', endMonth: '', condition: 'totalQty:21-50', value: 2000, valueType: '金額/台', priority: 30 },
   { ruleType: '複数台割引', target: '業務用エアコン', startMonth: '', endMonth: '', condition: 'totalQty:2-10', value: 5000, valueType: '金額/台', priority: 30 },
   { ruleType: '複数台割引', target: '業務用エアコン', startMonth: '', endMonth: '', condition: 'totalQty:11-20', value: 6000, valueType: '金額/台', priority: 30 },
-  { ruleType: '複数台割引', target: '業務用エアコン', startMonth: '', endMonth: '', condition: 'totalQty:21-50', value: 7000, valueType: '金額/台', priority: 30 }
+  { ruleType: '複数台割引', target: '業務用エアコン', startMonth: '', endMonth: '', condition: 'totalQty:21-50', value: 7000, valueType: '金額/台', priority: 30 },
+
+  // 同時施工価格（2箇所目以降の税抜単価）。条件欄のメニューIDが同じ見積にあるときだけ効く。
+  { ruleType: '同時施工価格', target: 'M006', startMonth: '', endMonth: '', condition: '', value: 13800, valueType: '金額', priority: 40 },
+  { ruleType: '同時施工価格', target: 'M007', startMonth: '', endMonth: '', condition: '', value: 13800, valueType: '金額', priority: 40 },
+  { ruleType: '同時施工価格', target: 'M009', startMonth: '', endMonth: '', condition: 'M006', value: 5500, valueType: '金額', priority: 40 },
+
+  { ruleType: 'ネット申込特典', target: 'ネット申込特典', startMonth: '', endMonth: '', condition: '', value: 2200, valueType: '金額(税込)', priority: 50 }
 ];
 
 function ctx(overrides) {
@@ -57,7 +68,9 @@ function ctx(overrides) {
     busySurcharge: 3300,
     busySurchargeUnit: '数量ごと',
     autoDiscountEnabled: false,
+    setPricingEnabled: true,
     largeDiscountRatio: 0.30,
+    netBenefit: { name: 'ネット申込特典', amount: 2200, note: 'このページからのお申し込み特典' },
     menuMap: MENUS,
     discountRules: RULES
   }, overrides || {});
@@ -85,17 +98,26 @@ function group(title) { console.log('\n' + title); }
 
 group('C. 繁忙期');
 
-check('C-1 5月メイン1台 → 3,300加算',
-  run({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).busyAmount, 3300);
+// 繁忙期加算の ¥3,300 は料金表が税込。帳票は税抜表示なので 3,000 で載り、
+// 消費税を足すと ¥3,300 になる（オーナー確認済み・予約フォームと同じ扱い）。
+check('C-1 5月メイン1台 → 税込3,300＝税抜3,000を加算',
+  run({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).busyAmount, 3000);
 
-check('C-2 7月メイン20台 → 数量20×3,300',
-  run({ workDate: '2026-07-10', details: [{ menuId: 'M001', qty: 20 }] }).busyAmount, 66000);
+check('C-1b 5月メイン1台の合計は税込で 9,800×1.1 + 3,300',
+  run({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).grandTotal, 14080);
 
-check('C-2b PDF繁忙期行 数量20/単価3,300/金額66,000', (() => {
+check('C-2 7月メイン20台 → 数量20×3,000',
+  run({ workDate: '2026-07-10', details: [{ menuId: 'M001', qty: 20 }] }).busyAmount, 60000);
+
+check('C-2b PDF繁忙期行 数量20/単価3,000/金額60,000', (() => {
   const r = run({ workDate: '2026-07-10', details: [{ menuId: 'M001', qty: 20 }] });
   const row = r.pdfRows.find(x => x.name === '繁忙期加算');
   return [row.qty, row.unitPrice, row.amount];
-})(), [20, 3300, 66000]);
+})(), [20, 3000, 60000]);
+
+check('C-2c 設定で税抜扱いにすれば従来どおり3,300で載る',
+  run({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] },
+    { busySurchargeTaxIncluded: false }).busyAmount, 3300);
 
 check('C-3 12月は対象',
   run({ workDate: '2026-12-05', details: [{ menuId: 'M001', qty: 1 }] }).busyAuto, true);
@@ -107,7 +129,7 @@ check('C-5 オプションのみ → 繁忙期0',
   run({ workDate: '2026-05-20', details: [{ menuId: 'O002', qty: 3 }] }).busyAmount, 0);
 
 check('C-6 メイン+オプション → メイン数量のみ加算',
-  run({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 2 }, { menuId: 'O002', qty: 5 }] }).busyAmount, 6600);
+  run({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 2 }, { menuId: 'O002', qty: 5 }] }).busyAmount, 6000);
 
 check('C-7 法人案件で対象6台 → 割増なし',
   run({ workDate: '2026-05-20', projectType: '法人', details: [{ menuId: 'M001', qty: 6 }] }).busyAuto, false);
@@ -115,7 +137,8 @@ check('C-7 法人案件で対象6台 → 割増なし',
 check('C-8 法人案件で対象5台 → 割増あり',
   run({ workDate: '2026-05-20', projectType: '法人', details: [{ menuId: 'M001', qty: 5 }] }).busyAuto, true);
 
-check('C-9 空室清掃30% → 52,800×30%',
+// %指定は税抜の明細金額に掛けるので税込換算しない
+check('C-9 空室清掃30% → 52,800×30%（%指定は換算しない）',
   run({ workDate: '2026-05-20', details: [{ menuId: 'M015', qty: 1 }] }).busyAmount, 15840);
 
 /* ===================== D. 自動割引 ===================== */
@@ -151,8 +174,16 @@ check('D-8 11月 業務用2台 → 5,000×2',
 check('D-9 混在6台は総台数で判定しメニューごとの単価を適用（ノーマル3+ロボ3 → 500×3+1,000×3）',
   run({ workDate: '2026-11-20', details: [{ menuId: 'M001', qty: 3 }, { menuId: 'M002', qty: 3 }] }, AUTO).autoDiscountApplied, 4500);
 
-check('D-10 早期予約と複数台の併用時は早期予約のみ',
-  run({ workDate: '2026-01-20', details: [{ menuId: 'M001', qty: 10 }] }, AUTO).autoDiscountType, '早期予約割引');
+// 早期予約割引は1箇所のみのご依頼に限る（予約フォームと同条件）。
+// 2箇所以上は同時施工価格と複数台割引の側で見る。
+check('D-10 1箇所のみなら早期予約割引',
+  run({ workDate: '2026-01-20', details: [{ menuId: 'M001', qty: 1 }] }, AUTO).autoDiscountType, '早期予約割引');
+
+check('D-10b 2箇所以上では早期予約割引を使わず複数台割引を見る',
+  run({ workDate: '2026-01-20', details: [{ menuId: 'M001', qty: 10 }] }, AUTO).autoDiscountType, '複数台割引');
+
+check('D-10c 2箇所以上で複数台割引にも該当しなければ自動割引なし',
+  run({ workDate: '2026-01-20', details: [{ menuId: 'M001', qty: 2 }] }, AUTO).autoDiscountApplied, 0);
 
 check('D-11 50台超は例外表示',
   run({ workDate: '2026-11-20', details: [{ menuId: 'M001', qty: 51 }] }, AUTO)
@@ -363,6 +394,105 @@ check('R-2 復元してもPDF明細行が一致する', (() => {
   const b = run({ workDate: payload.workDate, details: payload.details, adjustments: a.appliedAdjustments });
   return JSON.stringify(a.pdfRows) === JSON.stringify(b.pdfRows);
 })(), true);
+
+group('S. 同時施工価格（予約フォームとの金額合わせ）');
+
+check('S-1 1箇所のみなら同時施工割引は効かない',
+  run({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }] }).setDiscountApplied, 0);
+
+check('S-2 浴室＋キッチン → 2箇所目を13,800にして3,000引く',
+  run({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] })
+    .setDiscountApplied, 3000);
+
+check('S-2b 浴室＋キッチンの合計は予約フォームと同じ33,660円',
+  run({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] })
+    .grandTotal, 33660);
+
+// 割引額がいちばん小さい1箇所を単品価格に残す。トイレは同時施工価格が無いので
+// そちらを単品に残し、浴室のほうを13,800にするのが安い。
+check('S-3 浴室＋トイレ → 割引が小さいトイレを単品に残す',
+  run({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M011', qty: 1 }] })
+    .grandTotal, 25960);
+
+check('S-4 キッチン＋コンロ → コンロが5,500になる',
+  run({ workDate: '2026-11-15', details: [{ menuId: 'M006', qty: 1 }, { menuId: 'M009', qty: 1 }] })
+    .grandTotal, 24530);
+
+check('S-5 コンロはキッチンが無いと同時施工価格にならない',
+  run({ workDate: '2026-11-15', details: [{ menuId: 'M009', qty: 1 }, { menuId: 'M011', qty: 1 }] })
+    .setDiscountApplied, 0);
+
+check('S-6 同じメニュー2箇所でも2箇所目に同時施工価格が効く',
+  run({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 2 }] }).setDiscountApplied, 3000);
+
+check('S-7 オプションは箇所数に数えない',
+  run({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'O002', qty: 3 }] })
+    .setDiscountApplied, 0);
+
+check('S-8 設定でOFFにすれば適用しない',
+  run({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] },
+    { setPricingEnabled: false }).setDiscountApplied, 0);
+
+check('S-9 画面で手動OFFにすれば適用しない',
+  run({ workDate: '2026-11-15', setPricingManual: false,
+    details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] }).setDiscountApplied, 0);
+
+check('S-10 PDFに「同時施工割引」行が出る', (() => {
+  const r = run({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] });
+  const row = r.pdfRows.find(x => x.name === '同時施工割引');
+  return [!!row, row ? row.amount : 0];
+})(), [true, -3000]);
+
+check('S-11 繁忙期と同時施工割引が両方かかる（6月・浴室＋キッチン）',
+  run({ workDate: '2026-06-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] })
+    .grandTotal, 40260);
+
+group('N. ネット申込特典（税込指定の調整行）');
+
+check('N-1 税込2,200の値引きは課税対象から2,000を引く', (() => {
+  const r = run({
+    workDate: '2026-11-15',
+    details: [{ menuId: 'M001', qty: 2 }],
+    adjustments: [CalcEngine.netBenefitAdjustment(ctx())]
+  });
+  return [r.appliedAdjustments[0].amount, r.grandTotal];
+})(), [2000, 19360]);
+
+check('N-2 合計は税込でちょうど2,200安くなる', (() => {
+  const base = run({ workDate: '2026-11-15', details: [{ menuId: 'M001', qty: 2 }] });
+  const withNet = run({
+    workDate: '2026-11-15',
+    details: [{ menuId: 'M001', qty: 2 }],
+    adjustments: [CalcEngine.netBenefitAdjustment(ctx())]
+  });
+  return base.grandTotal - withNet.grandTotal;
+})(), 2200);
+
+check('N-3 2箇所以上で同時施工割引が付かないときは画面に案内を出す',
+  run({ workDate: '2026-11-15', details: [{ menuId: 'M001', qty: 2 }] })
+    .exceptionReasons.some(t => t.indexOf('予約フォームだと') >= 0), true);
+
+check('N-4 特典を足したあとは案内を出さない',
+  run({
+    workDate: '2026-11-15',
+    details: [{ menuId: 'M001', qty: 2 }],
+    adjustments: [CalcEngine.netBenefitAdjustment(ctx())]
+  }).exceptionReasons.some(t => t.indexOf('予約フォームだと') >= 0), false);
+
+check('N-5 同時施工割引が付く内容では案内を出さない',
+  run({ workDate: '2026-11-15', details: [{ menuId: 'M007', qty: 1 }, { menuId: 'M006', qty: 1 }] })
+    .exceptionReasons.some(t => t.indexOf('予約フォームだと') >= 0), false);
+
+check('N-6 税込指定でも保存→復元で金額が変わらない', (() => {
+  const payload = {
+    workDate: '2026-11-15',
+    details: [{ menuId: 'M001', qty: 2 }],
+    adjustments: [CalcEngine.netBenefitAdjustment(ctx())]
+  };
+  const a = run(payload);
+  const b = run({ workDate: payload.workDate, details: payload.details, adjustments: a.appliedAdjustments });
+  return [a.grandTotal, b.grandTotal, a.grandTotal === b.grandTotal];
+})(), [19360, 19360, true]);
 
 /* ===================== 結果 ===================== */
 

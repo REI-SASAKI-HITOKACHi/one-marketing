@@ -56,6 +56,22 @@ var CalcEngine = (function () {
     return !(s.indexOf('非課税') >= 0 || s.indexOf('不課税') >= 0 || s.indexOf('対象外') >= 0);
   }
 
+  /**
+   * 税込で決まっている金額を税抜に戻す。
+   *
+   * 料金表は本メニューが税抜（¥9,800 → 税込¥10,780）だが、
+   * 繁忙期加算 ¥3,300 とネット申込特典 ¥2,200 は元から税込で書かれている
+   * （docs/price-master.md「繁忙期加算だけは元から税込なので換算しません」）。
+   * 帳票は税抜表示＋末尾に消費税なので、課税対象へ載せる前にここで戻す。
+   * 戻さないと ¥3,300 に重ねて10%が乗り、公開中の予約フォームより高い見積が出る。
+   */
+  function taxExclusive(amountIncTax, taxRate) {
+    var rate = toRate(taxRate);
+    var amount = toNum(amountIncTax);
+    if (!(rate > 0)) return yen(amount);
+    return yen(amount / (1 + rate));
+  }
+
   function containsAny(text, words) {
     var s = String(text || '');
     for (var i = 0; i < words.length; i++) if (s.indexOf(words[i]) >= 0) return true;
@@ -193,12 +209,30 @@ var CalcEngine = (function () {
     return true;
   }
 
-  function busySurchargeForLine(line, raw, multiplyByQty) {
+  /**
+   * 繁忙期加算の設定。
+   * 固定額（¥3,300）は料金表が税込なので税抜へ戻す。
+   * %指定（空室清掃の30%）は税抜の明細金額に掛けるので換算しない。
+   */
+  function busyOptions(ctx) {
+    return {
+      taxRate: toRate(ctx.taxRate) || 0.10,
+      taxIncluded: isBlank(ctx.busySurchargeTaxIncluded) ? true : parseBool(ctx.busySurchargeTaxIncluded)
+    };
+  }
+
+  function busyUnitAmount(raw, opts) {
+    var amount = toNum(raw);
+    if (!opts || !opts.taxIncluded) return yen(amount);
+    return taxExclusive(amount, opts.taxRate);
+  }
+
+  function busySurchargeForLine(line, raw, multiplyByQty, opts) {
     var text = String(raw == null ? '' : raw).trim();
     if (!text) return 0;
     if (text.indexOf('%') >= 0 || text.indexOf('％') >= 0) return yen(line.amount * toRate(text));
 
-    var amount = toNum(text);
+    var amount = busyUnitAmount(text, opts);
     return multiplyByQty ? yen(amount * line.qty) : yen(amount);
   }
 
@@ -208,12 +242,13 @@ var CalcEngine = (function () {
 
     var fallback = toNum(ctx.busySurcharge) || 3300;
     var unit = String(ctx.busySurchargeUnit || '数量ごと').trim();
+    var opts = busyOptions(ctx);
 
-    if (unit === '見積ごと') return fallback;
+    if (unit === '見積ごと') return busyUnitAmount(fallback, opts);
 
     return targets.reduce(function (sum, l) {
       var raw = isBlank(l.busySurchargeRaw) ? fallback : l.busySurchargeRaw;
-      return sum + busySurchargeForLine(l, raw, unit !== '明細ごと');
+      return sum + busySurchargeForLine(l, raw, unit !== '明細ごと', opts);
     }, 0);
   }
 
@@ -229,14 +264,16 @@ var CalcEngine = (function () {
 
     var fallback = toNum(ctx.busySurcharge) || 3300;
     var unit = String(ctx.busySurchargeUnit || '数量ごと').trim();
+    var opts = busyOptions(ctx);
     var flat = { name: '繁忙期加算', qty: 1, unitPrice: busyAmount, amount: busyAmount, taxType: '課税' };
 
     if (unit !== '数量ごと') return flat;
 
+    // 帳票は税抜表示なので、単価欄にも税抜へ戻した額を出す（小計＋消費税＝合計が崩れないように）
     var values = targets.map(function (l) {
       var raw = String(isBlank(l.busySurchargeRaw) ? fallback : l.busySurchargeRaw).trim();
       var isRate = raw.indexOf('%') >= 0 || raw.indexOf('％') >= 0;
-      return { isRate: isRate, value: toNum(raw) };
+      return { isRate: isRate, value: isRate ? toNum(raw) : busyUnitAmount(raw, opts) };
     });
 
     var uniform = values.length > 0 && values.every(function (x) {
@@ -249,15 +286,117 @@ var CalcEngine = (function () {
     return { name: '繁忙期加算', qty: totalQty, unitPrice: values[0].value, amount: busyAmount, taxType: '課税' };
   }
 
+  /* ===================== 同時施工価格（セット価格） ===================== */
+
+  /**
+   * 2箇所以上を同時に施工するときの価格。公開中の予約フォームと同じ数え方にする。
+   *
+   *   ・割引額がいちばん小さい1箇所はそのまま単品価格
+   *   ・残りは同時施工単価
+   *   ・条件付き（コンロはキッチンと同時のときだけ）はマスタの「条件」欄で指定する
+   *
+   * 同時施工単価は割引繁忙期マスタの「同時施工価格」ルール（対象＝メニューID、値＝税抜単価）。
+   * お客様がフォームで見た額よりあとから届く正式見積が高くなるのを防ぐのが目的。
+   */
+  function findSetPricingRule(rules, menuId) {
+    var id = String(menuId || '').trim();
+    if (!id) return null;
+
+    var matched = (rules || []).filter(function (r) {
+      return r.ruleType === '同時施工価格' && String(r.target || '').trim() === id;
+    }).sort(function (a, b) { return toNum(a.priority) - toNum(b.priority); });
+
+    return matched[0] || null;
+  }
+
+  function hasMenu(lines, menuId) {
+    var id = String(menuId || '').trim();
+    if (!id) return false;
+    return lines.some(function (l) { return l.menuId === id && l.qty > 0; });
+  }
+
+  /** 箇所数。メインメニューの数量を数える（オプションは箇所に数えない） */
+  function mainUnits(lines) {
+    var units = [];
+    lines.forEach(function (l) {
+      if (l.menuType !== 'メイン') return;
+      var n = Math.floor(toNum(l.qty));
+      for (var i = 0; i < n; i++) units.push(l);
+    });
+    return units;
+  }
+
+  function setUnitPriceOf(line, lines, ctx) {
+    var rule = findSetPricingRule(ctx.discountRules, line.menuId);
+    if (!rule) return line.unitPrice;
+
+    // 条件欄にメニューIDが書いてあるときは、そのメニューが同じ見積にある場合だけ同時施工単価
+    if (rule.condition && !hasMenu(lines, rule.condition)) return line.unitPrice;
+
+    var price = toNum(rule.value);
+    if (!(price > 0) || price >= line.unitPrice) return line.unitPrice;
+    return price;
+  }
+
+  function calcSetPricing(lines, ctx) {
+    var units = mainUnits(lines);
+    if (units.length < 2) {
+      return { available: false, amount: 0, detail: '', unitCount: units.length };
+    }
+
+    var priced = units.map(function (l) {
+      var setPrice = setUnitPriceOf(l, lines, ctx);
+      return { line: l, setPrice: setPrice, cut: Math.max(0, l.unitPrice - setPrice) };
+    }).sort(function (a, b) { return a.cut - b.cut; });
+
+    var amount = 0;
+    var parts = [];
+
+    for (var i = 1; i < priced.length; i++) {
+      if (priced[i].cut <= 0) continue;
+      amount += priced[i].cut;
+      parts.push(priced[i].line.name + ' → ' + fmtYen(priced[i].setPrice));
+    }
+
+    return {
+      available: amount > 0,
+      amount: yen(amount),
+      unitCount: units.length,
+      detail: amount > 0
+        ? units.length + '箇所同時施工。' + priced[0].line.name + 'は単品価格、' + parts.join('、')
+        : ''
+    };
+  }
+
+  /** 設定マスタのネット申込特典を、そのまま adjustments に足せる形にして返す */
+  function netBenefitAdjustment(ctx) {
+    var net = ctx && ctx.netBenefit;
+    if (!net || !(toNum(net.amount) > 0)) return null;
+
+    return {
+      name: String(net.name || 'ネット申込特典'),
+      kind: 'discount',
+      mode: 'amountIncTax',
+      value: toNum(net.amount),
+      base: 'taxable',
+      taxType: '課税',
+      note: String(net.note || 'このページからのお申し込み特典'),
+      auto: false
+    };
+  }
+
   /* ===================== 自動割引（早期予約 / 複数台） ===================== */
 
-  function calcAutoDiscount(month, lines, ctx) {
+  function calcAutoDiscount(month, lines, ctx, unitCount) {
     var eligible = lines
       .filter(function (l) { return l.discountTarget !== false; })
       .reduce(function (s, l) { return s + l.amount; }, 0);
 
     var early = findMonthRule(ctx.discountRules, '早期予約割引', month);
-    if (early && eligible > 0) {
+
+    // 早期予約割引は1箇所のみのご依頼に限る。2箇所以上は同時施工価格のほうを適用する。
+    // 公開中の予約フォームと同じ条件。ここを揃えないと同じ内容で金額が変わる。
+    if (early && eligible > 0 && unitCount === 1) {
       return {
         available: true,
         type: '早期予約割引',
@@ -303,7 +442,7 @@ var CalcEngine = (function () {
   /**
    * 調整行を正規化する。
    *   kind : 'discount'（値引き） | 'surcharge'（割増）
-   *   mode : 'amount'（定額）     | 'rate'（率）
+   *   mode : 'amount'（定額・税抜） | 'amountIncTax'（定額・税込） | 'rate'（率）
    *   base : 'taxable'（課税対象計） | 'lineSubtotal'（明細小計）  ※rateのときのみ意味を持つ
    */
   function normalizeAdjustment(a) {
@@ -313,7 +452,7 @@ var CalcEngine = (function () {
     if (!(value > 0)) return null;
 
     var kind = a.kind === 'surcharge' ? 'surcharge' : 'discount';
-    var mode = a.mode === 'rate' ? 'rate' : 'amount';
+    var mode = a.mode === 'rate' ? 'rate' : (a.mode === 'amountIncTax' ? 'amountIncTax' : 'amount');
     var taxType = isTaxable(a.taxType) ? '課税' : '非課税';
 
     return {
@@ -329,6 +468,10 @@ var CalcEngine = (function () {
   }
 
   function resolveAdjustmentAmount(adj, bases) {
+    // 税込で決まっている金額（ネット申込特典など）は、課税行に載せる前に税抜へ戻す
+    if (adj.mode === 'amountIncTax') {
+      return adj.taxType === '課税' ? taxExclusive(adj.value, bases.taxRate) : yen(adj.value);
+    }
     if (adj.mode === 'amount') return yen(adj.value);
     var base = adj.base === 'lineSubtotal' ? bases.lineSubtotal : bases.taxableBase;
     return yen(base * toRate(adj.value));
@@ -363,6 +506,16 @@ var CalcEngine = (function () {
     if (calc.busyAmount > 0) {
       rows.push(calc.busyPdfRow || {
         name: '繁忙期加算', qty: 1, unitPrice: calc.busyAmount, amount: calc.busyAmount, taxType: '課税'
+      });
+    }
+
+    if (calc.setDiscountApplied > 0) {
+      rows.push({
+        name: '同時施工割引',
+        qty: 1,
+        unitPrice: -calc.setDiscountApplied,
+        amount: -calc.setDiscountApplied,
+        taxType: '課税'
       });
     }
 
@@ -424,8 +577,15 @@ var CalcEngine = (function () {
     var busyAmount = busyEnabled ? calcBusyAmount(lines, ctx) : 0;
     var busyPdfRow = busyEnabled ? buildBusyPdfRow(lines, ctx, busyAmount) : null;
 
+    /* --- 同時施工価格（セット価格）。予約フォームと金額を揃えるためのもの --- */
+    var setInfo = calcSetPricing(lines, ctx);
+    var setEnabledBySetting = isBlank(ctx.setPricingEnabled) ? true : parseBool(ctx.setPricingEnabled);
+    var setDefault = setEnabledBySetting && setInfo.available;
+    var setPricingOn = isBlank(p.setPricingManual) ? setDefault : parseBool(p.setPricingManual);
+    var setDiscountApplied = setPricingOn ? setInfo.amount : 0;
+
     /* --- 自動割引 --- */
-    var autoInfo = calcAutoDiscount(month, lines, ctx);
+    var autoInfo = calcAutoDiscount(month, lines, ctx, setInfo.unitCount);
     var autoEnabledBySetting = parseBool(ctx.autoDiscountEnabled);
     var autoDefault = autoEnabledBySetting && autoInfo.available;
     var autoDiscountOn = isBlank(p.discountManual) ? autoDefault : parseBool(p.discountManual);
@@ -436,10 +596,10 @@ var CalcEngine = (function () {
 
     var taxableBase = taxableLines + busyAmount;
     var nonTaxableBase = nonTaxLines + highwayFee;
-    var bases = { taxableBase: taxableBase, lineSubtotal: lineSubtotal };
+    var bases = { taxableBase: taxableBase, lineSubtotal: lineSubtotal, taxRate: taxRate };
 
-    // 自動割引は常に課税対象から引く
-    var taxableCut = Math.min(autoDiscountApplied, taxableBase);
+    // 同時施工割引と自動割引は常に課税対象から引く
+    var taxableCut = Math.min(setDiscountApplied + autoDiscountApplied, taxableBase);
     var appliedAdjustments = [];
 
     adjustments.forEach(function (adj) {
@@ -500,6 +660,15 @@ var CalcEngine = (function () {
       busyAmount: busyAmount,
       busyPdfRow: busyPdfRow,
 
+      mainUnitCount: setInfo.unitCount,
+      setPricingEnabledBySetting: setEnabledBySetting,
+      setPricingAvailable: setInfo.available,
+      setPricingCandidate: setInfo.amount,
+      setPricingDetail: setInfo.detail,
+      setPricingAuto: setDefault,
+      setPricingOn: setPricingOn,
+      setDiscountApplied: setDiscountApplied,
+
       autoDiscountEnabledBySetting: autoEnabledBySetting,
       autoDiscountAvailable: autoInfo.available,
       autoDiscountCandidate: autoInfo.amount,
@@ -512,7 +681,7 @@ var CalcEngine = (function () {
       appliedAdjustments: appliedAdjustments,
       adjustmentTotal: adjustmentTotal,
 
-      discountTotal: lineDiscountTotal + autoDiscountApplied
+      discountTotal: lineDiscountTotal + setDiscountApplied + autoDiscountApplied
         + appliedAdjustments.reduce(function (s, a) { return s + (a.kind === 'discount' ? a.amount : 0); }, 0),
 
       taxableSubtotal: taxableSubtotal,
@@ -585,6 +754,13 @@ var CalcEngine = (function () {
 
     if (calc.busyManual !== calc.busyAuto) review('繁忙期加算の手動設定が自動判定と異なります。');
     if (calc.autoDiscountOn !== calc.autoDiscountAuto) review('自動割引の手動設定が自動判定と異なります。');
+    if (calc.setPricingOn !== calc.setPricingAuto) review('同時施工割引の手動設定が自動判定と異なります。');
+
+    // 同時施工割引と複数台割引はマスタ上は対象メニューが重なっていないが、
+    // 重なったときは二重に引くことになるので必ず人の目を通す。
+    if (calc.setDiscountApplied > 0 && calc.autoDiscountApplied > 0) {
+      review('同時施工割引と' + (calc.autoDiscountType || '自動割引') + 'が同時に適用されています。');
+    }
 
     if (calc.highwayFee > 0) review('高速代が入力されています。');
     if (String(p.remarks || '').indexOf('要確認') >= 0) review('備考に「要確認」が含まれています。');
@@ -605,6 +781,17 @@ var CalcEngine = (function () {
     var autoTarget = calc.appliedAdjustments.filter(function (a) { return a.auto; });
     if (autoTarget.length > 0) {
       alert_('合計金額を指定額に合わせる調整が入っています（' + fmtYen(-calc.adjustmentTotal) + '相当）。');
+    }
+
+    /* --- 予約フォームとの食い違いを未然に防ぐ --- */
+    var net = ctx.netBenefit;
+    if (net && toNum(net.amount) > 0 && calc.mainUnitCount >= 2 && calc.setDiscountApplied === 0) {
+      var netName = String(net.name || 'ネット申込特典');
+      var alreadyApplied = calc.appliedAdjustments.some(function (a) { return a.name === netName; });
+      if (!alreadyApplied) {
+        alert_('この内容は予約フォームだと「' + netName + ' ' + fmtYen(-toNum(net.amount))
+          + '（税込）」が付きます。Webからのお申し込みなら調整行に足してください。');
+      }
     }
 
     var manualDiscount = calc.lineDiscountTotal
@@ -660,6 +847,8 @@ var CalcEngine = (function () {
       lineDiscountTotal: fmtYen(calc.lineDiscountTotal),
       lineSubtotal: fmtYen(calc.lineSubtotal),
       busyAmount: fmtYen(calc.busyAmount),
+      setDiscountApplied: fmtYen(calc.setDiscountApplied),
+      setPricingCandidate: fmtYen(calc.setPricingCandidate),
       autoDiscountApplied: fmtYen(calc.autoDiscountApplied),
       autoDiscountCandidate: fmtYen(calc.autoDiscountCandidate),
       adjustmentTotal: fmtYen(calc.adjustmentTotal),
@@ -678,6 +867,8 @@ var CalcEngine = (function () {
     MAX_DETAIL_ROWS: MAX_DETAIL_ROWS,
     calculate: calculate,
     solveTargetTotal: solveTargetTotal,
+    netBenefitAdjustment: netBenefitAdjustment,
+    taxExclusive: taxExclusive,
     toNum: toNum,
     toRate: toRate,
     yen: yen,

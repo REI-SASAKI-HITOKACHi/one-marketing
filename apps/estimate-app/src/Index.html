@@ -88,6 +88,12 @@
         <div id="busyHint" class="mini-info"></div>
 
         <label class="check-row">
+          <input id="setPricingManual" type="checkbox">
+          <span>同時施工価格を適用</span>
+        </label>
+        <div id="setPricingHint" class="mini-info"></div>
+
+        <label class="check-row">
           <input id="discountManual" type="checkbox">
           <span>自動割引ルールを適用</span>
         </label>
@@ -105,6 +111,7 @@
         <div class="button-row">
           <button type="button" class="secondary" data-action="add-adjustment">＋ 値引きを追加</button>
           <button type="button" class="secondary" data-action="add-surcharge">＋ 割増を追加</button>
+          <button type="button" class="secondary" id="netBenefitButton" data-action="add-net-benefit" hidden></button>
         </div>
 
         <hr class="divider">
