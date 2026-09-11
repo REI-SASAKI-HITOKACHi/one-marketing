@@ -38,16 +38,16 @@ a{color:var(--accent-ink);}
 .serif{font-family:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho",serif;}
 .col{max-width:560px;margin:0 auto;padding:0 22px;}
 /* 冒頭 */
-.opener{min-height:78svh;display:flex;flex-direction:column;justify-content:center;padding:56px 22px 36px;max-width:560px;margin:0 auto;}
+.opener{display:flex;flex-direction:column;padding:72px 22px 28px;max-width:560px;margin:0 auto;}
 .opener .num{font-family:"Shippori Mincho B1",serif;font-weight:800;font-size:clamp(84px,26vw,132px);line-height:1;letter-spacing:-.02em;color:var(--ink);}
 .opener .num small{font-size:.42em;letter-spacing:0;margin-left:.06em;}
 .opener .line{font-family:"Shippori Mincho B1",serif;font-weight:700;font-size:clamp(22px,6vw,28px);line-height:1.65;margin-top:26px;text-wrap:balance;}
-.opener .src{font-size:11.5px;color:var(--ink-3);line-height:1.6;margin-top:34px;}
-.opener .down{margin-top:auto;padding-top:28px;font-size:12px;color:var(--ink-3);letter-spacing:.14em;}
+.opener .src{font-size:11.5px;color:var(--ink-3);line-height:1.6;margin-top:22px;}
+.opener .down{margin-top:30px;font-size:12px;color:var(--ink-3);letter-spacing:.14em;}
 /* 章 */
 .ch{padding:56px 0 8px;}
 .ch .no{font-family:"Shippori Mincho B1",serif;font-size:15px;color:var(--accent);border-top:1.5px solid var(--accent);display:inline-block;padding:8px 14px 0 0;}
-.ch h2{font-family:"Shippori Mincho B1",serif;font-weight:700;font-size:clamp(24px,6.6vw,30px);line-height:1.5;margin:10px 0 22px;text-wrap:balance;}
+.ch h2{font-family:"Shippori Mincho B1",serif;font-weight:700;font-size:clamp(24px,6.6vw,30px);line-height:1.5;margin:18px 0 24px;text-wrap:balance;}
 p{margin:0 0 1.35em;}
 p.lead{font-family:"Shippori Mincho B1",serif;font-size:19px;line-height:1.9;}
 p.big{font-family:"Shippori Mincho B1",serif;font-weight:700;font-size:clamp(21px,5.8vw,26px);line-height:1.7;margin:28px 0;}
@@ -67,14 +67,17 @@ figure.ph figcaption b{color:var(--ink-2);font-weight:500;}
 .q{margin:26px 0;padding:0 0 0 18px;border-left:2px solid var(--ink);font-size:15.5px;line-height:1.95;color:var(--ink);}
 .q cite{display:block;font-style:normal;font-size:11.5px;color:var(--ink-3);margin-top:8px;line-height:1.6;}
 .q cite a{color:var(--ink-3);text-decoration:none;border-bottom:1px solid var(--rule);}
+p.fact{font-size:15.5px;line-height:1.95;}
+p.fact .fsrc{display:block;font-size:11.5px;color:var(--ink-3);margin-top:6px;}
+p.fact .fsrc a{color:var(--ink-3);text-decoration:none;border-bottom:1px solid var(--rule);}
 /* 身分 */
 .reveal{margin:40px 0;padding:34px 0;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);}
 .reveal p{font-family:"Shippori Mincho B1",serif;font-size:clamp(20px,5.6vw,25px);line-height:1.75;margin:0;}
 .reveal .who{font-family:"Zen Kaku Gothic New",sans-serif;font-size:13px;color:var(--ink-2);margin-top:16px;line-height:1.7;}
 /* できる・できない */
 .dk{margin:0 0 18px;padding:18px 0 0;border-top:1px solid var(--rule);}
-.dk b{display:block;font-size:15px;margin-bottom:4px;}
-.dk.ng b{color:#8E2F1A;}
+.dk h3{display:block;font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:15.5px;line-height:1.6;margin:0 0 6px;}
+.dk.ng h3{color:#8E2F1A;}
 .dk p{font-size:15.5px;line-height:1.9;margin:0;}
 /* 終わり */
 .end{font-family:"Shippori Mincho B1",serif;font-size:19px;line-height:2;margin:48px 0 0;}
@@ -126,12 +129,15 @@ def render_block(b: dict, ctx: dict) -> str:
     e = C.esc
     if t == "opener":
         return (f'<section class="opener"><div class="num">{b["num"]}</div>'
-                f'<p class="line">{b["line"]}</p><p class="src">{b["src"]}</p><div class="down">↓ 続きは3分ほど</div></section><div class="col">')
+                f'<p class="line">{b["line"]}</p><div class="down">↓ 続きは3分ほど</div><p class="src">{b["src"]}</p></section><div class="col">')
     if t == "ch":
         return f'<div class="ch"><span class="no">{e(b["no"])}</span><h2>{b["h"]}</h2></div>'
     if t == "p":
         cls = b.get("cls", "")
         return f'<p class="{cls}">{b["x"]}</p>'
+    if t == "fact":
+        name, url = K.SRC[b["src"]]
+        return f'<p class="fact">{b["x"]}<span class="fsrc">出典　<a href="{url}" target="_blank" rel="noopener">{e(name)}</a></span></p>'
     if t == "kazu":
         return f'<div class="kazu"><b>{b["num"]}</b><span>{b["x"]}</span></div>'
     if t == "photo":
@@ -147,7 +153,7 @@ def render_block(b: dict, ctx: dict) -> str:
     if t == "reveal":
         return f'<div class="reveal"><p class="serif">{b["x"]}</p><p class="who">{b["who"]}</p></div>'
     if t == "dk":
-        return f'<div class="dk {b.get("cls", "")}"><b>{e(b["h"])}</b><p>{b["x"]}</p></div>'
+        return f'<div class="dk {b.get("cls", "")}"><h3>{e(b["h"])}</h3><p>{b["x"]}</p></div>'
     if t == "end":
         return f'<p class="end">{b["x"]}</p>'
     if t == "offer":
@@ -165,6 +171,10 @@ def offer_html(b: dict, ctx: dict) -> str:
         total += v
         rows += f'<div class="ln"><span>{C.esc(name)}</span><span class="v">{C.yen(v)}</span></div>'
     rows += f'<div class="ln sum"><span>合計（税込）</span><span class="v">{C.yen(total)}</span></div>'
+    tenken = ""
+    if b.get("tenken_bridge"):
+        tenken = (f'<div class="tenken"><b>まだ決めない、という方へ</b><p>{b["tenken_bridge"]}</p>'
+                  f'<a class="btn sec" id="btn-tenken" href="{C.TENKEN_URL}/">{C.esc(b["tenken_cta"])}</a></div>')
     auto = m["エアコンクリーニング（お掃除機能付き）"]["単体"]
     busy = P["raw"]["繁忙期加算"]["金額"]
     return f"""
@@ -176,9 +186,7 @@ def offer_html(b: dict, ctx: dict) -> str:
     <p class="fine">出張費・駐車場代・追加作業費はありません。お掃除機能付きのエアコンは {C.yen(auto)}。5〜7月と12月は繁忙期の加算 {C.yen(busy)}。作業のあと、洗った水をそのままお見せします。</p>
     <a class="btn" id="btn-yoyaku" href="{C.BOOKING}">日程を見て予約する</a>
     <p class="proof">ご利用後のアンケートで「他の人にすすめたい」 {K.SURVEY}。Googleのクチコミ ★5.0（{K.REVIEW_COUNT}件・{K.REVIEW_ASOF}）。東京都・千葉県・神奈川県。</p>
-    <div class="tenken"><b>まだ決めない、という方へ</b>
-      <p>{b["tenken"]}</p>
-      <a class="btn sec" id="btn-tenken" href="{C.TENKEN_URL}/">無料点検を申し込む（洗濯槽・追い焚き配管）</a></div>
+    {tenken}
   </section>
 """
 
