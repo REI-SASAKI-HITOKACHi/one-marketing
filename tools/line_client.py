@@ -28,17 +28,32 @@ LINE Messaging API のクライアント。紹介クーポンの作成・配布�
   python3 tools/line_client.py quota
       今月の無料メッセージ通数と消化数。プラン変更の判断に使う。
 
-★確認済みの仕様（LINE Developers 公式ドキュメントで確認、2026-09-06）
+★確認済みの仕様
+  出典は LINE公式のOpenAPI定義（2026-09-11 に取得して実機で通した）:
+    https://raw.githubusercontent.com/line/line-openapi/main/messaging-api.yml
+  公式リファレンスのページはJavaScriptで描画されて読めないので、上のYAMLを見ること。
+
   - クーポン作成: POST https://api.line.me/v2/bot/coupon
-  - 固定額の割引: reward.type="discount" / reward.priceInfo.type="fixed" / fixedAmount
+  - 必須: title / startTimestamp / endTimestamp / timezone / visibility /
+          acquisitionCondition / maxUseCountPerTicket
+  - startTimestamp・endTimestamp は **epoch秒**。★ミリ秒ではない
+  - timezone は **ASIA_TOKYO**。★「Asia/Tokyo」は通らない
+  - visibility は **UNLISTED か PUBLIC の2つだけ**。★「PRIVATE」は存在しない
+  - maxUseCountPerTicket は必須。最大1。無制限は -1
+  - reward.type は discount / cashBack / free / gift / others。
+    discount と cashBack だけ priceInfo を持つ（fixed / percentage / explicit）
   - クーポンメッセージ: {"type":"coupon","couponId":"..."}
   - push / multicast / broadcast / narrowcast / reply で送信できる
   - 作成後の修正は不可。終了は PUT /v2/bot/coupon/{couponId}/close で、獲得済みの人も使えなくなる
 
-★未確認
-  リクエストボディの全プロパティ名までは公式リファレンスがJavaScriptで描画されるため取得できていない。
-  data/line-coupon-referral.json は現時点の下書き。**APIがエラーを返したら、その本文をそのまま読んで直すこと。**
+★エラーの読み方（つまずきやすい）
+  形が違うと HTTP 400 で {"message":"Internal Server Error"} としか返らない。
+  どこが悪いかは一切教えてくれない。**上のYAMLと1項目ずつ突き合わせること。**
   推測でプロパティ名を足さないこと。
+
+★作る前に必ず coupon-list を見ること
+  2026-09-11 時点で、紹介・リピート割引・防カビ無料の3件が既に RUNNING だった。
+  似た名前をもう1つ作ると、お客様のクーポン一覧に並んでしまい、しかも消せない。
 """
 
 import argparse

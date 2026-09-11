@@ -1,0 +1,29 @@
+{
+  "_説明": "★テスト用★ クーポンAPIの仕様を実地で確かめるためだけのもの。お客様には配らない。",
+  "_なぜ別ファイルか": "作成したクーポンは修正できず、終了させると獲得済みの人も使えなくなる（公式仕様）。本番の data/line-coupon-referral.json をいきなり作ると、間違いに気づいても直せない。",
+  "_使い方": [
+    "1. . ~/.config/one-hitter/line.env で環境変数を読む（値はgitに置かない）",
+    "2. python3 tools/line_client.py coupon-create --file data/line-coupon-test.json --dry-run",
+    "3. python3 tools/line_client.py coupon-create --file data/line-coupon-test.json --confirm CREATE",
+    "4. エラーが返ったら本文をそのまま読んでプロパティ名を直す。推測で足さないこと",
+    "5. 通った形を data/line-coupon-referral.json に反映してから本番を作る"
+  ],
+  "_期間": "2026-09-11 09:08 JST 〜 2026-09-12 09:06 JST（1日だけ）",
+  "title": "【テスト】表示確認用クーポン",
+  "description": "社内の表示確認用です。お客様にはお配りしません。",
+  "startTimestamp": 1789085300,
+  "endTimestamp": 1789171580,
+  "timezone": "ASIA_TOKYO",
+  "visibility": "UNLISTED",
+  "reward": {
+    "type": "discount",
+    "priceInfo": {
+      "type": "fixed",
+      "fixedAmount": 1000
+    }
+  },
+  "acquisitionCondition": {
+    "type": "normal"
+  },
+  "maxUseCountPerTicket": 1
+}

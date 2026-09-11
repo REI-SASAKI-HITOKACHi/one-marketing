@@ -1,33 +1,57 @@
 {
-  "_説明": "ご紹介いただいた方にお渡しする1,000円割引クーポン。POST https://api.line.me/v2/bot/coupon の本文。",
-  "_確認済み": [
-    "エンドポイントは POST https://api.line.me/v2/bot/coupon（LINE Developers 公式ドキュメントで確認、2026-09-06）",
-    "固定額の割引は reward.type=\"discount\" / reward.priceInfo.type=\"fixed\" / fixedAmount（公式ドキュメントの例と同じ形）",
-    "作成後の修正は不可。変えたいときは終了させて作り直す",
-    "有効なクーポンは最大5,000件まで"
+  "_結論": "★このクーポンは作らない。同じものが既に稼働している（2026-09-11 実機で確認）。",
+  "_既に動いているもの": {
+    "couponId": "01JWGRWJ9XP59WS2T1GY1944Y7",
+    "title": "紹介キャッシュバック_One Hitter",
+    "couponCode": "Viral001",
+    "status": "RUNNING",
+    "期間": "2025-06-01 〜 2027-06-01（JST）",
+    "reward": "cashBack / fixed / 1000円（★割引ではなく、指定口座へのお振込）",
+    "maxTicketPerUser": 1,
+    "maxUseCountPerTicket": -1,
+    "visibility": "UNLISTED",
+    "紹介人数の上限": "なし"
+  },
+  "_作らない理由": [
+    "同じ名前のクーポンが増えると、お客様のクーポン一覧に似たものが並ぶ。",
+    "作成後は修正できず、終了させると獲得済みの方も使えなくなる（復活しない）。間違えたら取り返しがつかない。",
+    "既存のものは説明文まで作り込まれていて、こちらの下書きより内容が厚い。"
   ],
-  "_未確認": [
-    "title / description / startTimestamp / endTimestamp / timezone / visibility / acquisitionCondition のプロパティ名と必須かどうかは、公式リファレンスがJavaScriptで描画されるため未取得。",
-    "★最初の1件は必ず --dry-run で中身を見てから、少額・短期間の『テスト用』として作ること。",
-    "★APIがエラーを返したら、その本文をそのまま読んでプロパティ名を直すこと。推測で足さないこと。"
-  ],
-  "_金額の根拠": "data/prices.json の 紹介.消費者から消費者 = 定額1,000円。事業者からの紹介（5〜15%）とは別の制度なので混同しないこと。",
-  "title": "ご紹介ありがとうクーポン 1,000円割引",
-  "description": "お知り合いをご紹介いただいたお礼です。次回のご利用時に1,000円を割引いたします。ご予約の際にこのクーポンの画面をお見せください。エアコン・水まわりなど、当社の全メニューでお使いいただけます。他の割引との併用はできません。",
-  "startTimestamp": 1793458800000,
-  "endTimestamp": 1798729200000,
-  "timezone": "Asia/Tokyo",
-  "visibility": "PRIVATE",
-  "reward": {
-    "type": "discount",
-    "priceInfo": {
-      "type": "fixed",
-      "fixedAmount": 1000
+
+  "_制度が資料と食い違っている": {
+    "資料の記載": "docs/cmo-savedata.md と data/prices.json は『消費者→消費者：紹介した本人の次回料金から一律1,000円割引』",
+    "実機の記載": "紹介元＝キャッシュバック1,000円（指定口座へ振込）／紹介先＝割引1,000円 の両建て。1件の紹介で合計2,000円動く",
+    "どちらが正か": "未確定。オーナー確認が要る。CMOへ上げた（2026-09-11）",
+    "★注意": "data/prices.json はこのスレッドの担当外。勝手に直さないこと"
+  },
+
+  "_同時に見つかった稼働中のクーポン": [
+    {
+      "couponId": "01JWGS03Y5KSYEKTYF5R8VRCJ7",
+      "title": "【クーポン】リピート割引",
+      "couponCode": "Rep001",
+      "reward": "discount / fixed / 1000円",
+      "対象": "2回目以降のご利用",
+      "期間": "2025-06-01 〜 2027-06-01",
+      "備考": "説明文に「他のクーポンとの併用はできません」とある"
+    },
+    {
+      "couponId": "01JWGS35GDRKWY9AJ0M33N8JWW",
+      "title": "防カビコーティング無料チケット",
+      "reward": "free",
+      "期間": "2025-05-31 〜 2027-05-31"
     }
-  },
-  "acquisitionCondition": {
-    "type": "normal"
-  },
-  "_日時のメモ": "startTimestamp=2026-11-01 00:00 JST(1793458800000) / endTimestamp=2027-01-01 00:00 JST(1798729200000)。JSTを明示して出すこと: python3 -c \"import datetime as dt;J=dt.timezone(dt.timedelta(hours=9));print(int(dt.datetime(2026,11,1,tzinfo=J).timestamp()*1000))\"",
-  "_visibilityのメモ": "紹介者だけに配るので、タイムラインに出さない設定にしたい。値の綴りは要確認。"
+  ],
+  "_終了済み": "同名の旧世代3件（2022-2023、ID が NOBt5NlZN など短い形式）はすべて CLOSED。重複稼働はしていない",
+
+  "_確認したAPI仕様": {
+    "出典": "https://raw.githubusercontent.com/line/line-openapi/main/messaging-api.yml（LINE公式のOpenAPI定義）",
+    "必須": ["title", "startTimestamp", "endTimestamp", "timezone", "visibility", "acquisitionCondition", "maxUseCountPerTicket"],
+    "startTimestamp/endTimestamp": "epoch秒。★ミリ秒ではない",
+    "timezone": "ASIA_TOKYO。★『Asia/Tokyo』は通らない",
+    "visibility": "UNLISTED か PUBLIC の2つだけ。★『PRIVATE』は存在しない",
+    "maxUseCountPerTicket": "必須。最大1。無制限は -1",
+    "reward": "type=discount/cashBack/free/gift/others。discount と cashBack だけ priceInfo を持つ（fixed / percentage / explicit）",
+    "エラーの出方": "形が違うと HTTP 400 で {\"message\":\"Internal Server Error\"} としか返らない。原因を教えてくれないので、必ず上の定義と突き合わせること"
+  }
 }
