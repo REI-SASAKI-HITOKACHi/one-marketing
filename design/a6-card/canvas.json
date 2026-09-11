@@ -1,0 +1,70 @@
+{
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 397,
+      "h": 559,
+      "title": "赤ちゃん版 表・A 数字型",
+      "print": "fixed"
+    },
+    {
+      "file": "AkachanB.dc.html",
+      "x": 497,
+      "y": 0,
+      "w": 397,
+      "h": 559,
+      "title": "赤ちゃん版 表・B 問い型",
+      "print": "fixed"
+    },
+    {
+      "file": "AkachanBack.dc.html",
+      "x": 994,
+      "y": 0,
+      "w": 397,
+      "h": 559,
+      "title": "赤ちゃん版 裏",
+      "print": "fixed"
+    },
+    {
+      "file": "PetA.dc.html",
+      "x": 0,
+      "y": 719,
+      "w": 397,
+      "h": 559,
+      "title": "ペット版 表・A",
+      "print": "fixed"
+    },
+    {
+      "file": "PetB.dc.html",
+      "x": 497,
+      "y": 719,
+      "w": 397,
+      "h": 559,
+      "title": "ペット版 表・B",
+      "print": "fixed"
+    },
+    {
+      "file": "PetBack.dc.html",
+      "x": 994,
+      "y": 719,
+      "w": 397,
+      "h": 559,
+      "title": "ペット版 裏",
+      "print": "fixed"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "memo-1",
+      "x": 0,
+      "y": -150,
+      "w": 520,
+      "text": "A6（105×148mm）。白地・黒の明朝・色なし（施設が普通紙で刷っても成立）。\nA 数字型は読本の冒頭と同じ数字。B 問い型はオーナー案。どちらかを選ぶ。\n文言を直したら tools/dokuhon_content.py に戻し、印刷用PDFは tools/build-a6-card.py で出す。"
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  }
+}
