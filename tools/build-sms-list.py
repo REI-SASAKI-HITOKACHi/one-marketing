@@ -9,8 +9,8 @@
   B 顧客名
   C 電話番号     … 数字だけ。コピーしてそのまま貼れる
   D ▶SMSを開く   … sms: リンク。タップすると宛先と本文が入った状態でSMSが開く
-  E 送信する本文  … Dが効かない端末向けの控え。ここをコピーしても送れる
-  F 送信済み     … プルダウン1タップ
+  E 送信済み     … プルダウン1タップ（2026-09-11 に本文と入れ替え。横スクロールせずに結果を入れるため）
+  F 送信する本文  … Dが効かない端末向けの控え。ここをコピーしても送れる
   G 返信メモ
   H以降 これまでの情報（消していない）
 
@@ -23,7 +23,7 @@
   ・直近3ヶ月に施工済み  … このタブの設計どおり
   ・固定電話・IP電話    … SMSが届かない
   ・電話番号なし        … 送れない
-  スケジュールマッチング経由は、和真がF列で「対象外」にする運用に変わった
+  スケジュールマッチング経由は、和真がE列で「対象外」にする運用に変わった
   （2026-09-08 オーナー指示）。こちらでは除外しない。
 
 使い方: python3 tools/build-sms-list.py
@@ -539,8 +539,9 @@ for n, i in enumerate(okuru):
     batch[i] = HIZUKE[hi] if hi < len(HIZUKE) else 'KDDI一括'
 
 # ============================== 並べ直した表を作る ==============================
-ATAMA = ['優先', '顧客名', '電話番号', '▶SMSを開く', '送信する本文',
-         '送信済み', '返信メモ', '送信日の目安', '配信区分', '送らない理由',
+# 2026-09-11 和真さんの要望：E列を「送信済み」、F列を「本文」にする（横スクロールせずに結果を入れられる）
+ATAMA = ['優先', '顧客名', '電話番号', '▶SMSを開く', '送信済み',
+         '送信する本文', '返信メモ', '送信日の目安', '配信区分', '送らない理由',
          'セグメント', '法人/個人', '送信系統', '受注回数', '累計売上', '平均単価',
          '最終施工日', '経過(月)', '冬季施工回数', '施工メニュー（内訳）',
          '今回おすすめ', '主な流入経路', '利用年', '元の電話番号表記', '予備']
@@ -561,8 +562,8 @@ for i, r in enumerate(rows):
     else:
         RINKU.append('')
     atarashii.append([
-        g(r, '優先'), g(r, '氏名'), ("'" + num) if num else '', link, hon,
-        g(r, '送信済み'), g(r, '返信メモ'), batch.get(i, ''), kubun, riyuu,
+        g(r, '優先'), g(r, '氏名'), ("'" + num) if num else '', link, g(r, '送信済み'),
+        hon, g(r, '返信メモ'), batch.get(i, ''), kubun, riyuu,
         g(r, 'セグメント'), g(r, '法人/個人'), g(r, '送信系統'), g(r, '受注回数'), g(r, '累計売上'),
         g(r, '平均単価'), g(r, '最終施工日'), g(r, '経過(月)'), g(r, '冬季施工回数'), g(r, '施工メニュー（内訳）'),
         g(r, '今回おすすめ'), g(r, '主な流入経路'), g(r, '利用年'), g(r, 'TEL'), g(r, '送信済み'),
@@ -585,7 +586,7 @@ TEST_HONBUN = ('【テスト】この画面が宛先と本文入りで開いて�
                'そのまま送信して、届いたらグループLINEに一言ください。')
 test_gyou = ['テスト', '【実機テスト】自分あて', "'" + TEST_TEL,
              '▶ 送る',
-             TEST_HONBUN, '', '', '9/9', 'テスト',
+             '', TEST_HONBUN, '', '9/9', 'テスト',
              'D列が効くかを確かめるための行。消して構いません', '', '', '',
              '', '', '', '', '', '', '', '', '', '', '', '']
 atarashii.insert(0, test_gyou[:len(ATAMA)])
@@ -689,9 +690,9 @@ if not YOYAKU_OK:
 
 SETSUMEI = ('' if YOYAKU_OK else '【送信は保留してください】' + YOYAKU_RIYUU + ' ') + (
            'スマホでの送信作業用。D列の「▶ 送る」をタップ → 出てきたリンクを開く → '
-            'SMSが宛先と本文入りで開く → 送信 → F列で「送信済み」を選ぶ。'
-            '開かないときは、E列の本文をコピーして貼ってください（手打ちはしないこと）。'
-            'スケジュールマッチング経由で送ってはいけない先は、F列で「対象外」にしてください。')
+            'SMSが宛先と本文入りで開く → 送信 → E列で「送信済み」を選ぶ。'
+            '開かないときは、F列の本文をコピーして貼ってください（手打ちはしないこと）。'
+            'スケジュールマッチング経由で送ってはいけない先は、E列で「対象外」にしてください。')
 
 # いったん広めに消してから書き直す
 call(f'/{SS}/values/{TAB}!A1:Y1000:clear', 'POST', {})
@@ -723,7 +724,7 @@ req = [
         'range': {'sheetId': SID, 'dimension': 'COLUMNS',
                   'startIndex': i, 'endIndex': i + 1},
         'properties': {'pixelSize': w}, 'fields': 'pixelSize'}}
-      for i, w in enumerate([48, 150, 120, 80, 420, 100, 160, 90, 80, 220])],
+      for i, w in enumerate([48, 150, 120, 80, 100, 420, 160, 90, 80, 220])],
     {'repeatCell': {
         'range': gr(0, 1),
         'cell': {'userEnteredFormat': {
@@ -768,9 +769,9 @@ req = [
                            'underline': False}}},
         'fields': 'userEnteredFormat(horizontalAlignment,verticalAlignment,'
                   'backgroundColor,textFormat)'}},
-    # F列 送信済み のプルダウン
+    # E列 送信済み のプルダウン
     {'setDataValidation': {
-        'range': gr(5, 5 + n, 5, 6),
+        'range': gr(5, 5 + n, 4, 5),
         'rule': {'condition': {'type': 'ONE_OF_LIST', 'values': [
             {'userEnteredValue': v} for v in
             ['送信済み', '返信あり', '予約になった', '不通・エラー', '対象外']]},
@@ -791,7 +792,7 @@ req.append({'addConditionalFormatRule': {'rule': {
     'ranges': [gr(5, 5 + n)],
     'booleanRule': {
         'condition': {'type': 'CUSTOM_FORMULA',
-                      'values': [{'userEnteredValue': '=$F6<>""'}]},
+                      'values': [{'userEnteredValue': '=$E6<>""'}]},
         'format': {'backgroundColor': {'red': .88, 'green': .95, 'blue': .91}}}},
     'index': 0}})
 
