@@ -532,7 +532,7 @@ SNSを持っているのはフランチャイズ（おそうじ革命 浦安舞�
 
 | # | 決めてほしいこと | 決定 |
 |---|---|---|
-| 1 | SNSからの誘導先 | **予約フォーム** `https://one-hitter-booking.netlify.app/?src=ig`（FB `src=fb`／GBP `src=gbp`）。年末企画の投稿（11〜12月）だけ年末LP `https://one-hitter-lp.netlify.app/nenmatsu/?src=ig`。初見向けの文言修正5点をCMOへ依頼済み（20260911-01-cmo） |
+| 1 | SNSからの誘導先 | **2026-09-11 オーナー決定で変更：LPへ。** 9月は水回りLP `https://one-hitter-lp.netlify.app/mizumawari/?src=ig`（エアコンがテーマなら `/aircon/?src=ig`）、10〜11月は年末LP `/nenmatsu/?src=ig`。FB `src=fb`／GBP `src=gbp`。全LPのフォームが `src` を記録することを確認済み。（CMOの当初決定は予約フォーム。予約フォームの初見向け文言5点の依頼 20260911-01-cmo は、既存客SMS向けの改善として残す） |
 | 2 | 公式サイトにSNSリンクを置くか | **置く。** LP担当へ依頼済み（20260911-01-lp）。公開反映はCMOがオーナーへまとめて上げる |
 | 3 | ~~承認を週1回のまとめにしてよいか~~ | **決定済み（2026-09-10 オーナー）：最初の90日は週1回のまとめ承認 → 事故ゼロなら事後報告へ** |
 | 4 | Instagram/Facebook/GBP にログインできる人 | **Instagram：ビジネスアカウント・管理者はオーナー。Facebook：管理者はオーナー本人。GBP：未確認（オーナーのアカウントでは管理画面が出ない。CMOが確認中）**。3章①②の実数はAPIトークンが来たら埋める |

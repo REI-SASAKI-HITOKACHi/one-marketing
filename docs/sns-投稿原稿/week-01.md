@@ -1,8 +1,8 @@
 # 承認シート｜第1週（9/12〜9/19）— 週5本に増やした版
 
 状態：**オーナー承認済み（2026-09-11「もちろん承認する」「ペースを上げる」）**。この版は増やした3本（③④⑤）だけ追加承認が要る。
-実行：APIトークンが来るまでは**オーナーの手で投稿**。Instagramの投稿画面で「Facebookにもシェア」をON。GBPは管理画面から。
-誘導先：予約フォーム `https://one-hitter-booking.netlify.app/?src=ig`（CMO決定）。
+実行：**すべて当スレッドが投稿する**（2026-09-11 オーナー決定。オーナーは投稿しない）。APIトークン（`docs/権限移譲の手順.md` 1〜3章）受領後に自動投稿を開始。
+誘導先（2026-09-11 オーナー決定）：**9月は水回りLP** `https://one-hitter-lp.netlify.app/mizumawari/?src=ig`（エアコンがテーマの投稿は `https://one-hitter-lp.netlify.app/aircon/?src=ig`）、**10〜11月は年末LP** `https://one-hitter-lp.netlify.app/nenmatsu/?src=ig`。GBPは `src=gbp`、Facebookは `src=fb`。全LPのフォームは `src` を記録済み（確認済み）。
 
 ## ペース（第1週から）
 
@@ -54,7 +54,7 @@
 ## ③（水 9/17）型A＋B｜江戸川区・エアコン（承認済み）
 - 写真：IMG_7963 → IMG_7969（同一箇所確認済み）→ IMG_7976 → IMG_7965。リール：`dist/shorts/2026-09-04-aircon.mp4`
 - 本文：`docs/sns-投稿原稿/2026-09-04-aircon.md` の Instagram 欄
-- GBP：同ファイルの GBP 欄。写真 IMG_7963。ボタン「予約」→ `?src=gbp`
+- GBP：同ファイルの GBP 欄。写真 IMG_7963。ボタン「予約」→ `https://one-hitter-lp.netlify.app/aircon/?src=gbp`
 
 ## ④（木 9/18）型D｜自分でできるコツ：洗濯槽
 - 画像：文字カード
