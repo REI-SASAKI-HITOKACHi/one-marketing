@@ -592,6 +592,7 @@ function apiLoadEstimateForClone(estimateId) {
         selfRecipientEmail: r['宛先メール'] || '',
         highwayFee: toNumber_(r['高速代']),
         channel: r['受注経路'] || '',
+        formQuotedTotal: toNumber_(r['フォーム提示額']),
         busyManual: parseBooleanLoose_(r['繁忙期_手動設定']),
         discountManual: parseBooleanLoose_(r['割引_手動設定']),
         setPricingManual: parseBooleanLoose_(r['同時施工_手動設定']),
@@ -679,6 +680,8 @@ function buildEstimateRecord_(payload, ctx, calc, estimateId) {
     ネット特典_自動判定: boolText_(calc.netBenefitAuto),
     ネット特典_手動設定: boolText_(calc.netBenefitOn),
     ネット特典額: calc.netBenefitApplied,
+    フォーム提示額: calc.formQuotedTotal || '',
+    フォーム差額: calc.formQuotedTotal > 0 ? calc.formQuoteDiff : '',
     明細値引き合計: calc.lineDiscountTotal,
     調整合計額: calc.adjustmentTotal,
     合計指定額: calc.targetTotal || '',
@@ -740,6 +743,7 @@ function rebuildCalcFromRecord_(record, ctx) {
     workDate: toDateInputValue_(record['作業予定日']),
     highwayFee: toNumber_(record['高速代']),
     channel: record['受注経路'] || '',
+    formQuotedTotal: toNumber_(record['フォーム提示額']),
     busyManual: parseBooleanLoose_(record['繁忙期_手動設定']),
     discountManual: parseBooleanLoose_(record['割引_手動設定']),
     setPricingManual: parseBooleanLoose_(record['同時施工_手動設定']),
@@ -1936,7 +1940,8 @@ function getEstimateHeaders_() {
   headers.push('request_id', '要代表者確認', '自動割引種別', '自動割引額', '明細値引き合計',
     '調整合計額', '合計指定額', '調整_JSON',
     '同時施工_自動判定', '同時施工_手動設定', '同時施工割引額',
-    '受注経路', 'ネット特典_自動判定', 'ネット特典_手動設定', 'ネット特典額');
+    '受注経路', 'ネット特典_自動判定', 'ネット特典_手動設定', 'ネット特典額',
+    'フォーム提示額', 'フォーム差額');
 
   for (let i = 1; i <= APP.MAX_ADJUSTMENT_SLOTS; i++) {
     headers.push('調整' + pad2_(i) + '_名称', '調整' + pad2_(i) + '_金額');

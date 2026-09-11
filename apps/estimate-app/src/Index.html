@@ -139,19 +139,32 @@
         <div id="targetTotalHint" class="mini-info"></div>
       </section>
 
+      <section id="formQuoteCard" class="card" hidden>
+        <h2>6. 予約フォームの提示額と照合</h2>
+        <div class="note">
+          お客様が予約フォームで見た概算金額を入れてください。
+          割引の入れ忘れや、フォーム側の料金変更にここで気づけます。
+        </div>
+
+        <label for="formQuotedTotal">予約フォームの提示額（税込）</label>
+        <input id="formQuotedTotal" type="number" min="0" inputmode="numeric" placeholder="例：33660">
+
+        <div id="formQuoteResult" class="mini-info"></div>
+      </section>
+
       <section class="card sticky-summary">
-        <h2>6. 金額確認</h2>
+        <h2>7. 金額確認</h2>
         <div id="calcSummary" class="summary-grid"></div>
       </section>
 
       <section id="exceptionSection" class="card hidden">
-        <h2>7. 確認事項</h2>
+        <h2>8. 確認事項</h2>
         <div id="reviewList" class="alert warning hidden"></div>
         <div id="alertList" class="alert info hidden"></div>
       </section>
 
       <section class="card">
-        <h2>8. PDF生成・下書き作成</h2>
+        <h2>9. PDF生成・下書き作成</h2>
 
         <button id="createBtn" type="button" class="primary" data-action="create">
           見積作成・PDF保存・Gmail下書き作成
@@ -171,7 +184,7 @@
       </section>
 
       <section class="card">
-        <h2>9. 過去見積検索</h2>
+        <h2>10. 過去見積検索</h2>
 
         <label for="searchEstimateId">見積ID</label>
         <input id="searchEstimateId" type="text" placeholder="EST-">

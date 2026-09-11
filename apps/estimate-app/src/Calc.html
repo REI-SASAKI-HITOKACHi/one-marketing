@@ -696,6 +696,11 @@ var CalcEngine = (function () {
     var tax = yen(taxableSubtotal * taxRate);
     var grandTotal = documentSubtotal + tax;
 
+    // 予約フォームでお客様が見た概算額との突き合わせ（WEB経由見積のみ）。
+    // 割引の入れ忘れや、フォームの仕様変更に気づくための確認欄。
+    var formQuotedTotal = Math.max(0, yen(p.formQuotedTotal));
+    var formQuoteDiff = formQuotedTotal > 0 ? (grandTotal - formQuotedTotal) : 0;
+
     var adjustmentTotal = appliedAdjustments.reduce(function (s, a) {
       return s + (a.kind === 'surcharge' ? a.amount : -a.amount);
     }, 0);
@@ -760,7 +765,10 @@ var CalcEngine = (function () {
       documentSubtotal: documentSubtotal,
       taxRate: taxRate,
       tax: tax,
-      grandTotal: grandTotal
+      grandTotal: grandTotal,
+
+      formQuotedTotal: formQuotedTotal,
+      formQuoteDiff: formQuoteDiff
     };
   }
 
@@ -857,6 +865,16 @@ var CalcEngine = (function () {
       alert_('合計金額を指定額に合わせる調整が入っています（' + fmtYen(-calc.adjustmentTotal) + '相当）。');
     }
 
+    /* --- 予約フォームの提示額との突き合わせ（WEB経由のみ） --- */
+    if (calc.channel === 'web') {
+      if (!(calc.formQuotedTotal > 0)) {
+        alert_('予約フォームの提示額が未入力です。お客様が見た金額と一致しているか確認してください。');
+      } else if (calc.formQuoteDiff !== 0) {
+        alert_('予約フォームの提示額と ' + fmtYen(Math.abs(calc.formQuoteDiff)) + ' 違います（'
+          + (calc.formQuoteDiff > 0 ? '見積のほうが高い' : '見積のほうが安い') + '）。');
+      }
+    }
+
     var manualDiscount = calc.lineDiscountTotal
       + calc.appliedAdjustments.reduce(function (s, a) { return s + (a.kind === 'discount' ? a.amount : 0); }, 0);
     var ratioLimit = toRate(ctx.largeDiscountRatio) || 0.30;
@@ -923,7 +941,9 @@ var CalcEngine = (function () {
       nonTaxableSubtotal: fmtYen(calc.nonTaxableSubtotal),
       documentSubtotal: fmtYen(calc.documentSubtotal),
       tax: fmtYen(calc.tax),
-      grandTotal: fmtYen(calc.grandTotal)
+      grandTotal: fmtYen(calc.grandTotal),
+      formQuotedTotal: fmtYen(calc.formQuotedTotal),
+      formQuoteDiff: fmtYen(calc.formQuoteDiff)
     };
 
     return calc;

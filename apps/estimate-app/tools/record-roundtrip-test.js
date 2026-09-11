@@ -178,6 +178,17 @@ const web = roundTrip('WEB経由見積', {
 });
 
 check('WEB経由：受注経路がレコードに残る', web.record['受注経路'], 'WEB経由');
+
+const webQuote = roundTrip('WEB経由・フォーム提示額あり', {
+  channel: 'web', formQuotedTotal: 19360,
+  projectType: '自社', customerName: 'テスト太郎', workDate: '2026-11-20',
+  details: [{ menuId: 'M001', qty: 2 }]
+});
+
+check('WEB経由：フォーム提示額がレコードに残る', webQuote.record['フォーム提示額'], 19360);
+check('WEB経由：一致していれば差額0', webQuote.record['フォーム差額'], 0);
+check('WEB経由：読み直しても提示額が残る', webQuote.restored.formQuotedTotal, 19360);
+check('未入力ならフォーム提示額は空欄', web.record['フォーム提示額'], '');
 check('WEB経由：ネット申込特典が自動で付く', web.record['ネット特典額'], 2000);
 check('WEB経由：読み直しても同じ経路', web.restored.channel, 'web');
 

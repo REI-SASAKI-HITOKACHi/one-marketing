@@ -551,6 +551,39 @@ check('N-10 保存→復元で金額が変わらない', (() => {
   return [a.grandTotal, b.grandTotal, a.grandTotal === b.grandTotal];
 })(), [19360, 19360, true]);
 
+group('F. 予約フォームの提示額との照合（WEB経由のみ）');
+
+check('F-1 未入力なら差額は0',
+  runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M001', qty: 2 }] }).formQuoteDiff, 0);
+
+check('F-2 未入力だと確認事項に案内が出る',
+  runWeb({ workDate: '2026-11-15', details: [{ menuId: 'M001', qty: 2 }] })
+    .exceptionReasons.some(t => t.indexOf('提示額が未入力') >= 0), true);
+
+check('F-3 一致していれば差額0で、確認事項に何も出ない', (() => {
+  const r = runWeb({ workDate: '2026-11-15', formQuotedTotal: 19360, details: [{ menuId: 'M001', qty: 2 }] });
+  return [r.formQuoteDiff, r.exceptionReasons.some(t => t.indexOf('提示額') >= 0)];
+})(), [0, false]);
+
+check('F-4 見積のほうが高いと差額と向きが出る', (() => {
+  const r = runWeb({ workDate: '2026-11-15', formQuotedTotal: 17000, details: [{ menuId: 'M001', qty: 2 }] });
+  return [r.formQuoteDiff, r.exceptionReasons.some(t => t.indexOf('見積のほうが高い') >= 0)];
+})(), [2360, true]);
+
+check('F-5 見積のほうが安い場合も出る',
+  runWeb({ workDate: '2026-11-15', formQuotedTotal: 21000, details: [{ menuId: 'M001', qty: 2 }] })
+    .exceptionReasons.some(t => t.indexOf('見積のほうが安い') >= 0), true);
+
+// 照合はアラート止まり。代表者確認まで求めると通常の作業が止まるため。
+check('F-6 不一致でも代表者確認は求めない',
+  runWeb({ workDate: '2026-11-15', formQuotedTotal: 17000, details: [{ menuId: 'M001', qty: 2 }] })
+    .reviewFlag, false);
+
+check('F-7 通常見積では照合しない', (() => {
+  const r = run({ workDate: '2026-11-15', formQuotedTotal: 17000, details: [{ menuId: 'M001', qty: 2 }] });
+  return r.exceptionReasons.some(t => t.indexOf('提示額') >= 0);
+})(), false);
+
 group('CH. 受注経路の記録');
 
 check('CH-1 既定は通常見積',
