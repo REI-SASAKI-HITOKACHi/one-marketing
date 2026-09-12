@@ -88,6 +88,11 @@ def main() -> None:
     if not SRC.exists():
         sys.exit(f"{SRC} がありません。先に python3 tools/build-booking.py を実行してください。")
     files = atsumeru()
+    # 2026-09-12 事故の再発防止：お客様が開くページは配信前に必ず点検する（NG なら配信しない）
+    import subprocess
+    chk = subprocess.run([sys.executable, str(ROOT / "tools" / "check-public-page.py"), str(SRC / "index.html")])
+    if chk.returncode != 0:
+        sys.exit("check-public-page.py が NG。配信を中止します。")
     if "/index.html" not in files:
         sys.exit("index.html がありません。配信を中止します。")
     if "/slots.json" not in files:
