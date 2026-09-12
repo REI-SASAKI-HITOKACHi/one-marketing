@@ -180,14 +180,15 @@ def back(variant: str, src: str, bleed: bool) -> Image.Image:
     ft = font(MINCHO_B, mm(5.4))
     y = draw_lines(d, x0, y, wrap(card["title"], ft, cw), ft, INK, 1.55)
     y += mm(2)
-    fb = font(GOTHIC_R, mm(3.4))
-    y = draw_lines(d, x0, y, wrap(card["back"], fb, cw), fb, INK2, 1.75)
-    y += mm(5)
-    fh = font(GOTHIC, mm(3.0))
-    y = draw_lines(d, x0, y, ["目次"], fh, INK3, 1.6)
-    fc = font(MINCHO_B, mm(3.6))
-    y = draw_lines(d, x0, y, card["toc"], fc, INK, 1.8)
+    fb = font(GOTHIC_R, mm(3.2))
+    y = draw_lines(d, x0, y, wrap(card["back"], fb, cw), fb, INK2, 1.7)
     y += mm(4)
+    fh = font(GOTHIC, mm(2.9))
+    y = draw_lines(d, x0, y, ["目次"], fh, INK3, 1.6)
+    # v4 で目次が8行になった。長い目次でも奥付（下 14mm）に食い込まない大きさにする
+    fc = font(MINCHO_B, mm(3.2) if len(card["toc"]) > 6 else mm(3.6))
+    y = draw_lines(d, x0, y, card["toc"], fc, INK, 1.6 if len(card["toc"]) > 6 else 1.8)
+    y += mm(3.5)
     d.line([(x0, y), (x0 + mm(14), y)], fill=ACCENT, width=mm(0.35))
     y += mm(4)
     fs = font(GOTHIC_R, mm(2.9))
@@ -196,7 +197,7 @@ def back(variant: str, src: str, bleed: bool) -> Image.Image:
     y = draw_lines(d, x0, y, [url.replace("https://", "")], fu, INK, 1.6)
 
     # 奥付
-    fy = b + h - m - mm(16)
+    fy = b + h - m - mm(14)
     fz = font(GOTHIC_R, mm(2.8))
     lines = [f"書いたのは {UNEI}（ハウスクリーニング）", UNEI_ADDR, f"電話 {UNEI_TEL}", "読み物の末尾に、当社のクリーニングと無料点検のご案内があります。"]
     fy = draw_lines(d, x0, fy, lines, fz, INK3, 1.55)
