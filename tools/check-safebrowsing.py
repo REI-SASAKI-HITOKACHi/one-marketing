@@ -21,9 +21,14 @@ HOSTS = [
     'tenken.onehitter.jp',              # 無料点検（独自ドメイン）
 ]
 bad = 0
-for h in HOSTS:
+# 短時間に連続で叩くと 429 になる（2026-09-12 に12ホストで発生）。ホスト間に間隔を置く。
+import time
+for i, h in enumerate(HOSTS):
+    if i: time.sleep(4)
     try:
         raw = urllib.request.urlopen(f'https://transparencyreport.google.com/transparencyreport/api/v3/safebrowsing/status?site={h}', timeout=20).read().decode('utf-8', 'ignore')
+    except urllib.error.HTTPError as e:
+        print(f'{h}: HTTP {e.code}（レート制限。次回に回す）' if e.code == 429 else f'{h}: HTTP {e.code}'); continue
     except Exception as e:
         print(f'{h}: 取得失敗（{e}）'); continue
     m = re.search(r'"sb\.ssr",(\d+)', raw)
