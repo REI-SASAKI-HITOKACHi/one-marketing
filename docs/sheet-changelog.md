@@ -1028,3 +1028,10 @@ Google 透明性レポートの API で `one-hitter-booking.netlify.app` が sta
 - `s.html` を `lp/booking/` から `lp/naibu-sms/` へ移し、社内用サイト `oh-naibu-sms-k7q3x.netlify.app`（robots で全拒否）に配信。新旧の顧客向けホストからは削除（404 を確認）
 - `tools/build-sms-list.py` の `SMS_PAGE` を社内用ホストへ変更し、D列を全員ぶん作り直し（本文・送信済み・返信メモは変更なし）。集計：送信可 510／保留 10／除外 303／SMS不可 177
 - 戻し方：`SMS_PAGE` を戻して再実行（推奨しない）
+
+## 変更38（2026-09-12）お詫びSMSタブの追加
+
+- 対象: 2026年台帳 `1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64` に新タブ `お詫びSMS_20260912`
+- 内容: 冬季SMSで旧リンク（one-hitter-booking.netlify.app）を受け取った自社名義70名（送信済み66＋返信あり4）。名義は台帳と機械照合、本舗名義1名を除外。本文にリンク無し（返信・電話・公式サイトのみ）
+- 作り方: `python3 tools/build-owabi-sms.py`（`--dry-run` で下見）。既存タブは触らない
+- 送信するかはオーナー判断（外に出す）。送信は和真さんがC列タップ、1日30件・10〜19時
