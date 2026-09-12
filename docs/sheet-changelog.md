@@ -1035,3 +1035,10 @@ Google 透明性レポートの API で `one-hitter-booking.netlify.app` が sta
 - 内容: 冬季SMSで旧リンク（one-hitter-booking.netlify.app）を受け取った自社名義70名（送信済み66＋返信あり4）。名義は台帳と機械照合、本舗名義1名を除外。本文にリンク無し（返信・電話・公式サイトのみ）
 - 作り方: `python3 tools/build-owabi-sms.py`（`--dry-run` で下見）。既存タブは触らない
 - 送信するかはオーナー判断（外に出す）。送信は和真さんがC列タップ、1日30件・10〜19時
+
+## 変更39（2026-09-12 13:3x）冬季SMSの予約URLを独自ドメインへ
+
+- 対象: `冬季見込み客_2026` の未送信・自社系統 35 行の D列（▶SMSを開く のリンク）と F列（送信する本文）
+- 内容: `https://onehitter-yoyaku.netlify.app/?src=sms` → `https://yoyaku.onehitter.jp/?src=sms`。E列（送信済み）・G列（返信メモ）は触っていない。送信済み・返信あり・不通の行も触っていない
+- 控え: `~/.cache/one-hitter/backup/冬季見込み客_2026-20260912-1333.json` 付近（gitに入れない）
+- 併せて `お詫びSMS_20260912` タブを `--link` 付きで作り直し（70名。本文にも同じ独自ドメインのリンク）

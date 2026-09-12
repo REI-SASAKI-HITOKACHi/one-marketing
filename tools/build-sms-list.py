@@ -63,7 +63,8 @@ TAB = '冬季見込み客_2026'
 MOUSHIKOMI = 'https://one-hitter-lp.netlify.app/nenmatsu/?src=sms#form'
 # 2026-09-12：one-hitter-booking.netlify.app が Google セーフブラウジングに判定され
 #   Chrome でフィッシング警告が出たため、新ホストへ移した（変更36）。
-YOYAKU_FORM = 'https://onehitter-yoyaku.netlify.app/?src=sms'
+# 2026-09-12 14:3x：独自ドメインが使えるようになったので差し替え（事故報告 §4-1。netlify.app を SMS に書かない）
+YOYAKU_FORM = 'https://yoyaku.onehitter.jp/?src=sms'
 
 # 予約フォームが「予約を受け付けられる状態か」を、本番ページを見て確かめる。
 # Apps Script の /exec URL が未設定（api が空）のあいだは、
