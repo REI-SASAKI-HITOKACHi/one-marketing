@@ -6,6 +6,8 @@
   記録した自分のサイトIDにしか送らない（tools/deploy-araidoki.py と同じ考え方）。
 
 ★ 配信＝「外に出す」なのでオーナー承認が要る。承認前は --dry-run だけ。
+★ 配信前に tools/check-public-page.py の点検を全 HTML に通す（README 4.8.2、2026-09-12）。NG が1つでもあれば送らない。
+  Search Console の所有権確認ファイル（assets/site-verification/）を毎回同梱する。
 
   python3 tools/deploy-media.py --site tenken --create     # 初回：サイトを作って配信
   python3 tools/deploy-media.py --site tenken              # 2回目以降
@@ -42,6 +44,7 @@ HEADERS = """/*
   Cache-Control: public, max-age=2592000
 """
 ROBOTS = "User-agent: *\nDisallow: /\n"
+VERIFY = ROOT / "assets" / "site-verification" / "google1a88c31fe28c2256.html"
 
 
 def token() -> str:
@@ -84,7 +87,24 @@ def atsumeru(src: pathlib.Path, extras: list) -> dict:
                 files[prefix.rstrip("/") + "/" + p.relative_to(d).as_posix()] = p.read_bytes()
     files["/_headers"] = HEADERS.encode()
     files["/robots.txt"] = ROBOTS.encode()
+    files["/" + VERIFY.name] = VERIFY.read_bytes()   # Search Console の所有権確認（消さない。README 4.8.2）
     return files
+
+
+def gate(files: dict) -> None:
+    """配信前の点検（README 4.8.2）。お客様が開く HTML を tools/check-public-page.py に通し、NG が1つでもあれば配信しない。"""
+    sys.path.insert(0, str(ROOT / "tools"))
+    import importlib
+    cp = importlib.import_module("check-public-page")
+    bad = 0
+    for rel, b in files.items():
+        if not rel.endswith(".html") or rel == "/" + VERIFY.name:
+            continue
+        ng = cp.tenken_html(b.decode("utf-8", "ignore"))
+        print(("NG " if ng else "OK ") + rel + ("：" + "／".join(ng) if ng else ""))
+        bad += bool(ng)
+    if bad:
+        sys.exit("配信前の点検で NG があるので配信しません（tools/check-public-page.py）")
 
 
 def site_id(tok, state: pathlib.Path, name: str, create: bool) -> str:
@@ -115,6 +135,7 @@ def main() -> None:
     if "/index.html" not in files:
         sys.exit(f"index.html がありません。先に python3 {cfg['build']} を実行してください。")
     print(f"[{a.site}] 送るファイル {len(files)}件（{sum(len(b) for b in files.values()):,} bytes）")
+    gate(files)
     if a.dry_run:
         for rel in files:
             print(" ", rel)

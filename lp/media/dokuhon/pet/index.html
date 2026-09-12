@@ -96,7 +96,7 @@ p.fact .fsrc a{color:var(--ink-3);text-decoration:none;border-bottom:1px solid v
     <p class="sub">ペットを迎える前の、エアコン1台と換気扇。分解して、部品ごとに洗います。迎えたあとでも、同じ内容です。</p>
     <div class="ln"><span>エアコン 1台（壁掛け・ノーマルタイプ）</span><span class="v">10,780円</span></div><div class="ln"><span>レンジフード（同じ日の同時施工）</span><span class="v">15,180円</span></div><div class="ln sum"><span>合計（税込）</span><span class="v">25,960円</span></div>
     <p class="fine">出張費・駐車場代・追加作業費はありません。お掃除機能付きのエアコンは 17,380円。5〜7月と12月は繁忙期の加算 3,300円。作業のあと、洗った水をそのままお見せします。</p>
-    <a class="btn" id="btn-yoyaku" href="https://one-hitter-booking.netlify.app/">日程を見て予約する</a>
+    <a class="btn" id="btn-yoyaku" href="https://onehitter-yoyaku.netlify.app/">日程を見て予約する</a>
     <p class="proof">ご利用後のアンケートで「他の人にすすめたい」 98.6%（2023年1月〜2025年12月・209名中206名）。Googleのクチコミ ★5.0（24件・2026年9月時点）。東京都・千葉県・神奈川県。</p>
     
   </section>
@@ -105,7 +105,7 @@ p.fact .fsrc a{color:var(--ink-3);text-decoration:none;border-bottom:1px solid v
 (function(){
   var src = (new URLSearchParams(location.search)).get('src') || 'pet';
   var y = document.getElementById('btn-yoyaku'), t = document.getElementById('btn-tenken');
-  if (y) y.href = 'https://one-hitter-booking.netlify.app/?src=' + encodeURIComponent('dokuhon-' + src);
+  if (y) y.href = 'https://onehitter-yoyaku.netlify.app/?src=' + encodeURIComponent('dokuhon-' + src);
   if (t) t.href = 'https://one-hitter-tenken.netlify.app/?src=' + encodeURIComponent('dokuhon-' + src);
 })();
 </script>

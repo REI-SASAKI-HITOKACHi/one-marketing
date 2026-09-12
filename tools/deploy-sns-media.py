@@ -41,9 +41,32 @@ HEADERS = """/*
   Cache-Control: public, max-age=86400
 """
 ROBOTS = "User-agent: *\nDisallow: /\n"
-# 中身は空でよいが、Netlify がサイトを「空」と扱わないよう index だけ置く
-INDEX = "<!doctype html><meta charset=utf-8><meta name=robots content=noindex><title></title>"
+# index は運営者情報だけの1枚（README 4.8.2：無料ドメインのホストに運営者情報が無いとフィッシングと誤判定される）
+INDEX = None  # atsumeru() で media_common から組む
+VERIFY = ROOT / "assets" / "site-verification" / "google1a88c31fe28c2256.html"   # Search Console の所有権確認（消さない）
 EXT_OK = {".jpg", ".jpeg", ".mp4"}
+
+
+def index_html() -> str:
+    sys.path.insert(0, str(ROOT / "tools"))
+    import media_common as C
+    return (f'<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1">'
+            f'<title>{C.esc(C.UNEI)}｜SNS用の画像置き場</title><body style="font-family:sans-serif;max-width:560px;margin:40px auto;padding:0 20px;line-height:1.8">'
+            f'<h1 style="font-size:18px">SNS投稿用の画像置き場</h1><p>ここは {C.esc(C.UNEI)} が Instagram・Facebook に投稿する写真を置いている場所です。お客様向けの内容はありません。</p>'
+            f'<p>{C.esc(C.UNEI)}（ハウスクリーニング）<br>{C.esc(C.UNEI_ADDR)}<br>電話 {C.esc(C.UNEI_TEL)}</p>'
+            f'<p><a href="{C.PRIVACY}" rel="noopener">個人情報の取扱い</a></p></body></html>')
+
+
+def gate(files: dict) -> None:
+    """配信前の点検（README 4.8.2）。HTML を tools/check-public-page.py に通し、NG があれば配信しない。"""
+    sys.path.insert(0, str(ROOT / "tools"))
+    import importlib
+    cp = importlib.import_module("check-public-page")
+    for rel, b in files.items():
+        if rel.endswith(".html") and rel != "/" + VERIFY.name:
+            ng = cp.tenken_html(b.decode("utf-8", "ignore"))
+            if ng:
+                raise RuntimeError(f"配信前の点検で NG：{rel}：{'／'.join(ng)}")
 
 
 def token() -> str:
@@ -97,7 +120,9 @@ def atsumeru(only: set | None = None) -> dict:
                 files["/" + p.name] = p.read_bytes()
     files["/_headers"] = HEADERS.encode()
     files["/robots.txt"] = ROBOTS.encode()
-    files["/index.html"] = INDEX.encode()
+    files["/index.html"] = index_html().encode()
+    files["/" + VERIFY.name] = VERIFY.read_bytes()
+    gate(files)
     return files
 
 

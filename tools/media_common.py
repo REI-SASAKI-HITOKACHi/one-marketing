@@ -20,7 +20,7 @@ UNEI_SITE = "https://one-hitter.jp/"
 PRIVACY = "https://one-hitter.jp/privacy_policy/"
 LINE_URL = "https://lin.ee/7kD9WGN"
 LP_BASE = "https://one-hitter-lp.netlify.app"
-BOOKING = "https://one-hitter-booking.netlify.app/"
+BOOKING = "https://onehitter-yoyaku.netlify.app/"  # 2026-09-12 旧ホスト one-hitter-booking はセーフブラウジング判定のため載せ替え（20260912-10）
 TENKEN_URL = "https://one-hitter-tenken.netlify.app"      # 無料点検サイト（未作成なら --create で作る）
 DOKUHON_URL = "https://one-hitter-dokuhon.netlify.app"    # 読本サイト（同上）
 GOOGLE_FONTS = "https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=Shippori+Mincho+B1:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap"
