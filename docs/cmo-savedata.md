@@ -226,7 +226,7 @@
   `読む cmo` を実行。その場で決められるものは決めて返す。調査が要るものは「受け取った、9:30で答える」。
   ①〜③（お金・外に出す・元に戻せない）は9:30にまとめる（今日中でないと止まるものだけ即時）
 - **onehitter.jp の Netlify DNS ゾーンは CMO が作成済み（9/12、id 6aa436fdd51fa8a46f46eba5）。NS = dns1〜4.p06.nsone.net。** 取得とNS変更はブラウザ担当。ブラウザ担当の現況は `docs/org/browser-現況-2026-09-12.md`（このファイルが正。掲示板の古い依頼文より優先）
-- **SNS初回投稿：9/12（土）09:22 JST に公開**（第1週①クチコミ型。IG https://www.instagram.com/p/DdKsEdllUbV/ ／FB https://www.facebook.com/1100803886069295/posts/1100803849402632 ）。09:00 の予定は web-inflow の create_trigger が権限確認で止まって流れ、CMO が代行トリガーで実行。**平日 09:00・12:00 の定期実行は CMO が作成**（trig_01LXkh7pED4xcnLc7XJGHNcW／trig_01Dpbzb8EAxNc31i5LQz5rKP）。②〜⑤は 9/15〜18
+- **SNS初回投稿：9/12（土）09:22 JST に公開**（第1週①クチコミ型。IG https://www.instagram.com/p/DdKsEdllUbV/ ／FB https://www.facebook.com/1100803886069295/posts/1100803849402632 ）。09:00 の予定は web-inflow の create_trigger が権限確認で止まって流れ、CMO が代行トリガーで実行。**平日 09:00・12:00 の定期実行は CMO が作成**（trig_01LXkh7pED4xcnLc7XJGHNcW／trig_01Dpbzb8EAxNc31i5LQz5rKP）。②〜⑤は 9/15〜18。**単発の起こし**（web-inflow 依頼 20260912-10-cmo）：9/14 09:30 JST trig_01H2pizUrR2AJT3sQfKE7kPT／9/17 09:30 JST trig_01UmkhnA1JxaR4J91UyEcdXZ
 - **9/12 巡回の査読**：SNS第2週 承認（①②の点検推奨型は点検ページ公開＋内視鏡到着が条件、未了なら差し替え版）／A6カードは **B 問い型で確定**（裏面の目次あり）／読本ペット版 v3 承認（修正2）／くらし試算 承認（可否はオーナー）
 - **巡回** … 毎日 9:30 JST に自動起動（`trig_01394P1gJt4SAC8ymkyDjqsU`）。
   決められるものは決めて返す。オーナーに上げるのは3つ（お金・外に出す・元に戻せない）だけ、1回にまとめて
