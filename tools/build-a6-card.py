@@ -101,7 +101,23 @@ def front(variant: str, headline: str, src: str, bleed: bool) -> Image.Image:
     url = f"{DOKUHON_URL}{card['path']}?src={src}"
 
     y = b + mm(11)
-    if headline == "A":
+    if headline == "A" and card.get("head"):
+        # 見出し型（数字ではなく行政の一文）：\n で切り、いちばん長い行が収まる最大サイズ
+        segs = card["head"].split("\n")
+        size = mm(9.5)
+        while size > mm(5):
+            fh = font(MINCHO, size)
+            if max(fh.getlength(t) for t in segs) <= cw:
+                break
+            size -= mm(0.25)
+        y = draw_lines(d, x0, y, segs, fh, INK, 1.5)
+        y += mm(3)
+        fl = font(MINCHO_B, mm(4.6))
+        y = draw_lines(d, x0, y, wrap(card["line"], fl, cw), fl, INK, 1.7)
+        fs = font(GOTHIC_R, mm(2.6))
+        y += mm(2.5)
+        y = draw_lines(d, x0, y, wrap(card["num_src"], fs, cw), fs, INK3, 1.5)
+    elif headline == "A":
         # 数字型：数字＋単位が幅に収まる最大サイズ（上限22mm）。その下に1文、出典
         num, unit = card["num"], card["unit"]
         size = mm(22)

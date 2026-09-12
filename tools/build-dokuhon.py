@@ -43,6 +43,9 @@ a{color:var(--accent-ink);}
 .opener .num small{font-size:.42em;letter-spacing:0;margin-left:.06em;}
 .opener .line{font-family:"Shippori Mincho B1",serif;font-weight:700;font-size:clamp(22px,6vw,28px);line-height:1.65;margin-top:26px;text-wrap:balance;}
 .opener .src{font-size:11.5px;color:var(--ink-3);line-height:1.6;margin-top:22px;}
+.opener .src a{color:var(--ink-3);text-decoration:none;border-bottom:1px solid var(--rule);}
+.opener .bigq{font-family:"Shippori Mincho B1",serif;font-weight:800;font-size:clamp(30px,8.6vw,42px);line-height:1.45;letter-spacing:-.01em;margin:0;text-wrap:balance;}
+.opener .bigq + .src{margin-top:12px;}
 .opener .down{margin-top:30px;font-size:12px;color:var(--ink-3);letter-spacing:.14em;}
 /* 章 */
 .ch{padding:56px 0 8px;}
@@ -130,6 +133,10 @@ def render_block(b: dict, ctx: dict) -> str:
     if t == "opener":
         return (f'<section class="opener"><div class="num">{b["num"]}</div>'
                 f'<p class="line">{b["line"]}</p><div class="down">↓ 続きは3分ほど</div><p class="src">{b["src"]}</p></section><div class="col">')
+    if t == "opener_q":
+        name, url = K.SRC[b["src"]]
+        return (f'<section class="opener"><p class="bigq">「{e(b["q"])}」</p><p class="src">出典　<a href="{url}" target="_blank" rel="noopener">{e(name)}</a></p>'
+                f'<p class="line">{b["line"]}</p><div class="down">↓ 続きは3分ほど</div></section><div class="col">')
     if t == "ch":
         return f'<div class="ch"><span class="no">{e(b["no"])}</span><h2>{b["h"]}</h2></div>'
     if t == "p":
