@@ -2,7 +2,7 @@
   {
     "id": "w01-1",
     "week": 1,
-    "scheduled_at": "2026-09-14T09:00:00+09:00",
+    "scheduled_at": "2026-09-12T09:00:00+09:00",
     "platforms": [
       "instagram",
       "facebook"
@@ -13,8 +13,28 @@
     ],
     "caption": "「結果、大手のエアコン一台分のお値段で2台お掃除していただき、しかも迅速で丁寧に仕上げてくださいます。」\n— K様　★★★★★　Googleクチコミより（2026年4月）\n\n江戸川区で、エアコン・レンジフード・浴室・洗濯機を分解して内部から洗っています。\n載せている写真は、すべて実際の現場のものです。\nご予約はプロフィールのリンクから。\n\n※掲載内容はお客様個人の感想です。Googleクチコミ24件・平均★5.0（2026年9月時点）\n#江戸川区 #西葛西 #ハウスクリーニング #エアコンクリーニング #お客様の声",
     "link": "https://one-hitter-lp.netlify.app/mizumawari/?src=fb",
-    "status": "approved",
-    "memo": "型E クチコミ引用カード（K様）"
+    "status": "posted",
+    "memo": "型E クチコミ引用カード（K様）",
+    "results": {
+      "instagram": {
+        "container_id": "18075586946709070",
+        "media_id": "18132893641643330",
+        "permalink": "https://www.instagram.com/p/DdKsEdllUbV/",
+        "published": true
+      },
+      "facebook": {
+        "post_id": "103698149101436_1100803849402632",
+        "permalink": "https://www.facebook.com/1100803886069295/posts/1100803849402632",
+        "media_ids": [
+          "1100803822735968"
+        ]
+      }
+    },
+    "posted_at": "2026-09-12T09:22:58+09:00",
+    "permalinks": {
+      "instagram": "https://www.instagram.com/p/DdKsEdllUbV/",
+      "facebook": "https://www.facebook.com/1100803886069295/posts/1100803849402632"
+    }
   },
   {
     "id": "w01-2",

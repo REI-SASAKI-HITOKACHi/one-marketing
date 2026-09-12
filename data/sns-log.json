@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "id": "w01-1",
+    "platform": "instagram",
+    "posted_at": "2026-09-12T09:22:52+09:00",
+    "permalink": "https://www.instagram.com/p/DdKsEdllUbV/",
+    "post_id": "18132893641643330",
+    "media_ids": [
+      "18132893641643330"
+    ]
+  },
+  {
+    "id": "w01-1",
+    "platform": "facebook",
+    "posted_at": "2026-09-12T09:22:58+09:00",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1100803849402632",
+    "post_id": "103698149101436_1100803849402632",
+    "media_ids": [
+      "1100803822735968"
+    ]
+  }
+]
