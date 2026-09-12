@@ -17,35 +17,62 @@
 Netlifyはカスタムドメインを足しても `.netlify.app` のURLを止めないので、両方が並びます。
 ここを301にすると広告が死ぬので、やりません。
 
-## ホスト名の割り当て（案）
+## ホスト名の割り当て（2026-09-12 確定）
 
-| ホスト名 | 向き先 | 中身 |
-|---|---|---|
-| `onehitter.jp` | one-hitter-lp | LPの入口。**当面は `/mizumawari/` へ301** |
-| `lp.onehitter.jp` | one-hitter-lp | LP4本（aircon / aircon-b / mizumawari / nenmatsu） |
-| `yoyaku.onehitter.jp` | one-hitter-booking | 予約フォーム |
-| `nenmatsu.onehitter.jp` | one-hitter-nenmatsu | 年末LP（いまは301だけのサイト） |
-| `survey.onehitter.jp` | one-hitter-survey | ご利用後アンケート |
-| `media.onehitter.jp` | （未作成） | 読本・点検。作るときに足す |
+| ホスト名 | 向き先のサイト | 中身 | 割当 |
+|---|---|---|---|
+| `onehitter.jp` | one-hitter-lp | LPの入口。**`/mizumawari/` へ301**（CMO決定） | **未（LP担当）** |
+| `lp.onehitter.jp` | one-hitter-lp | LP4本（aircon / aircon-b / mizumawari / nenmatsu） | **未（LP担当）** |
+| `survey.onehitter.jp` | one-hitter-survey | ご利用後アンケート | **未（LP担当）** |
+| `yoyaku.onehitter.jp` | **`onehitter-yoyaku`** | 予約フォーム | 済（CMO） |
+| `dokuhon.onehitter.jp` | one-hitter-dokuhon | 読本 | 済（CMO） |
+| `tenken.onehitter.jp` | one-hitter-tenken | 無料点検 | 済（CMO） |
 
-CMOの案のとおりです。1点だけ補足します。
+**決まったこと（2026-09-12）**
 
-> **`nenmatsu.onehitter.jp` は、いまのところ中身がありません。**
-> `one-hitter-nenmatsu` は301専用のサイトにしてあるので、このホスト名を当てると
-> `onehitter.jp` 配下から `one-hitter-lp.netlify.app/nenmatsu/` へ飛ぶ形になり、
-> **新ドメインから旧ドメインへ出ていく**ことになります。
-> 年末LPを `lp.onehitter.jp/nenmatsu/` で見せるなら、このホスト名は不要です。
-> **どちらにするかCMOに決めてほしい**（推奨：不要。1本に寄せるほうが混乱しません）
+- **`nenmatsu.onehitter.jp` は作りません。** `one-hitter-nenmatsu` は301専用のサイトなので、
+  当てても新ドメインから旧ドメインへ出ていくだけになります。年末LPは
+  `lp.onehitter.jp/nenmatsu/` で見せます。
+- **`onehitter.jp`（apex）の301先は `/mizumawari/`。** いま成果タグが入っているLPがここだけです。
+- **`media.onehitter.jp` は作りません。** 読本と点検はサイトが別なので、
+  `dokuhon` と `tenken` の2ホストに分けました。
+- **`yoyaku.onehitter.jp` の向き先は `onehitter-yoyaku`** であって、
+  `one-hitter-booking` ではありません。**下記の重複の件を必ず読んでください。**
+
+> **なぜ独自ドメインを急ぐか（事故報告 §4-1）**
+> 読本のA6カード（印刷物）のQRに載せるためです。**`netlify.app` を印刷しない。**
+> 刷ってしまうと、判定を受けたときに刷り直しになります。
 
 ## 切り替えの順番
 
-1. ブラウザ担当がムームードメインで `onehitter.jp` を取得
-2. **LP担当がNetlifyでDNSゾーンを作り、ネームサーバー4つを掲示板に返す** ← いまここ（下記参照）
-3. ブラウザ担当がムームー側にネームサーバーを設定
-4. 浸透を確認（`dig NS onehitter.jp`）
-5. **各サイトにカスタムドメインを割り当て、HTTPS証明書を発行** ←「外に出す」。CMOに一言入れてから
-6. 計測担当と、新ドメインでもGA4の参照元と `?src=` が取れることを確認
-7. `docs/LP配信のルール.md` を更新
+| | やること | 状態 |
+|---|---|---|
+| 1 | ブラウザ担当がムームードメインで `onehitter.jp` を取得 | ✅ 済 |
+| 2 | NetlifyでDNSゾーンを作り、ネームサーバー4つを返す | ✅ 済（ブラウザ担当） |
+| 3 | ムームー側にネームサーバーを設定 | ✅ 済（2026-09-12 13:0x） |
+| 4 | **委任の浸透を確認** | ⏳ **いまここ** |
+| 5 | `onehitter.jp` `lp.` `survey.` を割り当て、HTTPS発行 | 未（LP担当） |
+| 6 | 新ドメインでもGA4の参照元と `?src=` が取れることを計測担当と確認 | 未 |
+| 7 | `docs/LP配信のルール.md` を更新 | 未 |
+
+**手順5は「外に出す」なので、実行前にCMOへ一言入れます。**
+浸透を確認した時点でもCMOへ一報します。
+
+### 手順4の確認方法
+
+`tools/check-delegation.py` を叩いてください。
+
+```bash
+python3 tools/check-delegation.py
+```
+
+`dns1`〜`dns4.p06.nsone.net` が返れば浸透済み、
+`dns01/dns02.muumuu-domain.com` ならまだです。
+
+> ⚠️ **`dig` はこの環境にありません。権威サーバへの直接問い合わせも当てにしないこと。**
+> 既知のゾーンを対照に置いても SERVFAIL が返ります（サンドボックス側の都合）。
+> 一度これで「NS値が違うのでは」と誤報を出しかけました。
+> **必ず上のツール（DNS-over-HTTPS）で見ること。**
 
 ## 手順1〜3の実績（2026-09-12 確認）
 
@@ -89,6 +116,8 @@ CMOの案のとおりです。1点だけ補足します。
 | `onehitter-yoyaku.netlify.app` | **`yoyaku.onehitter.jp`** | 予約フォーム |
 
 **2026-09-12 時点で中身は1バイトも違いません**（どちらも 63,073 バイト）。
+CMOが `onehitter-yoyaku` に `yoyaku.onehitter.jp` を割り当てたので、
+**お客様に見えるのは `onehitter-yoyaku` のほうになります。**
 ですが **`tools/deploy-netlify.py` の `BUNKATSU` は `one-hitter-booking` しか知りません。**
 
 > **次に予約フォームを配信すると、更新されるのは `one-hitter-booking` だけです。**

@@ -16,6 +16,7 @@ import hashlib
 import json
 import os
 import pathlib
+import re
 import sys
 import time
 import urllib.error
@@ -108,6 +109,21 @@ def kotei_url_check(files: dict) -> None:
     sys.exit(1)
 
 
+def shoyuken_kakunin(path: pathlib.Path) -> bool:
+    """検索エンジンの所有権確認ファイルなら True。
+
+    Search Console の `googlXXXX.html` は、中身が確認用の1行だけの
+    「ページではないHTML」で、お客様が開くものではない。
+    運営者情報が無いのは当たり前なので、点検の対象から外す。
+    （新しいホストを作ったら当日中にSearch Consoleへ登録する決まりなので、
+     これを外さないと全サイトの配信が止まる。2026-09-12 に実際に止まった）
+    """
+    if re.fullmatch(r"google[0-9a-f]{8,}\.html", path.name):
+        return True
+    honbun = path.read_text(encoding="utf-8", errors="ignore")
+    return len(honbun) < 512 and "verification" in honbun.lower()
+
+
 def koukai_check(files: dict) -> None:
     """お客様が開くページに、運営者情報が入っているかを配信前に見る。
 
@@ -131,6 +147,8 @@ def koukai_check(files: dict) -> None:
     warui = []
     for rel, (path, _sha) in sorted(files.items()):
         if not rel.endswith(".html"):
+            continue
+        if shoyuken_kakunin(path):
             continue
         ng = mod.tenken(str(path))
         if ng:
