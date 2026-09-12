@@ -75,7 +75,7 @@ var CalcEngine = (function () {
   /**
    * 受注経路。'web' のときだけ予約フォームと同じ料金ルールを使う。
    *
-   *   通常   … 改修前の料金のまま。繁忙期加算は税抜、同時施工価格なし、
+   *   通常   … 同時施工価格なし、ネット申込特典なし、
    *            早期予約割引は箇所数を問わない。
    *   WEB経由 … 公開中の予約フォーム（one-hitter-booking.netlify.app）と同じ金額。
    *
@@ -236,12 +236,19 @@ var CalcEngine = (function () {
    * 固定額（¥3,300）は料金表が税込なので税抜へ戻す。
    * %指定（空室清掃の30%）は税抜の明細金額に掛けるので換算しない。
    */
-  function busyOptions(ctx, web) {
-    var setting = isBlank(ctx.busySurchargeTaxIncluded) ? true : parseBool(ctx.busySurchargeTaxIncluded);
+  /**
+   * 繁忙期加算の設定。
+   *
+   * 固定額の ¥3,300 は料金表が元から税込（docs/price-master.md・オーナー確認済み）。
+   * 受注経路によらず税込として扱う。帳票は税抜表示なので課税対象には ¥3,000 で載せ、
+   * 消費税を足して ¥3,300 になる。
+   *
+   * %指定（空室清掃の30%）は税抜の明細金額に掛けるので換算しない。
+   */
+  function busyOptions(ctx) {
     return {
       taxRate: toRate(ctx.taxRate) || 0.10,
-      // 税込換算はWEB経由のときだけ。通常見積は改修前のまま税抜として加算する。
-      taxIncluded: web && setting
+      taxIncluded: isBlank(ctx.busySurchargeTaxIncluded) ? true : parseBool(ctx.busySurchargeTaxIncluded)
     };
   }
 
@@ -260,13 +267,13 @@ var CalcEngine = (function () {
     return multiplyByQty ? yen(amount * line.qty) : yen(amount);
   }
 
-  function calcBusyAmount(lines, ctx, web) {
+  function calcBusyAmount(lines, ctx) {
     var targets = busyTargetLines(lines);
     if (targets.length === 0) return 0;
 
     var fallback = toNum(ctx.busySurcharge) || 3300;
     var unit = String(ctx.busySurchargeUnit || '数量ごと').trim();
-    var opts = busyOptions(ctx, web);
+    var opts = busyOptions(ctx);
 
     if (unit === '見積ごと') return busyUnitAmount(fallback, opts);
 
@@ -280,7 +287,7 @@ var CalcEngine = (function () {
    * PDFの繁忙期行。全対象明細が同一の固定金額なら「数量20 / 単価3,300 / 金額66,000」と表示し、
    * %ルールが混ざる場合は1行にまとめる。
    */
-  function buildBusyPdfRow(lines, ctx, busyAmount, web) {
+  function buildBusyPdfRow(lines, ctx, busyAmount) {
     if (!busyAmount) return null;
 
     var targets = busyTargetLines(lines);
@@ -288,7 +295,7 @@ var CalcEngine = (function () {
 
     var fallback = toNum(ctx.busySurcharge) || 3300;
     var unit = String(ctx.busySurchargeUnit || '数量ごと').trim();
-    var opts = busyOptions(ctx, web);
+    var opts = busyOptions(ctx);
     var flat = { name: '繁忙期加算', qty: 1, unitPrice: busyAmount, amount: busyAmount, taxType: '課税' };
 
     if (unit !== '数量ごと') return flat;
@@ -628,8 +635,8 @@ var CalcEngine = (function () {
     /* --- 繁忙期 --- */
     var busyAuto = judgeBusySeason(month, lines, p, ctx);
     var busyEnabled = isBlank(p.busyManual) ? busyAuto : parseBool(p.busyManual);
-    var busyAmount = busyEnabled ? calcBusyAmount(lines, ctx, web) : 0;
-    var busyPdfRow = busyEnabled ? buildBusyPdfRow(lines, ctx, busyAmount, web) : null;
+    var busyAmount = busyEnabled ? calcBusyAmount(lines, ctx) : 0;
+    var busyPdfRow = busyEnabled ? buildBusyPdfRow(lines, ctx, busyAmount) : null;
 
     /* --- 同時施工価格（セット価格）。予約フォームと金額を揃えるためのもの --- */
     var setInfo = calcSetPricing(lines, ctx, web);

@@ -103,21 +103,26 @@ function group(title) { console.log('\n' + title); }
 
 group('C. 繁忙期');
 
-// 通常見積は改修前のまま。繁忙期加算 ¥3,300 は税抜として加算する。
-check('C-1 5月メイン1台 → 3,300加算',
-  run({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).busyAmount, 3300);
+// 繁忙期加算の ¥3,300 は料金表が元から税込（オーナー確認済み）。受注経路によらず税込。
+// 帳票は税抜表示なので明細には ¥3,000 で載り、消費税を足して ¥3,300 になる。
+check('C-1 5月メイン1台 → 税込3,300＝税抜3,000を加算',
+  run({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).busyAmount, 3000);
 
-check('C-1b 5月メイン1台の合計は (9,800+3,300)×1.1',
-  run({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).grandTotal, 14410);
+check('C-1b 5月メイン1台の合計は 9,800×1.1 + 3,300',
+  run({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).grandTotal, 14080);
 
-check('C-2 7月メイン20台 → 数量20×3,300',
-  run({ workDate: '2026-07-10', details: [{ menuId: 'M001', qty: 20 }] }).busyAmount, 66000);
+check('C-2 7月メイン20台 → 数量20×3,000',
+  run({ workDate: '2026-07-10', details: [{ menuId: 'M001', qty: 20 }] }).busyAmount, 60000);
 
-check('C-2b PDF繁忙期行 数量20/単価3,300/金額66,000', (() => {
+check('C-2b PDF繁忙期行 数量20/単価3,000/金額60,000', (() => {
   const r = run({ workDate: '2026-07-10', details: [{ menuId: 'M001', qty: 20 }] });
   const row = r.pdfRows.find(x => x.name === '繁忙期加算');
   return [row.qty, row.unitPrice, row.amount];
-})(), [20, 3300, 66000]);
+})(), [20, 3000, 60000]);
+
+check('C-2c 設定で税抜扱いにも戻せる',
+  run({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] },
+    { busySurchargeTaxIncluded: false }).busyAmount, 3300);
 
 check('C-3 12月は対象',
   run({ workDate: '2026-12-05', details: [{ menuId: 'M001', qty: 1 }] }).busyAuto, true);
@@ -129,7 +134,7 @@ check('C-5 オプションのみ → 繁忙期0',
   run({ workDate: '2026-05-20', details: [{ menuId: 'O002', qty: 3 }] }).busyAmount, 0);
 
 check('C-6 メイン+オプション → メイン数量のみ加算',
-  run({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 2 }, { menuId: 'O002', qty: 5 }] }).busyAmount, 6600);
+  run({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 2 }, { menuId: 'O002', qty: 5 }] }).busyAmount, 6000);
 
 check('C-7 法人案件で対象6台 → 割増なし',
   run({ workDate: '2026-05-20', projectType: '法人', details: [{ menuId: 'M001', qty: 6 }] }).busyAuto, false);
@@ -140,34 +145,24 @@ check('C-8 法人案件で対象5台 → 割増あり',
 check('C-9 空室清掃30% → 52,800×30%',
   run({ workDate: '2026-05-20', details: [{ menuId: 'M015', qty: 1 }] }).busyAmount, 15840);
 
-group('CW. 繁忙期（WEB経由見積）');
+group('CW. 繁忙期は受注経路で変わらない');
 
-// WEB経由だけ、¥3,300 を税込として扱う。帳票は税抜表示なので 3,000 で載り、
-// 消費税を足すと ¥3,300 になる（予約フォームと同額）。
-check('CW-1 5月メイン1台 → 税込3,300＝税抜3,000を加算',
+// ¥3,300 は料金表が税込。どちらのタブでも同じ扱いにする。
+check('CW-1 WEB経由でも税抜3,000',
   runWeb({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).busyAmount, 3000);
 
-check('CW-1b 合計は予約フォームと同じ14,080',
+check('CW-1b 通常見積とWEB経由で繁忙期加算が同額', (() => {
+  const n = run({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 3 }] });
+  const w = runWeb({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 3 }] });
+  return [n.busyAmount, w.busyAmount, n.busyAmount === w.busyAmount];
+})(), [9000, 9000, true]);
+
+check('CW-2 WEB経由の合計は予約フォームと同じ14,080',
   runWeb({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).grandTotal, 14080);
 
-check('CW-2 7月メイン20台 → 数量20×3,000',
-  runWeb({ workDate: '2026-07-10', details: [{ menuId: 'M001', qty: 20 }] }).busyAmount, 60000);
-
-check('CW-2b PDF繁忙期行 数量20/単価3,000/金額60,000', (() => {
-  const r = runWeb({ workDate: '2026-07-10', details: [{ menuId: 'M001', qty: 20 }] });
-  const row = r.pdfRows.find(x => x.name === '繁忙期加算');
-  return [row.qty, row.unitPrice, row.amount];
-})(), [20, 3000, 60000]);
-
 // %指定は税抜の明細金額に掛けるので、経路によらず換算しない
-check('CW-3 空室清掃30%はWEB経由でも換算しない',
+check('CW-3 空室清掃30%はどちらの経路でも換算しない',
   runWeb({ workDate: '2026-05-20', details: [{ menuId: 'M015', qty: 1 }] }).busyAmount, 15840);
-
-check('CW-4 設定で税抜扱いに戻せば通常見積と同じになる',
-  runWeb({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] },
-    { busySurchargeTaxIncluded: false }).busyAmount, 3300);
-
-/* ===================== D. 自動割引 ===================== */
 
 group('D. 自動割引');
 

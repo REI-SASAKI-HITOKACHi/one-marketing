@@ -383,18 +383,18 @@ function calcLive(payload, overrides) {
 
 const AUTO = { autoDiscountEnabled: true };
 
-// 通常見積（既定のタブ）は改修前のまま。繁忙期加算は税抜として加算する。
-check('A-1 5月メイン1台 → 繁忙期3,300（通常見積）',
-  calcLive({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).busyAmount, 3300);
-check('A-1b 5月メイン1台の合計は14,410（改修前と同じ）',
-  calcLive({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).grandTotal, 14410);
-check('A-2 7月メイン20台 → 66,000（通常見積）',
-  calcLive({ workDate: '2026-07-10', details: [{ menuId: 'M001', qty: 20 }] }).busyAmount, 66000);
+// 繁忙期加算 ¥3,300 は料金表が元から税込。受注経路によらず税抜3,000で課税対象に載る。
+check('A-1 5月メイン1台 → 繁忙期3,000（税込3,300）',
+  calcLive({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).busyAmount, 3000);
+check('A-1b 5月メイン1台の合計は14,080',
+  calcLive({ workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).grandTotal, 14080);
+check('A-2 7月メイン20台 → 60,000',
+  calcLive({ workDate: '2026-07-10', details: [{ menuId: 'M001', qty: 20 }] }).busyAmount, 60000);
 
-// WEB経由見積タブだけ、¥3,300を税込として扱う
-check('A-1w WEB経由なら繁忙期3,000（税込3,300）',
+// 経路が変わっても繁忙期加算は同じ
+check('A-1w WEB経由でも同額',
   calcLive({ channel: 'web', workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).busyAmount, 3000);
-check('A-1x WEB経由の合計は14,080（予約フォームと同額）',
+check('A-1x WEB経由の合計も14,080（予約フォームと同額）',
   calcLive({ channel: 'web', workDate: '2026-05-20', details: [{ menuId: 'M001', qty: 1 }] }).grandTotal, 14080);
 
 // 本番マスタは未正規化なので同時施工価格ルールがまだ無い。
