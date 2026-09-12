@@ -113,7 +113,7 @@ LP配信のように事故が起きた場所は `docs/LP配信のルール.md` �
 - 「オーナーにしかできない」と思う判断でも、まず cmo へ。CMOが「オーナーに聞く」と決めたら、CMOが1回のカードにまとめて聞く。各スレッドが個別に聞かない
 - **オーナーが自分からそのスレッドにメッセージを送ってきたときは、その場で直接やり取りしてよい**（4.6）。ただしそれをきっかけに新しい質問を積み上げて止まらないこと。もらった回答は同日中に【オーナー決定】で cmo へ
 - 止まってよいのは「次にやることが本当に何も無い」ときだけ。その場合も、掲示板に「待ち：◯◯」と書いてから止まる
-- **権限確認が出る操作も「承認待ち」になる。使わない**：`git reset --hard`／`rm -rf`／force push／Artifact の公開（`acceptEdits` のセッション）。代わりに `git reset --soft`・`git switch`・`git branch -f`、見せ物は PDF/PNG か Netlify の noindex URL。9/12 未明に lp（--hard）・web-inflow（Artifact）・quotation（AskUserQuestion）の3スレッドが同時に止まった
+- **権限確認が出る操作も「承認待ち」になる。使わない**：`git reset --hard`／`rm -rf`／force push／Artifact の公開／**MCP ツール（create_trigger 等）**（`acceptEdits` のセッション。web-inflow は該当）。定期実行・単発トリガーが要るときは掲示板で cmo に「この時刻にこのコマンド」と依頼する（9/12 09:00 の SNS 初回投稿がこれで止まった）。代わりに `git reset --soft`・`git switch`・`git branch -f`、見せ物は PDF/PNG か Netlify の noindex URL。9/12 未明に lp（--hard）・web-inflow（Artifact）・quotation（AskUserQuestion）の3スレッドが同時に止まった
 
 ## 4.7 アフィリエイト（レントラックス）の担当は計測担当（2026-09-11 オーナー指示）
 
