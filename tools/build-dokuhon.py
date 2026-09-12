@@ -82,6 +82,30 @@ p.fact .fsrc a{color:var(--ink-3);text-decoration:none;border-bottom:1px solid v
 .dk h3{display:block;font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:15.5px;line-height:1.6;margin:0 0 6px;}
 .dk.ng h3{color:#8E2F1A;}
 .dk p{font-size:15.5px;line-height:1.9;margin:0;}
+/* v4：手順・点検・早見表・補足 */
+.h3{font-family:"Shippori Mincho B1",serif;font-weight:700;font-size:19px;line-height:1.6;margin:34px 0 10px;}
+ol.steps{margin:6px 0 10px;padding:0;list-style:none;counter-reset:st;}
+ol.steps li{position:relative;padding:12px 0 12px 44px;border-top:1px solid var(--rule);font-size:15.5px;line-height:1.9;counter-increment:st;}
+ol.steps li:last-child{border-bottom:1px solid var(--rule);}
+ol.steps li::before{content:counter(st);position:absolute;left:0;top:12px;width:30px;height:30px;border:1.5px solid var(--ink);border-radius:50%;text-align:center;line-height:28px;font-family:"Shippori Mincho B1",serif;font-size:15px;}
+ol.steps li b{display:block;font-weight:700;margin-bottom:2px;}
+p.lsrc{font-size:11.5px;color:var(--ink-3);margin:6px 0 20px;line-height:1.6;}
+p.lsrc a{color:var(--ink-3);text-decoration:none;border-bottom:1px solid var(--rule);}
+.checks{margin:10px 0 24px;}
+.ck{display:grid;grid-template-columns:1fr;gap:2px;padding:14px 0;border-top:1px solid var(--rule);font-size:15px;line-height:1.8;}
+.ck:last-child{border-bottom:1px solid var(--rule);}
+.ck b{font-family:"Shippori Mincho B1",serif;font-size:17px;}
+.ck .w::before{content:"見る所　";color:var(--ink-3);font-size:12.5px;}
+.ck .m::before{content:"見えたら　";color:var(--ink-3);font-size:12.5px;}
+.tw{margin:16px -22px 24px;overflow-x:auto;padding:0 22px;}
+table.tbl{border-collapse:collapse;width:100%;font-size:14.5px;line-height:1.7;}
+table.tbl caption{text-align:left;font-size:12.5px;color:var(--ink-3);padding:0 0 8px;}
+table.tbl th{text-align:left;font-weight:500;font-size:12.5px;color:var(--ink-3);padding:6px 8px 6px 0;border-bottom:1px solid var(--ink);white-space:nowrap;}
+table.tbl td{padding:10px 8px 10px 0;border-bottom:1px solid var(--rule);vertical-align:top;}
+table.tbl td:first-child{font-weight:700;white-space:nowrap;}
+table.tbl td small{display:block;color:var(--ink-3);font-size:11.5px;line-height:1.5;margin-top:2px;}
+table.tbl td small a{color:var(--ink-3);text-decoration:none;border-bottom:1px solid var(--rule);}
+.note{margin:22px 0;padding:16px 18px;border:1px solid var(--rule);border-radius:4px;font-size:14.5px;line-height:1.9;color:var(--ink-2);}
 /* 終わり */
 .end{font-family:"Shippori Mincho B1",serif;font-size:19px;line-height:2;margin:48px 0 0;}
 /* 商品 */
@@ -163,6 +187,35 @@ def render_block(b: dict, ctx: dict) -> str:
         return f'<div class="dk {b.get("cls", "")}"><h3>{e(b["h"])}</h3><p>{b["x"]}</p></div>'
     if t == "end":
         return f'<p class="end">{b["x"]}</p>'
+    # ---- v4 で足したブロック（前半を「役立つ手引き」にするため。2026-09-12 オーナー指摘）
+    if t == "steps":
+        # 番号つきの手順。各項目は "見出し||本文" か 本文だけ
+        lis = ""
+        for it in b["items"]:
+            h, _, x = it.partition("||")
+            lis += f'<li><b>{h}</b>{x}</li>' if x else f'<li>{h}</li>'
+        src = ""
+        if b.get("src"):
+            name, url = K.SRC[b["src"]]
+            src = f'<p class="lsrc">出典　<a href="{url}" target="_blank" rel="noopener">{e(name)}</a></p>'
+        return f'<ol class="steps">{lis}</ol>{src}'
+    if t == "check":
+        # 自分で見る場所のチェック。items: (場所, どこを見る, 見えたら)
+        rows = "".join(f'<div class="ck"><b>{e(p)}</b><span class="w">{w}</span><span class="m">{m}</span></div>' for p, w, m in b["items"])
+        return f'<div class="checks">{rows}</div>'
+    if t == "table":
+        # 早見表。head: 列見出し / rows: 行（セルは HTML 可）/ src: 行ごとの出典キー（任意）
+        th = "".join(f"<th>{e(h)}</th>" for h in b["head"])
+        trs = ""
+        for r in b["rows"]:
+            trs += "<tr>" + "".join(f"<td>{c}</td>" for c in r) + "</tr>"
+        cap = f'<caption>{e(b["cap"])}</caption>' if b.get("cap") else ""
+        return f'<div class="tw"><table class="tbl">{cap}<thead><tr>{th}</tr></thead><tbody>{trs}</tbody></table></div>'
+    if t == "note":
+        # 小さな囲み（補足）
+        return f'<div class="note">{b["x"]}</div>'
+    if t == "h3":
+        return f'<h3 class="h3">{b["x"]}</h3>'
     if t == "offer":
         return offer_html(b, ctx)
     raise SystemExit(f"未知のブロック: {t}")
