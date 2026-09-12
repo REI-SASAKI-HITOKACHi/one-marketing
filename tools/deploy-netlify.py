@@ -108,6 +108,45 @@ def kotei_url_check(files: dict) -> None:
     sys.exit(1)
 
 
+def koukai_check(files: dict) -> None:
+    """お客様が開くページに、運営者情報が入っているかを配信前に見る。
+
+    2026-09-12、予約フォームのホストが Google セーフブラウジングに
+    「フィッシング」と判定され、SMSのリンクがChromeで開けなくなった。
+    無料ドメイン上で個人情報を入力させるページに運営者情報が無いと誤判定される。
+    判定の解除には時間がかかり、その間そのURLは配布できない。
+
+    点検の中身は tools/check-public-page.py が持っている（docs/org/README.md 4.8.2）。
+    **手で流すのを忘れても止まるように、配信の経路に直接置いてある。**
+    """
+    import importlib.util
+    tool = ROOT / "tools" / "check-public-page.py"
+    if not tool.exists():
+        sys.exit("配信を中止しました。tools/check-public-page.py がありません。\n"
+                 "  CMOブランチから取り込んでください（docs/org/README.md 4.8.2）。")
+    spec = importlib.util.spec_from_file_location("check_public_page", tool)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    warui = []
+    for rel, (path, _sha) in sorted(files.items()):
+        if not rel.endswith(".html"):
+            continue
+        ng = mod.tenken(str(path))
+        if ng:
+            warui.append((rel, ng))
+    if not warui:
+        return
+    print("\n配信を中止しました。お客様が開くページに足りないものがあります。\n")
+    for rel, ng in warui:
+        print(f"  {rel}")
+        for x in ng:
+            print(f"      - {x}")
+    print("\nこのまま出すと、フィッシングと誤判定されてURLごと配布できなくなります。\n"
+          "  運営者情報（会社名・所在地・電話・個人情報の取扱いへのリンク）を足してから配信してください。\n")
+    sys.exit(1)
+
+
 def token() -> str:
     """トークンはこの順で読む。コマンドラインには書かない。
       1. 環境変数 NETLIFY_TOKEN
@@ -289,6 +328,8 @@ def main() -> None:
 
 def haishin(site_id: str, files: dict, base: str | None, args) -> None:
     """集めたファイルをそのサイトへ配信し、配信後に中身まで確かめる。"""
+    # 分割サイトも本サイトも必ずここを通るので、点検はこの1箇所に置く
+    koukai_check(files)
     print(f"配信対象 {len(files)} ファイル")
     deploy = call("POST", f"/sites/{site_id}/deploys",
                   {"files": {k: v[1] for k, v in files.items()}})
