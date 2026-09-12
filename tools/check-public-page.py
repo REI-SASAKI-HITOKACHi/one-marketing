@@ -32,6 +32,7 @@ def tenken(src):
         ng.append('個人情報の取扱い／プライバシーポリシーへのリンクが無い')
     if re.search(r"['\"]sms:|location\.href\s*=\s*['\"]?sms", h): ng.append('sms: を組み立てるスクリプトが同居している（送信ツールは社内用ホストへ）')
     if re.search(r'type="password"|クレジットカード|card ?number', h, re.I): ng.append('パスワード／カード番号の入力欄がある')
+    if re.search(r'prefers-color-scheme\s*:\s*dark|data-theme="dark"', h): ng.append('ダークモード対応が入っている（お客様のページは常に白地。2026-09-12 オーナー指示）')
     return ng
 
 if __name__ == '__main__':

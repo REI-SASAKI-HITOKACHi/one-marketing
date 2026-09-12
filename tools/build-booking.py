@@ -58,6 +58,11 @@ def base_css() -> str:
     if not m:
         sys.exit("lp/survey/index.html から <style> を取り出せませんでした")
     css = m.group(1)
+    # ダークモード対応は入れない（2026-09-12 オーナー指示「背景がグレーになってる」。
+    # スマホのダークモードで開くと背景が暗いグレーになり、お客様が別のページと思う）。
+    # アンケート側に残っていても、ここで必ず落とす。常に白地。
+    css = re.sub(r'@media \(prefers-color-scheme: dark\)\{.*?\n\}\n', '', css, flags=re.S)
+    css = re.sub(r':root\[data-theme="dark"\]\{.*?\n\}\n', '', css, flags=re.S)
     # アンケート専用の部品（NPSの0-10、★評価）は予約ページでは使わないので落とす
     for block in ("/* NPS 0-10 */", "/* ★評価 */"):
         i = css.find(block)
