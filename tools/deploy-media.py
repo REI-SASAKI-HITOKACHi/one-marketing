@@ -127,6 +127,7 @@ def main() -> None:
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--extra", action="append", default=[], help="同梱する外部ディレクトリ 例: dist/tenken/houkoku:/h")
     ap.add_argument("--notify", action="append", default=[])
+    ap.add_argument("--draft", action="store_true", help="本番URLを変えずに、査読用の一時URL（deploy preview）だけ作る")
     a = ap.parse_args()
     cfg = SITES[a.site]
     state = ROOT / "deploy" / f".netlify-{a.site}.json"
@@ -144,7 +145,7 @@ def main() -> None:
     tok = token()
     sid = site_id(tok, state, cfg["name"], a.create)
     digest = {rel: hashlib.sha1(b).hexdigest() for rel, b in files.items()}
-    dep = call(tok, "POST", f"/sites/{sid}/deploys", {"files": digest})
+    dep = call(tok, "POST", f"/sites/{sid}/deploys", {"files": digest, "draft": bool(a.draft)})
     iru = set(dep.get("required") or [])
     print(f"デプロイ {dep['id']}／アップロード {len(iru)}件")
     for rel, b in files.items():
@@ -158,8 +159,8 @@ def main() -> None:
     print("状態:", d["state"])
     if d["state"] != "ready":
         sys.exit("配信に失敗しました: " + str(d.get("error_message")))
-    url = d.get("ssl_url") or d.get("deploy_ssl_url")
-    print("URL :", url)
+    url = d.get("deploy_ssl_url") if a.draft else (d.get("ssl_url") or d.get("deploy_ssl_url"))
+    print("URL :", url, "（査読用の一時URL。本番は変えていない）" if a.draft else "")
     req = urllib.request.Request(url + "/", headers={"User-Agent": "kenshou"})
     with urllib.request.urlopen(req, timeout=30) as r:
         ct = r.headers.get("Content-Type", "")

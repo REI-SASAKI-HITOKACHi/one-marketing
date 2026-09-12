@@ -89,6 +89,9 @@ ol.steps li{position:relative;padding:12px 0 12px 44px;border-top:1px solid var(
 ol.steps li:last-child{border-bottom:1px solid var(--rule);}
 ol.steps li::before{content:counter(st);position:absolute;left:0;top:12px;width:30px;height:30px;border:1.5px solid var(--ink);border-radius:50%;text-align:center;line-height:28px;font-family:"Shippori Mincho B1",serif;font-size:15px;}
 ol.steps li b{display:block;font-weight:700;margin-bottom:2px;}
+ol.steps li q{quotes:"「" "」";}
+ol.steps li small.isrc{display:block;font-size:11px;color:var(--ink-3);line-height:1.5;margin-top:4px;}
+ol.steps li small.isrc a{color:var(--ink-3);text-decoration:none;border-bottom:1px solid var(--rule);}
 p.lsrc{font-size:11.5px;color:var(--ink-3);margin:6px 0 20px;line-height:1.6;}
 p.lsrc a{color:var(--ink-3);text-decoration:none;border-bottom:1px solid var(--rule);}
 .checks{margin:10px 0 24px;}
@@ -189,16 +192,16 @@ def render_block(b: dict, ctx: dict) -> str:
         return f'<p class="end">{b["x"]}</p>'
     # ---- v4 で足したブロック（前半を「役立つ手引き」にするため。2026-09-12 オーナー指摘）
     if t == "steps":
-        # 番号つきの手順。各項目は "見出し||本文" か 本文だけ
+        # 番号つきの手順。各項目は (見出し, 本文, 出典キー) か (見出し, 本文)。本文は HTML 可。出典は項目ごとに小さく
         lis = ""
         for it in b["items"]:
-            h, _, x = it.partition("||")
-            lis += f'<li><b>{h}</b>{x}</li>' if x else f'<li>{h}</li>'
-        src = ""
-        if b.get("src"):
-            name, url = K.SRC[b["src"]]
-            src = f'<p class="lsrc">出典　<a href="{url}" target="_blank" rel="noopener">{e(name)}</a></p>'
-        return f'<ol class="steps">{lis}</ol>{src}'
+            h, x = it[0], it[1]
+            src = ""
+            if len(it) > 2 and it[2]:
+                keys = it[2] if isinstance(it[2], (list, tuple)) else [it[2]]
+                src = '<small class="isrc">出典　' + "／".join(f'<a href="{K.SRC[k][1]}" target="_blank" rel="noopener">{e(K.SRC[k][0])}</a>' for k in keys) + "</small>"
+            lis += f'<li><b>{e(h)}</b>{x}{src}</li>'
+        return f'<ol class="steps">{lis}</ol>'
     if t == "check":
         # 自分で見る場所のチェック。items: (場所, どこを見る, 見えたら)
         rows = "".join(f'<div class="ck"><b>{e(p)}</b><span class="w">{w}</span><span class="m">{m}</span></div>' for p, w, m in b["items"])
