@@ -148,7 +148,7 @@ def front(variant: str, headline: str, src: str, bleed: bool) -> Image.Image:
         y = draw_lines(d, x0, y, segs, fq, INK, 1.55)
 
     # 下段：QR＋読み物の題名。上段との間に細い罫
-    qy = b + h - m - mm(QR_MM)
+    qy = b + h - m - mm(QR_MM) - mm(4)
     d.line([(x0, qy - mm(6)), (x1, qy - mm(6))], fill=INK, width=mm(0.25))
     qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_M, border=0, box_size=10)
     qr.add_data(url)
@@ -162,6 +162,8 @@ def front(variant: str, headline: str, src: str, bleed: bool) -> Image.Image:
     fs = font(GOTHIC, mm(3.1))
     ty += mm(2.5)
     ty = draw_lines(d, tx, ty, wrap("スマホのカメラをかざすと開きます。読むだけ・無料。3分。", fs, x1 - tx), fs, INK2, 1.6)
+    fu = font(GOTHIC_R, mm(2.3))
+    d.text((x0, qy + mm(QR_MM) + mm(1.2)), f"{DOKUHON_URL}{card['path']}".replace("https://", ""), font=fu, fill=INK3)
     return im
 
 
