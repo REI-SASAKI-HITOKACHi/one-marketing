@@ -8,11 +8,17 @@
 名乗り：CLAUDE.md の決まりどおり、台帳の最新の施工の名義と機械で突き合わせ、自社でない人は入れない。
 本文：netlify.app のリンクを入れない（事故報告 §4-1）。誘導は返信・電話・公式サイトのみ。
 
-使い方: python3 tools/build-owabi-sms.py [--dry-run]
+使い方: python3 tools/build-owabi-sms.py [--dry-run] [--link]
+  --link は yoyaku.onehitter.jp が HTTPS で開けて Search Console 登録済みになってから付ける
 """
 import importlib.util, sys, urllib.parse, datetime
 ROOT = '/home/user/one-marketing'
 DRY = '--dry-run' in sys.argv
+# --link … 独自ドメインの予約ページ（yoyaku.onehitter.jp）へのリンクを本文に入れる。
+#          オーナー決定（2026-09-12）：お詫びは onehitter.jp が使えるようになってから送る。
+#          netlify.app のリンクは入れない（事故報告 §4-1）。
+LINK = '--link' in sys.argv
+YOYAKU = 'https://yoyaku.onehitter.jp/?src=sms'
 def _load(name, path):
     s = importlib.util.spec_from_file_location(name, path); m = importlib.util.module_from_spec(s)
     sys.modules[name] = m; s.loader.exec_module(m); return m
@@ -33,7 +39,8 @@ HONBUN = (
     'Googleの安全確認の誤判定によるもので、ページはご予約の受付のみで、ウイルス等は含まれておりません。'
     '現在Googleへ見直しを申請しております。\n'
     'ご予約・ご相談は、このSMSへの返信か、お電話（' + TEL + '）で承ります。\n'
-    '公式サイト https://one-hitter.jp/\n'
+    + ('新しいご予約ページ（当社ドメイン）はこちらです。\n' + YOYAKU + '\n' if LINK else '')
+    + '公式サイト https://one-hitter.jp/\n'
     'お手数をおかけし、重ねてお詫び申し上げます。'
 )
 
