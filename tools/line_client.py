@@ -65,6 +65,7 @@ LINE Messaging API のクライアント。紹介クーポンの作成・配布�
 """
 
 import argparse
+import importlib.util
 import json
 import os
 import sys
@@ -174,9 +175,32 @@ def cmd_coupon_close(a):
     return show(*call("PUT", f"/coupon/{a.id}/close"))
 
 
+def naisei_id(who):
+    """内部テスト用の控えから、名前でユーザーIDを引く（tools/line_internal_ids.py が作る）。
+    ★IDをコマンドラインに書かずに済むようにするため。"""
+    spec = importlib.util.spec_from_file_location(
+        "line_internal_ids", os.path.join(os.path.dirname(os.path.abspath(__file__)), "line_internal_ids.py"))
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    d = m.yomu()
+    if who not in d:
+        raise SystemExit(f"控えに「{who}」がありません。ある名前: {list(d) or 'なし'}\n"
+                         "先に: python3 tools/line_internal_ids.py 控える")
+    return d[who]["userId"], d[who].get("displayName", "")
+
+
 def cmd_push(a):
     if not a.coupon and not a.text:
         print("エラー: --coupon か --text のどちらかが要ります。", file=sys.stderr)
+        return 2
+    if a.who:
+        if a.to:
+            print("エラー: --to と --who は同時に使えません。", file=sys.stderr)
+            return 2
+        a.to, hyouji = naisei_id(a.who)
+        print(f"宛先: {a.who}（表示名「{hyouji}」／ID ...{a.to[-4:]}）")
+    if not a.to:
+        print("エラー: --to か --who のどちらかが要ります。", file=sys.stderr)
         return 2
 
     # ★名乗りの照合。公式LINEはワンヒッター名義なので、本舗のお客様には出さない。
@@ -212,7 +236,8 @@ def cmd_push(a):
     body = {"to": a.to, "messages": msgs}
     if a.confirm != "SEND":
         print("[DRY RUN] 送信しません。--confirm SEND を付けると送ります。")
-        print(json.dumps(body, ensure_ascii=False, indent=2))
+        # ★ユーザーIDは個人情報。画面には末尾4文字だけ出す
+        print(json.dumps({**body, "to": "..." + a.to[-4:]}, ensure_ascii=False, indent=2))
         return 0
     return show(*call("POST", "/message/push", body))
 
@@ -242,7 +267,8 @@ def main():
     x.set_defaults(fn=cmd_coupon_close)
 
     s = sub.add_parser("push", help="1名に送る（お客様あては名義の照合を通す）")
-    s.add_argument("--to", required=True, help="LINEのユーザーID")
+    s.add_argument("--to", help="LINEのユーザーID。--who を使うなら不要")
+    s.add_argument("--who", help="内部テスト用の控えから名前で引く（例: 嶺 / 和真）。--internal と一緒に使う")
     s.add_argument("--text")
     s.add_argument("--coupon", help="couponId")
     s.add_argument("--confirm")
