@@ -144,18 +144,79 @@ def mail_text(f: dict, kind: str) -> tuple:
     return subj, body
 
 
+# ---------------- Sheets API（再試行つき。9/14 08:2x に他スレッドと読み取り枠を共有して 429 が出たため。sc.call は失敗すると sys.exit するので使わない）
+import time
+import urllib.error
+import urllib.request
+
+FALLBACK = OUT / "sheets-fallback.jsonl"
+_TOK = {"v": ""}  # 何度やっても書けなかった記録の控え（送った事実を失わないため）
+
+
+def scall(tok: str, path: str, method: str = "GET", payload=None, query=None, tries: int = 6):
+    tok = _TOK["v"] or tok
+    url = sc.API + path + (("?" + urllib.parse.urlencode(query)) if query else "")
+    data = json.dumps(payload).encode() if payload is not None else None
+    for i in range(tries):
+        req = urllib.request.Request(url, data=data, method=method)
+        req.add_header("Authorization", "Bearer " + tok)
+        if data:
+            req.add_header("Content-Type", "application/json")
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                return json.load(r)
+        except urllib.error.HTTPError as e:
+            if e.code in (429, 500, 502, 503, 504) and i < tries - 1:
+                time.sleep(15 * (i + 1))
+                continue
+            if e.code == 401 and i < tries - 1:  # トークン失効（1時間）。取り直して続ける
+                tok = sc.access_token(sc.load_credentials())
+                _TOK["v"] = tok
+                continue
+            raise RuntimeError(f"Sheets API {e.code}: {e.read().decode('utf-8', 'replace')[:200]}")
+        except (urllib.error.URLError, TimeoutError) as e:
+            if i < tries - 1:
+                time.sleep(15 * (i + 1))
+                continue
+            raise
+
+
+def safe_write(tok, what: str, fn, *args) -> None:
+    """スプシへの書き込み。再試行しても駄目なら控え（FALLBACK）に残して続行する"""
+    try:
+        fn(tok, *args)
+    except Exception as e:
+        OUT.mkdir(parents=True, exist_ok=True)
+        with FALLBACK.open("a", encoding="utf-8") as fp:
+            fp.write(json.dumps({"時刻": dt.datetime.now(JST).isoformat(timespec="minutes"), "何": what, "引数": [a if isinstance(a, (str, int)) else a.get("施設名") for a in args], "error": str(e)[:200]}, ensure_ascii=False) + "\n")
+        print("  [スプシに書けなかった→控えに記録]", what, str(e)[:80])
+
+
+_PROG_CACHE = {}  # 進捗タブ：施設名→(行番号, 行)。送信中は行が動かないので最初に1回だけ読む
+
+
+def progress_rows(tok, refresh: bool = False):
+    if refresh or not _PROG_CACHE:
+        vals = scall(tok, f"/{SS}/values/{urllib.parse.quote(TAB_P + '!A' + str(HEAD_ROW) + ':AM1000')}").get("values", [])
+        head = vals[0]
+        col = {h: i for i, h in enumerate(head)}
+        _PROG_CACHE.clear()
+        _PROG_CACHE["col"] = col
+        _PROG_CACHE["rows"] = {}
+        for i, r in enumerate(vals[1:], start=HEAD_ROW + 1):
+            r = r + [""] * (len(head) - len(r))
+            _PROG_CACHE["rows"].setdefault(r[col["施設名"]], (i, r))
+    return _PROG_CACHE["col"], _PROG_CACHE["rows"]
+
+
 # ---------------- 対象の選定
 def load() -> list:
     fac = {f["id"]: f for f in json.loads(FAC.read_text(encoding="utf-8"))}
     con = {c["id"]: c for c in json.loads(CON.read_text(encoding="utf-8"))} if CON.exists() else {}
     tok = sc.access_token(sc.load_credentials())
-    vals = sc.call(tok, f"/{SS}/values/{urllib.parse.quote(TAB_P + '!A' + str(HEAD_ROW) + ':AM1000')}").get("values", [])
-    head = vals[0]
-    col = {h: i for i, h in enumerate(head)}
+    col, prows = progress_rows(tok, refresh=True)
     rows = []
-    for r in vals[1:]:
-        r = r + [""] * (len(head) - len(r))
-        name = r[col["施設名"]]
+    for name, (_, r) in prows.items():
         f = next((x for x in fac.values() if x["施設名"] == name), None)
         if not f:
             continue
@@ -245,7 +306,7 @@ def pick(rows: list, n: int, how: str, exclude: tuple = ()) -> list:
 # ---------------- ログ
 def log_send(tok, wave: int, f: dict, how: str, dest: str, kata: str, result: str, note: str = "") -> None:
     now = dt.datetime.now(JST).strftime("%Y-%m-%d %H:%M")
-    sc.call(tok, f"/{SS}/values/{urllib.parse.quote(TAB_L + '!A1')}:append", method="POST",
+    scall(tok, f"/{SS}/values/{urllib.parse.quote(TAB_L + '!A1')}:append", method="POST",
             query={"valueInputOption": "USER_ENTERED", "insertDataOption": "INSERT_ROWS"},
             payload={"values": [[now, wave, f["No"], f["施設名"], f["種別"], how, dest, kata, SENDER, result, "", "", note]]})
 
@@ -253,19 +314,15 @@ def log_send(tok, wave: int, f: dict, how: str, dest: str, kata: str, result: st
 def mails_today(tok) -> int:
     """送信ログのうち、今日・手段=メール・結果が「送信」で始まる行の数（1日50件の上限に使う）"""
     today = dt.datetime.now(JST).strftime("%Y-%m-%d")
-    vals = sc.call(tok, f"/{SS}/values/{urllib.parse.quote(TAB_L + '!A2:M2000')}").get("values", [])
+    vals = scall(tok, f"/{SS}/values/{urllib.parse.quote(TAB_L + '!A2:M2000')}").get("values", [])
     return sum(1 for r in vals if len(r) > 9 and r[0].startswith(today) and r[5] == "メール" and str(r[9]).startswith("送信"))
 
 
 def update_stage(tok, f: dict, how: str) -> None:
     """進捗タブ：ステージ→接触済、接触方法、回数+1、初回/最終接触日、次回アクション（7日後の再送）"""
-    vals = sc.call(tok, f"/{SS}/values/{urllib.parse.quote(TAB_P + '!A' + str(HEAD_ROW) + ':AM1000')}").get("values", [])
-    head = vals[0]
-    col = {h: i for i, h in enumerate(head)}
-    for i, r in enumerate(vals[1:], start=HEAD_ROW + 1):
-        r = r + [""] * (len(head) - len(r))
-        if r[col["施設名"]] != f["施設名"]:
-            continue
+    col, prows = progress_rows(tok)
+    if f["施設名"] in prows:
+        i, r = prows[f["施設名"]]
         today = dt.datetime.now(JST).strftime("%Y-%m-%d")
         cnt = int(r[col["接触回数"]] or 0) + 1
         nxt = (dt.datetime.now(JST) + dt.timedelta(days=7)).strftime("%Y-%m-%d")
@@ -276,23 +333,20 @@ def update_stage(tok, f: dict, how: str) -> None:
             ci = col[k]
             a1 = f"{TAB_P}!{colletter(ci)}{i}"
             data.append({"range": a1, "values": [[v]]})
-        sc.call(tok, f"/{SS}/values:batchUpdate", method="POST", payload={"valueInputOption": "USER_ENTERED", "data": data})
+            r[ci] = str(v)  # キャッシュも更新（同じ施設に2回目があれば回数が進む）
+        scall(tok, f"/{SS}/values:batchUpdate", method="POST", payload={"valueInputOption": "USER_ENTERED", "data": data})
         return
 
 
 def mark_manual(tok, f: dict, reason: str) -> None:
     """フォームが機械で送れなかった施設：進捗タブの次回アクションに「手動（理由）」と書き、以後 pick() が飛ばす。ステージは未接触のまま"""
-    vals = sc.call(tok, f"/{SS}/values/{urllib.parse.quote(TAB_P + '!A' + str(HEAD_ROW) + ':AM1000')}").get("values", [])
-    head = vals[0]
-    col = {h: i for i, h in enumerate(head)}
-    for i, r in enumerate(vals[1:], start=HEAD_ROW + 1):
-        r = r + [""] * (len(head) - len(r))
-        if r[col["施設名"]] != f["施設名"]:
-            continue
+    col, prows = progress_rows(tok)
+    if f["施設名"] in prows:
+        i, r = prows[f["施設名"]]
         who = "ブラウザ担当" if "認証" in reason or "CAPTCHA" in reason else "メール／電話・訪問"
         data = [{"range": f"{TAB_P}!{colletter(col['次回アクション'])}{i}", "values": [[f"手動（{reason}）→{who}"]]},
                 {"range": f"{TAB_P}!{colletter(col['当社担当'])}{i}", "values": [["web-inflow"]]}]
-        sc.call(tok, f"/{SS}/values:batchUpdate", method="POST", payload={"valueInputOption": "USER_ENTERED", "data": data})
+        scall(tok, f"/{SS}/values:batchUpdate", method="POST", payload={"valueInputOption": "USER_ENTERED", "data": data})
         return
 
 
@@ -469,8 +523,8 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str, n: in
                 if not r["ok"]:
                     print("スキップ", f["No"], f["施設名"], r["reason"])
                     if send:
-                        log_send(tok, wave, f, "フォーム", url, "③", f"未送信（{r['reason']}）")
-                        mark_manual(tok, f, r["reason"])
+                        safe_write(tok, "log", log_send, wave, f, "フォーム", url, "③", f"未送信（{r['reason']}）")
+                        safe_write(tok, "manual", mark_manual, f, r["reason"])
                     continue
                 if not send:
                     print("入力のみ", f["No"], f["施設名"], r["filled"], shot.name)
@@ -481,8 +535,8 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str, n: in
                 # 送信：確認画面があれば2段階
                 btn = await pg.query_selector("input[type=submit], button[type=submit], button:has-text('送信'), input[value*='送信'], input[value*='確認'], button:has-text('確認')")
                 if not btn:
-                    log_send(tok, wave, f, "フォーム", url, "③", "未送信（送信ボタン不明）")
-                    mark_manual(tok, f, "送信ボタン不明")
+                    safe_write(tok, "log", log_send, wave, f, "フォーム", url, "③", "未送信（送信ボタン不明）")
+                    safe_write(tok, "manual", mark_manual, f, "送信ボタン不明")
                     print("ボタン不明", f["No"], f["施設名"])
                     continue
                 await btn.click()
@@ -494,8 +548,8 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str, n: in
                 await pg.screenshot(path=str(OUT / f"w{wave}-{f['No']}-sent.png"), full_page=True)
                 body = (await pg.content())
                 ok = bool(re.search(r"送信(が)?完了|ありがとうござい|受け付け|受付|送信しました|thank", body, re.I))
-                log_send(tok, wave, f, "フォーム", url, "③", "送信" if ok else "送信（完了表示は未確認）")
-                update_stage(tok, f, "form")
+                safe_write(tok, "log", log_send, wave, f, "フォーム", url, "③", "送信" if ok else "送信（完了表示は未確認）")
+                safe_write(tok, "stage", update_stage, f, "form")
                 print("送信", f["No"], f["施設名"], "OK" if ok else "要確認")
                 sent += 1
                 if sent >= n:
@@ -503,7 +557,7 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str, n: in
                     break
             except Exception as e:
                 if send:
-                    log_send(tok, wave, f, "フォーム", url, "③", f"失敗（{type(e).__name__}）")
+                    safe_write(tok, "log", log_send, wave, f, "フォーム", url, "③", f"失敗（{type(e).__name__}）")
                 print("失敗", f["No"], f["施設名"], type(e).__name__, str(e)[:120])
             finally:
                 await pg.close()
@@ -554,12 +608,12 @@ def main():
             kata = "①" if yomihon(f["種別"])["who"].startswith("赤ちゃん") else "②"
             try:
                 mid = G.send(cfg, to, subj, body, token=gtok)
-                log_send(tok, a.wave, f, "メール", to, kata, "送信", f"Gmail id {mid}")
-                update_stage(tok, f, "mail")
+                safe_write(tok, "log", log_send, a.wave, f, "メール", to, kata, "送信", f"Gmail id {mid}")
+                safe_write(tok, "stage", update_stage, f, "mail")
                 done += 1
                 print("送信", f["No"], f["施設名"], to)
             except Exception as e:
-                log_send(tok, a.wave, f, "メール", to, kata, f"失敗（{type(e).__name__}）", str(e)[:100])
+                safe_write(tok, "log", log_send, a.wave, f, "メール", to, kata, f"失敗（{type(e).__name__}）", str(e)[:100])
                 print("失敗", f["No"], f["施設名"], to, str(e)[:120])
         return
     if not a.from_email:
