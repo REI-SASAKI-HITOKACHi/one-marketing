@@ -1,1 +1,7 @@
+# onehitter.jp（apex）の入口は水まわりLP。
+# 成果タグ（レントラックス）が入っているLPはここだけなので、
+# apex から入った成果が計測できるようにする（CMO決定 2026-09-12）。
+https://onehitter.jp/    /mizumawari/    301
+
+# lp.onehitter.jp と one-hitter-lp.netlify.app のルートは従来どおりエアコンLPへ。
 /    /aircon/    301
