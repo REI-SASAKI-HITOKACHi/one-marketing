@@ -77,7 +77,10 @@ NUM1 = '0.0'
 MONTHS = list(range(1, 13))
 
 # ④自社ネット新規の月別目標（中立 年143件を月次件数で按分。6月だけ+1して143に合わせた）
-NET_NEW_TARGET = [8, 7, 10, 13, 15, 19, 15, 9, 10, 13, 14, 10]
+# ④自社ネット新規の月別目標（年143件）。件数の季節性 × 立ち上がり係数（1月0.55→12月1.16）。
+# 1〜2月は広告が段0（月5万）でテスト中なので5件に抑え、下期に寄せてある。
+# 広告の段設計は docs/2027-数値目標.md §5。合計は必ず143にすること
+NET_NEW_TARGET = [5, 5, 8, 10, 14, 17, 15, 10, 12, 16, 18, 13]
 
 # 広告費の月別予算（中立 年80万・docs/2027-数値目標.md §5「段の設計」）
 AD_BUDGET = [50000, 50000, 60000, 60000, 120000, 120000,
@@ -502,8 +505,8 @@ def build_shishutsu(wb, m, plan_m):
         (14, "− 原価へ回した分",    "=-(N8+N9)", YEN, "外注費・現場人件費は原価で数えたので戻す", False),
         (15, "− 個別ロイ（下で計上）", f"=-{kamoku('個別ロイ')}", YEN,
          "★二重計上を防ぐため、ここで一度引く", False),
-        (16, "ロイヤリティ 固定分",  ROYALTY_FIXED, YEN,
-         "★50,050円。左の経費表には入力しないこと", False),
+        (16, "ロイヤリティ 固定分",  f"=IF($N$3+$N$13=0,0,{ROYALTY_FIXED})", YEN,
+         "★50,050円。左の経費表には入力しないこと（まだ動いていない月は0）", False),
         (17, "ロイヤリティ 38%分",  f"={roy38}", YEN, "本舗ロイ区分＝38% の売上 × 38%", False),
         (18, "ロイヤリティ 10%分",  f"={roy10}", YEN, "本舗ロイ区分＝10% の売上 × 10%", False),
         (19, "ロイヤリティ 個別実額", f"={kamoku('個別ロイ')}", YEN,
@@ -512,7 +515,8 @@ def build_shishutsu(wb, m, plan_m):
         (21, "販売管理費",          "=N13+N14+N15+N20", YEN,
          "経費合計 − 原価分 − 個別ロイ ＋ ロイヤリティ合計", True),
         (22, "営業利益",            "=N11-N21", YEN, "売上総利益 − 販売管理費", True),
-        (23, "融資返済",            LOAN_REPAY, YEN, "固定 38,059円", False),
+        (23, "融資返済",            f"=IF($N$3+$N$13=0,0,{LOAN_REPAY})", YEN,
+         "固定 38,059円（まだ動いていない月は0）", False),
         (24, "経常利益",            "=N22-N23", YEN, "営業利益 − 融資返済", True),
         (26, "経常利益率",          "=IFERROR(N24/N3,0)", PCT, "経常利益 ÷ 売上", False),
     ]
@@ -555,9 +559,9 @@ def build_shishutsu(wb, m, plan_m):
         ws.cell(row=r, column=15, value=memo).font = F_NOTE
     for cell in ("N30", "N32"):
         ws.conditional_formatting.add(
-            cell, CellIsRule(operator="lessThan", formula=["0"], fill=FILL_WARN))
+            cell, FormulaRule(formula=[f"AND($N$3>0,{cell}<0)"], fill=FILL_WARN))
         ws.conditional_formatting.add(
-            cell, CellIsRule(operator="greaterThanOrEqual", formula=["0"], fill=FILL_OK))
+            cell, FormulaRule(formula=[f"AND($N$3>0,{cell}>=0)"], fill=FILL_OK))
 
     # 入力の決まり（ここに書いておかないと毎年同じ間違いをする）
     notes = [
@@ -732,16 +736,21 @@ def build_nenkan(wb, plan, plan_year):
     row(53, "売上 計画（月次・再掲）", lambda m, i: f"={get_column_letter(2+i)}18", YEN, "sum",
         "ダッシュボード用")
 
-    for r in (23, 24, 43):
+    # 実績が入っていない月まで赤くすると、1月から画面が真っ赤になって意味を失う。
+    # 「その月に売上が入っているか」を条件にしている。
+    for r, base in ((23, 20), (24, 21)):
         ws.conditional_formatting.add(
-            f"B{r}:N{r}", CellIsRule(operator="lessThan", formula=["0"], fill=FILL_WARN))
-    for r in (23, 24):
+            f"B{r}:N{r}", FormulaRule(formula=[f"AND(B${base}>0,B{r}<0)"], fill=FILL_WARN))
         ws.conditional_formatting.add(
-            f"B{r}:N{r}", CellIsRule(operator="greaterThanOrEqual", formula=["0"], fill=FILL_OK))
+            f"B{r}:N{r}", FormulaRule(formula=[f"AND(B${base}>0,B{r}>=0)"], fill=FILL_OK))
     ws.conditional_formatting.add(
-        "B25:N26", CellIsRule(operator="lessThan", formula=["0.9"], fill=FILL_WARN))
+        "B43:N43", FormulaRule(formula=["AND(B$20>0,B43<0)"], fill=FILL_WARN))
     ws.conditional_formatting.add(
-        "B30:M30", FormulaRule(formula=["B30<B29"], fill=FILL_WARN))
+        "B25:N25", FormulaRule(formula=["AND(B$20>0,B25<0.9)"], fill=FILL_WARN))
+    ws.conditional_formatting.add(
+        "B26:N26", FormulaRule(formula=["AND(B$21>0,B26<0.9)"], fill=FILL_WARN))
+    ws.conditional_formatting.add(
+        "B30:M30", FormulaRule(formula=["AND(B$20>0,B30<B29)"], fill=FILL_WARN))
 
     ws.freeze_panes = "B18"
     return ws
@@ -1900,6 +1909,166 @@ def verify(path, plan):
     return oks, errs
 
 
+# ================================================================ 再計算テスト
+
+SELFTEST_EXPECT = {
+    # 1月にダミー4件＋経費6件を入れたときに、こうなっていないとおかしい、という値
+    "'1月_売上顧客'!B4": 3,          # 自社件数
+    "'1月_売上顧客'!C4": 1,          # 本舗件数
+    "'1月_売上顧客'!D4": 4,          # 合計件数
+    "'1月_売上顧客'!E4": 30000,      # 単価
+    "'1月_売上顧客'!G4": 25000,      # 本舗単価
+    "'1月_売上顧客'!J4": 120000,     # 合計売上
+    "'1月_売上顧客'!P4": 2,          # ④自社ネット新規 件数（LP＋HP）
+    "'1月_売上顧客'!Q4": 50000,      # ④自社ネット新規 売上
+    "'1月_売上顧客'!D2": 120000,
+    "'1月_売上顧客'!F2": 120000 - 1440000,
+    "'1月_売上顧客'!L2": 4,
+    "'1月_売上顧客'!N2": 33,
+    "'1月_売上顧客'!R2": 2,
+    "'1月_支出成績'!N3": 120000,     # 売上
+    "'1月_支出成績'!N4": 2,          # エアコン台数
+    "'1月_支出成績'!N5": 1,          # 換気扇台数
+    "'1月_支出成績'!N6": 1,          # 浴室台数
+    "'1月_支出成績'!N7": 1071,       # 資材費 2*373+176+149
+    "'1月_支出成績'!N8": 50700,      # 外注費
+    "'1月_支出成績'!N9": 20000,      # 現場人件費
+    "'1月_支出成績'!N10": 71771,     # 原価合計
+    "'1月_支出成績'!N11": 48229,     # 売上総利益
+    "'1月_支出成績'!N13": 641460,    # 経費合計
+    "'1月_支出成績'!N14": -70700,    # 原価へ回した分
+    "'1月_支出成績'!N15": -22000,    # 個別ロイを引く
+    "'1月_支出成績'!N16": 50050,
+    "'1月_支出成績'!N17": 9500,      # 25000*0.38
+    "'1月_支出成績'!N18": 2000,      # 20000*0.10
+    "'1月_支出成績'!N19": 22000,     # 個別ロイ実額
+    "'1月_支出成績'!N20": 83550,     # ロイヤリティ合計（個別ロイは1回だけ）
+    "'1月_支出成績'!N21": 632310,    # 販売管理費
+    "'1月_支出成績'!N22": -584081,   # 営業利益
+    "'1月_支出成績'!N24": -622140,   # 経常利益
+    "'1月_支出成績'!R4": 5000,       # 科目別 交通費
+    "'1月_支出成績'!R5": 43760,      # 科目別 保険料
+    "'年間成績'!B18": 1440000,
+    "'年間成績'!B20": 120000,
+    "'年間成績'!B21": 120000,
+    "'年間成績'!B22": 1440000,
+    "'年間成績'!B23": -1320000,
+    "'年間成績'!B24": -1320000,
+    "'年間成績'!B28": 4,
+    "'年間成績'!B30": 2,
+    "'年間成績'!B32": 2,
+    "'年間成績'!B35": 1071,
+    "'年間成績'!B36": 50700,
+    "'年間成績'!B43": -622140,
+    "'年間成績'!B49": NET_NEW_TARGET[0],   # ④の1月目標。NET_NEW_TARGET を変えたら自動で追随する
+    "'年間成績'!B50": 2,
+    "'年間成績'!B51": 192386,
+    "'年間成績'!N18": 26000000,
+    "'年間成績'!N27": 649,
+    "'年間成績'!N29": 143,
+    "'年間成績'!B4": 26000000,
+    "'年間成績'!B5": 120000,
+    "'ダッシュボード'!B6": 1440000,
+    "'ダッシュボード'!C6": 120000,
+    "'ダッシュボード'!D6": -1320000,
+    "'ダッシュボード'!B7": 37,
+    "'ダッシュボード'!C7": 4,
+    "'ダッシュボード'!B8": NET_NEW_TARGET[0],
+    "'ダッシュボード'!C8": 2,
+    "'ダッシュボード'!B10": 192386,
+    "'ダッシュボード'!C10": -622140,
+    "'ダッシュボード'!B13": 1440000,
+    "'ダッシュボード'!C13": 120000,
+    "'ダッシュボード'!B14": NET_NEW_TARGET[0],
+    "'ダッシュボード'!C14": 2,
+    "'ダッシュボード'!B15": 192386,
+    "'分析_件数単価流入'!B5": 4,
+    "'分析_件数単価流入'!B6": 120000,
+    "'分析_件数単価流入'!B12": 2,      # ④自社ネット新規 件数
+    "'分析_件数単価流入'!B13": 50000,  # ④自社ネット新規 売上
+}
+
+
+try:                                        # pycel のプラグインとして読ませる用
+    from pycel.lib.function_helpers import excel_helper as _xl_helper
+    from pycel.excelutil import flatten as _xl_flatten
+
+    @_xl_helper()
+    def counta(*args):
+        """pycel は COUNTA を実装していないので補う。"""
+        return sum(1 for v in _xl_flatten(args) if v is not None and v != "")
+except ImportError:
+    pass
+
+
+def selftest(path):
+    """ダミーデータを入れた複製を実際に再計算して、数式が生きているか確かめる。
+
+    pycel が入っているときだけ動く（pip install pycel）。無ければ黙って飛ばす。
+    """
+    try:
+        from pycel import ExcelCompiler
+    except ImportError:
+        print("\n--- 再計算テスト ---\n  skip（pycel が入っていません: pip install pycel）")
+        return True
+
+    import shutil
+    import tempfile
+    from openpyxl import load_workbook as _lw
+
+    tmp = os.path.join(tempfile.mkdtemp(), "selftest.xlsx")
+    shutil.copy(path, tmp)
+    wb = _lw(tmp)
+    u = wb[s_uriage(1)]
+    rows = [
+        (1, "One Hitter", date(2027, 1, 5), "LP", "lp_ga", None, None, None, None,
+         20000, "エアコン(ノーマル)", "和真"),
+        (2, "One Hitter", date(2027, 1, 6), "HP", "hp", None, None, None, None,
+         30000, "浴室", "和真"),
+        (3, "本舗", date(2027, 1, 7), "楽ラクーン", "", None, None, None, None,
+         25000, "換気扇", "協力業者A"),
+        (4, "One Hitter", date(2027, 1, 8), "リピート", "", None, None, None, None,
+         45000, "エアコン(ロボ)", "和真"),
+    ]
+    for i, r in enumerate(rows):
+        for j, v in enumerate(r):
+            u.cell(row=U_FIRST + i, column=1 + j, value=v)
+    u.cell(row=U_FIRST, column=U_IDX["本舗ロイ区分"], value="10%")
+    u.cell(row=U_FIRST + 2, column=U_IDX["本舗ロイ区分"], value="38%")
+
+    e = wb[s_shishutsu(1)]
+    exp = [
+        (1, date(2027, 1, 10), None, "ガソリン", "交通費", 5000),
+        (2, date(2027, 1, 11), None, "賠償保険", "保険料", 43760),
+        (3, date(2027, 1, 12), None, "協力業者A 3件", "外注費", 50700),
+        (4, date(2027, 1, 13), None, "現場補助", "現場人件費(原価)", 20000),
+        (5, date(2027, 1, 25), None, "和真 固定給", "固定給(販管費)", 500000),
+        (6, date(2027, 1, 26), None, "toBロイ", "個別ロイ", 22000),
+    ]
+    for i, r in enumerate(exp):
+        for j, v in enumerate(r):
+            e.cell(row=E_FIRST + i, column=1 + j, value=v)
+    wb.save(tmp)
+
+    ec = ExcelCompiler(tmp, plugins=(__name__,))
+    ng = []
+    for k, want in SELFTEST_EXPECT.items():
+        try:
+            got = ec.evaluate(k)
+        except Exception as ex:
+            ng.append(f"{k} 評価できない（{type(ex).__name__}）")
+            continue
+        if not (isinstance(got, (int, float)) and abs(got - want) < 0.01):
+            ng.append(f"{k} = {got}（期待 {want}）")
+    print(f"\n--- 再計算テスト（ダミー4件＋経費6件を入れて実際に計算） ---")
+    if ng:
+        for x in ng:
+            print("  NG  " + x)
+    else:
+        print(f"  OK  {len(SELFTEST_EXPECT)}セルすべて期待どおり ✓")
+    return not ng
+
+
 # ================================================================ main
 
 def main():
@@ -1961,7 +2130,8 @@ def main():
         print("  OK  " + o)
     for e in errs:
         print("  NG  " + e)
-    if errs:
+    ok2 = selftest(OUT_PATH)
+    if errs or not ok2:
         sys.exit(1)
     print("\n検算：問題なし")
 
