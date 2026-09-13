@@ -22,6 +22,7 @@
 """
 import argparse
 import asyncio
+import os
 import datetime as dt
 import json
 import pathlib
@@ -306,6 +307,17 @@ def pick(rows: list, n: int, how: str, exclude: tuple = ()) -> list:
 # ---------------- ログ
 def log_send(tok, wave: int, f: dict, how: str, dest: str, kata: str, result: str, note: str = "") -> None:
     now = dt.datetime.now(JST).strftime("%Y-%m-%d %H:%M")
+    # Google フォーム経由（認証も API 枠も不要。オーナー指示 2026-09-14）。フォームの設定が無い間は Sheets API に書く
+    cfg = pathlib.Path(os.path.expanduser("~/.config/one-hitter/sendlog-form.json"))
+    if cfg.exists():
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("mf", pathlib.Path(__file__).with_name("make-sendlog-form.py"))
+        mf = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mf)
+        if mf.post({"日時": now, "波": wave, "施設No": f["No"], "施設名": f["施設名"], "種別": f["種別"], "手段": how, "宛先／フォームURL": dest,
+                    "文面の型": kata, "送信者": SENDER, "結果": result, "備考": note}):
+            return
+        raise RuntimeError("フォームへの投稿に失敗")
     scall(tok, f"/{SS}/values/{urllib.parse.quote(TAB_L + '!A1')}:append", method="POST",
             query={"valueInputOption": "USER_ENTERED", "insertDataOption": "INSERT_ROWS"},
             payload={"values": [[now, wave, f["No"], f["施設名"], f["種別"], how, dest, kata, SENDER, result, "", "", note]]})
