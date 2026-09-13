@@ -1042,3 +1042,11 @@ Google 透明性レポートの API で `one-hitter-booking.netlify.app` が sta
 - 内容: `https://onehitter-yoyaku.netlify.app/?src=sms` → `https://yoyaku.onehitter.jp/?src=sms`。E列（送信済み）・G列（返信メモ）は触っていない。送信済み・返信あり・不通の行も触っていない
 - 控え: `~/.cache/one-hitter/backup/冬季見込み客_2026-20260912-1333.json` 付近（gitに入れない）
 - 併せて `お詫びSMS_20260912` タブを `--link` 付きで作り直し（70名。本文にも同じ独自ドメインのリンク）
+
+## 変更40（2026-09-13 17:0x）予約_Web タブを新設（Web予約の受け皿）
+
+- 対象：2026_売上/顧客情報管理（1TK70pw…）に `予約_Web` タブを追加（`tools/booking-inbox.py` が作成）。既存タブは触っていない
+- 列：受信日時／状態／お名前／お電話番号／ご住所／ご希望日／ご希望時刻／ご希望の内容／所要(分)／概算金額／ご要望／流入元／カレンダー登録／NetlifyのID
+- 入るもの：予約フォーム（yoyaku.onehitter.jp）と LP（lp.onehitter.jp、年末LP）の申し込み。毎時の巡回で追記
+- 理由：オーナー指示「Web予約のデータは 2026 売上スプシへ紐づける」（9/13）
+- バックアップ：追加のみで既存データの変更なし（不要）。台帳との照合は crm が設計（20260913-03-crm）
