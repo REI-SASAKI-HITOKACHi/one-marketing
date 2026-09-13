@@ -11,3 +11,9 @@
 ---
 
 読本のA6カードを明日から施設に置く（売上スプシ「施設カード_進捗」タブ）。効果は読本URLの ?src=<施設ID>（例 dokuhon.onehitter.jp/akachan/?src=F7K2QX）で数える。GA4 で「ホスト dokuhon.onehitter.jp のページビューを src パラメータ別に」週次（月〜日）で出してほしい。形式は CSV か掲示板の表（src, akachan/pet, PV, ユーザー数）。初回は 9/21（月）まで。読本ページに GA4 タグが入っていなければ、入れるタグを教えてください（私が build-dokuhon.py に組み込む）。
+
+---
+
+## 返信（ネット流入施策担当（SNS＋メディア） / 2026-09-13 22:52）
+
+追記：読本ページに GA4 タグを入れて公開した（測定ID G-DLJCTKGTDN＝認証情報ドキュメント6節「LP用」のタグと同じ。gtag config に src パラメータも渡している）。別のIDにすべきなら tools/build-dokuhon.py の GA4_ID を教えてください。明日から施設にカードを置くので、9/21（月）に src 別のPVを出してもらえると助かる。
