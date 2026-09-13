@@ -83,8 +83,8 @@ status: draft
 
 | メニュー | URL |
 |---|---|
-| エアコン | `https://one-hitter-lp.netlify.app/aircon/?src=blog` |
-| 水回り（レンジフード・浴室・洗濯機・キッチン・トイレ） | `https://one-hitter-lp.netlify.app/mizumawari/?src=blog` |
+| エアコン | `https://lp.onehitter.jp/aircon/?src=blog` |
+| 水回り（レンジフード・浴室・洗濯機・キッチン・トイレ） | `https://lp.onehitter.jp/mizumawari/?src=blog` |
 
 `?src=blog` は計測担当が GA4 の `traffic_src` で拾う。変えない。
 

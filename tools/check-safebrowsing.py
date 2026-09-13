@@ -16,6 +16,10 @@ HOSTS = [
     'one-hitter-tenken.netlify.app',    # 無料点検
     'one-hitter-sns-media.netlify.app', # SNS画像
     'one-hitter.jp',                    # 公式サイト
+    'dokuhon.onehitter.jp',             # 読本（独自ドメイン 2026-09-12〜）
+    'tenken.onehitter.jp',              # 無料点検（同）
+    'yoyaku.onehitter.jp',              # 予約（同）
+    'lp.onehitter.jp',                  # LP（同）
 ]
 bad = 0
 for h in HOSTS:

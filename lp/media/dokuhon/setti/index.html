@@ -340,7 +340,7 @@ footer a{color:var(--invert-ink);}
     if (!$('s-agree').checked) return $('se').textContent = '確認にチェックをお願いします。';
     var id = Q.get('f') || makeId();
     var kind = $('s-kind').value, hen = (/産|小児|子育て|保育|ベビー/.test(kind)) ? 'akachan' : (/ペット|動物|トリミング/.test(kind)) ? 'pet' : 'akachan';
-    var url = 'https://one-hitter-dokuhon.netlify.app/' + hen + '/?src=' + id;
+    var url = 'https://dokuhon.onehitter.jp/' + hen + '/?src=' + id;
     var atai = { '施設ID': id, '施設名': $('s-name').value.trim(), '法人名': $('s-houjin').value.trim(), '報酬型': houshuuKata($('s-houjin').value), '種別': kind, '読本': hen,
       '担当者': $('s-tantou').value.trim(), 'メール': $('s-mail').value.trim(), '住所': $('s-addr').value.trim(), '設置場所': $('s-place').value, 'カード': pr.value, '読本URL': url, '送信時刻': new Date().toISOString() };
     var fd = new FormData(); fd.append('form-name', 'dokuhon-setti'); Object.keys(atai).forEach(function(k){ fd.append(k, atai[k]); });

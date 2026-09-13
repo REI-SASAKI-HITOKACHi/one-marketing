@@ -82,4 +82,4 @@ status: draft
 ## ご予約
 
 江戸川区でのエアコンクリーニングのご予約は、こちらから。
-https://one-hitter-lp.netlify.app/aircon/?src=blog
+https://lp.onehitter.jp/aircon/?src=blog
