@@ -200,8 +200,14 @@ def colletter(i: int) -> str:
 
 
 # ---------------- フォーム送信（Playwright）
+# 送ってはいけないフォーム（docs/節目チャネル-全体構造.md 9章）。2026-09-13 の入力テストで「患者様以外はご遠慮」「業者様からのお問い合わせはご遠慮」を見落としたので広げた
+NO_SALES_RE = re.compile(r"(営業|セールス|勧誘|業者|取引|売り込み)[^。\n]{0,20}(お断り|ご遠慮|禁止|お控え|ご容赦)|患者(様|さま|さん)?(専用|以外|のみ)|患者様以外|営業目的[^。\n]{0,10}(禁止|お断り|ご遠慮)")
+
 FIELD_HINTS = {
     "company": ["会社", "法人", "団体", "貴社", "company", "organization", "corp"],
+    "zip": ["郵便番号", "zip", "postal", "〒"],
+    "addr": ["住所", "所在地", "address"],
+    "email2": ["確認のため", "メールアドレス（確認", "メール確認", "email_confirm", "email2", "mail2", "confirm"],
     "name": ["お名前", "氏名", "名前", "担当者", "name"],
     "kana": ["フリガナ", "ふりがな", "カナ", "kana", "furigana"],
     "email": ["メール", "mail", "e-mail"],
@@ -209,7 +215,7 @@ FIELD_HINTS = {
     "subject": ["件名", "題名", "subject", "用件"],
     "body": ["お問い合わせ内容", "お問合せ内容", "内容", "本文", "メッセージ", "message", "inquiry", "comment", "detail", "ご質問", "ご要望"],
 }
-VALUES = {"company": "ワンヒッター株式会社", "name": "佐々木", "kana": "ササキ", "tel": C.UNEI_TEL}
+VALUES = {"company": "ワンヒッター株式会社", "name": "佐々木", "kana": "ササキ", "tel": C.UNEI_TEL, "zip": "134-0081", "addr": "東京都江戸川区北葛西5-14-11"}
 
 
 def hint_of(label: str) -> str:
@@ -224,8 +230,8 @@ async def fill_form(pg, url: str, text: str, email_from: str, subject: str) -> d
     await pg.goto(url, timeout=30000, wait_until="domcontentloaded")
     await pg.wait_for_timeout(1500)
     html = await pg.content()
-    if re.search(r"営業[^。]{0,12}(お断り|ご遠慮|禁止)|セールス[^。]{0,8}(お断り|ご遠慮)", html):
-        return {"ok": False, "reason": "営業お断りの記載"}
+    if NO_SALES_RE.search(re.sub(r"<[^>]+>", " ", html)):
+        return {"ok": False, "reason": "営業お断り・患者専用の記載"}
     filled = {}
     for el in await pg.query_selector_all("input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=checkbox]):not([type=radio]), textarea, select"):
         try:
@@ -237,25 +243,43 @@ async def fill_form(pg, url: str, text: str, email_from: str, subject: str) -> d
             if tag == "textarea":
                 key = "body"
             if typ == "email":
-                key = "email"
+                key = "email2" if re.search(r"確認|confirm|2", name + " " + lab) else "email"
             if typ == "tel":
                 key = "tel"
             if tag == "select":
                 continue
             if not key or key in filled:
                 continue
-            val = {"email": email_from, "subject": subject, "body": text}.get(key) or VALUES.get(key)
+            val = {"email": email_from, "email2": email_from, "subject": subject, "body": text}.get(key) or VALUES.get(key)
             if val:
                 await el.fill(val)
                 filled[key] = True
         except Exception:
             continue
+    # 用件のラジオ：「その他」があればそれ、無ければ最後の選択肢
+    radios = await pg.query_selector_all("input[type=radio]")
+    groups = {}
+    for rd in radios:
+        try:
+            groups.setdefault(await rd.get_attribute("name") or "", []).append(rd)
+        except Exception:
+            pass
+    for name_, rds in groups.items():
+        picked = None
+        for rd in rds:
+            lab = await rd.evaluate("e=>(e.labels&&e.labels[0]?e.labels[0].innerText:'')+' '+(e.parentElement?e.parentElement.innerText.slice(0,30):'')")
+            if "その他" in lab:
+                picked = rd
+        try:
+            await (picked or rds[-1]).check()
+        except Exception:
+            pass
     # 同意チェック
     for cb in await pg.query_selector_all("input[type=checkbox]"):
         try:
-            lab = await cb.evaluate("e=>(e.labels&&e.labels[0]?e.labels[0].innerText:'')+' '+(e.parentElement?e.parentElement.innerText.slice(0,40):'')")
-            if re.search(r"同意|確認|プライバシー|個人情報", lab):
-                await cb.check()
+            lab = await cb.evaluate("e=>(e.labels&&e.labels[0]?e.labels[0].innerText:'')+' '+(e.parentElement?e.parentElement.innerText.slice(0,80):'')+' '+(e.closest('tr,li,p,div')?e.closest('tr,li,p,div').innerText.slice(0,80):'')")
+            if re.search(r"同意|確認|プライバシー|個人情報|規約", lab):
+                await cb.check(force=True)
         except Exception:
             pass
     return {"ok": "body" in filled, "filled": sorted(filled), "reason": "" if "body" in filled else "本文欄が見つからない"}
