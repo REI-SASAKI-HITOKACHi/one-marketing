@@ -20,3 +20,4 @@ assets/fonts/
 
 # 施工写真の原本（Drive から落としたもの。大きいのでコミットしない）
 assets/photos-raw/
+*gmail-oauth*.json

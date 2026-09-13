@@ -13,10 +13,11 @@
   売上スプシ「施設カード_進捗」          優先度・ステージ（未接触だけが対象）
 
 使い方:
-  python3 tools/shisetsu-outreach.py plan --wave 1 --n 50            # 送る50件を選んで表示（送らない）
+  python3 tools/shisetsu-outreach.py plan --wave 1 --n 50 --exclude 産婦人科・産院   # 送る50件を選んで表示（送らない）
   python3 tools/shisetsu-outreach.py form --wave 1 --n 50            # フォーム：入力してスクショ（送らない）
   python3 tools/shisetsu-outreach.py form --wave 1 --n 50 --send     # フォーム：送信してログ
-  python3 tools/shisetsu-outreach.py mail --wave 1 --n 50            # メール：本文を dist/outreach/ に書き出す（送信は別）
+  python3 tools/shisetsu-outreach.py mail --wave 1 --n 50            # メール：本文を dist/outreach/ に書き出す（送らない）
+  python3 tools/shisetsu-outreach.py mail --wave 1 --n 50 --send     # メール：Gmail API（onehitter.her@gmail.com）で送信してログ。1日50件まで
 """
 import argparse
 import asyncio
@@ -30,6 +31,7 @@ import urllib.parse
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import media_common as C  # noqa: E402
 import sheets_client as sc  # noqa: E402
+import gmail_send as G  # noqa: E402
 
 ROOT = C.ROOT
 FAC = ROOT / "data" / "facilities-2026-09-clean.json"
@@ -42,6 +44,9 @@ HEAD_ROW = 13  # 進捗タブのヘッダ行（1始まり）
 JST = dt.timezone(dt.timedelta(hours=9))
 SETTI_URL = f"{C.DOKUHON_URL}/setti/"
 SENDER = "ワンヒッター株式会社 佐々木"
+ADDR = "〒134-0081 東京都江戸川区北葛西5-14-11 クオーディア西葛西503"  # CMO 指定（20260913-07-cmo）
+REPLY_TO = G.REPLY_TO  # フォームに書く返信先メールもこれ（メールの Reply-To と同じ受信箱に集める）
+MAIL_PER_DAY = 50
 
 # ---------------- 文面（承認シート③＝フォーム用の短い版。①②はメール用）
 def yomihon(kind: str) -> dict:
@@ -70,7 +75,20 @@ def form_text(f: dict, kind: str) -> str:
             f"{h_short}毎週、何名が読まれたかをお知らせします。\n"
             f"置いていただける場合：{SETTI_URL}（1分）\n"
             f"不要な場合は、このままご放念ください。以後お送りしません。\n"
-            f"〒134-0081 東京都江戸川区北葛西5-14-11／{C.UNEI_TEL}")
+            f"{ADDR}／{C.UNEI_TEL}")
+
+
+def atena(name: str) -> str:
+    """宛名用の施設名。Places の名前に付く説明（［犬/ねこ/エキゾ対応動物病院］、|内視鏡 胃カメラ…）を落とし、半角カナを全角にする"""
+    import unicodedata
+    n = unicodedata.normalize("NFKC", name)
+    m = re.match(r"[『「](.+?)[』」]", n)
+    if m:
+        n = m.group(1)
+    n = re.sub(r"[\[【（(].*?[\]】）)]", " ", n)
+    n = re.split(r"[|｜]", n)[0]
+    n = re.sub(r"\s+-[^-]+-\s*$", "", n)
+    return re.sub(r"\s+", " ", n).strip()
 
 
 def mail_text(f: dict, kind: str) -> tuple:
@@ -79,7 +97,7 @@ def mail_text(f: dict, kind: str) -> tuple:
     kikan = "貴院（貴施設）の利用者さま" if y["who"].startswith("赤ちゃん") else "お客さま（患者さま）"
     subj = ("赤ちゃんを迎えるご家庭向けの読み物を、待合に置いていただけませんか（江戸川区のハウスクリーニング店）" if y["who"].startswith("赤ちゃん")
             else "犬猫を迎えるご家庭向けの読み物を、レジ横に置いていただけませんか（江戸川区のハウスクリーニング店）")
-    body = f"""{f['施設名']} ご担当者さま
+    body = f"""{atena(f['施設名'])} ご担当者さま
 
 江戸川区北葛西でハウスクリーニングをしております、ワンヒッター株式会社の佐々木と申します。
 
@@ -99,10 +117,10 @@ def mail_text(f: dict, kind: str) -> tuple:
 置いていただける場合は、下のリンクから設置場所だけお知らせください（1分）。
 {SETTI_URL}
 
-ご不要の場合は、このメールへ「不要」とご返信ください。以後お送りしません。
+今後のご案内が不要でしたら、このメールにその旨ご返信ください。以後お送りしません。
 
 ワンヒッター株式会社 佐々木 嶺
-〒134-0081 東京都江戸川区北葛西5-14-11／{C.UNEI_TEL}／{C.UNEI_SITE}"""
+{ADDR}／{C.UNEI_TEL}／{C.UNEI_SITE}"""
     return subj, body
 
 
@@ -123,33 +141,77 @@ def load() -> list:
             continue
         c = con.get(f["id"], {})
         rows.append({**f, "No": r[col["No"]], "優先度": r[col["優先度"]], "ステージ": r[col["ステージ"]], "接触回数": r[col["接触回数"]] or "0",
-                     "row": None, "contact": c})
+                     "次回アクション": r[col["次回アクション"]], "row": None, "contact": c})
     return rows
 
 
-def email_of(c: dict) -> str:
-    """contacts.json の emails は {'address','kind'} の配列（文字列のこともある）。汎用アドレスを優先"""
+FREE_MAIL = ("gmail.com", "yahoo.co.jp", "yahoo.com", "icloud.com", "outlook.com", "hotmail.com", "ocn.ne.jp", "nifty.com", "so-net.ne.jp", "biglobe.ne.jp", "au.com", "docomo.ne.jp", "ezweb.ne.jp", "me.com", "i.softbank.jp")
+PLACEHOLDER_LOCAL = ("example", "sample", "test", "yamada", "xxx", "hoge", "yourname", "mail", "abc", "user", "taro")
+PLACEHOLDER_DOMAIN = ("example.com", "example.jp", "abc.ne.jp", "mail.com", "sample.com", "sample.jp", "xxx.jp", "hoge.jp", "yourdomain.com", "email.com")
+DIRECTORY_HOSTS = ("mizumono.com",)  # 店舗一覧サイト。そこのフォームやメールは施設のものではない（2026-09-14 マッドマン葛西店で発見）
+EMAIL_SKIP = {"info-eigo@babypark.jp": "チェーン本部の英語教室窓口で、新浦安教室の窓口ではない"}  # 個別に除く（理由つき）
+GENERIC_TOK = ("com", "info", "shop", "animal", "clinic", "hospital", "salon", "tokyo", "japan", "mail", "pet", "dog", "cat")
+EMAIL_RE = re.compile(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$")
+BRANCH = {"葛西": "kasai", "江戸川": "edogawa", "小岩": "koiwa", "平井": "hirai", "浦安": "urayasu", "船堀": "funabori", "瑞江": "mizue", "篠崎": "shinozaki"}
+
+
+def email_of(c: dict, name: str = "", site: str = "") -> str:
+    """contacts.json の emails は {'address','kind'} の配列（文字列のこともある）。
+    2026-09-14 巡回結果の点検で見つけた誤りを除く：雛形のアドレス（example@…）、タグの混入（…</p）、他店のアドレス（支店一覧の中の別支店）、
+    サイトのドメインと無関係な独自ドメイン（テンプレートの残りとみられる）。フリーメールは店のものとして受け入れる。"""
     es = c.get("emails") or []
-    addrs = [(e["address"] if isinstance(e, dict) else e) for e in es]
-    addrs = [a for a in addrs if a and "@" in a]
-    gen = [a for a in addrs if a.lower().startswith(("info@", "contact@", "mail@", "office@", "support@", "inquiry@"))]
-    return (gen or addrs or [""])[0]
+    addrs = []
+    for e in es:
+        a = (e["address"] if isinstance(e, dict) else e) or ""
+        a = re.split(r"[<>\s\"'()]", a)[0].strip().lower()
+        if not EMAIL_RE.match(a):
+            continue
+        local, dom = a.split("@")
+        if local in PLACEHOLDER_LOCAL or dom in PLACEHOLDER_DOMAIN or a in EMAIL_SKIP:
+            continue
+        addrs.append(a)
+    host = urllib.parse.urlparse(site or c.get("サイト") or "").netloc.lower().replace("www.", "")
+    if any(host.endswith(h) for h in DIRECTORY_HOSTS):
+        return ""
+    def plausible(a: str) -> bool:
+        dom = a.split("@")[1]
+        if dom in FREE_MAIL or not host:
+            return True
+        toks = {t for t in re.split(r"[.-]", dom) if len(t) >= 4 and t not in GENERIC_TOK}
+        return any(t in host for t in toks)
+    addrs = [a for a in addrs if plausible(a)]
+    if not addrs:
+        return ""
+    # 支店一覧（chiba@… kasai@… yokohama@…）：施設名の地名に合う局部を選ぶ。合うものが無ければ汎用アドレス
+    for kanji, roma in BRANCH.items():
+        if kanji in (name or ""):
+            hit = [a for a in addrs if roma in a.split("@")[0]]
+            if hit:
+                return hit[0]
+    gen = [a for a in addrs if a.startswith(("info@", "contact@", "mail@", "office@", "support@", "inquiry@"))]
+    return (gen or addrs)[0]
 
 
-def pick(rows: list, n: int, how: str) -> list:
+def pick(rows: list, n: int, how: str, exclude: tuple = ()) -> list:
     out = []
     used = set()  # 同じフォーム（同一法人の複数店）には1回だけ送る
     for r in rows:
-        if r["ステージ"] != "未接触" or r["優先度"] == "C":
+        if r["ステージ"] != "未接触" or r["優先度"] == "C" or r["種別"] in exclude:
+            continue
+        if how == "form" and r["次回アクション"].startswith("手動"):
+            continue  # 前回フォームが使えなかった（URL誤り・画像認証）。人に回してあるので機械では再挑戦しない
+        if r["種別"] == "ペットショップ" and NOT_DOGCAT_RE.search(r["施設名"]):
             continue
         c = r["contact"]
         if c.get("no_sales"):
             continue
         if how == "form" and not c.get("contact_form_url"):
             continue
-        if how == "mail" and not email_of(c):
+        if how == "form" and any(urllib.parse.urlparse(c.get("contact_form_url") or "").netloc.lower().replace("www.", "").endswith(h) for h in DIRECTORY_HOSTS):
             continue
-        key = c.get("contact_form_url") if how == "form" else email_of(c)
+        if how == "mail" and not email_of(c, r["施設名"], r.get("サイト", "")):
+            continue
+        key = c.get("contact_form_url") if how == "form" else email_of(c, r["施設名"], r.get("サイト", ""))
         if key in used:
             continue
         used.add(key)
@@ -165,6 +227,13 @@ def log_send(tok, wave: int, f: dict, how: str, dest: str, kata: str, result: st
     sc.call(tok, f"/{SS}/values/{urllib.parse.quote(TAB_L + '!A1')}:append", method="POST",
             query={"valueInputOption": "USER_ENTERED", "insertDataOption": "INSERT_ROWS"},
             payload={"values": [[now, wave, f["No"], f["施設名"], f["種別"], how, dest, kata, SENDER, result, "", "", note]]})
+
+
+def mails_today(tok) -> int:
+    """送信ログのうち、今日・手段=メール・結果が「送信」で始まる行の数（1日50件の上限に使う）"""
+    today = dt.datetime.now(JST).strftime("%Y-%m-%d")
+    vals = sc.call(tok, f"/{SS}/values/{urllib.parse.quote(TAB_L + '!A2:M2000')}").get("values", [])
+    return sum(1 for r in vals if len(r) > 9 and r[0].startswith(today) and r[5] == "メール" and str(r[9]).startswith("送信"))
 
 
 def update_stage(tok, f: dict, how: str) -> None:
@@ -190,6 +259,22 @@ def update_stage(tok, f: dict, how: str) -> None:
         return
 
 
+def mark_manual(tok, f: dict, reason: str) -> None:
+    """フォームが機械で送れなかった施設：進捗タブの次回アクションに「手動（理由）」と書き、以後 pick() が飛ばす。ステージは未接触のまま"""
+    vals = sc.call(tok, f"/{SS}/values/{urllib.parse.quote(TAB_P + '!A' + str(HEAD_ROW) + ':AM1000')}").get("values", [])
+    head = vals[0]
+    col = {h: i for i, h in enumerate(head)}
+    for i, r in enumerate(vals[1:], start=HEAD_ROW + 1):
+        r = r + [""] * (len(head) - len(r))
+        if r[col["施設名"]] != f["施設名"]:
+            continue
+        who = "ブラウザ担当" if "認証" in reason or "CAPTCHA" in reason else "メール／電話・訪問"
+        data = [{"range": f"{TAB_P}!{colletter(col['次回アクション'])}{i}", "values": [[f"手動（{reason}）→{who}"]]},
+                {"range": f"{TAB_P}!{colletter(col['当社担当'])}{i}", "values": [["web-inflow"]]}]
+        sc.call(tok, f"/{SS}/values:batchUpdate", method="POST", payload={"valueInputOption": "USER_ENTERED", "data": data})
+        return
+
+
 def colletter(i: int) -> str:
     s = ""
     i += 1
@@ -203,19 +288,20 @@ def colletter(i: int) -> str:
 # 送ってはいけないフォーム（docs/節目チャネル-全体構造.md 9章）。2026-09-13 の入力テストで「患者様以外はご遠慮」「業者様からのお問い合わせはご遠慮」を見落としたので広げた
 NO_SALES_RE = re.compile(r"(営業|セールス|勧誘|業者|取引|売り込み)[^。\n]{0,20}(お断り|ご遠慮|禁止|お控え|ご容赦)|患者(様|さま|さん)?(専用|以外|のみ)|患者様以外|営業目的[^。\n]{0,10}(禁止|お断り|ご遠慮)")
 
-FIELD_HINTS = {
-    "company": ["会社", "法人", "団体", "貴社", "company", "organization", "corp"],
+FIELD_HINTS = {  # 上から順に判定（件名・会社名は「名」より先に見る）
+    "subject": ["件名", "題名", "subject", "用件", "タイトル"],
+    "company": ["会社", "法人", "団体", "貴社", "店名", "屋号", "company", "organization", "corp"],
     "zip": ["郵便番号", "zip", "postal", "〒"],
     "addr": ["住所", "所在地", "address"],
     "email2": ["確認のため", "メールアドレス（確認", "メール確認", "email_confirm", "email2", "mail2", "confirm"],
-    "name": ["お名前", "氏名", "名前", "担当者", "name"],
     "kana": ["フリガナ", "ふりがな", "カナ", "kana", "furigana"],
+    "name": ["お名前", "氏名", "名前", "担当者", "name", "姓", "名"],
     "email": ["メール", "mail", "e-mail"],
     "tel": ["電話", "tel", "phone"],
-    "subject": ["件名", "題名", "subject", "用件"],
     "body": ["お問い合わせ内容", "お問合せ内容", "内容", "本文", "メッセージ", "message", "inquiry", "comment", "detail", "ご質問", "ご要望"],
 }
-VALUES = {"company": "ワンヒッター株式会社", "name": "佐々木", "kana": "ササキ", "tel": C.UNEI_TEL, "zip": "134-0081", "addr": "東京都江戸川区北葛西5-14-11"}
+CAPTCHA_RE = re.compile(r"画像に表示|画像の文字|認証コード|送信認証|captcha|スパム対策|計算|の答え", re.I)
+VALUES = {"company": "ワンヒッター株式会社", "name": "佐々木", "kana": "ササキ", "tel": C.UNEI_TEL, "zip": "134-0081", "addr": ADDR.split(" ", 1)[1]}
 
 
 def hint_of(label: str) -> str:
@@ -226,31 +312,77 @@ def hint_of(label: str) -> str:
     return ""
 
 
+CTX_JS = """e=>{
+  const t=x=>(x&&x.innerText?x.innerText:'').replace(/\\s+/g,' ').trim();
+  const lab=e.labels&&e.labels[0]?t(e.labels[0]):'';
+  let before='',after='';
+  let n=e.previousSibling; while(n&&!before){ before=(n.nodeType===3?n.textContent:t(n)).trim(); n=n.previousSibling; }
+  n=e.nextSibling; while(n&&!after){ after=(n.nodeType===3?n.textContent:t(n)).trim(); n=n.nextSibling; }
+  const p=e.closest('tr,li,p,dd,div');
+  let head='';
+  if(p){ let q=p.previousElementSibling; while(q&&!head){ head=t(q); q=q.previousElementSibling; } }
+  return {lab:lab,before:before.slice(-20),after:after.slice(0,20),cont:p?t(p).slice(0,60):'',head:head.slice(0,40)};
+}"""
+NOT_DOGCAT_RE = re.compile(r"熱帯魚|アクア|サンマリン|ディスカス|金魚|メダカ|水族")  # ペットショップのうち観賞魚の店。犬猫の読本は合わないので送らない（2026-09-14 東京サンマリンで気づいた）
+
+
 async def fill_form(pg, url: str, text: str, email_from: str, subject: str) -> dict:
     await pg.goto(url, timeout=30000, wait_until="domcontentloaded")
     await pg.wait_for_timeout(1500)
     html = await pg.content()
     if NO_SALES_RE.search(re.sub(r"<[^>]+>", " ", html)):
         return {"ok": False, "reason": "営業お断り・患者専用の記載"}
+    # 画像認証・reCAPTCHA v2（チェック式）は機械では通せない → 人（ブラウザ担当）に回す。v3（invisible）はそのまま送れる
+    if re.search(r'recaptcha/api2/anchor(?![^"]*size=invisible)', html) or re.search(r'hcaptcha\.com', html):
+        return {"ok": False, "reason": "reCAPTCHA（手動送信へ）"}
+    tel = C.UNEI_TEL.split("-")
+    zipc = VALUES["zip"].split("-")
+    parts = {"tel": tel, "zip": zipc}
+    part_i = {"tel": 0, "zip": 0}
     filled = {}
-    for el in await pg.query_selector_all("input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=checkbox]):not([type=radio]), textarea, select"):
+    for el in await pg.query_selector_all("input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=checkbox]):not([type=radio]):not([type=file]), textarea, select"):
         try:
             tag = await el.evaluate("e=>e.tagName.toLowerCase()")
-            typ = (await el.get_attribute("type") or "").lower()
-            name = (await el.get_attribute("name") or "") + " " + (await el.get_attribute("id") or "") + " " + (await el.get_attribute("placeholder") or "")
-            lab = await el.evaluate("e=>{const l=e.labels&&e.labels[0]?e.labels[0].innerText:'';const p=e.closest('tr,li,p,div');return l+' '+(p?p.innerText.slice(0,60):'')}")
-            key = hint_of(name + " " + lab)
-            if tag == "textarea":
-                key = "body"
-            if typ == "email":
-                key = "email2" if re.search(r"確認|confirm|2", name + " " + lab) else "email"
-            if typ == "tel":
-                key = "tel"
             if tag == "select":
                 continue
-            if not key or key in filled:
+            typ = (await el.get_attribute("type") or "").lower()
+            attrs = " ".join([(await el.get_attribute(x) or "") for x in ("name", "id", "placeholder", "aria-label")])
+            c = await el.evaluate(CTX_JS)
+            near = f"{c['lab']} {c['before']} {c['after']} {attrs}"          # 入力欄に近い文字（姓・名・確認用 の判定）
+            ctx = f"{near} {c['cont']} {c['head']}"                         # 少し広い範囲（お名前・メールアドレス 等の見出し）
+            key = hint_of(near) or hint_of(ctx)
+            if tag == "textarea":
+                key = "body"
+            if CAPTCHA_RE.search(ctx) and tag != "textarea":
+                return {"ok": False, "reason": "画像認証あり（手動送信へ）"}
+            if typ == "email" or key == "email":
+                key = "email2" if re.search(r"確認|confirm|再入力|もう一度|2", near) else "email"
+            if typ == "tel":
+                key = "tel"
+            if key == "name":
+                # 姓・名が分かれている欄。「名」は お名前・会社名・件名 などにも含まれるので、入力欄の直近の文字だけで判定
+                if re.search(r"(^|\s)姓|苗字|last|sei\b", near, re.I):
+                    key = "sei"
+                elif re.search(r"(^|\s)名(\s|$)|first|\bmei\b", near, re.I) and not re.search(r"お名前|氏名|名前", near):
+                    key = "mei"
+            if key == "kana" and re.search(r"(^|\s)セイ|(^|\s)せい", near):
+                key = "kana_sei"
+            elif key == "kana" and re.search(r"(^|\s)メイ|(^|\s)めい", near):
+                key = "kana_mei"
+            if not key:
                 continue
-            val = {"email": email_from, "email2": email_from, "subject": subject, "body": text}.get(key) or VALUES.get(key)
+            if key in ("tel", "zip"):
+                # 3分割（080-8043-8259）・2分割（134-0081）の欄は順に埋める
+                ml = await el.get_attribute("maxlength")
+                if part_i[key] < len(parts[key]) and (ml and int(ml) <= 5 or re.search(r"[123]$", attrs.split()[0] if attrs.split() else "") or part_i[key] > 0):
+                    await el.fill(parts[key][part_i[key]])
+                    part_i[key] += 1
+                    filled[key] = True
+                    continue
+            if key in filled:
+                continue
+            val = {"email": email_from, "email2": email_from, "subject": subject, "body": text, "sei": "佐々木", "mei": "嶺",
+                   "kana_sei": "ササキ", "kana_mei": "レイ"}.get(key) or VALUES.get(key)
             if val:
                 await el.fill(val)
                 filled[key] = True
@@ -316,6 +448,7 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str) -> No
                     print("スキップ", f["No"], f["施設名"], r["reason"])
                     if send:
                         log_send(tok, wave, f, "フォーム", url, "③", f"未送信（{r['reason']}）")
+                        mark_manual(tok, f, r["reason"])
                     continue
                 if not send:
                     print("入力のみ", f["No"], f["施設名"], r["filled"], shot.name)
@@ -324,6 +457,7 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str) -> No
                 btn = await pg.query_selector("input[type=submit], button[type=submit], button:has-text('送信'), input[value*='送信'], input[value*='確認'], button:has-text('確認')")
                 if not btn:
                     log_send(tok, wave, f, "フォーム", url, "③", "未送信（送信ボタン不明）")
+                    mark_manual(tok, f, "送信ボタン不明")
                     print("ボタン不明", f["No"], f["施設名"])
                     continue
                 await btn.click()
@@ -353,27 +487,54 @@ def main():
     ap.add_argument("--wave", type=int, default=1)
     ap.add_argument("--n", type=int, default=50)
     ap.add_argument("--send", action="store_true")
-    ap.add_argument("--from-email", default="", help="フォームの返信先メール（CMO が決めた送信元）")
+    ap.add_argument("--from-email", default="", help=f"フォームに書く返信先メール（既定 {G.REPLY_TO}）")
+    ap.add_argument("--exclude", default="", help="送らない種別（カンマ区切り。第1波は CMO 決定で 産婦人科・産院 を除く）")
     a = ap.parse_args()
+    ex = tuple(x for x in a.exclude.split(",") if x)
     rows = load()
     if a.mode == "plan":
         for how in ("form", "mail"):
-            t = pick(rows, a.n, how)
+            t = pick(rows, a.n, how, ex)
             print(f"== {how}: {len(t)}件")
             for f in t:
-                print(f" {f['No']:>4} {f['優先度']} {f['種別']:<10} {f['施設名'][:24]:<24} {f['contact'].get('contact_form_url') if how == 'form' else email_of(f['contact'])}")
+                print(f" {f['No']:>4} {f['優先度']} {f['種別']:<10} {f['施設名'][:24]:<24} {f['contact'].get('contact_form_url') if how == 'form' else email_of(f['contact'], f['施設名'], f.get('サイト', ''))}")
         return
     if a.mode == "mail":
         OUT.mkdir(parents=True, exist_ok=True)
-        t = pick(rows, a.n, "mail")
+        t = pick(rows, a.n, "mail", ex)
         for f in t:
             subj, body = mail_text(f, f["種別"])
-            (OUT / f"w{a.wave}-{f['No']}-mail.txt").write_text(f"To: {email_of(f['contact'])}\nSubject: {subj}\n\n{body}", encoding="utf-8")
-        print("メール本文を書き出し:", len(t), "件 →", OUT, "（送信は送信元が決まってから）")
+            (OUT / f"w{a.wave}-{f['No']}-mail.txt").write_text(f"To: {email_of(f['contact'], f['施設名'], f.get('サイト', ''))}\nSubject: {subj}\n\n{body}", encoding="utf-8")
+        print("メール本文を書き出し:", len(t), "件 →", OUT)
+        if not a.send:
+            return
+        cfg = G.load()
+        who = G.whoami(cfg)
+        if who != cfg["sender"]:
+            sys.exit(f"認可されたアカウント（{who}）が sender（{cfg['sender']}）と違う。送らない")
+        tok = sc.access_token(sc.load_credentials())
+        gtok = G.access_token(cfg)
+        done = mails_today(tok)
+        for f in t:
+            if done >= MAIL_PER_DAY:
+                print(f"今日の上限 {MAIL_PER_DAY} 件に達した。残りは明日")
+                break
+            to = email_of(f["contact"], f["施設名"], f.get("サイト", ""))
+            subj, body = mail_text(f, f["種別"])
+            kata = "①" if yomihon(f["種別"])["who"].startswith("赤ちゃん") else "②"
+            try:
+                mid = G.send(cfg, to, subj, body, token=gtok)
+                log_send(tok, a.wave, f, "メール", to, kata, "送信", f"Gmail id {mid}")
+                update_stage(tok, f, "mail")
+                done += 1
+                print("送信", f["No"], f["施設名"], to)
+            except Exception as e:
+                log_send(tok, a.wave, f, "メール", to, kata, f"失敗（{type(e).__name__}）", str(e)[:100])
+                print("失敗", f["No"], f["施設名"], to, str(e)[:120])
         return
     if not a.from_email:
-        sys.exit("--from-email（返信先）が要る。CMO が決めた送信元を指定する")
-    t = pick(rows, a.n, "form")
+        a.from_email = REPLY_TO
+    t = pick(rows, a.n, "form", ex)
     asyncio.run(run_forms(t, a.wave, a.send, a.from_email))
 
 
