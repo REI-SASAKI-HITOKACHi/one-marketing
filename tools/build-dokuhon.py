@@ -27,6 +27,7 @@ PHOTOS_SRC = C.ROOT / "assets" / "photos"
 BRAND = "読本"
 BRAND_SUB = "家の中の見えない汚れ"
 FORM_SETTI = "dokuhon-setti"
+GA4_ID = "G-DLJCTKGTDN"   # LP用の測定ID（認証情報ドキュメント6節のタグと同じ）。計測担当が別IDにしたいときはここを変える
 
 # 読本ページ専用のCSS。LPのトークンは使わず「白い紙」に固定する（設計メモ：紙の質感。ダークモードは捨てる）
 BOOK_CSS = """
@@ -154,6 +155,9 @@ def head_book(title: str, desc: str) -> str:
 <meta name="description" content="{C.esc(desc)}">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#FBFAF7">
+<!-- GA4（LP と同じ測定ID。認証情報ドキュメント6節。施設カードの効果は ?src=施設ID を page_location で数える） -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={GA4_ID}"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments);}}gtag('js',new Date());gtag('config','{GA4_ID}',{{'dokuhon':'{C.esc(title)}','src':(new URLSearchParams(location.search)).get('src')||''}});</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
