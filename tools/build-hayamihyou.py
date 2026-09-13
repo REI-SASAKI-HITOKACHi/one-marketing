@@ -5,10 +5,10 @@
 冷蔵庫に貼る前提ならレイアウトやデザインも工夫が必要。次の7章も含めて1枚もの。禁止4事項は下部3割くらい」。
 
 中身は tools/dokuhon_content.py の AKACHAN から取る（表と7章の見出し）。文字は増やさない。
-出力: lp/media/dokuhon/akachan/hayamihyou.pdf（build-dokuhon.py の pdfbtn が指す）
+出力: lp/media/dokuhon/<akachan|pet>/hayamihyou.pdf（build-dokuhon.py の pdfbtn が指す）。3列目は出典ではなく「備考」（なぜそうするか。K.HAYAMI_BIKOU / K.NG_BIKOU）
 
 使い方:
-  python3 tools/build-hayamihyou.py            # PDF と確認用 PNG（scratchpad）を書き出す
+  python3 tools/build-hayamihyou.py [akachan|pet]   # PDF と確認用 PNG（scratchpad）を書き出す
 """
 import asyncio
 import pathlib
@@ -19,7 +19,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import media_common as C  # noqa: E402
 import dokuhon_content as K  # noqa: E402
 
-OUT = C.ROOT / "lp" / "media" / "dokuhon" / "akachan" / "hayamihyou.pdf"
+OUTDIR = C.ROOT / "lp" / "media" / "dokuhon"
 FONTS = C.ROOT / "assets" / "fonts"
 FACES = [("Shippori Mincho B1", 700, "ShipporiMinchoB1-700.ttf"), ("Shippori Mincho B1", 800, "ShipporiMinchoB1-800.ttf"),
          ("Zen Kaku Gothic New", 400, "ZenKakuGothicNew-400.ttf"), ("Zen Kaku Gothic New", 500, "ZenKakuGothicNew-500.ttf"),
@@ -34,8 +34,8 @@ def plain(s: str) -> str:
     return re.sub(r"<[^>]+>", " ", s).replace("  ", " ").strip()
 
 
-def collect():
-    blocks = K.AKACHAN["blocks"]
+def collect(kind: str):
+    blocks = K.ARTICLES[kind]["blocks"]
     table = next(b for b in blocks if b["t"] == "table" and b["head"][0] == "どこ")
     # 7章：dk ng の見出しと、直後の引用（1文）
     ng = []
@@ -50,23 +50,28 @@ def collect():
             nxt = blocks[i + 1] if i + 1 < len(blocks) else {}
             if nxt.get("t") == "q":
                 q, src = nxt["x"], TANSHUKU.get(nxt["src"], K.SRC[nxt["src"]][0])
-            else:
-                q = plain(b["x"]).replace("5章に書いたとおり。", "")  # 紙では章の参照は要らない
-            ng.append((b["h"], q, src))
+            # 紙には出典ではなく「なぜ」（備考）を載せる。オーナー指摘 2026-09-13
+            bikou = K.NG_BIKOU.get(b["h"])
+            if not bikou:
+                raise SystemExit(f"NG_BIKOU に無い: {b['h']}")
+            ng.append((b["h"], q, bikou))
     return table, ng
 
 
-def html(table, ng) -> str:
+def html(kind: str, table, ng) -> str:
+    title = K.ARTICLES[kind]["title"]
+    bik = K.HAYAMI_BIKOU[kind]
     faces = "".join(f"@font-face{{font-family:'{f}';font-weight:{w};src:url('file://{FONTS / fn}') format('truetype');}}" for f, w, fn in FACES)
     rows = ""
-    for where, how, src in table["rows"]:
-        srcs = "／".join(TANSHUKU.get(k, K.SRC[k][0]) for k in src)
+    for where, how, _src in table["rows"]:
+        if where not in bik:
+            raise SystemExit(f"HAYAMI_BIKOU[{kind}] に無い行: {where}")
         how_html = how.replace("<small>", '<span class="s">').replace("</small>", "</span>")
-        rows += f'<tr><th>{where}</th><td>{how_html}</td><td class="src">{srcs}</td></tr>'
+        rows += f'<tr><th>{where}</th><td>{how_html}</td><td class="src">{C.esc(bik[where])}</td></tr>'
     ngs = ""
-    for h, q, src in ng:
-        qq = (f'<p>「{C.esc(q)}」<span class="src">{C.esc(src)}</span></p>' if src else f'<p>{C.esc(q)}</p>') if q else ""
-        ngs += f'<div class="ng"><b>{C.esc(h)}</b>{qq}</div>'
+    for h, q, bikou in ng:
+        qq = f'<p>「{C.esc(q)}」</p>' if q else ""
+        ngs += f'<div class="ng"><b>{C.esc(h)}</b>{qq}<p class="why">{C.esc(bikou)}</p></div>'
     return f"""<!doctype html><html lang="ja"><head><meta charset="utf-8"><style>
 {faces}
 @page{{size:A4;margin:0;}}
@@ -82,7 +87,7 @@ thead th{{font-weight:500;font-size:8.5pt;color:#7C8388;text-align:left;padding:
 tbody th{{text-align:left;font-family:"Shippori Mincho B1",serif;font-weight:700;font-size:12.5pt;padding:3.2mm 3mm 3.2mm 0;border-bottom:1px solid #E3E0D9;white-space:nowrap;width:34mm;vertical-align:top;}}
 tbody td{{padding:3.2mm 3mm 3.2mm 0;border-bottom:1px solid #E3E0D9;vertical-align:top;}}
 tbody td .s{{display:block;font-size:8.5pt;color:#7C8388;line-height:1.4;}}
-tbody td.src{{font-size:8.5pt;color:#7C8388;width:38mm;line-height:1.4;}}
+tbody td.src{{font-size:8.8pt;color:#4A5054;width:62mm;line-height:1.45;}}
 .spacer{{flex:1;}}
 .band{{border:2px solid #8E2F1A;border-radius:3mm;padding:5mm 6mm 4mm;margin-top:5mm;}}
 .band h2{{font-family:"Shippori Mincho B1",serif;font-weight:700;font-size:14pt;color:#8E2F1A;margin:0 0 3mm;letter-spacing:.04em;}}
@@ -91,18 +96,19 @@ tbody td.src{{font-size:8.5pt;color:#7C8388;width:38mm;line-height:1.4;}}
 .ng b::before{{content:"✕ ";color:#8E2F1A;}}
 .ng p{{margin:0;font-size:8.8pt;line-height:1.5;color:#4A5054;}}
 .ng p .src{{display:block;color:#7C8388;font-size:7.5pt;}}
+.ng p.why{{color:#171A1C;font-weight:500;margin-top:1mm;}}
 .foot{{margin-top:4mm;font-size:7.5pt;color:#7C8388;line-height:1.5;display:flex;justify-content:space-between;gap:6mm;}}
 </style></head><body><div class="page">
-<div class="head"><h1><small>赤ちゃんが来る前に知っておきたい、家の中の見えない汚れ</small>手入れの回数、早見表</h1>
-<div class="who">{C.esc(C.UNEI)}<br>{C.DOKUHON_URL.replace("https://", "")}/akachan/</div></div>
-<table><thead><tr><th>どこ</th><th>どのくらい</th><th>出典</th></tr></thead><tbody>{rows}</tbody></table>
+<div class="head"><h1><small>{C.esc(title)}</small>手入れの回数、早見表</h1>
+<div class="who">{C.esc(C.UNEI)}<br>{C.DOKUHON_URL.replace("https://", "")}/{kind}/</div></div>
+<table><thead><tr><th>どこ</th><th>どのくらい</th><th>備考</th></tr></thead><tbody>{rows}</tbody></table>
 <div class="spacer"></div>
 <div class="band"><h2>やってはいけない、4つ</h2><div class="grid">{ngs}</div></div>
-<div class="foot"><span>数字と「」内はすべて公表資料の原文。東京都「健康・快適居住環境の指針」（hokeniryo.metro.tokyo.lg.jp）／厚生労働省／国民生活センター／各メーカーの公式ページ。全文と出典一覧は上のアドレスの読み物で。</span><span>2026年9月版</span></div>
+<div class="foot"><span>回数と「」内の文は、東京都・厚生労働省・国民生活センター・メーカーの公表資料から。根拠の一覧は上のアドレスの読み物の末尾に。</span><span>2026年9月版</span></div>
 </div></body></html>"""
 
 
-async def render(h: str):
+async def render(h: str, out: pathlib.Path, kind: str):
     from playwright.async_api import async_playwright
     scratch = pathlib.Path("/tmp/claude-0/-home-user-one-marketing/d45c5ec4-10bd-5587-9fda-1015852d829b/scratchpad/shots")
     scratch.mkdir(parents=True, exist_ok=True)
@@ -111,8 +117,8 @@ async def render(h: str):
         pg = await b.new_page(viewport={"width": 794, "height": 1123})
         await pg.set_content(h)
         await pg.wait_for_timeout(600)
-        await pg.pdf(path=str(OUT), format="A4", print_background=True, prefer_css_page_size=True)
-        await pg.screenshot(path=str(scratch / "hayamihyou.png"), full_page=True)
+        await pg.pdf(path=str(out), format="A4", print_background=True, prefer_css_page_size=True)
+        await pg.screenshot(path=str(scratch / f"hayamihyou-{kind}.png"), full_page=True)
         await b.close()
 
 
@@ -120,11 +126,14 @@ def main():
     for _, _, fn in FACES:
         if not (FONTS / fn).exists():
             sys.exit(f"フォントがありません: {FONTS / fn}（python3 tools/fetch-fonts.py）")
-    table, ng = collect()
-    if len(ng) != 4:
-        sys.exit(f"7章の「やってはいけない」が4つでない: {len(ng)}")
-    asyncio.run(render(html(table, ng)))
-    print("書き出し:", OUT, f"{OUT.stat().st_size / 1024:.0f}KB")
+    kinds = sys.argv[1:] or list(K.ARTICLES)
+    for kind in kinds:
+        table, ng = collect(kind)
+        if len(ng) != 4:
+            sys.exit(f"{kind}: 7章の「やってはいけない」が4つでない: {len(ng)}")
+        out = OUTDIR / kind / "hayamihyou.pdf"
+        asyncio.run(render(html(kind, table, ng), out, kind))
+        print("書き出し:", out, f"{out.stat().st_size / 1024:.0f}KB")
 
 
 if __name__ == "__main__":

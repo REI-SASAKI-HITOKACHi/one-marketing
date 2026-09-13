@@ -171,3 +171,12 @@ Pexelsライセンス（https://www.pexels.com/license/）。商用可・クレ�
 | px-28576621.jpg | ゴム手袋とスプレー | https://www.pexels.com/photo/28576621/ |
 
 ※ フリー画像サイトのログイン情報は認証情報ドキュメント・各ブランチのどこにも無かった（2026-09-13 検索）。Pexels はログインなしで取得できるので、LP担当と同じ Pexels を使った。アカウントがあるなら認証情報ドキュメントの7節の下に追記してほしい。
+
+| ファイル | 使用箇所（ペット版） | 出所 |
+|---|---|---|
+| px-11262050.jpg | 日の当たる床で眠る子犬 | https://www.pexels.com/photo/11262050/ |
+| px-20329050.jpg | ブラッシングされる猫 | https://www.pexels.com/photo/20329050/ |
+| px-5993649.jpg | ベッドの上の犬 | https://www.pexels.com/photo/5993649/ |
+| px-8186502.jpg | キッチンのレンジフードとコンロ | https://www.pexels.com/photo/8186502/ |
+| px-6588599.jpg | エアコンのあるリビング | https://www.pexels.com/photo/6588599/ |
+| px-35655037.jpg／px-6991803.jpg／px-28576621.jpg | 温湿度計・冷蔵庫のメモ・ゴム手袋（赤ちゃん版と共用） | 上の表 |
