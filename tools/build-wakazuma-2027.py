@@ -170,6 +170,85 @@ def graph():
 
 
 # ---------------------------------------------------------------
+# 2028〜2030年のシミュレーション
+# ---------------------------------------------------------------
+CHOUKI = {a: plan.chouki(a) for a in ('保守的', '中', '良')}
+
+
+def chouki_hyou():
+    out = ['<table class="futsu nobreak" style="font-size:8.6pt">',
+           '<thead><tr><th rowspan="2">年</th>'
+           '<th colspan="2">保守的</th><th colspan="2">中</th><th colspan="2">良</th></tr>'
+           '<tr><th>売上</th><th>経常利益</th><th>売上</th><th>経常利益</th>'
+           '<th>売上</th><th>経常利益</th></tr></thead><tbody>']
+    for i in range(4):
+        y = CHOUKI['保守的'][i]['年']
+        tds = []
+        for a in ('保守的', '中', '良'):
+            r = CHOUKI[a][i]
+            tds.append(f'<td>{r["売上_万"]:,}万</td><td><b>{r["経常利益_万"]:,}万</b></td>')
+        cls = ' class="b"' if i == 0 else ''
+        nen = f'<b>{y}年</b><br><span class="kome">計画</span>' if i == 0 else f'<b>{y}年</b>'
+        out.append(f'<tr{cls}><td>{nen}</td>' + ''.join(tds) + '</tr>')
+    out.append('</tbody></table>')
+    # 前提の表
+    out.append('<table class="futsu nobreak" style="font-size:8.6pt;margin-top:10px">'
+               '<thead><tr><th>置いた前提（2030年時点）</th><th>保守的</th><th>中</th><th>良</th></tr></thead><tbody>')
+    kv = [('自社で獲った新規のリピート率', lambda a: f"{plan.CHOUKI_AN[a]['リピート率']*100:.0f}%"),
+          ('自社ネット新規（月）', lambda a: f"{plan.CHOUKI_AN[a]['ネット新規_月件数'][3]}件"),
+          ('アクティブな提携先', lambda a: f"{plan.CHOUKI_AN[a]['提携社数'][3]}社"),
+          ('施工件数（年）', lambda a: f"{CHOUKI[a][3]['件数']:,}件"),
+          ('社員（和真を含む）', lambda a: f"{CHOUKI[a][3]['社員数']}人"),
+          ('本舗案件が売上に占める割合',
+           lambda a: f"{CHOUKI[a][3]['本舗_万']/CHOUKI[a][3]['売上_万']*100:.0f}%")]
+    for mei, f in kv:
+        out.append(f'<tr><td>{mei}</td>' + ''.join(f'<td>{f(a)}</td>' for a in ('保守的', '中', '良')) + '</tr>')
+    out.append('</tbody></table>')
+    return '\n'.join(out)
+
+
+def chouki_graph():
+    W = 760
+    X = {2026: 70, 2027: 200, 2028: 330, 2029: 460, 2030: 590}
+    TOP, TAKA, YMAX = 42, 214, 6000
+
+    def gy(v):
+        return TOP + TAKA - v / YMAX * TAKA
+
+    s = [f'<svg viewBox="0 0 {W} 310" class="graph" role="img" '
+         f'aria-label="2026年から2030年までの売上の見通し。保守的・中・良の3パターン">']
+    for v in (2000, 4000, 6000):
+        s.append(f'<line class="gg" x1="60" y1="{gy(v):.1f}" x2="{W - 110}" y2="{gy(v):.1f}"/>')
+        s.append(f'<text class="ga" x="54" y="{gy(v) + 3.5:.1f}" text-anchor="end">{v:,}万</text>')
+    s.append(f'<line class="gx" x1="60" y1="{gy(0):.1f}" x2="{W - 110}" y2="{gy(0):.1f}"/>')
+    s.append(f'<text class="ga" x="54" y="{gy(0) + 3.5:.1f}" text-anchor="end">0</text>')
+    # 実績→計画（太い実線）
+    s.append(f'<polyline points="{X[2026]},{gy(1700):.1f} {X[2027]},{gy(2600):.1f}" '
+             f'fill="none" stroke="#0a5c50" stroke-width="3"/>')
+    iro = {'保守的': '#8aa39d', '中': '#2f9385', '良': '#0a5c50'}
+    for a in ('保守的', '中', '良'):
+        r = CHOUKI[a]
+        pts = [f'{X[2027]},{gy(2600):.1f}'] + [f'{X[2027 + i]},{gy(r[i]["売上_万"]):.1f}' for i in (1, 2, 3)]
+        s.append(f'<polyline points="{" ".join(pts)}" fill="none" stroke="{iro[a]}" '
+                 f'stroke-width="2.4" stroke-dasharray="7 4"/>')
+        for i in (1, 2, 3):
+            s.append(f'<circle cx="{X[2027 + i]}" cy="{gy(r[i]["売上_万"]):.1f}" r="4.5" fill="{iro[a]}"/>')
+        e = r[3]
+        s.append(f'<text class="gl" x="{X[2030] + 12}" y="{gy(e["売上_万"]) - 2:.1f}" fill="{iro[a]}">{a}</text>')
+        s.append(f'<text class="gv" x="{X[2030] + 12}" y="{gy(e["売上_万"]) + 12:.1f}">'
+                 f'{e["売上_万"]:,}万</text>')
+    for y, v in ((2026, 1700), (2027, 2600)):
+        s.append(f'<circle cx="{X[y]}" cy="{gy(v):.1f}" r="5" fill="#fff" stroke="#0a5c50" stroke-width="2.5"/>')
+        s.append(f'<text class="gv" x="{X[y]}" y="{gy(v) - 11:.1f}" text-anchor="middle">{v:,}万</text>')
+    for y in X:
+        s.append(f'<text class="gm" x="{X[y]}" y="{gy(0) + 20:.1f}" text-anchor="middle">{y}</text>')
+    s.append(f'<text class="gm" x="{X[2026]}" y="{gy(0) + 34:.1f}" text-anchor="middle">見込み</text>')
+    s.append(f'<text class="gm" x="{X[2027]}" y="{gy(0) + 34:.1f}" text-anchor="middle">計画</text>')
+    s.append('</svg>')
+    return '\n'.join(s)
+
+
+# ---------------------------------------------------------------
 HTML = """<meta charset="utf-8">
 <title>2027年の計画（社内用）</title>
 <style>
@@ -237,6 +316,7 @@ svg.graph { width: 100%; height: auto; display: block; margin: 8px 0 4px; }
 .gt { font-size: 9px; fill: #5c6d69; font-family: "IPAPGothic",sans-serif; }
 .ga { font-size: 8px; fill: #8a9a95; font-family: "IPAPGothic",sans-serif; }
 .gm { font-size: 9px; fill: #5c6d69; font-family: "IPAPGothic",sans-serif; }
+.gl { font-size: 10px; font-weight: bold; font-family: "IPAPGothic",sans-serif; }
 .gv { font-size: 8.5px; fill: #20302d; font-family: "IPAPGothic",sans-serif; }
 .gg { stroke: #e2e9e5; stroke-width: 1; }
 .gx { stroke: #9fb0ab; stroke-width: 1.2; }
@@ -269,7 +349,7 @@ footer { margin-top: 26px; padding-top: 8px; border-top: 1px solid #d5ded9;
   <div class="rule"></div>
   <div class="meta">
     社内用　―　和真 へ<br>
-    2026年9月13日　作成：佐々木<br>
+    2026年9月14日　作成：佐々木<br>
     ※この資料の数字は当面この前提で動く。<b>下方修正はしない。</b>
   </div>
   <div class="box">
@@ -502,7 +582,7 @@ __SHIHANKI__
 <div class="box aka nobreak">
 <div class="midashi">問題は数じゃない。1社に寄りすぎていることだ。</div>
 <p><strong>レジェンド様1社で、2026年の業務提携売上の62%。</strong>上位3社（レジェンド・タカラサービス・かさい電器）で77%。8月の大型案件1,683,000円（BREXA神奈川教習所・天カセ51台＋ロスナイ17台）もレジェンド様だ。</p>
-<p>ここが1年止まったら、年間売上の1割が消える。<span class="hikari">2027年は「アクティブな提携先を増やす」ことを命題にする。</span></p>
+<p><strong>レジェンド様はこのまま伸ばす。</strong>そこは動かさない。問題は、<strong>その横にもう2〜3社、同じ規模の先を作れていないこと</strong>だ。いまの形だとレジェンド様が1年止まった瞬間に年間売上の1割が消える。<span class="hikari">2027年は「アクティブな提携先を増やす」ことを命題にする。</span></p>
 </div>
 
 <table class="futsu nobreak">
@@ -518,10 +598,10 @@ __SHIHANKI__
 
 <p class="kome">※提携先の管理タブが2026年4月で止まっていて、5〜8月の21件・約219万円が転記されていない。ここは直す。</p>
 
-<h3>③ マッチングサイト　390万 → 390万（据え置き）</h3>
-<p>楽ラクーンとスケジュールマッチングのこと。<strong>PF＝プラットフォームの略で、お客様と業者をつなぐ仲介サイトのことだ。</strong></p>
-<p>手数料を35%払って、戻ってくるのは<strong>100人に2人</strong>だけ。数を増やしても資産にならない。②の提携先を伸ばすので、<strong>ここは増やさない。自然に来る分だけ受ける。</strong></p>
-<p class="kome">※おそうじ本舗経由の売上も同じ扱いで、2027年は今年と同じ数字に置いている。自然流入のみで、伸ばしにいかない。<strong>本舗の案件は外注できないので、協力業者に回すこともできない。</strong></p>
+<h3>③ 本舗案件　390万 → 390万（据え置き）</h3>
+<p>楽ラクーンやスケジュールマッチング経由の案件のこと。<strong>2027年は今年と同じ数字に置く。自然に来る分だけ受けて、積極的には動かない。</strong></p>
+<p>理由は、手数料を35%払って、戻ってくるのが<strong>100人に2人</strong>だけだからだ。数を増やしても資産にならない。②の提携先を伸ばすぶん、ここは据え置く。</p>
+<p class="kome">※ただし<strong>本舗のお客様でも、リピーターは伸ばしたい。</strong>リピートで来てくれる分はロイヤリティも低く、うちに残る額が大きい。新規を取りにいかないだけで、一度来てくれた方には次も声をかける。</p>
 
 <h3>④ 自社ネット新規　13万 → 500万</h3>
 <p>次のページで詳しく書く。<strong>ここが2027年の勝負どころだ。</strong></p>
@@ -615,8 +695,6 @@ __SHIHANKI__
 
 <p>位置づけは「安く回す先」じゃなくて、<strong>繁忙期に取りこぼさないための保険</strong>だ。5〜7月と年末は、うちの2人だけだと確実に断る日が出る。<span class="hikari">断った1件は二度と戻ってこない。</span></p>
 
-<p class="kome">※おそうじ本舗の案件は外注できない。だから協力業者に回せるのは自社案件のあふれ分だけだ。</p>
-
 <p>支払条件は3案ある。まだ決めていない。</p>
 <table class="futsu nobreak">
 <thead><tr><th>案</th><th>考え方</th><th>リスクを負うのは</th></tr></thead>
@@ -633,10 +711,10 @@ __SHIHANKI__
 <b>新人を6か月で独り立ちさせること。</b>6月には1人で現場を回せる状態にしたい。試用期間の6か月はそのために置いてある。
 </div></div>
 <div class="step"><div class="n">2</div><div>
-<b>付き合いのある協力業者について、事業者ごとのレビューを僕に共有してほしい。</b>腕・段取り・人柄・どのメニューが得意か・どこまで任せられるか。<b>そのうえで報酬と条件設計の意見がほしい。</b>上の3案のどれが合うか、いくらなら受けてもらえるか、和真の感覚がいちばん正確だ。ここは僕が机の上で決めるより、和真に決めてもらったほうがいい。
+<b>付き合いのある協力業者について、事業者ごとのレビューを俺に共有してほしい。</b>腕・段取り・人柄・どのメニューが得意か・どこまで任せられるか。<b>そのうえで報酬と条件設計の意見がほしい。</b>上の3案のどれが合うか、いくらなら受けてもらえるか、和真の感覚がいちばん正確だ。ここは俺が机の上で決めるより、和真の意見に頼りたい。
 </div></div>
 <div class="step"><div class="n">3</div><div>
-<b>協力業者の品質を見ること。</b>★5.0が崩れたら、この資料に書いたギフトも広告もLPも、全部止まる。施工チェックリストと写真報告は必ず通してほしい。うちの一番の資産は、いまのところクチコミと満足度だ。
+<b>協力業者の品質を見ること。</b>★5.0が崩れたら、この資料に書いたギフトも広告もLPも、全部止まる。うちの一番の資産は、いまのところクチコミと満足度だ。<b>品質を維持する仕組みはこっちで作る。</b>施工チェックリストと写真報告の型は用意するから、和真には現場で見てもらう形にしたい。
 </div></div>
 </div>
 </div>
@@ -700,8 +778,64 @@ __SHIHANKI__
 </div>
 </div>
 
+<div class="sec">
+<h2><span class="no">9</span>ここまでが厳しい話だ。その先を書いておく</h2>
+
+<p class="lead">2027年の話は、正直きつい。売上を5割伸ばして、利益は横ばい。増えた分はほぼ全部、人と協力業者に出ていく。</p>
+
+<p><strong>ただしそれは、2027年が「仕込みの年」だからだ。</strong></p>
+
+<p>2027年にやることの本質は、その年の売上を作ることじゃない。<strong>自社で獲った新規のお客様を、翌年戻ってくる形で積み上げること</strong>だ。</p>
+
+<div class="box nobreak">
+<div class="midashi">なぜ2027年を超えると景色が変わるのか</div>
+<p>自社ネット新規の143件は、その年だけ見れば500万にしかならない。だが<strong>自社で獲ったお客様は36%が翌年戻ってくる</strong>（マッチングサイト経由は100人に2人だけ）。しかも戻ってきたときの単価は<strong>1.13倍</strong>になる（一度うちを使った人は、次はセットで頼むから）。</p>
+<p style="margin-bottom:0"><strong>つまり2027年に143件獲れば、2028年は何もしなくても約50件が戻ってくる。その上にまた新しい143件が乗る。</strong>これが2年、3年と続く。<span class="hikari">一度作った入口は、次の年も勝手に動く。</span></p>
+</div>
+
+<h3>2028〜2030年（2027年を達成できた場合）</h3>
+
+<p>ロジックは2027年の計画から<strong>一切変えていない。</strong>変えたのは3つの前提だけだ ―― 自社で獲った新規のリピート率、自社ネット新規の月件数、アクティブな提携先の社数。<strong>本舗案件は3年とも390万で据え置き</strong>のままだ。</p>
+
+__CHOUKI_GRAPH__
+
+__CHOUKI_HYOU__
+
+<h3>この表から読み取ってほしいこと</h3>
+
+<div class="step"><div class="n">1</div><div>
+<b>やがて、利益の伸びが売上の伸びを追い越す。</b>中と良は2028年から、保守的でも2029年からそうなる（保守的の2029年は売上+10%に対して利益+41%）。リピートのお客様は獲得コストがゼロだから、積み上がるほど利益率が上がる。2027年の507万に対して、2028年は537〜925万。
+</div></div>
+
+<div class="step"><div class="n">2</div><div>
+<b>いちばん控えめに見ても、3年で経常利益は今年の1.9倍になる。</b>保守的（リピート率30%・ネット新規は月18件どまり・提携17社）でも2030年に売上3,440万・経常利益982万。2026年の528万に対して1.9倍だ。
+</div></div>
+
+<div class="step"><div class="n">3</div><div>
+<b>利益が踊り場になる年がある。</b>中の2029年がそれだ ―― 売上は+24%なのに利益は+1%で止まる。<b>3人目を入れる年だからだ。</b>人件費は階段状に上がるので、増やした年は一度伸びが止まる（良も同じ年に増やすので鈍る）。<b>そこで焦らないこと。翌年に戻る</b>（中の2030年は利益+76%）。
+</div></div>
+
+<div class="step"><div class="n">4</div><div>
+<b>本舗の比率が下がっていく。</b>2027年15% → 2030年で保守11%・中8%・良7%。伸ばさなくても、自社が伸びるぶん比率が下がる。単価もロイヤリティも有利な側の比重が自然に上がっていく。
+</div></div>
+
+<div class="box nobreak">
+<div class="midashi">だから2027年なんだ。</div>
+<p>2,600万を達成することの意味は、その年の利益じゃない。<strong>2028年以降の土台を作ることだ。</strong></p>
+<ul style="margin-bottom:6px">
+<li>2027年に獲った自社のお客様が、2028年・2029年と戻ってくる</li>
+<li>2027年に立ち上げたネットの入口は、そのまま翌年も回り続ける</li>
+<li>2027年に増やした提携先は、翌年も発注してくる（リピート率45%）</li>
+</ul>
+<p style="margin-bottom:0"><span class="hikari">一番きついのは最初の1年だ。そこを超えれば、数字は自分で伸び始める。</span><br>
+<strong>和真と2人で、まずはそこまで行く。</strong></p>
+</div>
+
+<p class="kome" style="margin-top:14px">※この3年の数字は、2027年の計画を達成できた場合の見通しであって、約束の数値ではない。約束するのは前ページの2つだ。ただ、<strong>2027年を超えた先にこれがあるということは、先に共有しておきたかった。</strong></p>
+</div>
+
 <footer>
-ワンヒッター株式会社　社内用　2026年9月13日<br>
+ワンヒッター株式会社　社内用　2026年9月14日<br>
 数字の出どころ：2026年 売上/顧客情報管理（年間成績・支出/成績・分析_件数単価流入_v2・顧客管理台帳）。
 計算は tools/plan2027.py。2026年の実績と突き合わせて、販売管理費で誤差0.11%まで合わせてある。<br>
 ※協力業者の支払条件、ギフト事業の詳細、広告の出稿先は未確定。決まり次第この資料を差し替える。<b>ただし上の数値目標は下方修正しない。</b>
@@ -716,7 +850,9 @@ def main():
             .replace('__GRAPH__', graph())
             .replace('__PL_ZENHAN__', pl_hyou(1, 6))
             .replace('__PL_KOUHAN__', pl_hyou(7, 12, nenkei=True))
-            .replace('__SHIHANKI__', shihanki_hyou()))
+            .replace('__SHIHANKI__', shihanki_hyou())
+            .replace('__CHOUKI_GRAPH__', chouki_graph())
+            .replace('__CHOUKI_HYOU__', chouki_hyou()))
     h = SHUTSURYOKU / '2027年の計画_社内用.html'
     h.write_text(html, encoding='utf-8')
     print(f'HTML: {h}  ({len(html):,} 文字)')
