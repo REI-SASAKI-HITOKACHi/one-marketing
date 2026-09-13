@@ -1,0 +1,652 @@
+<title>ワンヒッター 2027年の分岐点</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Shippori+Mincho+B1:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --ground:#f2f4f2;
+  --surface:#ffffff;
+  --surface-2:#e9edeb;
+  --ink:#141f1d;
+  --ink-2:#3b4a47;
+  --muted:#66736f;
+  --rule:#d8ded9;
+  --rule-soft:#e6ebe7;
+  --accent:#0d6e60;
+  --accent-soft:#e1efec;
+  --good:#0ca30c;
+  --serious:#ec835a;
+  --critical:#d03b3b;
+  --neutral-mark:#6f7671;
+  --shadow:0 1px 2px rgba(20,31,29,.05), 0 8px 24px -16px rgba(20,31,29,.28);
+  --sans:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;
+  --serif:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho",serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --ground:#0d1413;
+    --surface:#15201e;
+    --surface-2:#1d2926;
+    --ink:#e8ede9;
+    --ink-2:#c2cdc9;
+    --muted:#8d9b96;
+    --rule:#2a3633;
+    --rule-soft:#212d2a;
+    --accent:#48b4a1;
+    --accent-soft:#16302c;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --ground:#0d1413;
+  --surface:#15201e;
+  --surface-2:#1d2926;
+  --ink:#e8ede9;
+  --ink-2:#c2cdc9;
+  --muted:#8d9b96;
+  --rule:#2a3633;
+  --rule-soft:#212d2a;
+  --accent:#48b4a1;
+  --accent-soft:#16302c;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--ground);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:15px;
+  line-height:1.85;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:940px;margin:0 auto;padding-inline:20px;padding-block:0 72px}
+.measure{max-width:640px}
+h1,h2,h3{font-family:var(--serif);font-weight:700;text-wrap:balance;line-height:1.4;margin:0}
+p{margin:0}
+strong{font-weight:700}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+
+/* ---- masthead ---- */
+.masthead{
+  border-bottom:1px solid var(--rule);
+  padding-block:40px 30px;
+  display:flex;flex-wrap:wrap;gap:20px 32px;align-items:flex-end;justify-content:space-between;
+}
+.eyebrow{
+  font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--accent);
+}
+h1{font-size:clamp(28px,5.4vw,44px);margin-top:10px;letter-spacing:.01em}
+.masthead .sub{color:var(--muted);font-size:13.5px;margin-top:10px}
+.stamp{
+  font-family:var(--mono);font-size:11.5px;line-height:2;color:var(--muted);
+  border-left:2px solid var(--accent);padding-left:14px;
+}
+
+/* ---- thesis ---- */
+.thesis{
+  margin-top:36px;background:var(--surface);border:1px solid var(--rule);
+  border-radius:3px;box-shadow:var(--shadow);padding:30px 30px 26px;
+}
+.thesis .lede{font-family:var(--serif);font-size:clamp(19px,3.2vw,25px);line-height:1.65;font-weight:600}
+.thesis .lede em{font-style:normal;color:var(--accent);border-bottom:2px solid var(--accent);padding-bottom:1px}
+.thesis p+p{margin-top:16px}
+.thesis .body{color:var(--ink-2);font-size:15px;max-width:60ch}
+
+/* ---- section ---- */
+section{margin-top:64px}
+.sec-head{display:flex;gap:14px;align-items:baseline;border-bottom:1px solid var(--rule);padding-bottom:12px;margin-bottom:26px}
+.sec-no{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.1em;flex:none}
+h2{font-size:clamp(20px,3.4vw,26px)}
+.sec-note{margin-left:auto;font-size:12px;color:var(--muted);font-family:var(--mono);white-space:nowrap}
+h3{font-size:16.5px;margin-top:34px;margin-bottom:12px}
+section > p + p{margin-top:14px}
+.lead{color:var(--ink-2)}
+
+/* ---- chart ---- */
+figure{margin:24px 0 0}
+.chart-scroll{overflow-x:auto;background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px 10px 8px}
+.chart-scroll svg{display:block;min-width:620px;width:100%;height:auto}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.7}
+.svg-label{font-family:var(--mono);font-size:12px;fill:var(--muted)}
+.svg-value{font-family:var(--mono);font-size:14px;font-weight:600;fill:var(--ink);paint-order:stroke fill;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round}
+.svg-name{font-family:var(--sans);font-size:13px;font-weight:700;fill:var(--ink)}
+.svg-band{font-family:var(--sans);font-size:12px;font-weight:500;fill:var(--muted)}
+.grid{stroke:var(--rule-soft);stroke-width:1}
+.axis{stroke:var(--rule);stroke-width:1.5}
+
+/* ---- scenario rail ---- */
+.rail{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:26px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:20px 18px;display:flex;flex-direction:column;gap:2px}
+.card.hi{border-color:var(--accent);box-shadow:var(--shadow)}
+.card .tag{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+.card .name{font-family:var(--serif);font-size:19px;font-weight:700;margin-top:4px}
+.card .big{font-family:var(--mono);font-size:30px;font-weight:600;letter-spacing:-.02em;margin-top:8px;line-height:1.2}
+.card .delta{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.card .note{font-size:13px;color:var(--ink-2);margin-top:12px;border-top:1px solid var(--rule-soft);padding-top:12px;line-height:1.75}
+.card .verdict{font-size:12.5px;font-weight:700;margin-top:10px}
+
+/* ---- table ---- */
+.tbl-scroll{overflow-x:auto;margin-top:20px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--surface);min-width:520px}
+caption{text-align:left;font-size:12.5px;color:var(--muted);padding-bottom:8px;font-family:var(--mono)}
+th,td{padding:9px 12px;border-bottom:1px solid var(--rule-soft);text-align:left;vertical-align:top}
+thead th{
+  border-bottom:1.5px solid var(--rule);font-size:11.5px;font-weight:700;letter-spacing:.06em;
+  color:var(--muted);white-space:nowrap;
+}
+td.n,th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tr.total td{border-top:1.5px solid var(--rule);font-weight:700;background:var(--surface-2)}
+tr.focus td{background:var(--accent-soft)}
+.neg{color:var(--critical);font-weight:600}
+.pos{color:var(--accent);font-weight:600}
+
+/* mini bar inside a cell */
+.cell{display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.bar{height:4px;border-radius:2px;background:var(--neutral-mark);min-width:2px}
+.bar.s1{background:var(--critical)}
+.bar.s2{background:var(--serious)}
+.bar.s3{background:var(--good)}
+
+/* ---- callout ---- */
+.callout{
+  margin-top:26px;background:var(--accent-soft);border-left:3px solid var(--accent);
+  padding:18px 22px;border-radius:0 3px 3px 0;font-size:14px;color:var(--ink-2);
+}
+.callout strong{color:var(--ink)}
+.warnbox{
+  margin-top:26px;background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--critical);
+  padding:18px 22px;border-radius:0 3px 3px 0;font-size:14px;color:var(--ink-2);
+}
+
+/* ---- stat strip ---- */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:24px;border-radius:3px;overflow:hidden}
+.stat{background:var(--surface);padding:16px 16px 14px}
+.stat dt{font-size:11.5px;color:var(--muted);letter-spacing:.04em;line-height:1.6}
+.stat dd{margin:6px 0 0;font-family:var(--mono);font-size:22px;font-weight:600;letter-spacing:-.02em}
+.stat .foot{font-size:11.5px;color:var(--muted);font-family:var(--sans);margin-top:3px;line-height:1.6}
+
+/* ---- list ---- */
+ol.steps,ul.plain{margin:16px 0 0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:14px}
+ol.steps li{display:flex;gap:14px;align-items:baseline}
+ol.steps .k{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent);flex:none;width:2.2em}
+ul.plain li{display:flex;gap:12px}
+ul.plain li::before{content:"—";color:var(--accent);flex:none}
+
+.q{display:grid;gap:12px;margin-top:20px}
+.qitem{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:16px 18px}
+.qitem .qh{font-weight:700;font-size:14.5px}
+.qitem .qb{font-size:13.5px;color:var(--ink-2);margin-top:6px}
+
+footer{margin-top:72px;border-top:1px solid var(--rule);padding-top:22px;font-size:12.5px;color:var(--muted);line-height:1.9}
+footer .num{color:var(--ink-2)}
+
+@media (max-width:780px){
+  .rail{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .sec-note{display:none}
+}
+@media (prefers-reduced-motion:no-preference){
+  a{transition:color .15s}
+}
+a{color:var(--accent)}
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <div class="eyebrow">経営企画室 ／ 年度計画</div>
+      <h1>2027年の分岐点</h1>
+      <p class="sub">ワンヒッター株式会社　売上目標 3シナリオ（保守・中立・攻め）</p>
+    </div>
+    <div class="stamp">
+      作成 2026-09-13<br>
+      前提 正社員+1名（3月まで）<br>
+      　　 協力業者+3社<br>
+      出典 2026_売上/顧客情報管理
+    </div>
+  </header>
+
+  <div class="thesis">
+    <p class="lede">人を1名増やした瞬間、<em>損益分岐点は約 2,150万円</em>に上がる。<br>2026年と同じ利益を残すには、<em>約 2,880万円</em>が要る。</p>
+    <p class="body">2026年の着地見込みは約 1,630万円。つまり「保守 2,000万円」は、達成しても赤字になる水準です。<strong>保守は目標ではなく、回避すべき着地。</strong>実質の必達は中立 2,600万円、狙うのは攻め 3,200万円。<br>幸い、制約は供給ではありません。稼働率はピークでも 65%、9〜12月に約 940時間（188セット分）が空いています。足りないのは需要です。</p>
+  </div>
+
+  <!-- ============ 1 ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-no">01</span>
+      <h2>4年の推移と、2027年の3つの道</h2>
+      <span class="sec-note">単位：万円</span>
+    </div>
+    <p class="measure lead">2023年 +16.4%、2024年 +20.9% と伸びていた売上は、2026年に +4% まで鈍化する見込みです。2026年の予算 2,000万円に対する達成率は約 81%。1〜8月は予算比 94.5% と計画どおりでしたが、<strong>9〜12月が予算 7,472,000円に対して受注 13.2%（37件・984,080円）</strong>。ここが穴です。</p>
+
+    <figure>
+      <div class="chart-scroll">
+        <svg viewBox="0 0 900 392" role="img" aria-label="2023年から2026年までの売上推移と、2027年の保守・中立・攻めの3シナリオ。損益分岐点2,150万円と2026年並み2,880万円のしきい値を示す。">
+          <!-- zones for 2027 -->
+          <rect x="600" y="152.9" width="150" height="177.1" fill="var(--critical)" opacity="0.08"/>
+          <rect x="600" y="92.8" width="150" height="60.1" fill="var(--serious)" opacity="0.10"/>
+          <rect x="600" y="50" width="150" height="42.8" fill="var(--good)" opacity="0.09"/>
+
+          <!-- grid -->
+          <line class="grid" x1="90" y1="247.6" x2="760" y2="247.6"/>
+          <line class="grid" x1="90" y1="165.3" x2="760" y2="165.3"/>
+          <line class="axis" x1="90" y1="330" x2="760" y2="330"/>
+          <text class="svg-label" x="82" y="251.6" text-anchor="end">1,000</text>
+          <text class="svg-label" x="82" y="169.3" text-anchor="end">2,000</text>
+          <text class="svg-label" x="82" y="334" text-anchor="end">0</text>
+
+          <!-- thresholds -->
+          <line x1="600" y1="152.9" x2="750" y2="152.9" stroke="var(--critical)" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <line x1="600" y1="92.8" x2="750" y2="92.8" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <text class="svg-label" x="594" y="149" text-anchor="end">損益分岐 2,150万</text>
+          <text class="svg-label" x="594" y="89" text-anchor="end">2026年並み 2,880万</text>
+
+          <!-- zone labels -->
+          <text class="svg-band" x="607" y="70">増益</text>
+          <text class="svg-band" x="607" y="126">黒字</text>
+          <text class="svg-band" x="607" y="318">赤字</text>
+
+          <!-- history -->
+          <polyline points="110,238.4 268,223.3 426,201.0 584,195.8" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>
+          <!-- forks -->
+          <line x1="584" y1="195.8" x2="740" y2="165.3" stroke="var(--critical)" stroke-width="2.5" stroke-dasharray="7 5"/>
+          <line x1="584" y1="195.8" x2="740" y2="115.9" stroke="var(--serious)" stroke-width="2.5" stroke-dasharray="7 5"/>
+          <line x1="584" y1="195.8" x2="740" y2="66.5" stroke="var(--good)" stroke-width="2.5" stroke-dasharray="7 5"/>
+
+          <!-- history markers -->
+          <g>
+            <circle cx="110" cy="238.4" r="5" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"><title>2023年　11,120,782円／320件</title></circle>
+            <circle cx="268" cy="223.3" r="5" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"><title>2024年　12,949,587円／408件　前年比 +16.4%</title></circle>
+            <circle cx="426" cy="201.0" r="5" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"><title>2025年　15,660,628円／444件　前年比 +20.9%</title></circle>
+            <circle cx="584" cy="195.8" r="5" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"><title>2026年 着地見込み　約1,630万円／約440件　前年比 +4%（予算2,000万に対し約81%）</title></circle>
+          </g>
+          <text class="svg-value" x="110" y="224" text-anchor="middle">1,112</text>
+          <text class="svg-value" x="268" y="209" text-anchor="middle">1,295</text>
+          <text class="svg-value" x="426" y="187" text-anchor="middle">1,566</text>
+          <text class="svg-value" x="584" y="181" text-anchor="middle">1,630</text>
+
+          <!-- fork markers -->
+          <circle cx="740" cy="165.3" r="5.5" fill="var(--critical)" stroke="var(--surface)" stroke-width="2"><title>保守 2,000万円　会社の手残り ▲90万円（赤字）</title></circle>
+          <circle cx="740" cy="115.9" r="5.5" fill="var(--serious)" stroke="var(--surface)" stroke-width="2"><title>中立 2,600万円　会社の手残り 270万円（黒字だが2026年に届かない）</title></circle>
+          <circle cx="740" cy="66.5" r="5.5" fill="var(--good)" stroke="var(--surface)" stroke-width="2"><title>攻め 3,200万円　会社の手残り 630万円（増益）</title></circle>
+
+          <text class="svg-name" x="754" y="61">攻め</text>
+          <text class="svg-value" x="754" y="78">3,200</text>
+          <text class="svg-name" x="754" y="110">中立</text>
+          <text class="svg-value" x="754" y="127">2,600</text>
+          <text class="svg-name" x="754" y="160">保守</text>
+          <text class="svg-value" x="754" y="177">2,000</text>
+
+          <!-- x axis -->
+          <text class="svg-label" x="110" y="352" text-anchor="middle">2023</text>
+          <text class="svg-label" x="268" y="352" text-anchor="middle">2024</text>
+          <text class="svg-label" x="426" y="352" text-anchor="middle">2025</text>
+          <text class="svg-label" x="584" y="352" text-anchor="middle">2026</text>
+          <text class="svg-label" x="584" y="369" text-anchor="middle">見込み</text>
+          <text class="svg-label" x="740" y="352" text-anchor="middle">2027</text>
+          <text class="svg-label" x="740" y="369" text-anchor="middle">計画</text>
+        </svg>
+      </div>
+      <figcaption>2023〜2025年は月次タブを1件ずつ再集計した実績。2026年は1〜8月実績 11,652,061円に、9〜12月が2025年同期（4,604,253円）まで積み上がる前提を足した見込み。しきい値の算出は §02。</figcaption>
+    </figure>
+
+    <dl class="stats">
+      <div class="stat"><dt>顧客数（台帳）</dt><dd>957<span style="font-size:13px">名</span></dd><div class="foot">平均LTV 54,650円</div></div>
+      <div class="stat"><dt>2回以上ご利用</dt><dd>25.0<span style="font-size:13px">%</span></dd><div class="foot">法人の平均LTV は個人の3.9倍</div></div>
+      <div class="stat"><dt>稼働率（ピーク月）</dt><dd>65<span style="font-size:13px">%</span></dd><div class="foot">9〜12月に約940時間の空き</div></div>
+      <div class="stat"><dt>公式サイト経由の受注</dt><dd>4<span style="font-size:13px">件</span></dd><div class="foot">年63,100円。維持費は年580,800円</div></div>
+    </dl>
+
+    <div class="warnbox">
+      <strong>9〜12月の受注37件のうち 72.9% は、和真さんが現場で取った次回予約です。</strong>
+      HP・LINE・SMS・地図検索からの受注は、この4か月で 0件。<br>
+      つまり2026年の売上は「現場での一本釣り」で成り立っていて、仕組みで取れている部分がほとんどありません。2027年に人を増やすということは、この一本釣りを2人分・5社分に増やせるか、という話ではなく、<strong>仕組みで取る部分を作れるか</strong>という話になります。
+    </div>
+  </section>
+
+  <!-- ============ 2 ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-no">02</span>
+      <h2>なぜ 2,150万円 が分岐点なのか</h2>
+      <span class="sec-note">単位：万円</span>
+    </div>
+    <p class="measure lead">2027年に新しく乗る固定費は 580万円です。内訳は2つ。<strong>和真さんの報酬が固定給40万＋プール10万（年600万）に変わった分が +180万</strong>、<strong>新規正社員1名（3月入社・10か月）が +400万</strong>。どちらも売上に関係なく出ていきます。</p>
+
+    <div class="tbl-scroll">
+      <table>
+        <caption>2027年の固定費と、手残りの計算式</caption>
+        <thead><tr><th>項目</th><th class="n">年額</th><th>根拠</th></tr></thead>
+        <tbody>
+          <tr><td>固定の販売管理費</td><td class="n">244万</td><td>保険・駐車場・HP関連・通信ほか（月 203,708円）</td></tr>
+          <tr><td>融資返済</td><td class="n">46万</td><td>38,059円／月</td></tr>
+          <tr><td>和真さん報酬</td><td class="n">600万</td><td>固定給40万＋プール10万（9月分から新制度）</td></tr>
+          <tr class="focus"><td>新規正社員1名</td><td class="n">400万</td><td>月35万×10か月＋採用・装備50万　<strong>仮置き・要確認</strong></td></tr>
+          <tr class="total"><td>固定費 合計</td><td class="n">1,290万</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <strong>会社の手残り ＝ 売上 × 60% − 1,290万円</strong><br>
+      60% は、売上から 原価9%・売上連動の販管費20.6%・協力業者への外注10% を引いた残り（概算）。<br>
+      この式を 0 に戻す売上が <strong>約2,150万円</strong>。2026年の手残り（約440万円）に戻す売上が <strong>約2,880万円</strong>です。
+    </div>
+
+    <h3>新人の人件費が変わると、分岐点も動く</h3>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>新規正社員の年間コスト</th><th class="n">固定費 合計</th><th class="n">損益分岐点</th></tr></thead>
+        <tbody>
+          <tr><td>300万円</td><td class="n">1,190万</td><td class="n">1,980万</td></tr>
+          <tr class="focus"><td>400万円（本計画の前提）</td><td class="n">1,290万</td><td class="n">2,150万</td></tr>
+          <tr><td>500万円</td><td class="n">1,390万</td><td class="n">2,320万</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 3 ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-no">03</span>
+      <h2>3つのシナリオ</h2>
+      <span class="sec-note">売上／手残りとも万円</span>
+    </div>
+
+    <div class="rail">
+      <div class="card">
+        <span class="tag" style="color:var(--critical)">回避すべき着地</span>
+        <span class="name">保守</span>
+        <span class="big">2,000<span style="font-size:16px">万</span></span>
+        <span class="delta">2026年比 +23%　506件</span>
+        <p class="note">需要創出が今の延長のまま。新戦力が既存の取りこぼしを拾うだけに終わった場合。2026年に届かなかった予算を、1年遅れでようやく達成する水準。</p>
+        <span class="verdict" style="color:var(--critical)">手残り ▲90万 ／ 赤字</span>
+      </div>
+      <div class="card hi">
+        <span class="tag" style="color:var(--serious)">必達</span>
+        <span class="name">中立</span>
+        <span class="big">2,600<span style="font-size:16px">万</span></span>
+        <span class="delta">2026年比 +60%　649件</span>
+        <p class="note">計画どおりに施策が効いた場合。黒字にはなるが、2026年の利益水準（440万）にはまだ届かない。投資が回収できた段階ではなく、投資の穴が埋まりかけた段階。</p>
+        <span class="verdict" style="color:var(--serious)">手残り 270万 ／ 黒字・減益</span>
+      </div>
+      <div class="card">
+        <span class="tag" style="color:var(--good)">目標</span>
+        <span class="name">攻め</span>
+        <span class="big">3,200<span style="font-size:16px">万</span></span>
+        <span class="delta">2026年比 +96%　766件</span>
+        <p class="note">自社の入口が機能し、法人・提携が伸び、協力業者でピークを吸収した場合。2025年実績の2倍。ここに到達して初めて「スケールが加速した」と言える。</p>
+        <span class="verdict" style="color:var(--good)">手残り 630万 ／ 増益</span>
+      </div>
+    </div>
+
+    <figure>
+      <div class="chart-scroll">
+        <svg viewBox="0 0 900 250" role="img" aria-label="会社の手残りの比較。2026年見込み440万に対し、保守は▲90万で赤字、中立は270万、攻めは630万。">
+          <!-- 2026 reference -->
+          <line x1="620.4" y1="36" x2="620.4" y2="222" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <text class="svg-label" x="626" y="236">2026年の水準 440万</text>
+
+          <!-- zero -->
+          <line class="axis" x1="330" y1="36" x2="330" y2="214"/>
+          <text class="svg-label" x="330" y="236" text-anchor="middle">0</text>
+
+          <!-- rows -->
+          <text class="svg-name" x="20" y="66">2026年 見込み</text>
+          <rect x="330" y="46" width="290.4" height="30" rx="3" fill="var(--neutral-mark)"><title>2026年 見込み　会社の手残り 約440万円</title></rect>
+          <text class="svg-value" x="630" y="66">440万</text>
+
+          <text class="svg-name" x="20" y="110">保守 2,000万</text>
+          <rect x="270.6" y="90" width="59.4" height="30" rx="3" fill="var(--critical)"><title>保守　会社の手残り ▲90万円（赤字）</title></rect>
+          <text class="svg-value" x="262" y="110" text-anchor="end">▲90万</text>
+          <text class="svg-label" x="340" y="110" fill="var(--critical)">赤字</text>
+
+          <text class="svg-name" x="20" y="154">中立 2,600万</text>
+          <rect x="330" y="134" width="178.2" height="30" rx="3" fill="var(--serious)"><title>中立　会社の手残り 270万円（黒字だが2026年に届かない）</title></rect>
+          <text class="svg-value" x="518" y="154">270万</text>
+          <text class="svg-label" x="576" y="154">黒字・減益</text>
+
+          <text class="svg-name" x="20" y="198">攻め 3,200万</text>
+          <rect x="330" y="178" width="415.8" height="30" rx="3" fill="var(--good)"><title>攻め　会社の手残り 630万円（増益）</title></rect>
+          <text class="svg-value" x="756" y="198">630万</text>
+          <text class="svg-label" x="814" y="198" fill="var(--good)">増益</text>
+        </svg>
+      </div>
+      <figcaption>手残り＝売上 −（原価・販管費・融資返済・和真さん報酬・新規正社員の人件費）。2026年の手残りは、旧制度（経常利益×45%）での和真さん報酬 約420万円を引いた後の金額。</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============ 4 ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-no">04</span>
+      <h2>どこから取るか</h2>
+      <span class="sec-note">単位：万円</span>
+    </div>
+    <p class="measure lead">流入経路を4つのブロックに整理しました（残りの「その他」は3シナリオとも20万円で据え置き）。<strong>2027年の成否は、④自社ネット新規がほぼ単独で決めます。</strong>①②③を全部うまくやっても、④が今のまま（月0.6件）なら 2,150万円に届きません。</p>
+
+    <div class="tbl-scroll">
+      <table>
+        <caption>ブロック別の売上目標　※2026年は1〜8月の構成をそのまま通年に伸ばした目安</caption>
+        <thead>
+          <tr><th>ブロック</th><th class="n">2026年 見込</th><th class="n">保守</th><th class="n">中立</th><th class="n">攻め</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>① 自社リピート資産<br><span style="color:var(--muted);font-size:12px">リピート・早期予約・紹介・定期便</span></td>
+            <td class="n"><div class="cell">592<div class="bar" style="width:56%"></div></div></td>
+            <td class="n"><div class="cell">700<div class="bar s1" style="width:67%"></div></div></td>
+            <td class="n"><div class="cell">850<div class="bar s2" style="width:81%"></div></div></td>
+            <td class="n"><div class="cell">980<div class="bar s3" style="width:93%"></div></div></td>
+          </tr>
+          <tr>
+            <td>② 法人・提携<br><span style="color:var(--muted);font-size:12px">業務提携・営業・入札</span></td>
+            <td class="n"><div class="cell">630<div class="bar" style="width:60%"></div></div></td>
+            <td class="n"><div class="cell">650<div class="bar s1" style="width:62%"></div></div></td>
+            <td class="n"><div class="cell">800<div class="bar s2" style="width:76%"></div></div></td>
+            <td class="n"><div class="cell">1,050<div class="bar s3" style="width:100%"></div></div></td>
+          </tr>
+          <tr>
+            <td>③ マッチングPF<br><span style="color:var(--muted);font-size:12px">楽ラクーン・スケジュールマッチング</span></td>
+            <td class="n"><div class="cell">374<div class="bar" style="width:36%"></div></div></td>
+            <td class="n"><div class="cell">430<div class="bar s1" style="width:41%"></div></div></td>
+            <td class="n"><div class="cell">430<div class="bar s2" style="width:41%"></div></div></td>
+            <td class="n"><div class="cell">430<div class="bar s3" style="width:41%"></div></div></td>
+          </tr>
+          <tr class="focus">
+            <td>④ <strong>自社ネット新規</strong><br><span style="color:var(--muted);font-size:12px">HP・LP・SNS・GBP・アフィリエイト・SMS/LINE再販</span></td>
+            <td class="n"><div class="cell">13<div class="bar" style="width:1%"></div></div></td>
+            <td class="n"><div class="cell">200<div class="bar s1" style="width:19%"></div></div></td>
+            <td class="n"><div class="cell">500<div class="bar s2" style="width:48%"></div></div></td>
+            <td class="n"><div class="cell">720<div class="bar s3" style="width:69%"></div></div></td>
+          </tr>
+          <tr class="focus">
+            <td style="color:var(--muted);font-size:12.5px">　└ 月あたりの件数</td>
+            <td class="n" style="color:var(--muted)">0.6件</td>
+            <td class="n">5件</td>
+            <td class="n">12件</td>
+            <td class="n">16件</td>
+          </tr>
+          <tr class="total">
+            <td>合計（その他20万を含む）</td>
+            <td class="n">1,629</td><td class="n">2,000</td><td class="n">2,600</td><td class="n">3,200</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>ブロックごとの考え方</h3>
+    <ol class="steps">
+      <li><span class="k">①</span><div><strong>獲得コストがほぼゼロの資産。</strong>台帳957名がすべてです。12ヶ月以上ご無沙汰 583名、換気扇が未購入 807名、浴室が未購入 780名。エアコンのみの621名（平均LTV 38,345円）とエアコン＋水回りの75名（88,371円）の差は 50,026円 ―― <strong>621名に当てると約3,100万円</strong>。2027年の売上目標とほぼ同額が既存客の中に眠っています。ただし「1年以上前の顧客へ15件架電 → 成約0」という実績があるので、電話ではなく施工7日後のSMS／LINEで、季節に合ったメニューを出す形にします。</div></li>
+      <li><span class="k">②</span><div><strong>単価が桁違い。</strong>業務提携の平均単価は 100,128円、リピート率45%。法人の平均LTV 175,527円は個人の3.9倍です。提携先を2社 → 3／4／6社へ。入口は施設ターゲットリスト291件と、不動産管理会社の空室清掃（相手の繁忙期2〜3月＝当社の閑散期）。冷たいテレアポは使いません（40件→0アポ、140件→0アポの実績）。</div></li>
+      <li><span class="k">③</span><div><strong>意図して据え置く。</strong>手数料35%・リピート率2%。件数を増やしても資産になりません。協力業者に回して自社チームの枠を空け、単価の高い①②④に充てます。</div></li>
+      <li><span class="k">④</span><div><strong>ここが勝負。</strong>道具はもう揃っています ―― LP3本＋年末LP、予約フォーム、公式LINE（友だち330人）、Googleビジネスプロフィール（★5.0・24件）、アフィリエイト、読本サイト、SNS週5本、ブログ週1本。<strong>広告の獲得単価の上限は 9,500円</strong>（マッチングPFに払っている実質手数料と同額）。この範囲なら出すほど有利です。</div></li>
+    </ol>
+
+    <h3>名義の構成を変える</h3>
+    <p class="measure">自社案件の平均単価 52,374円 は、おそうじ本舗経由 28,176円 の <strong>1.86倍</strong>。さらに本舗にはロイヤリティ 27.6% がかかります。<strong>本舗の件数を減らすのではなく、自社の件数を増やして比率を下げる</strong>のが方針です。本舗のお客様への営業は、引き続きおそうじ本舗として行います。</p>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>　</th><th class="n">2026年</th><th class="n">保守</th><th class="n">中立</th><th class="n">攻め</th></tr></thead>
+        <tbody><tr><td>本舗経由の売上比率</td><td class="n">31.7%</td><td class="n">28%</td><td class="n">22%</td><td class="n">17%</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 5 ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-no">05</span>
+      <h2>四半期の配分と、打ち手</h2>
+      <span class="sec-note">単位：万円</span>
+    </div>
+    <p class="measure lead">配分は2026年1〜8月の実績＋2025年9〜12月の実績から算出（Q1 14.5%／Q2 32.2%／Q3 30.6%／Q4 22.7%）。Q3が高いのは2026年8月の大型案件の影響で、実力は Q2 &gt; Q3 です。</p>
+
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>四半期</th><th class="n">保守</th><th class="n">中立</th><th class="n">攻め</th><th>この期にやること</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Q1</strong><br><span style="color:var(--muted);font-size:12px">1〜3月</span></td>
+            <td class="n">290</td><td class="n">380</td><td class="n">465</td>
+            <td><strong>年間の底。ここで人を入れる。</strong>2026年2月の売上は 613,260円、経常利益 50,401円でした。年間で最も薄い月に、新しい人件費が乗り始めます。早期予約15%割引（1〜2月のみ）を既存957名へ。空室清掃の営業。協力業者3社を1〜2月に契約し、3月から稼働。</td>
+          </tr>
+          <tr>
+            <td><strong>Q2</strong><br><span style="color:var(--muted);font-size:12px">4〜6月</span></td>
+            <td class="n">645</td><td class="n">840</td><td class="n">1,030</td>
+            <td><strong>エアコン需要期。最大の稼ぎ時。</strong>5〜7月は繁忙期加算 +3,300円／箇所。新人はOJT（3〜5月）を経て6月に独り立ち。広告を5〜7月に集中（獲得単価9,500円以内）。ピークは協力業者で吸収し、自社チームは単価の高い案件に寄せます。</td>
+          </tr>
+          <tr>
+            <td><strong>Q3</strong><br><span style="color:var(--muted);font-size:12px">7〜9月</span></td>
+            <td class="n">610</td><td class="n">790</td><td class="n">980</td>
+            <td><strong>7月のあと、谷が来る。</strong>2026年は9月が9件・353,010円。この谷を埋めるのが2027年の最大テーマです。法人・施設の開拓、提携3社目・4社目の成約、エアコン以外へのクロスセル。8月の大型案件は再現前提に置きません。</td>
+          </tr>
+          <tr>
+            <td><strong>Q4</strong><br><span style="color:var(--muted);font-size:12px">10〜12月</span></td>
+            <td class="n">455</td><td class="n">590</td><td class="n">725</td>
+            <td><strong>年末商戦。2026年の穴を繰り返さない。</strong>年末LPは10月1日に公開されている状態で入る（検索が立ち上がるのは10月中旬）。12月の繁忙期加算を「11月までに予約する理由」として使う。既存客への再販を3波（9月・10月・11月下旬の締切訴求）。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 6 ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-no">06</span>
+      <h2>追う指標と、四半期のゲート</h2>
+    </div>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>指標</th><th class="n">2026年</th><th class="n">保守</th><th class="n">中立</th><th class="n">攻め</th><th>見る場所</th></tr></thead>
+        <tbody>
+          <tr><td>売上</td><td class="n">約1,630万</td><td class="n">2,000万</td><td class="n">2,600万</td><td class="n">3,200万</td><td>年間成績</td></tr>
+          <tr><td>施工件数</td><td class="n">約440件</td><td class="n">506件</td><td class="n">649件</td><td class="n">766件</td><td>月次タブ</td></tr>
+          <tr><td>平均単価</td><td class="n">36,900円</td><td class="n">39,500円</td><td class="n">40,100円</td><td class="n">41,800円</td><td>月次タブ</td></tr>
+          <tr class="focus"><td><strong>自社ネット新規（月）</strong></td><td class="n">0.6件</td><td class="n">5件</td><td class="n">12件</td><td class="n">16件</td><td>予約_Web ／ GA4</td></tr>
+          <tr class="focus"><td><strong>提携先社数</strong></td><td class="n">2社</td><td class="n">3社</td><td class="n">4社</td><td class="n">6社</td><td>台帳「紹介元」欄</td></tr>
+          <tr><td>リピート率（2回以上）</td><td class="n">25.0%</td><td class="n">27%</td><td class="n">30%</td><td class="n">34%</td><td>顧客管理台帳</td></tr>
+          <tr><td>本舗経由の売上比率</td><td class="n">31.7%</td><td class="n">28%</td><td class="n">22%</td><td class="n">17%</td><td>売上種類列</td></tr>
+          <tr><td>獲得単価（CPA）</td><td class="n">—</td><td class="n" colspan="3">9,500円以下</td><td>広告管理画面</td></tr>
+          <tr><td>稼働率（ピーク月）</td><td class="n">65%</td><td class="n">70%</td><td class="n">80%</td><td class="n">85%</td><td>所要時間マスター</td></tr>
+          <tr class="total"><td>会社の手残り</td><td class="n">約440万</td><td class="n neg">▲90万</td><td class="n">270万</td><td class="n pos">630万</td><td>年間成績</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <strong>先行指標は2つだけ見れば足ります。</strong>
+      ひとつは「自社ネット新規の月間件数」―― これが動かなければ、他は全部後追いで効きません。
+      もうひとつは「提携先社数」―― 1社増えると年100万円規模で効きます。
+    </div>
+
+    <h3>四半期のゲート</h3>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>時期</th><th>判定</th><th>未達のときにやること</th></tr></thead>
+        <tbody>
+          <tr><td class="n">3月末</td><td>Q1累計が中立比 80%以上か</td><td>広告を止め、協力業者の稼働を縮小。新人の配置を本舗案件中心に切り替える</td></tr>
+          <tr><td class="n">6月末</td><td>上期累計が中立比 85%以上か</td><td>下期の広告枠を再配分。④が動いていなければ入口の設計をやり直す</td></tr>
+          <tr><td class="n">9月末</td><td>Q3累計が中立比 85%以上か</td><td>年末商戦の打ち手を前倒し。10月1日のLP公開は死守</td></tr>
+          <tr><td class="n">12月末</td><td>通年着地</td><td>2028年の人員計画に反映</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 7 ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-no">07</span>
+      <h2>リスク</h2>
+    </div>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th style="width:26%">リスク</th><th>中身</th><th style="width:30%">手当て</th></tr></thead>
+        <tbody>
+          <tr><td><strong>需要が追いつかない</strong></td><td>新しい固定費580万が先に出る。保守着地なら赤字</td><td>§06の四半期ゲート。3月末で早期に判断する</td></tr>
+          <tr><td><strong>大型案件への依存</strong></td><td>2026年8月の業務提携 1,841,740円 は年売上の14.6%。1件で年の成否が動く</td><td>再現前提にしない。提携先を6社まで増やして分散</td></tr>
+          <tr><td><strong>品質の低下</strong></td><td>新人と協力業者3社が入る。★5.0（24件）と満足度98.6%（209名中206名）が崩れると入口が全部止まる</td><td>施工チェックリストと写真報告を必須に。アンケートを全件回収</td></tr>
+          <tr><td><strong>名義の取り違え</strong></td><td>2026-09-11に本舗名義のお客様3名へワンヒッター名義のSMSが届く事故。協力業者が増えると再発リスクが上がる</td><td>台帳の「最新の施工の名義」との機械照合を、協力業者の案件にも必ず通す</td></tr>
+          <tr><td><strong>和真さん1人への依存</strong></td><td>9〜12月の受注の72.9%が和真さんの現場での次回予約</td><td>次回予約の提案を新人・協力業者にも同じ台本で実行させ、台帳に記録を残す</td></tr>
+          <tr><td><strong>HP関連費が回収できない</strong></td><td>年580,800円に対し、HP経由の売上は63,100円</td><td>④のブロックで黒字化。2027年内に回収できなければ契約の見直しを検討</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 8 ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-no">08</span>
+      <h2>仮置きしている数字</h2>
+      <span class="sec-note">確認が要る</span>
+    </div>
+    <p class="measure lead">下の3つが変わると、損益分岐点が動きます。それ以外の数字はすべて台帳・年間成績・月次タブの実績です。</p>
+    <div class="q">
+      <div class="qitem"><div class="qh">1　新規正社員1名の年間人件費（社会保険込み）</div><div class="qb">いま置いている値：月35万円 × 10か月 ＝ 350万円 ＋ 採用・装備 50万円。<br>±100万円で、損益分岐点が ±170万円 動きます。</div></div>
+      <div class="qitem"><div class="qh">2　協力業者への支払条件</div><div class="qb">いま置いている値：売価の65%（＝粗利35%）、売上の10%を外注に回す。<br>支払率が5ポイント上がると、手残りが約100万円減ります。</div></div>
+      <div class="qitem"><div class="qh">3　2027年の広告枠</div><div class="qb">いま置いている値：保守30万／中立80万／攻め150万（獲得単価9,500円以内）。<br>枠が無いと、④のブロックが動きません。</div></div>
+      <div class="qitem"><div class="qh">4　正式な予算として、どれを置くか</div><div class="qb">推奨：<strong>中立 2,600万円を必達、攻め 3,200万円を目標</strong>。保守2,000万円は予算ではなく、四半期ゲートの警戒ラインとして使う。</div></div>
+    </div>
+
+    <h3>計画に織り込んでいない未確認事項</h3>
+    <ul class="plain">
+      <li>マッチングPFの規約で、そこ経由のお客様と直接取引できるか。可能なら①のブロックに上乗せできます（リピート率2%→10%で年28万円以上）。契約書の確認が要ります。</li>
+      <li>業務用エアコンの定価。パンフレット 27,280円〜 と、見積アプリ側の 29,800円（税抜）が食い違っています。</li>
+      <li>繁忙期加算が「1箇所あたり」か「1案件あたり」か。年末LPの表示価格に直結します。</li>
+    </ul>
+  </section>
+
+  <!-- ============ 9 ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-no">09</span>
+      <h2>推奨</h2>
+    </div>
+    <ol class="steps">
+      <li><span class="k">1</span><div><strong>正式な予算は「中立 2,600万円」を必達、「攻め 3,200万円」を目標として置く。</strong>保守2,000万円は予算ではなく、四半期ゲートの警戒ラインとして使います。</div></li>
+      <li><span class="k">2</span><div><strong>2027年の成否は、④自社ネット新規が月12件に乗るかどうかでほぼ決まります。</strong>①②③を全部うまくやっても、④が今のまま（月0.6件）なら 2,150万円に届きません。</div></li>
+      <li><span class="k">3</span><div><strong>1〜2月に手を打つ。</strong>年間で最も薄い時期に新しい人件費が乗ります。早期予約15%割引と空室清掃の営業を、正社員の入社より先に走らせます。</div></li>
+      <li><span class="k">4</span><div><strong>協力業者3社は「安く回す先」ではなく「ピークを取りこぼさないための保険」として設計する。</strong>支払率を下げに行くと品質が落ち、★5.0が崩れて入口が止まります。</div></li>
+    </ol>
+  </section>
+
+  <footer>
+    出典：<span class="num">2026_売上/顧客情報管理</span>（年間成績／分析_件数単価流入_v2／和真報酬_推移／9月_支出成績／顧客管理台帳）、<span class="num">docs/流入経路の分析.md</span>、<span class="num">docs/cmo-plan.md</span>。数字は読み取りのみで、書き込みは行っていません。<br>
+    2026年9〜12月のP/L（原価0円・販管費は仮置き）は受注残ベースのため、計画の土台には使っていません。<br>
+    詳細版：<span class="num">docs/2027-数値目標.md</span>　／　作成：経営企画室（planning）　2026-09-13
+  </footer>
+
+</div>
