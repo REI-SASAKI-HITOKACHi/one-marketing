@@ -94,7 +94,8 @@ def atena(name: str) -> str:
 def mail_text(f: dict, kind: str) -> tuple:
     y = yomihon(kind)
     _, h = houshuu(f["施設名"], kind)
-    kikan = "貴院（貴施設）の利用者さま" if y["who"].startswith("赤ちゃん") else "お客さま（患者さま）"
+    # 「知っておいていただきたい」相手の呼び方は種別で変える（トリミングサロンに「患者さま」は合わない。9/14 オーナー提示前に修正）
+    kikan = {"産婦人科・産院": "貴院にお越しのご家庭", "小児科": "貴院にお越しのご家庭", "動物病院": "ご来院の飼い主さま"}.get(kind, "お客さま")
     subj = ("赤ちゃんを迎えるご家庭向けの読み物を、待合に置いていただけませんか（江戸川区のハウスクリーニング店）" if y["who"].startswith("赤ちゃん")
             else "犬猫を迎えるご家庭向けの読み物を、レジ横に置いていただけませんか（江戸川区のハウスクリーニング店）")
     body = f"""{atena(f['施設名'])} ご担当者さま
@@ -193,6 +194,7 @@ def email_of(c: dict, name: str = "", site: str = "") -> str:
 
 
 def pick(rows: list, n: int, how: str, exclude: tuple = ()) -> list:
+    """候補を上から n 件（n<=0 なら全部）。送れた数で止めるのは呼び出し側（オーナー決定 9/14：「50件送れたら停止して改善」）"""
     out = []
     used = set()  # 同じフォーム（同一法人の複数店）には1回だけ送る
     for r in rows:
@@ -216,7 +218,7 @@ def pick(rows: list, n: int, how: str, exclude: tuple = ()) -> list:
             continue
         used.add(key)
         out.append(r)
-        if len(out) >= n:
+        if n > 0 and len(out) >= n:
             break
     return out
 
@@ -417,7 +419,8 @@ async def fill_form(pg, url: str, text: str, email_from: str, subject: str) -> d
     return {"ok": "body" in filled, "filled": sorted(filled), "reason": "" if "body" in filled else "本文欄が見つからない"}
 
 
-async def run_forms(targets: list, wave: int, send: bool, email_from: str) -> None:
+async def run_forms(targets: list, wave: int, send: bool, email_from: str, n: int = 50) -> None:
+    sent = 0
     from playwright.async_api import async_playwright
     OUT.mkdir(parents=True, exist_ok=True)
     tok = sc.access_token(sc.load_credentials())
@@ -452,6 +455,9 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str) -> No
                     continue
                 if not send:
                     print("入力のみ", f["No"], f["施設名"], r["filled"], shot.name)
+                    sent += 1
+                    if sent >= n:
+                        break
                     continue
                 # 送信：確認画面があれば2段階
                 btn = await pg.query_selector("input[type=submit], button[type=submit], button:has-text('送信'), input[value*='送信'], input[value*='確認'], button:has-text('確認')")
@@ -472,6 +478,10 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str) -> No
                 log_send(tok, wave, f, "フォーム", url, "③", "送信" if ok else "送信（完了表示は未確認）")
                 update_stage(tok, f, "form")
                 print("送信", f["No"], f["施設名"], "OK" if ok else "要確認")
+                sent += 1
+                if sent >= n:
+                    print(f"{n} 件送れたので止める（オーナー決定：50件ごとに停止して改善）")
+                    break
             except Exception as e:
                 if send:
                     log_send(tok, wave, f, "フォーム", url, "③", f"失敗（{type(e).__name__}）")
@@ -485,7 +495,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("mode", choices=["plan", "form", "mail"])
     ap.add_argument("--wave", type=int, default=1)
-    ap.add_argument("--n", type=int, default=50)
+    ap.add_argument("--n", type=int, default=50, help="送れた数がこれに届いたら止める（候補は尽きるまで見る）")
     ap.add_argument("--send", action="store_true")
     ap.add_argument("--from-email", default="", help=f"フォームに書く返信先メール（既定 {G.REPLY_TO}）")
     ap.add_argument("--exclude", default="", help="送らない種別（カンマ区切り。第1波は CMO 決定で 産婦人科・産院 を除く）")
@@ -534,8 +544,8 @@ def main():
         return
     if not a.from_email:
         a.from_email = REPLY_TO
-    t = pick(rows, a.n, "form", ex)
-    asyncio.run(run_forms(t, a.wave, a.send, a.from_email))
+    t = pick(rows, 0, "form", ex)  # 候補は全部見て、送れた数が --n に届いたら止める
+    asyncio.run(run_forms(t, a.wave, a.send, a.from_email, a.n))
 
 
 if __name__ == "__main__":
