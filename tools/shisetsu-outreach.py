@@ -6,6 +6,7 @@
   - 送るのは公開のフォームとアドレスだけ。「営業お断り」明記のフォームは送らない。断られた施設は永久に送らない
   - 50件ずつ。1件ずつ送信ログ（施設カード_送信ログ）に書き、進捗タブのステージ・接触方法・回数・日付を更新する
   - --send を付けない限り何も送らない（フォームは入力まで行い、スクリーンショットを撮って止まる）
+  - 送るのは 9:00〜17:00 JST だけ（オーナー決定 2026-09-14：「返信を除くすべてのファーストアプローチは9:00-17:00に実行」）。時間外は --send を拒む
 
 【入力】
   data/facilities-2026-09-clean.json     施設（Places）
@@ -47,6 +48,13 @@ SENDER = "ワンヒッター株式会社 佐々木"
 ADDR = "〒134-0081 東京都江戸川区北葛西5-14-11 クオーディア西葛西503"  # CMO 指定（20260913-07-cmo）
 REPLY_TO = G.REPLY_TO  # フォームに書く返信先メールもこれ（メールの Reply-To と同じ受信箱に集める）
 MAIL_PER_DAY = 50
+SEND_HOURS = (9, 17)  # JST。ファーストアプローチはこの間だけ（オーナー決定 2026-09-14）
+
+
+def check_send_window() -> None:
+    now = dt.datetime.now(JST)
+    if not (SEND_HOURS[0] <= now.hour < SEND_HOURS[1]):
+        sys.exit(f"送信は {SEND_HOURS[0]}:00〜{SEND_HOURS[1]}:00 JST だけ（いま {now:%H:%M}）。オーナー決定 2026-09-14")
 
 # ---------------- 文面（承認シート③＝フォーム用の短い版。①②はメール用）
 PLACE = {"産婦人科・産院": "待合か受付", "小児科": "待合か受付", "ベビー用品店": "レジ横か掲示板", "子育て支援（公的）": "受付か掲示板",
@@ -529,6 +537,7 @@ def main():
         print("メール本文を書き出し:", len(t), "件 →", OUT)
         if not a.send:
             return
+        check_send_window()
         cfg = G.load()
         who = G.whoami(cfg)
         if who != cfg["sender"]:
@@ -555,6 +564,8 @@ def main():
         return
     if not a.from_email:
         a.from_email = REPLY_TO
+    if a.send:
+        check_send_window()
     t = pick(rows, 0, "form", ex)  # 候補は全部見て、送れた数が --n に届いたら止める
     asyncio.run(run_forms(t, a.wave, a.send, a.from_email, a.n))
 
