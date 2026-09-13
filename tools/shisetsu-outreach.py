@@ -314,7 +314,8 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str) -> No
                 await pg.screenshot(path=str(shot), full_page=True)
                 if not r["ok"]:
                     print("スキップ", f["No"], f["施設名"], r["reason"])
-                    log_send(tok, wave, f, "フォーム", url, "③", f"未送信（{r['reason']}）")
+                    if send:
+                        log_send(tok, wave, f, "フォーム", url, "③", f"未送信（{r['reason']}）")
                     continue
                 if not send:
                     print("入力のみ", f["No"], f["施設名"], r["filled"], shot.name)
@@ -338,7 +339,8 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str) -> No
                 update_stage(tok, f, "form")
                 print("送信", f["No"], f["施設名"], "OK" if ok else "要確認")
             except Exception as e:
-                log_send(tok, wave, f, "フォーム", url, "③", f"失敗（{type(e).__name__}）")
+                if send:
+                    log_send(tok, wave, f, "フォーム", url, "③", f"失敗（{type(e).__name__}）")
                 print("失敗", f["No"], f["施設名"], type(e).__name__, str(e)[:120])
             finally:
                 await pg.close()
