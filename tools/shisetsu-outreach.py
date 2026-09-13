@@ -127,8 +127,18 @@ def load() -> list:
     return rows
 
 
+def email_of(c: dict) -> str:
+    """contacts.json の emails は {'address','kind'} の配列（文字列のこともある）。汎用アドレスを優先"""
+    es = c.get("emails") or []
+    addrs = [(e["address"] if isinstance(e, dict) else e) for e in es]
+    addrs = [a for a in addrs if a and "@" in a]
+    gen = [a for a in addrs if a.lower().startswith(("info@", "contact@", "mail@", "office@", "support@", "inquiry@"))]
+    return (gen or addrs or [""])[0]
+
+
 def pick(rows: list, n: int, how: str) -> list:
     out = []
+    used = set()  # 同じフォーム（同一法人の複数店）には1回だけ送る
     for r in rows:
         if r["ステージ"] != "未接触" or r["優先度"] == "C":
             continue
@@ -137,8 +147,12 @@ def pick(rows: list, n: int, how: str) -> list:
             continue
         if how == "form" and not c.get("contact_form_url"):
             continue
-        if how == "mail" and not c.get("emails"):
+        if how == "mail" and not email_of(c):
             continue
+        key = c.get("contact_form_url") if how == "form" else email_of(c)
+        if key in used:
+            continue
+        used.add(key)
         out.append(r)
         if len(out) >= n:
             break
@@ -252,8 +266,19 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str) -> No
     OUT.mkdir(parents=True, exist_ok=True)
     tok = sc.access_token(sc.load_credentials())
     async with async_playwright() as p:
-        b = await p.chromium.launch(executable_path="/opt/pw-browsers/chromium")
-        ctx = await b.new_context(viewport={"width": 1200, "height": 1600}, locale="ja-JP")
+        # この環境の外向き HTTPS は代理サーバー経由で、Chromium の直接の通信は途中で切られる（2026-09-13 実測：ERR_CONNECTION_RESET）。
+        # そこでブラウザの全リクエストを Playwright の HTTP クライアント（代理サーバーを通れる）で取りに行き、ブラウザに返す
+        b = await p.chromium.launch(executable_path="/opt/pw-browsers/chromium", args=["--no-sandbox"])
+        ctx = await b.new_context(viewport={"width": 1200, "height": 1600}, locale="ja-JP", ignore_https_errors=True,
+                                  user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36")
+
+        async def relay(route, request):
+            try:
+                r = await route.fetch(max_redirects=5)
+                await route.fulfill(response=r)
+            except Exception:
+                await route.abort()
+        await ctx.route("**/*", relay)
         for f in targets:
             url = f["contact"]["contact_form_url"]
             pg = await ctx.new_page()
@@ -290,7 +315,7 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str) -> No
                 print("送信", f["No"], f["施設名"], "OK" if ok else "要確認")
             except Exception as e:
                 log_send(tok, wave, f, "フォーム", url, "③", f"失敗（{type(e).__name__}）")
-                print("失敗", f["No"], f["施設名"], type(e).__name__)
+                print("失敗", f["No"], f["施設名"], type(e).__name__, str(e)[:120])
             finally:
                 await pg.close()
         await b.close()
@@ -310,14 +335,14 @@ def main():
             t = pick(rows, a.n, how)
             print(f"== {how}: {len(t)}件")
             for f in t:
-                print(f" {f['No']:>4} {f['優先度']} {f['種別']:<10} {f['施設名'][:24]:<24} {f['contact'].get('contact_form_url') or (f['contact'].get('emails') or [''])[0]}")
+                print(f" {f['No']:>4} {f['優先度']} {f['種別']:<10} {f['施設名'][:24]:<24} {f['contact'].get('contact_form_url') if how == 'form' else email_of(f['contact'])}")
         return
     if a.mode == "mail":
         OUT.mkdir(parents=True, exist_ok=True)
         t = pick(rows, a.n, "mail")
         for f in t:
             subj, body = mail_text(f, f["種別"])
-            (OUT / f"w{a.wave}-{f['No']}-mail.txt").write_text(f"To: {f['contact']['emails'][0]}\nSubject: {subj}\n\n{body}", encoding="utf-8")
+            (OUT / f"w{a.wave}-{f['No']}-mail.txt").write_text(f"To: {email_of(f['contact'])}\nSubject: {subj}\n\n{body}", encoding="utf-8")
         print("メール本文を書き出し:", len(t), "件 →", OUT, "（送信は送信元が決まってから）")
         return
     if not a.from_email:
