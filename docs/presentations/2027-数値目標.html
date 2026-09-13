@@ -215,8 +215,9 @@ a{color:var(--accent)}
   </header>
 
   <div class="thesis">
-    <p class="lede">人を1名増やした瞬間、<em>損益分岐点は約 2,150万円</em>に上がる。<br>2026年と同じ利益を残すには、<em>約 2,880万円</em>が要る。</p>
-    <p class="body">2026年の着地見込みは約 1,630万円。つまり「保守 2,000万円」は、達成しても赤字になる水準です。<strong>保守は目標ではなく、回避すべき着地。</strong>実質の必達は中立 2,600万円、狙うのは攻め 3,200万円。ただし現実に保守へ落ちることはあるので、そのときコスト側で何をするかまで §03 に書きました。<br>幸い、制約は供給ではありません。稼働率はピークでも 65%、9〜12月に約 940時間（188セット分）が空いています。足りないのは需要です。</p>
+    <p class="lede">人を1名増やした瞬間、<em>損益分岐点は約 1,830万円</em>に上がる。<br>2026年と同じ利益を残すには、<em>約 2,460万円</em>が要る。</p>
+    <p class="body"><strong>2026-09-13 オーナー決定：正式目標は中立 2,600万円、裏目標は攻め 3,200万円。</strong>2026年の着地見込みは約 1,626万円なので、中立は 2,460万をわずかに超える線 ―― <strong>ギリギリ増益になる水準</strong>です。保守 2,000万に落ちると経常利益は190万まで下がり、年に4か月が赤字月になります。そのときコスト側で何をするかは §03 に書きました。<br>幸い、制約は供給ではありません。稼働率はピークでも 65%、9〜12月に約 940時間（188セット分）が空いています。足りないのは需要です。</p>
+    <p class="body" style="font-size:13px;color:var(--muted);border-top:1px solid var(--rule-soft);padding-top:12px;margin-top:16px">⚠️ 初版の損益（分岐点2,150万／中立の手残り270万）は変動費を二重に数えていて過大でした。スプレッドシートの <span class="num">◯月_支出/成績</span> の実構造に費目ごとに突き合わせて組み直し、販管費で誤差0.11%まで合わせています。計算は <span class="num">tools/plan2027.py</span>。</p>
   </div>
 
   <!-- ============ 1 ============ -->
@@ -230,11 +231,11 @@ a{color:var(--accent)}
 
     <figure>
       <div class="chart-scroll">
-        <svg viewBox="0 0 900 392" role="img" aria-label="2023年から2026年までの売上推移と、2027年の保守・中立・攻めの3シナリオ。損益分岐点2,150万円と2026年並み2,880万円のしきい値を示す。">
+        <svg viewBox="0 0 900 392" role="img" aria-label="2023年から2026年までの売上推移と、2027年の保守・中立・攻めの3シナリオ。損益分岐点1,830万円と2026年並み2,460万円のしきい値を示す。">
           <!-- zones for 2027 -->
-          <rect x="600" y="152.9" width="150" height="177.1" fill="var(--critical)" opacity="0.08"/>
-          <rect x="600" y="92.8" width="150" height="60.1" fill="var(--serious)" opacity="0.10"/>
-          <rect x="600" y="50" width="150" height="42.8" fill="var(--good)" opacity="0.09"/>
+          <rect x="600" y="179.3" width="150" height="150.7" fill="var(--critical)" opacity="0.08"/>
+          <rect x="600" y="127.4" width="150" height="51.9" fill="var(--serious)" opacity="0.10"/>
+          <rect x="600" y="50" width="150" height="77.4" fill="var(--good)" opacity="0.09"/>
 
           <!-- grid -->
           <line class="grid" x1="90" y1="247.6" x2="760" y2="247.6"/>
@@ -245,14 +246,16 @@ a{color:var(--accent)}
           <text class="svg-label" x="82" y="334" text-anchor="end">0</text>
 
           <!-- thresholds -->
-          <line x1="600" y1="152.9" x2="750" y2="152.9" stroke="var(--critical)" stroke-width="1.5" stroke-dasharray="5 4"/>
-          <line x1="600" y1="92.8" x2="750" y2="92.8" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 4"/>
-          <text class="svg-label" x="594" y="149" text-anchor="end">損益分岐 2,150万</text>
-          <text class="svg-label" x="594" y="89" text-anchor="end">2026年並み 2,880万</text>
+          <line x1="600" y1="179.3" x2="750" y2="179.3" stroke="var(--critical)" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <line x1="600" y1="127.4" x2="750" y2="127.4" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <line x1="100" y1="68" x2="128" y2="68" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <text class="svg-label" x="134" y="72">2026年並みの利益を残すライン　2,460万</text>
+          <line x1="100" y1="90" x2="128" y2="90" stroke="var(--critical)" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <text class="svg-label" x="134" y="94">損益分岐点　1,830万</text>
 
           <!-- zone labels -->
-          <text class="svg-band" x="607" y="70">増益</text>
-          <text class="svg-band" x="607" y="126">黒字</text>
+          <text class="svg-band" x="607" y="88">増益</text>
+          <text class="svg-band" x="607" y="152">黒字</text>
           <text class="svg-band" x="607" y="318">赤字</text>
 
           <!-- history -->
@@ -267,17 +270,17 @@ a{color:var(--accent)}
             <circle cx="110" cy="238.4" r="5" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"><title>2023年　11,120,782円／320件</title></circle>
             <circle cx="268" cy="223.3" r="5" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"><title>2024年　12,949,587円／408件　前年比 +16.4%</title></circle>
             <circle cx="426" cy="201.0" r="5" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"><title>2025年　15,660,628円／444件　前年比 +20.9%</title></circle>
-            <circle cx="584" cy="195.8" r="5" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"><title>2026年 着地見込み　約1,630万円／約440件　前年比 +4%（予算2,000万に対し約81%）</title></circle>
+            <circle cx="584" cy="195.8" r="5" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"><title>2026年 着地見込み　約1,626万円／約440件　前年比 +4%（予算2,000万に対し約81%）</title></circle>
           </g>
           <text class="svg-value" x="110" y="224" text-anchor="middle">1,112</text>
           <text class="svg-value" x="268" y="209" text-anchor="middle">1,295</text>
           <text class="svg-value" x="426" y="187" text-anchor="middle">1,566</text>
-          <text class="svg-value" x="584" y="181" text-anchor="middle">1,630</text>
+          <text class="svg-value" x="584" y="181" text-anchor="middle">1,626</text>
 
           <!-- fork markers -->
-          <circle cx="740" cy="165.3" r="5.5" fill="var(--critical)" stroke="var(--surface)" stroke-width="2"><title>保守 2,000万円　会社の手残り ▲90万円（赤字）</title></circle>
-          <circle cx="740" cy="115.9" r="5.5" fill="var(--serious)" stroke="var(--surface)" stroke-width="2"><title>中立 2,600万円　会社の手残り 270万円（黒字だが2026年に届かない）</title></circle>
-          <circle cx="740" cy="66.5" r="5.5" fill="var(--good)" stroke="var(--surface)" stroke-width="2"><title>攻め 3,200万円　会社の手残り 630万円（増益）</title></circle>
+          <circle cx="740" cy="165.3" r="5.5" fill="var(--critical)" stroke="var(--surface)" stroke-width="2"><title>保守 2,000万円　経常利益 190万円（2026年比 ▲291万）</title></circle>
+          <circle cx="740" cy="115.9" r="5.5" fill="var(--serious)" stroke="var(--surface)" stroke-width="2"><title>中立 2,600万円【正式目標】　経常利益 585万円（2026年比 +104万）</title></circle>
+          <circle cx="740" cy="66.5" r="5.5" fill="var(--good)" stroke="var(--surface)" stroke-width="2"><title>攻め 3,200万円【裏目標】　経常利益 985万円（2026年の2.0倍）</title></circle>
 
           <text class="svg-name" x="754" y="61">攻め</text>
           <text class="svg-value" x="754" y="78">3,200</text>
@@ -317,29 +320,31 @@ a{color:var(--accent)}
   <section>
     <div class="sec-head">
       <span class="sec-no">02</span>
-      <h2>なぜ 2,150万円 が分岐点なのか</h2>
+      <h2>なぜ 1,830万円 が分岐点なのか</h2>
       <span class="sec-note">単位：万円</span>
     </div>
     <p class="measure lead">2027年に新しく乗る固定費は 580万円です。内訳は2つ。<strong>和真さんの報酬が固定給40万＋プール10万（年600万）に変わった分が +180万</strong>、<strong>新規正社員1名（3月入社・10か月）が +400万</strong>。どちらも売上に関係なく出ていきます。</p>
 
     <div class="tbl-scroll">
       <table>
-        <caption>2027年の固定費と、手残りの計算式</caption>
+        <caption>2027年の固定費と、経常利益の計算式</caption>
         <thead><tr><th>項目</th><th class="n">年額</th><th>根拠</th></tr></thead>
         <tbody>
-          <tr><td>固定の販売管理費</td><td class="n">244万</td><td>保険・駐車場・HP関連・通信ほか（月 203,708円）</td></tr>
+          <tr><td>固定経費</td><td class="n">192万</td><td>保険・駐車場・HP関連・通信ほか（月 159,708円）</td></tr>
+          <tr><td>ロイヤリティ（固定分）</td><td class="n">60万</td><td>月 50,050円</td></tr>
+          <tr><td>広告費</td><td class="n">80万</td><td>中立の段設計（§05）</td></tr>
           <tr><td>融資返済</td><td class="n">46万</td><td>38,059円／月</td></tr>
           <tr><td>和真さん報酬</td><td class="n">600万</td><td>固定給40万＋プール10万（9月分から新制度）</td></tr>
-          <tr class="focus"><td>新規正社員1名</td><td class="n">400万</td><td>月35万×10か月＋採用・装備50万　<strong>オーナー確認済み（2026-09-13）</strong></td></tr>
-          <tr class="total"><td>固定費 合計</td><td class="n">1,290万</td><td>—</td></tr>
+          <tr class="focus"><td>新規正社員1名（給与＋社保＋採用費）</td><td class="n">418万</td><td>試用6か月 月30万／9月〜 月35万。<strong>オーナー決定（2026-09-13）</strong></td></tr>
+          <tr class="total"><td>固定費 合計</td><td class="n">1,395万</td><td>—</td></tr>
         </tbody>
       </table>
     </div>
 
     <div class="callout">
-      <strong>会社の手残り ＝ 売上 × 60% − 1,290万円</strong><br>
-      60% は、売上から 原価9%・売上連動の販管費20.6%・協力業者への外注10% を引いた残り（概算）。<br>
-      この式を 0 に戻す売上が <strong>約2,150万円</strong>。2026年の手残り（約440万円）に戻す売上が <strong>約2,880万円</strong>です。
+      <strong>経常利益 ＝ 売上 × 76.2% − 1,395万円</strong><br>
+      76.2% は、売上から 原価8.5%・ロイヤリティ（変動）8.6%・変動経費6.8% を引いた残り。<br>
+      この式を 0 にする売上が <strong>約1,830万円</strong>。2026年の水準（経常利益から和真さん報酬を引いた約481万円）に戻す売上が <strong>約2,460万円</strong>です。
     </div>
 
     <h3>新人の人件費が変わると、分岐点も動く</h3>
@@ -347,9 +352,9 @@ a{color:var(--accent)}
       <table>
         <thead><tr><th>新規正社員の年間コスト</th><th class="n">固定費 合計</th><th class="n">損益分岐点</th></tr></thead>
         <tbody>
-          <tr><td>300万円</td><td class="n">1,190万</td><td class="n">1,980万</td></tr>
-          <tr class="focus"><td>400万円（確認済み）</td><td class="n">1,290万</td><td class="n">2,150万</td></tr>
-          <tr><td>500万円</td><td class="n">1,390万</td><td class="n">2,320万</td></tr>
+          <tr><td>300万円</td><td class="n">1,327万</td><td class="n">1,742万</td></tr>
+          <tr class="focus"><td>418万円（試用30万→35万＋社保＋採用費）</td><td class="n">1,395万</td><td class="n">1,830万</td></tr>
+          <tr><td>500万円</td><td class="n">1,527万</td><td class="n">2,005万</td></tr>
         </tbody>
       </table>
     </div>
@@ -360,51 +365,51 @@ a{color:var(--accent)}
     <div class="sec-head">
       <span class="sec-no">03</span>
       <h2>3つのシナリオ</h2>
-      <span class="sec-note">売上／手残りとも万円</span>
+      <span class="sec-note">売上／経常利益とも万円</span>
     </div>
 
     <div class="rail">
       <div class="card">
-        <span class="tag" style="color:var(--critical)">回避すべき着地</span>
+        <span class="tag" style="color:var(--critical)">警戒ライン</span>
         <span class="name">保守</span>
         <span class="big">2,000<span style="font-size:16px">万</span></span>
-        <span class="delta">2026年比 +23%　506件</span>
+        <span class="delta">2026年比 +23%　513件</span>
         <p class="note">自社ネット新規が月5件どまり。提携3社目が決まらない。新人は<strong>本舗案件とマッチングPF中心</strong>に配置し、協力業者は完全歩合だけ。広告は年25万。</p>
-        <span class="verdict" style="color:var(--critical)">前提のままなら手残り ▲90万</span>
+        <span class="verdict" style="color:var(--critical)">経常利益 190万 ／ 4か月が赤字</span>
       </div>
       <div class="card hi">
-        <span class="tag" style="color:var(--serious)">必達</span>
+        <span class="tag" style="color:var(--serious)">正式目標</span>
         <span class="name">中立</span>
         <span class="big">2,600<span style="font-size:16px">万</span></span>
         <span class="delta">2026年比 +60%　649件</span>
         <p class="note">自社ネット新規が月12件。提携3社目が成約。新人は<strong>6月に独り立ち</strong>し、繁忙期を協力業者で吸収。広告は年80万。</p>
-        <span class="verdict" style="color:var(--serious)">手残り 270万 ／ 黒字・減益</span>
+        <span class="verdict" style="color:var(--serious)">経常利益 585万 ／ 2026年比 +104万</span>
       </div>
       <div class="card">
-        <span class="tag" style="color:var(--good)">目標</span>
+        <span class="tag" style="color:var(--good)">裏目標</span>
         <span class="name">攻め</span>
         <span class="big">3,200<span style="font-size:16px">万</span></span>
-        <span class="delta">2026年比 +96%　766件</span>
+        <span class="delta">2026年比 +97%　774件</span>
         <p class="note">自社ネット新規が月16件。提携6社。自社2名は<strong>高単価案件に専念</strong>し、低単価と遠方は全部外へ。広告は年100万。2025年実績の2倍。</p>
-        <span class="verdict" style="color:var(--good)">手残り 630万 ／ 増益</span>
+        <span class="verdict" style="color:var(--good)">経常利益 985万 ／ 2026年の2.0倍</span>
       </div>
     </div>
 
     <div class="warnbox">
-      <strong>保守 2,000万は、損益分岐点 2,150万を下回ります。</strong>
-      人を入れる決断をした時点で、保守は「安全圏」ではなくなりました。ただし現実にここへ落ちることはあるので、そのときの手を先に置いておきます ―― <strong>固定費を90万下げれば黒字に載ります。</strong>
+      <strong>保守 2,000万は年間では黒字（経常利益190万）ですが、2月・8月・9月・12月の4か月が赤字になります。</strong>
+      年間の利益も2026年より291万減ります。ここへ落ちたときに何をするかを、先に置いておきます。
       <div class="tbl-scroll">
         <table style="margin-top:14px">
           <thead><tr><th>手段</th><th class="n">効果</th><th>備考</th></tr></thead>
           <tbody>
-            <tr><td>新規正社員の入社を3月→5月に2か月遅らせる</td><td class="n pos">+70万</td><td>繁忙期(5〜7月)には間に合う。ただしQ1の空き枠は埋まらない</td></tr>
+            <tr><td>新規正社員の入社を3月→5月に2か月遅らせる</td><td class="n pos">+69万</td><td>繁忙期(5〜7月)には間に合う。ただしQ1の空き枠は埋まらない</td></tr>
             <tr><td>HP関連費の見直し（月48,400円）</td><td class="n pos">最大 +58万</td><td>HP経由の売上は年63,100円</td></tr>
-            <tr><td>協力業者を案B（メニュー固定単価）に変える</td><td class="n">+20万</td><td>50件規模なので効果は小さい</td></tr>
+            <tr><td>協力業者を案B（メニュー固定単価）に変える</td><td class="n">+13万</td><td>50件規模なので効果は小さい</td></tr>
             <tr><td>賠償保険・通信・ソフトの棚卸し</td><td class="n">+10〜20万</td><td>月159,708円の経費から重複を外す</td></tr>
           </tbody>
         </table>
       </div>
-      <p style="margin-top:14px"><strong>上の2つだけで +128万。保守でも黒字（約+38万）に載せられます。</strong>保守を予算に置くなら、この2つをセットで決めておくことが条件になります。</p>
+      <p style="margin-top:14px"><strong>上の2つで年127万。これで赤字月は2月だけに戻せます。</strong>赤字月そのものは異常ではありません（2026年の2月も経常利益は50,401円）。問題は、和真さんの報酬50万と新人の給与が毎月固定で出ていくぶん、現金が減ることです。</p>
     </div>
 
     <h3>キャパは3本とも足りる</h3>
@@ -419,41 +424,38 @@ a{color:var(--accent)}
         </tbody>
       </table>
     </div>
-    <p class="measure" style="margin-top:14px">攻め766件でも収まります。<strong>3本とも、制約は需要側です。</strong></p>
+    <p class="measure" style="margin-top:14px">攻め774件でも収まります。<strong>3本とも、制約は需要側です。</strong></p>
 
     <figure>
       <div class="chart-scroll">
-        <svg viewBox="0 0 900 250" role="img" aria-label="会社の手残りの比較。2026年見込み440万に対し、保守は▲90万で赤字、中立は270万、攻めは630万。">
-          <!-- 2026 reference -->
-          <line x1="620.4" y1="36" x2="620.4" y2="222" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 4"/>
-          <text class="svg-label" x="626" y="236">2026年の水準 440万</text>
+        <svg viewBox="0 0 900 250" role="img" aria-label="経常利益の比較。2026年見込み481万に対し、保守190万、中立585万、攻め985万。">
+          <!-- 2026 の水準 -->
+          <line x1="474.9" y1="36" x2="474.9" y2="222" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <text class="svg-label" x="481" y="236">2026年の水準 481万</text>
+          <line class="axis" x1="200" y1="36" x2="200" y2="214"/>
+          <text class="svg-label" x="200" y="236" text-anchor="middle">0</text>
 
-          <!-- zero -->
-          <line class="axis" x1="330" y1="36" x2="330" y2="214"/>
-          <text class="svg-label" x="330" y="236" text-anchor="middle">0</text>
-
-          <!-- rows -->
           <text class="svg-name" x="20" y="66">2026年 見込み</text>
-          <rect x="330" y="46" width="290.4" height="30" rx="3" fill="var(--neutral-mark)"><title>2026年 見込み　会社の手残り 約440万円</title></rect>
-          <text class="svg-value" x="630" y="66">440万</text>
+          <rect x="200" y="46" width="274.9" height="30" rx="3" fill="var(--neutral-mark)"><title>2026年 見込み　経常利益 約901万円から和真さん報酬 約420万円を引いて 約481万円</title></rect>
+          <text class="svg-value" x="485" y="66">481万</text>
 
           <text class="svg-name" x="20" y="110">保守 2,000万</text>
-          <rect x="270.6" y="90" width="59.4" height="30" rx="3" fill="var(--critical)"><title>保守　会社の手残り ▲90万円（赤字）</title></rect>
-          <text class="svg-value" x="262" y="110" text-anchor="end">▲90万</text>
-          <text class="svg-label" x="340" y="110" fill="var(--critical)">赤字</text>
+          <rect x="200" y="90" width="108.6" height="30" rx="3" fill="var(--critical)"><title>保守　経常利益 190万円（2026年比 ▲291万）。2月・8月・9月・12月が赤字</title></rect>
+          <text class="svg-value" x="318" y="110">190万</text>
+          <text class="svg-label" x="372" y="110" fill="var(--critical)">2026年比 ▲291万</text>
 
           <text class="svg-name" x="20" y="154">中立 2,600万</text>
-          <rect x="330" y="134" width="178.2" height="30" rx="3" fill="var(--serious)"><title>中立　会社の手残り 270万円（黒字だが2026年に届かない）</title></rect>
-          <text class="svg-value" x="518" y="154">270万</text>
-          <text class="svg-label" x="576" y="154">黒字・減益</text>
+          <rect x="200" y="134" width="334.3" height="30" rx="3" fill="var(--serious)"><title>中立【正式目標】　経常利益 585万円（2026年比 +104万）。赤字は2月だけ</title></rect>
+          <text class="svg-value" x="545" y="154">585万</text>
+          <text class="svg-label" x="600" y="154">正式目標　+104万</text>
 
           <text class="svg-name" x="20" y="198">攻め 3,200万</text>
-          <rect x="330" y="178" width="415.8" height="30" rx="3" fill="var(--good)"><title>攻め　会社の手残り 630万円（増益）</title></rect>
-          <text class="svg-value" x="756" y="198">630万</text>
-          <text class="svg-label" x="814" y="198" fill="var(--good)">増益</text>
+          <rect x="200" y="178" width="562.9" height="30" rx="3" fill="var(--good)"><title>攻め【裏目標】　経常利益 985万円（2026年の2.0倍）。赤字月なし</title></rect>
+          <text class="svg-value" x="773" y="198">985万</text>
+          <text class="svg-label" x="828" y="198" fill="var(--good)">裏目標</text>
         </svg>
       </div>
-      <figcaption>手残り＝売上 −（原価・販管費・融資返済・和真さん報酬・新規正社員の人件費）。協力業者への支払いは案A（売価の65%）を前提にしている ―― 案B・案Cではここが変わる（§06）。2026年の手残りは、旧制度（経常利益×45%）での和真さん報酬 約420万円を引いた後の金額。</figcaption>
+      <figcaption>2027年の経常利益には、和真さんの報酬（月50万・年600万）と新規正社員の人件費が既に含まれている。2026年だけは旧制度（経常利益×45%）なので、経常利益 約901万から和真さん報酬 約420万を引いた金額を並べて比べている。協力業者への支払いは案A（売価の65%）が前提 ―― 案B・案Cではここが変わる（§06）。</figcaption>
     </figure>
   </section>
 
@@ -464,7 +466,7 @@ a{color:var(--accent)}
       <h2>どこから取るか</h2>
       <span class="sec-note">単位：万円</span>
     </div>
-    <p class="measure lead">流入経路を4つのブロックに整理しました（残りの「その他」は3シナリオとも20万円で据え置き）。<strong>3本の差の大半は④から来ています。</strong>保守と攻めの差を見ると、①は388万・②は420万・③は56万しか動かないのに対し、<strong>④は13万→720万と707万も動きます</strong>（約55倍）。①②③を全部うまくやっても、④が今のまま（月0.6件）なら 2,150万円に届きません。</p>
+    <p class="measure lead">流入経路を4つのブロックに整理しました（残りの「その他」は3シナリオとも20万円で据え置き）。<strong>3本の差の大半は④から来ています。</strong>保守と攻めの差を見ると、①は388万・②は420万・③は56万しか動かないのに対し、<strong>④は13万→720万と707万も動きます</strong>（約55倍）。①②③を全部うまくやっても、④が今のまま（月0.6件）なら 2,460万円（2026年並みの利益を残すライン）に届きません。</p>
 
     <div class="tbl-scroll">
       <table>
@@ -610,9 +612,9 @@ a{color:var(--accent)}
         <thead><tr><th>　</th><th>案A　売価の65%（歩合）</th><th>案B　メニュー固定単価</th><th>案C　日当制</th></tr></thead>
         <tbody>
           <tr><td>考え方</td><td>マッチングPFが当社に払っている取り分（中央値65%）と同じ</td><td>エアコン→6,000円、レンジフード→10,000円など。平均の支払率は約55%</td><td>1日 22,000円（仮置き）で1日3件</td></tr>
-          <tr><td>支払（100件）</td><td class="n">169万</td><td class="n">143万</td><td class="n">75万</td></tr>
-          <tr><td>当社の粗利</td><td class="n">91万（35%）</td><td class="n">117万（45%）</td><td class="n">185万（71%）</td></tr>
-          <tr class="focus"><td><strong>中立の手残り</strong></td><td class="n">270万</td><td class="n pos">296万</td><td class="n pos">364万</td></tr>
+          <tr><td>支払（100件）</td><td class="n">169万</td><td class="n">143万</td><td class="n">73万</td></tr>
+          <tr><td>当社の粗利</td><td class="n">91万（35%）</td><td class="n">117万（45%）</td><td class="n">187万（72%）</td></tr>
+          <tr class="focus"><td><strong>中立の経常利益</strong></td><td class="n">585万</td><td class="n pos">611万</td><td class="n pos">681万</td></tr>
           <tr><td>リスクを負うのは</td><td>協力業者</td><td>半々</td><td><strong>当社</strong></td></tr>
           <tr><td>長所</td><td>件数に完全連動。閑散期に1円も出ない</td><td>高単価メニューほど当社の取り分が増える。見積が読める</td><td>当社の取り分が最大。件数を詰めるほど有利</td></tr>
           <tr><td>短所</td><td>高単価案件ほど支払額が増える。法人・セットを回すと旨みが薄い</td><td>繁忙期加算・オプション・同時施工価格を別途決める必要。改定のたびに再交渉</td><td>稼働を当社が埋める責任を負う。空いた日にも日当が出る設計なら実質の固定費</td></tr>
@@ -621,14 +623,14 @@ a{color:var(--accent)}
       </table>
     </div>
 
-    <h3>案Cの日当水準による感度（中立・34日換算）</h3>
+    <h3>案Cの日当水準による感度（中立・33日換算）</h3>
     <div class="tbl-scroll">
       <table>
-        <thead><tr><th class="n">日当</th><th class="n">支払</th><th class="n">当社の粗利</th><th class="n">中立の手残り</th></tr></thead>
+        <thead><tr><th class="n">日当</th><th class="n">支払</th><th class="n">当社の粗利</th><th class="n">中立の経常利益</th></tr></thead>
         <tbody>
-          <tr><td class="n">18,000円</td><td class="n">61万</td><td class="n">199万（77%）</td><td class="n">378万</td></tr>
-          <tr class="focus"><td class="n">22,000円（仮置き）</td><td class="n">75万</td><td class="n">185万（71%）</td><td class="n">364万</td></tr>
-          <tr><td class="n">26,000円</td><td class="n">88万</td><td class="n">172万（66%）</td><td class="n">351万</td></tr>
+          <tr><td class="n">18,000円</td><td class="n">59万</td><td class="n">201万（77%）</td><td class="n">694万</td></tr>
+          <tr class="focus"><td class="n">22,000円（仮置き）</td><td class="n">73万</td><td class="n">187万（72%）</td><td class="n">681万</td></tr>
+          <tr><td class="n">26,000円</td><td class="n">86万</td><td class="n">174万（67%）</td><td class="n">668万</td></tr>
         </tbody>
       </table>
     </div>
@@ -659,22 +661,22 @@ a{color:var(--accent)}
         <tbody>
           <tr>
             <td><strong>Q1</strong><br><span style="color:var(--muted);font-size:12px">1〜3月</span></td>
-            <td class="n">290</td><td class="n">380</td><td class="n">465</td>
+            <td class="n">405</td><td class="n">457</td><td class="n">505</td>
             <td><strong>年間の底。ここで人を入れる。</strong>2026年2月の売上は 613,260円、経常利益 50,401円でした。年間で最も薄い月に、新しい人件費が乗り始めます。早期予約15%割引（1〜2月のみ）を既存957名へ。空室清掃の営業。協力業者3社を1〜2月に契約し、3月から稼働。</td>
           </tr>
           <tr>
             <td><strong>Q2</strong><br><span style="color:var(--muted);font-size:12px">4〜6月</span></td>
-            <td class="n">645</td><td class="n">840</td><td class="n">1,030</td>
+            <td class="n">645</td><td class="n">855</td><td class="n">1,030</td>
             <td><strong>エアコン需要期。最大の稼ぎ時。</strong>5〜7月は繁忙期加算 +3,300円／箇所。新人はOJT（3〜5月）を経て6月に独り立ち。広告を5〜7月に集中（獲得単価9,500円以内）。ピークは協力業者で吸収し、自社チームは単価の高い案件に寄せます。</td>
           </tr>
           <tr>
             <td><strong>Q3</strong><br><span style="color:var(--muted);font-size:12px">7〜9月</span></td>
-            <td class="n">610</td><td class="n">790</td><td class="n">980</td>
+            <td class="n">465</td><td class="n">614</td><td class="n">760</td>
             <td><strong>7月のあと、谷が来る。</strong>2026年は9月が9件・353,010円。この谷を埋めるのが2027年の最大テーマです。法人・施設の開拓、提携3社目・4社目の成約、エアコン以外へのクロスセル。8月の大型案件は再現前提に置きません。</td>
           </tr>
           <tr>
             <td><strong>Q4</strong><br><span style="color:var(--muted);font-size:12px">10〜12月</span></td>
-            <td class="n">455</td><td class="n">590</td><td class="n">725</td>
+            <td class="n">485</td><td class="n">674</td><td class="n">905</td>
             <td><strong>年末商戦。2026年の穴を繰り返さない。</strong>年末LPは10月1日に公開されている状態で入る（検索が立ち上がるのは10月中旬）。12月の繁忙期加算を「11月までに予約する理由」として使う。既存客への再販を3波（9月・10月・11月下旬の締切訴求）。</td>
           </tr>
         </tbody>
@@ -693,8 +695,8 @@ a{color:var(--accent)}
         <thead><tr><th>指標</th><th class="n">2026年</th><th class="n">保守</th><th class="n">中立</th><th class="n">攻め</th><th>見る場所</th></tr></thead>
         <tbody>
           <tr><td>売上</td><td class="n">約1,630万</td><td class="n">2,000万</td><td class="n">2,600万</td><td class="n">3,200万</td><td>年間成績</td></tr>
-          <tr><td>施工件数</td><td class="n">約440件</td><td class="n">506件</td><td class="n">649件</td><td class="n">766件</td><td>月次タブ</td></tr>
-          <tr><td>平均単価</td><td class="n">36,900円</td><td class="n">39,500円</td><td class="n">40,100円</td><td class="n">41,800円</td><td>月次タブ</td></tr>
+          <tr><td>施工件数</td><td class="n">約440件</td><td class="n">513件</td><td class="n">649件</td><td class="n">774件</td><td>月次タブ</td></tr>
+          <tr><td>平均単価</td><td class="n">36,900円</td><td class="n">38,986円</td><td class="n">40,062円</td><td class="n">41,344円</td><td>月次タブ</td></tr>
           <tr class="focus"><td><strong>自社ネット新規（月）</strong></td><td class="n">0.6件</td><td class="n">5件</td><td class="n">12件</td><td class="n">16件</td><td>予約_Web ／ GA4</td></tr>
           <tr class="focus"><td><strong>提携先社数</strong></td><td class="n">2社</td><td class="n">3社</td><td class="n">4社</td><td class="n">6社</td><td>台帳「紹介元」欄</td></tr>
           <tr><td>リピート率（2回以上）</td><td class="n">25.0%</td><td class="n">27%</td><td class="n">30%</td><td class="n">34%</td><td>顧客管理台帳</td></tr>
@@ -703,7 +705,7 @@ a{color:var(--accent)}
           <tr><td>稼働率（ピーク月）</td><td class="n">65%</td><td class="n">70%</td><td class="n">80%</td><td class="n">85%</td><td>所要時間マスター</td></tr>
           <tr><td>広告費（年）</td><td class="n">—</td><td class="n">25万</td><td class="n">80万</td><td class="n">100万</td><td>広告管理画面</td></tr>
           <tr><td>協力業者へ回した件数</td><td class="n">0件</td><td class="n">約50件</td><td class="n">約100件</td><td class="n">約180件</td><td>台帳「売上種類」</td></tr>
-          <tr class="total"><td>会社の手残り（案A前提）</td><td class="n">約440万</td><td class="n neg">▲90万</td><td class="n">270万</td><td class="n pos">630万</td><td>年間成績</td></tr>
+          <tr class="total"><td>経常利益（案A前提）</td><td class="n">約481万</td><td class="n">190万</td><td class="n pos">585万</td><td class="n pos">985万</td><td>年間成績</td></tr>
         </tbody>
       </table>
     </div>
@@ -769,7 +771,7 @@ a{color:var(--accent)}
 
     <h3>まだ仮置きのもの</h3>
     <div class="q">
-      <div class="qitem"><div class="qh">協力業者の日当（案C）</div><div class="qb">いま置いている値：22,000円／日・1日3件。18,000〜26,000円で手残りが ±14万動きます。</div></div>
+      <div class="qitem"><div class="qh">協力業者の日当（案C）</div><div class="qb">いま置いている値：22,000円／日・1日3件。18,000〜26,000円で経常利益が ±13万動きます。</div></div>
       <div class="qitem"><div class="qh">案Bの平均支払率</div><div class="qb">いま置いている値：売価の約55%。実際のメニュー構成で変わります。</div></div>
       <div class="qitem"><div class="qh">外注に回す件数</div><div class="qb">いま置いている値：保守50件／中立100件／攻め180件。繁忙期の需要次第で、Q2終了時点で見直します。</div></div>
     </div>
@@ -790,7 +792,7 @@ a{color:var(--accent)}
     </div>
     <ol class="steps">
       <li><span class="k">1</span><div><strong>正式な予算は「中立 2,600万円」を必達、「攻め 3,200万円」を目標として置く。</strong>保守2,000万円は予算ではなく、四半期ゲートの警戒ラインとして使います。</div></li>
-      <li><span class="k">2</span><div><strong>2027年の成否は、④自社ネット新規が月12件に乗るかどうかでほぼ決まります。</strong>①②③を全部うまくやっても、④が今のまま（月0.6件）なら 2,150万円に届きません。</div></li>
+      <li><span class="k">2</span><div><strong>2027年の成否は、④自社ネット新規が月12件に乗るかどうかでほぼ決まります。</strong>①②③を全部うまくやっても、④が今のまま（月0.6件）なら 2,460万円に届きません。</div></li>
       <li><span class="k">3</span><div><strong>1〜2月に手を打つ。</strong>年間で最も薄い時期（2026年2月は売上613,260円・経常利益50,401円）に新しい人件費が乗ります。早期予約15%割引と空室清掃の営業を、正社員の入社より先に走らせます。</div></li>
       <li><span class="k">4</span><div><strong>協力業者3社は「安く回す先」ではなく「ピークを取りこぼさないための保険」として設計する。</strong>支払率を下げに行くと品質が落ち、★5.0が崩れて入口が止まります。</div></li>
     </ol>
@@ -815,7 +817,7 @@ a{color:var(--accent)}
         <tbody>
           <tr><td style="width:32%"><strong>保守に落ちたとき</strong></td><td>①新規正社員の入社を5月に遅らせるか（+70万）　②HP関連費を見直すか（最大+58万）。<strong>この2つを3月末までに判断できる状態にしておく</strong></td></tr>
           <tr><td><strong>中立で進むとき</strong></td><td>協力業者3社の稼働配分。繁忙期に何件まで回せるか</td></tr>
-          <tr><td><strong>攻めに乗ったとき</strong></td><td><strong>Q2終了時点で4社目の要否を判定。</strong>キャパが766件でほぼ埋まるため</td></tr>
+          <tr><td><strong>攻めに乗ったとき</strong></td><td><strong>Q2終了時点で4社目の要否を判定。</strong>キャパが774件でほぼ埋まるため</td></tr>
         </tbody>
       </table>
     </div>

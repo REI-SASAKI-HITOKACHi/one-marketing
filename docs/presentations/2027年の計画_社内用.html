@@ -1,0 +1,918 @@
+<meta charset="utf-8">
+<title>2027年の計画（社内用）</title>
+<style>
+@page { size: A4 portrait; margin: 15mm 13mm 14mm; }
+* { box-sizing: border-box; }
+html { font-size: 10.5pt; }
+body {
+  font-family: "IPAPGothic","IPAGothic",sans-serif;
+  color: #20302d; line-height: 1.75; margin: 0;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+h1,h2,h3 { line-height: 1.45; margin: 0; }
+p { margin: 0 0 0.85em; }
+strong { font-weight: bold; }
+.sec { page-break-before: always; }
+.nobreak { page-break-inside: avoid; }
+
+/* 表紙 */
+.hyoushi { height: 246mm; display: flex; flex-direction: column; justify-content: center; }
+.hyoushi .kaisha { font-size: 10pt; letter-spacing: .28em; color: #5c6d69; }
+.hyoushi h1 { font-size: 30pt; margin: 14px 0 0; letter-spacing: .04em; }
+.hyoushi .sub { font-size: 13pt; color: #3d4f4b; margin-top: 10px; }
+.hyoushi .rule { height: 3px; background: #0a5c50; width: 74px; margin: 26px 0; }
+.hyoushi .meta { font-size: 9.5pt; color: #5c6d69; line-height: 2; }
+.hyoushi .box { border: 1px solid #c9d4d0; padding: 16px 20px; margin-top: 30px; background: #f4f7f5; }
+.hyoushi .box b { font-size: 12pt; }
+
+/* 見出し */
+h2 { font-size: 16pt; border-bottom: 2.5px solid #0a5c50; padding-bottom: 6px; margin-bottom: 16px; }
+h2 .no { font-size: 10pt; color: #0a5c50; letter-spacing: .12em; display: block; margin-bottom: 2px; }
+h3 { font-size: 12pt; margin: 20px 0 8px; color: #0a5c50; }
+h4 { font-size: 10.5pt; margin: 14px 0 4px; }
+
+/* 本文 */
+.lead { font-size: 12pt; line-height: 1.85; }
+.hikari { background: linear-gradient(transparent 62%, #b8e4dc 62%); font-weight: bold; }
+
+/* 箱 */
+.box { border: 1px solid #c9d4d0; background: #f4f7f5; padding: 12px 16px; margin: 14px 0; }
+.box.kiiro { background: #fdf6e6; border-color: #e3d3a8; }
+.box.aka { background: #fbeeec; border-color: #e8c4be; }
+.box p:last-child { margin-bottom: 0; }
+.box .midashi { font-weight: bold; margin-bottom: 4px; }
+
+/* 表 */
+table { border-collapse: collapse; width: 100%; margin: 10px 0 4px; }
+th, td { border: 1px solid #d5ded9; padding: 3px 5px; text-align: right; }
+th { background: #eef3f0; font-weight: bold; text-align: center; }
+td:first-child, th.k { text-align: left; }
+table.pl { font-size: 7.1pt; }
+table.pl th.k { width: 30%; background: #f6f9f7; font-weight: normal; }
+table.pl tr.b th.k, table.pl tr.b td { font-weight: bold; background: #eef3f0; }
+table.pl th.q, table.pl td.q { background: #e3efec; }
+table.pl tr.b th.q, table.pl tr.b td.q { background: #d2e6e1; }
+table.pl .qm { font-size: 5.6pt; font-weight: normal; color: #0a5c50; }
+table.pl td.t, table.pl th.t { background: #e8ede9; font-weight: bold; }
+table.sum { font-size: 9pt; }
+table.sum tr.b th, table.sum tr.b td { background: #eef3f0; font-weight: bold; }
+table.futsu { font-size: 9.2pt; }
+table.futsu td:first-child, table.futsu th:first-child { text-align: left; }
+.neg { color: #c0392b; font-weight: bold; }
+
+/* グラフ */
+svg.graph { width: 100%; height: auto; display: block; margin: 8px 0 4px; }
+.gt { font-size: 9px; fill: #5c6d69; font-family: "IPAPGothic",sans-serif; }
+.ga { font-size: 8px; fill: #8a9a95; font-family: "IPAPGothic",sans-serif; }
+.gm { font-size: 9px; fill: #5c6d69; font-family: "IPAPGothic",sans-serif; }
+.gv { font-size: 8.5px; fill: #20302d; font-family: "IPAPGothic",sans-serif; }
+.gg { stroke: #e2e9e5; stroke-width: 1; }
+.gx { stroke: #9fb0ab; stroke-width: 1.2; }
+
+/* リスト */
+ul, ol { margin: 6px 0 10px; padding-left: 1.4em; }
+li { margin-bottom: 5px; }
+.kome { font-size: 9pt; color: #5c6d69; }
+.step { display: flex; gap: 10px; margin-bottom: 8px; }
+.step .n { flex: none; width: 22px; height: 22px; border-radius: 50%; background: #0a5c50;
+           color: #fff; font-size: 9pt; text-align: center; line-height: 22px; font-weight: bold; }
+footer { margin-top: 26px; padding-top: 8px; border-top: 1px solid #d5ded9;
+         font-size: 8.5pt; color: #5c6d69; }
+</style>
+
+<div class="hyoushi">
+  <div class="kaisha">ONE HITTER　ワンヒッター株式会社</div>
+  <h1>2027年の計画</h1>
+  <div class="sub">売上 2,600万円 ／ 経常利益 585万円</div>
+  <div class="rule"></div>
+  <div class="meta">
+    社内用　―　渡辺 和真 へ<br>
+    2026年9月13日　作成：佐々木<br>
+    ※この資料の数字は当面この前提で動く。変わったら差し替える。
+  </div>
+  <div class="box">
+    <b>この資料で伝えたいこと</b>
+    <p style="margin-top:8px">
+      来年から会社のスケールを上げる。人を1人増やして、協力業者を3社入れる。<br>
+      そのぶん固定費が年600万増えるから、売上を6割伸ばしてようやく利益が今年を少し超える。<br>
+      <span class="hikari">増やすべきは現場の頑張りじゃなくて、仕事が入ってくる入口のほうだ。</span>
+    </p>
+  </div>
+</div>
+
+<div class="sec">
+<h2><span class="no">1</span>いまの会社の状態</h2>
+
+<p class="lead">まず、いまどうなっているかを共有しておきたい。</p>
+
+<p>売上の伸びは、こうなっている。</p>
+
+<table class="futsu nobreak">
+<thead><tr><th>年</th><th>件数</th><th>売上</th><th>平均単価</th><th>前年比</th></tr></thead>
+<tbody>
+<tr><td>2023年</td><td>320</td><td>11,120,782</td><td>34,752</td><td>―</td></tr>
+<tr><td>2024年</td><td>408</td><td>12,949,587</td><td>31,739</td><td>+16.4%</td></tr>
+<tr><td>2025年</td><td>444</td><td>15,660,628</td><td>35,271</td><td>+20.9%</td></tr>
+<tr><td>2026年（見込み）</td><td>約440</td><td>約16,260,000</td><td>約36,900</td><td><b>+4%</b></td></tr>
+</tbody></table>
+
+<p>2023年が+16%、2024年が+21%で伸びていた。2026年は+4%で終わる見込みだ。予算は2,000万で置いていたから、達成率でいうと8割くらいになる。<strong>数字だけ見れば止まっている。</strong></p>
+
+<p>ただ、止まった理由ははっきりしている。そして直せる。</p>
+
+<div class="box aka nobreak">
+<div class="midashi">原因は現場じゃない。入口がないことだ。</div>
+<p>2026年の9〜12月に入っている受注37件のうち、<strong>73%は渡辺が現場で取った次回予約</strong>だ。HP・LINE・SMS・地図検索から来た受注は、この4か月で<strong>ゼロ</strong>。</p>
+<p>つまり会社の売上が、渡辺が目の前のお客様に声をかけるかどうかだけで決まっている。それで回っているのは正直すごいことだけど、これ以上は伸びない。渡辺の1日は24時間しかないから。</p>
+</div>
+
+<p>一方で、<strong>枠は空いている。</strong>所要時間と移動時間から計算し直したら、稼働率はピークの6月でも65%、普通の月は20〜50%だった。9〜12月だけで<strong>約940時間、セットにして188件分</strong>が空いたままになっている。</p>
+
+<p><span class="hikari">受けられないんじゃなくて、来ていない。</span>だから来年は、入口を作るところに金と人を突っ込む。</p>
+
+<h3>それと、お客様は既に957人いる</h3>
+
+<table class="futsu nobreak">
+<thead><tr><th>　</th><th>人数／金額</th><th>　</th><th>人数</th></tr></thead>
+<tbody>
+<tr><td>台帳のお客様</td><td>957名</td><td>12か月以上ご無沙汰</td><td>583名</td></tr>
+<tr><td>総受注額</td><td>52,300,292円</td><td>換気扇をまだ頼んでいない</td><td>807名</td></tr>
+<tr><td>平均LTV</td><td>54,650円</td><td>浴室をまだ頼んでいない</td><td>780名</td></tr>
+<tr><td>2回以上ご利用</td><td>25.0%</td><td>前回が9〜12月の方</td><td>253名</td></tr>
+</tbody></table>
+
+<p>エアコンだけ頼んだ621人の平均は38,345円、エアコンと水回り両方の75人は88,371円。<strong>1人あたり5万円の差</strong>がある。この差を621人に当てると3,100万円になる。来年の売上目標とほぼ同じ額が、既にいるお客様の中に眠っている。</p>
+</div>
+
+<div class="sec">
+<h2><span class="no">2</span>2027年の目標</h2>
+
+<div class="box nobreak">
+<p style="font-size:14pt;line-height:1.6;margin-bottom:6px"><strong>売上 2,600万円　／　経常利益 585万円　／　施工 649件</strong></p>
+<p class="kome" style="margin:0">2026年の見込み（約1,626万円）から +60%。</p>
+</div>
+
+<p>「+60%も伸ばして、利益は今年とほとんど変わらないのか」と思うはずだ。そのとおりだ。理由は、来年から固定費が年600万円増えるから。</p>
+
+<table class="futsu nobreak">
+<thead><tr><th>新しく増える固定費</th><th>年額</th><th>中身</th></tr></thead>
+<tbody>
+<tr><td>渡辺の報酬</td><td>+180万</td><td>今年9月分から固定給40万＋プール10万＝月50万（年600万）。前の歩合だと年420万くらいだった</td></tr>
+<tr><td>正社員1名の給与</td><td>320万</td><td>3月入社。試用期間6か月は月30万、9月から35万</td></tr>
+<tr><td>その社会保険（会社負担）</td><td>48万</td><td>―</td></tr>
+<tr><td>採用費・装備</td><td>50万</td><td>1〜2月に出る</td></tr>
+<tr class="b"><td><b>合計</b></td><td><b>約598万</b></td><td>売上に関係なく毎月出ていく</td></tr>
+</tbody></table>
+
+<p>この600万が先に出ていくので、売上がそれを超えて伸びないと利益は減る。計算するとこうなる。</p>
+
+<table class="futsu nobreak">
+<thead><tr><th>　</th><th>必要な売上</th></tr></thead>
+<tbody>
+<tr><td>赤字にならない最低ライン（損益分岐点）</td><td><b>約1,830万円</b></td></tr>
+<tr><td>2026年と同じ利益（約481万円）を残すライン</td><td><b>約2,460万円</b></td></tr>
+<tr><td><b>2027年の目標</b></td><td><b>2,600万円</b></td></tr>
+</tbody></table>
+
+<div class="box kiiro nobreak">
+<div class="midashi">だから 2,600万は「安全な目標」じゃない。</div>
+<p>これが<strong>ギリギリ増益になる線</strong>だと思っておいてほしい。ここを下回ると、去年より稼いだのに利益は減る、という年になる。</p>
+</div>
+
+<h3>3つのパターンで見ている</h3>
+
+<table class="futsu nobreak">
+<thead><tr><th>　</th><th>保守</th><th>中立（目標）</th><th>攻め</th></tr></thead>
+<tbody>
+<tr><td>売上</td><td>2,000万</td><td><b>2,600万</b></td><td>3,200万</td></tr>
+<tr><td>件数</td><td>513件</td><td><b>649件</b></td><td>774件</td></tr>
+<tr><td>平均単価</td><td>38,986円</td><td><b>40,062円</b></td><td>41,344円</td></tr>
+<tr><td>経常利益</td><td>190万</td><td><b>585万</b></td><td>985万</td></tr>
+<tr><td>2026年（481万）との差</td><td class="neg">▲291万</td><td><b>+104万</b></td><td><b>+504万</b></td></tr>
+<tr><td>赤字になる月</td><td class="neg">2月・8月・9月・12月</td><td>2月だけ</td><td>なし</td></tr>
+</tbody></table>
+
+<p><strong>会社として置く目標は「中立 2,600万」。</strong>ただ僕の中ではその上、3,200万を見ている。そこまで行けば経常利益は985万で、今年のちょうど2倍になる。公式の目標にはしないが、頭には入れておいてほしい。</p>
+
+<p>保守の2,000万というのは「来年も今年と同じやり方をしたらこうなる」という線だ。黒字ではあるけど、利益は今年より291万減って、年に4か月が赤字月になる。ここに落ちたら固定費を削りにいくことになる。</p>
+</div>
+
+<div class="sec">
+<h2><span class="no">3</span>月ごとの数字</h2>
+
+<p>目標の2,600万を、月に割ったものが下の表だ。<strong>四半期末（3月・6月・9月・12月）は色を変えてある。</strong>ここで数字を締めて、次の3か月のやり方を決める。</p>
+
+<svg viewBox="0 0 700 330" class="graph" role="img" aria-label="2027年の月別売上と経常利益">
+<text class="gt" x="8" y="18">売上（円）</text>
+<line class="gg" x1="62" y1="113.1" x2="680" y2="113.1"/>
+<text class="ga" x="56" y="116.6" text-anchor="end">100万</text>
+<line class="gg" x1="62" y1="78.3" x2="680" y2="78.3"/>
+<text class="ga" x="56" y="81.8" text-anchor="end">200万</text>
+<line class="gg" x1="62" y1="43.4" x2="680" y2="43.4"/>
+<text class="ga" x="56" y="46.9" text-anchor="end">300万</text>
+<line class="gx" x1="62" y1="148.0" x2="680" y2="148.0"/>
+<rect x="62.0" y="97.8" width="30" height="50.2" fill="#2f9385" rx="2"/>
+<text class="gv" x="77.0" y="92.8" text-anchor="middle">144</text>
+<rect x="106.0" y="103.4" width="30" height="44.6" fill="#2f9385" rx="2"/>
+<text class="gv" x="121.0" y="98.4" text-anchor="middle">128</text>
+<rect x="150.0" y="83.5" width="30" height="64.5" fill="#0a5c50" rx="2"/>
+<text class="gv" x="165.0" y="78.5" text-anchor="middle">185</text>
+<rect x="194.0" y="69.2" width="30" height="78.8" fill="#2f9385" rx="2"/>
+<text class="gv" x="209.0" y="64.2" text-anchor="middle">226</text>
+<rect x="238.0" y="47.3" width="30" height="100.7" fill="#2f9385" rx="2"/>
+<text class="gv" x="253.0" y="42.3" text-anchor="middle">289</text>
+<rect x="282.0" y="29.5" width="30" height="118.5" fill="#0a5c50" rx="2"/>
+<text class="gv" x="297.0" y="24.5" text-anchor="middle">340</text>
+<rect x="326.0" y="52.5" width="30" height="95.5" fill="#2f9385" rx="2"/>
+<text class="gv" x="341.0" y="47.5" text-anchor="middle">274</text>
+<rect x="370.0" y="92.2" width="30" height="55.8" fill="#2f9385" rx="2"/>
+<text class="gv" x="385.0" y="87.2" text-anchor="middle">160</text>
+<rect x="414.0" y="85.3" width="30" height="62.7" fill="#0a5c50" rx="2"/>
+<text class="gv" x="429.0" y="80.3" text-anchor="middle">180</text>
+<rect x="458.0" y="67.1" width="30" height="80.9" fill="#2f9385" rx="2"/>
+<text class="gv" x="473.0" y="62.1" text-anchor="middle">232</text>
+<rect x="502.0" y="61.6" width="30" height="86.4" fill="#2f9385" rx="2"/>
+<text class="gv" x="517.0" y="56.6" text-anchor="middle">248</text>
+<rect x="546.0" y="80.4" width="30" height="67.6" fill="#0a5c50" rx="2"/>
+<text class="gv" x="561.0" y="75.4" text-anchor="middle">194</text>
+<text class="gt" x="8" y="188">経常利益（円）</text>
+<line class="gg" x1="62" y1="222.0" x2="680" y2="222.0"/>
+<text class="ga" x="56" y="225.5" text-anchor="end">100万</text>
+<line class="gx" x1="62" y1="287.0" x2="680" y2="287.0"/>
+<text class="ga" x="56" y="290.5" text-anchor="end">0</text>
+<rect x="62.0" y="274.5" width="30" height="12.5" fill="#2f9385" rx="2"/>
+<text class="gv" x="77.0" y="269.5" text-anchor="middle" fill="#20302d">19</text>
+<text class="gm" x="77.0" y="322" text-anchor="middle">1</text>
+<rect x="106.0" y="287.0" width="30" height="2.7" fill="#c0392b" rx="2"/>
+<text class="gv" x="121.0" y="300.7" text-anchor="middle" fill="#c0392b">-4</text>
+<text class="gm" x="121.0" y="322" text-anchor="middle">2</text>
+<rect x="150.0" y="267.6" width="30" height="19.4" fill="#0a5c50" rx="2"/>
+<text class="gv" x="165.0" y="262.6" text-anchor="middle" fill="#20302d">30</text>
+<text class="gm" x="165.0" y="322" text-anchor="middle">3</text>
+<rect x="194.0" y="249.2" width="30" height="37.8" fill="#2f9385" rx="2"/>
+<text class="gv" x="209.0" y="244.2" text-anchor="middle" fill="#20302d">58</text>
+<text class="gm" x="209.0" y="322" text-anchor="middle">4</text>
+<rect x="238.0" y="225.9" width="30" height="61.1" fill="#2f9385" rx="2"/>
+<text class="gv" x="253.0" y="220.9" text-anchor="middle" fill="#20302d">94</text>
+<text class="gm" x="253.0" y="322" text-anchor="middle">5</text>
+<rect x="282.0" y="202.4" width="30" height="84.6" fill="#0a5c50" rx="2"/>
+<text class="gv" x="297.0" y="197.4" text-anchor="middle" fill="#20302d">130</text>
+<text class="gm" x="297.0" y="322" text-anchor="middle">6</text>
+<rect x="326.0" y="231.9" width="30" height="55.1" fill="#2f9385" rx="2"/>
+<text class="gv" x="341.0" y="226.9" text-anchor="middle" fill="#20302d">85</text>
+<text class="gm" x="341.0" y="322" text-anchor="middle">7</text>
+<rect x="370.0" y="279.4" width="30" height="7.6" fill="#2f9385" rx="2"/>
+<text class="gv" x="385.0" y="274.4" text-anchor="middle" fill="#20302d">12</text>
+<text class="gm" x="385.0" y="322" text-anchor="middle">8</text>
+<rect x="414.0" y="272.2" width="30" height="14.8" fill="#0a5c50" rx="2"/>
+<text class="gv" x="429.0" y="267.2" text-anchor="middle" fill="#20302d">23</text>
+<text class="gm" x="429.0" y="322" text-anchor="middle">9</text>
+<rect x="458.0" y="252.5" width="30" height="34.5" fill="#2f9385" rx="2"/>
+<text class="gv" x="473.0" y="247.5" text-anchor="middle" fill="#20302d">53</text>
+<text class="gm" x="473.0" y="322" text-anchor="middle">10</text>
+<rect x="502.0" y="246.6" width="30" height="40.4" fill="#2f9385" rx="2"/>
+<text class="gv" x="517.0" y="241.6" text-anchor="middle" fill="#20302d">62</text>
+<text class="gm" x="517.0" y="322" text-anchor="middle">11</text>
+<rect x="546.0" y="271.7" width="30" height="15.3" fill="#0a5c50" rx="2"/>
+<text class="gv" x="561.0" y="266.7" text-anchor="middle" fill="#20302d">24</text>
+<text class="gm" x="561.0" y="322" text-anchor="middle">12</text>
+<text class="gm" x="30" y="322">月</text>
+</svg>
+
+<div class="box nobreak">
+<div class="midashi">この表の読み方</div>
+<ul style="margin-bottom:0">
+<li><strong>2月が唯一の赤字月（▲4.2万）。</strong>これは毎年そうで、2026年の2月も経常利益は50,401円しかなかった。1〜2月は年間でいちばん薄い。</li>
+<li>ただし来年は、その薄い時期に新しい人件費が乗る。だから1〜2月は<strong>早期予約の15%割引</strong>と、<strong>不動産管理会社の空室清掃</strong>（相手の繁忙期が2〜3月で、うちの閑散期と噛み合う）で埋めにいく。</li>
+<li><strong>6月が最大</strong>（売上340万・経常利益128万）。5〜7月と12月は繁忙期加算+3,300円が乗る。</li>
+<li><strong>8月と9月が落ちる。</strong>エアコンが終わって年末が始まるまでの谷だ。ここを埋めるのが来年いちばんの課題。</li>
+</ul>
+</div>
+
+<h3 style="page-break-before:always">1月〜6月</h3>
+<table class="pl"><thead><tr><th class="k">項目</th>
+<th>1月</th>
+<th>2月</th>
+<th class="q">3月<br><span class="qm">四半期末</span></th>
+<th>4月</th>
+<th>5月</th>
+<th class="q">6月<br><span class="qm">四半期末</span></th>
+</tr></thead><tbody>
+<tr class=b><th class="k">売上</th>
+<td>1,440,000</td>
+<td>1,280,000</td>
+<td class="q">1,850,000</td>
+<td>2,260,000</td>
+<td>2,890,000</td>
+<td class="q">3,400,000</td>
+</tr>
+<tr><th class="k">件数</th>
+<td>37</td>
+<td>32</td>
+<td class="q">46</td>
+<td>57</td>
+<td>70</td>
+<td class="q">82</td>
+</tr>
+<tr><th class="k">平均単価</th>
+<td>38,919</td>
+<td>40,000</td>
+<td class="q">40,217</td>
+<td>39,649</td>
+<td>41,286</td>
+<td class="q">41,463</td>
+</tr>
+<tr><th class="k">　資材費</th>
+<td>8,325</td>
+<td>7,200</td>
+<td class="q">10,350</td>
+<td>12,825</td>
+<td>15,750</td>
+<td class="q">18,450</td>
+</tr>
+<tr><th class="k">　外注費（協力業者）</th>
+<td>0</td>
+<td>0</td>
+<td class="q">84,500</td>
+<td>135,200</td>
+<td>236,600</td>
+<td class="q">304,200</td>
+</tr>
+<tr><th class="k">　補助人件費（時給）</th>
+<td>20,000</td>
+<td>20,000</td>
+<td class="q">20,000</td>
+<td>30,000</td>
+<td>40,000</td>
+<td class="q">40,000</td>
+</tr>
+<tr class=b><th class="k">原価 計</th>
+<td>28,325</td>
+<td>27,200</td>
+<td class="q">114,850</td>
+<td>178,025</td>
+<td>292,350</td>
+<td class="q">362,650</td>
+</tr>
+<tr><th class="k">売上総利益</th>
+<td>1,411,675</td>
+<td>1,252,800</td>
+<td class="q">1,735,150</td>
+<td>2,081,975</td>
+<td>2,597,650</td>
+<td class="q">3,037,350</td>
+</tr>
+<tr><th class="k">　人件費：和真</th>
+<td>500,000</td>
+<td>500,000</td>
+<td class="q">500,000</td>
+<td>500,000</td>
+<td>500,000</td>
+<td class="q">500,000</td>
+</tr>
+<tr><th class="k">　人件費：新人（社保込）</th>
+<td>0</td>
+<td>0</td>
+<td class="q">345,000</td>
+<td>345,000</td>
+<td>345,000</td>
+<td class="q">345,000</td>
+</tr>
+<tr><th class="k">　採用費・装備</th>
+<td>200,000</td>
+<td>300,000</td>
+<td class="q">0</td>
+<td>0</td>
+<td>0</td>
+<td class="q">0</td>
+</tr>
+<tr><th class="k">　広告費</th>
+<td>50,000</td>
+<td>50,000</td>
+<td class="q">60,000</td>
+<td>60,000</td>
+<td>120,000</td>
+<td class="q">120,000</td>
+</tr>
+<tr><th class="k">　ロイヤリティ（変動）</th>
+<td>123,552</td>
+<td>109,824</td>
+<td class="q">158,730</td>
+<td>193,908</td>
+<td>247,962</td>
+<td class="q">291,720</td>
+</tr>
+<tr><th class="k">　ロイヤリティ（固定）</th>
+<td>50,050</td>
+<td>50,050</td>
+<td class="q">50,050</td>
+<td>50,050</td>
+<td>50,050</td>
+<td class="q">50,050</td>
+</tr>
+<tr><th class="k">　固定経費</th>
+<td>159,708</td>
+<td>159,708</td>
+<td class="q">159,708</td>
+<td>159,708</td>
+<td>159,708</td>
+<td class="q">159,708</td>
+</tr>
+<tr><th class="k">　変動経費</th>
+<td>97,920</td>
+<td>87,040</td>
+<td class="q">125,800</td>
+<td>153,680</td>
+<td>196,520</td>
+<td class="q">231,200</td>
+</tr>
+<tr class=b><th class="k">販売管理費 計</th>
+<td>1,181,230</td>
+<td>1,256,622</td>
+<td class="q">1,399,288</td>
+<td>1,462,346</td>
+<td>1,619,240</td>
+<td class="q">1,697,678</td>
+</tr>
+<tr class=b><th class="k">営業利益</th>
+<td>230,445</td>
+<td class="neg">-3,822</td>
+<td class="q">335,862</td>
+<td>619,629</td>
+<td>978,410</td>
+<td class="q">1,339,672</td>
+</tr>
+<tr><th class="k">融資返済</th>
+<td>38,059</td>
+<td>38,059</td>
+<td class="q">38,059</td>
+<td>38,059</td>
+<td>38,059</td>
+<td class="q">38,059</td>
+</tr>
+<tr class=b><th class="k">経常利益</th>
+<td>192,386</td>
+<td class="neg">-41,881</td>
+<td class="q">297,803</td>
+<td>581,570</td>
+<td>940,351</td>
+<td class="q">1,301,613</td>
+</tr>
+</tbody></table>
+
+<h3>7月〜12月</h3>
+<table class="pl"><thead><tr><th class="k">項目</th>
+<th>7月</th>
+<th>8月</th>
+<th class="q">9月<br><span class="qm">四半期末</span></th>
+<th>10月</th>
+<th>11月</th>
+<th class="q">12月<br><span class="qm">四半期末</span></th>
+<th class="t">年計</th>
+</tr></thead><tbody>
+<tr class=b><th class="k">売上</th>
+<td>2,740,000</td>
+<td>1,600,000</td>
+<td class="q">1,800,000</td>
+<td>2,320,000</td>
+<td>2,480,000</td>
+<td class="q">1,940,000</td>
+<td class="t">26,000,000</td>
+</tr>
+<tr><th class="k">件数</th>
+<td>68</td>
+<td>42</td>
+<td class="q">46</td>
+<td>60</td>
+<td>64</td>
+<td class="q">45</td>
+<td class="t">649</td>
+</tr>
+<tr><th class="k">平均単価</th>
+<td>40,294</td>
+<td>38,095</td>
+<td class="q">39,130</td>
+<td>38,667</td>
+<td>38,750</td>
+<td class="q">43,111</td>
+<td class="t">40,062</td>
+</tr>
+<tr><th class="k">　資材費</th>
+<td>15,300</td>
+<td>9,450</td>
+<td class="q">10,350</td>
+<td>13,500</td>
+<td>14,400</td>
+<td class="q">10,125</td>
+<td class="t">146,025</td>
+</tr>
+<tr><th class="k">　外注費（協力業者）</th>
+<td>202,800</td>
+<td>84,500</td>
+<td class="q">84,500</td>
+<td>169,000</td>
+<td>202,800</td>
+<td class="q">185,900</td>
+<td class="t">1,690,000</td>
+</tr>
+<tr><th class="k">　補助人件費（時給）</th>
+<td>40,000</td>
+<td>20,000</td>
+<td class="q">20,000</td>
+<td>30,000</td>
+<td>40,000</td>
+<td class="q">40,000</td>
+<td class="t">360,000</td>
+</tr>
+<tr class=b><th class="k">原価 計</th>
+<td>258,100</td>
+<td>113,950</td>
+<td class="q">114,850</td>
+<td>212,500</td>
+<td>257,200</td>
+<td class="q">236,025</td>
+<td class="t">2,196,025</td>
+</tr>
+<tr><th class="k">売上総利益</th>
+<td>2,481,900</td>
+<td>1,486,050</td>
+<td class="q">1,685,150</td>
+<td>2,107,500</td>
+<td>2,222,800</td>
+<td class="q">1,703,975</td>
+<td class="t">23,803,975</td>
+</tr>
+<tr><th class="k">　人件費：和真</th>
+<td>500,000</td>
+<td>500,000</td>
+<td class="q">500,000</td>
+<td>500,000</td>
+<td>500,000</td>
+<td class="q">500,000</td>
+<td class="t">6,000,000</td>
+</tr>
+<tr><th class="k">　人件費：新人（社保込）</th>
+<td>345,000</td>
+<td>345,000</td>
+<td class="q">402,500</td>
+<td>402,500</td>
+<td>402,500</td>
+<td class="q">402,500</td>
+<td class="t">3,680,000</td>
+</tr>
+<tr><th class="k">　採用費・装備</th>
+<td>0</td>
+<td>0</td>
+<td class="q">0</td>
+<td>0</td>
+<td>0</td>
+<td class="q">0</td>
+<td class="t">500,000</td>
+</tr>
+<tr><th class="k">　広告費</th>
+<td>120,000</td>
+<td>30,000</td>
+<td class="q">30,000</td>
+<td>70,000</td>
+<td>70,000</td>
+<td class="q">20,000</td>
+<td class="t">800,000</td>
+</tr>
+<tr><th class="k">　ロイヤリティ（変動）</th>
+<td>235,092</td>
+<td>137,280</td>
+<td class="q">154,440</td>
+<td>199,056</td>
+<td>212,784</td>
+<td class="q">166,452</td>
+<td class="t">2,230,800</td>
+</tr>
+<tr><th class="k">　ロイヤリティ（固定）</th>
+<td>50,050</td>
+<td>50,050</td>
+<td class="q">50,050</td>
+<td>50,050</td>
+<td>50,050</td>
+<td class="q">50,050</td>
+<td class="t">600,600</td>
+</tr>
+<tr><th class="k">　固定経費</th>
+<td>159,708</td>
+<td>159,708</td>
+<td class="q">159,708</td>
+<td>159,708</td>
+<td>159,708</td>
+<td class="q">159,708</td>
+<td class="t">1,916,496</td>
+</tr>
+<tr><th class="k">　変動経費</th>
+<td>186,320</td>
+<td>108,800</td>
+<td class="q">122,400</td>
+<td>157,760</td>
+<td>168,640</td>
+<td class="q">131,920</td>
+<td class="t">1,768,000</td>
+</tr>
+<tr class=b><th class="k">販売管理費 計</th>
+<td>1,596,170</td>
+<td>1,330,838</td>
+<td class="q">1,419,098</td>
+<td>1,539,074</td>
+<td>1,563,682</td>
+<td class="q">1,430,630</td>
+<td class="t">17,495,896</td>
+</tr>
+<tr class=b><th class="k">営業利益</th>
+<td>885,730</td>
+<td>155,212</td>
+<td class="q">266,052</td>
+<td>568,426</td>
+<td>659,118</td>
+<td class="q">273,345</td>
+<td class="t">6,308,079</td>
+</tr>
+<tr><th class="k">融資返済</th>
+<td>38,059</td>
+<td>38,059</td>
+<td class="q">38,059</td>
+<td>38,059</td>
+<td>38,059</td>
+<td class="q">38,059</td>
+<td class="t">456,708</td>
+</tr>
+<tr class=b><th class="k">経常利益</th>
+<td>847,671</td>
+<td>117,153</td>
+<td class="q">227,993</td>
+<td>530,367</td>
+<td>621,059</td>
+<td class="q">235,286</td>
+<td class="t">5,851,371</td>
+</tr>
+</tbody></table>
+
+<h3>四半期でまとめると</h3>
+<table class="sum"><thead><tr><th>四半期</th><th>売上</th><th>件数</th><th>営業利益</th><th>経常利益</th><th>経常利益 累計</th></tr></thead><tbody>
+<tr><th>Q1　1〜3月</th><td>4,570,000</td><td>115</td><td>562,485</td><td class="">448,308</td><td>448,308</td></tr>
+<tr><th>Q2　4〜6月</th><td>8,550,000</td><td>209</td><td>2,937,711</td><td class="">2,823,534</td><td>3,271,842</td></tr>
+<tr><th>Q3　7〜9月</th><td>6,140,000</td><td>156</td><td>1,306,994</td><td class="">1,192,817</td><td>4,464,659</td></tr>
+<tr><th>Q4　10〜12月</th><td>6,740,000</td><td>169</td><td>1,500,889</td><td class="">1,386,712</td><td>5,851,371</td></tr>
+<tr class="b"><th>年計</th><td>26,000,000</td><td>649</td><td>6,308,079</td><td>5,851,371</td><td>5,851,371</td></tr>
+</tbody></table>
+</div>
+
+<div class="sec">
+<h2><span class="no">4</span>費目の中身</h2>
+
+<p>上の表に出てくる費目を説明しておく。<strong>数字はぜんぶ2026年の実績から取っている。</strong>思いつきの数字は入っていない。</p>
+
+<h3>人件費</h3>
+<table class="futsu nobreak">
+<thead><tr><th>　</th><th>金額</th><th>中身</th></tr></thead>
+<tbody>
+<tr><td>渡辺</td><td>月50万（年600万）</td><td>固定給40万＋プール10万。プールは3か月ごとに払い出す</td></tr>
+<tr><td>新人</td><td>3〜8月 月30万<br>9〜12月 月35万</td><td>表の金額は社会保険の会社負担15%を乗せたもの。3月入社</td></tr>
+<tr><td>補助（時給）</td><td>月1〜6万</td><td>2026年の通常月は約1万円。繁忙期に増やす</td></tr>
+</tbody></table>
+
+<h3>外注費（協力業者）</h3>
+<p>協力業者3社に回す分。<strong>件数 × 16,900円</strong>で置いてある（平均売価26,000円の65%を支払う前提）。年間で約100件、169万円。繁忙期に増えて、1〜2月はゼロ。</p>
+<p class="kome">※支払条件はまだ決めていない。歩合（売価の65%）／メニューごとの固定単価／日当の3案がある。計画上は歩合で置いた。決まったら数字を差し替える。</p>
+
+<h3>広告費</h3>
+<p>年80万。<strong>年額を先に決めるんじゃなくて、小さく試して結果が出たら上げる。</strong></p>
+<table class="futsu nobreak">
+<thead><tr><th>段</th><th>月額</th><th>次の段へ上がる条件</th></tr></thead>
+<tbody>
+<tr><td>0　テスト（1〜2月）</td><td>5万</td><td>無条件で出す</td></tr>
+<tr><td>1</td><td>6〜10万</td><td>段0でCPAが9,500円以下</td></tr>
+<tr><td>2　繁忙期（5〜7月）</td><td>12〜15万</td><td>段1を2か月続けてクリア</td></tr>
+<tr><td>3　年末（10〜11月）</td><td>7〜10万</td><td>段2をクリア</td></tr>
+</tbody></table>
+<p>CPA（1件取るのにかかる広告費）の上限は<strong>9,500円</strong>。これは楽ラクーンに払っている手数料と同じ額だから、ここを下回る限り広告のほうが得だという意味になる。<strong>月のCPAが9,500円を超えたら、その月で止める。</strong></p>
+<p class="kome">※Facebook広告は再開しない（前にやってCPC95円・1件6,000円で撃沈した）。チラシの単独配布もしない（週2,000枚で反応0）。</p>
+
+<h3>ロイヤリティ</h3>
+<p>本舗経由の売上にかかる分と、毎月固定で出る50,050円。2026年は年間で約213万円出ている。<strong>本舗の比率を31.7%から22%に下げる</strong>ので、売上が6割伸びてもロイヤリティはあまり増えない設計にしてある。</p>
+<p class="kome">※自社（ONE HITTER）の平均単価は52,374円、本舗経由は28,176円で1.86倍の差がある。そのうえ本舗にはロイヤリティがかかる。だから本舗の件数を減らすんじゃなく、自社の件数を増やして比率を下げる。本舗のお客様への営業は、これまでどおり「おそうじ本舗」として行う。</p>
+
+<h3>固定経費と変動経費</h3>
+<p><strong>固定経費は月159,708円。</strong>賠償保険43,760／駐車場21,000／HPローン22,000／HITOWA HPC利用料22,000／日新火災18,050／佐々木経費10,000／通信費8,470／マネーフォワード6,578／HITOWAサイト保守4,400／CANVA 1,800／HITOWAサポート1,650。</p>
+<p><strong>変動経費は売上の6.8%。</strong>ガソリン・コインパーキング・紹介料・消耗品など。2026年の実績から出した。</p>
+<p><strong>融資返済は月38,059円</strong>で固定。</p>
+
+<div class="box kiiro nobreak">
+<div class="midashi">HP関連費について、ひとつ言っておく</div>
+<p>HPローン22,000＋HITOWA HPC利用料22,000＋サイト保守4,400で、<strong>月48,400円、年58万円</strong>払っている。それに対してHP経由の売上は<strong>2026年で年63,100円（4件）</strong>だ。ほぼ丸々赤字になっている。</p>
+<p>来年これを黒字にできなければ、契約そのものを見直す。</p>
+</div>
+</div>
+
+<div class="sec">
+<h2><span class="no">5</span>どこから売上を作るか</h2>
+
+<p>流入経路を4つのブロックに分けた。</p>
+
+<table class="futsu nobreak">
+<thead><tr><th>ブロック</th><th>2026年</th><th>2027年</th><th>差</th></tr></thead>
+<tbody>
+<tr><td>① 自社リピート資産（リピート・早期予約・紹介・定期便）</td><td>592万</td><td>850万</td><td>+258万</td></tr>
+<tr><td>② 法人・提携（業務提携・営業・入札）</td><td>630万</td><td>800万</td><td>+170万</td></tr>
+<tr><td>③ マッチングPF（楽ラクーン・スケジュールマッチング）</td><td>374万</td><td>430万</td><td>+56万</td></tr>
+<tr class="b"><td>④ <b>自社ネット新規</b>（LP・SNS・地図検索・アフィリエイト・LINE/SMS再販）</td><td><b>13万</b></td><td><b>500万</b></td><td><b>+487万</b></td></tr>
+<tr><td>⑤ その他（チラシほか）</td><td>20万</td><td>20万</td><td>―</td></tr>
+<tr class="b"><td>合計</td><td>1,629万</td><td>2,600万</td><td>+971万</td></tr>
+</tbody></table>
+
+<p><span class="hikari">増える971万のうち、487万が④だ。</span>ここが動かなければ、他を全部うまくやっても目標には届かない。</p>
+
+<h3>① 自社リピート資産　592万 → 850万</h3>
+<p>台帳の957人がすべて。獲得コストはほぼゼロで、いちばん確実な伸びしろだ。</p>
+<p><strong>渡辺にお願いしたいのはここだ。現場で「次の1箇所」を出すこと。</strong>換気扇をまだ頼んでいない人が807人、浴室が780人いる。エアコンで入ったお客様に、その場で水回りの話をする。それだけで1人あたりの金額が5万円変わる。</p>
+<p class="kome">※1年以上前のお客様に電話するのは効かない（2025年12月に15件かけて成約0）。効くのは<strong>施工から7日以内</strong>に、LINEかSMSで、季節に合ったメニューを出すこと。そのぶんの文面と送信はこっちで作る。現場の手数は増やさない。</p>
+
+<h3>② 法人・提携　630万 → 800万</h3>
+<p>業務提携の平均単価は<strong>10万円</strong>。個人の2倍以上で、法人のLTVは個人の3.9倍だ。提携先を2社から4社に増やす。</p>
+<p>入口は、施設リスト291件への営業と、不動産管理会社の空室清掃（1件58,080円〜）。冷たいテレアポはやらない（過去に40件→0アポ、140件→0アポ）。</p>
+
+<h3>③ マッチングPF　374万 → 430万（意図して増やさない）</h3>
+<p>手数料を35%払って、戻ってくるのは<strong>100人に2人</strong>だけ。数を増やしても資産にならない。件数は協力業者に回して、うちの枠を単価の高い①②④に空ける。</p>
+
+<h3>④ 自社ネット新規　13万 → 500万</h3>
+<p>次のページで詳しく書く。<strong>ここが2027年の勝負どころだ。</strong></p>
+</div>
+
+<div class="sec">
+<h2><span class="no">6</span>自社ネット新規 ―― いま回していること</h2>
+
+<p>これは<strong>今月（2026年9月）から動かし始めている。</strong>年末までこのまま回して、その結果を持って新年度に入る。</p>
+
+<table class="futsu nobreak">
+<thead><tr><th>いま動かしているもの</th><th>状態</th></tr></thead>
+<tbody>
+<tr><td>Instagram・Facebook</td><td>週5本の投稿を開始</td></tr>
+<tr><td>公式サイトのブログ</td><td>週1本。3年止まっていたのを再開</td></tr>
+<tr><td>Googleビジネスプロフィール（地図検索）</td><td>週1回の投稿＋クチコミ返信。★5.0・24件</td></tr>
+<tr><td>年末大掃除LP</td><td>10月1日公開</td></tr>
+<tr><td>アフィリエイト（レントラックス）</td><td>掲載開始。成果報酬3,000円</td></tr>
+<tr><td>Web予約フォーム</td><td>稼働中（yoyaku.onehitter.jp）</td></tr>
+<tr><td>公式LINE</td><td>友だち330人</td></tr>
+<tr><td>既存客へのSMS再販</td><td>冬季の案内を配信中</td></tr>
+<tr><td>読本サイト（赤ちゃん版・ペット版）</td><td>公開済み</td></tr>
+<tr><td>無料点検</td><td>内視鏡カメラ購入済み。到着後に開始</td></tr>
+</tbody></table>
+
+<p>4か月回した結果がどうなるかは、正直わからない。だから<strong>3つのパターンで見ている。</strong></p>
+
+<h3>パターンA　外れる（2027年1月時点で月2〜3件）</h3>
+<p>SNSはフォロワーが増えただけで予約にならない。ブログは検索順位が上がりきらない。地図検索は表示回数が増えても予約にならない。アフィリエイトの送客ゼロ。</p>
+<p><strong>→ その場合は広告で買いにいく。</strong>SNSは本数を減らして質に振る。ブログは続ける（検索で効くまで6〜12か月かかるので、4か月で判断しない）。</p>
+
+<h3>パターンB　想定どおり（月5〜8件）</h3>
+<p>年末LPから月4〜5件、地図検索から月2件、SMS再販とアフィリエイトで数件。</p>
+<p><strong>→ 効いた導線だけに広告を足す。効かなかったものは止める。</strong>計画の2,600万は、このパターンBを前提に置いてある。</p>
+
+<h3>パターンC　当たる（月10件以上）</h3>
+<p>年末LP・地図検索・アフィリエイトが噛み合って、12月に月10件を超える。</p>
+<p><strong>→ 1月から広告を一気に上げる。</strong>協力業者の契約も前倒しする。</p>
+
+<div class="box nobreak">
+<div class="midashi">どのパターンになっても、1月にやることは同じだ。</div>
+<p>12月末までの4か月で、<strong>どの導線から何件来たかを1件ずつ記録に残す。</strong>予約フォームにもLPにも、どこから来たか分かる印（?src=）を付けてある。</p>
+<p>効かなかったものも「効かなかった」という知見として残す。<span class="hikari">来年は当て推量じゃなく、記録から始める。</span>それが一番大事なところだ。</p>
+</div>
+</div>
+
+<div class="sec">
+<h2><span class="no">7</span>新しい柱 ―― ハウスクリーニングをギフトにする</h2>
+
+<p class="lead">これは来年の数字には入れていない。ただ、来年中に立ち上げたい。</p>
+
+<p><strong>ハウスクリーニングを贈り物として売る。</strong>出産祝い、新築祝い、引越し祝い、母の日、敬老の日、法人の福利厚生や株主優待。カタログギフトの1メニューとして載っていることはあるが、<strong>ここを専門にしてポジションを取っている会社は、まだ見当たらない。</strong></p>
+
+<h3>なぜやるのか</h3>
+
+<div class="step"><div class="n">1</div><div>
+<b>贈り物は、買う人と使う人が別だ。</b>つまり1件で新規の接点が2つできる。しかも贈られた側は「無料で体験した状態」でリピートの土俵に乗る。<b>獲得コストは贈り主が払ってくれている。</b>いまのマッチングPFは1件9,500円払って、戻ってくるのは100人に2人。構造がまるごと逆になる。
+</div></div>
+
+<div class="step"><div class="n">2</div><div>
+<b>先に金が入る。</b>ギフト券として売れば、代金を受け取ってから施工する。<b>1〜2月のいちばん薄い時期に、前受けの現金が入る</b>のは大きい。上の月次表で2月が赤字になっているが、ここに効く。
+</div></div>
+
+<div class="step"><div class="n">3</div><div>
+<b>読本がそのまま武器になる。</b>いま公開した赤ちゃん版の読本は「子どもが生まれる家のエアコンを洗う」話だ。<b>出産祝いのギフトとして、これ以上ない導線になる。</b>ペット版も同じ。
+</div></div>
+
+<div class="step"><div class="n">4</div><div>
+<b>贈り物は「外さないこと」が全てで、うちにはその証拠がある。</b>Google クチコミ★5.0が24件、アンケート満足度98.6%（209名中206名）、ルミテスターのATP値が42,194から409まで落ちる数字。贈り物として選ばれるのに必要なものは、もう揃っている。
+</div></div>
+
+<h3>なぜ別ブランドにするのか</h3>
+<p>ONE HITTERは「エアコンクリーニングの会社」として探される。ギフトは探し方がまったく違う（「出産祝い 変わったもの」「新築祝い 実用的」）。同じ看板でやると両方ぼやけるし、価格の見え方も違う。<strong>ギフトは「いくらの贈り物か」が主語になる</strong>から、セットで2〜3万円の商品設計になる。エアコン1台10,780円という売り方では、贈り物の棚に並ばない。</p>
+
+<h3>制約もはっきりしている</h3>
+<ul>
+<li>うちが施工できるのは<strong>東京・千葉・神奈川だけ</strong>。贈り主は相手の住所を正確に知らないことがある。購入画面で郵便番号を必ず確認する仕組みが要る</li>
+<li>ギフト券の<strong>有効期限と表示のルール</strong>（資金決済法・景品表示法）を先に確認する</li>
+<li>施工日の調整を、贈り主ではなく<strong>贈られた側</strong>とやることになる。現場の手数が増えないやり方を先に決める</li>
+<li><strong>使われずに期限が切れた分を収益の柱にしない。</strong>それをやるとブランドが傷む</li>
+</ul>
+
+<h3>段取り（案）</h3>
+<table class="futsu nobreak">
+<thead><tr><th>時期</th><th>やること</th></tr></thead>
+<tbody>
+<tr><td>1〜3月</td><td>ブランド名とドメイン、LP1本、ギフト券の仕組み（コード発行→予約フォーム連携）、法務の確認</td></tr>
+<tr><td>4〜6月</td><td>母の日（5月）で初回テスト。少額の広告</td></tr>
+<tr><td>7〜9月</td><td>お中元・敬老の日。出産祝いは通年</td></tr>
+<tr><td>10〜12月</td><td>年末・お歳暮。法人（福利厚生・株主優待・住宅メーカーの引渡し記念）へ展開</td></tr>
+</tbody></table>
+
+<p><strong>2027年の売上目標（2,600万）には入れない。</strong>立ち上げに半年かかるからだ。上振れ要因として置いて、<span class="hikari">2028年の柱にする。</span></p>
+</div>
+
+<div class="sec">
+<h2><span class="no">8</span>人を増やす</h2>
+
+<h3>正社員1名を3月に入れる</h3>
+
+<table class="futsu nobreak">
+<thead><tr><th>時期</th><th>月給</th><th>状態</th></tr></thead>
+<tbody>
+<tr><td>2027年3月〜8月（6か月）</td><td><b>30万円</b></td><td>試用期間。<b>この6か月で独り立ちしてもらう</b></td></tr>
+<tr><td>2027年9月〜</td><td><b>35万円</b></td><td>本採用</td></tr>
+<tr><td>2028年3月（入社1年後）</td><td><b>40万円</b></td><td>ここを目指す</td></tr>
+</tbody></table>
+
+<p>3月というのは計画上の話で、実際はもっと早く入れたい。前倒しできるなら前倒しする。</p>
+
+<h3>協力業者3社を1〜2月に決めて、3月から動かす</h3>
+
+<p>これは「安く回す先」じゃない。<strong>繁忙期に取りこぼさないための保険</strong>だ。5〜7月と年末は、うちの2人だけだと確実に断る日が出る。<span class="hikari">断った1件は二度と戻ってこない。</span></p>
+
+<p>支払条件は3案ある。まだ決めていない。</p>
+<table class="futsu nobreak">
+<thead><tr><th>案</th><th>考え方</th><th>リスクを負うのは</th></tr></thead>
+<tbody>
+<tr><td>A　歩合</td><td>売価の65%を支払う</td><td>協力業者</td></tr>
+<tr><td>B　固定単価</td><td>メニューごとに支払額を決める（平均55%くらい）</td><td>半々</td></tr>
+<tr><td>C　日当</td><td>1日いくらで来てもらう</td><td><b>うち</b>（稼働を埋める責任を負う）</td></tr>
+</tbody></table>
+<p class="kome">※繁忙期だけC、それ以外はAというハイブリッドが実務的だと思っている。3社とも同じ条件にする必要もない。</p>
+
+<div class="box nobreak">
+<div class="midashi">渡辺に頼みたいのは、この2つだ。</div>
+<div class="step"><div class="n">1</div><div>
+<b>新人を6か月で独り立ちさせること。</b>6月には1人で現場を回せる状態にしたい。試用期間の6か月はそのために置いてある。
+</div></div>
+<div class="step"><div class="n">2</div><div>
+<b>協力業者の品質を見ること。</b>★5.0が崩れたら、この資料に書いたギフトも広告もLPも、全部止まる。施工チェックリストと写真報告は必ず通してほしい。うちの一番の資産は、いまのところクチコミと満足度だ。
+</div></div>
+</div>
+</div>
+
+<div class="sec">
+<h2><span class="no">9</span>四半期ごとに見る数字</h2>
+
+<p>毎月こまかく見るのは大変なので、<strong>締めるのは四半期末（3月末・6月末・9月末・12月末）の4回</strong>にする。</p>
+
+<table class="futsu nobreak">
+<thead><tr><th>　</th><th>3月末</th><th>6月末</th><th>9月末</th><th>12月末</th></tr></thead>
+<tbody>
+<tr><td>累計 売上（目標）</td><td>457万</td><td>1,312万</td><td>1,926万</td><td><b>2,600万</b></td></tr>
+<tr><td>累計 件数</td><td>115件</td><td>324件</td><td>480件</td><td><b>649件</b></td></tr>
+<tr><td>累計 経常利益</td><td>45万</td><td>327万</td><td>446万</td><td><b>585万</b></td></tr>
+</tbody></table>
+
+<p>そのうえで、四半期末に確認するのは次の2つだけでいい。</p>
+
+<div class="box nobreak">
+<div class="step"><div class="n">1</div><div>
+<b>自社ネット新規が、月に何件来たか。</b>（目標：月12件）<br>
+<span class="kome">これが動かなければ、他を全部やっても届かない。逆にここが動けば他は後からついてくる。</span>
+</div></div>
+<div class="step"><div class="n">2</div><div>
+<b>提携先が何社になったか。</b>（2社 → 4社）<br>
+<span class="kome">1社増えると年100万円規模で効く。</span>
+</div></div>
+</div>
+
+<h3>各四半期でやること</h3>
+<table class="futsu nobreak">
+<thead><tr><th>時期</th><th>やること</th></tr></thead>
+<tbody>
+<tr><td><b>1〜3月</b><br>年間の底</td><td>早期予約15%割引を既存のお客様へ。空室清掃の営業（相手の繁忙期）。協力業者3社を決めて3月から稼働。新人が3月入社。広告は月5万でテスト。ギフトブランドの立ち上げ準備</td></tr>
+<tr><td><b>4〜6月</b><br>最大の稼ぎ時</td><td>エアコン需要期。5〜7月は繁忙期加算+3,300円。新人のOJTを回して<b>6月に独り立ち</b>。広告を月12万まで上げる。ピークは協力業者で吸収。母の日でギフトの初回テスト</td></tr>
+<tr><td><b>7〜9月</b><br>谷を埋める</td><td>7月のあとに来る谷が最大の課題。法人・施設の開拓、提携3社目・4社目。エアコン以外（換気扇・浴室）へのクロスセル</td></tr>
+<tr><td><b>10〜12月</b><br>年末商戦</td><td>年末LPは10月1日に公開されている状態で入る（検索が立ち上がるのが10月中旬）。12月の繁忙期加算を「11月までに予約する理由」として使う。既存客への案内を3波</td></tr>
+</tbody></table>
+
+<footer>
+ワンヒッター株式会社　社内用　2026年9月13日<br>
+数字の出どころ：2026年 売上/顧客情報管理（年間成績・支出/成績・分析_件数単価流入_v2・顧客管理台帳）。
+計算は tools/plan2027.py。2026年の実績と突き合わせて、販売管理費で誤差0.11%まで合わせてある。<br>
+※協力業者の支払条件、ギフト事業の詳細、広告の出稿先は未確定。決まり次第この資料を差し替える。
+</footer>
+</div>
