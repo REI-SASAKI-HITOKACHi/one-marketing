@@ -365,6 +365,17 @@
 CMSの アーティクルID 804 配下の11レコード。作業一式は あちらの `cms/` 配下。
 **2026-09-06 時点で公開TOPは新価格（10,780/17,380/18,480/19,910/21,780）に更新済み。**
 
+### Web予約のデータの流れ（2026-09-13 オーナー質問に回答して整備）
+
+| 入口 | 受け皿 | 即時通知 | スプシ | LINE・カレンダー |
+|---|---|---|---|---|
+| 予約フォーム yoyaku.onehitter.jp（旧 one-hitter-booking も） | Netlify Forms `yoyaku` | **メール**（Netlify → オーナー Gmail・和真さん Gmail、9/13 設定） | `予約_Web` タブ（2026_売上/顧客情報管理 `1TK70pw…`）に毎時の巡回で追記 | グループLINE（姓・日時・内容のみ）＋和真さんのカレンダーに【仮】 |
+| LP lp.onehitter.jp（aircon / mizumawari / aircon-b）・年末LP | Netlify Forms `reserve-*` | **メール**（k-watanabe@・info@・オーナー Gmail は以前から。和真さん Gmail を 9/13 追加。年末LP は 9/13 に新設） | 同じ `予約_Web` タブ（9/13 に `booking-inbox.py` を拡張。列名を予約フォームに寄せ、流入元は `LP:mizumawari src=… cid=…`） | 同上 |
+
+- **即時なのはメールだけ。** スプシ・LINE・カレンダーは毎時（7:42〜23:42 JST）の巡回で最大1時間遅れ。即時 LINE にするには Netlify の outgoing webhook → 受け口（GAS か Netlify Function）が要る（未着手。必要なら見積アプリ担当の GAS で）。
+- お名前に「テスト」「動作確認」「test」が入る申し込みは取り込まず、Netlify 側で消す（9/13 に旧テスト2件を削除）。
+- 台帳（顧客管理台帳）との紐づけ（電話番号で機械照合、状態の運用、売上との接続）は crm に設計を依頼（20260913-03-crm、9/16 まで）。
+
 ### GitHub
 
 ```

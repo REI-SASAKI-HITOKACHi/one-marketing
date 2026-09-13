@@ -36,6 +36,10 @@ SS = '1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64'
 TAB = '予約_Web'
 SITE_IDS = ['39408b76-e5d0-46f4-bee8-418ef6cfb36a',   # onehitter-yoyaku（2026-09-12〜）
             '83984fb0-5839-421b-bb99-63c8aff47fb9']   # one-hitter-booking（旧。送信済みSMSのリンク先）
+# LP のフォーム（reserve-*）。2026-09-13 オーナー指示「LP からの予約も同じスプシへ」
+LP_SITE_IDS = ['dad26366-3dfb-4404-9e0c-bb6b50b893c9',   # one-hitter-lp（lp.onehitter.jp: aircon / mizumawari / aircon-b）
+               '695bb522-6f01-4bdb-8c3d-afd0ca2b265e']   # one-hitter-nenmatsu（年末LP）
+TEST_KOTOBA = ('テスト', '動作確認', 'test')   # お名前にこれが入る申し込みは取り込まない（Netlify側で消す）
 TOKEN_KITEI = os.path.expanduser('~/.config/one-hitter/netlify-token.txt')
 JST = ZoneInfo('Asia/Tokyo')
 
@@ -75,10 +79,20 @@ def main() -> None:
         forms += [f for f in netlify(f'/sites/{sid}/forms') if f['name'] == 'yoyaku']
     if not forms:
         sys.exit('yoyaku フォームが見つかりません。フォームの登録を確認してください。')
+    for sid in LP_SITE_IDS:
+        forms += [f for f in netlify(f'/sites/{sid}/forms') if f['name'].startswith('reserve-')]
     subs = []
     for f in forms:
-        subs += netlify(f"/forms/{f['id']}/submissions")
-    print(f'Netlifyに届いている申し込み: {len(subs)}件')
+        for s in netlify(f"/forms/{f['id']}/submissions"):
+            s['_form'] = f['name']
+            subs.append(s)
+    print(f'Netlifyに届いている申し込み: {len(subs)}件（予約フォーム＋LP）')
+    tesuto = [s for s in subs if any(k in str((s.get('data') or {}).get('お名前', '') or (s.get('data') or {}).get('name', '')).lower() for k in TEST_KOTOBA)]
+    if tesuto:
+        print(f'テスト送信 {len(tesuto)}件は取り込まない（Netlify側で削除すること）:')
+        for s in tesuto:
+            print('   ', s['_form'], s['created_at'][:16], s['id'])
+    subs = [s for s in subs if s not in tesuto]
 
     tok = sc.access_token(sc.load_credentials())
 
@@ -110,6 +124,16 @@ def main() -> None:
     gyou, shirase, yotei = [], [], []
     for s in sorted(atarashii, key=lambda x: x['created_at']):
         d = s.get('data') or {}
+        if s['_form'] != 'yoyaku':
+            # LP のフォーム（name/tel/zip/menu/when/lp/src/cid/order_id）を予約フォームの列名に寄せる
+            lp = d.get('lp') or s['_form'].replace('reserve-', '')
+            ryuunyuu = 'LP:' + lp + ''.join(f' {k}={d[k]}' for k in ('src', 'cid') if d.get(k))
+            d = {'お名前': d.get('name', ''), 'お電話番号': d.get('tel', ''),
+                 'ご住所': ('〒' + d['zip']) if d.get('zip') else '',
+                 'ご希望日': d.get('when', ''), 'ご希望時刻': '',
+                 'ご希望の内容': d.get('menu', ''), '所要の目安（分）': '', '概算金額': '',
+                 'ご要望': ('見積番号 ' + d['order_id']) if d.get('order_id') else '',
+                 '流入元': ryuunyuu}
         uke = datetime.datetime.fromisoformat(
             s['created_at'].replace('Z', '+00:00')).astimezone(JST)
         gyou.append([
@@ -158,7 +182,7 @@ def main() -> None:
     print(f'カレンダーに入れる内容を書き出しました: {out}')
 
     if not a.no_line:
-        honbun = ('予約フォームから申し込みが入りました（' + str(len(shirase)) + '件）\n\n'
+        honbun = ('Web予約（予約フォーム／LP）から申し込みが入りました（' + str(len(shirase)) + '件）\n\n'
                   + '\n'.join(shirase)
                   + '\n\nお名前・ご住所・お電話は、カレンダーの予定の詳細と'
                     'スプレッドシートの「予約_Web」タブに入っています。\n'
