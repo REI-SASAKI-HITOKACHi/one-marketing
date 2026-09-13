@@ -77,19 +77,20 @@ def html(kind: str, table, ng) -> str:
 @page{{size:A4;margin:0;}}
 *{{box-sizing:border-box;}}
 html,body{{margin:0;padding:0;background:#fff;color:#171A1C;font-family:"Zen Kaku Gothic New",sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
-.page{{width:210mm;height:297mm;padding:14mm 14mm 10mm;display:flex;flex-direction:column;}}
-.head{{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2px solid #171A1C;padding-bottom:4mm;margin-bottom:5mm;}}
+.page{{width:210mm;height:297mm;padding:11mm 13mm 8mm;display:flex;flex-direction:column;overflow:hidden;}}
+html,body{{height:297mm;overflow:hidden;}}
+.head{{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2px solid #171A1C;padding-bottom:3mm;margin-bottom:3.5mm;}}
 .head h1{{font-family:"Shippori Mincho B1",serif;font-weight:800;font-size:22pt;line-height:1.3;margin:0;letter-spacing:.02em;}}
 .head h1 small{{display:block;font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500;font-size:9.5pt;color:#4A5054;letter-spacing:.08em;margin-bottom:2mm;}}
 .head .who{{font-size:8.5pt;color:#7C8388;text-align:right;line-height:1.5;}}
-table{{border-collapse:collapse;width:100%;font-size:11.5pt;line-height:1.45;}}
+table{{border-collapse:collapse;width:100%;font-size:10.8pt;line-height:1.4;}}
 thead th{{font-weight:500;font-size:8.5pt;color:#7C8388;text-align:left;padding:0 3mm 2mm 0;border-bottom:1px solid #171A1C;letter-spacing:.08em;}}
-tbody th{{text-align:left;font-family:"Shippori Mincho B1",serif;font-weight:700;font-size:12.5pt;padding:3.2mm 3mm 3.2mm 0;border-bottom:1px solid #E3E0D9;white-space:nowrap;width:34mm;vertical-align:top;}}
-tbody td{{padding:3.2mm 3mm 3.2mm 0;border-bottom:1px solid #E3E0D9;vertical-align:top;}}
+tbody th{{text-align:left;font-family:"Shippori Mincho B1",serif;font-weight:700;font-size:11.8pt;padding:2.4mm 3mm 2.4mm 0;border-bottom:1px solid #E3E0D9;white-space:nowrap;width:34mm;vertical-align:top;}}
+tbody td{{padding:2.4mm 3mm 2.4mm 0;border-bottom:1px solid #E3E0D9;vertical-align:top;}}
 tbody td .s{{display:block;font-size:8.5pt;color:#7C8388;line-height:1.4;}}
 tbody td.src{{font-size:8.8pt;color:#4A5054;width:62mm;line-height:1.45;}}
 .spacer{{flex:1;}}
-.band{{border:2px solid #8E2F1A;border-radius:3mm;padding:5mm 6mm 4mm;margin-top:5mm;}}
+.band{{border:2px solid #8E2F1A;border-radius:3mm;padding:4mm 6mm 3.5mm;margin-top:4mm;}}
 .band h2{{font-family:"Shippori Mincho B1",serif;font-weight:700;font-size:14pt;color:#8E2F1A;margin:0 0 3mm;letter-spacing:.04em;}}
 .grid{{display:grid;grid-template-columns:1fr 1fr;gap:3mm 7mm;}}
 .ng b{{display:block;font-size:11pt;line-height:1.4;margin-bottom:1mm;}}
@@ -97,7 +98,7 @@ tbody td.src{{font-size:8.8pt;color:#4A5054;width:62mm;line-height:1.45;}}
 .ng p{{margin:0;font-size:8.8pt;line-height:1.5;color:#4A5054;}}
 .ng p .src{{display:block;color:#7C8388;font-size:7.5pt;}}
 .ng p.why{{color:#171A1C;font-weight:500;margin-top:1mm;}}
-.foot{{margin-top:4mm;font-size:7.5pt;color:#7C8388;line-height:1.5;display:flex;justify-content:space-between;gap:6mm;}}
+.foot{{margin-top:3mm;font-size:7.5pt;color:#7C8388;line-height:1.5;display:flex;justify-content:space-between;gap:6mm;}}
 </style></head><body><div class="page">
 <div class="head"><h1><small>{C.esc(title)}</small>手入れの回数、早見表</h1>
 <div class="who">{C.esc(C.UNEI)}<br>{C.DOKUHON_URL.replace("https://", "")}/{kind}/</div></div>
