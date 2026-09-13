@@ -109,6 +109,13 @@ table.tbl td:first-child{font-weight:700;white-space:nowrap;}
 table.tbl td small{display:block;color:var(--ink-3);font-size:11.5px;line-height:1.5;margin-top:2px;}
 table.tbl td small a{color:var(--ink-3);text-decoration:none;border-bottom:1px solid var(--rule);}
 .note{margin:22px 0;padding:16px 18px;border:1px solid var(--rule);border-radius:4px;font-size:14.5px;line-height:1.9;color:var(--ink-2);}
+sup.fn{font-size:10.5px;line-height:0;vertical-align:super;margin-left:2px;}
+sup.fn a{color:var(--ink-3);text-decoration:none;}
+figure.ph.st{margin:22px -22px 26px;}
+figure.ph.st img{aspect-ratio:3/2;object-fit:cover;}
+.btn.pdf{background:transparent;color:var(--ink);border:1.5px solid var(--ink);margin:6px 0 4px;}
+.btn.pdf::before{content:"⤓ ";}
+p.pdfnote{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:0 0 26px;}
 /* 終わり */
 .end{font-family:"Shippori Mincho B1",serif;font-size:19px;line-height:2;margin:48px 0 0;}
 /* 商品 */
@@ -128,7 +135,9 @@ table.tbl td small a{color:var(--ink-3);text-decoration:none;border-bottom:1px s
 .tenken p{font-size:14.5px;line-height:1.9;margin:0 0 14px;}
 /* 出典・奥付 */
 .src{font-size:11.5px;color:var(--ink-3);line-height:1.8;padding:36px 0 56px;}
-.src ol{padding-left:1.3em;margin:8px 0 0;}
+.src ol{padding-left:2.2em;margin:8px 0 0;}
+.src ol li{margin-bottom:4px;}
+.src ol li::marker{content:"※" counter(list-item) "　";}
 .src a{color:var(--ink-3);word-break:break-all;}
 .src .unei{margin-top:18px;}
 @media (min-width:700px){body{font-size:18px;} figure.ph{margin-left:0;margin-right:0;} .pair{margin-left:0;margin-right:0;} .offer{margin-left:0;margin-right:0;border-radius:4px;}}
@@ -154,36 +163,42 @@ def head_book(title: str, desc: str) -> str:
 """
 
 
+def fn(ctx: dict, key: str) -> str:
+    """出典を ※n で示す。n は記事の sources の並び（末尾の出典集と同じ番号）。5.（2026-09-13 オーナー指摘：脚注が多すぎる）"""
+    if key not in ctx["fn"]:
+        raise SystemExit(f'sources に無い出典キー: {key}')
+    n = ctx["fn"][key]
+    return f'<sup class="fn"><a href="#src-{n}" title="{C.esc(K.SRC[key][0])}">※{n}</a></sup>'
+
+
 def render_block(b: dict, ctx: dict) -> str:
     t = b["t"]
     e = C.esc
     if t == "opener":
         return (f'<section class="opener"><div class="num">{b["num"]}</div>'
-                f'<p class="line">{b["line"]}</p><div class="down">↓ 続きは3分ほど</div><p class="src">{b["src"]}</p></section><div class="col">')
+                f'<p class="line">{b["line"]}</p><p class="src">{b["src"]}</p></section><div class="col">')
     if t == "opener_q":
         name, url = K.SRC[b["src"]]
         return (f'<section class="opener"><p class="bigq">「{e(b["q"])}」</p><p class="src">出典　<a href="{url}" target="_blank" rel="noopener">{e(name)}</a></p>'
-                f'<p class="line">{b["line"]}</p><div class="down">↓ 続きは3分ほど</div></section><div class="col">')
+                f'<p class="line">{b["line"]}</p></section><div class="col">')
     if t == "ch":
         return f'<div class="ch"><span class="no">{e(b["no"])}</span><h2>{b["h"]}</h2></div>'
     if t == "p":
         cls = b.get("cls", "")
         return f'<p class="{cls}">{b["x"]}</p>'
     if t == "fact":
-        name, url = K.SRC[b["src"]]
-        return f'<p class="fact">{b["x"]}<span class="fsrc">出典　<a href="{url}" target="_blank" rel="noopener">{e(name)}</a></span></p>'
+        return f'<p class="fact">{b["x"]}{fn(ctx, b["src"])}</p>'
     if t == "kazu":
         return f'<div class="kazu"><b>{b["num"]}</b><span>{b["x"]}</span></div>'
     if t == "photo":
-        fn, cap = K.PHOTOS[b["id"]]
-        return f'<figure class="ph"><img src="../photos/{fn}" alt="{e(cap)}" loading="lazy"><figcaption><b>{e(b.get("lab", ""))}</b>{"　" if b.get("lab") else ""}{e(cap)}</figcaption></figure>'
+        fname, cap = K.PHOTOS[b["id"]]
+        return f'<figure class="ph"><img src="../photos/{fname}" alt="{e(cap)}" loading="lazy"><figcaption><b>{e(b.get("lab", ""))}</b>{"　" if b.get("lab") else ""}{e(cap)}</figcaption></figure>'
     if t == "pair":
         a, bb = K.PHOTOS[b["ids"][0]], K.PHOTOS[b["ids"][1]]
         return (f'<div class="pair"><img src="../photos/{a[0]}" alt="{e(a[1])}" loading="lazy"><img src="../photos/{bb[0]}" alt="{e(bb[1])}" loading="lazy"></div>'
                 f'<p class="cap">{e(b["cap"])}</p>')
     if t == "q":
-        name, url = K.SRC[b["src"]]
-        return f'<blockquote class="q">「{e(b["x"])}」<cite>出典　<a href="{url}" target="_blank" rel="noopener">{e(name)}</a></cite></blockquote>'
+        return f'<blockquote class="q">「{e(b["x"])}」{fn(ctx, b["src"])}</blockquote>'
     if t == "reveal":
         return f'<div class="reveal"><p class="serif">{b["x"]}</p><p class="who">{b["who"]}</p></div>'
     if t == "dk":
@@ -192,14 +207,14 @@ def render_block(b: dict, ctx: dict) -> str:
         return f'<p class="end">{b["x"]}</p>'
     # ---- v4 で足したブロック（前半を「役立つ手引き」にするため。2026-09-12 オーナー指摘）
     if t == "steps":
-        # 番号つきの手順。各項目は (見出し, 本文, 出典キー) か (見出し, 本文)。本文は HTML 可。出典は項目ごとに小さく
+        # 番号つきの手順。各項目は (見出し, 本文, 出典キー) か (見出し, 本文)。出典は ※n（末尾の出典集の番号）
         lis = ""
         for it in b["items"]:
             h, x = it[0], it[1]
             src = ""
             if len(it) > 2 and it[2]:
                 keys = it[2] if isinstance(it[2], (list, tuple)) else [it[2]]
-                src = '<small class="isrc">出典　' + "／".join(f'<a href="{K.SRC[k][1]}" target="_blank" rel="noopener">{e(K.SRC[k][0])}</a>' for k in keys) + "</small>"
+                src = "".join(fn(ctx, k) for k in keys)
             lis += f'<li><b>{e(h)}</b>{x}{src}</li>'
         return f'<ol class="steps">{lis}</ol>'
     if t == "check":
@@ -207,13 +222,26 @@ def render_block(b: dict, ctx: dict) -> str:
         rows = "".join(f'<div class="ck"><b>{e(p)}</b><span class="w">{w}</span><span class="m">{m}</span></div>' for p, w, m in b["items"])
         return f'<div class="checks">{rows}</div>'
     if t == "table":
-        # 早見表。head: 列見出し / rows: 行（セルは HTML 可）/ src: 行ごとの出典キー（任意）
+        # 早見表。head: 列見出し / rows: 行。セルが list/tuple なら出典キーの列として ※n にする
         th = "".join(f"<th>{e(h)}</th>" for h in b["head"])
         trs = ""
         for r in b["rows"]:
-            trs += "<tr>" + "".join(f"<td>{c}</td>" for c in r) + "</tr>"
+            tds = ""
+            for c in r:
+                if isinstance(c, (list, tuple)):
+                    tds += "<td>" + "".join(fn(ctx, k) for k in c) + "</td>"
+                else:
+                    tds += f"<td>{c}</td>"
+            trs += "<tr>" + tds + "</tr>"
         cap = f'<caption>{e(b["cap"])}</caption>' if b.get("cap") else ""
         return f'<div class="tw"><table class="tbl">{cap}<thead><tr>{th}</tr></thead><tbody>{trs}</tbody></table></div>'
+    if t == "pdfbtn":
+        # 早見表のPDF（tools/build-hayamihyou.py が同じディレクトリに置く）
+        return (f'<a class="btn pdf" href="{e(b["href"])}" download>{e(b["label"])}</a>'
+                f'<p class="pdfnote">{b.get("note", "")}</p>')
+    if t == "img":
+        # イメージ写真（Pexels。当社の施工写真ではないので説明は付けない）。ファイルは assets/stock/dokuhon/
+        return f'<figure class="ph st"><img src="../photos/{e(b["src"])}" alt="{e(b.get("alt", ""))}" loading="lazy"></figure>'
     if t == "note":
         # 小さな囲み（補足）
         return f'<div class="note">{b["x"]}</div>'
@@ -236,7 +264,7 @@ def offer_html(b: dict, ctx: dict) -> str:
     rows += f'<div class="ln sum"><span>合計（税込）</span><span class="v">{C.yen(total)}</span></div>'
     tenken = ""
     if b.get("tenken_bridge"):
-        tenken = (f'<div class="tenken"><b>まだ決めない、という方へ</b><p>{b["tenken_bridge"]}</p>'
+        tenken = (f'<div class="tenken"><b>{C.esc(b.get("tenken_head", "無料点検"))}</b><p>{b["tenken_bridge"]}</p>'
                   f'<a class="btn sec" id="btn-tenken" href="{C.TENKEN_URL}/">{C.esc(b["tenken_cta"])}</a></div>')
     auto = m["エアコンクリーニング（お掃除機能付き）"]["単体"]
     busy = P["raw"]["繁忙期加算"]["金額"]
@@ -246,7 +274,7 @@ def offer_html(b: dict, ctx: dict) -> str:
     <h2>{b["h"]}</h2>
     <p class="sub">{b["sub"]}</p>
     {rows}
-    <p class="fine">出張費・駐車場代・追加作業費はありません。お掃除機能付きのエアコンは {C.yen(auto)}。5〜7月と12月は繁忙期の加算 {C.yen(busy)}。作業のあと、洗った水をそのままお見せします。</p>
+    <p class="fine">出張費・追加作業費はありません。駐車スペースが無い場合はコインパーキング代を実費でいただきます（金額は事前にお伝えします）。お掃除機能付きのエアコンは {C.yen(auto)}。5〜7月と12月は繁忙期の加算 {C.yen(busy)}。作業のあと、洗った水をそのままお見せします。</p>
     <a class="btn" id="btn-yoyaku" href="{C.BOOKING}">日程を見て予約する</a>
     <p class="proof">ご利用後のアンケートで「他の人にすすめたい」 {K.SURVEY}。Googleのクチコミ ★5.0（{K.REVIEW_COUNT}件・{K.REVIEW_ASOF}）。東京都・千葉県・神奈川県。</p>
     {tenken}
@@ -255,7 +283,7 @@ def offer_html(b: dict, ctx: dict) -> str:
 
 
 def sources_html(keys) -> str:
-    items = "".join(f'<li>{C.esc(K.SRC[k][0])}<br><a href="{K.SRC[k][1]}" target="_blank" rel="noopener">{K.SRC[k][1]}</a></li>' for k in keys)
+    items = "".join(f'<li id="src-{i + 1}">{C.esc(K.SRC[k][0])}<br><a href="{K.SRC[k][1]}" target="_blank" rel="noopener">{K.SRC[k][1]}</a></li>' for i, k in enumerate(keys))
     return (f'<div class="src"><b>出典</b><ol>{items}</ol>'
             f'<p>引用は原文のままです。写真はすべて当社が施工した現場で撮ったもので、合成も加工もしていません。お宅が分かる写真は使っていません。</p>'
             f'<p class="unei">この読み物を書いたのは {C.UNEI}（{C.UNEI_ADDR}・{C.UNEI_TEL}）です。カードを置いてくださった施設には、ご利用があった場合に紹介料をお支払いすることがあります（医療法人など、受け取れない施設を除く）。お客様の料金には上乗せしません。<br>'
@@ -264,7 +292,7 @@ def sources_html(keys) -> str:
 
 def build_book(kind: str, P: dict) -> str:
     art = K.ARTICLES[kind]
-    ctx = {"prices": P, "kind": kind}
+    ctx = {"prices": P, "kind": kind, "fn": {k: i + 1 for i, k in enumerate(art["sources"])}}
     body = "".join(render_block(b, ctx) for b in art["blocks"])
     body += sources_html(art["sources"]) + "</div>"
     js = f"""
@@ -382,13 +410,18 @@ def build_unei() -> str:
 def copy_photos():
     dst = OUTDIR / "photos"
     dst.mkdir(parents=True, exist_ok=True)
-    for fn, _ in K.PHOTOS.values():
-        src = PHOTOS_SRC / fn
+    stock = C.ROOT / "assets" / "stock" / "dokuhon"
+    for p in sorted(stock.glob("*.jpg")) if stock.exists() else []:
+        im = ImageOps.exif_transpose(Image.open(p)).convert("RGB")
+        im.thumbnail((1400, 1400))
+        im.save(dst / p.name, "JPEG", quality=82, optimize=True, progressive=True)
+    for fname, _ in K.PHOTOS.values():
+        src = PHOTOS_SRC / fname
         if not src.exists():
             sys.exit(f"写真がありません: {src}")
         im = ImageOps.exif_transpose(Image.open(src)).convert("RGB")
         im.thumbnail((1400, 1400))
-        im.save(dst / fn, "JPEG", quality=84, optimize=True, progressive=True)
+        im.save(dst / fname, "JPEG", quality=84, optimize=True, progressive=True)
 
 
 def main():

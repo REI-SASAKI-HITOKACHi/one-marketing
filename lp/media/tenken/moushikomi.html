@@ -397,7 +397,7 @@ function jpDate(iso){ if(!iso) return ''; var d = new Date(iso+'T00:00:00'); if 
   return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日（'+'日月火水木金土'[d.getDay()]+'）'; }
 function addDays(iso, n){ var d = new Date(iso+'T00:00:00'); d.setDate(d.getDate()+n); var p=function(x){return (x<10?'0':'')+x;}; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
 
-var UNEI = {"name": "ワンヒッター株式会社", "addr": "〒134-0081 東京都江戸川区北葛西5-14-11", "tel": "080-8043-8259", "tantou": "佐々木 嶺"};
+var UNEI = {"name": "ワンヒッター株式会社", "addr": "〒134-0081 東京都江戸川区北葛西5-14-11", "tel": "080-8043-8259", "tantou": "佐々木 沙樹"};
 
 function shomenRows(v){
   return [
@@ -408,7 +408,7 @@ function shomenRows(v){
     ['お客様', v.name + ' 様<br>' + v.addr + '<br>電話 ' + v.tel + (v.mail ? '<br>' + v.mail : '')],
     ['役務の内容', v.menu + '（' + v.detail + '）' + (v.opts ? '<br>オプション：' + v.opts : '')],
     ['役務の提供時期', v.when + '（施工の所要 ' + v.dur + '）'],
-    ['役務の対価（税込）', '<span class="v">' + v.price + '</span>' + (v.discount ? '<br>' + v.discount : '') + '<br>上記以外の費用（出張費・駐車場代・追加作業費など）は請求しません。'],
+    ['役務の対価（税込）', '<span class="v">' + v.price + '</span>' + (v.discount ? '<br>' + v.discount : '') + '<br>上記以外の費用（出張費・追加作業費）は請求しません。駐車スペースをご用意いただけない場合は、コインパーキング等の駐車場代を実費でご請求します（金額は事前にお伝えします）。'],
     ['支払時期・方法', '施工完了後、当日にお支払い。お支払い方法は、施工日確定のご連絡の際にご案内します。'],
     ['契約の解除', 'クーリング・オフ期間（下記）を過ぎた後も、施工日の前日までのキャンセルは無料です。当日のキャンセルも費用はいただきませんが、次回のご予約はご相談させてください。'],
     ['書面の交付方法', v.denshi ? 'お客様の承諾により、電磁的方法（メール／LINE）で交付' : '紙で交付']
@@ -437,7 +437,7 @@ var WARIBIKI = {"1-2月": 0.15, "3-4月": 0.1, "8-10月": 0.1, "5-7月": 0.0, "1
     if (disc) h += '<div class="ln" style="display:flex;justify-content:space-between;color:var(--ok)"><span>閑散期割引（'+Math.round(r*100)+'%）</span><span class="num">−'+disc.toLocaleString()+'円</span></div>';
     opts.forEach(function(o){ h += '<div class="ln" style="display:flex;justify-content:space-between"><span>'+o.名称+'</span><span class="num">'+o.価格.toLocaleString()+'円</span></div>'; });
     h += '<div class="ln" style="display:flex;justify-content:space-between;font-size:20px;font-weight:900;border-top:1px solid var(--line-strong);margin-top:6px;padding-top:6px"><span>合計（税込）</span><span class="num">'+total.toLocaleString()+'円</span></div>';
-    h += '<p class="note">所要 '+mm.所要+'。出張費・駐車場代・追加作業費は一切ありません。</p>';
+    h += '<p class="note">所要 '+mm.所要+'。出張費・追加作業費はありません。駐車スペースが無い場合はコインパーキング代を実費でいただきます（金額は事前にお伝えします）。</p>';
     $('sum').innerHTML = h; return {total:total, disc:disc, r:r, opts:opts};
   }
   $('opts').innerHTML = mm.オプション.length ? '<p class="note">ご希望があれば（任意）</p>' + mm.オプション.map(function(o,i){ return '<label class="agree"><input type="checkbox" value="'+i+'"><span>'+o.名称+'　'+o.価格.toLocaleString()+'円</span></label>'; }).join('') : '';

@@ -154,3 +154,20 @@ Pexelsライセンス（https://www.pexels.com/license/）。商用可・クレ�
 
 `lp/aircon/` `lp/mizumawari/` のヒーロー素材については、
 ブランチ `claude/lp-outline-presentation-8fahl3` の `docs/photo-credits.md` が正です。
+
+## 読本 v4.2 のイメージ写真（2026-09-13 追加。オーナー指摘「写真が無い。1章に1枚」）
+
+置き場 `assets/stock/dokuhon/px-<Pexels ID>.jpg`（1400px、EXIF除去）。**施工写真ではない**ので説明文・キャプションを付けない（景表法）。Pexelsライセンス（商用可・クレジット不要・再配布不可）。
+
+| ファイル | 使用箇所（赤ちゃん版） | 出所 |
+|---|---|---|
+| px-39138625.jpg | 眠る新生児 | https://www.pexels.com/photo/39138625/ |
+| px-35655037.jpg | 温湿度計 | https://www.pexels.com/photo/35655037/ |
+| px-9547674.jpg | 開いた窓とカーテン | https://www.pexels.com/photo/9547674/ |
+| px-7282433.jpg | たたんだ赤ちゃんの服 | https://www.pexels.com/photo/7282433/ |
+| px-8142186.jpg | 白いタイルの浴室 | https://www.pexels.com/photo/8142186/ |
+| px-24904026.jpg | 朝の光と白い布団 | https://www.pexels.com/photo/24904026/ |
+| px-6991803.jpg | 冷蔵庫に貼ったメモ | https://www.pexels.com/photo/6991803/ |
+| px-28576621.jpg | ゴム手袋とスプレー | https://www.pexels.com/photo/28576621/ |
+
+※ フリー画像サイトのログイン情報は認証情報ドキュメント・各ブランチのどこにも無かった（2026-09-13 検索）。Pexels はログインなしで取得できるので、LP担当と同じ Pexels を使った。アカウントがあるなら認証情報ドキュメントの7節の下に追記してほしい。
