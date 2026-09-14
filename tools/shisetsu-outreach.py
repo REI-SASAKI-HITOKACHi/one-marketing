@@ -165,7 +165,7 @@ def scall(tok: str, path: str, method: str = "GET", payload=None, query=None, tr
         if data:
             req.add_header("Content-Type", "application/json")
         try:
-            with urllib.request.urlopen(req, timeout=120) as r:
+            with urllib.request.urlopen(req, timeout=70) as r:
                 return json.load(r)
         except urllib.error.HTTPError as e:
             if e.code in (429, 500, 502, 503, 504) and i < tries - 1:
@@ -239,6 +239,7 @@ def load() -> list:
 FREE_MAIL = ("gmail.com", "yahoo.co.jp", "yahoo.com", "icloud.com", "outlook.com", "hotmail.com", "ocn.ne.jp", "nifty.com", "so-net.ne.jp", "biglobe.ne.jp", "au.com", "docomo.ne.jp", "ezweb.ne.jp", "me.com", "i.softbank.jp")
 PLACEHOLDER_LOCAL = ("example", "sample", "test", "yamada", "xxx", "hoge", "yourname", "mail", "abc", "user", "taro")
 PLACEHOLDER_DOMAIN = ("example.com", "example.jp", "abc.ne.jp", "mail.com", "sample.com", "sample.jp", "xxx.jp", "hoge.jp", "yourdomain.com", "email.com")
+BAD_HOSTS = set(json.loads((ROOT / "data" / "form-badhosts.json").read_text(encoding="utf-8"))) if (ROOT / "data" / "form-badhosts.json").exists() else set()  # 同じサイトで2回以上送れなかった先。時間の無駄なので飛ばす（2026-09-14）
 DIRECTORY_HOSTS = ("mizumono.com",)  # 店舗一覧サイト。そこのフォームやメールは施設のものではない（2026-09-14 マッドマン葛西店で発見）
 EMAIL_SKIP = {"info-eigo@babypark.jp": "チェーン本部の英語教室窓口で、新浦安教室の窓口ではない"}  # 個別に除く（理由つき）
 GENERIC_TOK = ("com", "info", "shop", "animal", "clinic", "hospital", "salon", "tokyo", "japan", "mail", "pet", "dog", "cat")
@@ -294,12 +295,15 @@ def pick(rows: list, n: int, how: str, exclude: tuple = ()) -> list:
             continue  # 前回フォームが使えなかった（URL誤り・画像認証）。人に回してあるので機械では再挑戦しない
         if r["種別"] == "ペットショップ" and NOT_DOGCAT_RE.search(r["施設名"]):
             continue
+        if NOT_FIT_RE.search(r["施設名"]):
+            continue  # 読本の相手に合わない店には送らない
         c = r["contact"]
         if c.get("no_sales"):
             continue
         if how == "form" and not c.get("contact_form_url"):
             continue
-        if how == "form" and any(urllib.parse.urlparse(c.get("contact_form_url") or "").netloc.lower().replace("www.", "").endswith(h) for h in DIRECTORY_HOSTS):
+        host = urllib.parse.urlparse(c.get("contact_form_url") or "").netloc.lower().replace("www.", "")
+        if how == "form" and (any(host.endswith(h) for h in DIRECTORY_HOSTS) or host in BAD_HOSTS):
             continue
         if how == "mail" and not email_of(c, r["施設名"], r.get("サイト", "")):
             continue
@@ -420,6 +424,11 @@ CTX_JS = """e=>{
   return {lab:lab,before:before.slice(-20),after:after.slice(0,20),cont:p?t(p).slice(0,60):'',head:head.slice(0,40)};
 }"""
 # 犬猫以外を扱う店（読本が合わない）。2026-09-14 に観賞魚、のち昆虫・爬虫類・鳥も追加
+# 読本の相手（赤ちゃんを迎える家庭・犬猫を迎える家庭）に合わない店。Places の「ベビー用品」には
+# リサイクル店・ランドセル・子ども服の量販など、節目と関係の薄い店が混ざる（2026-09-14 実測）
+NOT_FIT_RE = re.compile(r"リサイクル|ランドセル|学習塾|写真館|フォトスタジオ|古着|質店|買取|ゲーム|玩具問屋|"
+                        r"スポーツ|アシックス|靴|シューズ|文具|書店|100円|ドラッグ|薬局|コンビニ|スーパー|"
+                        r"ファッション|衣料|洋品|品市場|市場 ")
 NOT_DOGCAT_RE = re.compile(r"熱帯魚|アクア|サンマリン|ディスカス|金魚|メダカ|水族|昆虫|爬虫|は虫|カブト|クワガタ|小鳥|バード|インコ|オウム|金魚|めだか|レプタイル|リクガメ")
 
 
@@ -741,6 +750,12 @@ async def submit(pg, wave: int, f: dict, text: str = "", email_from: str = "", s
         seen.append((pg.url != before_url, n_ta))
         # 確認画面らしい（入力欄が消えて「送信」ボタンがある）なら、次の手で送信を押す
         nxt = await pg.query_selector(SEND_BTN)
+        # 行き詰まったときも、空のまま残っている必須項目を埋めて1回だけやり直す（2026-09-14：name-* が空で止まっていた）
+        if retry:
+            w0 = await why_stuck(pg)
+            if w0 and await fill_required(pg, text, email_from, subject):
+                retry = False
+                continue
         if not nxt:
             await pg.screenshot(path=str(OUT / f"w{wave}-{f['No']}-sent.png"), full_page=True)
             w = await why_stuck(pg)
@@ -798,7 +813,7 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str, n: in
             text = form_text(f, f["種別"])
             subj = "利用者さま向けの読み物（A6カード）を置いていただけませんか"
             try:
-                r = await asyncio.wait_for(fill_form(pg, url, text, email_from, subj), timeout=90)
+                r = await asyncio.wait_for(fill_form(pg, url, text, email_from, subj), timeout=45)
                 shot = OUT / f"w{wave}-{f['No']}.png"
                 await pg.screenshot(path=str(shot), full_page=True)
                 if not r["ok"]:
@@ -814,7 +829,16 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str, n: in
                         break
                     continue
                 # 送信：確認画面をまたぐことがあるので、最大3手まで進めて「完了」を見届ける
-                res = await asyncio.wait_for(submit(pg, wave, f, text, email_from, subj), timeout=120)
+                res = await asyncio.wait_for(submit(pg, wave, f, text, email_from, subj), timeout=70)
+                # サーバー側で弾かれてフォームが再表示される形式がある（入力が消える／一部だけ残る）。
+                # そのときは、いまの画面に対してもう一度いちから入力して送る（2026-09-14）
+                if res["state"] != "done" and len(await pg.query_selector_all("textarea")) > 0:
+                    try:
+                        r2 = await asyncio.wait_for(fill_form(pg, pg.url, text, email_from, subj, hop=2), timeout=60)
+                        if r2.get("ok"):
+                            res = await asyncio.wait_for(submit(pg, wave, f, text, email_from, subj, retry=False), timeout=90)
+                    except Exception:
+                        pass
                 dest = r.get("moved_to") or url
                 note = ("巡回で拾ったURLにフォームが無く、サイト内の問い合わせページへ移動: " + url) if r.get("moved_to") else ""
                 if res["state"] != "done":
