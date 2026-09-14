@@ -1,0 +1,8 @@
+# アンケートの正は survey.onehitter.jp（オーナーの独自ドメイン）。
+# こちらのサイトの netlify.app 側で開かれたら、そちらへ寄せる。
+# 現場QRは one-hitter-survey.netlify.app を指して刷られているので、
+# 301 で引き継ぐ（パスもクエリも維持される）。刷り直しは不要。
+#
+# ※ one-hitter-lp.netlify.app/survey/ は別サイトで、
+#   アフィリエイトの遷移先として登録済み（CLAUDE.md）。**あちらは301にしない。**
+https://one-hitter-survey.netlify.app/*  https://survey.onehitter.jp/:splat  301

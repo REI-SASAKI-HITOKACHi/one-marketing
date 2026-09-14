@@ -548,7 +548,16 @@ def copy_kanseihin(out: pathlib.Path) -> None:
         dst = out / name
         dst.mkdir(parents=True, exist_ok=True)
         (dst / "index.html").write_text(doc, encoding="utf-8")
-        print(f"{dst.relative_to(ROOT)}/index.html  （完成品をそのまま複製＋計測タグ）")
+
+        # index.html 以外の添え物（_redirects・_headers・画像など）もそのまま写す。
+        # 写さないと、ソースに置いた _redirects が配信物に入らず効かない。
+        soeru = 0
+        for f in sorted(src.parent.iterdir()):
+            if f.is_file() and f.name != "index.html":
+                (dst / f.name).write_bytes(f.read_bytes())
+                soeru += 1
+        soe = f"＋添え物{soeru}件" if soeru else ""
+        print(f"{dst.relative_to(ROOT)}/index.html  （完成品をそのまま複製＋計測タグ{soe}）")
 
 
 if __name__ == "__main__":
