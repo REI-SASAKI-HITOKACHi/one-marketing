@@ -34,9 +34,16 @@ AREAS_CORE = ["江戸川区", "西葛西", "浦安", "市川", "江東区"]
 def kw(head, areas):
     return [f"{head} {a}" for a in areas]
 
+
+# ⚠ 2026-09-15 実測：区名を付けた語は 41語中22語が「検索ボリュームが少ない」で配信されない。
+#    B群は8〜9語中7〜8語が該当し、そのままでは在庫がほぼ無い。
+#    → **地域語を外した語**をフレーズ一致で足し、エリアはキャンペーンの地域設定で担保する。
+#    区名付きの語は残す（配信されないだけで害は無く、検索が増えたときに精度が効く）。
+
 GROUPS = [
     {
         "name": "A_エアコン",
+        "bare": ["エアコンクリーニング", "エアコン掃除 業者"],
         "url": AIRCON,
         "phrase": (kw("エアコンクリーニング", AREAS_AIRCON)
                    + kw("エアコン掃除 業者", ["江戸川区", "西葛西", "浦安", "市川"])
@@ -45,6 +52,7 @@ GROUPS = [
     },
     {
         "name": "B_レンジフード",
+        "bare": ["レンジフード クリーニング", "レンジフード 掃除 業者", "換気扇 クリーニング"],
         "url": MIZU,
         "phrase": (kw("レンジフード クリーニング", AREAS_CORE)
                    + kw("換気扇 クリーニング", ["江戸川区", "浦安", "市川"])),
@@ -52,6 +60,7 @@ GROUPS = [
     },
     {
         "name": "B_浴室",
+        "bare": ["浴室クリーニング", "風呂 クリーニング 業者", "お風呂掃除 業者"],
         "url": MIZU,
         "phrase": (kw("浴室クリーニング", AREAS_CORE)
                    + kw("風呂 クリーニング 業者", ["江戸川区", "浦安", "市川"])
@@ -60,6 +69,8 @@ GROUPS = [
     },
     {
         "name": "C_ハウスクリーニング",
+        "bare": ["ハウスクリーニング"],
+        "cpc": "300",
         "url": MIZU,
         "phrase": kw("ハウスクリーニング", AREAS_AIRCON),
         "exact": [],
@@ -190,13 +201,15 @@ def main():
     for g in GROUPS:
         # ⚠ 広告グループはキーワード行からは自動生成されない。作る行を先に置く（2026-09-15 実測）
         rows.append({"Campaign": CAMPAIGN, "Ad Group": g["name"],
-                     "Max CPC": MAX_CPC, "Status": "Enabled"})
-        for k in g["phrase"]:
+                     "Max CPC": g.get("cpc", MAX_CPC), "Status": "Enabled"})
+        for k in g["bare"] + g["phrase"]:
             rows.append({"Campaign": CAMPAIGN, "Ad Group": g["name"], "Keyword": k,
-                         "Criterion Type": "Phrase", "Max CPC": MAX_CPC, "Status": "Enabled"})
+                         "Criterion Type": "Phrase", "Max CPC": g.get("cpc", MAX_CPC),
+                         "Status": "Enabled"})
         for k in g["exact"]:
             rows.append({"Campaign": CAMPAIGN, "Ad Group": g["name"], "Keyword": k,
-                         "Criterion Type": "Exact", "Max CPC": MAX_CPC, "Status": "Enabled"})
+                         "Criterion Type": "Exact", "Max CPC": g.get("cpc", MAX_CPC),
+                         "Status": "Enabled"})
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     with OUT.open("w", encoding="utf-8-sig", newline="") as f:
@@ -227,7 +240,16 @@ def main():
         })
     print(f"書きました: {camp}（画面で作れないときの回避策。1行）")
 
-    kwn = sum(len(g["phrase"]) + len(g["exact"]) for g in GROUPS)
+    add = ROOT / "data" / "ads" / "段0-追加キーワード（地域語なし）.txt"
+    with add.open("w", encoding="utf-8") as f:
+        for g in GROUPS:
+            f.write(f"# {g['name']}（上限CPC {g.get('cpc', MAX_CPC)}円・フレーズ一致）\n")
+            for k in g["bare"]:
+                f.write(k + "\n")
+            f.write("\n")
+    print(f"  書きました: {add}")
+
+    kwn = sum(len(g["bare"]) + len(g["phrase"]) + len(g["exact"]) for g in GROUPS)
     print(f"書きました: {OUT}")
     print(f"  広告グループ {len(GROUPS)} ／ キーワード {kwn}（除外18語と広告4本は一括では入らないので別ファイル）")
     print(f"  書きました: {neg}")
