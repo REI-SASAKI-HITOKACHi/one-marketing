@@ -441,6 +441,37 @@ async def find_form_link(pg) -> str:
     return best
 
 
+# プルダウンで選ぶ値。上から順に探し、無ければ「選択してください」以外の最初の選択肢
+OPTION_PREF = ("その他", "ご提案", "ご意見", "お問い合わせ", "お問合せ", "問い合わせ", "一般", "法人")
+OPTION_NG = re.compile(r"選択|choose|select|指定|--|^$|お選び")
+
+
+async def pick_option(el) -> None:
+    try:
+        opts = await el.evaluate("""e => [...e.options].map((o,i) => ({i: i, t: (o.text||'').trim(), v: o.value}))""")
+    except Exception:
+        return
+    cand = [o for o in opts if o["v"] not in ("", None) and not OPTION_NG.search(o["t"] or "")]
+    if not cand:
+        return
+    pick = None
+    for w in OPTION_PREF:
+        for o in cand:
+            if w in o["t"]:
+                pick = o
+                break
+        if pick:
+            break
+    pick = pick or cand[0]
+    try:
+        await el.select_option(value=pick["v"])
+    except Exception:
+        try:
+            await el.select_option(index=pick["i"])
+        except Exception:
+            pass
+
+
 async def fill_form(pg, url: str, text: str, email_from: str, subject: str, hop: int = 0) -> dict:
     if hop == 0:
         await pg.goto(url, timeout=30000, wait_until="domcontentloaded")
@@ -456,10 +487,12 @@ async def fill_form(pg, url: str, text: str, email_from: str, subject: str, hop:
     parts = {"tel": tel, "zip": zipc}
     part_i = {"tel": 0, "zip": 0}
     filled = {}
-    for el in await pg.query_selector_all("input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=checkbox]):not([type=radio]):not([type=file]), textarea, select"):
+    for el in await pg.query_selector_all("input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=checkbox]):not([type=radio]):not([type=file]), textarea, select"):  # select も埋める（2026-09-14）
         try:
             tag = await el.evaluate("e=>e.tagName.toLowerCase()")
             if tag == "select":
+                # 2026-09-14：プルダウン（店舗選択・お問い合わせ種別 等）を空のままにしていたため必須エラーで送れていなかった
+                await pick_option(el)
                 continue
             typ = (await el.get_attribute("type") or "").lower()
             attrs = " ".join([(await el.get_attribute(x) or "") for x in ("name", "id", "placeholder", "aria-label")])
@@ -558,6 +591,56 @@ async def click(el, pg) -> None:
         await el.evaluate("e => { const f = e.form || e.closest('form'); if (f) f.submit(); }")
 
 
+# 完了と認めてよい文（送信後にだけ現れる言い回しに限る）。
+# 2026-09-14：以前は「受付」「ありがとうござい」だけで完了としていたため、「最終受付 17:00」のような
+# 営業時間の表記にも反応し、42件中27件を送れていないのに「送信」と記録した。
+DONE_RE = re.compile(r"送信(が)?完了|送信を?完了|送信(いた)?しました|送信されました|受け付けました|受付けました|受付が完了|"
+                     r"お問い?合わ?せ(を)?(ありがとうございました|受け付け)|ご連絡ありがとうございました|"
+                     r"内容を確認の上|折り返しご連絡|thank you for|successfully sent|message sent")
+FAIL_RE = re.compile(r"失敗しました|エラーが発生|記入もれ|入力(して|に)(ください|エラー)|必須項目|必須です|"
+                     r"正しく入力|選択してください|もう一度お試し|error occurred")
+# 「確認画面」から先に進むためのボタン（この語のときだけ2手目を押す）
+SEND_BTN = "input[type=submit][value*='送信'], input[type=button][value*='送信'], button[type=submit]:has-text('送信'), button:has-text('送信する'), button:has-text('送信'), input[value='上記の内容で送信する']"
+
+
+async def submit(pg, wave: int, f: dict) -> dict:
+    """フォームを送り、完了画面を見届ける。確認画面をまたぐ場合は3手まで進む。
+    戻り値 state: done（完了を確認）／ng（完了を確認できない）"""
+    seen = []
+    for step in range(3):
+        before_url = pg.url
+        btn = await pg.query_selector("input[type=submit], button[type=submit], button:has-text('送信'), input[value*='送信'], "
+                                      "input[value*='確認'], button:has-text('確認'), button:has-text('進む'), input[value*='次へ']")
+        if not btn:
+            await pg.screenshot(path=str(OUT / f"w{wave}-{f['No']}-sent.png"), full_page=True)
+            return {"state": "ng", "reason": "送信ボタン不明" if step == 0 else "完了画面を確認できない", "proof": ""}
+        await click(btn, pg)
+        await pg.wait_for_timeout(3000)
+        try:
+            await pg.wait_for_load_state("domcontentloaded", timeout=5000)
+        except Exception:
+            pass
+        body = re.sub(r"<[^>]+>", " ", await pg.content())
+        m = DONE_RE.search(body)
+        # 完了の文があっても、入力欄が残っていれば「まだ送れていない」とみなす（確認画面・エラー戻り）
+        n_ta = len(await pg.query_selector_all("textarea"))
+        fail = FAIL_RE.search(body)
+        if m and not n_ta and not fail:
+            await pg.screenshot(path=str(OUT / f"w{wave}-{f['No']}-sent.png"), full_page=True)
+            return {"state": "done", "reason": "", "proof": m.group(0)}
+        if fail and not m:
+            await pg.screenshot(path=str(OUT / f"w{wave}-{f['No']}-sent.png"), full_page=True)
+            return {"state": "ng", "reason": "入力エラー（" + fail.group(0) + "）", "proof": ""}
+        seen.append((pg.url != before_url, n_ta))
+        # 確認画面らしい（入力欄が消えて「送信」ボタンがある）なら、次の手で送信を押す
+        nxt = await pg.query_selector(SEND_BTN)
+        if not nxt:
+            await pg.screenshot(path=str(OUT / f"w{wave}-{f['No']}-sent.png"), full_page=True)
+            return {"state": "ng", "reason": "完了画面を確認できない", "proof": ""}
+    await pg.screenshot(path=str(OUT / f"w{wave}-{f['No']}-sent.png"), full_page=True)
+    return {"state": "ng", "reason": "確認画面から進めない", "proof": ""}
+
+
 async def run_forms(targets: list, wave: int, send: bool, email_from: str, n: int = 50) -> None:
     sent = 0
     from playwright.async_api import async_playwright
@@ -583,7 +666,7 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str, n: in
             text = form_text(f, f["種別"])
             subj = "利用者さま向けの読み物（A6カード）を置いていただけませんか"
             try:
-                r = await fill_form(pg, url, text, email_from, subj)
+                r = await asyncio.wait_for(fill_form(pg, url, text, email_from, subj), timeout=90)
                 shot = OUT / f"w{wave}-{f['No']}.png"
                 await pg.screenshot(path=str(shot), full_page=True)
                 if not r["ok"]:
@@ -598,31 +681,28 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str, n: in
                     if sent >= n:
                         break
                     continue
-                # 送信：確認画面があれば2段階
-                btn = await pg.query_selector("input[type=submit], button[type=submit], button:has-text('送信'), input[value*='送信'], input[value*='確認'], button:has-text('確認')")
-                if not btn:
-                    safe_write(tok, "log", log_send, wave, f, "フォーム", url, "③", "未送信（送信ボタン不明）")
-                    safe_write(tok, "manual", mark_manual, f, "送信ボタン不明")
-                    print("ボタン不明", f["No"], f["施設名"])
-                    continue
-                await click(btn, pg)
-                await pg.wait_for_timeout(2500)
-                btn2 = await pg.query_selector("input[type=submit][value*='送信'], button:has-text('送信'), input[value*='送信する']")
-                if btn2:
-                    await click(btn2, pg)
-                    await pg.wait_for_timeout(2500)
-                await pg.screenshot(path=str(OUT / f"w{wave}-{f['No']}-sent.png"), full_page=True)
-                body = (await pg.content())
-                ok = bool(re.search(r"送信(が)?完了|ありがとうござい|受け付け|受付|送信しました|thank", body, re.I))
+                # 送信：確認画面をまたぐことがあるので、最大3手まで進めて「完了」を見届ける
+                res = await asyncio.wait_for(submit(pg, wave, f), timeout=90)
                 dest = r.get("moved_to") or url
-                safe_write(tok, "log", log_send, wave, f, "フォーム", dest, "③", "送信" if ok else "送信（完了表示は未確認）",
-                           ("巡回で拾ったURLにフォームが無く、サイト内の問い合わせページへ移動: " + url) if r.get("moved_to") else "")
+                note = ("巡回で拾ったURLにフォームが無く、サイト内の問い合わせページへ移動: " + url) if r.get("moved_to") else ""
+                if res["state"] != "done":
+                    safe_write(tok, "log", log_send, wave, f, "フォーム", dest, "③", f"未送信（{res['reason']}）", note)
+                    safe_write(tok, "manual", mark_manual, f, res["reason"])
+                    print("未送信", f["No"], f["施設名"], res["reason"])
+                    continue
+                safe_write(tok, "log", log_send, wave, f, "フォーム", dest, "③", "送信（画面で完了を確認）",
+                           (note + " / " if note else "") + res["proof"][:80])
                 safe_write(tok, "stage", update_stage, f, "form")
-                print("送信", f["No"], f["施設名"], "OK" if ok else "要確認")
+                print("送信", f["No"], f["施設名"], res["proof"][:40])
                 sent += 1
                 if sent >= n:
                     print(f"{n} 件送れたので止める（オーナー決定：50件ごとに停止して改善）")
                     break
+            except asyncio.TimeoutError:
+                if send:
+                    safe_write(tok, "log", log_send, wave, f, "フォーム", url, "③", "未送信（時間切れ）")
+                    safe_write(tok, "manual", mark_manual, f, "時間切れ")
+                print("時間切れ", f["No"], f["施設名"])
             except Exception as e:
                 if send:
                     safe_write(tok, "log", log_send, wave, f, "フォーム", url, "③", f"失敗（{type(e).__name__}）")

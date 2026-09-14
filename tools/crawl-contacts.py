@@ -109,7 +109,7 @@ async def one(ctx, f: dict) -> dict:
     return out
 
 
-async def run(items: list, conc: int) -> list:
+async def run(items: list, conc: int, dst: pathlib.Path = None, had: dict = None) -> list:
     from playwright.async_api import async_playwright
     res = []
     async with async_playwright() as p:
@@ -133,11 +133,19 @@ async def run(items: list, conc: int) -> list:
 
         async def w(f):
             async with sem:
-                r = await one(ctx, f)
+                try:
+                    r = await asyncio.wait_for(one(ctx, f), timeout=90)
+                except asyncio.TimeoutError:
+                    r = {"id": f["id"], "施設名": f["施設名"], "種別": f["種別"], "サイト": f.get("サイト", ""), "status": "timeout",
+                         "contact_form_url": "", "has_form": False, "no_sales": False, "emails": [], "instagram": None, "line": None}
                 res.append(r)
                 done[0] += 1
                 if done[0] % 20 == 0:
                     print(f"  {done[0]}/{len(items)} 件（フォーム {sum(1 for x in res if x['has_form'])}／メール {sum(1 for x in res if x['emails'])}）", flush=True)
+                    if dst is not None:  # 途中で落ちても失わないよう都度書く（2026-09-14 に90分で打ち切られて全部失った）
+                        h = dict(had or {})
+                        h.update({x["id"]: x for x in res})
+                        dst.write_text(json.dumps(list(h.values()), ensure_ascii=False, indent=1), encoding="utf-8")
                 return r
         await asyncio.gather(*[w(f) for f in items])
         await b.close()
@@ -158,7 +166,7 @@ def main():
     if a.n:
         todo = todo[:a.n]
     print(f"巡回 {len(todo)} 件（済 {len(had)}）")
-    res = asyncio.run(run(todo, a.conc))
+    res = asyncio.run(run(todo, a.conc, dst, had))
     had.update({r["id"]: r for r in res})
     dst.write_text(json.dumps(list(had.values()), ensure_ascii=False, indent=1), encoding="utf-8")
     ok = [r for r in res if r["has_form"] and not r["no_sales"]]
