@@ -67,6 +67,12 @@ def check_config(cfg: dict) -> None:
             bad(f"measurement.json: labels の「{key}」はイベント名にありません"
                 f"（送られません）。使えるのは {' / '.join(sorted(known))}")
 
+    # 広告を出すときは、主CV（generate_lead）のラベルが要る。
+    # conversion_id だけ入れてラベルを忘れると、**1件も計上されないまま課金が進む**。
+    if ads.get("conversion_id") and not labels.get("generate_lead"):
+        bad("measurement.json: conversion_id は入っているのに labels.generate_lead が空です。"
+            "**申込が1件もコンバージョンとして計上されません**")
+
     if cfg.get("debug"):
         bad("measurement.json: debug が true です。本番へ配信する前に false に戻してください")
 
@@ -146,6 +152,15 @@ def check_target(target: str, cfg: dict) -> None:
         if has_field != has_maker:
             bad(f"{target}/{meta['dir']}/index.html: 注文IDの"
                 + ("欄はあるのに、作るスクリプトがありません" if has_field
+                   else "スクリプトはあるのに、入れる欄がありません"))
+
+        # gclid も同じ。欄だけあって入れる処理が無いと、広告経由の申込が
+        # 「広告経由だと分からないまま」溜まる。あとから復元できない。
+        g_field = 'name="gclid"' in doc
+        g_maker = "oh_gclid" in doc
+        if g_field != g_maker:
+            bad(f"{target}/{meta['dir']}/index.html: gclid の"
+                + ("欄はあるのに、拾うスクリプトがありません" if g_field
                    else "スクリプトはあるのに、入れる欄がありません"))
 
     check_rentracks(target, cfg, out)

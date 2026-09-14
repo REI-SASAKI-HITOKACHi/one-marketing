@@ -158,6 +158,7 @@ FORM_NETLIFY = """<form class="form" name="reserve-{dir}" method="post"
       <input type="hidden" name="subject" value="【LP予約】{label}">
       <input type="hidden" name="lp" value="{dir}">
       <input type="hidden" name="order_id" value="">
+      <input type="hidden" name="gclid" value="">
       <div class="hp" aria-hidden="true">
         <label for="f-x">この欄には入力しないでください</label>
         <input id="f-x" name="x_field" type="text" tabindex="-1" autocomplete="off">
@@ -338,29 +339,60 @@ def rentracks_on(cfg: dict, dir_name: str) -> bool:
 
 
 def order_id_script(dir_name: str) -> str:
-    """申込1件ごとの注文IDを作る。**全LP共通。**
+    """申込1件ごとの「紐づけ情報」を用意する。**全LP共通。**
 
-    送信ボタンが押された瞬間にIDを作り、2か所に置く。
-      1. フォームの隠し欄 `order_id` … Netlify Forms の受信内容に残る＝当社の記録
-      2. sessionStorage           … サンクスページへ引き継ぐため
+    2つある。
 
-    アフィリエイトの成果（`_rt.cinfo`）はこのIDで特定するが、
-    **アフィリエイトを使わないLPでも、受注と問い合わせを1対1で結ぶのに要る。**
-    全LPで出しておくほうが、空欄の列が混ざるより後々わかりやすい。
+    ## 1. 注文ID
+    送信ボタンが押された瞬間に作り、2か所に置く。
+      - フォームの隠し欄 `order_id` … Netlify Forms の受信内容に残る＝当社の記録
+      - sessionStorage          … サンクスページへ引き継ぐため
+    アフィリエイトの成果（`_rt.cinfo`）はこのIDで特定する。
+
+    ## 2. gclid（Google広告のクリックID）
+    **これが後々いちばん効く。**
+
+    当社は申込から受注確定まで2〜4週間かかり、電話で決まることも多い。
+    サンクスページのCVだけを見ていると、**「申し込んだが成約しなかった人」も
+    「電話で高額受注になった人」も同じ1件**になり、広告の自動入札が
+    見当違いのほうへ最適化していく。
+
+    gclid を申込と一緒に残しておけば、あとから
+    **「この申込は実際に◯◯円で成約した」をGoogle広告へ戻せる**
+    （オフラインコンバージョンのインポート）。**残していないと、後から復元できない。**
+
+    - `?gclid=` … 通常のクリック
+    - `?wbraid=` `?gbraid=` … iOSなどで gclid の代わりに付くもの。取りこぼさないため一緒に見る
+    - 90日で捨てる。Google広告の取り込み期限がそれより短いため、古いものは持たない
     """
     return ("<script>(function(){"
-            # 注文ID：OH-年月日-LP名-4桁。英数字とハイフンだけなので
-            # URLエンコードしても文字が増えない（レントラックスの上限500文字に対して十分短い）。
+            # --- 注文ID ---
+            # OH-年月日-LP名-4桁。英数字とハイフンだけなのでURLエンコードしても増えない。
             # 紛らわしい文字（I・O・0・1）は使わない。電話で読み上げることがあるため。
             "function mkid(){var d=new Date();"
             "var p=function(n){return(n<10?'0':'')+n;};"
             "var r='';var c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';"
             "for(var i=0;i<4;i++){r+=c.charAt(Math.floor(Math.random()*c.length));}"
             "return 'OH-'+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-%s-'+r;}\n"
+            # --- gclid ---
+            # 広告から来た「そのとき」にしか取れない。着いた瞬間に保存する。
+            "var Q;try{Q=new URLSearchParams(location.search);}catch(e){Q=null;}"
+            "var g=Q&&(Q.get('gclid')||Q.get('wbraid')||Q.get('gbraid'))||'';"
+            "try{"
+            "if(g){localStorage.setItem('oh_gclid',JSON.stringify({v:g,t:Date.now()}));}"
+            "}catch(e){}\n"
+            "function gclid(){try{"
+            "var o=JSON.parse(localStorage.getItem('oh_gclid')||'null');"
+            # 90日 = 90*24*60*60*1000
+            "if(!o||!o.v)return '';"
+            "if(Date.now()-o.t>7776000000){localStorage.removeItem('oh_gclid');return '';}"
+            "return o.v;}catch(e){return '';}}\n"
+            # --- 送信時にフォームへ入れる ---
             "var f=document.querySelector('form.form');if(!f)return;"
             "f.addEventListener('submit',function(){"
             "var id=mkid();"
             "var h=f.querySelector('input[name=\"order_id\"]');if(h){h.value=id;}"
+            "var gh=f.querySelector('input[name=\"gclid\"]');if(gh){gh.value=gclid();}"
             "try{sessionStorage.setItem('oh_order_id',id);}catch(e){}"
             "},true);"
             "})();</script>") % dir_name
