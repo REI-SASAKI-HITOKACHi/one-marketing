@@ -428,7 +428,7 @@ CTX_JS = """e=>{
 # リサイクル店・ランドセル・子ども服の量販など、節目と関係の薄い店が混ざる（2026-09-14 実測）
 NOT_FIT_RE = re.compile(r"リサイクル|ランドセル|学習塾|写真館|フォトスタジオ|古着|質店|買取|ゲーム|玩具問屋|"
                         r"スポーツ|アシックス|靴|シューズ|文具|書店|100円|ドラッグ|薬局|コンビニ|スーパー|"
-                        r"ファッション|衣料|洋品|品市場|市場 ")
+                        r"ファッション|衣料|洋品|品市場|市場 |ECO|エコ|eco |野鳥|鳥類|保護センター|霊園|葬儀|供養")
 NOT_DOGCAT_RE = re.compile(r"熱帯魚|アクア|サンマリン|ディスカス|金魚|メダカ|水族|昆虫|爬虫|は虫|カブト|クワガタ|小鳥|バード|インコ|オウム|金魚|めだか|レプタイル|リクガメ")
 
 
@@ -585,7 +585,8 @@ async def fill_form(pg, url: str, text: str, email_from: str, subject: str, hop:
     for cb in await pg.query_selector_all("input[type=checkbox]"):
         try:
             lab = await cb.evaluate("e=>(e.labels&&e.labels[0]?e.labels[0].innerText:'')+' '+(e.parentElement?e.parentElement.innerText.slice(0,80):'')+' '+(e.closest('tr,li,p,div')?e.closest('tr,li,p,div').innerText.slice(0,80):'')")
-            if re.search(r"同意|確認|プライバシー|個人情報|規約", lab):
+            req = await cb.evaluate("e => !!(e.required || e.hasAttribute('required') || e.getAttribute('aria-required')==='true')")
+            if req or re.search(r"同意|確認|プライバシー|個人情報|規約", lab):
                 await cb.check(force=True)
         except Exception:
             pass
