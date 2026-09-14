@@ -661,6 +661,9 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str, n: in
                 await route.abort()
         await ctx.route("**/*", relay)
         for f in targets:
+            if send and not (SEND_HOURS[0] <= dt.datetime.now(JST).hour < SEND_HOURS[1]):
+                print(f"{SEND_HOURS[1]}:00 を過ぎたので止める（オーナー決定 2026-09-14：初動は 9:00〜17:00）")
+                break
             url = f["contact"]["contact_form_url"]
             pg = await ctx.new_page()
             text = form_text(f, f["種別"])
