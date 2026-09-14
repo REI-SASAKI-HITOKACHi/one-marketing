@@ -486,7 +486,13 @@ async def fill_form(pg, url: str, text: str, email_from: str, subject: str, hop:
     if hop == 0:
         await pg.goto(url, timeout=30000, wait_until="domcontentloaded")
         await pg.wait_for_timeout(1500)
-    html = await pg.content()
+    html = ""
+    for _ in range(3):
+        try:
+            html = await pg.content()
+            break
+        except Exception:
+            await pg.wait_for_timeout(1500)
     if NO_SALES_RE.search(re.sub(r"<[^>]+>", " ", html)):
         return {"ok": False, "reason": "営業お断り・患者専用の記載"}
     # 画像認証・reCAPTCHA v2（チェック式）は機械では通せない → 人（ブラウザ担当）に回す。v3（invisible）はそのまま送れる
@@ -515,7 +521,7 @@ async def fill_form(pg, url: str, text: str, email_from: str, subject: str, hop:
             if CAPTCHA_RE.search(ctx) and tag != "textarea":
                 return {"ok": False, "reason": "画像認証あり（手動送信へ）"}
             if typ == "email" or key == "email":
-                key = "email2" if re.search(r"確認|confirm|再入力|もう一度|2", near) else "email"
+                key = "email2" if (re.search(r"確認|confirm|再入力|もう一度|2", near) or "email" in filled) else "email"
             if typ == "tel":
                 key = "tel"
             if key == "name":
@@ -533,7 +539,8 @@ async def fill_form(pg, url: str, text: str, email_from: str, subject: str, hop:
             if key in ("tel", "zip"):
                 # 3分割（080-8043-8259）・2分割（134-0081）の欄は順に埋める
                 ml = await el.get_attribute("maxlength")
-                if part_i[key] < len(parts[key]) and (ml and int(ml) <= 5 or re.search(r"[123]$", attrs.split()[0] if attrs.split() else "") or part_i[key] > 0):
+                short = bool(ml and ml.isdigit() and int(ml) <= 5)
+                if part_i[key] < len(parts[key]) and (short or (part_i[key] > 0 and part_i[key] < len(parts[key]))):
                     await el.fill(parts[key][part_i[key]])
                     part_i[key] += 1
                     filled[key] = True
@@ -607,8 +614,8 @@ async def click(el, pg) -> None:
 DONE_RE = re.compile(r"送信(が)?完了|送信を?完了|送信(いた)?しました|送信されました|受け付けました|受付けました|受付が完了|"
                      r"お問い?合わ?せ(を)?(ありがとうございました|受け付け)|ご連絡ありがとうございました|"
                      r"内容を確認の上|折り返しご連絡|thank you for|successfully sent|message sent")
-FAIL_RE = re.compile(r"失敗しました|エラーが発生|記入もれ|入力(して|に)(ください|エラー)|必須項目|必須です|"
-                     r"正しく入力|選択してください|もう一度お試し|error occurred")
+FAIL_RE = re.compile(r"失敗しました|エラーが発生|記入もれ|入力(して|に)(ください|エラー)|必須項目|必須です|未入力|"
+                     r"正しく入力|選択してください|もう一度お試し|error occurred|有効期限が過ぎ|やり直してください|403 Forbidden")
 # 「確認画面」から先に進むためのボタン（この語のときだけ2手目を押す）
 SEND_BTN = "input[type=submit][value*='送信'], input[type=button][value*='送信'], button[type=submit]:has-text('送信'), button:has-text('送信する'), button:has-text('送信'), input[value='上記の内容で送信する']"
 
@@ -702,7 +709,13 @@ async def submit(pg, wave: int, f: dict, text: str = "", email_from: str = "", s
             await pg.wait_for_load_state("domcontentloaded", timeout=5000)
         except Exception:
             pass
-        body = re.sub(r"<[^>]+>", " ", await pg.content())
+        body = ""
+        for _ in range(3):
+            try:
+                body = re.sub(r"<[^>]+>", " ", await pg.content())
+                break
+            except Exception:
+                await pg.wait_for_timeout(1500)
         m = DONE_RE.search(body)
         # 完了の文があっても、入力欄が残っていれば「まだ送れていない」とみなす（確認画面・エラー戻り）
         n_ta = len(await pg.query_selector_all("textarea"))
