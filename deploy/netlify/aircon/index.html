@@ -813,6 +813,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
       
       <input type="hidden" name="src" id="h-src" value="direct">
       <input type="hidden" name="cid" id="h-cid" value="">
+      <input type="hidden" name="gclid" id="h-gclid" value="">
       <div class="field">
         <div class="lab"><label for="f-name">お名前</label><span class="req">必須</span></div>
         <input id="f-name" name="name" type="text" autocomplete="name" required>
@@ -951,6 +952,27 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     var clean = function(v, n){ return (v || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, n); };
     var src = clean(q.get('src'), 20) || 'direct';
     var cid = clean(q.get('cid'), 20);
+
+    /* Google広告のクリックID。成果を広告に結びつけるのに要る。
+       申し込みは来訪と同じ日とは限らないので、URLから拾って localStorage に持たせ、
+       あとで申し込まれたときにフォームへ載せる（Googleの計測可能期間に合わせて90日）。
+       gclid が付かない経路（iOSアプリ内など）では wbraid / gbraid が来るので同じ扱いにする。 */
+    var GCLID_KAGI = 'oh_gclid';
+    var GCLID_HI = 90 * 24 * 60 * 60 * 1000;
+    var gclid = clean(q.get('gclid'), 120) || clean(q.get('wbraid'), 120) || clean(q.get('gbraid'), 120);
+    try {
+      if (gclid) {
+        localStorage.setItem(GCLID_KAGI, JSON.stringify({ v: gclid, t: Date.now() }));
+      } else {
+        var nokori = JSON.parse(localStorage.getItem(GCLID_KAGI) || 'null');
+        if (nokori && nokori.v && (Date.now() - nokori.t) < GCLID_HI) {
+          gclid = nokori.v;                       // 前回のクリックを引き継ぐ
+        } else if (nokori) {
+          localStorage.removeItem(GCLID_KAGI);    // 90日を過ぎたものは消す
+        }
+      }
+    } catch (e) { /* プライベートモード等で localStorage が使えないことがある */ }
+    var eg = document.getElementById('h-gclid'); if (eg) eg.value = gclid || '';
 
     /* 検索広告・SNS広告から来た方は、当社をはじめて見る方が多い。
        「前から知っている人向け」の書き方だと伝わらないので、

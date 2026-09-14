@@ -361,6 +361,26 @@ TEMPLATE = r"""<!doctype html>
   // SNS（Instagram／Facebook／Googleビジネスプロフィール）から来た初見の方向けに、
   // 「前回ご利用のお客様専用」の文言だけ差し替える。SMS経由の既存客の画面は変えない。
   // （2026-09-11 ネット流入担当の指摘 20260911-01-cmo）
+  /* Google広告のクリックID。成果を広告に結びつけるのに要る。
+     予約は来訪と同じ日とは限らないので、URLから拾って localStorage に持たせ、
+     あとで予約されたときに送信内容へ載せる（Googleの計測可能期間に合わせて90日）。
+     gclid が付かない経路（iOSアプリ内など）では wbraid / gbraid が来るので同じ扱い。
+     ★LP4本にも同じものが入っている。仕様を変えるときは両方直すこと。 */
+  function hiroGclid(){
+    var KAGI = 'oh_gclid', HI = 90 * 24 * 60 * 60 * 1000;
+    var q = new URLSearchParams(location.search);
+    var sooji = function(v){ return (v || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 120); };
+    var g = sooji(q.get('gclid')) || sooji(q.get('wbraid')) || sooji(q.get('gbraid'));
+    try {
+      if (g) { localStorage.setItem(KAGI, JSON.stringify({ v: g, t: Date.now() })); return g; }
+      var nokori = JSON.parse(localStorage.getItem(KAGI) || 'null');
+      if (nokori && nokori.v && (Date.now() - nokori.t) < HI) return nokori.v;
+      if (nokori) localStorage.removeItem(KAGI);
+    } catch (e) { /* プライベートモード等で localStorage が使えないことがある */ }
+    return '';
+  }
+  hiroGclid();   // 到着した時点で保存しておく（予約せずに離脱しても次回に効く）
+
   try {
     var srcSns = (new URLSearchParams(location.search)).get('src') || '';
     if (srcSns === 'ig' || srcSns === 'fb' || srcSns === 'gbp') {
@@ -791,6 +811,7 @@ TEMPLATE = r"""<!doctype html>
       '概算金額': k ? String(k.gokei) : '',
       'ご要望': $('f-note').value.trim(),
       '流入元': (new URLSearchParams(location.search)).get('src') || '',
+      'gclid': hiroGclid(),
       '空き枠の取得時刻': (slotsCache && slotsCache.generated) || '',
     };
     var body = Object.keys(atai).map(function(kk){
@@ -846,6 +867,7 @@ TEMPLATE = r"""<!doctype html>
   <input type="text" name="概算金額">
   <textarea name="ご要望"></textarea>
   <input type="text" name="流入元">
+  <input type="text" name="gclid">
   <input type="text" name="空き枠の取得時刻">
 </form>
 
