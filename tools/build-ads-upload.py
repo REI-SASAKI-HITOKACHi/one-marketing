@@ -186,6 +186,26 @@ def main():
         for r in rows:
             w.writerow({c: r.get(c, "") for c in COLS})
 
+    # キャンペーンそのものを作る表（画面のウィザードが通らないときの回避策）
+    camp = ROOT / "data" / "ads" / "段0-キャンペーン設定.csv"
+    ccols = ["Campaign", "Campaign Type", "Campaign Subtype", "Campaign Daily Budget",
+             "Bid Strategy Type", "Campaign Status", "Networks", "Languages", "Location"]
+    with camp.open("w", encoding="utf-8-sig", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=ccols)
+        w.writeheader()
+        w.writerow({
+            "Campaign": CAMPAIGN,
+            "Campaign Type": "Search",
+            "Campaign Subtype": "Standard",
+            "Campaign Daily Budget": "1667",
+            "Bid Strategy Type": "Maximize clicks",
+            "Campaign Status": "Paused",
+            "Networks": "Google search",
+            "Languages": "Japanese",
+            "Location": "Edogawa; Koto; Sumida; Katsushika; Urayasu; Ichikawa",
+        })
+    print(f"書きました: {camp}（画面で作れないときの回避策。1行）")
+
     kwn = sum(len(g["phrase"]) + len(g["exact"]) for g in GROUPS)
     print(f"書きました: {OUT}")
     print(f"  広告グループ {len(GROUPS)} ／ キーワード {kwn} ／ 除外 {len(NEGATIVES)} ／ 広告 {len(GROUPS)}")
