@@ -419,7 +419,8 @@ CTX_JS = """e=>{
   if(p){ let q=p.previousElementSibling; while(q&&!head){ head=t(q); q=q.previousElementSibling; } }
   return {lab:lab,before:before.slice(-20),after:after.slice(0,20),cont:p?t(p).slice(0,60):'',head:head.slice(0,40)};
 }"""
-NOT_DOGCAT_RE = re.compile(r"熱帯魚|アクア|サンマリン|ディスカス|金魚|メダカ|水族")  # ペットショップのうち観賞魚の店。犬猫の読本は合わないので送らない（2026-09-14 東京サンマリンで気づいた）
+# 犬猫以外を扱う店（読本が合わない）。2026-09-14 に観賞魚、のち昆虫・爬虫類・鳥も追加
+NOT_DOGCAT_RE = re.compile(r"熱帯魚|アクア|サンマリン|ディスカス|金魚|メダカ|水族|昆虫|爬虫|は虫|カブト|クワガタ|小鳥|バード|インコ|オウム|金魚|めだか|レプタイル|リクガメ")
 
 
 CONTACT_LINK_RE = re.compile(r"(問い?合わ?せ|問合せ|お問合わせ|contact|inquiry|mail ?form|メールフォーム)", re.I)
@@ -612,6 +613,52 @@ FAIL_RE = re.compile(r"失敗しました|エラーが発生|記入もれ|入力
 SEND_BTN = "input[type=submit][value*='送信'], input[type=button][value*='送信'], button[type=submit]:has-text('送信'), button:has-text('送信する'), button:has-text('送信'), input[value='上記の内容で送信する']"
 
 
+async def fill_required(pg, text: str, email_from: str, subject: str) -> int:
+    """まだ空のまま残っている必須項目を、種類に応じて埋める第2段。
+    2026-09-14 の実測で、送れない理由の多くが「必須項目に入力してください」だった
+    （Contact Form 7 の your-name / your-message のように、見出しの言葉から種類を判定できない欄）。"""
+    n = 0
+    for el in await pg.query_selector_all("input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=file]), textarea, select"):
+        try:
+            bad = await el.evaluate("e => e.willValidate && !e.checkValidity()")
+            if not bad:
+                continue
+            tag = await el.evaluate("e=>e.tagName.toLowerCase()")
+            typ = (await el.get_attribute("type") or "").lower()
+            attrs = " ".join([(await el.get_attribute(x) or "") for x in ("name", "id", "placeholder", "aria-label")])
+            if tag == "select":
+                await pick_option(el)
+            elif typ == "checkbox":
+                await el.check(force=True)
+            elif typ == "radio":
+                await el.check(force=True)
+            elif tag == "textarea":
+                await el.fill(text)
+            elif typ == "email" or re.search(r"mail", attrs, re.I):
+                await el.fill(email_from)
+            elif typ == "tel" or re.search(r"tel|phone|電話", attrs, re.I):
+                await el.fill(C.UNEI_TEL)
+            elif re.search(r"zip|postal|郵便|〒", attrs, re.I):
+                ml = await el.get_attribute("maxlength")
+                await el.fill(VALUES["zip"].replace("-", "") if (ml and int(ml) >= 7) else VALUES["zip"])
+            elif re.search(r"addr|住所|所在", attrs, re.I):
+                await el.fill(VALUES["addr"])
+            elif re.search(r"kana|カナ|furigana|フリガナ", attrs, re.I):
+                await el.fill("ササキ")
+            elif re.search(r"company|会社|法人|店名", attrs, re.I):
+                await el.fill(VALUES["company"])
+            elif re.search(r"subject|件名|title|題", attrs, re.I):
+                await el.fill(subject)
+            elif typ in ("", "text", "search"):
+                await el.fill("佐々木")
+            else:
+                continue
+            n += 1
+        except Exception:
+            continue
+    return n
+
+
 async def why_stuck(pg) -> str:
     """送れなかったとき、画面に出ている理由（必須項目の警告・ブラウザの検証メッセージ）を短く拾う。
     次の改善で何を直せばよいかを送信ログに残すため（2026-09-14）"""
@@ -635,11 +682,14 @@ async def why_stuck(pg) -> str:
         return ""
 
 
-async def submit(pg, wave: int, f: dict) -> dict:
+SPAM_URL_RE = re.compile(r"スパム|URL を?入力|URLを入力|リンクを含")
+
+
+async def submit(pg, wave: int, f: dict, text: str = "", email_from: str = "", subject: str = "", retry: bool = True) -> dict:
     """フォームを送り、完了画面を見届ける。確認画面をまたぐ場合は3手まで進む。
     戻り値 state: done（完了を確認）／ng（完了を確認できない）"""
     seen = []
-    for step in range(3):
+    for step in range(4):
         before_url = pg.url
         btn = await pg.query_selector("input[type=submit], button[type=submit], button:has-text('送信'), input[value*='送信'], "
                                       "input[value*='確認'], button:has-text('確認'), button:has-text('進む'), input[value*='次へ']")
@@ -661,8 +711,19 @@ async def submit(pg, wave: int, f: dict) -> dict:
             await pg.screenshot(path=str(OUT / f"w{wave}-{f['No']}-sent.png"), full_page=True)
             return {"state": "done", "reason": "", "proof": m.group(0)}
         if fail and not m:
-            await pg.screenshot(path=str(OUT / f"w{wave}-{f['No']}-sent.png"), full_page=True)
             w = await why_stuck(pg)
+            if retry and SPAM_URL_RE.search(body + " " + w) and text:
+                # 本文の URL がスパム判定される先がある。https:// を外した書き方で1回だけやり直す
+                plain = text.replace("https://", "").replace("http://", "")
+                for ta in await pg.query_selector_all("textarea"):
+                    try:
+                        await ta.fill(plain)
+                    except Exception:
+                        pass
+                return await submit(pg, wave, f, plain, email_from, subject, retry=False)
+            if retry and await fill_required(pg, text, email_from, subject):
+                continue  # 空だった必須項目を埋めて、もう一度送る
+            await pg.screenshot(path=str(OUT / f"w{wave}-{f['No']}-sent.png"), full_page=True)
             return {"state": "ng", "reason": "入力エラー（" + fail.group(0) + "）" + (f"：{w}" if w else ""), "proof": ""}
         seen.append((pg.url != before_url, n_ta))
         # 確認画面らしい（入力欄が消えて「送信」ボタンがある）なら、次の手で送信を押す
@@ -684,23 +745,43 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str, n: in
     async with async_playwright() as p:
         # この環境の外向き HTTPS は代理サーバー経由で、Chromium の直接の通信は途中で切られる（2026-09-13 実測：ERR_CONNECTION_RESET）。
         # そこでブラウザの全リクエストを Playwright の HTTP クライアント（代理サーバーを通れる）で取りに行き、ブラウザに返す
-        b = await p.chromium.launch(executable_path="/opt/pw-browsers/chromium", args=["--no-sandbox"])
-        ctx = await b.new_context(viewport={"width": 1200, "height": 1600}, locale="ja-JP", ignore_https_errors=True,
-                                  user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36")
+        b = ctx = None
 
         async def relay(route, request):
+            # この環境の外向き HTTPS は代理サーバー経由で、Chromium の直接の通信は途中で切られる（2026-09-13 実測：ERR_CONNECTION_RESET）。
+            # そこでブラウザの全リクエストを Playwright の HTTP クライアント（代理サーバーを通れる）で取りに行き、ブラウザに返す
+            if request.resource_type in ("image", "media", "font"):
+                await route.abort()
+                return
             try:
                 r = await route.fetch(max_redirects=5)
                 await route.fulfill(response=r)
             except Exception:
                 await route.abort()
-        await ctx.route("**/*", relay)
+
+        async def fresh():
+            """ブラウザを立て直す。落ちるサイトがあるため（2026-09-14：株式会社小林昆虫のページで落ちた）"""
+            nonlocal b, ctx
+            try:
+                if b:
+                    await b.close()
+            except Exception:
+                pass
+            b = await p.chromium.launch(executable_path="/opt/pw-browsers/chromium", args=["--no-sandbox", "--disable-dev-shm-usage"])
+            ctx = await b.new_context(viewport={"width": 1200, "height": 1600}, locale="ja-JP", ignore_https_errors=True,
+                                      user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36")
+            await ctx.route("**/*", relay)
+        await fresh()
         for f in targets:
             if send and not (SEND_HOURS[0] <= dt.datetime.now(JST).hour < SEND_HOURS[1]):
                 print(f"{SEND_HOURS[1]}:00 を過ぎたので止める（オーナー決定 2026-09-14：初動は 9:00〜17:00）")
                 break
             url = f["contact"]["contact_form_url"]
-            pg = await ctx.new_page()
+            try:
+                pg = await ctx.new_page()
+            except Exception:
+                await fresh()
+                pg = await ctx.new_page()
             text = form_text(f, f["種別"])
             subj = "利用者さま向けの読み物（A6カード）を置いていただけませんか"
             try:
@@ -720,7 +801,7 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str, n: in
                         break
                     continue
                 # 送信：確認画面をまたぐことがあるので、最大3手まで進めて「完了」を見届ける
-                res = await asyncio.wait_for(submit(pg, wave, f), timeout=90)
+                res = await asyncio.wait_for(submit(pg, wave, f, text, email_from, subj), timeout=120)
                 dest = r.get("moved_to") or url
                 note = ("巡回で拾ったURLにフォームが無く、サイト内の問い合わせページへ移動: " + url) if r.get("moved_to") else ""
                 if res["state"] != "done":
@@ -745,9 +826,18 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str, n: in
                 if send:
                     safe_write(tok, "log", log_send, wave, f, "フォーム", url, "③", f"失敗（{type(e).__name__}）")
                 print("失敗", f["No"], f["施設名"], type(e).__name__, str(e)[:120])
+                if "TargetClosed" in type(e).__name__ or "closed" in str(e):
+                    await fresh()  # ブラウザごと落ちた。立て直して次の施設へ
+                    continue
             finally:
-                await pg.close()
-        await b.close()
+                try:
+                    await pg.close()
+                except Exception:
+                    pass
+        try:
+            await b.close()
+        except Exception:
+            pass
 
 
 def main():
