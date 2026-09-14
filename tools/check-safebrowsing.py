@@ -7,6 +7,21 @@ status 3 ＝「安全でない」判定（Google のテスト用危険サイト�
 """
 import re, sys, urllib.request
 HOSTS = [
+    # ⚠ 並び順に意味がある。**お客様が実際に踏むホストを先に置く。**
+    #    後ろのホストほど 429 に当たりやすく、判定が取れないまま終わりやすい
+    #    （2026-09-15、`onehitter.jp` が10番目で毎回取れていなかった）。
+    #    裏側の netlify.app は「データなし」が返るだけなので後ろでよい。
+
+    # ── お客様が踏む独自ドメイン（ここが落ちると実害が出る） ──
+    'lp.onehitter.jp',                  # LP4本。★広告の遷移先。判定を受けると広告費を払いながら誰も着地できない
+    'onehitter.jp',                     # apex（301 → /mizumawari/）。※このホストは単独でも取れにくい
+    'one-hitter.jp',                    # 公式サイト
+    'yoyaku.onehitter.jp',              # 予約フォーム（独自ドメイン。2026-09-12 割り当て）
+    'survey.onehitter.jp',              # ご利用後アンケート。★現場のQRが飛ぶ先
+    'dokuhon.onehitter.jp',             # 読本（独自ドメイン）
+    'tenken.onehitter.jp',              # 無料点検（独自ドメイン）
+
+    # ── 裏側のホスト（送信済みリンクの行き先として生かしてあるもの含む） ──
     'one-hitter-booking.netlify.app',   # 旧予約フォーム（2026-09-12 に判定 → 2026-09-15 解除を確認）
     'onehitter-yoyaku.netlify.app',     # 予約フォーム（現行）
     'one-hitter-lp.netlify.app',        # LP4本
@@ -15,13 +30,6 @@ HOSTS = [
     'one-hitter-dokuhon.netlify.app',   # 読本
     'one-hitter-tenken.netlify.app',    # 無料点検
     'one-hitter-sns-media.netlify.app', # SNS画像
-    'one-hitter.jp',                    # 公式サイト
-    'onehitter.jp',                     # apex（301 → /mizumawari/）
-    'lp.onehitter.jp',                  # LP4本（独自ドメイン）★広告の遷移先。ここが落ちると出稿が止まる
-    'survey.onehitter.jp',              # ご利用後アンケート（独自ドメイン）★現場のQRが飛ぶ先
-    'yoyaku.onehitter.jp',              # 予約フォーム（独自ドメイン。2026-09-12 割り当て）
-    'dokuhon.onehitter.jp',             # 読本（独自ドメイン）
-    'tenken.onehitter.jp',              # 無料点検（独自ドメイン）
 ]
 LABEL = {1: '安全', 3: '⚠ 安全でない（判定中）', 4: '問題なし', 6: 'データなし（判定なし）'}
 URL = 'https://transparencyreport.google.com/transparencyreport/api/v3/safebrowsing/status?site='
