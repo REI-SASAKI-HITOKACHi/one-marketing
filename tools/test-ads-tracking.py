@@ -13,6 +13,9 @@
   4. 90日を過ぎた gclid は捨てる
   5. `?src=gads&cid=...` が GA4 の設定（gtag config）に乗る
   6. 広告から来ていない人の gclid は空のまま（前の人の値が残らない）
+  7. **Google広告のコンバージョンが、正しい send_to で撃たれる**
+     （空振りすると「GA4では見えるのに広告の管理画面では0件」になる。
+     　measurement.json が空のうちは、撃たないことを確かめる）
 
 rentracks.jp と googletagmanager.com へはこの環境から出られないので、
 外部への読み込みは止めて動かしている（gclid の保存も送信も、
@@ -31,6 +34,8 @@ from playwright.sync_api import sync_playwright
 
 CHROME = os.environ.get("OH_CHROME", "/opt/pw-browsers/chromium-1194/chrome-linux/chrome")
 ROOT = pathlib.Path(__file__).resolve().parent.parent / "deploy" / "netlify"
+CFG = json.loads((pathlib.Path(__file__).resolve().parent.parent
+                  / "tracking" / "measurement.json").read_text())
 
 if not ROOT.exists():
     sys.exit(f"{ROOT} がありません。先に python3 tools/build-site.py netlify を実行してください")
@@ -125,6 +130,52 @@ with sync_playwright() as pw:
     pg.goto(f"{BASE}/mizumawari/index.html")
     oid, g = submit(pg)
     chk("広告経由でない人の gclid は空", g == "", g)
+    c.close()
+
+    # --- 7. Google広告のコンバージョンが、正しい send_to で撃たれるか ---
+    #
+    # ここが空振りすると「GA4では見えているのに広告の管理画面では0件」になる。
+    # 設定が空（出稿前）のときは、撃たれないのが正しい。
+    ads = CFG.get("google_ads", {})
+    aw = ads.get("conversion_id", "")
+    labels = ads.get("labels", {})
+
+    def conversions(pg):
+        return pg.evaluate(
+            "(window.dataLayer||[]).filter(function(a){return a&&a[0]==='event'"
+            "&&a[1]==='conversion';}).map(function(a){return (a[2]||{}).send_to;})")
+
+    c = ctx()
+    pg = c.new_page()
+    pg.goto(f"{BASE}/mizumawari/thanks.html")
+    pg.wait_for_timeout(300)
+    got = conversions(pg)
+    if aw and labels.get("generate_lead"):
+        want = aw + "/" + labels["generate_lead"]
+        chk("サンクスページ → 申込のコンバージョンが撃たれる", got == [want], got)
+        chk("AW- が gtag('config') に登録されている",
+            pg.evaluate("(window.dataLayer||[]).some(function(a){"
+                        "return a&&a[0]==='config'&&String(a[1]).indexOf('AW-')===0;})"))
+    else:
+        chk("設定が空のうちは広告のコンバージョンを撃たない", got == [], got)
+    c.close()
+
+    c = ctx()
+    pg = c.new_page()
+    pg.goto(f"{BASE}/mizumawari/index.html")
+    pg.wait_for_timeout(200)
+    # tel: への遷移だけ止める。捕捉フェーズなので本体のリスナーは動く
+    pg.evaluate("document.addEventListener('click',function(e){e.preventDefault();},true)")
+    pg.evaluate("document.querySelector(\"a[href^='tel:']\").click()")
+    pg.wait_for_timeout(300)
+    got = conversions(pg)
+    if aw and labels.get("phone_click"):
+        want = aw + "/" + labels["phone_click"]
+        chk("電話タップ → 電話のコンバージョンが撃たれる", got == [want], got)
+        chk("申込と電話でラベルが違う（同じだと入札の目標に混ざる）",
+            labels["phone_click"] != labels.get("generate_lead"))
+    else:
+        chk("設定が空のうちは電話でも撃たない", got == [], got)
     c.close()
 
     b.close()
