@@ -13838,5 +13838,6282 @@
   "emails": [],
   "instagram": null,
   "line": null
+ },
+ {
+  "id": "ChIJOY1DlbiOGGARNfa7oT27leA",
+  "施設名": "ペットハウスう～ちゃん",
+  "種別": "ペットショップ",
+  "サイト": "https://www.instagram.com/pethouse_uchan?igsh=dnIzM3kxanVrbjJn",
+  "status": "Error",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ7TErL8GOGGARGAhsFI0AWnU",
+  "施設名": "安立屋",
+  "種別": "ペットショップ",
+  "サイト": "https://adachiya.shop/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJEx45DsOOGGARSttZRPbr0nM",
+  "施設名": "アクアフィールド",
+  "種別": "ペットショップ",
+  "サイト": "http://www.aquafield.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJad1FNJ6OGGARnqyOtdh5GEs",
+  "施設名": "ペットショップWANアメ横店",
+  "種別": "ペットショップ",
+  "サイト": "http://www.1wangroup.com/ameyoko/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/1wangroup_ameyoko",
+  "line": null
+ },
+ {
+  "id": "ChIJgZnUPJSPGGARVX1AihDl12Y",
+  "施設名": "ごはんの窓口 by GREEN DOG & CAT パルコヤ上野",
+  "種別": "ペットショップ",
+  "サイト": "https://www.green-dog.com/store/uen/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/ueno_gohannomadoguchi",
+  "line": null
+ },
+ {
+  "id": "ChIJZxs7GymMGGAR8edacpAZrss",
+  "施設名": "ひかるアクアリューム",
+  "種別": "ペットショップ",
+  "サイト": "http://www.hikaruaquarium.co.jp/",
+  "status": "ok",
+  "contact_form_url": "http://www.hikaruaquarium.co.jp/contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJVwYlp4uPGGARB8h5JOVGh9c",
+  "施設名": "パウズリビング(paw’s living) PARCO-ya上野店",
+  "種別": "ペットショップ",
+  "サイト": "https://paws-living.com/shop_list/#ueno",
+  "status": "ok",
+  "contact_form_url": "https://paws-living.com/contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "customer@paws-living.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/paws_mono_",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJibKSl7iOGGAR5dLi6lofjhU",
+  "施設名": "ワンダフルわん",
+  "種別": "ペットショップ",
+  "サイト": "https://www.w-wan.jp/",
+  "status": "ok",
+  "contact_form_url": "https://www.w-wan.jp/contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/wonwan.w.wan",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJRfai-Z-OGGARKVCtYU8ftj4",
+  "施設名": "ペットサロンＬｉｂｏｎ松坂屋上野店",
+  "種別": "ペットショップ",
+  "サイト": "http://www.p-libon.com/contents/matsuzakaya/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJZ-NYZcaPGGARbzFkOwSR-oU",
+  "施設名": "QIZNA キズナ",
+  "種別": "ペットショップ",
+  "サイト": "https://qizna.myshopify.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJGQntzpSOGGARzkYZFpOFZ9M",
+  "施設名": "犬の床屋さん 浅草３丁目",
+  "種別": "ペットショップ",
+  "サイト": "https://www.petstation.jp/shop/asakusa3",
+  "status": "ok",
+  "contact_form_url": "https://www.petstation.jp/shop/asakusa3",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/petstation_jp",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJuciREeuOGGARS7yERyZ3KjM",
+  "施設名": "プチテール",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJB6FhHZGPGGARTnMElNeW8tI",
+  "施設名": "THE STOA.",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ3Vdth46OGGARN2IOjWdWayc",
+  "施設名": "エムズ・ケネル",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJUz_6PpmOGGAR4bRduv2BFxM",
+  "施設名": "Libon上野店",
+  "種別": "ペットショップ",
+  "サイト": "http://www.p-libon.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJN-5fEOqOGGAResM2IyLRWBw",
+  "施設名": "エリール トリミングサロン & ペットグッズショップ Erile",
+  "種別": "ペットショップ",
+  "サイト": "https://erile.co.jp/",
+  "status": "ok",
+  "contact_form_url": "https://erile.co.jp/contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/erileasakusa",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJedlNumWPGGARMytXCB_Am0I",
+  "施設名": "Just Geek",
+  "種別": "ペットショップ",
+  "サイト": "https://just-geek.square.site/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "kobayashi@geekhood.co.jp",
+    "kind": "personal"
+   },
+   {
+    "address": "13e49d785d8d4f828038b6136f3b48ba@sentry.io",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJq6qu9rOOGGARUW4q9gFvRNM",
+  "施設名": "隠れ家トリミングサロンコッコローネ COCCOLONE",
+  "種別": "ペットショップ",
+  "サイト": "https://torimmingsalon-coccolone.jimdo.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJUx8ql3aPGGARDkOyHpXt-YE",
+  "施設名": "FINE PETS",
+  "種別": "ペットショップ",
+  "サイト": "https://www.fine-pets.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": true,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "info@fine-pets.com",
+    "kind": "generic"
+   },
+   {
+    "address": "dd0a55ccb8124b9c9d938e3acf41f8aa@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "c183baa23371454f99f417f6616b724d@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "8c4075d5481d476e945486754f783364@sentry.io",
+    "kind": "personal"
+   },
+   {
+    "address": "79baaa8e09c746d2b7401643b99792e0@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "1eeb89147c984dc6bc3ffafd9e6cd089@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "8eb368c655b84e029ed79ad7a5c1718e@sentry.wixpress.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/finepets2023",
+  "line": null
+ },
+ {
+  "id": "ChIJPzIvHq6OGGARF9F1Roxkh_I",
+  "施設名": "イワサキ商店",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJX-oU4tKPGGARMycLYQ0k7a0",
+  "施設名": "もふれる屋カラハリ",
+  "種別": "ペットショップ",
+  "サイト": "http://www.moff-kalahari.com/",
+  "status": "ok",
+  "contact_form_url": "http://www.moff-kalahari.com/inquiries/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJEa-U0zaPGGAR6_x9xauOEDk",
+  "施設名": "DOG DEPT 浅草オレンジ通り店",
+  "種別": "ペットショップ",
+  "サイト": "https://www.dogdept.com/shoplist/area03_25.html",
+  "status": "ok",
+  "contact_form_url": "https://www.dogdept.com/contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://instagram.com/dogdept_official",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJryOxRb-OGGARMVXibDHAQCQ",
+  "施設名": "Vega",
+  "種別": "ペットショップ",
+  "サイト": "http://dreamvega.com/",
+  "status": "ok",
+  "contact_form_url": "http://dreamvega.com/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJe-nCtbGOGGARobd5euQSvo0",
+  "施設名": "ポケットドッグ",
+  "種別": "ペットショップ",
+  "サイト": "http://www.pocket-dogs.net/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/pocketdogs2",
+  "line": null
+ },
+ {
+  "id": "ChIJW37lxrGOGGAR_NfZHO8jNf4",
+  "施設名": "無添加ドッグフードBowBow!",
+  "種別": "ペットショップ",
+  "サイト": "https://www.bow-bow.com/?utm_source=GBP&utm_medium=GBP&utm_term=GBP&utm_content=GBP&utm_campaign=GBP",
+  "status": "ok",
+  "contact_form_url": "https://www.bow-bow.com/contact",
+  "has_form": true,
+  "no_sales": true,
+  "emails": [],
+  "instagram": "https://www.instagram.com/bowbow0214",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJCVD4UoSOGGARBPhUK_6IqYk",
+  "施設名": "うさぎさん",
+  "種別": "ペットショップ",
+  "サイト": "https://usagisan.info/",
+  "status": "ok",
+  "contact_form_url": "https://usagisan.info/contact_page/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "info@usagisan.info",
+    "kind": "generic"
+   }
+  ],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJQWOFN6OPGGAR8_k3O96Dj1s",
+  "施設名": "アルティメット ミカカブクワ",
+  "種別": "ペットショップ",
+  "サイト": "https://mikakabukuwa.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJSUbyRsCOGGARpkF9ObX7ZUg",
+  "施設名": "浅草きんぎょ",
+  "種別": "ペットショップ",
+  "サイト": "http://asakusa-kingyo.crayonsite.net/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJM7mpF7iOGGARHe4yAncfZHQ",
+  "施設名": "Fuwaly",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJuUDj9yuMGGARvQ_jyFRYmgc",
+  "施設名": "トリミングサロン上野の森",
+  "種別": "ペットショップ",
+  "サイト": "https://uenonomoriah.com/trimming/",
+  "status": "ok",
+  "contact_form_url": "https://uenonomoriah.com/inquiry/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJDzfkCkCPGGARifqMmQoEZRI",
+  "施設名": "NECOREPA STORE 蔵前",
+  "種別": "ペットショップ",
+  "サイト": "http://www.neco-republic.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/necorepublic_campaign",
+  "line": null
+ },
+ {
+  "id": "ChIJVVWa9-qOGGARmtprB5VlmVw",
+  "施設名": "アクアリンク株式会社",
+  "種別": "ペットショップ",
+  "サイト": "https://www.aqualink.tv/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJAQB0C3iLGGARDExhFJhCuVY",
+  "施設名": "鳥のいるカフェ 谷中本店",
+  "種別": "ペットショップ",
+  "サイト": "https://toricafe.co.jp/yanaka",
+  "status": "ok",
+  "contact_form_url": "https://toricafe.co.jp/yanaka",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/toricafe.honten",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJoSXsgWqPGGAR3XCnGDjbdvY",
+  "施設名": "DOG DEPT + CAFE 浅草 隅田川テラス店",
+  "種別": "ペットショップ",
+  "サイト": "https://www.dogdept.com/cafe/asakusa.html",
+  "status": "ok",
+  "contact_form_url": "https://www.dogdept.com/contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://instagram.com/dogdept_official",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJd0SLNL-OGGARlKxpIp2H5O4",
+  "施設名": "相愛ペットケアルーム",
+  "種別": "ペットショップ",
+  "サイト": "https://souai-petcare.eek.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJFRPMeqKPGGARUw0LwJKDSNo",
+  "施設名": "浅草の豆柴カフェ",
+  "種別": "ペットショップ",
+  "サイト": "http://owls-cats-forest.com/free/mameshiba-asakusa",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/asakusa_mameshibacafe",
+  "line": null
+ },
+ {
+  "id": "ChIJ98cHgBmPGGARhHTXR8MJrDg",
+  "施設名": "昆虫SHOP 樹液酒場",
+  "種別": "ペットショップ",
+  "サイト": "https://jueki-sakaba.crayonsite.net/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJiUOoWLOPGGARVsxx37uc4cI",
+  "施設名": "フントヒュッテ鳥越店",
+  "種別": "ペットショップ",
+  "サイト": "https://hundehutte.net/",
+  "status": "ok",
+  "contact_form_url": "https://hundehutte.net/contact",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJTY6jhcOOGGARb4QVwEB_Wcc",
+  "施設名": "シンシアペットクリニック",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJb8-DpViPGGAR9_Her5j8ytI",
+  "施設名": "うさぎのさと",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJz3n_T6aOGGARLiUoZJIQ8tE",
+  "施設名": "水作㈱",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJiYpqqciPGGARbRfXKhDNTyE",
+  "施設名": "トリミングサロンチェレステ",
+  "種別": "ペットショップ",
+  "サイト": "https://trimmingsalonceleste.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/trimmingsalon_celeste",
+  "line": null
+ },
+ {
+  "id": "ChIJpWVFTb-OGGARR4Mh1znNCVY",
+  "施設名": "浅草ドッグむつみ",
+  "種別": "ペットショップ",
+  "サイト": "http://asakusadog-mutsumi.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ7dCwJJyOGGARkONYV2cB0aE",
+  "施設名": "YOU＋MORE!（フェリシモユーモア） エキュート上野店",
+  "種別": "ペットショップ",
+  "サイト": "https://www.felissimo.co.jp/youmore",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/youmoremore",
+  "line": null
+ },
+ {
+  "id": "ChIJ90ZA-0aPGGARA59S2GKMMus",
+  "施設名": "Dogsalon bebell（トリミングサロン）",
+  "種別": "ペットショップ",
+  "サイト": "http://bebell.tokyo/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "8c4075d5481d476e945486754f783364@sentry.io",
+    "kind": "personal"
+   },
+   {
+    "address": "9a65e97ebe8141fca0c4fd686f70996b@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "ed436f5053144538958ad06a5005e99a@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "460ff4620fa44cba8df530afde949785@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "8eb368c655b84e029ed79ad7a5c1718e@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "78f7996315bc402f9dcb8a2f974b82d1@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "2062d0a4929b45348643784b5cb39c36@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "271e9fa3230b4eec94b02bf95780f5f2@sentry.wixpress.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/wix",
+  "line": null
+ },
+ {
+  "id": "ChIJKdJOa8aPGGARpcQSWdQbIck",
+  "施設名": "カワウソカフェ®︎HARRY浅草店",
+  "種別": "ペットショップ",
+  "サイト": "https://harinezumi-cafe.com/",
+  "status": "ok",
+  "contact_form_url": "https://harinezumi-cafe.com/contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/hedgehogcafe_harajuku",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJNT72-J-OGGARSD1VjuHFx7U",
+  "施設名": "TOHOシネマズ 上野",
+  "種別": "ペットショップ",
+  "サイト": "https://hlo.tohotheater.jp/net/schedule/080/TNPI2000J01.do",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/tohocinemas_official",
+  "line": null
+ },
+ {
+  "id": "ChIJo3tx-Z-OGGARmtgBAh8wp8o",
+  "施設名": "松坂屋上野店",
+  "種別": "ペットショップ",
+  "サイト": "https://www.matsuzakaya.co.jp/ueno/?utm_source=google_map&utm_medium=social&utm_campaign=info&utm_content=11",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJSxarMZyOGGAR6oaA7aqrJuM",
+  "施設名": "ケンエレスタンド エキュート上野店",
+  "種別": "ペットショップ",
+  "サイト": "http://uenoland.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "info@uenoland.com",
+    "kind": "generic"
+   },
+   {
+    "address": "partner@uenoland.com",
+    "kind": "personal"
+   },
+   {
+    "address": "report@uenoland.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJsb8ctvmPGGARLOJnoQrrSaI",
+  "施設名": "COLON DOG GROOMING SALON",
+  "種別": "トリミング",
+  "サイト": "https://www.instagram.com/colondoggrooming?igsh=MXdlM243MWRsZ2t1eg==",
+  "status": "Error",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJOVi-avGPGGARGgnpNnijJ-o",
+  "施設名": "トリミングサロンCheri Cherie (シェリシェリー)",
+  "種別": "トリミング",
+  "サイト": "https://www.d-d-f.com/",
+  "status": "ok",
+  "contact_form_url": "https://www.d-d-f.com/contact",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "info@d-d-f.com",
+    "kind": "generic"
+   }
+  ],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJy6H7hbuOGGAR2L9N5GOw-as",
+  "施設名": "ドッグサロンリベロ dog salon libero",
+  "種別": "トリミング",
+  "サイト": "https://dogsalonlibero.tokyo/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJhd6p8YOPGGARWVU9CKzMP_c",
+  "施設名": "わんこRoom 江戸っ子",
+  "種別": "トリミング",
+  "サイト": "https://www.instagram.com/wanko_room_edokko/",
+  "status": "Error",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJk72encaPGGAR0Hnco1ahrCY",
+  "施設名": "トリミングサロンわんワンわん",
+  "種別": "トリミング",
+  "サイト": "http://wan3.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/trimmingsalon111",
+  "line": null
+ },
+ {
+  "id": "ChIJq41ZlLqOGGARftvnzWxzzzU",
+  "施設名": "すずきペットクリニック",
+  "種別": "動物病院",
+  "サイト": "https://www.instagram.com/su.zu.ki.pet?igsh=c3hhMmM5ZHBkazVo",
+  "status": "Error",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ83QiAQKPGGARoqt7tHJedms",
+  "施設名": "あさくさばし動物病院",
+  "種別": "動物病院",
+  "サイト": "https://www.asakusabashi-ah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ0RLfNQCNGGARTjUvrfB0EJQ",
+  "施設名": "NOT BAD BARBER",
+  "種別": "トリミング",
+  "サイト": "https://beauty.hotpepper.jp/slnH000805974/",
+  "status": "ok",
+  "contact_form_url": "https://beauty.hotpepper.jp/CSP/publicationInquiry/?wak=BPCO100001_link_sentel_footer",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJkfP48ZOOGGARv1GkNWclzVY",
+  "施設名": "アニマル・アイケア東京 安部動物病院",
+  "種別": "動物病院",
+  "サイト": "https://www.abe-ah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJqXynpeuOGGARRULb5d6OLOk",
+  "施設名": "浅草どうぶつ医療センター",
+  "種別": "動物病院",
+  "サイト": "https://asakusa-amc.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJL8zIHo2OGGARCcbsTgz0-kE",
+  "施設名": "まつもと動物病院",
+  "種別": "動物病院",
+  "サイト": "http://www.tamapochi.net/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJH9adLCCPGGAR7ZdOfbXdt_I",
+  "施設名": "サニーペットクリニック",
+  "種別": "動物病院",
+  "サイト": "https://sunny-pc.net/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/sunny.pet_clinic",
+  "line": null
+ },
+ {
+  "id": "ChIJx4YrBoyOGGAR9YUnlcWMSY0",
+  "施設名": "クニ動物病院",
+  "種別": "動物病院",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJgXQSUwCPGGARBQxuv0bdHK8",
+  "施設名": "浅草どうぶつ医療センター&高度どうぶつ歯科・CTセンター",
+  "種別": "動物病院",
+  "サイト": "https://asakusa-amc.com/",
+  "status": "ok",
+  "contact_form_url": "https://asakusa-amc.com/contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJVSW0z-2OGGAR8aY3XXiMWCM",
+  "施設名": "いわせ犬猫クリニック",
+  "種別": "動物病院",
+  "サイト": "https://www.iwaseinuneko.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJRXdGHKWOGGAR0qO1G91ljnA",
+  "施設名": "チャト動物病院",
+  "種別": "動物病院",
+  "サイト": "http://www.chato-ah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/chatoah",
+  "line": null
+ },
+ {
+  "id": "ChIJ2wlDYqWOGGAR8J6UeZ_b5fg",
+  "施設名": "浅草橋 ねこの病院",
+  "種別": "動物病院",
+  "サイト": "http://www.cat-hospital.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJN0n1DCyMGGARBJ4sMckx8Cc",
+  "施設名": "上野の森どうぶつ病院",
+  "種別": "動物病院",
+  "サイト": "https://uenonomoriah.com/",
+  "status": "ok",
+  "contact_form_url": "https://uenonomoriah.com/inquiry/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/ueno_no_mori_animalhospital",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJfaXEZnOPGGAR5CnFi79bVck",
+  "施設名": "入谷動物病院",
+  "種別": "動物病院",
+  "サイト": "http://www.iriyavet.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJkThrV7-OGGARWZTFVwKY6OI",
+  "施設名": "相愛動物病院",
+  "種別": "動物病院",
+  "サイト": "http://souai-byouin.jpn.org/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJB4PosL6OGGARHv9IW5WRCPs",
+  "施設名": "トリトン動物病院",
+  "種別": "動物病院",
+  "サイト": "https://tritonanimalhospital.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/triton.ah",
+  "line": "https://lin.ee/RXlWc8K"
+ },
+ {
+  "id": "ChIJAUojuYaOGGARiEa1L12iRhA",
+  "施設名": "内藤動物病院",
+  "種別": "動物病院",
+  "サイト": "http://www.naito-ah.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ-XkgGTiJGGARe6J2dSaBhHU",
+  "施設名": "森下小鳥病院",
+  "種別": "動物病院",
+  "サイト": "http://www.bird-clinic.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/p",
+  "line": null
+ },
+ {
+  "id": "ChIJOSFCx0eNGGARW7s-c69FNMQ",
+  "施設名": "谷中千駄木ペットクリニック",
+  "種別": "動物病院",
+  "サイト": "https://www.ysp-clinic.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJCeOaQruOGGARHrmJ03bBgIg",
+  "施設名": "トリミングサロンハッピーズ蔵前",
+  "種別": "ペットショップ",
+  "サイト": "https://happys-kuramae.com/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJzekFrpOPGGARsE-2a1kym-U",
+  "施設名": "あさくさ橋心臓と血管のクリニック",
+  "種別": "動物病院",
+  "サイト": "https://acvc.jp/",
+  "status": "ok",
+  "contact_form_url": "https://acvc.jp/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJuYqEVBKPGGARL9PERTVI7As",
+  "施設名": "海動物病院 浅草往診所",
+  "種別": "動物病院",
+  "サイト": "https://www.kai-clinic.jp/clinic/%E6%B5%85%E8%8D%89%E5%BE%80%E8%A8%BA%E6%89%80/",
+  "status": "ok",
+  "contact_form_url": "https://www.kai-clinic.jp/contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJ5_NfFVKTGGARCvHFn8vKYY0",
+  "施設名": "株式会社 and Vet（アンド ベット）",
+  "種別": "動物病院",
+  "サイト": "https://and-vet.com/",
+  "status": "ok",
+  "contact_form_url": "https://and-vet.com/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "info@and-vet.com",
+    "kind": "generic"
+   }
+  ],
+  "instagram": "https://www.instagram.com/vt_univ",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJ38CCN4eOGGAR59RvzOH5tOg",
+  "施設名": "【ペット専門店】ユアペティア 東日暮里店",
+  "種別": "ペットショップ",
+  "サイト": "https://www.olympic-corp.co.jp/petia/shop/P502",
+  "status": "ok",
+  "contact_form_url": "https://www.olympic-corp.co.jp/petia/contact",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "petshop_yourpetia@osc.oscgroup.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/yourpetia_official",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJHX06yBKOGGARhLxuStILsxc",
+  "施設名": "トロピランド荒川店",
+  "種別": "ペットショップ",
+  "サイト": "http://www.tropiland.co.jp/?utm_source=google&utm_medium=GBP&utm_campaign=arakawa",
+  "status": "ok",
+  "contact_form_url": "http://www.tropiland.co.jp/inquiry.html",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/tropilandarakawa",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJfZRCN4eOGGARZKPjttCqI4Q",
+  "施設名": "ペットショップ マルワン東日暮里店",
+  "種別": "ペットショップ",
+  "サイト": "http://maruone.com/h_nippori/",
+  "status": "ok",
+  "contact_form_url": "http://maruone.com/contact/",
+  "has_form": true,
+  "no_sales": true,
+  "emails": [
+   {
+    "address": "contact@maruone.com",
+    "kind": "generic"
+   }
+  ],
+  "instagram": "https://www.instagram.com/maruone_nipporidiary",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJ1wz4UW2OGGARoXOmdYZPcqc",
+  "施設名": "DOG&CAT Mili",
+  "種別": "ペットショップ",
+  "サイト": "http://www.mili2015.jp/",
+  "status": "ok",
+  "contact_form_url": "http://www.mili2015.jp/inquiry/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJFVpcCPeOGGARYtug00G_Hpg",
+  "施設名": "ロイヤルホームセンターペットショップ",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJVVMbPn6OGGARHN_KmwbLRDg",
+  "施設名": "Wan's Life",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJBRoCsqiPGGARaL-ENH5WESc",
+  "施設名": "【ペット専門店】ユアペティア三ノ輪店",
+  "種別": "ペットショップ",
+  "サイト": "https://www.olympic-corp.co.jp/petia/shop/P41",
+  "status": "ok",
+  "contact_form_url": "https://www.olympic-corp.co.jp/petia/contact",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "petshop_yourpetia@osc.oscgroup.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/yourpetia_official",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJNcct072PGGARc1jE2IZYc2U",
+  "施設名": "ペットホテル&トリミングサロン ワンルーク荒川区三河島店",
+  "種別": "ペットショップ",
+  "サイト": "https://oneluke.net/mikawashima/",
+  "status": "ok",
+  "contact_form_url": "https://oneluke.net/mikawashima//contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/oneluke_arakawaku.mikawashima",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJR6mXToGOGGARIWk9jK3hoyI",
+  "施設名": "DOGLY",
+  "種別": "動物病院",
+  "サイト": "http://dogly.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/inunositsuke.0dogly",
+  "line": null
+ },
+ {
+  "id": "ChIJT7eWRwCPGGARJxd2iMRW1lA",
+  "施設名": "Re:crested",
+  "種別": "ペットショップ",
+  "サイト": "https://x.com/recrested",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJVQsma2ePGGARWciKkr8VtaQ",
+  "施設名": "アメージングアニマルズー",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ86ooMdyNGGARvRFGFuwLy-4",
+  "施設名": "トリミングサロン ペリート",
+  "種別": "ペットショップ",
+  "サイト": "https://perrito.co.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "info@perrito.co.jp",
+    "kind": "generic"
+   }
+  ],
+  "instagram": "https://www.instagram.com/perrito11_official",
+  "line": null
+ },
+ {
+  "id": "ChIJ-2Dcb9mNGGARLirSrX_yF58",
+  "施設名": "ＷＡＮＢＯ",
+  "種別": "ペットショップ",
+  "サイト": "https://wanbo.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJa7ezTouPGGARgpEEPgJEKdo",
+  "施設名": "ペットホテル",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ7VYwuW-OGGARIBXYrh5pV3Y",
+  "施設名": "トイプードル専門店・パピーガーデン東京ハウス",
+  "種別": "ペットショップ",
+  "サイト": "https://mokona-n.com/",
+  "status": "ok",
+  "contact_form_url": "https://mokona-n.com/contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/puppygarden",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJMw3MAIqOGGARfnkAfogPwvo",
+  "施設名": "パイネ",
+  "種別": "ペットショップ",
+  "サイト": "http://www.pa-m.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJKwkuHQCPGGARp9MzTXEvBjo",
+  "施設名": "レインフォレスト RAINFOREST",
+  "種別": "ペットショップ",
+  "サイト": "https://www.rainforest.co.jp/index.html",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ1-PpiHeOGGARO2027G9yesc",
+  "施設名": "西日暮里ペットクリニック",
+  "種別": "ペットショップ",
+  "サイト": "http://www.nippori-pet.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/nishinippori.pet",
+  "line": "https://lin.ee/nUtHKs5"
+ },
+ {
+  "id": "ChIJFey3qyiPGGARoAcdPnGz3sQ",
+  "施設名": "Dog Salon 雅",
+  "種別": "トリミング",
+  "サイト": "https://miyavidogsalon.com/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJZf47Xm6PGGARE6fZP2uw4W8",
+  "施設名": "102dogsalon",
+  "種別": "トリミング",
+  "サイト": "https://www.102dogsalon.com/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJsVjljeWNGGARPusxnkhV-NA",
+  "施設名": "ペットサロンプッチー",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJtVX6p_eOGGAR9meaM1he9hg",
+  "施設名": "ロイヤルホームセンター 南千住",
+  "種別": "ペットショップ",
+  "サイト": "https://www.royal-hc.co.jp/shops/01075/?utm_source=google_campaign&utm_medium=organic&utm_campaign=gmb",
+  "status": "ok",
+  "contact_form_url": "https://www.royal-hc.co.jp/corporate/contact",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/royal_hc_official",
+  "line": "https://lin.ee/DE8Jwha",
+  "captcha": false
+ },
+ {
+  "id": "ChIJDRV8B9SNGGARxsFj8ciFiew",
+  "施設名": "LIVEDOG",
+  "種別": "ペットショップ",
+  "サイト": "http://www.livedog-yanaka.com/",
+  "status": "ok",
+  "contact_form_url": "http://www.livedog-yanaka.com/inquiry.html",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/livedog_yanaka",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJeQlJSeiPGGARHPzsFGxbTa0",
+  "施設名": "ドッグサロンキュート",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJBYVJFg2OGGAREgouF71glPA",
+  "施設名": "Dog Salon Myu&Coco",
+  "種別": "ペットショップ",
+  "サイト": "http://dogsalon-myucoco.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/dogsalonmyucoco",
+  "line": "https://lin.ee/UsS9GKx"
+ },
+ {
+  "id": "ChIJlytn_tONGGARa8RDOxQRSjM",
+  "施設名": "ねこあくしょん",
+  "種別": "ペットショップ",
+  "サイト": "http://www.necoaction.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/necoaction",
+  "line": null
+ },
+ {
+  "id": "ChIJL07GWQqOGGARBAE8OjspG9M",
+  "施設名": "にゃんこのお宿 やな川",
+  "種別": "ペットショップ",
+  "サイト": "http://nyankono-oyado.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJf6_Kr_WOGGARCwTJtvKJyuc",
+  "施設名": "ネコのお風呂屋さん",
+  "種別": "ペットショップ",
+  "サイト": "http://neko-ofuro.com/",
+  "status": "ok",
+  "contact_form_url": "http://neko-ofuro.com/contact.php",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJ6yCCwoOPGGARaAaWIdxRxBw",
+  "施設名": "Noir reptiles",
+  "種別": "ペットショップ",
+  "サイト": "https://twitter.com/Noirreptiles",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": "https://lin.ee/2zKOgiZ"
+ },
+ {
+  "id": "ChIJvahbor-PGGARRanRhR0Nf3o",
+  "施設名": "ドッグサロン ＣＨＥ´ＲＩＥ",
+  "種別": "ペットショップ",
+  "サイト": "https://www.instagram.com/dogsalon_cherie_mikawashima/",
+  "status": "Error",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJY3N7UeCNGGAR9P-zCd79yj4",
+  "施設名": "ぴーたん",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ29IfQ16OGGARgQsrXcs2Aso",
+  "施設名": "Grooming Salon ゆいまぁる",
+  "種別": "ペットショップ",
+  "サイト": "http://yuimaaru423.wixsite.com/yuimaaru",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "8c4075d5481d476e945486754f783364@sentry.io",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/groomingsalon_yuimaaru",
+  "line": null
+ },
+ {
+  "id": "ChIJvYGcoImPGGARBPIqfIXhRU0",
+  "施設名": "ken.ken.pa",
+  "種別": "ペットショップ",
+  "サイト": "https://www.kenkenpa.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "info@kenkenpa.jp",
+    "kind": "generic"
+   }
+  ],
+  "instagram": "https://www.instagram.com/miy_47",
+  "line": null
+ },
+ {
+  "id": "ChIJKTY0Vy2PGGARnBNuThyFqfM",
+  "施設名": "堀切めだか４号店",
+  "種別": "ペットショップ",
+  "サイト": "https://www.chikanari.co.jp/medaka.html",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJwTOCYAyOGGAR1b7re0ari4k",
+  "施設名": "プラゼール水生生物研究所",
+  "種別": "ペットショップ",
+  "サイト": "http://www.prazer.jp/contact/",
+  "status": "ok",
+  "contact_form_url": "http://www.prazer.jp/contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJWRvCnvqNGGARnTqSvzRbZzI",
+  "施設名": "オダイ動物病院",
+  "種別": "ペットショップ",
+  "サイト": "http://www.odai-animal.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJqfZcJHuOGGARxrmMOA07Uho",
+  "施設名": "ドッグサロン＆ドッグカフェ アンジン",
+  "種別": "ペットショップ",
+  "サイト": "http://anjing.web.fc2.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/anjing.arakawa",
+  "line": "https://lin.ee/Bt5DFpw"
+ },
+ {
+  "id": "ChIJRYuJLT-PGGARL5LCglt9rSc",
+  "施設名": "ハッピーベル南千住店",
+  "種別": "ペットショップ",
+  "サイト": "https://happybell.co.jp/shop/minamisenjyu/",
+  "status": "ok",
+  "contact_form_url": "https://happybell.co.jp/shop/minamisenjyu/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/p",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJ4yCSkfONGGAR5Odm5duC9Fc",
+  "施設名": "ホテルキャッツカートン",
+  "種別": "ペットショップ",
+  "サイト": "https://cats-karton.com/",
+  "status": "ok",
+  "contact_form_url": "https://cats-karton.com/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "cats.karton@icloud.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJ__8E0n2OGGARLCm46Ha1wZI",
+  "施設名": "日暮里動物病院",
+  "種別": "ペットショップ",
+  "サイト": "http://www.nippori-amc.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "8c4075d5481d476e945486754f783364@sentry.io",
+    "kind": "personal"
+   },
+   {
+    "address": "dd0a55ccb8124b9c9d938e3acf41f8aa@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "c183baa23371454f99f417f6616b724d@sentry.wixpress.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJjVP1kuONGGARIJgb-4-B1Ko",
+  "施設名": "犬の美容室ＥＬＬＥ",
+  "種別": "ペットショップ",
+  "サイト": "http://salonde-elle.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJxbXwQQyOGGAR8fHmObgE2rs",
+  "施設名": "I DOG GROOMING (アイドッググルーミング）",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJN85txBKOGGARO89J4OUNMZc",
+  "施設名": "町屋動物病院",
+  "種別": "ペットショップ",
+  "サイト": "http://www.machiya-ah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/machiyadoubutu",
+  "line": "https://lin.ee/PEfbSJQ"
+ },
+ {
+  "id": "ChIJLfZNSYeOGGARrHUo5YrmcPc",
+  "施設名": "いなげや荒川東日暮里店",
+  "種別": "ペットショップ",
+  "サイト": "https://stores.inageya.co.jp/store/?s=062",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJiwjDSB-NGGARjErG12X4F7M",
+  "施設名": "ARAKAWA ii VILLAGE(アラカワイイビレッジ)",
+  "種別": "ペットショップ",
+  "サイト": "https://www.kawaikikaku.net/",
+  "status": "ok",
+  "contact_form_url": "https://www.kawaikikaku.net/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "8c4075d5481d476e945486754f783364@sentry.io",
+    "kind": "personal"
+   },
+   {
+    "address": "dd0a55ccb8124b9c9d938e3acf41f8aa@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "c183baa23371454f99f417f6616b724d@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "18d2f96d279149989b95faf0a4b41882@sentry-next.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "5d1795a2db124a268f1e1bd88f503500@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "n@reiko.0150",
+    "kind": "personal"
+   },
+   {
+    "address": "n@yuyulina.710",
+    "kind": "personal"
+   },
+   {
+    "address": "n@yummybakes.komeko",
+    "kind": "personal"
+   },
+   {
+    "address": "n@sorano.marche.miyamaepark",
+    "kind": "personal"
+   },
+   {
+    "address": "n@sparkle.mayu",
+    "kind": "personal"
+   },
+   {
+    "address": "n@hajimari.honichi",
+    "kind": "personal"
+   },
+   {
+    "address": "example@mysite.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/arakawa_ii_village",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJGaX2fcePGGAR_U5mdV_jL54",
+  "施設名": "Dog's Stay Pinocchio",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJAQBwDCyMGGARoSbhzSewfHg",
+  "施設名": "東京上野どうぶつ心臓外科",
+  "種別": "動物病院",
+  "サイト": "http://animal-hearts.com/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJp6KexvWOGGARaG7Rt3FO23Q",
+  "施設名": "ペットサロン ピノキオ",
+  "種別": "トリミング",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ5ZOG-6aPGGAR6SXTh5N0sxo",
+  "施設名": "ドッグサロン オルナ",
+  "種別": "トリミング",
+  "サイト": "https://dog-oruna.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": "https://lin.ee/KwGq5AD"
+ },
+ {
+  "id": "ChIJxQE3FimNGGARZgsJDzPvPX4",
+  "施設名": "わんわんステイ",
+  "種別": "ペットショップ",
+  "サイト": "https://wanwan-stay.com/",
+  "status": "ok",
+  "contact_form_url": "https://wanwan-stay.com/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJZXuBi2OOGGAR2K3XLVa7at0",
+  "施設名": "あらかわいちまち動物病院",
+  "種別": "動物病院",
+  "サイト": "https://ichimachi.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "info@ichimachi.com",
+    "kind": "generic"
+   }
+  ],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ4TrQ84mOGGARe1vvjYL1ZqY",
+  "施設名": "ひろ動物病院",
+  "種別": "動物病院",
+  "サイト": "https://www.hiro-ah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/hiroahjp",
+  "line": null
+ },
+ {
+  "id": "ChIJBfrwgBONGGARTQ_jsN8NXto",
+  "施設名": "犬の幼稚園&ホテル ワンPeace",
+  "種別": "ペットショップ",
+  "サイト": "https://wanpeace111.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "wanpeace.101@gmail.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/wan_peace2025",
+  "line": null
+ },
+ {
+  "id": "ChIJP-N0K_SOGGARbN10wJBTvK4",
+  "施設名": "モリタ動物病院",
+  "種別": "動物病院",
+  "サイト": "https://www.morita-ah.info/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": "https://lin.ee/RUPAmzD"
+ },
+ {
+  "id": "ChIJ39hH1tuNGGARdNBOZEXijPc",
+  "施設名": "動物・野澤クリニック",
+  "種別": "動物病院",
+  "サイト": "http://nozawa.site.ne.jp/clinic/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ5c1PmOONGGAR1xQwCWDX6eE",
+  "施設名": "アラカワ動物病院",
+  "種別": "動物病院",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJrZUgJACPGGARywqisj2u5lg",
+  "施設名": "動物病院 キバタン王国",
+  "種別": "動物病院",
+  "サイト": "https://kibatan-oukoku.com/",
+  "status": "ok",
+  "contact_form_url": "https://kibatan-oukoku.com/contact/",
+  "has_form": true,
+  "no_sales": true,
+  "emails": [],
+  "instagram": "https://www.instagram.com/kibatankingdom",
+  "line": "https://lin.ee/7NzKfXO",
+  "captcha": false
+ },
+ {
+  "id": "ChIJ6S7Bh2GOGGARKOeiCOCj0o8",
+  "施設名": "イネコ動物病院",
+  "種別": "動物病院",
+  "サイト": "http://inekoanimaldentalclinic.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJwYMV3GKOGGARzEGAiJ-wT5o",
+  "施設名": "アミン動物病院",
+  "種別": "動物病院",
+  "サイト": "http://www.amin-vh.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJd9TW_XqOGGARle6QVTEELPs",
+  "施設名": "水野動物病院",
+  "種別": "動物病院",
+  "サイト": "https://www.mizuno-ah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/mizunoah",
+  "line": "https://lin.ee/59phjJU"
+ },
+ {
+  "id": "ChIJh332MbeSGGARrJWzdHLc0Yo",
+  "施設名": "ペットの専門店コジマ 板橋店",
+  "種別": "ペットショップ",
+  "サイト": "https://pets-kojima.com/shop/0003/?utm_source=google&utm_medium=maps",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJmzNWG3KOGGAR-vwQhPRmQko",
+  "施設名": "ジャンボどうぶつ病院",
+  "種別": "動物病院",
+  "サイト": "http://jumbo-animal.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJI4t4O3OOGGARhq6JGadHgFk",
+  "施設名": "キムラ動物病院",
+  "種別": "動物病院",
+  "サイト": "https://www.kimura-animal.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJlUKyTbTsGGARyPaQhQzfhOs",
+  "施設名": "ペットショップ マルワン板橋志村坂下店",
+  "種別": "ペットショップ",
+  "サイト": "https://maruone.com/shimurasakashita/",
+  "status": "ok",
+  "contact_form_url": "https://maruone.com/contact/",
+  "has_form": true,
+  "no_sales": true,
+  "emails": [
+   {
+    "address": "contact@maruone.com",
+    "kind": "generic"
+   }
+  ],
+  "instagram": "https://www.instagram.com/maruoneshimurasakasita",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJ81o3-N7sGGARXLkcnddAg8A",
+  "施設名": "ペットショップCoo&RIKU 板橋店",
+  "種別": "ペットショップ",
+  "サイト": "http://www.pet-coo.com/",
+  "status": "ok",
+  "contact_form_url": "http://www.pet-coo.com/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/coo_riku",
+  "line": "https://lin.ee/7cPoN0E",
+  "captcha": false
+ },
+ {
+  "id": "ChIJAfh9e-3sGGARP95cDe2edzo",
+  "施設名": "ペットプラス 板橋店",
+  "種別": "ペットショップ",
+  "サイト": "https://www.ahb.jpn.com/shops/01273",
+  "status": "ok",
+  "contact_form_url": "https://www.ahb.jpn.com/contacts/new",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJ27UNvfLsGGARt2voa6IPusc",
+  "施設名": "ペットショップアイランド",
+  "種別": "ペットショップ",
+  "サイト": "http://www.petshopisland.net/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJwZHi9teTGGARZoNkuNckxcw",
+  "施設名": "ビバペッツ板橋前野店",
+  "種別": "ペットショップ",
+  "サイト": "https://kenneltakanawa.com/?page_id=150",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "itabasi-vivapets@soleil.ocn.ne.jp",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/kenneltakanawa",
+  "line": null
+ },
+ {
+  "id": "ChIJOyQ_mCuTGGARrlWuuOvhbUY",
+  "施設名": "ビバホーム 板橋前野店",
+  "種別": "ペットショップ",
+  "サイト": "https://store.musashi.vivahome.com/vivamusashi/spot/detail?code=itabashimaeno_vh",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJJaFRvZuSGGARY2OGk7uUpp8",
+  "施設名": "ペットプラザ板橋店",
+  "種別": "ペットショップ",
+  "サイト": "https://www.petplaza1.com/",
+  "status": "ok",
+  "contact_form_url": "https://www.petplaza1.com/%E5%BA%97%E8%88%97%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6/%E3%81%8A%E5%95%8F%E3%81%84%E5%90%88%E3%82%8F%E3%81%9B/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJDwp19H2OGGAR06wIDvua_qQ",
+  "施設名": "ドッグサロン Plus Links",
+  "種別": "ペットショップ",
+  "サイト": "https://pluslinks.jp/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJCX6Yeu3sGGARCB30g09HVAY",
+  "施設名": "ペテモ板橋店",
+  "種別": "ペットショップ",
+  "サイト": "https://www.aeonpet.com/shop/itabashi/?utm_source=google&utm_medium=map&utm_campaign=gbp-retail",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/petemo_official",
+  "line": "https://lin.ee/oa3tzND"
+ },
+ {
+  "id": "ChIJJZzNIT7tGGARxq4stS5Xvck",
+  "施設名": "ペットふれあいカフェ マリン",
+  "種別": "ペットショップ",
+  "サイト": "https://www.marin.nko-service.co.jp/",
+  "status": "ok",
+  "contact_form_url": "https://www.marin.nko-service.co.jp/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "nko-service@amail.plala.or.jp",
+    "kind": "personal"
+   },
+   {
+    "address": "8c4075d5481d476e945486754f783364@sentry.io",
+    "kind": "personal"
+   },
+   {
+    "address": "88170cb0c9d64f94b5821ca7fd2d55a4@sentry-next.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "dd0a55ccb8124b9c9d938e3acf41f8aa@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "c183baa23371454f99f417f6616b724d@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "1eeb89147c984dc6bc3ffafd9e6cd089@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "2062d0a4929b45348643784b5cb39c36@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "8eb368c655b84e029ed79ad7a5c1718e@sentry.wixpress.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJu5tMBsqSGGARcHom7vXkiE0",
+  "施設名": "ビューティーペット",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJS2r1PADtGGAREx5xL0KQp5Y",
+  "施設名": "ペットサロンCOCOSIA板橋店",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ93C-oiuTGGARZkyj8NImQC8",
+  "施設名": "マナウス板橋店",
+  "種別": "ペットショップ",
+  "サイト": "http://blog.livedoor.jp/manausuitabashi/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJuXXGS7TsGGAR3ya4N1-YBUI",
+  "施設名": "【ペット専門店】ユアペティア 志村坂下店",
+  "種別": "ペットショップ",
+  "サイト": "https://www.olympic-corp.co.jp/petia/shop/P48",
+  "status": "ok",
+  "contact_form_url": "https://www.olympic-corp.co.jp/petia/contact",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "petshop_yourpetia@osc.oscgroup.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/yourpetia_official",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJqyiBTpzsGGARr2dtf_wYLw4",
+  "施設名": "フィッシュジャパン",
+  "種別": "ペットショップ",
+  "サイト": "http://fish-japan.com/",
+  "status": "ok",
+  "contact_form_url": "https://fish-japan.com/contact",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJAY_gjxvtGGARhVmB6qQ5isg",
+  "施設名": "Grooming & Hotel UNO",
+  "種別": "ペットショップ",
+  "サイト": "https://www.uno-dog-cat.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "uno112112@gmail.com",
+    "kind": "personal"
+   },
+   {
+    "address": "8eb368c655b84e029ed79ad7a5c1718e@sentry.wixpress.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/u_n_o_8",
+  "line": "https://lin.ee/CvYvD9E"
+ },
+ {
+  "id": "ChIJ92O0uyftGGARmZQSWGo-Q6s",
+  "施設名": "ネイチャークラブ",
+  "種別": "ペットショップ",
+  "サイト": "https://www.natureclub.biz/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "nature@natureclub.biz",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJr95CZM6SGGARDd0vFApooS4",
+  "施設名": "ペットプラザ 中板橋店",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ34OE3JbsGGARLiDs5A68FVc",
+  "施設名": "（株）東京観賞魚",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJsWw3KDbtGGARWOMVOC6520M",
+  "施設名": "犬の美容室 Ｈａｐｐｙ",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJHa_LI4vsGGARi6azmLc_P0o",
+  "施設名": "pet salon RANKIN DOG/ランキンドッグ 板橋店",
+  "種別": "ペットショップ",
+  "サイト": "http://www.rankin-dog.com/",
+  "status": "ok",
+  "contact_form_url": "http://www.rankin-dog.com/contact.html",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJPUQVnoLsGGARqmdVxQI6xBE",
+  "施設名": "ペットサロンＰＯＮちゃん",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJLxHvhlftGGARjjmzeA5q6ls",
+  "施設名": "犬猫専門店タケダ",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJn35q3tvsGGARZa52fX9L-bY",
+  "施設名": "トリミングサロンhappy-spore",
+  "種別": "ペットショップ",
+  "サイト": "http://happy-spore.chu.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "0happyspore0@gmail.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/happyspore",
+  "line": null
+ },
+ {
+  "id": "ChIJ4-lqbY-TGGARm5lHoHL3AoY",
+  "施設名": "PURRKS PET SHOP",
+  "種別": "ペットショップ",
+  "サイト": "https://www.purrkspet.com/",
+  "status": "ok",
+  "contact_form_url": "https://www.purrkspet.com/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/purrkspet.jp",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJYVi1bcWNGGARYtPNkqCkuIU",
+  "施設名": "dog salon R-DOGS",
+  "種別": "ペットショップ",
+  "サイト": "https://dogsalon-r-dogs.com/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJCX6Yeu3sGGARFdahrUBstH0",
+  "施設名": "ペテモグルーミングサロン板橋店",
+  "種別": "ペットショップ",
+  "サイト": "https://www.aeonpet.com/shop/itabashi/?utm_source=google&utm_medium=map&utm_campaign=gbp-service",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/petemo_official",
+  "line": "https://lin.ee/oa3tzND"
+ },
+ {
+  "id": "ChIJWTAzVVvtGGARV1Yl84uuYd4",
+  "施設名": "ペットホテル＆トリミングサロン ワンルーク板橋区東武練馬店",
+  "種別": "ペットショップ",
+  "サイト": "https://oneluke.net/tobunerima/",
+  "status": "ok",
+  "contact_form_url": "https://oneluke.net/tobunerima//contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/oneluke.tobunerima",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJX0ACizqTGGARKpUM6fgWZYo",
+  "施設名": "DUO Trimming Studio",
+  "種別": "ペットショップ",
+  "サイト": "https://www.duo-trimming-studio.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "duo.trimming.studio@gmail.com",
+    "kind": "personal"
+   },
+   {
+    "address": "dd0a55ccb8124b9c9d938e3acf41f8aa@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "c183baa23371454f99f417f6616b724d@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "8c4075d5481d476e945486754f783364@sentry.io",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/duo.trimming",
+  "line": "https://lin.ee/AP24CIc"
+ },
+ {
+  "id": "ChIJ59fIA93tGGARAHZqC_-P5t8",
+  "施設名": "わんだふる",
+  "種別": "ペットショップ",
+  "サイト": "https://www.big.or.jp/~izariuo/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/wonderful83727",
+  "line": null
+ },
+ {
+  "id": "ChIJsb8Rm7jtGGARJhwSk5Cf5N0",
+  "施設名": "志村坂下動物総合医療センター",
+  "種別": "ペットショップ",
+  "サイト": "http://s-agmc.com/",
+  "status": "ok",
+  "contact_form_url": "http://s-agmc.com/contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/shimura_agmc2018",
+  "line": "https://lin.ee/gRfY97S",
+  "captcha": false
+ },
+ {
+  "id": "ChIJvS11gt6TGGAR1wbup2psxbA",
+  "施設名": "のびも15",
+  "種別": "ペットショップ",
+  "サイト": "http://nobimo15.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJvdm165fsGGARj3OBCDyRXes",
+  "施設名": "犬の湯ハチ",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJI7JQDqCSGGARvFcUgy2Z4KU",
+  "施設名": "東京アクアガーデン",
+  "種別": "ペットショップ",
+  "サイト": "https://t-aquagarden.com/",
+  "status": "ok",
+  "contact_form_url": "https://t-aquagarden.com/inquiry/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/tokyo_aquagarden",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJI0GVWnntGGARug8Sc2QrJ2I",
+  "施設名": "トリミングサロン ホワイトメロン 板橋店",
+  "種別": "ペットショップ",
+  "サイト": "https://whitemelonsalon.wixsite.com/home",
+  "status": "ok",
+  "contact_form_url": "https://whitemelonsalon.wixsite.com/home/contact",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "whitemelon.itabashi@gmail.com",
+    "kind": "personal"
+   },
+   {
+    "address": "dd0a55ccb8124b9c9d938e3acf41f8aa@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "c183baa23371454f99f417f6616b724d@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "8c4075d5481d476e945486754f783364@sentry.io",
+    "kind": "personal"
+   },
+   {
+    "address": "18d2f96d279149989b95faf0a4b41882@sentry-next.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "9a65e97ebe8141fca0c4fd686f70996b@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "8eb368c655b84e029ed79ad7a5c1718e@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "78f7996315bc402f9dcb8a2f974b82d1@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "5d1795a2db124a268f1e1bd88f503500@sentry.wixpress.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/white_melon_trimming",
+  "line": "https://lin.ee/i3MvEwZ",
+  "captcha": false
+ },
+ {
+  "id": "ChIJ4QR4Q7eSGGARjSJWLC252JY",
+  "施設名": "ジェントルワン",
+  "種別": "ペットショップ",
+  "サイト": "https://www.gentlewan.com/etc/company.html",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJqUCN6y3tGGARY_vdOgHHlFA",
+  "施設名": "ペットサロンぽち",
+  "種別": "ペットショップ",
+  "サイト": "http://ameblo.jp/pochipoodle/entry-10945589451.html",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ___EC9qSGGAR6TavMXlw2HI",
+  "施設名": "CAT'S INN TOKYO",
+  "種別": "ペットショップ",
+  "サイト": "https://cats-inn.tokyo/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/cats_inn_tokyo",
+  "line": null
+ },
+ {
+  "id": "ChIJJRxy-cuSGGAR2cv1Vnq1iv4",
+  "施設名": "ハート・ワン 板橋店",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJL1aO4yDtGGARGQOutW-3f5g",
+  "施設名": "小さな坂の上のめだか家.358",
+  "種別": "ペットショップ",
+  "サイト": "https://aqua-youma.com/aquashop/aquashop-tokyo/on-a-small-slope-medaka358-19412/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJi6LAHBuNGGARi0nibJDoJAA",
+  "施設名": "Aqua Cenote",
+  "種別": "ペットショップ",
+  "サイト": "https://ameblo.jp/aquacenote/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJI6RwnjDtGGAR1XbY9n8DLZw",
+  "施設名": "ペットサロンＤＡＩＳＹ",
+  "種別": "ペットショップ",
+  "サイト": "https://pet-daisy.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/petsalondaisy",
+  "line": null
+ },
+ {
+  "id": "ChIJZRg_Yr3sGGARb_MAlyiEfwM",
+  "施設名": "Pet Salon BONBON",
+  "種別": "ペットショップ",
+  "サイト": "https://www.bonbon-tokyo.jp/",
+  "status": "ok",
+  "contact_form_url": "https://www.bonbon-tokyo.jp/inquiry.html",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/bonbontokyo",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJfxltqMzsGGARSpc3l0uKDbw",
+  "施設名": "MEGAドン・キホーテ 板橋志村店",
+  "種別": "ペットショップ",
+  "サイト": "https://www.donki.com/store/shop_detail.php?shop_id=394",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/donki_jp",
+  "line": "https://lin.ee/OehESzw"
+ },
+ {
+  "id": "ChIJLfpT1tvsGGARz51sNJzR73g",
+  "施設名": "Guriffin Japan",
+  "種別": "ペットショップ",
+  "サイト": "https://www.guriffinjapan.net/",
+  "status": "ok",
+  "contact_form_url": "https://www.guriffinjapan.net/contact",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJ0esDMbqSGGARqvizI2YnNXs",
+  "施設名": "ペットサロンアンファン",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJKV02IuGNGGAR01vEc28zJ3s",
+  "施設名": "のがみ動物病院",
+  "種別": "動物病院",
+  "サイト": "http://www.nogami-ah.jp/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ0a6hqzHtGGAR0tbPhHp57Mk",
+  "施設名": "セブンペットショップ",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJu35JUCXrGGARiS0rPbXGTsA",
+  "施設名": "ハッピーベル成増店",
+  "種別": "ペットショップ",
+  "サイト": "https://happybell.co.jp/tokyo/",
+  "status": "ok",
+  "contact_form_url": "https://happybell.co.jp/tokyo/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/p",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJqdbYL8-SGGARoI6m8wTnluQ",
+  "施設名": "ティアラ",
+  "種別": "ペットショップ",
+  "サイト": "http://tiara-love-dog.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ7QaP8iaTGGARt6nJ5cedjGw",
+  "施設名": "ペットサロンGrace",
+  "種別": "ペットショップ",
+  "サイト": "https://petsalongrace.wixsite.com/petsalongrace",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "8eb368c655b84e029ed79ad7a5c1718e@sentry.wixpress.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/petsalon_grace",
+  "line": null
+ },
+ {
+  "id": "ChIJ3a5wUdzsGGARGdaoeSgrlkY",
+  "施設名": "ペットサロン・ラ・ネージュ",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJEwfc0gOTGGARoT98GlZFSTc",
+  "施設名": "furifuri",
+  "種別": "ペットショップ",
+  "サイト": "https://furifuridogs.com/",
+  "status": "ok",
+  "contact_form_url": "https://furifuridogs.com/contact/contact.html",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/peacedogs_furifuri",
+  "line": "https://lin.ee/wwxdWH9",
+  "captcha": false
+ },
+ {
+  "id": "ChIJsX_bNPvtGGARtPMbn8IFy5A",
+  "施設名": "Dogsalon Bull Bull",
+  "種別": "ペットショップ",
+  "サイト": "https://www.bull-bull.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/dogsalonbullbull",
+  "line": "https://lin.ee/IVZKtyx"
+ },
+ {
+  "id": "ChIJZ3m2wR6TGGAR8P3AQdiQU3E",
+  "施設名": "保護猫シェルター併設カフェ すあま商會",
+  "種別": "ペットショップ",
+  "サイト": "https://suama-catscafe.com/",
+  "status": "ok",
+  "contact_form_url": "https://suama-catscafe.com/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/suama_catscafe",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJid_DS7TsGGARVg10Bv6W29w",
+  "施設名": "オリンピック 志村坂下店",
+  "種別": "ペットショップ",
+  "サイト": "https://www.olympic-corp.co.jp/shop/48",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "olympic.cs@osc.oscgroup.com",
+    "kind": "personal"
+   },
+   {
+    "address": "fd_shohin@osc.oscgroup.com",
+    "kind": "personal"
+   },
+   {
+    "address": "hp_shohin@osc.oscgroup.com",
+    "kind": "personal"
+   },
+   {
+    "address": "info_bukken@osc.oscgroup.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/olympic_osc",
+  "line": null
+ },
+ {
+  "id": "ChIJN6sMAY2TGGARhiuNRAg8dOw",
+  "施設名": "ドッグサロン LOMA",
+  "種別": "トリミング",
+  "サイト": "http://www.instagram.com/dogsalon_loma/",
+  "status": "Error",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJyTQsPL2TGGARUROJRi57_D8",
+  "施設名": "DOG HOTEL and SALON stella 板橋本店",
+  "種別": "ペットショップ",
+  "サイト": "https://stella83.net/dog-salon/itabashi/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/stella_dog820",
+  "line": null
+ },
+ {
+  "id": "ChIJsaoUbDSTGGAR0uxlYsVo5rA",
+  "施設名": "ペットホテル & トリミングサロン ワンルーク 板橋区中板橋駅店",
+  "種別": "ペットショップ",
+  "サイト": "https://oneluke.net/nakaitabashi/",
+  "status": "ok",
+  "contact_form_url": "https://oneluke.net/nakaitabashi//contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/oneluke_nakaitabashieki",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJy7uk6i3tGGARXVaLyd7lhq0",
+  "施設名": "MOFF TRIMMING SKINCARE SALON",
+  "種別": "トリミング",
+  "サイト": "https://kita-vet.com/trimming",
+  "status": "ok",
+  "contact_form_url": "https://kita-vet.com/trimming",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/moff_trimming",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJXTI09dOSGGARnX9mgca9bdI",
+  "施設名": "癒しのトリミングサロン D O G W A N",
+  "種別": "トリミング",
+  "サイト": "https://page.line.me/dogwan",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://instagram.com/kaneko_etsuko_dogwan",
+  "line": "https://lin.ee/F1KfK8v"
+ },
+ {
+  "id": "ChIJFYVJT7nsGGAReP-isAf1aOQ",
+  "施設名": "ドッグサロンアリス",
+  "種別": "トリミング",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJmxyaW9qTGGARZBnTYIJul1I",
+  "施設名": "CLOVER トリミングサロン クローバー",
+  "種別": "トリミング",
+  "サイト": "https://magictatu12.wixsite.com/website-3",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "clover.trimming@gmail.com",
+    "kind": "personal"
+   },
+   {
+    "address": "8eb368c655b84e029ed79ad7a5c1718e@sentry.wixpress.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/clover.3.3.3",
+  "line": null
+ },
+ {
+  "id": "ChIJ754ptaqTGGARUMHsfDa5Les",
+  "施設名": "トリミングサロン Lucky Clover",
+  "種別": "トリミング",
+  "サイト": "https://www.instagram.com/s.k.t_h_b?igsh=MTQ4MjZzd2w2Y25sMA==",
+  "status": "Error",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJy1O9PNKTGGARq2XBU2wyxHo",
+  "施設名": "トリミングサロン Dear all the dog",
+  "種別": "トリミング",
+  "サイト": "http://dearallthedog-101.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ25TjfASTGGARao-oe4jRsLI",
+  "施設名": "Cafune trimming",
+  "種別": "トリミング",
+  "サイト": "https://cafune-itabashi.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/p",
+  "line": "http://lin.ee/iltGdrX"
+ },
+ {
+  "id": "ChIJLf-0sZaSGGARn1eBTppNkGY",
+  "施設名": "Apsey DogSALON アプシー",
+  "種別": "トリミング",
+  "サイト": "https://lin.ee/l9fVSft",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/apseydogsalon",
+  "line": null
+ },
+ {
+  "id": "ChIJtRXYKZzrGGAR8Y6SX_M0yuQ",
+  "施設名": "Mom Dog",
+  "種別": "トリミング",
+  "サイト": "http://momdog.net/",
+  "status": "ok",
+  "contact_form_url": "http://momdog.net/contact.html",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/momdog2021",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJD3TqRHPsGGAReRstOHeTn4k",
+  "施設名": "トリミングサロン POP DOGs",
+  "種別": "トリミング",
+  "サイト": "http://www.popdogs.net/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/pop_dogs_trimmingsalon",
+  "line": null
+ },
+ {
+  "id": "ChIJ-b0enATtGGARYfAsYvtL6FM",
+  "施設名": "Trimming Salon Earth dog 成増",
+  "種別": "トリミング",
+  "サイト": "https://earthdog.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": "https://lin.ee/L9nBoj2"
+ },
+ {
+  "id": "ChIJIxJHOMjsGGARCvrK3YVJ-M8",
+  "施設名": "ゆずポポハウス",
+  "種別": "トリミング",
+  "サイト": "https://www.instagram.com/yuzupopohouse?igsh=dmVxd3R2MnVtMXFr&utm_source=qr",
+  "status": "Error",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJIQ2_uVKTGGARoJDaPhDCDaY",
+  "施設名": "犬の美容室＆ホテルまるしゃん",
+  "種別": "トリミング",
+  "サイト": "https://marusyan.amebaownd.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJXdHgbhGTGGARdKI0TCEJ0yY",
+  "施設名": "Sunny day dog",
+  "種別": "トリミング",
+  "サイト": "http://sunnydaydog.info/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/sunnyday.3778",
+  "line": null
+ },
+ {
+  "id": "ChIJ-6dBeLDsGGARP5yQU1q4E3w",
+  "施設名": "ワンダーランド",
+  "種別": "トリミング",
+  "サイト": "http://www.petsalon-wonderland.com/",
+  "status": "Error",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJVfAvs-LtGGAREzCrnTem5TU",
+  "施設名": "トリミングサロンNICO",
+  "種別": "トリミング",
+  "サイト": "https://nico-vet.com/trimming",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJXQFmk4mTGGAR4YdfBo07pzo",
+  "施設名": "ドッグサロン One care（ワンケア）池袋西",
+  "種別": "トリミング",
+  "サイト": "https://onecare.jp/",
+  "status": "ok",
+  "contact_form_url": "https://onecare.jp/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": "https://lin.ee/YN083Pg",
+  "captcha": false
+ },
+ {
+  "id": "ChIJVVUqES3tGGARARvJYsZCvD8",
+  "施設名": "salon de charlie",
+  "種別": "トリミング",
+  "サイト": "http://salondecharlie-tokiwadai.com/",
+  "status": "ok",
+  "contact_form_url": "http://salondecharlie-tokiwadai.com/contact",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "info@salondecharlie-tokiwadai.com",
+    "kind": "generic"
+   }
+  ],
+  "instagram": "https://www.instagram.com/salon_de.charlie",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJ6U9SK9bsGGARoPhcFygX6Wk",
+  "施設名": "犬の美容室 寺崎",
+  "種別": "トリミング",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJO0fjdk7tGGARz_XRpndjstQ",
+  "施設名": "DogRelaxing高島平教室",
+  "種別": "トリミング",
+  "サイト": "https://dogrelaxing.com/",
+  "status": "ok",
+  "contact_form_url": "https://dogrelaxing.com/contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "info@dogrelaxing.com",
+    "kind": "generic"
+   }
+  ],
+  "instagram": null,
+  "line": "https://lin.ee/3cnZysk",
+  "captcha": false
+ },
+ {
+  "id": "ChIJSxSf5kOTGGARHllsuHzuHME",
+  "施設名": "Quick SALON allets-アレッツ-",
+  "種別": "トリミング",
+  "サイト": "https://allets.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/allets_dog",
+  "line": null
+ },
+ {
+  "id": "ChIJjwhvFiOTGGARn-yb0JxPxfY",
+  "施設名": "板橋動物病院",
+  "種別": "動物病院",
+  "サイト": "http://www.i-ah.net/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJG7RYnSDtGGARHggBSX7Mids",
+  "施設名": "ＤＯＧガーデン",
+  "種別": "トリミング",
+  "サイト": "http://johoku-doggarden.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/doggarden2004",
+  "line": null
+ },
+ {
+  "id": "ChIJO0oTDsWSGGARjU-_zfSVlWw",
+  "施設名": "パインフィールド動物病院",
+  "種別": "動物病院",
+  "サイト": "http://pine-field.sakura.ne.jp/info/access.html",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJXbYNE93sGGARjHqO6Z5nK2g",
+  "施設名": "上板橋どうぶつ病院",
+  "種別": "動物病院",
+  "サイト": "http://kamiitabashi-ah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJAQBkHCXtGGARSbi5J2_ZJa0",
+  "施設名": "ひなた動物病院",
+  "種別": "動物病院",
+  "サイト": "http://www.hinataanimalhospital.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "49sq2c36sd1d9eo8sh0aaromc4@group.calendar.google.com",
+    "kind": "personal"
+   },
+   {
+    "address": "1m1ir082gvbrbrlvmsc691sur0@group.calendar.google.com",
+    "kind": "personal"
+   },
+   {
+    "address": "tjefm72f4tvjq45l3a9kj455vc@group.calendar.google.com",
+    "kind": "personal"
+   },
+   {
+    "address": "ur8jn5j7q2tjmack8hrrhnjgik@group.calendar.google.com",
+    "kind": "personal"
+   },
+   {
+    "address": "6m65b2fv7q7e23kel31l29rcek@group.calendar.google.com",
+    "kind": "personal"
+   },
+   {
+    "address": "nh566lkmi4kacj23kffu706fak@group.calendar.google.com",
+    "kind": "personal"
+   },
+   {
+    "address": "8cj5m9bal65p1n9j81j5htpbug@group.calendar.google.com",
+    "kind": "personal"
+   },
+   {
+    "address": "dr4q9jsbf05ab1a3ru4uorpup8@group.calendar.google.com",
+    "kind": "personal"
+   },
+   {
+    "address": "gb1upfr8193t9qjoq6h625am0s@group.calendar.google.com",
+    "kind": "personal"
+   },
+   {
+    "address": "fc864fc0399b183cc5a111fd27b37b399fa5d25e38fc1add03df11e82504f985@group.calendar.google.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/hinataanimalhospital",
+  "line": "https://lin.ee/gGR7LHJ"
+ },
+ {
+  "id": "ChIJAWB2MYvrGGAR1sYBlGcVHGo",
+  "施設名": "WanSourire",
+  "種別": "トリミング",
+  "サイト": "https://wans13.jp/",
+  "status": "ok",
+  "contact_form_url": "https://wans13.jp/contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJzfSMk9TsGGARUIyXWMHPlGA",
+  "施設名": "ニコ動物病院",
+  "種別": "動物病院",
+  "サイト": "http://nico-vet.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ-7aJhSztGGAR1-6aq2seRd8",
+  "施設名": "常盤台動物病院",
+  "種別": "動物病院",
+  "サイト": "http://tah1986.wixsite.com/tokiwadai",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJq6paCCWTGGARWnL_O8IH_34",
+  "施設名": "DOG TOWN AZUSAWA CLINIC",
+  "種別": "ペットショップ",
+  "サイト": "http://dogtown-azusawa-clinic.com/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJRwk2K9bsGGARdRt8H_37A38",
+  "施設名": "上板橋リズ犬猫病院",
+  "種別": "動物病院",
+  "サイト": "http://www.lizaniho.jp/",
+  "status": "ok",
+  "contact_form_url": "http://www.lizaniho.jp/contact",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "sample@yamadahp.jp",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJMY-UkZfsGGARsOMClj8Y_Ts",
+  "施設名": "高島平手塚動物病院",
+  "種別": "動物病院",
+  "サイト": "https://www.tezuka-ah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJESwL6i3tGGAR-egvc_qi8Lk",
+  "施設名": "北川犬猫病院",
+  "種別": "動物病院",
+  "サイト": "http://kita-vet.com/",
+  "status": "ok",
+  "contact_form_url": "http://kita-vet.com/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/kitagawavc",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJ5VnaL5qTGGARDLSvXxaVoUQ",
+  "施設名": "Trimming Salon Lien ～リアン～",
+  "種別": "トリミング",
+  "サイト": "http://lien-trimming.com/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJSdj5paCTGGARE9xw9yTAD1s",
+  "施設名": "むに動物病院",
+  "種別": "動物病院",
+  "サイト": "https://www.munivet.info/",
+  "status": "ok",
+  "contact_form_url": "https://www.munivet.info/%E3%81%8A%E5%95%8F%E3%81%84%E5%90%88%E3%82%8F%E3%81%9B",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "88170cb0c9d64f94b5821ca7fd2d55a4@sentry-next.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "dd0a55ccb8124b9c9d938e3acf41f8aa@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "c183baa23371454f99f417f6616b724d@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "79baaa8e09c746d2b7401643b99792e0@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "2062d0a4929b45348643784b5cb39c36@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "8eb368c655b84e029ed79ad7a5c1718e@sentry.wixpress.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/munivet_tokyo",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJdQKCsrySGGARS9atwGEfPzE",
+  "施設名": "あず動物病院",
+  "種別": "動物病院",
+  "サイト": "http://az-ah.net/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "info@az-ah.net",
+    "kind": "generic"
+   }
+  ],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ6XJbQtGSGGARvPpX9epZvYY",
+  "施設名": "アームズ動物病院",
+  "種別": "動物病院",
+  "サイト": "http://www.arms-ah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ9XG76-vsGGARfhmbx0mF4DU",
+  "施設名": "アトム動物病院・動物呼吸器病センター",
+  "種別": "動物病院",
+  "サイト": "http://www.atom-ah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "dd0a55ccb8124b9c9d938e3acf41f8aa@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "c183baa23371454f99f417f6616b724d@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "9a65e97ebe8141fca0c4fd686f70996b@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "ed436f5053144538958ad06a5005e99a@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "460ff4620fa44cba8df530afde949785@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "8c4075d5481d476e945486754f783364@sentry.io",
+    "kind": "personal"
+   },
+   {
+    "address": "2062d0a4929b45348643784b5cb39c36@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "271e9fa3230b4eec94b02bf95780f5f2@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "sa-yonezawa@atomah.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/atomah1122",
+  "line": null
+ },
+ {
+  "id": "ChIJ6UwqC0vtGGAROuh6FgK46gk",
+  "施設名": "板橋中央どうぶつ病院",
+  "種別": "動物病院",
+  "サイト": "http://itabashichuo-ah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJhxP4Y8rsGGAR_TuIjd1CdyQ",
+  "施設名": "アーツ動物クリニック",
+  "種別": "動物病院",
+  "サイト": "http://www.aerts-vet.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ9xdbm5eSGGAR7mZuuKMX36k",
+  "施設名": "のざわ動物病院",
+  "種別": "動物病院",
+  "サイト": "https://nozawa-ah.site/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJDxVbNmPsGGAR3-ZDOugki1s",
+  "施設名": "ロッキーどうぶつ病院",
+  "種別": "動物病院",
+  "サイト": "http://www.rocky-vet.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ6aXB6zCTGGARlVgBDONbi6E",
+  "施設名": "あずさわ動物病院",
+  "種別": "動物病院",
+  "サイト": "http://www.azusawa-ah.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/azusawa_ah",
+  "line": null
+ },
+ {
+  "id": "ChIJs-6_eI7sGGARhRdBAVSytgI",
+  "施設名": "とくろくペットクリニック",
+  "種別": "動物病院",
+  "サイト": "http://www.nobu-ac.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/toku6_pc",
+  "line": "https://lin.ee/L4vCtTl"
+ },
+ {
+  "id": "ChIJN1WyKDTtGGARHpMqvITh5Z4",
+  "施設名": "犬と猫の病院ぴーす",
+  "種別": "動物病院",
+  "サイト": "http://piece-vet.jp/index.html",
+  "status": "ok",
+  "contact_form_url": "http://piece-vet.jp/contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJm55LhuGTGGARpFFg0btdY5c",
+  "施設名": "板橋ウィズマル動物病院",
+  "種別": "動物病院",
+  "サイト": "https://itabashi-w-ah.com/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ8Rzy68OSGGARsLRKG5_uq-M",
+  "施設名": "まえざわ動物病院",
+  "種別": "動物病院",
+  "サイト": "https://www.maezawa-ah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "2062d0a4929b45348643784b5cb39c36@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "8eb368c655b84e029ed79ad7a5c1718e@sentry.wixpress.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJa7LsfCiTGGAR-RSY5PEaS-0",
+  "施設名": "ペタ動物病院",
+  "種別": "動物病院",
+  "サイト": "http://vets-labo.com/clinic/#peta",
+  "status": "ok",
+  "contact_form_url": "http://vets-labo.com/clinic/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/hokuai_vets",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJs0qo_sXsGGARvC8hddPttRE",
+  "施設名": "サンシティ動物病院",
+  "種別": "動物病院",
+  "サイト": "https://www.suncity-animal.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "8c4075d5481d476e945486754f783364@sentry.io",
+    "kind": "personal"
+   },
+   {
+    "address": "dd0a55ccb8124b9c9d938e3acf41f8aa@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "c183baa23371454f99f417f6616b724d@sentry.wixpress.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJm2jfiC3tGGARARlpMptGCjE",
+  "施設名": "Pet Clinic アニホス",
+  "種別": "動物病院",
+  "サイト": "https://anihos.com/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJm7Kid5WSGGARTd5zckMZjzM",
+  "施設名": "板橋こども動物園",
+  "種別": "動物病院",
+  "サイト": "http://itabashi-park-zoo.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJD5mae9fsGGARe6LZu6i9vJI",
+  "施設名": "アクア動物病院",
+  "種別": "動物病院",
+  "サイト": "http://acqua.is-mine.net/index.html",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ92AxEvPrGGARkgfUombPOsI",
+  "施設名": "小川動物病院",
+  "種別": "動物病院",
+  "サイト": "https://www.ogawa-ah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ04cYrp3sGGARiBTV8-zsEbM",
+  "施設名": "さの動物病院",
+  "種別": "動物病院",
+  "サイト": "http://www.sano-ah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJA8LqNUntGGAR1gSoYknKqao",
+  "施設名": "千川犬猫病院",
+  "種別": "動物病院",
+  "サイト": "http://www.senkawa-ah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJSWN_WnzsGGARMbLOLbFEQkM",
+  "施設名": "赤塚動物病院",
+  "種別": "動物病院",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJq62_xYfsGGARJa3yb74Ef44",
+  "施設名": "佐藤獣医科",
+  "種別": "動物病院",
+  "サイト": "https://www.satovc.com/",
+  "status": "ok",
+  "contact_form_url": "https://www.satovc.com/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "info@satovc.jp",
+    "kind": "generic"
+   },
+   {
+    "address": "dd0a55ccb8124b9c9d938e3acf41f8aa@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "c183baa23371454f99f417f6616b724d@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "8c4075d5481d476e945486754f783364@sentry.io",
+    "kind": "personal"
+   },
+   {
+    "address": "2062d0a4929b45348643784b5cb39c36@sentry.wixpress.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": "https://lin.ee/allBMzh",
+  "captcha": false
+ },
+ {
+  "id": "ChIJV6BmUjntGGARprHsLOVAQ5k",
+  "施設名": "ドリトル動物病院",
+  "種別": "動物病院",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJF37dlsjsGGAReeciHfo1Lfg",
+  "施設名": "エム・エム動物病院",
+  "種別": "動物病院",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJrSf6M4vrGGARYfYUGb4mn84",
+  "施設名": "ハナ動物病院",
+  "種別": "動物病院",
+  "サイト": "http://www7b.biglobe.ne.jp/~hanapet/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/hanapet59673900",
+  "line": null
+ },
+ {
+  "id": "ChIJsX_d6nntGGARaM84TTCrY7w",
+  "施設名": "成増どうぶつ病院",
+  "種別": "動物病院",
+  "サイト": "https://www.narimasu-ah.com/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJd5JStbCSGGARgw4q-BQ_YQA",
+  "施設名": "あんどう動物病院",
+  "種別": "動物病院",
+  "サイト": "http://ando-ah.hokkai.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJJyG8RV7uGGARlFnc-LoOVUA",
+  "施設名": "ペットの専門店コジマ 練馬店",
+  "種別": "ペットショップ",
+  "サイト": "https://pets-kojima.com/shop/0002/?utm_source=google&utm_medium=maps",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJc2ucqvLtGGAR4gNCPmGb210",
+  "施設名": "ペットショップCoo&RIKU 練馬店",
+  "種別": "ペットショップ",
+  "サイト": "https://www.pet-coo.com/",
+  "status": "ok",
+  "contact_form_url": "https://www.pet-coo.com/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/coo_riku",
+  "line": "https://lin.ee/7cPoN0E",
+  "captcha": false
+ },
+ {
+  "id": "ChIJ16ua7vLsGGARH6BmKHNvMus",
+  "施設名": "光が丘動物病院 とくまるクリニック",
+  "種別": "動物病院",
+  "サイト": "https://www.hikarigaoka.net/list/tokumaru",
+  "status": "ok",
+  "contact_form_url": "https://www.hikarigaoka.net/contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/tokumaru_clinic",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJE37ZllfsGGARnxC62Xofa-A",
+  "施設名": "熱帯魚ViViD",
+  "種別": "ペットショップ",
+  "サイト": "http://www.vivid-fish.com/sp/index1.html",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://instagram.com/vivid_fishandreptile",
+  "line": null
+ },
+ {
+  "id": "ChIJ_0rbeCzsGGAR4yyElRhH90E",
+  "施設名": "空とぶうさぎ",
+  "種別": "ペットショップ",
+  "サイト": "https://www.soratobu-usagi.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "info@soratobu-usagi.com",
+    "kind": "generic"
+   }
+  ],
+  "instagram": "https://www.instagram.com/sorausahonten",
+  "line": "https://lin.ee/fwR2ud2"
+ },
+ {
+  "id": "ChIJoTMbCV_sGGARPdRfVlgCV6c",
+  "施設名": "田柄ペットショップ",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJFSuGJw3tGGAR-G3DKO491IE",
+  "施設名": "グランドケンネル",
+  "種別": "ペットショップ",
+  "サイト": "http://grandkennel.com/",
+  "status": "ok",
+  "contact_form_url": "http://grandkennel.com/toiawase.htm",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/grand__kennel",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJN55M5ffsGGARQOS4BtfCcsI",
+  "施設名": "センチュリーペット 練馬平和台店",
+  "種別": "ペットショップ",
+  "サイト": "http://www.century-pet.co.jp/?action_store_detail=true&str_id=21",
+  "status": "ok",
+  "contact_form_url": "http://www.century-pet.co.jp/?action_inquiry_form=true",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "centurypet.nerimaheiwadai@nifty.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/century_foleo",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJf_bIs7qSGGARaGiX7qfwMSg",
+  "施設名": "中丸町どうぶつ病院",
+  "種別": "動物病院",
+  "サイト": "http://www.nakamarucho-vc.com/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ-7avXkbpGGARsnCfq8rFmbI",
+  "施設名": "犬の店ワタナベ",
+  "種別": "ペットショップ",
+  "サイト": "http://inunowatanabe.wixsite.com/daisuki",
+  "status": "ok",
+  "contact_form_url": "https://inunowatanabe.wixsite.com/daisuki/blank-1",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "2062d0a4929b45348643784b5cb39c36@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "inunowatanabe@yahoo.co.jp",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/watanabeitu",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJy42kIADvGGAR9FqgfTCJI_0",
+  "施設名": "ペットプラザ練馬大泉店",
+  "種別": "ペットショップ",
+  "サイト": "https://pet-plaza.net/nerima-ooizumi/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJjRq3qUHtGGAR-WYz1bf9vbc",
+  "施設名": "ペットフレンドなみき",
+  "種別": "ペットショップ",
+  "サイト": "http://www.nichidaistreet.com/detail.php?shop_id=13",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJdUxDtLvuGGARfnfQSKlhses",
+  "施設名": "犬の気持ち PRECIOUS 大泉店",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJI1cRtH3uGGARSnqKceyLNto",
+  "施設名": "プレミアムペットクラブ",
+  "種別": "ペットショップ",
+  "サイト": "https://premiumpet.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "pet-club@premium.ptu.jp",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/premiumpetclub",
+  "line": null
+ },
+ {
+  "id": "ChIJ47S7BLHuGGARnbgV5HcXFhc",
+  "施設名": "スーパーバリュー ロピア練馬大泉店",
+  "種別": "ペットショップ",
+  "サイト": "http://www.supervalue.jp/shop/detail/14",
+  "status": "ok",
+  "contact_form_url": "http://www.supervalue.jp/contact/",
+  "has_form": true,
+  "no_sales": true,
+  "emails": [],
+  "instagram": "https://www.instagram.com/sv.nerimaohizumi_official",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJdUSqT17uGGARxsgqCw0PKjE",
+  "施設名": "コジマ練馬動物予防医療クリニック",
+  "種別": "ペットショップ",
+  "サイト": "https://pets-kojima.com/hospital/clinic/nerima/?utm_source=google&utm_medium=maps",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJKxb00w7tGGARVYJ9NA8uJmc",
+  "施設名": "金魚・熱帯魚 マルワ",
+  "種別": "ペットショップ",
+  "サイト": "https://sites.google.com/hnmk.org/maru",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ36cE_vXuGGARmyf04HdlMLE",
+  "施設名": "ハートワン 練馬関町店",
+  "種別": "ペットショップ",
+  "サイト": "https://petlife.asia/salon/10216/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJa-rWZBPtGGARk648rYZqMdI",
+  "施設名": "チープドック",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJDTcc8ErpGGAR2oKRJmehXF8",
+  "施設名": "namazuya うさぎ堂",
+  "種別": "ペットショップ",
+  "サイト": "https://usagido.cocolog-nifty.com/blog/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJNdXDAenuGGARCthgM3k_VH8",
+  "施設名": "ペンギンビレッジ 大泉店",
+  "種別": "ペットショップ",
+  "サイト": "https://www.penguinvillage.co.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJzynsVGnsGGARoISuSQ0m1_s",
+  "施設名": "i-dogs光が丘店 (旧フィルウ）",
+  "種別": "ペットショップ",
+  "サイト": "https://i-dogs.net/hikarigaoka/",
+  "status": "ok",
+  "contact_form_url": "https://i-dogs.net/hikarigaoka/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "info-hikarigaoka@i-dogs.net",
+    "kind": "personal"
+   },
+   {
+    "address": "info@i-dogs.net",
+    "kind": "generic"
+   }
+  ],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJ44NTARLtGGARkqOI2LDfY-Q",
+  "施設名": "珍味堂",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJB4mBy2bsGGARsmbED0k8KJE",
+  "施設名": "クープープラス",
+  "種別": "ペットショップ",
+  "サイト": "http://www.coopoo-plus.com/",
+  "status": "ok",
+  "contact_form_url": "http://www.coopoo-plus.com/contact.php",
+  "has_form": true,
+  "no_sales": true,
+  "emails": [],
+  "instagram": "https://www.instagram.com/coopoo_plus",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJN6RN3E_JQzUROuXzImfOL-o",
+  "施設名": "サロン・ド・ペット チュチュ",
+  "種別": "ペットショップ",
+  "サイト": "https://www.salon-de-pet-chuchu.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "8c4075d5481d476e945486754f783364@sentry.io",
+    "kind": "personal"
+   },
+   {
+    "address": "9a65e97ebe8141fca0c4fd686f70996b@sentry.wixpress.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJDxVg2VPtGGAR2ZOCrpYphjk",
+  "施設名": "ペットフードハッピー",
+  "種別": "ペットショップ",
+  "サイト": "https://petfoodhappy.jimdosite.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJj4ZIJqrtGGARWylg6YhSthg",
+  "施設名": "犬の美容室&ペットホテル スニップ・スニップ",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJJ0pejLftGGARtq4oBy9ZW4c",
+  "施設名": "Little Interior aquarium",
+  "種別": "ペットショップ",
+  "サイト": "https://www.l-i-a.net/",
+  "status": "ok",
+  "contact_form_url": "https://www.l-i-a.net/%E3%81%8A%E5%95%8F%E3%81%84%E5%90%88%E3%82%8F%E3%81%9B",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "dd0a55ccb8124b9c9d938e3acf41f8aa@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "c183baa23371454f99f417f6616b724d@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "8c4075d5481d476e945486754f783364@sentry.io",
+    "kind": "personal"
+   },
+   {
+    "address": "9a65e97ebe8141fca0c4fd686f70996b@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "460ff4620fa44cba8df530afde949785@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "ed436f5053144538958ad06a5005e99a@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "2062d0a4929b45348643784b5cb39c36@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "8eb368c655b84e029ed79ad7a5c1718e@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "271e9fa3230b4eec94b02bf95780f5f2@sentry.wixpress.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://instagram.com/littleinterioraquarium",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJW83BYD_tGGARWmCn4sBPoIk",
+  "施設名": "ブラックスペシャル",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ-W5FFQzvGGAR5jj6d7dLsVU",
+  "施設名": "カインズ リヴィンオズ大泉店",
+  "種別": "ペットショップ",
+  "サイト": "https://map.cainz.com/detail/903",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/cainz_official",
+  "line": "https://lin.ee/x8GRCBC"
+ },
+ {
+  "id": "ChIJN5dQi93uGGARqqWdak05HQQ",
+  "施設名": "ナナガーデン",
+  "種別": "ペットショップ",
+  "サイト": "http://www.nanagarden.net/",
+  "status": "ok",
+  "contact_form_url": "https://www.nanagarden.net/contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJcRwx5xrsGGARdUv-yv_dGfk",
+  "施設名": "love saves dods",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJZ_OnGhftGGAROI-Y5ObOvps",
+  "施設名": "ドッグルームＣｌｕｂＤ",
+  "種別": "ペットショップ",
+  "サイト": "https://clubd.info/",
+  "status": "ok",
+  "contact_form_url": "https://clubd.info/contact.html",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/clubdwanwan",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJ-7RJILbvGGARMtsnxzhOLUc",
+  "施設名": "コーナン練馬大泉店",
+  "種別": "ペットショップ",
+  "サイト": "https://map.hc-kohnan.com/shop/816",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": "https://lin.ee/LB6Q75u"
+ },
+ {
+  "id": "ChIJX9V-pjjvGGAR2O531VO1uKU",
+  "施設名": "ペットプラストリミングサロン 上石神井店",
+  "種別": "ペットショップ",
+  "サイト": "https://petplus-trimming.com/shop/kamisyakujii/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/petplus_trimming_kamisyakujii",
+  "line": null
+ },
+ {
+  "id": "ChIJUwfZhEPtGGARGM0Sjxl45-E",
+  "施設名": "aQualite アクアライト",
+  "種別": "ペットショップ",
+  "サイト": "https://aqualite.jp/",
+  "status": "ok",
+  "contact_form_url": "https://aqualite.jp/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/aqualite.jp",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJ47Jda-XvGGAR5XVwOcmrGe8",
+  "施設名": "さんぽぽ",
+  "種別": "ペットショップ",
+  "サイト": "http://www.san-popo.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/sanpopo_petsalon",
+  "line": null
+ },
+ {
+  "id": "ChIJC0YJ4l_tGGARoieLcKzpDNU",
+  "施設名": "ドッグサロンmind 中村橋店",
+  "種別": "ペットショップ",
+  "サイト": "https://nakamurabashi.maind.org/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ66o-OrftGGAR95MIUsEMGdg",
+  "施設名": "ペットシッターひだまり",
+  "種別": "ペットショップ",
+  "サイト": "http://pethidamari.sakura.ne.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "pethidamari@yahoo.ne.jp",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJkTVPNqbtGGARLBggKVtxazk",
+  "施設名": "ドッグハウスユニーク",
+  "種別": "ペットショップ",
+  "サイト": "http://www.unique.jpn.com/",
+  "status": "ok",
+  "contact_form_url": "http://www.unique.jpn.com/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "doghouseunique@gmail.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/explore",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJp7YBA_zuGGAR5XdRw_Ehv4A",
+  "施設名": "トリミングサロン・フレンズ",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJVal2Ep3uGGAR6G6IIUmRjzQ",
+  "施設名": "PET-SPA CARE+CURE 石神井公園",
+  "種別": "ペットショップ",
+  "サイト": "http://www.pet-spa.co.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/petspa_official",
+  "line": null
+ },
+ {
+  "id": "ChIJT6jn35HtGGARFv96GPZxbi0",
+  "施設名": "トリミングサロントーリーメイト氷川台",
+  "種別": "ペットショップ",
+  "サイト": "https://lin.ee/l2pM0WI",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJiVFisLnuGGARQkHne8aCjLQ",
+  "施設名": "dog salon LUCIA",
+  "種別": "ペットショップ",
+  "サイト": "https://dogsalon-lucia.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "info@dogsalon-lucia.com",
+    "kind": "generic"
+   }
+  ],
+  "instagram": "https://www.instagram.com/dogsalonlucia",
+  "line": null
+ },
+ {
+  "id": "ChIJeczjHRHvGGAR_JDHfTWJ5jA",
+  "施設名": "ドッグサロンmind 石神井店",
+  "種別": "ペットショップ",
+  "サイト": "http://shakujii.maind.org/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJwamjIZfuGGAR4gdGgkKUcOM",
+  "施設名": "大蔵生物研究所",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ0Z9wFDftGGARy4sZHiZkZQs",
+  "施設名": "動物病院 練馬SavePets",
+  "種別": "ペットショップ",
+  "サイト": "https://www.nerima-savepets.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "baf30a2b91654c5a840931f0137bed30@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "0e6a29e4756740a8a63493e912ba2174@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "460ff4620fa44cba8df530afde949785@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "ed436f5053144538958ad06a5005e99a@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "dd0a55ccb8124b9c9d938e3acf41f8aa@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "c183baa23371454f99f417f6616b724d@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "8eb368c655b84e029ed79ad7a5c1718e@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "271e9fa3230b4eec94b02bf95780f5f2@sentry.wixpress.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/nerimasavepets",
+  "line": "https://lin.ee/o8IcL9D"
+ },
+ {
+  "id": "ChIJE2FTkg3tGGARfzPxVgkkFC4",
+  "施設名": "桜台ペットクリニック",
+  "種別": "ペットショップ",
+  "サイト": "http://sakuradai-pet.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJRSQHEqDtGGARQazBJqa6jIE",
+  "施設名": "Pet-me ペットミー",
+  "種別": "ペットショップ",
+  "サイト": "https://pet-me.shopinfo.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJJXQDw7LvGGAR8sE6lA8WJ3I",
+  "施設名": "ペットホテル& トリミングサロン ワンルーク 練馬区 石神井公園駅店",
+  "種別": "ペットショップ",
+  "サイト": "https://oneluke.net/syakujii/",
+  "status": "ok",
+  "contact_form_url": "https://oneluke.net/syakujii//contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/oneluke_nerimaku.syakujii",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJiRYgXE_pGGARHJ9Y9G1qYFQ",
+  "施設名": "for dogs ぱうぜ",
+  "種別": "ペットショップ",
+  "サイト": "http://fordogspause.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJRV4VjfrtGGARZ4juk4CsC_A",
+  "施設名": "ペットホテル & トリミングサロン ワンルーク 練馬区豊玉上店",
+  "種別": "ペットショップ",
+  "サイト": "https://oneluke.net/",
+  "status": "ok",
+  "contact_form_url": "https://oneluke.net/contact",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJxVaKqwntGGARKYUaPzCn5Y4",
+  "施設名": "Wonderful House",
+  "種別": "ペットショップ",
+  "サイト": "https://www.wonderfulhouse2024.com/home?utm_source=GBP&utm_medium=GBP&utm_term=GBP&utm_content=GBP&utm_campaign=GBP",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "wonderfulhouse@kck-bs.com",
+    "kind": "personal"
+   },
+   {
+    "address": "dd0a55ccb8124b9c9d938e3acf41f8aa@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "c183baa23371454f99f417f6616b724d@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "8c4075d5481d476e945486754f783364@sentry.io",
+    "kind": "personal"
+   },
+   {
+    "address": "1eeb89147c984dc6bc3ffafd9e6cd089@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "e0b4d631da7b4200828051f7f9c783e3@sentry-next.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "8eb368c655b84e029ed79ad7a5c1718e@sentry.wixpress.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJMfqvQfDtGGARrpDeJQVQNa8",
+  "施設名": "トリミングサロン アイズドッグ東武練馬・上板橋店",
+  "種別": "ペットショップ",
+  "サイト": "https://isdog.net/nerimaitabashi/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/isdog_tobunerima_kamiitabashi",
+  "line": null
+ },
+ {
+  "id": "ChIJa9vB3JLtGGARtAMx_CRPsd8",
+  "施設名": "dog salon puppy nap",
+  "種別": "トリミング",
+  "サイト": "https://lin.ee/tZisVA2",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJh-daFu7uGGARxXPgHl1w0j0",
+  "施設名": "オザキフラワーパーク",
+  "種別": "ペットショップ",
+  "サイト": "http://ozaki-flowerpark.co.jp/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ6YAW1i3pGGARwQvizJY8nK4",
+  "施設名": "ペッツドアー",
+  "種別": "ペットショップ",
+  "サイト": "http://www.pets-door.com/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJQ5h91LLtGGARBX1EwXb-NGY",
+  "施設名": "MKDOG（エムケイドッグ）",
+  "種別": "トリミング",
+  "サイト": "http://mkdog.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/mk__dog",
+  "line": null
+ },
+ {
+  "id": "ChIJYRNkaI_uGGAROGLLGnbNJw4",
+  "施設名": "ペットサロン モンシュシュ",
+  "種別": "トリミング",
+  "サイト": "https://www.pet-salon-monchouchou.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJOYOqOTDtGGAR8lsuq4A5mg8",
+  "施設名": "ドッグルーム アズアン（練馬）",
+  "種別": "トリミング",
+  "サイト": "https://azuan.tokyo/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJWRifuRvsGGAR1aG6KZ7fsOE",
+  "施設名": "DOGサロンK",
+  "種別": "トリミング",
+  "サイト": "https://www.facebook.com/DOGSALONK/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJd3JL5k3vGGARyYYodS8eSoI",
+  "施設名": "トリミングサロンBloom",
+  "種別": "トリミング",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJX_gM7YTvGGAR9gtpptjTNgE",
+  "施設名": "出張トリミング DOG SALON MARIO",
+  "種別": "トリミング",
+  "サイト": "https://mario.crayonsite.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://instagram.com/dogsalon_mario",
+  "line": null
+ },
+ {
+  "id": "ChIJUdBFyH3pGGARPqpDqI_xO5Y",
+  "施設名": "DogSalon リトルギャング",
+  "種別": "トリミング",
+  "サイト": "https://www.dog-little-gang.com/access.html",
+  "status": "ok",
+  "contact_form_url": "https://www.dog-little-gang.com/access.html",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJpbsHAhTvGGARi-ygVuiQgE4",
+  "施設名": "トリミングサロン ワッペン",
+  "種別": "トリミング",
+  "サイト": "https://wappen.crayonsite.info/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/dogsalon_wappen",
+  "line": "https://lin.ee/ouJHLTb"
+ },
+ {
+  "id": "ChIJvfG7Pp3uGGARBgb-jVjfFqg",
+  "施設名": "愛犬のトリミングサロン 竹内",
+  "種別": "トリミング",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJi25LIADtGGAR4kY8tHT2EMo",
+  "施設名": "dogsalonもふ",
+  "種別": "トリミング",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ8R79ThPtGGAR_xA5OSEQcoI",
+  "施設名": "Trimming salon igusa（イグサ）",
+  "種別": "トリミング",
+  "サイト": "https://igusa.blue/",
+  "status": "ok",
+  "contact_form_url": "https://igusa.blue/contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJ6VEnndDuGGAROtSkJU-HZKQ",
+  "施設名": "トリミングサロン オアシス",
+  "種別": "トリミング",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJJUDj6Z3uGGARuiXNykDAdd8",
+  "施設名": "Lerche -レルヒェ-",
+  "種別": "トリミング",
+  "サイト": "https://r.goope.jp/lerche/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/lerche_for_dogs",
+  "line": null
+ },
+ {
+  "id": "ChIJ_0ymQF3tGGARd__umuohVEY",
+  "施設名": "dogsalon&cafe Ken（ドッグサロンアンドカフェ ケン）",
+  "種別": "トリミング",
+  "サイト": "https://www.instagram.com/dogsalonandcafeken/",
+  "status": "Error",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJj401OcDtGGARUZxglBghnYE",
+  "施設名": "Litgato",
+  "種別": "トリミング",
+  "サイト": "http://flowerdog-pet.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "shop@flowerdog-pet.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJFyXwBqLuGGARUP9H41mRgUE",
+  "施設名": "ドッグサロン・ショコラ",
+  "種別": "トリミング",
+  "サイト": "https://petlife.asia/salon/14514/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ7cloXLnuGGARMWI6JIxZTb0",
+  "施設名": "i-dogs本店",
+  "種別": "トリミング",
+  "サイト": "http://i-dogs.net/",
+  "status": "ok",
+  "contact_form_url": "http://i-dogs.net/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "info@i-dogs.net",
+    "kind": "generic"
+   },
+   {
+    "address": "filou-info@filou.jp",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/dogproshop_idogs",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJPewhIdjtGGARx1kh0M8QYJI",
+  "施設名": "むらかみ動物医院",
+  "種別": "動物病院",
+  "サイト": "http://murakami22vet.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "murakami22vet@gmail.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJi8GraO7vGGAR9hNbrj9HORc",
+  "施設名": "コーナン練馬大泉どうぶつ病院",
+  "種別": "動物病院",
+  "サイト": "https://anihoc.com/hospitals/oizumi/",
+  "status": "ok",
+  "contact_form_url": "https://anihoc.com/hospitals/oizumi/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "sample-anihoc@pet-tyl.co.jp",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJkb6-t-7uGGARYDx7v6qbNEE",
+  "施設名": "大塚動物病院",
+  "種別": "動物病院",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJa5PDBZTtGGARwpshLCMieh0",
+  "施設名": "ライフメイト動物救急センター練馬(旧ER練馬)",
+  "種別": "動物病院",
+  "サイト": "https://er-animal.jp/er_nerima/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJTYoTB3ntGGARNBES9D_SN8U",
+  "施設名": "わかいき動物眼科",
+  "種別": "動物病院",
+  "サイト": "https://w-aec.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJt9ZdTVbsGGARmg_WCHbIzvs",
+  "施設名": "田柄動物病院",
+  "種別": "動物病院",
+  "サイト": "https://www.tagaraah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "info@tagaraah.com",
+    "kind": "generic"
+   }
+  ],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJjyt19nLtGGAR3_0cZPK1oHg",
+  "施設名": "練馬動物医療センター ホンド動物病院 豊玉病院",
+  "種別": "動物病院",
+  "サイト": "https://www.hondo-ah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/hondoanimalhospital",
+  "line": "https://lin.ee/z0NS6jW"
+ },
+ {
+  "id": "ChIJ51-0dlvuGGARQ5NgpHRMZls",
+  "施設名": "ヒラミ動物病院",
+  "種別": "動物病院",
+  "サイト": "https://hirami.co.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJZbkptAPsGGARhmcdUHGspfo",
+  "施設名": "こまつ動物病院",
+  "種別": "動物病院",
+  "サイト": "http://komatsu-vet.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/komatsu.animalhospital",
+  "line": null
+ },
+ {
+  "id": "ChIJq6q7Mu_sGGARTCOSOtZpKyE",
+  "施設名": "こもれび動物病院",
+  "種別": "動物病院",
+  "サイト": "http://komorebi-animal-hospital.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJq7HSgw_tGGARZymm6BEfR3A",
+  "施設名": "練馬獣医科病院",
+  "種別": "動物病院",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ8_gqExHsGGARCrWLQ5T2E4I",
+  "施設名": "光が丘動物病院 練馬本院",
+  "種別": "動物病院",
+  "サイト": "https://www.hikarigaoka.net/hikarigaoka/",
+  "status": "ok",
+  "contact_form_url": "https://www.hikarigaoka.net/contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/hikarigaoka_ah",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJQXo9YdftGGARHuSEb4W48hY",
+  "施設名": "Dog beauty treatment salon STORY",
+  "種別": "トリミング",
+  "サイト": "https://dogsalon-story822.com/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ54JfbZTvGGARPoWARSvn2dE",
+  "施設名": "DogSalon andMOJO トリミングサロン 大泉",
+  "種別": "トリミング",
+  "サイト": "https://andmojo.com/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJpdsyKNDtGGARAMzEaMkVxtk",
+  "施設名": "Cotton dog",
+  "種別": "トリミング",
+  "サイト": "https://cotton-dog.com/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJEbWZCCPsGGARMASnlCRLEb4",
+  "施設名": "エルマーどうぶつ病院",
+  "種別": "動物病院",
+  "サイト": "https://www.elmer-ac.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/elmer.animal.clinic",
+  "line": null
+ },
+ {
+  "id": "ChIJ1ctzatztGGARxkbUJ5rYMHc",
+  "施設名": "ムスビ動物病院",
+  "種別": "動物病院",
+  "サイト": "https://musubi-ah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/musubi_ah",
+  "line": "https://lin.ee/heiC12S"
+ },
+ {
+  "id": "ChIJW93cCwDtGGARrdzM8ogdkYU",
+  "施設名": "コジマ動物医療センター西東京",
+  "種別": "動物病院",
+  "サイト": "https://pets-kojima.com/hospital/clinic/tokyo-west/index.html",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJoc99gPDuGGARBCppuvcUVoQ",
+  "施設名": "鳥獣ペットクリニック",
+  "種別": "動物病院",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJAUYIC2TtGGARms22ZFLD8r8",
+  "施設名": "トリミングサロンシェリー trimming.salon_cherie",
+  "種別": "トリミング",
+  "サイト": "http://trimmingsalon-cherie.jp/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJqXJNg9_sGGARYVNHF57dvoM",
+  "施設名": "公園通りペットクリニック",
+  "種別": "動物病院",
+  "サイト": "http://www.park-pet.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJcymLiXPtGGARMkVpXUdyGJk",
+  "施設名": "くろやなぎ動物病院",
+  "種別": "動物病院",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJZ3kFoNzuGGARpi5tHi0gxMA",
+  "施設名": "町田家畜病院",
+  "種別": "動物病院",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJKSDe8uPuGGARuv7gfZwgPXg",
+  "施設名": "練馬動物病院",
+  "種別": "動物病院",
+  "サイト": "https://www.nerima-animal-hp.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ0yw8K6HtGGARtkxzDrF2gRc",
+  "施設名": "猫の病院 あるるホーム",
+  "種別": "動物病院",
+  "サイト": "http://www.a-ruru.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "aruru_home2015@yahoo.co.jp",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://instagram.com/aruru_heights",
+  "line": null
+ },
+ {
+  "id": "ChIJ-8FHj37uGGARI9kPdoV27pc",
+  "施設名": "アニー動物病院 (練馬区)",
+  "種別": "動物病院",
+  "サイト": "http://www.annie-ah.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJETBp4P_sGGAROGB1FaMbJsM",
+  "施設名": "アニマルセンター26 モナミ",
+  "種別": "動物病院",
+  "サイト": "https://ac26monami.com/",
+  "status": "ok",
+  "contact_form_url": "https://ac26monami.com/inquiry/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/im_licky",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJgYiUgunvGGARl0BBVnO9frE",
+  "施設名": "大泉学園どうぶつ病院",
+  "種別": "動物病院",
+  "サイト": "https://asakadai-ah.jp/oizumigakuen/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/oizumigakuenah",
+  "line": null
+ },
+ {
+  "id": "ChIJxQ_PwS7sGGAROgjvr_Sz4xY",
+  "施設名": "動物病院 セカンドセレクト",
+  "種別": "動物病院",
+  "サイト": "https://www.secondselect.vet/",
+  "status": "ok",
+  "contact_form_url": "https://www.secondselect.vet/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "vet.secondselect@gmail.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJTSaywqftGGAR--4IEUksA7o",
+  "施設名": "練馬テイルズ動物病院",
+  "種別": "動物病院",
+  "サイト": "https://www.nerimatails-ah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJAQCRCE_pGGARYOId39rfeaY",
+  "施設名": "うさぎの病院フープ",
+  "種別": "動物病院",
+  "サイト": "https://www.usagi.cn/anketo/toukyou23ku/hupu.html",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "alles@usagi.cn",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJXbyjRPHuGGARhjmZ8mFHcOk",
+  "施設名": "ムサシセキ獣医科",
+  "種別": "動物病院",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJrVhnmIjuGGAR4OSIJWYSjm8",
+  "施設名": "石神井公園すぎもと動物病院",
+  "種別": "動物病院",
+  "サイト": "https://www.sugimoto-ah.net/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJWdS-xDXvGGAR9CoEOgDA1Po",
+  "施設名": "たにぐち動物病院",
+  "種別": "動物病院",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJg5LL-bTtGGARD568HUOBldw",
+  "施設名": "ＫＥＮ動物病院",
+  "種別": "動物病院",
+  "サイト": "http://kenpet.net/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJEz7OaA3tGGARbCqHb6LoMo4",
+  "施設名": "あべ動物病院",
+  "種別": "動物病院",
+  "サイト": "https://www.abe-animal-hos.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "8eb368c655b84e029ed79ad7a5c1718e@sentry.wixpress.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJdUOabEDtGGARuozRZG3oxTI",
+  "施設名": "栄町ペットクリニック",
+  "種別": "動物病院",
+  "サイト": "http://sakaecho-pc.net/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ1-0vrrrtGGARX9jVotpLOK8",
+  "施設名": "村上犬猫病院",
+  "種別": "動物病院",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ8x6QeC7sGGARzEqPyffCNlY",
+  "施設名": "高野台どうぶつ病院",
+  "種別": "動物病院",
+  "サイト": "http://takanodai-ah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ154C_jjsGGARM0ZUkGCYRBQ",
+  "施設名": "たかはし動物病院",
+  "種別": "動物病院",
+  "サイト": "http://www.takahashi-ah.jp/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJgZWCNvTuGGARktz3_AFbTtU",
+  "施設名": "上石神井動物病院",
+  "種別": "動物病院",
+  "サイト": "https://kamisyakujii.lifemate-vh.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "kamishakujii8488@gmail.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJUXWRYtHvGGARN4EUSUYZw94",
+  "施設名": "ポラン動物病院",
+  "種別": "動物病院",
+  "サイト": "http://www.polan-ah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/polan.ah",
+  "line": null
+ },
+ {
+  "id": "ChIJiQ0XdTbpGGARrSenGIXyQ3c",
+  "施設名": "ひまわり動物病院",
+  "種別": "動物病院",
+  "サイト": "http://www7a.biglobe.ne.jp/~himawari-AH/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ-drOdxPtGGARuFZW95BRmy0",
+  "施設名": "ＫＡＺＵ動物病院",
+  "種別": "動物病院",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJMSBi8dPuGGARNDQKtVDOzXA",
+  "施設名": "佐伯獣医科病院",
+  "種別": "動物病院",
+  "サイト": "https://www.saeki-vet.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ5Sdv6oPuGGARS2Pi0kcvPXs",
+  "施設名": "酒井獣医科病院",
+  "種別": "動物病院",
+  "サイト": "https://www.sakai-ah.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ_QLgypLuGGARJOFmhLPoogM",
+  "施設名": "練馬動物医療センターホンド動物病院 石神井病院",
+  "種別": "動物病院",
+  "サイト": "https://www.hondo-ah-shakujii.com/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJS0DVo6rtGGARh-7SAJQfzIE",
+  "施設名": "マウ動物病院",
+  "種別": "動物病院",
+  "サイト": "http://mau-animalhospital.com/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJpTevT73tGGARrq1nQLbOnE8",
+  "施設名": "上田動物病院",
+  "種別": "動物病院",
+  "サイト": "https://akasaka.sakura.ne.jp/mobile/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJO3lyEVPsGGAR92S0ZXzI61s",
+  "施設名": "練馬動物医療センターホンド動物病院 春日町病院",
+  "種別": "動物病院",
+  "サイト": "https://www.hondo-ah-kasugacyou.com/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJpZfcot2LGGARjCsL28eCmlY",
+  "施設名": "パウパウアクアガーデン 銀座店",
+  "種別": "ペットショップ",
+  "サイト": "http://www.paupau.co.jp/",
+  "status": "ok",
+  "contact_form_url": "http://www.paupau.co.jp/html/inquiry.html",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/paupauginza",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJce-2LkaJGGARWbj8Ouii3Uo",
+  "施設名": "Ｉｎｕ・ｔｏ・Ｎｉｈｏｎｂａｓｈｉ",
+  "種別": "ペットショップ",
+  "サイト": "http://inutotown.com/nihonbashi/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "salon@inuneko-seikatsu.co.jp",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/inutotown",
+  "line": null
+ },
+ {
+  "id": "ChIJH5St8sCJGGARy-HaTtpI-0s",
+  "施設名": "ペットの専門店コジマGRAND東日本橋店",
+  "種別": "ペットショップ",
+  "サイト": "https://pets-kojima.com/shop/0125/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJXd2eW3CJGGARKIJIJvGwEg8",
+  "施設名": "ペットショップGIORNO（ジョルノ）",
+  "種別": "ペットショップ",
+  "サイト": "http://www.giorno-wan.jp/",
+  "status": "ok",
+  "contact_form_url": "http://www.giorno-wan.jp/inquiry/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [],
+  "instagram": "https://www.instagram.com/buddyfamz",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJxVpuJ4qLGGAR7eMhTLAbkk0",
+  "施設名": "あーす·ぺっとはうす",
+  "種別": "ペットショップ",
+  "サイト": "https://instagram.com/earthpet_house?igshid=YmMyMTA2M2Y=",
+  "status": "Error",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJdzpEbZTuGGARDDNof1Pq9tw",
+  "施設名": "石神井公園動物病院",
+  "種別": "動物病院",
+  "サイト": "http://www.shakujiikoen-ah.com/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ_0nHfeGLGGARnvrUmssz6OQ",
+  "施設名": "DAXDACHS（ダックスダックス）銀座",
+  "種別": "ペットショップ",
+  "サイト": "https://dachs.jp/",
+  "status": "ok",
+  "contact_form_url": "https://dachs.jp/mailform01.html",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "staff@dachs.jp",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/ginza_daxdachs",
+  "line": "https://lin.ee/1AisDVb",
+  "captcha": false
+ },
+ {
+  "id": "ChIJz8M2-aLuGGARPfU9SyIK80w",
+  "施設名": "コクーンペットクリニック",
+  "種別": "動物病院",
+  "サイト": "http://www.cocoonpetclinic.com/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJoRmt-HmJGGARrILy1gAedy8",
+  "施設名": "ペットシティ月島店",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJ24BDSgCJGGARL4ijK7na9hA",
+  "施設名": "わんわんハッピーパラダイス",
+  "種別": "ペットショップ",
+  "サイト": "https://www.instagram.com/maruni_clinic?igsh=Nm1uMzQzbDkxZmFs&utm_source=qr",
+  "status": "Error",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJKZ8XDp3uGGARj38OKDpfBHM",
+  "施設名": "プリモ動物病院 練馬",
+  "種別": "動物病院",
+  "サイト": "https://www.primo-ah.com/hospital/nerima/",
+  "status": "timeout",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJxyNpGGeJGGARbrN2-W_fCcI",
+  "施設名": "Ｉｎｕ・ｔｏ・Ｇｉｎｚａ",
+  "種別": "ペットショップ",
+  "サイト": "http://inutotown.com/ginza/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "salon@inuneko-seikatsu.co.jp",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://www.instagram.com/inutotown",
+  "line": null
+ },
+ {
+  "id": "ChIJG1SzgOOLGGARBuODHg6ZAa0",
+  "施設名": "ジャーマンペットハウス 銀座店",
+  "種別": "ペットショップ",
+  "サイト": "https://www.germanpet.com/",
+  "status": "ok",
+  "contact_form_url": "https://www.germanpet.com/contact/",
+  "has_form": true,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "mail@germanpet.com",
+    "kind": "generic"
+   }
+  ],
+  "instagram": "https://www.instagram.com/germanpet_official",
+  "line": null,
+  "captcha": false
+ },
+ {
+  "id": "ChIJK6sPbgCJGGARH9RbjzUYb3Y",
+  "施設名": "プリティーわんこハウス",
+  "種別": "ペットショップ",
+  "サイト": "",
+  "status": "no_site",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [],
+  "instagram": null,
+  "line": null
+ },
+ {
+  "id": "ChIJi3i-B_eJGGARs7m4ri82lYY",
+  "施設名": "PET'S MOST",
+  "種別": "ペットショップ",
+  "サイト": "https://www.petsmost.info/",
+  "status": "ok",
+  "contact_form_url": "",
+  "has_form": false,
+  "no_sales": false,
+  "emails": [
+   {
+    "address": "intl-segmenter@11.7.10",
+    "kind": "personal"
+   },
+   {
+    "address": "rspack@1.6.8",
+    "kind": "personal"
+   },
+   {
+    "address": "8c4075d5481d476e945486754f783364@sentry.io",
+    "kind": "personal"
+   },
+   {
+    "address": "dd0a55ccb8124b9c9d938e3acf41f8aa@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "c183baa23371454f99f417f6616b724d@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "79baaa8e09c746d2b7401643b99792e0@sentry.wixpress.com",
+    "kind": "personal"
+   },
+   {
+    "address": "2062d0a4929b45348643784b5cb39c36@sentry.wixpress.com",
+    "kind": "personal"
+   }
+  ],
+  "instagram": "https://instagram.com/petsmost_nihonbashi",
+  "line": "https://lin.ee/kCFjD3c"
  }
 ]
