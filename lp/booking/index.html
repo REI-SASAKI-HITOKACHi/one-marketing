@@ -831,6 +831,39 @@ gtag('config','G-DLJCTKGTDN',{'lp_id':'booking','lp_variant':'A'});
     $('done-cal').href = url;
   }
 
+  /* ── 流入経路の持ち回り ───────────────────────────────
+     広告から来た人は LP に ?src=gads&cid=… &gclid=… で着地し、
+     そこから予約フォーム（別ホスト）へ移る。URL に付いていなければ
+     この端末に保存したものを使う。90日で消える。
+     ★別ホストなので localStorage は共有されない。LP 側で
+       予約フォームへのリンクにパラメータを付け直す必要がある（lp 担当）。 */
+  var KEIRO_KEY = 'oh_keiro';
+  var KEIRO_HI = 90 * 24 * 60 * 60 * 1000;
+
+  function keiroHozon(){
+    var q = new URLSearchParams(location.search);
+    var mitsuketa = {};
+    ['src', 'cid', 'gclid', 'wbraid', 'gbraid'].forEach(function(k){
+      var v = q.get(k);
+      if (v) { mitsuketa[k] = v; }
+    });
+    if (!Object.keys(mitsuketa).length) { return; }
+    mitsuketa._t = Date.now();
+    try { localStorage.setItem(KEIRO_KEY, JSON.stringify(mitsuketa)); } catch (e) {}
+  }
+
+  function keiro(k){
+    var q = (new URLSearchParams(location.search)).get(k);
+    if (q) { return q; }
+    try {
+      var h = JSON.parse(localStorage.getItem(KEIRO_KEY) || '{}');
+      if (h._t && Date.now() - h._t > KEIRO_HI) { return ''; }
+      return h[k] || '';
+    } catch (e) { return ''; }
+  }
+
+  keiroHozon();
+
   var okuttechuu = false;
   $('send').addEventListener('click', function(){
     if (okuttechuu) { return; }
@@ -847,7 +880,9 @@ gtag('config','G-DLJCTKGTDN',{'lp_id':'booking','lp_variant':'A'});
       '所要の目安（分）': String(shoyouFun()),
       '概算金額': k ? String(k.gokei) : '',
       'ご要望': $('f-note').value.trim(),
-      '流入元': (new URLSearchParams(location.search)).get('src') || '',
+      '流入元': keiro('src'),
+      '広告のクリックID': keiro('gclid') || keiro('wbraid') || keiro('gbraid'),
+      '広告のキャンペーンID': keiro('cid'),
       '空き枠の取得時刻': (slotsCache && slotsCache.generated) || '',
     };
     var body = Object.keys(atai).map(function(kk){
@@ -903,6 +938,8 @@ gtag('config','G-DLJCTKGTDN',{'lp_id':'booking','lp_variant':'A'});
   <input type="text" name="概算金額">
   <textarea name="ご要望"></textarea>
   <input type="text" name="流入元">
+  <input type="text" name="広告のクリックID">
+  <input type="text" name="広告のキャンペーンID">
   <input type="text" name="空き枠の取得時刻">
 </form>
 
