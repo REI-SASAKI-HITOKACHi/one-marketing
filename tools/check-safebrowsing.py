@@ -56,9 +56,14 @@ def hantei(h):
     return int(m.group(1)) if m else None
 
 
+# 既定は1周だけ（毎時の巡回用。数分かかると巡回が時間切れになる）。
+# 配信前など、全ホストの判定を必ず取りたいときは --oikake を付ける。
+OIKAKE = '--oikake' in sys.argv
+MACHI = (4, 15, 30) if OIKAKE else (4,)
+
 kekka = {}
 nokori = list(HOSTS)
-for machi in (4, 15, 30):          # 追いかけるたびに間隔を広げる
+for machi in MACHI:                # 追いかけるたびに間隔を広げる
     if not nokori:
         break
     tsugi = []
@@ -71,7 +76,7 @@ for machi in (4, 15, 30):          # 追いかけるたびに間隔を広げる
         else:
             kekka[h] = r
     nokori = tsugi
-    if nokori:
+    if nokori and machi != MACHI[-1]:
         print(f'（レート制限 {len(nokori)}件。{machi * 3}秒あけて追いかけます）')
         time.sleep(machi * 3)
 
@@ -89,5 +94,7 @@ for h in HOSTS:
 
 if nokori:
     print(f'\n※ {len(nokori)}件は判定が取れませんでした: {" ".join(nokori)}')
+    if not OIKAKE:
+        print('  --oikake を付けると、間隔を広げて3周まで追いかけます（数分かかります）')
     print('  単独で叩くと取れることが多い（一覧の後ろのホストほど 429 に当たりやすい）')
 sys.exit(1 if bad else 0)
