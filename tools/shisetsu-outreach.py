@@ -36,8 +36,9 @@ import sheets_client as sc  # noqa: E402
 import gmail_send as G  # noqa: E402
 
 ROOT = C.ROOT
-FAC = ROOT / "data" / "facilities-2026-09-clean.json"
-CON = ROOT / "data" / "facilities-2026-09-contacts.json"
+# 施設と連絡先は複数のファイルに分かれている（最初の江戸川区・浦安市＋9/14 に足した都内の区・市川市）
+FAC_FILES = [ROOT / "data" / "facilities-2026-09-clean.json", ROOT / "data" / "facilities-2026-09-add.json"]
+CON_FILES = [ROOT / "data" / "facilities-2026-09-contacts.json", ROOT / "data" / "facilities-2026-09-add-contacts.json"]
 OUT = ROOT / "dist" / "outreach"
 SS = "1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64"
 TAB_P = "施設カード_進捗"
@@ -212,13 +213,21 @@ def progress_rows(tok, refresh: bool = False):
 
 # ---------------- 対象の選定
 def load() -> list:
-    fac = {f["id"]: f for f in json.loads(FAC.read_text(encoding="utf-8"))}
-    con = {c["id"]: c for c in json.loads(CON.read_text(encoding="utf-8"))} if CON.exists() else {}
+    fac, con = {}, {}
+    for q in FAC_FILES:
+        if q.exists():
+            fac.update({f["id"]: f for f in json.loads(q.read_text(encoding="utf-8"))})
+    for q in CON_FILES:
+        if q.exists():
+            con.update({c["id"]: c for c in json.loads(q.read_text(encoding="utf-8"))})
+    by_name = {}
+    for f in fac.values():
+        by_name.setdefault(f["施設名"], f)
     tok = sc.access_token(sc.load_credentials())
     col, prows = progress_rows(tok, refresh=True)
     rows = []
     for name, (_, r) in prows.items():
-        f = next((x for x in fac.values() if x["施設名"] == name), None)
+        f = by_name.get(name)
         if not f:
             continue
         c = con.get(f["id"], {})
@@ -603,6 +612,29 @@ FAIL_RE = re.compile(r"失敗しました|エラーが発生|記入もれ|入力
 SEND_BTN = "input[type=submit][value*='送信'], input[type=button][value*='送信'], button[type=submit]:has-text('送信'), button:has-text('送信する'), button:has-text('送信'), input[value='上記の内容で送信する']"
 
 
+async def why_stuck(pg) -> str:
+    """送れなかったとき、画面に出ている理由（必須項目の警告・ブラウザの検証メッセージ）を短く拾う。
+    次の改善で何を直せばよいかを送信ログに残すため（2026-09-14）"""
+    try:
+        msgs = await pg.evaluate("""() => {
+          const out = [];
+          for (const e of document.querySelectorAll('input,select,textarea')) {
+            if (e.willValidate && !e.checkValidity()) {
+              const lab = (e.labels && e.labels[0] ? e.labels[0].innerText : '') || e.name || e.id || e.type;
+              out.push((lab || '').replace(/\s+/g,' ').trim().slice(0,20) + ':' + (e.validationMessage||'').slice(0,20));
+            }
+          }
+          for (const e of document.querySelectorAll('.error,.err,.is-error,[class*="error"],[class*="alert"]')) {
+            const t = (e.innerText||'').replace(/\s+/g,' ').trim();
+            if (t && t.length < 60) out.push(t);
+          }
+          return [...new Set(out)].slice(0, 4);
+        }""")
+        return "／".join(msgs)[:100]
+    except Exception:
+        return ""
+
+
 async def submit(pg, wave: int, f: dict) -> dict:
     """フォームを送り、完了画面を見届ける。確認画面をまたぐ場合は3手まで進む。
     戻り値 state: done（完了を確認）／ng（完了を確認できない）"""
@@ -630,15 +662,18 @@ async def submit(pg, wave: int, f: dict) -> dict:
             return {"state": "done", "reason": "", "proof": m.group(0)}
         if fail and not m:
             await pg.screenshot(path=str(OUT / f"w{wave}-{f['No']}-sent.png"), full_page=True)
-            return {"state": "ng", "reason": "入力エラー（" + fail.group(0) + "）", "proof": ""}
+            w = await why_stuck(pg)
+            return {"state": "ng", "reason": "入力エラー（" + fail.group(0) + "）" + (f"：{w}" if w else ""), "proof": ""}
         seen.append((pg.url != before_url, n_ta))
         # 確認画面らしい（入力欄が消えて「送信」ボタンがある）なら、次の手で送信を押す
         nxt = await pg.query_selector(SEND_BTN)
         if not nxt:
             await pg.screenshot(path=str(OUT / f"w{wave}-{f['No']}-sent.png"), full_page=True)
-            return {"state": "ng", "reason": "完了画面を確認できない", "proof": ""}
+            w = await why_stuck(pg)
+            return {"state": "ng", "reason": "完了画面を確認できない" + (f"：{w}" if w else ""), "proof": ""}
     await pg.screenshot(path=str(OUT / f"w{wave}-{f['No']}-sent.png"), full_page=True)
-    return {"state": "ng", "reason": "確認画面から進めない", "proof": ""}
+    w = await why_stuck(pg)
+    return {"state": "ng", "reason": "確認画面から進めない" + (f"：{w}" if w else ""), "proof": ""}
 
 
 async def run_forms(targets: list, wave: int, send: bool, email_from: str, n: int = 50) -> None:
