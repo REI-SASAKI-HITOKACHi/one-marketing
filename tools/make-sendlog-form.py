@@ -43,28 +43,38 @@ def call(tok, url, method="GET", payload=None):
         sys.exit(f"HTTP {e.code} {url}\n{e.read().decode('utf-8', 'replace')[:800]}")
 
 
-def create():
+def create(fid: str = ""):
+    """fid を渡すと既存フォームに設問を入れる。
+    サービスアカウントは Drive のストレージ枠を持たないのでフォームを作れない（403 storageQuotaExceeded）。
+    そこで空のフォームはオーナーのアカウントで作り（Drive の連携から mimeType=…form で作れる）、
+    SA を編集者に入れてから、ここで設問と entry ID を組み立てる。2026-09-14"""
     tok = sc.access_token(sc.load_credentials(), SCOPE)
-    form = call(tok, FORMS, "POST", {"info": {"title": TITLE, "documentTitle": TITLE}})
-    fid = form["formId"]
-    reqs = [{"createItem": {"item": {"title": name, "questionItem": {"question": {"required": name in ("日時", "施設名", "手段", "結果"), "textQuestion": {"paragraph": name in ("宛先／フォームURL", "備考", "返信")}}}},
-                            "location": {"index": i}}} for i, name in enumerate(FIELDS)]
+    if fid:
+        form = call(tok, f"{FORMS}/{fid}")
+        if form.get("info", {}).get("title") != TITLE:
+            call(tok, f"{FORMS}/{fid}:batchUpdate", "POST", {"requests": [{"updateFormInfo": {"info": {"title": TITLE}, "updateMask": "title"}}]})
+    else:
+        form = call(tok, FORMS, "POST", {"info": {"title": TITLE, "documentTitle": TITLE}})
+        fid = form["formId"]
+    have = {it.get("title") for it in form.get("items", [])}
+    reqs = [] if have >= set(FIELDS) else [{"createItem": {"item": {"title": name, "questionItem": {"question": {"required": name in ("日時", "施設名", "手段", "結果"), "textQuestion": {"paragraph": name in ("宛先／フォームURL", "備考", "返信")}}}},
+                            "location": {"index": i}}} for i, name in enumerate(FIELDS) if name not in have]
     reqs.insert(0, {"updateFormInfo": {"info": {"description": "送信ツールが自動で投稿する。人が手で入れるときは、手段に「電話」「訪問」「Instagram DM」と書く。"}, "updateMask": "description"}})
-    call(tok, f"{FORMS}/{fid}:batchUpdate", "POST", {"requests": reqs})
+    if reqs:
+        call(tok, f"{FORMS}/{fid}:batchUpdate", "POST", {"requests": reqs})
     form = call(tok, f"{FORMS}/{fid}")
-    entries = {}
+    entries, qids = {}, {}
     for it in form.get("items", []):
         q = it.get("questionItem", {}).get("question", {})
         if q.get("questionId"):
             entries[it["title"]] = "entry." + str(int(q["questionId"], 16))
+            qids[it["title"]] = q["questionId"]
     missing = [f for f in FIELDS if f not in entries]
     if missing:
         sys.exit(f"entry ID が取れない設問: {missing}")
-    # オーナーに編集権限（回答先の紐づけと、回答の閲覧のため）
-    call(tok, f"{DRIVE}/{fid}/permissions?sendNotificationEmail=false", "POST", {"role": "writer", "type": "user", "emailAddress": OWNER})
     post_url = form["responderUri"].replace("/viewform", "/formResponse")
     os.makedirs(os.path.dirname(CFG), exist_ok=True)
-    json.dump({"formId": fid, "post_url": post_url, "edit_url": f"https://docs.google.com/forms/d/{fid}/edit", "entries": entries}, open(CFG, "w"), ensure_ascii=False, indent=1)
+    json.dump({"formId": fid, "post_url": post_url, "edit_url": f"https://docs.google.com/forms/d/{fid}/edit", "entries": entries, "questions": qids}, open(CFG, "w"), ensure_ascii=False, indent=1)
     print("作成:", TITLE)
     print("編集URL（回答先の紐づけはここで）:", f"https://docs.google.com/forms/d/{fid}/edit")
     print("投稿URL:", post_url)
@@ -84,7 +94,7 @@ def post(values: dict) -> bool:
 def main():
     mode = sys.argv[1] if len(sys.argv) > 1 else ""
     if mode == "create":
-        create()
+        create(sys.argv[2] if len(sys.argv) > 2 else "")
     elif mode == "test":
         import datetime as dt
         ok = post({"日時": dt.datetime.now(dt.timezone(dt.timedelta(hours=9))).strftime("%Y-%m-%d %H:%M"), "波": 0, "施設No": 0, "施設名": "テスト", "種別": "-", "手段": "テスト",
