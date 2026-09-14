@@ -12,11 +12,11 @@
     "_note": "GA4の測定ID。LP用（オーナーが2026-09-10に作成、CMO経由で受領）。これは公開ページのHTMLに出る文字列で、パスワードではない。"
   },
   "google_ads": {
-    "conversion_id": "",
+    "conversion_id": "AW-18450975194",
     "_note1": "Google広告のコンバージョンID。AW- で始まる。広告を出すまで空でよい。",
     "labels": {
-      "generate_lead": "",
-      "phone_click": "",
+      "generate_lead": "e-nVCPqV2PccENqTjt5E",
+      "phone_click": "2qAcCOiw3fccENqTjt5E",
       "line_click": ""
     },
     "_note2": "labels のキーはイベント名と同じにすること。値は AW-XXXX/ の右側の文字列だけを入れる。",
@@ -41,7 +41,9 @@
     ],
     "sid": "11535",
     "pid": "16436",
-    "pages": ["mizumawari"],
+    "pages": [
+      "mizumawari"
+    ],
     "_note2": [
       "pages は、タグを出すLPのフォルダ名。レントラックスに登録している掲載先は",
       "  https://one-hitter-lp.netlify.app/mizumawari/ の1本だけ（2026-09-08 オーナー確認）。",
