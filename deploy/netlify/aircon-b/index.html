@@ -969,6 +969,33 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
       }
     } catch (e) { /* プライベートモード等で localStorage が使えないことがある */ }
     var eg = document.getElementById('h-gclid'); if (eg) eg.value = gclid || '';
+
+    /* 別ホストへの導線に、流入の情報を引き継がせる。
+       予約フォームは yoyaku.onehitter.jp で、このLPとは別ホスト。
+       localStorage はホストをまたいで共有されないので、
+       リンクを踏んだ時点でURLに載せないと、向こうでは「流入元＝空」になる。
+       （2026-09-14 CMOの指摘。予約フォーム側は保存の実装済み）
+
+       いまのところLPから予約フォームへのリンクは1本も無い。
+       あとで足したときに黙って切れるのを防ぐために入れてある。
+
+       ★読み込み時に一括で書き換える作りにすると、このスクリプトより後ろに
+         置かれたリンクや、あとからJSで足したリンクに効かない（実際に効かなかった）。
+         押された瞬間に書き換えるので、どこにどう足されても効く。 */
+    var BESSITE = /(^|\.)onehitter-yoyaku\.netlify\.app$|(^|\.)yoyaku\.onehitter\.jp$|(^|\.)one-hitter-booking\.netlify\.app$/;
+    document.addEventListener('click', function (ev) {
+      var a = ev.target && ev.target.closest ? ev.target.closest('a[href]') : null;
+      if (!a) return;
+      var u;
+      try { u = new URL(a.href, location.href); } catch (e) { return; }
+      if (!BESSITE.test(u.hostname)) return;
+      var hikitsugu = { src: src, cid: cid, gclid: gclid };
+      Object.keys(hikitsugu).forEach(function (k) {
+        // すでにURLに書いてあるものは、書いた人の意図を優先して上書きしない
+        if (hikitsugu[k] && !u.searchParams.has(k)) u.searchParams.set(k, hikitsugu[k]);
+      });
+      a.href = u.toString();
+    }, true);
     var es = document.getElementById('h-src'); if (es) es.value = src;
     var ec = document.getElementById('h-cid'); if (ec) ec.value = cid;
   })();
