@@ -413,9 +413,38 @@ CTX_JS = """e=>{
 NOT_DOGCAT_RE = re.compile(r"熱帯魚|アクア|サンマリン|ディスカス|金魚|メダカ|水族")  # ペットショップのうち観賞魚の店。犬猫の読本は合わないので送らない（2026-09-14 東京サンマリンで気づいた）
 
 
-async def fill_form(pg, url: str, text: str, email_from: str, subject: str) -> dict:
-    await pg.goto(url, timeout=30000, wait_until="domcontentloaded")
-    await pg.wait_for_timeout(1500)
+CONTACT_LINK_RE = re.compile(r"(問い?合わ?せ|問合せ|お問合わせ|contact|inquiry|mail ?form|メールフォーム)", re.I)
+
+
+async def find_form_link(pg) -> str:
+    """いまのページに本文欄が無いとき、同じサイト内の問い合わせページへの link を探す（2026-09-14 第1波：候補93件中46件がフォームでないURLだった）"""
+    try:
+        links = await pg.evaluate("""() => [...document.querySelectorAll('a[href]')].map(a => ({h: a.href, t: (a.innerText||'') + ' ' + (a.getAttribute('aria-label')||'') + ' ' + a.href}))""")
+    except Exception:
+        return ""
+    here = pg.url.split("/")[2] if "//" in pg.url else ""
+    best = ""
+    for a in links:
+        h, t = a.get("h", ""), a.get("t", "")
+        if not h.startswith("http") or "//" not in h:
+            continue
+        base = h.split("#")[0]
+        if h.split("/")[2] != here or base.rstrip("/") == pg.url.split("#")[0].rstrip("/"):
+            continue  # 同じページ内のアンカー（#top 等）は辿らない
+        if h.lower().endswith((".pdf", ".jpg", ".png", ".zip")) or "tel:" in h or "mailto:" in h:
+            continue
+        if CONTACT_LINK_RE.search(t):
+            # 「フォーム」と明示されているものを優先
+            if re.search(r"form|フォーム", base, re.I):
+                return base
+            best = best or base
+    return best
+
+
+async def fill_form(pg, url: str, text: str, email_from: str, subject: str, hop: int = 0) -> dict:
+    if hop == 0:
+        await pg.goto(url, timeout=30000, wait_until="domcontentloaded")
+        await pg.wait_for_timeout(1500)
     html = await pg.content()
     if NO_SALES_RE.search(re.sub(r"<[^>]+>", " ", html)):
         return {"ok": False, "reason": "営業お断り・患者専用の記載"}
@@ -501,7 +530,32 @@ async def fill_form(pg, url: str, text: str, email_from: str, subject: str) -> d
                 await cb.check(force=True)
         except Exception:
             pass
+    if "body" not in filled and hop < 2:
+        nxt = await find_form_link(pg)
+        if nxt:
+            try:
+                await pg.goto(nxt, timeout=30000, wait_until="domcontentloaded")
+                await pg.wait_for_timeout(1500)
+                r = await fill_form(pg, nxt, text, email_from, subject, hop + 1)
+                r["moved_to"] = nxt
+                return r
+            except Exception:
+                pass
     return {"ok": "body" in filled, "filled": sorted(filled), "reason": "" if "body" in filled else "本文欄が見つからない"}
+
+
+async def click(el, pg) -> None:
+    """普通のクリックが通らないフォーム（要素が隠れている・別要素に覆われている）でも押せるように。
+    2026-09-14 第1波：ElementHandle.click の 30 秒待ちで 8 件落ちた"""
+    try:
+        await el.click(timeout=8000)
+        return
+    except Exception:
+        pass
+    try:
+        await el.evaluate("e => e.click()")
+    except Exception:
+        await el.evaluate("e => { const f = e.form || e.closest('form'); if (f) f.submit(); }")
 
 
 async def run_forms(targets: list, wave: int, send: bool, email_from: str, n: int = 50) -> None:
@@ -551,16 +605,18 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str, n: in
                     safe_write(tok, "manual", mark_manual, f, "送信ボタン不明")
                     print("ボタン不明", f["No"], f["施設名"])
                     continue
-                await btn.click()
+                await click(btn, pg)
                 await pg.wait_for_timeout(2500)
                 btn2 = await pg.query_selector("input[type=submit][value*='送信'], button:has-text('送信'), input[value*='送信する']")
                 if btn2:
-                    await btn2.click()
+                    await click(btn2, pg)
                     await pg.wait_for_timeout(2500)
                 await pg.screenshot(path=str(OUT / f"w{wave}-{f['No']}-sent.png"), full_page=True)
                 body = (await pg.content())
                 ok = bool(re.search(r"送信(が)?完了|ありがとうござい|受け付け|受付|送信しました|thank", body, re.I))
-                safe_write(tok, "log", log_send, wave, f, "フォーム", url, "③", "送信" if ok else "送信（完了表示は未確認）")
+                dest = r.get("moved_to") or url
+                safe_write(tok, "log", log_send, wave, f, "フォーム", dest, "③", "送信" if ok else "送信（完了表示は未確認）",
+                           ("巡回で拾ったURLにフォームが無く、サイト内の問い合わせページへ移動: " + url) if r.get("moved_to") else "")
                 safe_write(tok, "stage", update_stage, f, "form")
                 print("送信", f["No"], f["施設名"], "OK" if ok else "要確認")
                 sent += 1
