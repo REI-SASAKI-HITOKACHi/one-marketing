@@ -16,6 +16,9 @@ HOSTS = [
     'one-hitter-tenken.netlify.app',    # 無料点検
     'one-hitter-sns-media.netlify.app', # SNS画像
     'one-hitter.jp',                    # 公式サイト
+    'onehitter.jp',                     # apex（301 → /mizumawari/）
+    'lp.onehitter.jp',                  # LP4本（独自ドメイン）★広告の遷移先。ここが落ちると出稿が止まる
+    'survey.onehitter.jp',              # ご利用後アンケート（独自ドメイン）★現場のQRが飛ぶ先
     'yoyaku.onehitter.jp',              # 予約フォーム（独自ドメイン。2026-09-12 割り当て）
     'dokuhon.onehitter.jp',             # 読本（独自ドメイン）
     'tenken.onehitter.jp',              # 無料点検（独自ドメイン）
