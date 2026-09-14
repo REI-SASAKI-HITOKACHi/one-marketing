@@ -14,7 +14,7 @@ HOSTS = [
 
     # ── お客様が踏む独自ドメイン（ここが落ちると実害が出る） ──
     'lp.onehitter.jp',                  # LP4本。★広告の遷移先。判定を受けると広告費を払いながら誰も着地できない
-    'onehitter.jp',                     # apex（301 → /mizumawari/）。※このホストは単独でも取れにくい
+    'onehitter.jp',                     # apex（301 → /mizumawari/）★このホストだけ3周とも429に当たる（2026-09-15）。単独で叩けば一発で返る
     'one-hitter.jp',                    # 公式サイト
     'yoyaku.onehitter.jp',              # 予約フォーム（独自ドメイン。2026-09-12 割り当て）
     'survey.onehitter.jp',              # ご利用後アンケート。★現場のQRが飛ぶ先
