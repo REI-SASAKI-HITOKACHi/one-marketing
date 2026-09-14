@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | 役割ID | `gift` |
-| セッション | （開設時に CMO が記入） |
+| セッション | `session_01YSdRTfASgKDmxHzaMU7PCw`（ギフト事業担当｜ギフト化の企画） |
 | ブランチ | `claude/one-hitter-cmo-strategy-5qk4ux`（CMO・経営企画室と共有。コミット前に `git pull --rebase`） |
 | 開設 | 2026-09-14（オーナー指示「ギフト化の文脈を経営企画室から確認して。新たに担当スレッドを作って。まずは企画内容を詰めるからその前提で新しいスレッドを稼働させて。opusで」） |
 | モデル | `claude-opus-5` |
