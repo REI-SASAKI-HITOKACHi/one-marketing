@@ -51,6 +51,11 @@ UNIT = 70                          # KDDI：1通＝70文字
 MAX_UNITS = 3                      # 3通案
 PRICE = 11.0                       # 税込11円/通（税抜10.0の階梯）
 
+# D列「▶ 送る」のリンク先。社内用の中継ページ（cmo の build-sms-list.py と同じ）。
+# ★宛先と本文は「#」より後ろ（フラグメント）に入れる。サーバーに送られないので、
+#   Netlify の記録にお客様の電話番号も本文も残らない。「?」に変えないこと。
+SMS_PAGE = "https://oh-naibu-sms-k7q3x.netlify.app/s.html"
+
 WRITE = ("--confirm" in sys.argv and "WRITE" in sys.argv)
 SHOW3 = "--3通" in sys.argv
 
@@ -295,6 +300,32 @@ def main():
     sc.call(tok, f"/{SS}/values:batchUpdate", "POST",
             {"valueInputOption": "RAW", "data": data})
     print(f"\nF列を {len(data)} 行 書き換えました（本舗・未送信のみ）。")
+
+    # ★D列の「▶ 送る」にも本文が埋まっている。ここを直さないと、
+    #   和真さんがタップしたときに**古い451文字の本文が送られる**。
+    #   F列（読むための控え）だけ直しても意味がない。
+    #   リンクの作り方は cmo の build-sms-list.py と同じ（フラグメントに入れる。
+    #   サーバーに送られないので、Netlifyの記録に電話番号も本文も残らない）。
+    meta2 = sc.call(tok, f"/{SS}?fields=sheets.properties")
+    sid = [s["properties"]["sheetId"] for s in meta2["sheets"]
+           if s["properties"]["title"] == TAB][0]
+    reqs = []
+    for n, _name, tel, body, _ in taishou:
+        num = re.sub(r"\D", "", tel)
+        if not num:
+            continue
+        uri = (SMS_PAGE + "#to=" + urllib.parse.quote(num, safe="")
+               + "&b=" + urllib.parse.quote(body, safe=""))
+        reqs.append({"updateCells": {
+            "range": {"sheetId": sid, "startRowIndex": n - 1, "endRowIndex": n,
+                      "startColumnIndex": 3, "endColumnIndex": 4},
+            "rows": [{"values": [{
+                "userEnteredValue": {"stringValue": "▶ 送る"},
+                "textFormatRuns": [{"startIndex": 0, "format": {"link": {"uri": uri}}}]}]}],
+            "fields": "userEnteredValue,textFormatRuns"}})
+    for i in range(0, len(reqs), 100):   # 1回に詰め込みすぎると通らない
+        sc.call(tok, f"/{SS}:batchUpdate", "POST", {"requests": reqs[i:i + 100]})
+    print(f"D列（▶ 送る）のリンクを {len(reqs)} 行 貼り直しました。")
     return 0
 
 
