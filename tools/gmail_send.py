@@ -5,7 +5,8 @@
   {"client_id": "...", "client_secret": "...", "refresh_token": "...", "sender": "onehitter.her@gmail.com"}
 値は認証情報ドキュメント §12 から手で写す。**git・掲示板・チャットには絶対に書かない。** トークンの値は print しない。
 
-型（必須。CMO 決定）：From「ワンヒッター株式会社 佐々木」<onehitter.her@gmail.com>／Reply-To: info@one-hitter.her.jp／
+型：From「ワンヒッター株式会社 佐々木」<onehitter.her@gmail.com>／Reply-To も同じ Gmail（オーナー指摘 2026-09-14。
+info@one-hitter.her.jp はこの環境から読めず、返信が来ると人が対応することになるため）／
 本文末に会社名・住所・電話・「今後のご案内が不要でしたら、このメールにその旨ご返信ください」（特定電子メール法）。
 1施設1通・1日50件まで（上限の管理は shisetsu-outreach.py 側）。
 
@@ -29,7 +30,10 @@ CFG = os.path.expanduser("~/.config/one-hitter/gmail-oauth.json")
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 API = "https://gmail.googleapis.com/gmail/v1/users/me"
 FROM_NAME = "ワンヒッター株式会社 佐々木"
-REPLY_TO = "info@one-hitter.her.jp"
+# 返信先は送信元と同じ Gmail にする。info@one-hitter.her.jp（ロリポップ）はこの環境から読めないため
+# （2026-09-14 実測：IMAP 993・POP 995・SMTP 465/587・Webメールの HTTPS すべて到達不可）、
+# そこへ返信が来ると人が対応することになる。オーナー指摘 2026-09-14
+REPLY_TO = "onehitter.her@gmail.com"
 
 
 def load() -> dict:
@@ -82,7 +86,7 @@ def build(cfg: dict, to: str, subject: str, body: str) -> bytes:
     m["Reply-To"] = REPLY_TO
     m["Subject"] = Header(subject, "utf-8")
     m["Date"] = formatdate(localtime=True)
-    m["Message-ID"] = make_msgid(domain="one-hitter.her.jp")
+    m["Message-ID"] = make_msgid(domain="gmail.com")
     return m.as_bytes()
 
 

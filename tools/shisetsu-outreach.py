@@ -48,7 +48,7 @@ JST = dt.timezone(dt.timedelta(hours=9))
 SETTI_URL = f"{C.DOKUHON_URL}/setti/"
 SENDER = "ワンヒッター株式会社 佐々木"
 ADDR = "〒134-0081 東京都江戸川区北葛西5-14-11 クオーディア西葛西503"  # CMO 指定（20260913-07-cmo）
-REPLY_TO = G.REPLY_TO  # フォームに書く返信先メールもこれ（メールの Reply-To と同じ受信箱に集める）
+REPLY_TO = G.REPLY_TO  # フォームに書く返信先メールもこれ。onehitter.her@gmail.com に集める（この環境から読めるのは Gmail だけ）
 MAIL_PER_DAY = 50
 SEND_HOURS = (9, 17)  # JST。ファーストアプローチはこの間だけ（オーナー決定 2026-09-14）
 
