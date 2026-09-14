@@ -505,14 +505,16 @@ async def fill_form(pg, url: str, text: str, email_from: str, subject: str, hop:
     if NO_SALES_RE.search(re.sub(r"<[^>]+>", " ", html)):
         return {"ok": False, "reason": "営業お断り・患者専用の記載"}
     # 画像認証・reCAPTCHA v2（チェック式）は機械では通せない → 人（ブラウザ担当）に回す。v3（invisible）はそのまま送れる
-    if re.search(r'recaptcha/api2/anchor(?![^"]*size=invisible)', html) or re.search(r'hcaptcha\.com', html):
+    # reCAPTCHA は見える版（チェック式）も見えない版も、こちらでトークンを作れないのでサーバーに弾かれる。
+    # g-recaptcha-response の欄があれば、その時点で人に回す（2026-09-14：オリンピック系のフォームで判明）
+    if re.search(r'recaptcha/api2/anchor|hcaptcha\.com|g-recaptcha-response|class="g-recaptcha"|grecaptcha\.execute', html):
         return {"ok": False, "reason": "reCAPTCHA（手動送信へ）"}
     tel = C.UNEI_TEL.split("-")
     zipc = VALUES["zip"].split("-")
     parts = {"tel": tel, "zip": zipc}
     part_i = {"tel": 0, "zip": 0}
     filled = {}
-    for el in await pg.query_selector_all("input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=checkbox]):not([type=radio]):not([type=file]), textarea, select"):  # select も埋める（2026-09-14）
+    for el in await pg.query_selector_all("input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=checkbox]):not([type=radio]):not([type=file]), textarea:not([name='g-recaptcha-response']), select"):  # select も埋める（2026-09-14）
         try:
             tag = await el.evaluate("e=>e.tagName.toLowerCase()")
             if tag == "select":
@@ -627,6 +629,7 @@ DONE_RE = re.compile(r"送信(が)?完了|送信を?完了|送信(いた)?しま
 FAIL_RE = re.compile(r"失敗しました|エラーが発生|記入もれ|入力(して|に)(ください|エラー)|必須項目|必須です|未入力|"
                      r"正しく入力|選択してください|もう一度お試し|error occurred|有効期限が過ぎ|やり直してください|403 Forbidden")
 # 「確認画面」から先に進むためのボタン（この語のときだけ2手目を押す）
+TEXTAREA_SEL = "textarea:not([name='g-recaptcha-response']):not([type=hidden])"  # reCAPTCHA の隠し欄を本文欄と数えない
 SEND_BTN = "input[type=submit][value*='送信'], input[type=button][value*='送信'], button[type=submit]:has-text('送信'), button:has-text('送信する'), button:has-text('送信'), input[value='上記の内容で送信する']"
 
 
@@ -635,9 +638,18 @@ async def fill_required(pg, text: str, email_from: str, subject: str) -> int:
     2026-09-14 の実測で、送れない理由の多くが「必須項目に入力してください」だった
     （Contact Form 7 の your-name / your-message のように、見出しの言葉から種類を判定できない欄）。"""
     n = 0
-    for el in await pg.query_selector_all("input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=file]), textarea, select"):
+    for el in await pg.query_selector_all("input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=file]), textarea:not([name='g-recaptcha-response']), select"):
         try:
-            bad = await el.evaluate("e => e.willValidate && !e.checkValidity()")
+            # HTML の必須属性が無く、サーバー側だけで検証するフォームがある（2026-09-14 実測）。
+            # 「検証に落ちている」か「目に見えて空のまま」のどちらかなら埋める
+            bad = await el.evaluate("""e => {
+              if (e.type === 'hidden' || e.name === 'g-recaptcha-response') return false;
+              const r = e.getBoundingClientRect();
+              if (!(r.width > 0 && r.height > 0)) return false;
+              if (e.willValidate && !e.checkValidity()) return true;
+              if (e.type === 'checkbox' || e.type === 'radio') return false;
+              return !e.value;
+            }""")
             if not bad:
                 continue
             tag = await el.evaluate("e=>e.tagName.toLowerCase()")
@@ -728,7 +740,7 @@ async def submit(pg, wave: int, f: dict, text: str = "", email_from: str = "", s
                 await pg.wait_for_timeout(1500)
         m = DONE_RE.search(body)
         # 完了の文があっても、入力欄が残っていれば「まだ送れていない」とみなす（確認画面・エラー戻り）
-        n_ta = len(await pg.query_selector_all("textarea"))
+        n_ta = len(await pg.query_selector_all(TEXTAREA_SEL))
         fail = FAIL_RE.search(body)
         if m and not n_ta and not fail:
             await pg.screenshot(path=str(OUT / f"w{wave}-{f['No']}-sent.png"), full_page=True)
@@ -738,7 +750,7 @@ async def submit(pg, wave: int, f: dict, text: str = "", email_from: str = "", s
             if retry and SPAM_URL_RE.search(body + " " + w) and text:
                 # 本文の URL がスパム判定される先がある。https:// を外した書き方で1回だけやり直す
                 plain = text.replace("https://", "").replace("http://", "")
-                for ta in await pg.query_selector_all("textarea"):
+                for ta in await pg.query_selector_all(TEXTAREA_SEL):
                     try:
                         await ta.fill(plain)
                     except Exception:
@@ -833,7 +845,7 @@ async def run_forms(targets: list, wave: int, send: bool, email_from: str, n: in
                 res = await asyncio.wait_for(submit(pg, wave, f, text, email_from, subj), timeout=70)
                 # サーバー側で弾かれてフォームが再表示される形式がある（入力が消える／一部だけ残る）。
                 # そのときは、いまの画面に対してもう一度いちから入力して送る（2026-09-14）
-                if res["state"] != "done" and len(await pg.query_selector_all("textarea")) > 0:
+                if res["state"] != "done" and len(await pg.query_selector_all(TEXTAREA_SEL)) > 0:
                     try:
                         r2 = await asyncio.wait_for(fill_form(pg, pg.url, text, email_from, subj, hop=2), timeout=60)
                         if r2.get("ok"):
