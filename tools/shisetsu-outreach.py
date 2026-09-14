@@ -920,8 +920,10 @@ def main():
         check_send_window()
         cfg = G.load()
         who = G.whoami(cfg)
-        if who != cfg["sender"]:
+        if who and who != cfg["sender"]:
             sys.exit(f"認可されたアカウント（{who}）が sender（{cfg['sender']}）と違う。送らない")
+        if not who:
+            print(f"（認可の範囲が gmail.send だけで、アカウント名を確認できない。sender は {cfg['sender']} として進む）")
         tok = sc.access_token(sc.load_credentials())
         gtok = G.access_token(cfg)
         done = mails_today(tok)
@@ -938,6 +940,10 @@ def main():
                 safe_write(tok, "stage", update_stage, f, "mail")
                 done += 1
                 print("送信", f["No"], f["施設名"], to)
+            except G.AuthGone as e:
+                print("認可が切れた。送信を止める:", str(e)[:120])
+                safe_write(tok, "log", log_send, a.wave, f, "メール", to, kata, "未送信（認可切れ）", str(e)[:80])
+                break
             except Exception as e:
                 safe_write(tok, "log", log_send, a.wave, f, "メール", to, kata, f"失敗（{type(e).__name__}）", str(e)[:100])
                 print("失敗", f["No"], f["施設名"], to, str(e)[:120])

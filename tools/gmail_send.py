@@ -60,6 +60,8 @@ def access_token(cfg: dict) -> str:
             detail = json.loads(detail).get("error", "")
         except Exception:
             detail = detail[:80]
+        if e.code in (400, 401) or "invalid_grant" in str(detail):
+            raise AuthGone(f"Gmail の認可が使えない（{detail}）。認可し直しが要る")
         sys.exit(f"Gmail のトークン更新に失敗: HTTP {e.code} {detail}")
 
 
@@ -72,11 +74,25 @@ def _call(token: str, path: str, method: str = "GET", payload=None):
         with urllib.request.urlopen(req, timeout=60) as r:
             return json.load(r)
     except urllib.error.HTTPError as e:
-        raise RuntimeError(f"Gmail API {e.code}: {e.read().decode('utf-8', 'replace')[:300]}")
+        body = e.read().decode("utf-8", "replace")[:300]
+        if e.code == 401:
+            raise AuthGone(f"Gmail の認可が切れた（401）。送信を止める")
+        raise RuntimeError(f"Gmail API {e.code}: {body}")
 
 
-def whoami(cfg: dict) -> str:
-    return _call(access_token(cfg), "/profile").get("emailAddress", "")
+class AuthGone(RuntimeError):
+    """認可が切れた・取り消された（invalid_grant / 401）。送信を止めて cmo に知らせる"""
+
+
+def whoami(cfg: dict, token: str = "") -> str:
+    """認可アカウントのアドレス。gmail.send だけの認可では読めないので、その場合は空を返す
+    （2026-09-14：§12 の認可は gmail.send のみだった）"""
+    try:
+        return _call(token or access_token(cfg), "/profile").get("emailAddress", "")
+    except RuntimeError as e:
+        if "403" in str(e) or "insufficient" in str(e).lower():
+            return ""
+        raise
 
 
 def build(cfg: dict, to: str, subject: str, body: str) -> bytes:
@@ -96,7 +112,11 @@ def send(cfg: dict, to: str, subject: str, body: str, token: str = "") -> str:
         raise RuntimeError(f"宛先の形式がおかしい: {to}")
     raw = base64.urlsafe_b64encode(build(cfg, to, subject, body)).decode()
     r = _call(token or access_token(cfg), "/messages/send", "POST", {"raw": raw})
-    return r.get("id", "")
+    mid = r.get("id", "")
+    # 機械が確認できたものだけを「送信済み」と数える（2026-09-14 の決まりをメールにも適用）
+    if not mid:
+        raise RuntimeError("Gmail API が message id を返さなかった。送信できたか確認できないので未送信として扱う")
+    return mid
 
 
 def main():
