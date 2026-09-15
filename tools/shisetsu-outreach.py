@@ -601,7 +601,9 @@ async def fill_form(pg, url: str, text: str, email_from: str, subject: str, hop:
             c = await el.evaluate(CTX_JS)
             near = f"{c['lab']} {c['before']} {c['after']} {attrs}"          # 入力欄に近い文字（姓・名・確認用 の判定）
             ctx = f"{near} {c['cont']} {c['head']}"                         # 少し広い範囲（お名前・メールアドレス 等の見出し）
-            key = hint_of(near) or hint_of(ctx)
+            # 近い順に見る。head（同じ行の1つ前の要素）は表組みのフォームでは「1つ前の項目の行」になり、
+            # 住所欄が「郵便番号」と判定される（2026-09-15 実測：petsmile.co.jp の contact_pref）。最後の手段に落とす
+            key = hint_of(near) or hint_of(c["cont"]) or hint_of(c["head"])
             if tag == "textarea":
                 key = "body"
             if CAPTCHA_RE.search(ctx) and tag != "textarea":
