@@ -13,18 +13,19 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
 <style>
 :root{
-  --ground:#FAF7F2; --surface:#FFFFFF; --ink:#14323D; --ink-soft:#40606C;
-  --muted:#566B73; --line:#E2DDD4; --accent:#0E7C93; --accent-deep:#0A5C6E;
-  --accent-soft:#DDEEF1; --cta:#C4461D; --cta-fg:#FFFFFF; --cta-shadow:#8C3212;
-  --invert:#0F2A38; --invert-ink:#C9D9DE;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --ground:#0C171C; --surface:#12222A; --ink:#E6EFF1; --ink-soft:#BCCFD5;
-    --muted:#8CA3AB; --line:#223942; --accent:#4EC0D4; --accent-deep:#8BDCEA;
-    --accent-soft:#0F3541; --cta:#F0764B; --cta-fg:#0C171C; --cta-shadow:#A8481F;
-    --invert:#08151A; --invert-ink:#B9CBD1;
-  }
+  /* お客様が開くページは常に白地。端末の配色設定に追随させないこと
+     （docs/org/README.md 4.8.2／2026-09-12 オーナー指示）。
+     サンクスページは申し込んだ方が必ず見る唯一のページで、
+     LPが白地なのにここだけ反転すると「別のサイトに飛ばされた」ように見える。
+     配色を切り替えるメディアクエリを、ここに足さないこと。 */
+  color-scheme:light;
+
+  /* 値はLP4本と揃えてある（再配色 2026-09-06）。
+     以前は暖色クリーム（#FAF7F2）でLPと別の配色だった。 */
+  --ground:#F3F7F9; --surface:#FFFFFF; --ink:#13232E; --ink-soft:#3C5262;
+  --muted:#536A78; --line:#D7E1E7; --accent:#0C6B7F; --accent-deep:#0C5F6B;
+  --accent-soft:#DDEDF1; --cta:#C0300C; --cta-fg:#FFFFFF; --cta-shadow:#8F2408;
+  --invert:#0D3B5C; --invert-ink:#A8C2D2;
 }
 *{box-sizing:border-box;}
 body{margin:0;background:var(--ground);color:var(--ink);line-height:1.9;

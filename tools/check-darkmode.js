@@ -25,6 +25,12 @@ if (!chromium) {
 
 const KITEI = [
   ['survey',     'https://one-hitter-lp.netlify.app/survey/'],
+  // ★サンクスページを見落としていた（2026-09-15 ブラウザ担当の指摘）。
+  //   申し込んだ方が必ず見る唯一のページなので、いちばん外してはいけない。
+  ['aircon/th',     'https://lp.onehitter.jp/aircon/thanks.html'],
+  ['aircon-b/th',   'https://lp.onehitter.jp/aircon-b/thanks.html'],
+  ['mizumawari/th', 'https://lp.onehitter.jp/mizumawari/thanks.html'],
+  ['nenmatsu/th',   'https://lp.onehitter.jp/nenmatsu/thanks.html'],
   ['aircon',     'https://one-hitter-lp.netlify.app/aircon/'],
   ['aircon-b',   'https://one-hitter-lp.netlify.app/aircon-b/'],
   ['mizumawari', 'https://one-hitter-lp.netlify.app/mizumawari/'],

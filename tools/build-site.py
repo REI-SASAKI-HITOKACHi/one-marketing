@@ -442,7 +442,9 @@ def build_thanks(cfg: dict, meta: dict, out: pathlib.Path) -> None:
     aircon-b の分が無く、送信すると404になっていた。テンプレートから
     全ページ分を生成するように変えて、取りこぼしが起きないようにする。
     """
-    tpl = THANKS_TEMPLATE.read_text(encoding="utf-8")
+    # LP本体と同じく、設計のメモを公開ページに出さない。
+    # 通していなかったため、テンプレートのコメントがそのまま本番に出ていた。
+    tpl = strip_comments(THANKS_TEMPLATE.read_text(encoding="utf-8"))
     tel = tel_for(cfg, meta["dir"])
     page = {"kind": "thanks", "lp_id": meta["lp_id"], "lp_variant": meta["lp_variant"],
             "lead_value": (cfg.get("lead_value") or {}).get(meta["dir"], 0)}
