@@ -40,7 +40,7 @@ B="https://one-hitter-lp.netlify.app"
 for n in ["aircon","aircon-b","mizumawari"]:
     s=urllib.request.urlopen(f"{B}/{n}/", timeout=30).read().decode('utf-8','replace')
     print(n,
-          "ライト固定", 'color-scheme: light' in s,
+          "ライト固定", 'color-scheme' in s.replace(' ', '') and 'color-scheme:light' in s.replace(' ', ''),
           "src記録", 'name="src"' in s,
           "ダーク残", 'prefers-color-scheme' in s)
 PY
@@ -49,6 +49,8 @@ PY
 **この3つは、どのスレッドが配信しても維持されていなければなりません。**
 
 - `color-scheme: light`：ライト固定（オーナー判断。ダーク配色は使わない）
+  ※ **本番のHTMLは空白なしの `color-scheme:light` です。**空白付きで探すと、
+  正しく出ているのに「消えた」と誤判定します（2026-09-15 実測）。空白を除いてから探すこと
 - `name="src"` と `name="cid"`：流入元の記録（これが無いと広告の成果が測れない）
 - `prefers-color-scheme` が**無い**こと：ダーク配色が復活していない証拠
 
