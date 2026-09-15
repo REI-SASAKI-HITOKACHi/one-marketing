@@ -803,7 +803,6 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
            これが無いと、どの経路が受注につながったのか判別できない。 -->
       <input type="hidden" name="src" id="h-src" value="direct">
       <input type="hidden" name="cid" id="h-cid" value="">
-      <input type="hidden" name="gclid" id="h-gclid" value="">
       <div class="field">
         <div class="lab"><label for="f-name">お名前</label><span class="req">必須</span></div>
         <input id="f-name" name="name" type="text" autocomplete="name" required>
@@ -963,7 +962,8 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
         }
       }
     } catch (e) { /* プライベートモード等で localStorage が使えないことがある */ }
-    var eg = document.getElementById('h-gclid'); if (eg) eg.value = gclid || '';
+    /* 隠し欄そのものは build-site.py（計測担当の実装）が入れて、送信時に値を詰める。
+       ここで拾った gclid は、下の「別ホストへの引き継ぎ」で使う。 */
 
     /* 別ホストへの導線に、流入の情報を引き継がせる。
        予約フォームは yoyaku.onehitter.jp で、このLPとは別ホスト。

@@ -1050,6 +1050,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
       <input type="hidden" name="subject" value="【LP予約】年末大掃除">
       <input type="hidden" name="lp" value="nenmatsu">
       <input type="hidden" name="order_id" value="">
+      <input type="hidden" name="gclid" value="">
       <div class="hp" aria-hidden="true">
         <label for="f-x">この欄には入力しないでください</label>
         <input id="f-x" name="x_field" type="text" tabindex="-1" autocomplete="off">
@@ -1057,7 +1058,6 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
       
       <input type="hidden" name="src" id="h-src" value="direct">
       <input type="hidden" name="cid" id="h-cid" value="">
-      <input type="hidden" name="gclid" id="h-gclid" value="">
       <div class="field">
         <label for="f-name">お名前<span class="req">必須</span></label>
         <input id="f-name" name="name" type="text" autocomplete="name" required>
@@ -1253,7 +1253,8 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
         }
       }
     } catch (e) { /* プライベートモード等で localStorage が使えないことがある */ }
-    var eg = document.getElementById('h-gclid'); if (eg) eg.value = gclid || '';
+    /* 隠し欄そのものは build-site.py（計測担当の実装）が入れて、送信時に値を詰める。
+       ここで拾った gclid は、下の「別ホストへの引き継ぎ」で使う。 */
 
     /* 別ホストへの導線に、流入の情報を引き継がせる。
        予約フォームは yoyaku.onehitter.jp で、このLPとは別ホスト。
@@ -1681,6 +1682,8 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
   log('計測スクリプト読み込み完了', PAGE, 'gtag=' + (typeof window.gtag === 'function'));
 })();
 </script><script>(function(){function mkid(){var d=new Date();var p=function(n){return(n<10?'0':'')+n;};var r='';var c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';for(var i=0;i<4;i++){r+=c.charAt(Math.floor(Math.random()*c.length));}return 'OH-'+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-nenmatsu-'+r;}
-var f=document.querySelector('form.form');if(!f)return;f.addEventListener('submit',function(){var id=mkid();var h=f.querySelector('input[name="order_id"]');if(h){h.value=id;}try{sessionStorage.setItem('oh_order_id',id);}catch(e){}},true);})();</script>
+var Q;try{Q=new URLSearchParams(location.search);}catch(e){Q=null;}var g=Q&&(Q.get('gclid')||Q.get('wbraid')||Q.get('gbraid'))||'';try{if(g){localStorage.setItem('oh_gclid',JSON.stringify({v:g,t:Date.now()}));}}catch(e){}
+function gclid(){try{var o=JSON.parse(localStorage.getItem('oh_gclid')||'null');if(!o||!o.v)return '';if(Date.now()-o.t>7776000000){localStorage.removeItem('oh_gclid');return '';}return o.v;}catch(e){return '';}}
+var f=document.querySelector('form.form');if(!f)return;f.addEventListener('submit',function(){var id=mkid();var h=f.querySelector('input[name="order_id"]');if(h){h.value=id;}var gh=f.querySelector('input[name="gclid"]');if(gh){gh.value=gclid();}try{sessionStorage.setItem('oh_order_id',id);}catch(e){}},true);})();</script>
 </body>
 </html>
