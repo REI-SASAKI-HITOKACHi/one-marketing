@@ -56,6 +56,16 @@ PRICE = 11.0                       # 税込11円/通（税抜10.0の階梯）
 #   Netlify の記録にお客様の電話番号も本文も残らない。「?」に変えないこと。
 SMS_PAGE = "https://oh-naibu-sms-k7q3x.netlify.app/s.html"
 
+# 法人かどうかの見分け（CMO 2026-09-15 09:04）。
+# ★「法人/個人」列は使いません。両方向にずれています（山口様は「個人」なのに株式会社、
+#   逆に「法人」に個人名が混ざっている）。
+HOUJIN_KAKU = ["株式会社", "有限会社", "合同会社", "(株)", "（株）", "(有)", "（有）", "㈱", "㈲"]
+HANTEI_FILE = os.path.join(ROOT, "data", "sms-houjin-hantei.txt")
+TEIKEI_TAB = "【毎月更新】リピート/業務提携"
+
+import datetime
+KYOU = datetime.date.today().isoformat()
+
 WRITE = ("--confirm" in sys.argv and "WRITE" in sys.argv)
 SHOW3 = "--3通" in sys.argv
 
@@ -79,6 +89,14 @@ IIKAE = {
     '追焚配管': '追い焚き配管クリーニング',
     '空室': '空室クリーニング',
 }
+
+
+def a1(col):
+    s = ""
+    while col:
+        col, r = divmod(col - 1, 26)
+        s = chr(65 + r) + s
+    return s
 
 
 def sei(shimei):
@@ -108,6 +126,43 @@ def menu_hitotsu(uchiwake):
         return ''
     namae = uchiwake.split('／')[0].split('×')[0].strip()
     return IIKAE.get(namae, namae + 'のクリーニング' if namae else '')
+
+
+def hantei_yomu():
+    """CMOが個別に決めた答えを読む。{"送る": set, "別対応": set}"""
+    out = {"送る": set(), "別対応": set()}
+    ima = None
+    for ln in open(HANTEI_FILE, encoding="utf-8").read().split("\n"):
+        ln = ln.strip()
+        if not ln or ln.startswith("#"):
+            continue
+        if ln.startswith("[") and ln.endswith("]"):
+            ima = ln[1:-1]
+            continue
+        if ima in out:
+            out[ima].add(ln)
+    return out
+
+
+def namae_core(namae):
+    """かっこの中を落とす。「古庄(株式会社エコハウス紹介)」のかっこは紹介元の注記で、
+    お客様は古庄さま個人だから（CMO 2026-09-15）。"""
+    return re.split(r"[（(]", namae)[0].strip()
+
+
+def houjin_hantei(namae, teikei, kettei):
+    """(扱い, 理由)。扱いは 送る／別対応／要判断。"""
+    if namae in kettei["別対応"]:
+        return "別対応", "CMO判断（お客様が会社そのもの）"
+    if namae in kettei["送る"]:
+        return "送る", "CMO判断（お客様は個人）"
+    core = namae_core(namae)
+    for w in HOUJIN_KAKU:
+        if w in core:
+            return "別対応", f"顧客名に「{w}」"
+    if core and core in teikei:
+        return "別対応", "提携先タブの会社名と一致"
+    return "送る", ""
 
 
 def hinagata():
@@ -189,7 +244,14 @@ def main():
         sys.exit(f"台帳を読めないので名義を照合できません → {riyuu}\n"
                  "照合できないまま本文を作らないこと（2026-09-11 の事故の再発防止）。")
 
+    # 法人の見分けに使うもの
+    kettei = hantei_yomu()
+    tv = sc.call(tok, f"/{SS}/values/{urllib.parse.quote(TEIKEI_TAB + '!B2:B101', safe='')}").get("values", [])
+    teikei = {row[0].strip() for row in tv if row and row[0].strip()}
+    print(f"法人の見分け：提携先{len(teikei)}社／CMO判断 送る{len(kettei['送る'])}名・別対応{len(kettei['別対応'])}名")
+
     taishou = []
+    houjin = {}
     nozoita = {"送信済みなど": 0, "配信区分が送信可でない": 0}
     kubun = {}
     for n, r in enumerate(v[1:], start=HEAD_ROW + 1):
@@ -205,6 +267,11 @@ def main():
         if k != "送信可":
             nozoita["配信区分が送信可でない"] += 1
             continue
+        namae = g(r, "顧客名")
+        atsukai, riyuu_h = houjin_hantei(namae, teikei, kettei)
+        if atsukai != "送る":
+            houjin.setdefault(atsukai, []).append((n, namae, riyuu_h))
+            continue
         atai = {
             "顧客名": sei(g(r, "顧客名")),
             "施工時期": itsu(g(r, "最終施工日")),
@@ -215,10 +282,32 @@ def main():
             sys.exit(f"行{n}: ひな形に知らない差し込み {sorted(shiranai)} があります")
         taishou.append((n, g(r, "顧客名"), g(r, "電話番号"), body, atai))
 
+    # ③ ①②とCMO判断で拾えず、「法人/個人」列が「法人」の行 → 本文を作らず一覧で出す
+    youhandan = []
+    for n, r in enumerate(v[1:], start=HEAD_ROW + 1):
+        if (g(r, "送信系統") == "本舗" and not g(r, "送信済み")
+                and g(r, "配信区分") == "送信可" and g(r, "法人/個人") == "法人"):
+            nm = g(r, "顧客名")
+            if nm not in kettei["送る"] and nm not in kettei["別対応"]:
+                a, _ = houjin_hantei(nm, teikei, kettei)
+                if a == "送る":
+                    youhandan.append((n, nm))
+
     print(f"\n本舗・未送信の配信区分:", "／".join(f"{k}={v}" for k, v in sorted(kubun.items())))
     print(f"対象（本舗・未送信・送信可）: {len(taishou)}名")
-    for k, v in nozoita.items():
-        print(f"  触らない: {k} {v}件")
+    for k, vv in nozoita.items():
+        print(f"  触らない: {k} {vv}件")
+    for k, L in houjin.items():
+        print(f"  法人の見分けで外した（{k}）: {len(L)}件")
+        for n, nm, why in L:
+            print(f"    行{n} {nm}  ← {why}")
+    if youhandan:
+        print(f"\n★★ 判断が要る行（法人/個人列は「法人」だが機械では決められない）: {len(youhandan)}件")
+        print("   **この行の本文は作っています。** 外すなら data/sms-houjin-hantei.txt の [別対応] に足してください。")
+        for n, nm in youhandan:
+            print(f"    行{n} {nm}")
+    else:
+        print("\n判断が要る行（法人/個人列=法人だが機械で決められない）: 0件")
     if not taishou:
         return 0
 
@@ -289,7 +378,7 @@ def main():
     meta = sc.call(tok, f"/{SS}?fields=sheets.properties")
     gid = [s["properties"]["sheetId"] for s in meta["sheets"]
            if s["properties"]["title"] == TAB][0]
-    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M")
+    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     sc.call(tok, f"/{SS}:batchUpdate", "POST",
             {"requests": [{"duplicateSheet": {
                 "sourceSheetId": gid,
@@ -326,6 +415,29 @@ def main():
     for i in range(0, len(reqs), 100):   # 1回に詰め込みすぎると通らない
         sc.call(tok, f"/{SS}:batchUpdate", "POST", {"requests": reqs[i:i + 100]})
     print(f"D列（▶ 送る）のリンクを {len(reqs)} 行 貼り直しました。")
+
+    # ---- 法人の見分けで外した行を、シートの側でも止める ----
+    # 本文とリンクを消し、配信区分を「除外」にする。
+    # ★消さないと、和真さんがタップしたときに住居向けの本文が法人の窓口へ飛ぶ。
+    betsu = houjin.get("別対応", [])
+    if betsu:
+        c_ku, c_ri = a1(ix["配信区分"] + 1), a1(ix["送らない理由"] + 1)
+        d2, r2 = [], []
+        for n, nm, why in betsu:
+            d2.append({"range": f"{TAB}!F{n}", "values": [[""]]})
+            d2.append({"range": f"{TAB}!{c_ku}{n}", "values": [["除外"]]})
+            d2.append({"range": f"{TAB}!{c_ri}{n}",
+                       "values": [[f"法人_別対応へ（web-inflow の法人向け文面）"
+                                   f"{KYOU} CMO判断：{why}"]]})
+            r2.append({"updateCells": {
+                "range": {"sheetId": sid, "startRowIndex": n - 1, "endRowIndex": n,
+                          "startColumnIndex": 3, "endColumnIndex": 4},
+                "rows": [{"values": [{"userEnteredValue": {"stringValue": ""}}]}],
+                "fields": "userEnteredValue,textFormatRuns"}})
+        sc.call(tok, f"/{SS}/values:batchUpdate", "POST",
+                {"valueInputOption": "RAW", "data": d2})
+        sc.call(tok, f"/{SS}:batchUpdate", "POST", {"requests": r2})
+        print(f"法人_別対応の {len(betsu)}行：本文とリンクを消し、配信区分を「除外」にしました。")
     return 0
 
 

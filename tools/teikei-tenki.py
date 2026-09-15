@@ -129,7 +129,7 @@ def main():
         return 0
 
     # 1. 控えタブ
-    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M")
+    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     if not FORMULAS_ONLY:
         sc.call(tok, f"/{SS}:batchUpdate", "POST",
                 {"requests": [{"duplicateSheet": {"sourceSheetId": gid,

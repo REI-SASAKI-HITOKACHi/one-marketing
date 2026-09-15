@@ -108,7 +108,7 @@ def main():
         print("\n書き込みません（計画のみ）。実行するには: --confirm WRITE")
         return 0
 
-    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M")
+    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     sc.call(tok, f"/{SS}:batchUpdate", "POST",
             {"requests": [{"duplicateSheet": {"sourceSheetId": gid,
                                               "newSheetName": f"控え_業務提携_{stamp}"}}]})
