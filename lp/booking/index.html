@@ -44,6 +44,11 @@
   --shadow:0 2px 10px rgba(20,40,50,.10);
   --shadow-lift:4px 4px 16px rgba(20,40,50,.08);
 }
+/* ダーク配色は入れない。お客様が開くページは常に白地（2026-09-12 オーナー指示）。
+   本番からは 9/15 に外したが、このCMOブランチの控えに残っていた。
+   one-hitter-survey を配信するのはCMOなので、ここを直さないと次の配信で本番が戻る。
+   LP担当が 9/15 17:32 に指摘（20260915-xx-cmo）。 */
+
 
 *{box-sizing:border-box;}
 [hidden]{display:none !important;}
