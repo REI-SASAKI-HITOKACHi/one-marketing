@@ -179,6 +179,50 @@ SS_LOG = '1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64'
 TAB_LOG = 'LINE_ログ'
 
 
+# 発言者の表示名を引く。
+# line-webhook.gs も表示名を書こうとしているが、実際には E列が全行空だった
+# （2026-09-15 実測、53行すべて）。Webhook 側の直しには GAS の再デプロイが要るので、
+# 読むときにこちらで引く。グループのメンバー照会が通ることは実測で確認済み。
+_MEIBO_FILE = os.path.expanduser('~/.config/one-hitter/line-members.json')
+_meibo_cache = None
+
+
+def hyoujimei(user_id, group_id=''):
+    """LINEのユーザーIDから表示名を返す。引けなければ 'ID:xxxxxxxx' を返す（推測しない）"""
+    global _meibo_cache
+    if not user_id:
+        return '発言者不明'
+    if _meibo_cache is None:
+        try:
+            with open(_MEIBO_FILE, encoding='utf-8') as f:
+                _meibo_cache = json.load(f)
+        except Exception:
+            _meibo_cache = {}
+    if user_id in _meibo_cache:
+        return _meibo_cache[user_id]
+    urls = []
+    if group_id:
+        urls.append(f'{API}/group/{group_id}/member/{user_id}')
+    urls.append(f'{API}/profile/{user_id}')
+    for u in urls:
+        try:
+            req = urllib.request.Request(u, headers={'Authorization': f'Bearer {token()}'})
+            d = json.loads(urllib.request.urlopen(req, timeout=20).read())
+            na = d.get('displayName')
+            if na:
+                _meibo_cache[user_id] = na
+                try:
+                    os.makedirs(os.path.dirname(_MEIBO_FILE), exist_ok=True)
+                    with open(_MEIBO_FILE, 'w', encoding='utf-8') as f:
+                        json.dump(_meibo_cache, f, ensure_ascii=False, indent=1)
+                except Exception:
+                    pass
+                return na
+        except Exception:
+            continue
+    return 'ID:' + user_id[:8]
+
+
 def midoku_henshin():
     """まだ確認していない受信メッセージを返す。読めなかったときは None"""
     try:
@@ -202,7 +246,11 @@ def midoku_henshin():
             continue
         if g(7):          # H列「CMO確認」が入っていれば確認済み
             continue
-        out.append((i, g(0), g(5)))
+        # E列「表示名」= 誰が言ったか。2026-09-15 まで捨てていて、
+        # 嶺さんからの依頼を和真さんのものとして扱う取り違えが起きた。
+        # グループには複数人がいる。発言者を出さずに読むと必ず間違える。
+        namae = g(4) or hyoujimei(g(3), g(2))
+        out.append((i, g(0), g(5), namae))
     return out
 
 
@@ -218,8 +266,8 @@ def midoku_check(a):
     if not m:
         return
     print('\n送信を中止しました。まだ確認していない返信があります。\n', file=sys.stderr)
-    for gyou, itsu, honbun in m:
-        print(f'  [{TAB_LOG} {gyou}行目] {itsu}', file=sys.stderr)
+    for gyou, itsu, honbun, namae in m:
+        print(f'  [{TAB_LOG} {gyou}行目] {itsu}　発言者: {namae}', file=sys.stderr)
         for ln in honbun.split('\n'):
             print(f'    {ln}', file=sys.stderr)
         print('', file=sys.stderr)
@@ -242,8 +290,8 @@ def op_midoku(a):
             print('未確認の返信はありません。')
             return
         print(f'未確認の返信 {len(m)}件\n')
-        for gyou, itsu, honbun in m:
-            print(f'[{gyou}行目] {itsu}')
+        for gyou, itsu, honbun, namae in m:
+            print(f'[{gyou}行目] {itsu}　発言者: {namae}')
             for ln in honbun.split('\n'):
                 print(f'  {ln}')
             print()
