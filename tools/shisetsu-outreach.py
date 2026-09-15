@@ -297,6 +297,8 @@ def pick(rows: list, n: int, how: str, exclude: tuple = ()) -> list:
             continue
         if NOT_FIT_RE.search(r["施設名"]):
             continue  # 読本の相手に合わない店には送らない
+        if NO_STORE_RE.search(r["施設名"]):
+            continue  # カードを置く実店舗が無い（ネット完結）事業者には送らない（2026-09-15）
         c = r["contact"]
         if c.get("no_sales"):
             continue
@@ -391,6 +393,8 @@ NO_SALES_RE = re.compile(r"(営業|セールス|勧誘|業者|取引|売り込�
 FIELD_HINTS = {  # 上から順に判定（件名・会社名は「名」より先に見る）
     "subject": ["件名", "題名", "subject", "用件", "タイトル"],
     "company": ["会社", "法人", "団体", "貴社", "店名", "屋号", "company", "organization", "corp"],
+    # 「部署名」は「名」を含むので、これが無いと担当者名の欄として扱われ、部署名に「佐々木」が入る（2026-09-15 実測）
+    "dept": ["部署", "部門", "所属", "department", "division"],
     "zip": ["郵便番号", "zip", "postal", "〒"],
     "addr": ["住所", "所在地", "address"],
     "email2": ["確認のため", "メールアドレス（確認", "メール確認", "email_confirm", "email2", "mail2", "confirm"],
@@ -429,6 +433,10 @@ CTX_JS = """e=>{
 NOT_FIT_RE = re.compile(r"リサイクル|ランドセル|学習塾|写真館|フォトスタジオ|古着|質店|買取|ゲーム|玩具問屋|"
                         r"スポーツ|アシックス|靴|シューズ|文具|書店|100円|ドラッグ|薬局|コンビニ|スーパー|"
                         r"ファッション|衣料|洋品|品市場|市場 |ECO|エコ|eco |野鳥|鳥類|保護センター|霊園|葬儀|供養")
+# A6カードは「置いてもらう」お願いなので、置く場所（実店舗）が無い事業者は対象外。
+# 2026-09-15：キッズ・ラボラトリー（おもちゃのサブスク）から「当社店舗ではござません」と断りがあり、追加した
+NO_STORE_RE = re.compile(r"サブスク|定額制?レンタル|通販|オンラインストア|オンラインショップ|ネットショップ|"
+                         r"ネット通販|ECサイト|お取り寄せ|宅配専門|無店舗", re.I)
 NOT_DOGCAT_RE = re.compile(r"熱帯魚|アクア|サンマリン|ディスカス|金魚|メダカ|水族|昆虫|爬虫|は虫|カブト|クワガタ|小鳥|バード|インコ|オウム|金魚|めだか|レプタイル|リクガメ")
 
 
@@ -464,15 +472,42 @@ async def find_form_link(pg) -> str:
 OPTION_PREF = ("その他", "ご提案", "ご意見", "お問い合わせ", "お問合せ", "問い合わせ", "一般", "法人")
 OPTION_NG = re.compile(r"選択|choose|select|指定|--|^$|お選び")
 
+# 2026-09-15：第1波の自動受付メール（ブラウザ担当が画面で確認）で、プルダウンの取り違えが2種類見つかった。
+#   ①「北海道東京都江戸川区…」＝ 都道府県のプルダウンを先頭（北海道）のまま送り、住所欄にも「東京都…」を入れていた
+#   ②「【年齢】20歳未満【性別】女性」＝ 個人の属性を、先頭の選択肢のまま送っていた（事実と違う）
+# 都道府県は「東京都」を選び、住所欄からは「東京都」を外す。個人属性は当てずっぽうで選ばず、必須なら人へ回す。
+PREF_RE = re.compile(r"都道府県|prefecture|\bpref\b|todofuken|ken_?name", re.I)
+ATTR_RE = re.compile(r"性別|年齢|生年|誕生|年代|職業|未婚|既婚|続柄|gender|\bsex\b|\bage\b|birth", re.I)
+OUR_PREF = "東京都"
 
-async def pick_option(el) -> None:
+
+async def pick_option(el, label: str = "") -> str:
+    """プルダウンを選ぶ。返り値は 'pref'（都道府県を選んだ）／'attr-skip'（個人属性なので選ばなかった）／'' （通常）。"""
     try:
         opts = await el.evaluate("""e => [...e.options].map((o,i) => ({i: i, t: (o.text||'').trim(), v: o.value}))""")
     except Exception:
-        return
+        return ""
+    texts = [o["t"] or "" for o in opts]
+    # 都道府県：見出しで分からなくても、選択肢に「北海道」と「東京都」が両方あれば都道府県とみなす
+    if PREF_RE.search(label) or ("北海道" in texts and OUR_PREF in texts):
+        for o in opts:
+            if o["t"].strip() in (OUR_PREF, "東京") or o["v"] in ("13", "東京都"):
+                try:
+                    await el.select_option(value=o["v"])
+                    return "pref"
+                except Exception:
+                    try:
+                        await el.select_option(index=o["i"])
+                        return "pref"
+                    except Exception:
+                        return ""
+        return ""
+    # 性別・年齢などの個人属性は、当てずっぽうで選ぶと事実と違うことを送ることになる。選ばない
+    if ATTR_RE.search(label):
+        return "attr-skip"
     cand = [o for o in opts if o["v"] not in ("", None) and not OPTION_NG.search(o["t"] or "")]
     if not cand:
-        return
+        return ""
     pick = None
     for w in OPTION_PREF:
         for o in cand:
@@ -489,6 +524,24 @@ async def pick_option(el) -> None:
             await el.select_option(index=pick["i"])
         except Exception:
             pass
+    return ""
+
+
+async def select_label(el) -> str:
+    """プルダウンの見出し（label・name・id・直前の文字）をまとめて返す。種類の判定に使う。"""
+    try:
+        attrs = " ".join([(await el.get_attribute(x) or "") for x in ("name", "id", "aria-label", "class")])
+        c = await el.evaluate(CTX_JS)
+        return f"{c['lab']} {c['before']} {attrs}"
+    except Exception:
+        return ""
+
+
+async def is_required(el) -> bool:
+    try:
+        return await el.evaluate("e => !!(e.required || e.hasAttribute('required') || e.getAttribute('aria-required')==='true')")
+    except Exception:
+        return False
 
 
 async def fill_form(pg, url: str, text: str, email_from: str, subject: str, hop: int = 0) -> dict:
@@ -514,13 +567,35 @@ async def fill_form(pg, url: str, text: str, email_from: str, subject: str, hop:
     parts = {"tel": tel, "zip": zipc}
     part_i = {"tel": 0, "zip": 0}
     filled = {}
-    for el in await pg.query_selector_all("input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=checkbox]):not([type=radio]):not([type=file]), textarea:not([name='g-recaptcha-response']), select"):  # select も埋める（2026-09-14）
+    # --- 先にプルダウンだけ処理する（2026-09-15）。
+    # 住所欄より後ろに都道府県のプルダウンが置かれているフォームがあるため、
+    # 「都道府県を選んだかどうか」を住所欄を埋める前に確定させておく必要がある。
+    has_pref = False
+    for el in await pg.query_selector_all("select"):
+        try:
+            lab = await select_label(el)
+            kind = await pick_option(el, lab)
+            if kind == "pref":
+                has_pref = True
+            elif kind == "attr-skip" and await is_required(el):
+                # 性別・年齢が必須のフォームは、そもそも個人のお客様向け。嘘を書いて送らない
+                return {"ok": False, "reason": "個人の属性（性別・年齢）が必須（手動送信へ）"}
+        except Exception:
+            continue
+    addr_val = VALUES["addr"]
+    if has_pref:
+        addr_val = addr_val[len(OUR_PREF):] if addr_val.startswith(OUR_PREF) else addr_val
+    # --- 郵便番号・電話の分割欄は「同じ種類の欄が2つ以上あるか」で決める（2026-09-15）。
+    # maxlength だけで見ていたため、maxlength の無い（JS でハイフンを消す）欄に「134-0081」を丸ごと入れ、
+    # 2つ目が空のまま「〒1340081-」になっていた。
+    n_zip = await pg.evaluate("""() => [...document.querySelectorAll('input')].filter(e =>
+        e.type !== 'hidden' && /zip|postal|郵便|〒/i.test((e.name||'')+(e.id||'')+(e.placeholder||'')+(e.getAttribute('aria-label')||''))).length""")
+    n_tel = await pg.evaluate("""() => [...document.querySelectorAll('input')].filter(e =>
+        e.type !== 'hidden' && (e.type === 'tel' || /tel|phone|電話/i.test((e.name||'')+(e.id||'')+(e.placeholder||'')+(e.getAttribute('aria-label')||'')))).length""")
+    multi = {"zip": n_zip >= 2, "tel": n_tel >= 2}
+    for el in await pg.query_selector_all("input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=checkbox]):not([type=radio]):not([type=file]), textarea:not([name='g-recaptcha-response'])"):
         try:
             tag = await el.evaluate("e=>e.tagName.toLowerCase()")
-            if tag == "select":
-                # 2026-09-14：プルダウン（店舗選択・お問い合わせ種別 等）を空のままにしていたため必須エラーで送れていなかった
-                await pick_option(el)
-                continue
             typ = (await el.get_attribute("type") or "").lower()
             attrs = " ".join([(await el.get_attribute(x) or "") for x in ("name", "id", "placeholder", "aria-label")])
             c = await el.evaluate(CTX_JS)
@@ -548,9 +623,10 @@ async def fill_form(pg, url: str, text: str, email_from: str, subject: str, hop:
             if not key:
                 continue
             if key in ("tel", "zip"):
-                # 3分割（080-8043-8259）・2分割（134-0081）の欄は順に埋める
+                # 3分割（080-8043-8259）・2分割（134-0081）の欄は順に埋める。
+                # 「欄が短い」か「同じ種類の欄がページに2つ以上ある」なら分割とみなす（2026-09-15）
                 ml = await el.get_attribute("maxlength")
-                short = bool(ml and ml.isdigit() and int(ml) <= 5)
+                short = bool(ml and ml.isdigit() and int(ml) <= 5) or multi[key]
                 if part_i[key] < len(parts[key]) and (short or (part_i[key] > 0 and part_i[key] < len(parts[key]))):
                     await el.fill(parts[key][part_i[key]])
                     part_i[key] += 1
@@ -559,7 +635,7 @@ async def fill_form(pg, url: str, text: str, email_from: str, subject: str, hop:
             if key in filled:
                 continue
             val = {"email": email_from, "email2": email_from, "subject": subject, "body": text, "sei": "佐々木", "mei": "嶺",
-                   "kana_sei": "ササキ", "kana_mei": "レイ"}.get(key) or VALUES.get(key)
+                   "kana_sei": "ササキ", "kana_mei": "レイ", "addr": addr_val}.get(key) or VALUES.get(key)
             if val:
                 await el.fill(val)
                 filled[key] = True
@@ -638,6 +714,18 @@ async def fill_required(pg, text: str, email_from: str, subject: str) -> int:
     2026-09-14 の実測で、送れない理由の多くが「必須項目に入力してください」だった
     （Contact Form 7 の your-name / your-message のように、見出しの言葉から種類を判定できない欄）。"""
     n = 0
+    # 都道府県のプルダウンがあるページでは、住所欄に「東京都」を重ねて書かない（2026-09-15）
+    try:
+        has_pref = await pg.evaluate("""() => [...document.querySelectorAll('select')].some(s => {
+            const t = [...s.options].map(o => (o.text||'').trim());
+            const lab = ((s.labels&&s.labels[0]?s.labels[0].innerText:'')+' '+(s.name||'')+' '+(s.id||''));
+            return (t.includes('北海道') && t.includes('東京都')) || /都道府県|prefecture|pref/i.test(lab);
+        })""")
+    except Exception:
+        has_pref = False
+    addr_val = VALUES["addr"]
+    if has_pref and addr_val.startswith(OUR_PREF):
+        addr_val = addr_val[len(OUR_PREF):]
     for el in await pg.query_selector_all("input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=file]), textarea:not([name='g-recaptcha-response']), select"):
         try:
             # HTML の必須属性が無く、サーバー側だけで検証するフォームがある（2026-09-14 実測）。
@@ -648,7 +736,13 @@ async def fill_required(pg, text: str, email_from: str, subject: str) -> int:
               if (!(r.width > 0 && r.height > 0)) return false;
               if (e.willValidate && !e.checkValidity()) return true;
               if (e.type === 'checkbox' || e.type === 'radio') return false;
-              return !e.value;
+              if (!e.value) return true;
+              // 見出しの文字が最初から value に入っているフォーム（value="お名前"）。
+              // これを「入力済み」と数えていたため、「お名前」という名前のまま送っていた（2026-09-15 実測）
+              const lab = (e.labels && e.labels[0] ? e.labels[0].innerText : '').replace(/[\\s*＊必須]/g, '');
+              const ph = (e.placeholder || '').replace(/[\\s*＊必須]/g, '');
+              const v = (e.value || '').replace(/[\\s*＊必須]/g, '');
+              return (!!ph && v === ph) || (!!lab && v === lab);
             }""")
             if not bad:
                 continue
@@ -656,7 +750,9 @@ async def fill_required(pg, text: str, email_from: str, subject: str) -> int:
             typ = (await el.get_attribute("type") or "").lower()
             attrs = " ".join([(await el.get_attribute(x) or "") for x in ("name", "id", "placeholder", "aria-label")])
             if tag == "select":
-                await pick_option(el)
+                kind = await pick_option(el, await select_label(el))
+                if kind == "attr-skip":
+                    continue  # 性別・年齢は当てずっぽうで選ばない（fill_form 側で必須なら手動へ回している）
             elif typ == "checkbox":
                 await el.check(force=True)
             elif typ == "radio":
@@ -671,9 +767,11 @@ async def fill_required(pg, text: str, email_from: str, subject: str) -> int:
                 ml = await el.get_attribute("maxlength")
                 await el.fill(VALUES["zip"].replace("-", "") if (ml and int(ml) >= 7) else VALUES["zip"])
             elif re.search(r"addr|住所|所在", attrs, re.I):
-                await el.fill(VALUES["addr"])
+                await el.fill(addr_val)
             elif re.search(r"kana|カナ|furigana|フリガナ", attrs, re.I):
                 await el.fill("ササキ")
+            elif re.search(r"部署|部門|所属|department|division", attrs, re.I):
+                await el.fill("―")  # 一人の会社で部署が無い。必須のときだけ入れる（嘘の部署名を作らない）
             elif re.search(r"company|会社|法人|店名", attrs, re.I):
                 await el.fill(VALUES["company"])
             elif re.search(r"subject|件名|title|題", attrs, re.I):
