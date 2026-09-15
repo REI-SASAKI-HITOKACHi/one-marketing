@@ -571,8 +571,9 @@ TEMPLATE = r"""<!doctype html>
      slots.json は日付が絶対値で入っているので、作り直しが止まると
      「もう過ぎた日」をそのまま候補に出してしまう。
      ページ側でも当日＋SAITAN_NICHI より前の日を必ず落とす。
-     ここは build-slots.py の SAITAN_NICHI と同じ値にすること。 */
-  var SAITAN_NICHI = 2;
+     ここは build-slots.py の SAITAN_NICHI と同じ値にすること。
+     2026-09-15 オーナー決定：最短翌日（それまでの「最短2日先」はCMOが根拠なく置いた値だった）。 */
+  var SAITAN_NICHI = 1;
   function kyouPlus(n){
     var d = new Date();
     d.setDate(d.getDate() + n);

@@ -40,7 +40,7 @@ IDOU_FUN = 60            # 前後に確保する移動時間（分）
 YAKIN_HANTEI_JI = 18     # この時刻以降に始まり日をまたぐ予定を夜勤とみなす
 YAKIN_AKE_SAIHAYAKU = 13  # 夜勤明けの日は13:00以降から
 YAKIN_MAE_SHUURYOU = 18  # 夜勤がある日は18:00までに施工完了
-SAITAN_NICHI = 2         # 当日と翌日は出さない
+SAITAN_NICHI = 1         # 当日は出さない。翌日から出す（2026-09-15 オーナー決定「最短翌日で」）
 SAICHOU_NICHI = 21       # 3週間先まで
 KIZAMI_FUN = 30          # 枠の刻み
 
