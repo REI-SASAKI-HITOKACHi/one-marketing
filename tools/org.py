@@ -12,6 +12,7 @@
 【使い方】
   python3 tools/org.py 名簿
   python3 tools/org.py 読む <役割ID>            # 自分あての未処理だけ出す
+  python3 tools/org.py 返事 <役割ID>            # 自分が出した依頼のうち、相手が答えて自分が返していないもの
   python3 tools/org.py 一覧 [--全部]
   python3 tools/org.py 見る <依頼ID>
   echo "本文" | python3 tools/org.py 依頼 --from lp --to cmo --件名 "料金の確認"
@@ -202,6 +203,76 @@ def op_yomu(a):
     print('完了:  python3 tools/org.py 完了 <依頼ID> --from ' + jibun)
 
 
+def saigo_no_henshin(honbun):
+    """本文の最後の「## 返信（役割 / 日時）」の (書いた人, 日時) を返す。無ければ (None, None)"""
+    dare = toki = None
+    for m in re.finditer(r'^## 返信（(.+?) / (.+?)）', honbun, re.M):
+        dare, toki = m.group(1).strip(), m.group(2).strip()
+    return dare, toki
+
+
+def nissuu(toki):
+    """返信の日時から今日までの日数。読めなければ 0（＝新しい扱いにして落とさない）"""
+    try:
+        t = datetime.datetime.strptime(toki, '%Y-%m-%d %H:%M').replace(
+            tzinfo=datetime.timezone(datetime.timedelta(hours=9)))
+    except Exception:
+        return 0
+    return (datetime.datetime.now(
+        datetime.timezone(datetime.timedelta(hours=9))) - t).days
+
+
+def op_henji(a):
+    """相手が答えたのに、自分がまだ読んでいない・返していないものを出す。
+
+    【なぜ要るか】
+      2026-09-15、経営企画室は前夜のうちに4件答えて、**自分で完了にしていた。**
+      「読む」は未処理しか出さないので、CMO には1件も見えず、
+      同じことをもう一度やらせる依頼を出してしまった。相手の時間を捨てた。
+
+      拾うのは2種類。
+        ① 自分あてなのに、相手が完了にしたもの（完了＝自分が読んだ、ではない）
+        ② 自分が出した依頼に、相手が返信したまま自分が返していないもの
+      ①は古いものまで出すと山になるので、返事の日付で切る（既定3日）。
+    """
+    youi()
+    jibun = a.役割
+    if jibun not in YAKUWARI:
+        sys.exit(f'知らない役割IDです: {jibun}（「名簿」で確認してください）')
+    jibun_na = YAKUWARI[jibun]
+    machi = []
+    for i, h, t in subete():
+        jibun_ga_dashita = h.get('差出') == jibun
+        jibun_ate = h.get('宛先') == jibun
+        if not (jibun_ga_dashita or jibun_ate):
+            continue
+        # 自分あてで未処理のものは「読む」が出すので、ここでは重ねない
+        if jibun_ate and h.get('状態') != '完了':
+            continue
+        saigo, toki = saigo_no_henshin(t)
+        if not saigo or saigo == jibun_na:
+            continue
+        # 相手が完了にしていても、答えが新しいうちは出す。
+        # 「完了＝こちらが読んだ」ではないため。古いものまで出すと山になるので日数で切る。
+        if h.get('状態') == '完了' and not a.全部 and nissuu(toki) > a.日数:
+            continue
+        machi.append((i, h, saigo, toki, h.get('状態', '')))
+    machi.sort(key=lambda x: x[3] or '', reverse=True)   # 新しい返事から
+    if not machi:
+        print(f'{jibun_na} が読み残している返事はありません。')
+        return
+    print(f'★ {jibun_na} がまだ返していない返事 {len(machi)}件'
+          f'（相手が完了にしたものは直近{a.日数}日ぶん。--日数 N で広げる）')
+    print()
+    for i, h, saigo, toki, jt in machi:
+        print(f'[{i}] → {h.get("宛先","")}' + ('  ※相手が完了にしています' if jt == '完了' else ''))
+        print(f'  件名: {h.get("件名","")}')
+        print(f'  最後に書いたのは: {saigo}（{toki}）')
+        print()
+    print('中身:  python3 tools/org.py 見る <依頼ID>')
+    print('返す:  echo "本文" | python3 tools/org.py 返信 <依頼ID> --from ' + jibun)
+
+
 def op_ichiran(a):
     youi()
     ss = subete()
@@ -308,6 +379,10 @@ def main():
     s.add_parser('名簿')
 
     q = s.add_parser('読む'); q.add_argument('役割')
+    hj = s.add_parser('返事'); hj.add_argument('役割')
+    hj.add_argument('--日数', type=int, default=1,
+                    help='相手が完了にしたものは、この日数以内の返事だけ出す（既定1日）')
+    hj.add_argument('--全部', action='store_true', help='完了ぶんも日数で切らずに全部出す')
     q = s.add_parser('一覧'); q.add_argument('--全部', action='store_true')
     q = s.add_parser('見る'); q.add_argument('依頼ID')
 
@@ -334,7 +409,7 @@ def main():
     s.add_parser('現況一覧')
 
     a = p.parse_args()
-    {'名簿': op_meibo, '読む': op_yomu, '一覧': op_ichiran, '見る': op_miru,
+    {'名簿': op_meibo, '読む': op_yomu, '返事': op_henji, '一覧': op_ichiran, '見る': op_miru,
      '依頼': op_irai, '返信': op_henshin, '完了': op_kanryou,
      '現況': op_genkyou, '現況一覧': op_genkyou_ichiran}[a.cmd](a)
 
