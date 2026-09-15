@@ -46,6 +46,10 @@ SS = "1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64"
 TAB = "冬季見込み客_2026"
 HEAD_ROW = 5                       # 見出しの行
 HINAGATA = os.path.join(ROOT, "data", "sms-template-honpo.txt")
+# 文面の案を試すとき用。--ひな形 <path> で別のひな形を当てて字数と通数だけ見る。
+# ★案を試すだけなので、--confirm WRITE とは一緒に使えない（下で弾く）。
+if "--ひな形" in sys.argv:
+    HINAGATA = sys.argv[sys.argv.index("--ひな形") + 1]
 
 UNIT = 70                          # KDDI：1通＝70文字
 MAX_UNITS = 3                      # 3通案
@@ -67,6 +71,8 @@ import datetime
 KYOU = datetime.date.today().isoformat()
 
 WRITE = ("--confirm" in sys.argv and "WRITE" in sys.argv)
+if WRITE and "--ひな形" in sys.argv:
+    sys.exit("--ひな形 は案を試すためのものです。--confirm WRITE とは一緒に使えません。")
 SHOW3 = "--3通" in sys.argv
 
 # ---- 差し込みの規則（tools/build-sms-list.py と同じもの）----
