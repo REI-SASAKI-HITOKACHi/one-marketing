@@ -63,6 +63,41 @@ def hashiru(setsumei, cmd):
     return ok
 
 
+def collect_html():
+    """配信物のHTMLを {表示名: (パス, "")} で集める"""
+    out = {}
+    for p in sorted(DEPLOY.rglob("*.html")):
+        out["/" + p.relative_to(DEPLOY).as_posix()] = (p, "")
+    for p in sorted((ROOT / "lp").rglob("*.html")):
+        out[p.relative_to(ROOT).as_posix()] = (p, "")
+    return out
+
+
+def mikakutei_check(files):
+    """未確定の箱（【…】）が配信物に混ざっていないか。
+
+    原稿が揃う前にページの形だけ作ることがある。そのとき埋めていない欄に
+    【CMO確認待ち：…】と書いて残すので、**それが本番に出るのを機械で止める。**
+    お客様が読むページに社内向けの文字が出るのは、間違いなく事故。
+    """
+    print("\n▶ 未確定の箱（【…】）が残っていないか")
+    warui = []
+    for rel, (path, _sha) in sorted(files.items()):
+        if not rel.endswith(".html"):
+            continue
+        honbun = path.read_text(encoding="utf-8", errors="ignore")
+        # 【…】そのものは正規の本文にも使う（例：通知メールの件名 "【LP予約】エアコン"）。
+        # 社内向けの目印が入っているものだけを拾う。
+        hako = re.findall(r"【[^】]{0,40}(?:確認待ち|要確認|未確定|TODO|仮置き|あとで)[^】]{0,40}】", honbun)
+        if hako:
+            warui.append((rel, sorted(set(hako))))
+    for rel, hako in warui:
+        print(f"  ★  {rel}: {' / '.join(hako)}")
+    if not warui:
+        print("  OK  残っていません")
+    return not warui
+
+
 def rule_check(yomu, doko):
     """LP配信のルールの3項目。ページごとに見る"""
     print(f"\n▶ docs/LP配信のルール.md の3項目（{doko}）")
@@ -103,6 +138,7 @@ def mae():
     ok.append(rule_check(
         lambda n: (DEPLOY / n / "index.html").read_text(encoding="utf-8", errors="ignore"),
         "ビルド"))
+    ok.append(mikakutei_check(collect_html()))
     return all(ok)
 
 
