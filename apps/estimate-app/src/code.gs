@@ -191,6 +191,15 @@ function dispatchApiAction_(action, body) {
       });
 
     /* --- 書き込み --- */
+    case 'saveEstimate':
+      if (!body.payload) return { ok: false, error: 'payload がありません。' };
+      return apiSaveEstimate(body.payload);
+
+    case 'buildEstimate':
+      return requireId_(body.estimateId, '見積番号', function (id) {
+        return apiBuildDocuments(id, toNumber_(body.rowNumber));
+      });
+
     case 'startInvoice':
       return requireId_(body.estimateId, '見積番号', function (id) {
         return apiStartInvoice(id);
@@ -209,7 +218,9 @@ function dispatchApiAction_(action, body) {
       return {
         ok: false,
         error: '知らない action です：' + (action || '(空)'),
-        actions: ['ping', 'getInvoice', 'getEstimate', 'startInvoice', 'saveInvoice', 'buildInvoice']
+        actions: ['ping', 'getEstimate', 'getInvoice',
+          'saveEstimate', 'buildEstimate',
+          'startInvoice', 'saveInvoice', 'buildInvoice']
       };
   }
 }

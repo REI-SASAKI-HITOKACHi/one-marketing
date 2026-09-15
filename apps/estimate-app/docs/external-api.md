@@ -60,15 +60,26 @@ curl -sS -L -X POST "$GAS_URL/exec" \
 | action | 種別 | 必須 | 任意 | すること |
 |---|---|---|---|---|
 | `ping` | 読み | — | — | 疎通確認。副作用なし |
-| `getInvoice` | 読み | `invoiceId` | — | 請求の内容を返す |
 | `getEstimate` | 読み | `estimateId` | — | 見積の内容を返す |
+| `getInvoice` | 読み | `invoiceId` | — | 請求の内容を返す |
+| `saveEstimate` | 書き | `payload` | — | 見積を保存し、見積番号を返す |
+| `buildEstimate` | 書き | `estimateId` | `rowNumber` | 見積書PDFを作りDriveに保存、Gmail下書きを作る |
 | `startInvoice` | 読み | `estimateId` | — | 見積から請求の下書きを組む（保存はしない） |
 | `saveInvoice` | 書き | `payload` | — | 請求を保存し、請求番号を返す |
-| `buildInvoice` | 書き | `invoiceId` | `rowNumber` | PDFを作りDriveに保存、Gmail下書きを作る |
+| `buildInvoice` | 書き | `invoiceId` | `rowNumber` | 請求書PDFを作りDriveに保存、Gmail下書きを作る |
 
 `rowNumber` は `saveInvoice` の返りに入っています。渡すと行の検索を省けます（速くなるだけで、無くても動きます）。
 
 ### 典型的な流れ
+
+**見積**
+
+```
+saveEstimate(payload)      → 見積番号（YYYYMMDD-nn）と rowNumber が返る
+buildEstimate(estimateId)  → PDFのURLとファイルID、Gmail下書きのURLが返る
+```
+
+**請求**
 
 ```
 startInvoice(estimateId)   → 金額と既定値を確認
@@ -83,7 +94,36 @@ buildInvoice(invoiceId)    → PDFのURLとファイルID、Gmail下書きのURL
 
 ---
 
-## 4. `payload` の形（`saveInvoice`）
+## 4a. `payload` の形（`saveEstimate`）
+
+**金額は渡しません。単価も渡しません。** メニューIDと数量だけ渡せば、
+マスタの単価・繁忙期加算・割引をアプリが当てます。
+
+| キー | 必須 | 型 | 説明 |
+|---|---|---|---|
+| `requestId` | ○ | 文字列 | 重複防止用。呼ぶ側でUUIDを作る |
+| `details` | ○ | 配列 | 明細。`[{ "menuId": "M003", "qty": 1 }]` |
+| `customerName` | ○ | 文字列 | 顧客名 |
+| `projectType` | | 文字列 | 案件タイプ。既定は `自社` |
+| `projectName` | | 文字列 | 案件名 |
+| `siteAddress` | | 文字列 | 現場住所 |
+| `workDate` | | `yyyy-MM-dd` | 作業予定日。繁忙期の判定に使う |
+| `staff` | | 文字列 | 担当者 |
+| `channel` | | `通常`/`WEB経由` | 受注経路。既定は `通常` |
+| `highwayFee` | | 数値 | 高速代（非課税） |
+| `remarks` | | 文字列 | 備考 |
+| `adjustments` | | 配列 | 変則的な割引・割増 |
+| `targetTotal` | | 数値 | 税込合計をこの額に合わせる |
+
+`details` の `menuId` はメニューマスタのIDです（`M001` ノーマルエアコン、`M003` 洗濯機クリーニングなど）。
+`getEstimate` で既存の見積を読めば、実際の入り方を確認できます。
+
+**受注経路で料金が変わります。** `WEB経由` にすると同時施工価格とネット申込特典が効きます
+（`docs/README.md` の「0b」）。**電話・紹介のお客様に `WEB経由` を使わないでください。**
+
+---
+
+## 4b. `payload` の形（`saveInvoice`）
 
 `startInvoice` が返す `calcPayload` をそのまま加工して渡すのがいちばん確実です。
 手で組むなら下記。**金額は渡しません。アプリが計算します。**
@@ -140,6 +180,9 @@ openssl rand -base64 32
 
 ## 7. まだ入っていないもの
 
-- **見積の作成**（`saveEstimate`）。今回は請求書が目的なので読み取りだけにしてあります。要るなら足します
+- **見積の複製**（`apiLoadEstimateForClone` 相当）。画面からは使えます
+- **過去見積の検索**（`apiSearchEstimates` 相当）。`getEstimate` で番号を指定する形だけです
 - **レート制限**。GASの実行回数上限が事実上の上限です。合言葉が漏れた場合に備えるなら、
   合言葉を替える（`adminSetApiToken` を再実行）のがいちばん早い対処です
+
+どれも要るなら足します。

@@ -67,7 +67,8 @@ vm.runInContext(fs.readFileSync(path.join(srcDir, 'Invoice.gs'), 'utf8'), sandbo
 
 /* 本物の api* はシートに触るので、呼ばれた事実だけ記録する版に差し替える */
 ['apiGetInvoiceDetail', 'apiGetEstimateDetail', 'apiStartInvoice',
- 'apiSaveInvoice', 'apiBuildInvoiceDocuments'].forEach(name => {
+ 'apiSaveInvoice', 'apiBuildInvoiceDocuments',
+ 'apiSaveEstimate', 'apiBuildDocuments'].forEach(name => {
   sandbox[name] = function () {
     calls.push({ name, args: Array.prototype.slice.call(arguments) });
     return { ok: true, calledWith: Array.prototype.slice.call(arguments) };
@@ -101,8 +102,12 @@ check('合言葉なしで ping → 拒否',
   post({ action: 'ping' }).ok, false);
 check('正しそうな合言葉を送っても拒否（そもそも設定が無い）',
   post({ token: TOKEN, action: 'ping' }).ok, false);
-check('書き込み系も拒否',
+check('書き込み系も拒否（請求）',
   post({ token: TOKEN, action: 'saveInvoice', payload: {} }).ok, false);
+check('書き込み系も拒否（見積）',
+  post({ token: TOKEN, action: 'saveEstimate', payload: {} }).ok, false);
+check('帳票生成も拒否',
+  post({ token: TOKEN, action: 'buildEstimate', estimateId: 'E1' }).ok, false);
 check('拒否のとき api* を1つも呼んでいない', calls.length, 0);
 check('理由を細かく返さない',
   post({ action: 'ping' }).error, '認証に失敗しました。');
@@ -145,6 +150,24 @@ check('buildInvoice が請求番号と行番号を渡す', (() => {
   return [calls[0].name, calls[0].args[0], calls[0].args[1]];
 })(), ['apiBuildInvoiceDocuments', '20260915-01', 5]);
 
+check('saveEstimate が payload をそのまま渡す', (() => {
+  post({ token: TOKEN, action: 'saveEstimate', payload: { 顧客名: 'テスト', requestId: 'r1' } });
+  return [calls[0].name, calls[0].args[0]];
+})(), ['apiSaveEstimate', { 顧客名: 'テスト', requestId: 'r1' }]);
+
+check('buildEstimate が見積番号と行番号を渡す', (() => {
+  post({ token: TOKEN, action: 'buildEstimate', estimateId: '20260915-01', rowNumber: 7 });
+  return [calls[0].name, calls[0].args[0], calls[0].args[1]];
+})(), ['apiBuildDocuments', '20260915-01', 7]);
+
+// 呼ぶ側が番号を決められないこと。採番はアプリの generateDocumentId_ だけが行う
+check('saveEstimate に estimate_id を混ぜても採番を奪えない', (() => {
+  post({ token: TOKEN, action: 'saveEstimate',
+    payload: { estimate_id: '99999999-99', 顧客名: 'テスト' } });
+  // payload はそのまま渡るが、採番するのは apiSaveEstimate 側の generateDocumentId_
+  return calls[0].name;
+})(), 'apiSaveEstimate');
+
 console.log('■ 入力の不備');
 
 check('IDなしの getInvoice → エラー、api* は呼ばない', (() => {
@@ -157,10 +180,30 @@ check('payloadなしの saveInvoice → エラー、api* は呼ばない', (() =
   return [r.ok, calls.length];
 })(), [false, 0]);
 
+check('payloadなしの saveEstimate → エラー、api* は呼ばない', (() => {
+  const r = post({ token: TOKEN, action: 'saveEstimate' });
+  return [r.ok, calls.length];
+})(), [false, 0]);
+
+check('IDなしの buildEstimate → エラー、api* は呼ばない', (() => {
+  const r = post({ token: TOKEN, action: 'buildEstimate' });
+  return [r.ok, calls.length];
+})(), [false, 0]);
+
 check('知らない action → 使える一覧を返す', (() => {
   const r = post({ token: TOKEN, action: 'dropTable' });
   return [r.ok, Array.isArray(r.actions)];
 })(), [false, true]);
+
+// 一覧が実装と食い違うと、呼ぶ側が存在しない action を叩く
+check('返す action 一覧が実装と一致している', (() => {
+  const listed = post({ token: TOKEN, action: 'zzz' }).actions.slice().sort();
+  const works = listed.filter(a => {
+    const r = post({ token: TOKEN, action: a });
+    return !(r.error && r.error.indexOf('知らない action') === 0);
+  });
+  return [listed.length, works.length];
+})(), [8, 8]);
 
 check('JSONとして壊れている → エラーで落ちない',
   post(null, '{壊れた').ok, false);
