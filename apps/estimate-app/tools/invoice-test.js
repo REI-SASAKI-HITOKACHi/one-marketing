@@ -67,6 +67,34 @@ const CTX = {
   submitTargets: []
 };
 
+/**
+ * 採番テスト用の最小シートスタブ。
+ * 1行目がヘッダー、2行目以降が既存IDという単純な1列のシートを模す。
+ */
+function makeIdSheet(header, ids) {
+  const grid = [[header]].concat(ids.map(function (v) { return [v]; }));
+  return {
+    getParent: function () { return { getId: function () { return 'stub-ss-' + header; } }; },
+    getName: function () { return 'stub-' + header + '-' + ids.join(','); },
+    getLastRow: function () { return grid.length; },
+    getLastColumn: function () { return 1; },
+    getRange: function (row, col, numRows) {
+      return {
+        getDisplayValues: function () {
+          return grid.slice(row - 1, row - 1 + numRows).map(function (r) { return r.slice(0, 1); });
+        }
+      };
+    }
+  };
+}
+
+function nextId(header, ids) {
+  return sandbox.generateDocumentId_(makeIdSheet(header, ids), header, 'テスト');
+}
+
+/** 今日の日付の接頭辞。テストの期待値を固定日に縛らないため */
+const TODAY = sandbox.formatDate_(new Date(), 'yyyyMMdd');
+
 let pass = 0;
 const failures = [];
 
@@ -363,6 +391,47 @@ check('C-6 明細範囲は 22〜38（テンプレートの式を空で上書き�
 check('C-7 小計・消費税・合計の位置', [invDefs.subtotal, invDefs.tax, invDefs.grand_total], ['F39', 'F40', 'F41']);
 check('C-8 帳票番号は F3', [estDefs.estimate_id, invDefs.invoice_id], ['F3', 'F3']);
 check('C-9 定義キーに重複がない', defRows.length, new Set(defRows.map(r => r[0] + '::' + r[2])).size);
+
+console.log('採番（YYYYMMDD-nn）');
+
+check('初回は -01',
+  nextId('invoice_id', []), TODAY + '-01');
+
+check('同じ日に2件目は -02',
+  nextId('invoice_id', [TODAY + '-01']), TODAY + '-02');
+
+check('歯抜けがあっても最大値の次',
+  nextId('invoice_id', [TODAY + '-01', TODAY + '-03']), TODAY + '-04');
+
+check('別の日のIDは無視する',
+  nextId('invoice_id', ['20260101-07', '20991231-99']), TODAY + '-01');
+
+// 旧IDと混在しても壊れないこと。本番の見積データには EST- 付きの行が残っている
+check('旧 EST-/INV- 形式の行は採番に影響しない',
+  nextId('invoice_id', ['INV-' + TODAY + '-0005', 'EST-20260507-0001']), TODAY + '-01');
+
+check('旧IDと新IDが混在しても新IDの最大値を見る',
+  nextId('invoice_id', ['INV-' + TODAY + '-0009', TODAY + '-02']), TODAY + '-03');
+
+// 枝番に数字以外が付いた派生（控え等）を採番対象にしない
+check('数字以外の枝番は無視する',
+  nextId('invoice_id', [TODAY + '-01-控', TODAY + '-02']), TODAY + '-03');
+
+check('100件目は3桁になる',
+  nextId('invoice_id', [TODAY + '-99']), TODAY + '-100');
+
+check('空欄が混ざっても落ちない',
+  nextId('invoice_id', ['', TODAY + '-01', '']), TODAY + '-02');
+
+// 見積書も同じ規則。書類の種類は番号で区別しない（表題で分かるため）
+check('見積書も同じ規則で採番する',
+  nextId('estimate_id', []), TODAY + '-01');
+
+check('見積IDの生成関数も同じ形式を返す',
+  sandbox.generateEstimateId_(makeIdSheet('estimate_id', [])), TODAY + '-01');
+
+check('請求IDの生成関数も同じ形式を返す',
+  sandbox.generateInvoiceId_(makeIdSheet('invoice_id', [])), TODAY + '-01');
 
 /* ===================== 結果 ===================== */
 

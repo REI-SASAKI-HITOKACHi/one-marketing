@@ -663,26 +663,9 @@ function getInvoiceDataSheet_(ctx) {
   return sheet;
 }
 
+// 採番の規則は code.gs の generateDocumentId_ にまとめてある（見積書と同じ `YYYYMMDD-nn`）
 function generateInvoiceId_(sheet) {
-  const prefix = 'INV-' + formatDate_(new Date(), 'yyyyMMdd') + '-';
-  const info = getHeaderInfo_(sheet);
-  const col = info.map['invoice_id'];
-  if (!col) throw new Error('請求データシートに invoice_id ヘッダーがありません。');
-
-  const lastRow = sheet.getLastRow();
-  let maxNo = 0;
-
-  if (lastRow > info.headerRow) {
-    const ids = sheet.getRange(info.headerRow + 1, col, lastRow - info.headerRow, 1).getDisplayValues();
-    ids.forEach(function (row) {
-      const id = String(row[0] || '');
-      if (id.indexOf(prefix) !== 0) return;
-      const n = Number(id.slice(prefix.length));
-      if (!isNaN(n) && n > maxNo) maxNo = n;
-    });
-  }
-
-  return prefix + String(maxNo + 1).padStart(4, '0');
+  return generateDocumentId_(sheet, 'invoice_id', '請求データシート');
 }
 
 function findInvoiceRecord_(sheet, invoiceId, hintRowNumber) {

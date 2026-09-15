@@ -2539,11 +2539,24 @@ function getEstimateDataSheet_(ctx) {
   return sheet;
 }
 
-function generateEstimateId_(sheet) {
-  const prefix = 'EST-' + formatDate_(new Date(), 'yyyyMMdd') + '-';
+/**
+ * 書類番号の採番。見積書・請求書とも `YYYYMMDD-nn` 形式（例 20260915-01）。
+ *
+ * 2026-09、過去の請求書に合わせてこの形式に決めた（CMO判断 20260915-01-cmo）。
+ * 過去の番号は `00116-03` `10118-01` のような5桁始まりで、規則が読み取れず
+ * 「最大番号の次」を機械的に決められなかった。日付ベースなら発行の事実だけで
+ * 一意に決まり、5桁始まりの旧番号とは桁数で区別できるので過去分に触らずに済む。
+ *
+ * 旧IDの `EST-` / `INV-` 接頭辞は付けない。接頭辞付きの既存行は
+ * 今日の日付で始まらないので走査に引っかからず、採番に影響しない。
+ *
+ * 同じ日に100件を超えたら3桁になる（`20260915-100`）。桁が伸びるだけで破綻しない。
+ */
+function generateDocumentId_(sheet, idHeader, sheetLabel) {
+  const prefix = formatDate_(new Date(), 'yyyyMMdd') + '-';
   const info = getHeaderInfo_(sheet);
-  const col = info.map['estimate_id'];
-  if (!col) throw new Error('見積データシートに estimate_id ヘッダーがありません。');
+  const col = info.map[idHeader];
+  if (!col) throw new Error(sheetLabel + 'に ' + idHeader + ' ヘッダーがありません。');
 
   const lastRow = sheet.getLastRow();
   let maxNo = 0;
@@ -2552,14 +2565,21 @@ function generateEstimateId_(sheet) {
     // ID列だけ読む。203列を全部読む必要はない。
     const ids = sheet.getRange(info.headerRow + 1, col, lastRow - info.headerRow, 1).getDisplayValues();
     ids.forEach(function (r) {
-      const id = String(r[0] || '');
+      const id = String(r[0] || '').trim();
       if (id.indexOf(prefix) !== 0) return;
-      const n = Number(id.slice(prefix.length));
-      if (!isNaN(n) && n > maxNo) maxNo = n;
+      const tail = id.slice(prefix.length);
+      // 枝番は数字だけ。`20260915-01-控` のような派生は採番対象にしない
+      if (!/^\d+$/.test(tail)) return;
+      const n = Number(tail);
+      if (n > maxNo) maxNo = n;
     });
   }
 
-  return prefix + String(maxNo + 1).padStart(4, '0');
+  return prefix + String(maxNo + 1).padStart(2, '0');
+}
+
+function generateEstimateId_(sheet) {
+  return generateDocumentId_(sheet, 'estimate_id', '見積データシート');
 }
 
 function findEstimateRecord_(sheet, estimateId, hintRowNumber) {
@@ -3892,26 +3912,9 @@ function getInvoiceDataSheet_(ctx) {
   return sheet;
 }
 
+// 採番の規則は code.gs の generateDocumentId_ にまとめてある（見積書と同じ `YYYYMMDD-nn`）
 function generateInvoiceId_(sheet) {
-  const prefix = 'INV-' + formatDate_(new Date(), 'yyyyMMdd') + '-';
-  const info = getHeaderInfo_(sheet);
-  const col = info.map['invoice_id'];
-  if (!col) throw new Error('請求データシートに invoice_id ヘッダーがありません。');
-
-  const lastRow = sheet.getLastRow();
-  let maxNo = 0;
-
-  if (lastRow > info.headerRow) {
-    const ids = sheet.getRange(info.headerRow + 1, col, lastRow - info.headerRow, 1).getDisplayValues();
-    ids.forEach(function (row) {
-      const id = String(row[0] || '');
-      if (id.indexOf(prefix) !== 0) return;
-      const n = Number(id.slice(prefix.length));
-      if (!isNaN(n) && n > maxNo) maxNo = n;
-    });
-  }
-
-  return prefix + String(maxNo + 1).padStart(4, '0');
+  return generateDocumentId_(sheet, 'invoice_id', '請求データシート');
 }
 
 function findInvoiceRecord_(sheet, invoiceId, hintRowNumber) {
