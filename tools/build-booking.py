@@ -567,6 +567,31 @@ TEMPLATE = r"""<!doctype html>
     return String(keys[keys.length - 1]);
   }
 
+  /* 空き枠ファイルが古くなったときの守り。
+     slots.json は日付が絶対値で入っているので、作り直しが止まると
+     「もう過ぎた日」をそのまま候補に出してしまう。
+     ページ側でも当日＋SAITAN_NICHI より前の日を必ず落とす。
+     ここは build-slots.py の SAITAN_NICHI と同じ値にすること。 */
+  var SAITAN_NICHI = 2;
+  function kyouPlus(n){
+    var d = new Date();
+    d.setDate(d.getDate() + n);
+    return d.getFullYear() + '-' +
+           ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
+           ('0' + d.getDate()).slice(-2);
+  }
+  function furuiHizukeWoOtosu(list){
+    var kagiri = kyouPlus(SAITAN_NICHI);
+    return (list || []).filter(function(d){ return d && d.date && d.date >= kagiri; });
+  }
+  /* 作られてから何時間たったか。取れなければ null（責めない） */
+  function keikaJikan(d){
+    if (!d || !d.generated) { return null; }
+    var t = Date.parse(d.generated);
+    if (isNaN(t)) { return null; }
+    return (Date.now() - t) / 3600000;
+  }
+
   var slotsCache = null;
   function loadSlots(){
     var box = $('slots');
@@ -579,9 +604,17 @@ TEMPLATE = r"""<!doctype html>
     function egaku(d){
       slotsCache = d;
       var k = bucketKey(d);
-      state.slots = (k && d.buckets[k]) || [];
+      state.slots = furuiHizukeWoOtosu((k && d.buckets[k]) || []);
       var m = $('slots-toki');
-      if (m) { m.textContent = d.generatedLabel ? d.generatedLabel + ' 時点の空き状況です' : ''; }
+      if (m) {
+        var keika = keikaJikan(d);
+        var furui = (keika !== null) && (keika > (d.staleHours || 6));
+        var t = d.generatedLabel ? d.generatedLabel + ' 時点の空き状況です' : '';
+        if (furui && t) {
+          t += '（その後に変わっている場合があります。お急ぎのときはお電話ください）';
+        }
+        m.textContent = t;
+      }
       if (!state.slots.length) {
         box.innerHTML = '<p class="loading">この内容で空いている枠が見つかりませんでした。<br>' +
           'お手数ですが <a href="tel:{{TEL}}">{{TEL}}</a> までご相談ください。</p>';
