@@ -25,6 +25,7 @@ const APP = {
   DEFAULT_EXECUTION_EMAIL: 'info.onehitter@gmail.com',
   TZ: 'Asia/Tokyo',
   MAX_DETAIL_ROWS: 16,
+  API_TOKEN_PROPERTY: 'API_SHARED_TOKEN',
   MAX_ADJUSTMENT_SLOTS: 5,
 
   // マスタキャッシュの世代。マスタ構造を変えたらここを上げる。
@@ -119,6 +120,128 @@ function doGet() {
 
 function include(filename) {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
+}
+
+/* ===================== 外部API（doPost） ===================== */
+
+/**
+ * 外部から見積・請求を操作するための入口。
+ *
+ * 画面（doGet）とは完全に別系統。doGet の動きは一切変えていない。
+ * 和真さんが使っている画面には影響しない。
+ *
+ * ■ 認証
+ * スクリプトプロパティ `API_SHARED_TOKEN` と、リクエストの token が一致しないと何もしない。
+ * **未設定のときは全部拒否する（fail closed）。** 設定し忘れた状態で公開されても、
+ * 誰にも何もできない。トークンはリポジトリに置かないこと。
+ * 設定は adminSetApiToken('...') で行う。
+ *
+ * ■ 呼び方
+ *   POST <ウェブアプリのURL>/exec
+ *   Content-Type: application/json
+ *   {"token":"...", "action":"getInvoice", "invoiceId":"20260915-01"}
+ *
+ * ■ 返り
+ *   常に JSON。成功は {"ok":true, ...}、失敗は {"ok":false,"error":"..."}。
+ *   HTTPステータスは GAS の仕様で常に 200 になる。ok を見て判断すること。
+ *
+ * 仕様の詳細は docs/external-api.md。
+ */
+function doPost(e) {
+  let body = {};
+
+  try {
+    const raw = (e && e.postData && e.postData.contents) || '';
+    body = raw ? JSON.parse(raw) : {};
+  } catch (err) {
+    return jsonResponse_({ ok: false, error: 'JSONとして読めませんでした。' });
+  }
+
+  if (!verifyApiToken_(body.token)) {
+    // 合言葉が違うときは、理由を細かく返さない（総当たりの手がかりにしない）
+    queueLog_('外部API', '', '認証に失敗しました', String(body.action || ''), 0);
+    flushLogs_();
+    return jsonResponse_({ ok: false, error: '認証に失敗しました。' });
+  }
+
+  const action = String(body.action || '').trim();
+
+  try {
+    return jsonResponse_(dispatchApiAction_(action, body));
+  } catch (err) {
+    return jsonResponse_({ ok: false, error: toErrorMessage_(err) });
+  }
+}
+
+function dispatchApiAction_(action, body) {
+  switch (action) {
+    // 疎通確認。副作用なし
+    case 'ping':
+      return { ok: true, action: 'ping', now: formatDateTime_(new Date()) };
+
+    /* --- 読み取り --- */
+    case 'getInvoice':
+      return requireId_(body.invoiceId, '請求番号', function (id) {
+        return apiGetInvoiceDetail(id);
+      });
+
+    case 'getEstimate':
+      return requireId_(body.estimateId, '見積番号', function (id) {
+        return apiGetEstimateDetail(id);
+      });
+
+    /* --- 書き込み --- */
+    case 'startInvoice':
+      return requireId_(body.estimateId, '見積番号', function (id) {
+        return apiStartInvoice(id);
+      });
+
+    case 'saveInvoice':
+      if (!body.payload) return { ok: false, error: 'payload がありません。' };
+      return apiSaveInvoice(body.payload);
+
+    case 'buildInvoice':
+      return requireId_(body.invoiceId, '請求番号', function (id) {
+        return apiBuildInvoiceDocuments(id, toNumber_(body.rowNumber));
+      });
+
+    default:
+      return {
+        ok: false,
+        error: '知らない action です：' + (action || '(空)'),
+        actions: ['ping', 'getInvoice', 'getEstimate', 'startInvoice', 'saveInvoice', 'buildInvoice']
+      };
+  }
+}
+
+function requireId_(value, label, fn) {
+  const id = String(value == null ? '' : value).trim();
+  if (!id) return { ok: false, error: label + 'がありません。' };
+  return fn(id);
+}
+
+/**
+ * 合言葉の照合。
+ * 未設定なら常に false（fail closed）。長さが違っても最後まで比較して、
+ * 応答時間から桁数が漏れないようにしている。
+ */
+function verifyApiToken_(given) {
+  const expected = PropertiesService.getScriptProperties().getProperty(APP.API_TOKEN_PROPERTY);
+  if (!expected) return false;
+
+  const a = String(given == null ? '' : given);
+  const b = String(expected);
+  if (a.length !== b.length) return false;
+
+  let diff = 0;
+  for (let i = 0; i < b.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+function jsonResponse_(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 /* ===================== 計算エンジンの共有 ===================== */

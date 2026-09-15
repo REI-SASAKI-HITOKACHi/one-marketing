@@ -98,6 +98,56 @@ function adminDeployAll() {
   return message;
 }
 
+/* ===================== 外部APIの合言葉 ===================== */
+
+/**
+ * 外部API（doPost）の合言葉を設定する。
+ *
+ *   adminSetApiToken('ここに合言葉')
+ *
+ * スクリプトプロパティに入るだけで、コードにもリポジトリにも残らない。
+ * **実行後、エディタの引数欄に書いた合言葉は必ず消すこと**（履歴に残るため）。
+ *
+ * 未設定のあいだ doPost は全リクエストを拒否する（fail closed）。
+ * 公開設定が「全員」でも、合言葉が無ければ誰にも何もできない。
+ *
+ * 合言葉の条件：32文字以上。使い回さない。
+ * 生成例（手元の端末で）： openssl rand -base64 32
+ */
+function adminSetApiToken(token) {
+  const t = String(token || '').trim();
+
+  if (t.length < 32) {
+    throw new Error('合言葉が短すぎます（32文字以上）。openssl rand -base64 32 などで作ってください。');
+  }
+
+  PropertiesService.getScriptProperties().setProperty(APP.API_TOKEN_PROPERTY, t);
+
+  const message = '外部APIの合言葉を設定しました（' + t.length + '文字）。\n'
+    + '※ エディタの引数欄に書いた合言葉を消してください。\n'
+    + '※ 同じ合言葉を ~/.config/one-hitter/ に控えてください。リポジトリには置かないこと。';
+  console.log(message);
+  return message;
+}
+
+/** 合言葉が設定されているかだけを見る。値そのものは表示しない。 */
+function adminCheckApiToken() {
+  const t = PropertiesService.getScriptProperties().getProperty(APP.API_TOKEN_PROPERTY);
+  const message = t
+    ? '外部APIの合言葉は設定済みです（' + String(t).length + '文字）。'
+    : '外部APIの合言葉は未設定です。doPost は全リクエストを拒否します。';
+  console.log(message);
+  return message;
+}
+
+/** 合言葉を消す。外部APIを止めたいときに使う。 */
+function adminClearApiToken() {
+  PropertiesService.getScriptProperties().deleteProperty(APP.API_TOKEN_PROPERTY);
+  const message = '外部APIの合言葉を削除しました。doPost は全リクエストを拒否します。';
+  console.log(message);
+  return message;
+}
+
 /* ===================== バックアップ ===================== */
 
 function adminBackup() {
