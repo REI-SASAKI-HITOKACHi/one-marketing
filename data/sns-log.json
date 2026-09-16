@@ -38,5 +38,48 @@
     "media_ids": [
       "1103395125810171"
     ]
+  },
+  {
+    "id": "w01-3",
+    "platform": "instagram",
+    "posted_at": "2026-09-16T12:02:40+09:00",
+    "permalink": "https://www.instagram.com/p/DdVRjEsFg2h/",
+    "post_id": "18088655597208122",
+    "media_ids": [
+      "18088655597208122"
+    ]
+  },
+  {
+    "id": "w01-3",
+    "platform": "facebook",
+    "posted_at": "2026-09-16T12:02:51+09:00",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1104394075710276",
+    "post_id": "103698149101436_1104394075710276",
+    "media_ids": [
+      "1104393912376959",
+      "1104393945710289",
+      "1104393985710285",
+      "1104394035710280"
+    ]
+  },
+  {
+    "id": "w01-3r",
+    "platform": "instagram",
+    "posted_at": "2026-09-16T12:03:36+09:00",
+    "permalink": "https://www.instagram.com/reel/DdVRm8GlUUy/",
+    "post_id": "17941463802350763",
+    "media_ids": [
+      "17941463802350763"
+    ]
+  },
+  {
+    "id": "w01-3r",
+    "platform": "facebook",
+    "posted_at": "2026-09-16T12:03:40+09:00",
+    "permalink": "https://www.facebook.com/103698149101436/videos/28610301858657874",
+    "post_id": "28610301858657874",
+    "media_ids": [
+      "28610301858657874"
+    ]
   }
 ]
