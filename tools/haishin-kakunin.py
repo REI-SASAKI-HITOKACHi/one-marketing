@@ -64,13 +64,49 @@ def hashiru(setsumei, cmd):
 
 
 def collect_html():
-    """配信物のHTMLを {表示名: (パス, "")} で集める"""
+    """**実際に配信するもの**のHTMLを {表示名: (パス, "")} で集める。
+
+    ★lp/ のソースを丸ごと見てはいけない。
+      まだ配信しない下書き（例：原稿待ちの特商法ページ）が lp/ に置かれることがあり、
+      それを見ると、関係のない配信まで止まってしまう（2026-09-16 実際に止まった）。
+      見るのは deploy/netlify/ の中身と、別サイトとして配信する lp/booking/ だけ。
+    """
     out = {}
-    for p in sorted(DEPLOY.rglob("*.html")):
-        out["/" + p.relative_to(DEPLOY).as_posix()] = (p, "")
-    for p in sorted((ROOT / "lp").rglob("*.html")):
-        out[p.relative_to(ROOT).as_posix()] = (p, "")
+    for f in sorted(DEPLOY.rglob("*.html")):
+        out["/" + f.relative_to(DEPLOY).as_posix()] = (f, "")
+    yoyaku = ROOT / "lp" / "booking"
+    if yoyaku.exists():
+        for f in sorted(yoyaku.rglob("*.html")):
+            out[f.relative_to(ROOT).as_posix()] = (f, "")
     return out
+
+
+def host_check(files):
+    """配信物に、存在しないホストへのURLが混ざっていないか。
+
+    2026-09-16、canonical と og:url が lp.one-hitter.jp（ハイフンあり）を
+    指したまま配信されていた。**このホストはDNSに存在しない。**
+    配信先は lp.onehitter.jp（ハイフン無し）で、one-hitter.jp は公式サイト。
+    紛らわしいので、機械で止める。
+
+    アンケートの「友だちに紹介」のリンクも同じホストを指していて、
+    **お客様が押すと開けない状態**だった。canonical より実害が大きい。
+    """
+    NG_HOST = ["lp.one-hitter.jp"]
+    print("\n▶ 存在しないホストへのURLが混ざっていないか")
+    warui = []
+    for rel, (path, _sha) in sorted(files.items()):
+        if not rel.endswith((".html", ".js")):
+            continue
+        honbun = path.read_text(encoding="utf-8", errors="ignore")
+        atari = [h for h in NG_HOST if h in honbun]
+        if atari:
+            warui.append((rel, atari))
+    for rel, atari in warui:
+        print(f"  ★  {rel}: {' / '.join(atari)}")
+    if not warui:
+        print("  OK  混ざっていません")
+    return not warui
 
 
 def mikakutei_check(files):
@@ -139,6 +175,7 @@ def mae():
         lambda n: (DEPLOY / n / "index.html").read_text(encoding="utf-8", errors="ignore"),
         "ビルド"))
     ok.append(mikakutei_check(collect_html()))
+    ok.append(host_check(collect_html()))
     return all(ok)
 
 

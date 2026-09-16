@@ -43,7 +43,10 @@ TARGETS = {
     "netlify": {"out": ROOT / "deploy" / "netlify"},
 }
 
-BASE_URL = "https://lp.one-hitter.jp"
+# ★ハイフンの位置に注意。配信先は onehitter（ハイフン無し）。
+#   one-hitter.jp は公式サイトで別物。lp.one-hitter.jp は存在しないホストで、
+#   canonical と og:url がそこを指したまま配信されていた（2026-09-16 ブラウザ担当の指摘）。
+BASE_URL = "https://lp.onehitter.jp"
 
 # 計測の設定と、埋め込むスクリプトの置き場所
 TRACKING_DIR = ROOT / "tracking"
