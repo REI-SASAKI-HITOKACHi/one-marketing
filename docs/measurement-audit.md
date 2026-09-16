@@ -328,3 +328,86 @@ python3 tools/ga4-weekly.py                     # 週次の数字
 | 計測担当（このブランチ） | 鍵が無い。**見えない** | **見えない** |
 
 **Google広告の画面作業はブラウザ担当、GA4の確認はCMO（API）**、と分けて依頼します。
+
+---
+
+# 追記 2026-09-16：**公式サイトは、LPとは違う名前で計測している**
+
+GA4プロパティ **381320625** のキーイベントに、設計に無いものが3つ入っていました
+（CMOが `tools/ga4-admin-setup.py --dry-run` で確認）。
+
+| 名前 | 出どころ |
+|---|---|
+| `teltap` | **公式サイトの電話リンク。HTMLで実物を確認した**（下記） |
+| `form_complete` | 公式サイトの問い合わせフォームの完了画面と思われる。**未確認**（POST後にしか出ない） |
+| `purchase` | **出どころ不明** |
+
+## ⚠️ 「二重計上」ではありません。**別のページを数えています**
+
+**これがいちばん大事な点です。**
+
+| | 電話タップ | フォーム送信 |
+|---|---|---|
+| **LP**（`lp.onehitter.jp`） | `phone_click` | `generate_lead` |
+| **公式サイト**（`one-hitter.jp`） | **`teltap`** | **`form_complete`（推定）** |
+
+**同じ行動を2回数えているのではなく、違うページのものを違う名前で数えています。**
+LPが `teltap` を撃つことはなく、公式サイトが `phone_click` を撃つこともありません。
+
+> ### ⛔ したがって「古い名前だから外す」は危険です
+>
+> **外すと、公式サイトの電話タップと問い合わせが、キーイベントとして数えられなくなります。**
+> 公式サイトはリアライズが作ったもので、**こちらの計測タグは入っていません。**
+> `teltap` が唯一の計測です。
+
+**公式サイトとLPは同一プロパティの別ストリーム**なので、キーイベントの合計は
+**両方が混ざった数字**になります。**読むときはホスト名で分けること。**
+
+## `teltap` の実物（2026-09-16 実測）
+
+```html
+<a href="tel:08080438259" onclick="ga('send', 'event', 'teltap', 'click', 'head', 1);">
+```
+
+**Universal Analytics 時代の `ga()` 呼び出しがそのまま残っていて、
+それを gtag に変換する仕掛けが head に入っています。**
+
+```js
+function _ga(){
+  if(arguments[0]=='send'&&arguments[1]=='event'){
+    gtag('event',arguments[3],{'event_category':arguments[2], …});   // → click
+    gtag('event',arguments[2],{'event_category':arguments[3], …});   // → teltap
+  }
+}
+window.addEventListener('DOMContentLoaded', () => {
+  for(const oc of document.querySelectorAll('[onclick]')){
+    const a=oc.getAttribute('onclick');
+    if(a.match(/^ga\(/)){ oc.setAttribute('onclick','_'+a); }   // ga(…) → _ga(…)
+  }
+});
+```
+
+**1回のタップで、`click` と `teltap` の2つが送られます。** 名前を決め打ちできなかったので
+両方の並びで撃っている、という作りです。
+
+| | |
+|---|---|
+| **いまは害がない** | キーイベントになっているのは `teltap` だけ。`click` は数えられていない |
+| **⚠️ 害になる条件** | **`click` もキーイベントにすると、1回のタップが2件になります** |
+
+`gtag('config','UA-239916628-78')` も残っています（**Universal Analytics は既に停止済み**なので、
+送っても受け取られません。害はありませんが、動いていません）。
+
+## 次にやること（順番を守ること）
+
+1. **`purchase` の出どころを数字で特定する** → `python3 tools/ga4-event-shirabe.py --event purchase`
+   - **0件なら**、誰も撃っていない名前なので外してよい
+   - **公式サイトから来ているなら**、外すと計測が止まる
+2. **設計の3つ（`generate_lead` `phone_click` `line_click`）を登録する**
+   → `python3 tools/ga4-admin-setup.py`
+3. **`form_complete` と `teltap` は、いまは外さない。** 公式サイト側の計測だから
+   （揃えたいなら、公式サイトのタグを直すのが先。リアライズの領域なので lp 経由）
+
+> **2を先にやること。** 設計の3つが入る前に古いものを外すと、**その間キーイベントが0件になります。**
+
+**鍵はCMOの環境にあるので、1と2の実行はCMOに頼みます**（2026-09-14 の案A決定。鍵は動かさない）。
