@@ -17,7 +17,7 @@
     "labels": {
       "generate_lead": "e-nVCPqV2PccENqTjt5E",
       "phone_click": "2qAcCOiw3fccENqTjt5E",
-      "line_click": ""
+      "line_click": "AryNCK7n7PkcENqTjt5E"
     },
     "_note2": "labels のキーはイベント名と同じにすること。値は AW-XXXX/ の右側の文字列だけを入れる。",
     "phone_conversion_label": "",
