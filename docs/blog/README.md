@@ -98,6 +98,24 @@ status: draft
 - AIっぽい定型句：ここからは／お伝えします／いかがでしょうか／ぜひ／安心／大切な／しっかり
 - 料金は `docs/price-master.md` の税込価格だけ。「（税込）」を必ず併記。5〜7月・12月の繁忙期加算 3,300円（税込）に触れる
 
+## 出す前に機械で確かめる（2026-09-16 追加）
+
+```
+python3 tools/check-blog.py                    # docs/blog/*.md を全部
+python3 tools/check-blog.py docs/blog/xxx.md   # 1本だけ
+python3 tools/check-blog.py --strict           # 注意も失敗として扱う
+```
+
+見るところ：front matter の必須欄・ファイル名と `date` の一致・水曜か・`category`/`status` の値・
+`description` 120字・本文 800〜1,500字・見出しの深さ・写真のパスと alt・作業前/作業後の対・
+禁止語・98.8%・電話番号・**料金が `docs/price-master.md` にあるか**・「税込」の併記・予約導線のURL。
+
+**LP担当の投稿ツールは、これを通ったファイルだけ受け取れば、front matter の欠けや料金の誤りを
+自分で見なくて済みます。**`source` `notes` `status` の3つは**サイトに出さない欄**なので、
+投稿ツール側で落としてください（この道具も、その3つが入っていると「注意」として知らせます）。
+
+**この道具が OK を出しても、中身が正しいことにはなりません。**査読（cmo）は従来どおり必要です。
+
 ## 査読の頼み方
 
 ```
