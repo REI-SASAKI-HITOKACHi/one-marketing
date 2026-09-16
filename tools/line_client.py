@@ -308,7 +308,7 @@ def op_midoku(a):
     spec.loader.exec_module(sc)
     tok = sc.access_token(sc.load_credentials())
     kyou = datetime.date.today().isoformat()
-    mada = {g for g, _, _ in m}
+    mada = {g for g, _, _, _ in m}
     for gyou in a.kakunin:
         if gyou not in mada:
             print(f'{gyou}行目は未確認の受信ではありません。飛ばします。')
