@@ -14,6 +14,9 @@
   5. `?src=gads&cid=...` が GA4 の設定（gtag config）に乗る
   6. 広告から来ていない人の gclid は空のまま（前の人の値が残らない）
   7. **Google広告のコンバージョンが、正しい send_to で撃たれる**
+  8. **LINEリンクを押すと line_click が出て、広告側にも届く**
+     （LPが「LINEで無料クーポン」と誘導しているのに計上されないと、
+     　LINE経由の申込が広告の成果として1件も残らない）
      （空振りすると「GA4では見えるのに広告の管理画面では0件」になる。
      　measurement.json が空のうちは、撃たないことを確かめる）
 
@@ -177,6 +180,35 @@ with sync_playwright() as pw:
     else:
         chk("設定が空のうちは電話でも撃たない", got == [], got)
     c.close()
+
+    # --- 8. LINEタップ ---
+    #
+    # 両LPがファーストビューで「LINEで無料クーポン」と誘導している。
+    # ここが計上されないと、LINE経由の申込が広告の成果として1件も残らず、
+    # **効いている広告を止める判断をしかねない**（CMO 20260916-01-measurement）。
+    for lp in ("mizumawari", "aircon"):
+        c = ctx()
+        pg = c.new_page()
+        pg.goto(f"{BASE}/{lp}/index.html")
+        pg.wait_for_timeout(200)
+        pg.evaluate("document.addEventListener('click',function(e){e.preventDefault();},true)")
+        n = pg.eval_on_selector_all("a[href*='lin.ee'],a[href*='line.me']", "e => e.length")
+        pg.evaluate("document.querySelectorAll(\"a[href*='lin.ee'],a[href*='line.me']\")"
+                    ".forEach(function(a){a.click();})")
+        pg.wait_for_timeout(300)
+        ev = pg.evaluate("(window.dataLayer||[]).filter(function(a){return a&&a[0]==='event'"
+                         "&&a[1]==='line_click';}).length")
+        got = conversions(pg)
+        chk(f"{lp}: LINEリンク {n}本ぜんぶで line_click が出る", n > 0 and ev == n, ev)
+        if aw and labels.get("line_click"):
+            want = aw + "/" + labels["line_click"]
+            chk(f"{lp}: LINEタップ → LINEのコンバージョンが撃たれる",
+                got == [want] * n, got)
+            chk("LINEのラベルが、申込・電話と違う（同じだと入札の目標に混ざる）",
+                labels["line_click"] not in (labels.get("generate_lead"), labels.get("phone_click")))
+        else:
+            chk(f"{lp}: 設定が空のうちはLINEでも撃たない", got == [], got)
+        c.close()
 
     b.close()
 

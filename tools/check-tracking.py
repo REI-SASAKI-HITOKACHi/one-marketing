@@ -73,6 +73,14 @@ def check_config(cfg: dict) -> None:
         bad("measurement.json: conversion_id は入っているのに labels.generate_lead が空です。"
             "**申込が1件もコンバージョンとして計上されません**")
 
+    # 電話タップとLINEタップも、ラベルが空なら広告側には1件も届かない。
+    # LPが「LINEで無料クーポン」と誘導している以上、LINE経由の申込は必ず出る。
+    # そこが0件のまま10/1のCPA判定に入ると、**効いている広告を止める判断をしかねない**。
+    for key, nani in (("phone_click", "電話タップ"), ("line_click", "LINEタップ")):
+        if ads.get("conversion_id") and not labels.get(key):
+            bad(f"measurement.json: conversion_id は入っているのに labels.{key} が空です。"
+                f"**{nani}が広告側に1件も届きません**（GA4には残ります）")
+
     if cfg.get("debug"):
         bad("measurement.json: debug が true です。本番へ配信する前に false に戻してください")
 

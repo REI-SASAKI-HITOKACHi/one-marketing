@@ -153,6 +153,25 @@ def main() -> None:
                 (e[0]["params"].get("phone_number") if e else "発火なし"))
             c.close()
 
+        print("\n■ LINEリンクのクリック → line_click")
+        for n in LPS:
+            c = ctx(); pg = c.new_page()
+            pg.goto(f"{base}/{n}.html"); pg.wait_for_timeout(300)
+            cnt = pg.eval_on_selector_all("a[href*='lin.ee'],a[href*='line.me']", "e => e.length")
+            pg.evaluate("document.addEventListener('click',function(e){e.preventDefault();},true)")
+            pg.evaluate("document.querySelectorAll(\"a[href*='lin.ee'],a[href*='line.me']\")"
+                        ".forEach(function(a){a.click();})")
+            pg.wait_for_timeout(300)
+            e = [x for x in evs(pg) if x["name"] == "line_click"]
+            conv = pg.evaluate("(window.dataLayer||[])"
+                               ".filter(function(a){return a&&a[1]==='conversion';})"
+                               ".map(function(a){return (a[2]||{}).send_to;})")
+            chk(f"  {n}（LINEリンク {cnt}本）", cnt > 0 and len(e) == cnt, len(e))
+            # 広告側へ届いているか。ラベルが空だと GA4 にしか残らない
+            chk(f"  {n}：LINEタップが広告側にも届く", len(conv) == cnt,
+                conv or "広告側へは0件（labels.line_click が空）")
+            c.close()
+
         print("\n■ 広告まわり（gclid・order_id・traffic_src・AW-）")
         c = ctx(); pg = c.new_page()
         pg.goto(f"{base}/mizumawari.html?gclid=PROD_TEST&src=gads&cid=98765")
