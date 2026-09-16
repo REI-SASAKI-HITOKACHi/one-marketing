@@ -210,6 +210,31 @@ with sync_playwright() as pw:
             chk(f"{lp}: 設定が空のうちはLINEでも撃たない", got == [], got)
         c.close()
 
+    # --- 9. アンケートのLINEボタンを、広告の成果に混ぜていないか ---
+    #
+    # LPのLINEボタン        … 公式アカウントを友だち追加（＝見込み客）
+    # アンケートのLINEボタン … 友だちに紹介文を送る（＝本人は既存のお客様）
+    #
+    # 混ぜると、**広告費をかけていない既存のお客様が「広告の成果」に化ける**。
+    # CPAが実態より良く見えて、出稿の判断を誤る。
+    c = ctx()
+    pg = c.new_page()
+    pg.goto(f"{BASE}/survey/index.html")
+    pg.wait_for_timeout(300)
+    pg.evaluate("document.addEventListener('click',function(e){e.preventDefault();},true)")
+    n = pg.eval_on_selector_all("a[href*='lin.ee'],a[href*='line.me']", "e => e.length")
+    pg.evaluate("document.querySelectorAll(\"a[href*='lin.ee'],a[href*='line.me']\")"
+                ".forEach(function(a){a.click();})")
+    pg.wait_for_timeout(300)
+    names = pg.evaluate("(window.dataLayer||[]).filter(function(a){return a&&a[0]==='event';})"
+                        ".map(function(a){return a[1];})")
+    chk(f"アンケートのLINEボタン {n}本は refer_share になる",
+        n > 0 and names.count("refer_share") == n, names)
+    chk("アンケートでは line_click を出さない（出すと既存客が広告の成果に化ける）",
+        "line_click" not in names, names)
+    chk("アンケートからは広告のコンバージョンを撃たない", conversions(pg) == [], conversions(pg))
+    c.close()
+
     b.close()
 
 _httpd.shutdown()
