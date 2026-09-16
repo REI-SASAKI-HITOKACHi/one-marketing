@@ -186,6 +186,48 @@ def main():
                     {"valueInputOption": "RAW", "data": data})
             print(f"  分類を {len(data)}行 入れました（すでに入っている行は触りません）")
 
+    # ---- 2つのタブで、同じお客様の記録が食い違っていないか ----
+    #   お詫びタブと冬季タブに同じ方が載っている。**片方だけ更新されると気づけない。**
+    #   自動では直さない。どちらが新しいかは機械には分からないため。
+    print("\n===== 2つのタブの食い違い =====")
+    hito = {}
+    for tab, head_row in TABS:
+        v = sc.call(tok, f"/{SS}/values/{urllib.parse.quote(tab + f'!A{head_row}:BZ1200', safe='')}"
+                    ).get("values", [])
+        if not v:
+            continue
+        head = v[0]
+        ix = {c: i for i, c in enumerate(head)}
+
+        def g(r, k):
+            i = ix.get(k)
+            return str(r[i]).strip() if i is not None and i < len(r) else ""
+
+        for n, r in enumerate(v[1:], start=head_row + 1):
+            if (g(r, "送信済み") != "返信あり" and g(r, "元の状態") != "返信あり"
+                    and not g(r, memo_col) and not g(r, HONBUN) and not g(r, BUNRUI)):
+                continue
+            t = re.sub(r"\D", "", g(r, "電話番号"))
+            if not t:
+                continue
+            hito.setdefault(t, {})[tab] = {
+                "行": n, "メモ": g(r, memo_col), "本文": g(r, HONBUN), "分類": g(r, BUNRUI)}
+    chigai = 0
+    for t, d in hito.items():
+        if len(d) < 2:
+            continue
+        (t1, a), (t2, b) = list(d.items())
+        for k in ("メモ", "本文", "分類"):
+            if a[k] != b[k]:
+                chigai += 1
+                print(f"  ★ {t1}行{a['行']} と {t2}行{b['行']} の「{k}」が違います")
+                print(f"      {t1}: {a[k] or '(空)'}")
+                print(f"      {t2}: {b[k] or '(空)'}")
+    if chigai:
+        print(f"  → {chigai}箇所。**どちらが新しいかは機械には分かりません。人が決めてください。**")
+    else:
+        print("  食い違いはありません。")
+
     if not WRITE:
         print("\n書き込みません（調べただけ）。実行するには: --confirm WRITE")
     print("\n※ `返信メモ` は1文字も書き換えていません。隣に列を足しただけです。")
