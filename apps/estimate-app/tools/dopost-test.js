@@ -141,9 +141,9 @@ check('startInvoice が apiStartInvoice を呼ぶ', (() => {
 })(), 'apiStartInvoice');
 
 check('saveInvoice が payload をそのまま渡す', (() => {
-  post({ token: TOKEN, action: 'saveInvoice', payload: { 顧客名: 'テスト' } });
+  post({ token: TOKEN, action: 'saveInvoice', payload: { 顧客名: 'テスト', requestId: 'r9' } });
   return [calls[0].name, calls[0].args[0]];
-})(), ['apiSaveInvoice', { 顧客名: 'テスト' }]);
+})(), ['apiSaveInvoice', { 顧客名: 'テスト', requestId: 'r9' }]);
 
 check('buildInvoice が請求番号と行番号を渡す', (() => {
   post({ token: TOKEN, action: 'buildInvoice', invoiceId: '20260915-01', rowNumber: 5 });
@@ -163,10 +163,45 @@ check('buildEstimate が見積番号と行番号を渡す', (() => {
 // 呼ぶ側が番号を決められないこと。採番はアプリの generateDocumentId_ だけが行う
 check('saveEstimate に estimate_id を混ぜても採番を奪えない', (() => {
   post({ token: TOKEN, action: 'saveEstimate',
-    payload: { estimate_id: '99999999-99', 顧客名: 'テスト' } });
+    payload: { estimate_id: '99999999-99', 顧客名: 'テスト', requestId: 'r8' } });
   // payload はそのまま渡るが、採番するのは apiSaveEstimate 側の generateDocumentId_
   return calls[0].name;
 })(), 'apiSaveEstimate');
+
+console.log('■ 二重作成の防止（requestId 必須）');
+
+// 外部APIは呼ぶ側が requestId を入れ忘れられる。入れ忘れたまま通信が切れて
+// 再送されると請求書が2通できる。入口で止める。
+check('requestId なしの saveInvoice → 拒否、api* は呼ばない', (() => {
+  const r = post({ token: TOKEN, action: 'saveInvoice', payload: { 顧客名: 'テスト' } });
+  return [r.ok, calls.length];
+})(), [false, 0]);
+
+check('requestId なしの saveEstimate → 拒否、api* は呼ばない', (() => {
+  const r = post({ token: TOKEN, action: 'saveEstimate', payload: { 顧客名: 'テスト' } });
+  return [r.ok, calls.length];
+})(), [false, 0]);
+
+check('空文字の requestId も拒否', (() => {
+  const r = post({ token: TOKEN, action: 'saveInvoice', payload: { requestId: '   ' } });
+  return [r.ok, calls.length];
+})(), [false, 0]);
+
+check('requestId があれば通る', (() => {
+  const r = post({ token: TOKEN, action: 'saveInvoice', payload: { requestId: 'r1' } });
+  return [r.ok, calls.length];
+})(), [true, 1]);
+
+// 読み取り系と帳票生成は requestId を要らない（新しい番号を作らないため）
+check('buildInvoice は requestId 不要', (() => {
+  const r = post({ token: TOKEN, action: 'buildInvoice', invoiceId: '20260915-01' });
+  return [r.ok, calls.length];
+})(), [true, 1]);
+
+check('getInvoice は requestId 不要', (() => {
+  const r = post({ token: TOKEN, action: 'getInvoice', invoiceId: '20260915-01' });
+  return [r.ok, calls.length];
+})(), [true, 1]);
 
 console.log('■ 入力の不備');
 
@@ -184,6 +219,12 @@ check('payloadなしの saveEstimate → エラー、api* は呼ばない', (() 
   const r = post({ token: TOKEN, action: 'saveEstimate' });
   return [r.ok, calls.length];
 })(), [false, 0]);
+
+check('payload が配列や文字列でも拒否', (() => {
+  const a1 = post({ token: TOKEN, action: 'saveInvoice', payload: 'abc' });
+  const a2 = post({ token: TOKEN, action: 'saveInvoice', payload: [1, 2] });
+  return [a1.ok, a2.ok, calls.length];
+})(), [false, false, 0]);
 
 check('IDなしの buildEstimate → エラー、api* は呼ばない', (() => {
   const r = post({ token: TOKEN, action: 'buildEstimate' });

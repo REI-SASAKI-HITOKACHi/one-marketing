@@ -192,8 +192,9 @@ function dispatchApiAction_(action, body) {
 
     /* --- 書き込み --- */
     case 'saveEstimate':
-      if (!body.payload) return { ok: false, error: 'payload がありません。' };
-      return apiSaveEstimate(body.payload);
+      return requirePayloadWithRequestId_(body.payload, function (payload) {
+        return apiSaveEstimate(payload);
+      });
 
     case 'buildEstimate':
       return requireId_(body.estimateId, '見積番号', function (id) {
@@ -206,8 +207,9 @@ function dispatchApiAction_(action, body) {
       });
 
     case 'saveInvoice':
-      if (!body.payload) return { ok: false, error: 'payload がありません。' };
-      return apiSaveInvoice(body.payload);
+      return requirePayloadWithRequestId_(body.payload, function (payload) {
+        return apiSaveInvoice(payload);
+      });
 
     case 'buildInvoice':
       return requireId_(body.invoiceId, '請求番号', function (id) {
@@ -223,6 +225,34 @@ function dispatchApiAction_(action, body) {
           'startInvoice', 'saveInvoice', 'buildInvoice']
       };
   }
+}
+
+/**
+ * 書き込み系は requestId を必須にする。
+ *
+ * 画面から使うときは JavaScript.html が毎回UUIDを作るので必ず入っているが、
+ * 外部APIは呼ぶ側が入れ忘れられる。入れ忘れたまま通信が切れて再送されると、
+ * **見積や請求が2件できる。** 請求書が2通できると実績データが壊れるので、
+ * 無いまま通さずここで止める。
+ *
+ * requestId があれば、同じ値での再送は1件目の番号を返すだけで新規作成しない
+ * （apiSaveEstimate / apiSaveInvoice 側で ScriptLock の中で判定している）。
+ */
+function requirePayloadWithRequestId_(payload, fn) {
+  if (!payload || typeof payload !== 'object') {
+    return { ok: false, error: 'payload がありません。' };
+  }
+
+  const requestId = String(payload.requestId || '').trim();
+  if (!requestId) {
+    return {
+      ok: false,
+      error: 'payload.requestId がありません。再送で二重に作られるのを防ぐため必須です。'
+        + '呼ぶ側でUUIDを作って入れてください。'
+    };
+  }
+
+  return fn(payload);
 }
 
 function requireId_(value, label, fn) {
