@@ -711,9 +711,12 @@ TEXTAREA_SEL = "textarea:not([name='g-recaptcha-response']):not([type=hidden])" 
 # 2026-09-16：確認画面の送信ボタンが <input type="image"> のフォームで、ここに引っかからず
 # 「完了画面を確認できない」で止まっていた（ペットスマイル下北沢店）。画像ボタンは古い日本語のフォームに多い。
 # type を限定せず value で拾い、画像ボタンの alt も見る。
-SEND_BTN = ("input[value*='送信'], input[type=image][alt*='送信'], "
+# チェックボックス・ラジオは除く。2026-09-16 の実測で、value に「送信」を含むチェックボックス
+# （メールマガジンの送信希望など）を送信ボタンと取り違えたため。
+_NOT_TICK = ":not([type=checkbox]):not([type=radio]):not([type=hidden])"
+SEND_BTN = (f"input[value*='送信']{_NOT_TICK}, input[type=image][alt*='送信'], "
             "button[type=submit]:has-text('送信'), button:has-text('送信する'), button:has-text('送信'), "
-            "input[value*='この内容で'], input[value*='上記の内容で']")
+            f"input[value*='この内容で']{_NOT_TICK}, input[value*='上記の内容で']{_NOT_TICK}")
 
 
 async def fill_required(pg, text: str, email_from: str, subject: str) -> int:
