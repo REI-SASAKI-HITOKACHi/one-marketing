@@ -828,8 +828,11 @@ async def submit(pg, wave: int, f: dict, text: str = "", email_from: str = "", s
     seen = []
     for step in range(4):
         before_url = pg.url
+        # 画像ボタン（input type=image）は value を持たず alt だけのことがある。
+        # 9/14 の「送信ボタン不明」18件はここに当たらなかったもの（2026-09-16）
         btn = await pg.query_selector("input[type=submit], button[type=submit], button:has-text('送信'), input[value*='送信'], "
-                                      "input[value*='確認'], button:has-text('確認'), button:has-text('進む'), input[value*='次へ']")
+                                      "input[value*='確認'], button:has-text('確認'), button:has-text('進む'), input[value*='次へ'], "
+                                      "input[type=image][alt*='送信'], input[type=image][alt*='確認'], input[type=image][alt*='次へ']")
         if not btn:
             await pg.screenshot(path=str(OUT / f"w{wave}-{f['No']}-sent.png"), full_page=True)
             return {"state": "ng", "reason": "送信ボタン不明" if step == 0 else "完了画面を確認できない", "proof": ""}
