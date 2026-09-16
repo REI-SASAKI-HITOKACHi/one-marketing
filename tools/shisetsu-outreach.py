@@ -708,7 +708,12 @@ FAIL_RE = re.compile(r"失敗しました|エラーが発生|記入もれ|入力
                      r"正しく入力|選択してください|もう一度お試し|error occurred|有効期限が過ぎ|やり直してください|403 Forbidden")
 # 「確認画面」から先に進むためのボタン（この語のときだけ2手目を押す）
 TEXTAREA_SEL = "textarea:not([name='g-recaptcha-response']):not([type=hidden])"  # reCAPTCHA の隠し欄を本文欄と数えない
-SEND_BTN = "input[type=submit][value*='送信'], input[type=button][value*='送信'], button[type=submit]:has-text('送信'), button:has-text('送信する'), button:has-text('送信'), input[value='上記の内容で送信する']"
+# 2026-09-16：確認画面の送信ボタンが <input type="image"> のフォームで、ここに引っかからず
+# 「完了画面を確認できない」で止まっていた（ペットスマイル下北沢店）。画像ボタンは古い日本語のフォームに多い。
+# type を限定せず value で拾い、画像ボタンの alt も見る。
+SEND_BTN = ("input[value*='送信'], input[type=image][alt*='送信'], "
+            "button[type=submit]:has-text('送信'), button:has-text('送信する'), button:has-text('送信'), "
+            "input[value*='この内容で'], input[value*='上記の内容で']")
 
 
 async def fill_required(pg, text: str, email_from: str, subject: str) -> int:
