@@ -674,7 +674,31 @@ C:\Users\casef\.claude\browser-outbox\未送信-YYYY-MM-DD-朝の受信確認.md
 - one-hitter.jp が失効しても**メール（@one-hitter.her.jp）は止まらない**（ロリポップのサブドメイン）。止まるのはサイトだけ
 - **GA4**：公式サイトのプロパティ（G-8MV0E0GZHS）にはログインできる。LP用 G-DLJCTKGTDN も作成済み
 
-### 🎁 母の日ギフトLP（`gift-mothersday.vercel.app`）― 停止待ち・2026-09-16 実測
+### ✅ 母の日ギフトLP ― **2026-09-16 に非公開にした（完了）**
+
+```
+GET https://gift-mothersday.vercel.app/   →  HTTP 302（Vercelのログインへ転送）
+ページ内の "16,800"                        →  0件
+```
+
+**原因がひとつ学びになった。「Vercel Authentication ＞ Require Log In」は最初からオンだった。**
+ただし範囲が **`Standard Protection`** で、画面の原文は
+
+> **Standard Protection** — Protect all except **production Custom Domains** for your project.
+> **All Deployments** — Protect all domains.
+
+**＝保護はかかっているのに、本番ドメインだけ対象外**だった。`All Deployments` に変えて Save で解決。
+**「保護オン」の表示を見ただけで安心しないこと。範囲まで見る。**
+
+費用ゼロ（Password Protection は Pro $20/月なので選ばない）。プロジェクトは削除していない。
+
+> ⚠️ **同じ Vercel アカウント（Hobby・`rei-sasaki-hitokachi`）に、別事業のプロジェクトが並んでいる。**
+> `mls-hp`（`mls2003.com`）／`mls-hp-32mi`／`mls-hp-vg1w`。**ワンヒッターとは無関係。絶対に触らない。**
+> Vercel を触るときは**プロジェクト名を必ず確かめてから。**
+
+以下は停止前の記録（2026-09-16 実測）。
+
+### 🎁 （記録）母の日ギフトLP の停止前の状態
 
 ```
 GET https://gift-mothersday.vercel.app/   →  HTTP 200
