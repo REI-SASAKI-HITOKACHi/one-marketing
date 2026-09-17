@@ -113,7 +113,7 @@ check('理由を細かく返さない',
   post({ action: 'ping' }).error, '認証に失敗しました。');
 
 console.log('■ 合言葉が設定されているとき');
-scriptProps = { API_SHARED_TOKEN: TOKEN };
+scriptProps = { API_TOKEN: TOKEN };
 
 check('合言葉なし → 拒否', post({ action: 'ping' }).ok, false);
 check('違う合言葉 → 拒否', post({ token: 'y'.repeat(40), action: 'ping' }).ok, false);

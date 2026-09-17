@@ -37,7 +37,7 @@ const APP = {
   DEFAULT_EXECUTION_EMAIL: 'info.onehitter@gmail.com',
   TZ: 'Asia/Tokyo',
   MAX_DETAIL_ROWS: 16,
-  API_TOKEN_PROPERTY: 'API_SHARED_TOKEN',
+  API_TOKEN_PROPERTY: 'API_TOKEN',
   MAX_ADJUSTMENT_SLOTS: 5,
 
   // マスタキャッシュの世代。マスタ構造を変えたらここを上げる。
@@ -143,7 +143,7 @@ function include(filename) {
  * 和真さんが使っている画面には影響しない。
  *
  * ■ 認証
- * スクリプトプロパティ `API_SHARED_TOKEN` と、リクエストの token が一致しないと何もしない。
+ * スクリプトプロパティ `API_TOKEN` と、リクエストの token が一致しないと何もしない。
  * **未設定のときは全部拒否する（fail closed）。** 設定し忘れた状態で公開されても、
  * 誰にも何もできない。トークンはリポジトリに置かないこと。
  * 設定は adminSetApiToken('...') で行う。
