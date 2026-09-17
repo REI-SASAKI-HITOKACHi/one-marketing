@@ -135,6 +135,12 @@ TSUIKA_CSS = """
 .hikae .ln:last-of-type{border-bottom:0}
 .hikae .ln .v{text-align:right;font-weight:600;word-break:break-all}
 .hikae-memo{margin:.8rem 0 .9rem;font-size:.85rem}
+
+/* 支払方法。送信ボタンの直前に置く（金額を見たあとの「現金がいるのか」に答える） */
+.oshiharai{background:var(--accent-soft);border:1px solid var(--line);border-radius:10px;
+  padding:13px 14px;display:flex;flex-direction:column;gap:5px;}
+.oshiharai b{display:block;font-size:13.5px;line-height:1.7;color:var(--ink);text-wrap:balance;}
+.oshiharai p{margin:0;font-size:12px;color:var(--ink-soft);line-height:1.85;}
 """
 
 
@@ -308,6 +314,10 @@ TEMPLATE = r"""<!doctype html>
       </div>
       <dl class="kakunin" id="kakunin"></dl>
       <div class="total" id="total2"></div>
+      <div class="oshiharai">
+        <b>お支払いは、作業が終わってからその場で。</b>
+        <p>現金をご用意いただく必要はありません。クレジット／デビットカード（Visa・Mastercard・JCB・American Express・Diners Club・Discover）、交通系IC・iD・QUICPay、PayPay・d払い・楽天ペイ・au PAY・メルペイがご利用いただけます。前払い・事前の振込はありません。</p>
+      </div>
       <p class="err" id="e4"></p>
       <div class="nav">
         <button class="btn ghost" data-back="3">もどる</button>

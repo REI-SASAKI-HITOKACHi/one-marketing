@@ -7,13 +7,13 @@
 <meta name="description" content="キッチン・浴室・レンジフード・洗濯機・追い焚き配管。2箇所目からは同時施工価格。浴室＋キッチンで33,660円（税込）、半日で完了。東京・千葉・神奈川、最短即日。">
 
 <meta name="robots" content="noindex,follow">
-<link rel="canonical" href="https://lp.one-hitter.jp/mizumawari/">
+<link rel="canonical" href="https://lp.onehitter.jp/mizumawari/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="ワンヒッター株式会社">
 <meta property="og:title" content="水まわりクリーニング まとめて依頼で1箇所3,300円おトク｜ONE HITTER">
 <meta property="og:description" content="キッチン・浴室・レンジフード・洗濯機・追い焚き配管。2箇所目からは同時施工価格。浴室＋キッチンで33,660円（税込）、半日で完了。東京・千葉・神奈川、最短即日。">
-<meta property="og:url" content="https://lp.one-hitter.jp/mizumawari/">
-<meta property="og:image" content="https://lp.one-hitter.jp/mizumawari/img/og.jpg">
+<meta property="og:url" content="https://lp.onehitter.jp/mizumawari/">
+<meta property="og:image" content="https://lp.onehitter.jp/mizumawari/img/og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="ja_JP">
@@ -22,13 +22,17 @@
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-<script>window.OH_M={"page":{"kind":"lp","lp_id":"mizumawari","lp_variant":"A"},"google_ads":{"conversion_id":"","labels":{"generate_lead":"","phone_click":"","line_click":""},"phone_conversion_label":""},"debug":false};</script>
+<!-- ONE HITTER 計測タグ -->
+<script>window.OH_M={"page":{"kind":"lp","lp_id":"mizumawari","lp_variant":"A"},"google_ads":{"conversion_id":"AW-18450975194","labels":{"generate_lead":"e-nVCPqV2PccENqTjt5E","phone_click":"2qAcCOiw3fccENqTjt5E","line_click":""},"phone_conversion_label":""},"debug":false};</script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-DLJCTKGTDN"></script>
 <script>
 window.dataLayer=window.dataLayer||[];
 function gtag(){dataLayer.push(arguments);}
 gtag('js',new Date());
-gtag('config','G-DLJCTKGTDN',{'lp_id':'mizumawari','lp_variant':'A'});
+var oh_src=new URLSearchParams(location.search).get('src')||'direct';
+var oh_cid=new URLSearchParams(location.search).get('cid')||'';
+gtag('config','G-DLJCTKGTDN',{'lp_id':'mizumawari','lp_variant':'A','traffic_src':oh_src,'traffic_cid':oh_cid});
+gtag('config','AW-18450975194');
 </script>
 </head>
 <body>
@@ -177,6 +181,11 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 .trust .b{font-size:10.5px;color:var(--steel);line-height:1.6;}
 .hero-cta{display:flex;flex-direction:column;gap:9px;}
 .hero-note{font-size:11px;color:var(--steel);line-height:1.7;}
+.tel-cta{background:var(--surface);color:var(--ink);border:2px solid var(--ink);
+  flex-direction:column;gap:2px;line-height:1.25;}
+.tel-cta .tel-no{font-family:"Barlow",system-ui,sans-serif;font-weight:700;font-size:20px;letter-spacing:.02em;}
+.tel-cta .tel-time{font-size:11px;color:var(--text-2);font-weight:500;}
+.tel-cta-ue{margin:4px 0 2px;}
 
 @media(min-width:900px){
   
@@ -238,6 +247,11 @@ section.dark .own-k{color:var(--aqua-ink);border-left-color:var(--aqua-ink);}
 @media(max-width:600px){.own-row{grid-template-columns:1fr;gap:10px;}}
 
 .paid-note{font-size:11.5px;color:var(--steel);line-height:1.8;margin-top:12px;}
+
+.pay{padding:15px 17px;background:var(--paper);border:1px solid var(--rule-2);
+  display:flex;flex-direction:column;gap:5px;}
+.pay b{display:block;font-size:14px;line-height:1.75;text-wrap:balance;}
+.pay p{margin:0;font-size:12.5px;color:var(--text-2);line-height:1.95;}
 
 .voices{display:flex;flex-direction:column;}
 .voice{padding:26px 0;border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:12px;}
@@ -449,9 +463,9 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     <img src="img/hero-bg.jpg" alt="" width="1600" height="1067" fetchpriority="high" decoding="async">
   </div>
   <div class="hero-in">
-    <span class="area">✓ 東京・千葉・神奈川 対応／最短即日</span>
+    <span class="area" id="hero-area">✓ 東京・千葉・神奈川 対応／最短即日</span>
     <h1>水まわりは、<br><span class="hl">まとめて頼むほど安い。</span></h1>
-    <p class="sub">キッチン、浴室、レンジフード、洗濯機、追い焚き配管。1箇所ずつ頼むより、同時施工のほうが1箇所あたり3,300円おトク（コンロは4,730円）になります。半日で、家じゅうの水まわりがリセットされます。</p>
+    <p class="sub" id="hero-sub">キッチン、浴室、レンジフード、洗濯機、追い焚き配管。1箇所ずつ頼むより、同時施工のほうが1箇所あたり3,300円おトク（コンロは4,730円）になります。半日で、家じゅうの水まわりがリセットされます。</p>
 
     <div class="setbox">
       <div class="top">いちばん多いご依頼｜浴室＋キッチンの2箇所</div>
@@ -465,7 +479,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
         <div class="note">浴室クリーニング 18,480円 ＋ キッチンクリーニング 15,180円（セット価格・税込）</div>
       </div>
     </div>
-    <p class="perk">LINEからご予約・ご相談いただいた方には、<b>防カビコーティングを無料</b>でお付けしています。カビの再発を抑えるコーティングです。</p>
+    <p class="perk" id="hero-perk">LINEからご予約・ご相談いただいた方には、<b>防カビコーティングを無料</b>でお付けしています。カビの再発を抑えるコーティングです。</p>
 
     <div class="trust">
       <div><span class="t num">98.6%</span><span class="b">が「他の人に勧めたい」<br>と回答<sup>※1</sup></span></div>
@@ -474,6 +488,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     </div>
 
     <div class="hero-cta">
+      <a class="btn lg tel-cta" id="hero-tel" href="tel:08080438259" hidden>電話で相談する<span class="tel-no">080-8043-8259</span><span class="tel-time">8:00〜20:00／担当 渡辺</span></a>
       <a class="btn lg" href="#builder">箇所を選んで、料金を見る</a>
       <a class="btn lg line" href="https://lin.ee/7kD9WGN">LINEで相談・予約する</a>
     </div>
@@ -691,6 +706,11 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
           </div>
           <p class="hint" id="hint"></p>
           <p class="paid-note">※駐車スペースがない場合は、コインパーキング代を実費でいただきます。金額は事前にお伝えします。</p>
+        </div>
+
+        <div class="pay">
+          <b>お支払いは、作業が終わってからその場で。</b>
+          <p>現金をご用意いただく必要はありません。クレジット／デビットカード（Visa・Mastercard・JCB・American Express・Diners Club・Discover）、交通系IC・iD・QUICPay、PayPay・d払い・楽天ペイ・au PAY・メルペイがご利用いただけます。前払い・事前の振込はありません。</p>
         </div>
 
         <a class="btn lg" href="#form">この内容で予約に進む</a>
@@ -1108,6 +1128,85 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     var clean = function(v, n){ return (v || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, n); };
     var src = clean(q.get('src'), 20) || 'direct';
     var cid = clean(q.get('cid'), 20);
+
+    /* Google広告のクリックID。成果を広告に結びつけるのに要る。
+       申し込みは来訪と同じ日とは限らないので、URLから拾って localStorage に持たせ、
+       あとで申し込まれたときにフォームへ載せる（Googleの計測可能期間に合わせて90日）。
+       gclid が付かない経路（iOSアプリ内など）では wbraid / gbraid が来るので同じ扱いにする。 */
+    var GCLID_KAGI = 'oh_gclid';
+    var GCLID_HI = 90 * 24 * 60 * 60 * 1000;
+    var gclid = clean(q.get('gclid'), 120) || clean(q.get('wbraid'), 120) || clean(q.get('gbraid'), 120);
+    try {
+      if (gclid) {
+        localStorage.setItem(GCLID_KAGI, JSON.stringify({ v: gclid, t: Date.now() }));
+      } else {
+        var nokori = JSON.parse(localStorage.getItem(GCLID_KAGI) || 'null');
+        if (nokori && nokori.v && (Date.now() - nokori.t) < GCLID_HI) {
+          gclid = nokori.v;                       // 前回のクリックを引き継ぐ
+        } else if (nokori) {
+          localStorage.removeItem(GCLID_KAGI);    // 90日を過ぎたものは消す
+        }
+      }
+    } catch (e) { /* プライベートモード等で localStorage が使えないことがある */ }
+    /* 隠し欄そのものは build-site.py（計測担当の実装）が入れて、送信時に値を詰める。
+       ここで拾った gclid は、下の「別ホストへの引き継ぎ」で使う。 */
+
+    /* 別ホストへの導線に、流入の情報を引き継がせる。
+       予約フォームは yoyaku.onehitter.jp で、このLPとは別ホスト。
+       localStorage はホストをまたいで共有されないので、
+       リンクを踏んだ時点でURLに載せないと、向こうでは「流入元＝空」になる。
+       （2026-09-14 CMOの指摘。予約フォーム側は保存の実装済み）
+
+       いまのところLPから予約フォームへのリンクは1本も無い。
+       あとで足したときに黙って切れるのを防ぐために入れてある。
+
+       ★読み込み時に一括で書き換える作りにすると、このスクリプトより後ろに
+         置かれたリンクや、あとからJSで足したリンクに効かない（実際に効かなかった）。
+         押された瞬間に書き換えるので、どこにどう足されても効く。 */
+    var BESSITE = /(^|\.)onehitter-yoyaku\.netlify\.app$|(^|\.)yoyaku\.onehitter\.jp$|(^|\.)one-hitter-booking\.netlify\.app$/;
+    document.addEventListener('click', function (ev) {
+      var a = ev.target && ev.target.closest ? ev.target.closest('a[href]') : null;
+      if (!a) return;
+      var u;
+      try { u = new URL(a.href, location.href); } catch (e) { return; }
+      if (!BESSITE.test(u.hostname)) return;
+      var hikitsugu = { src: src, cid: cid, gclid: gclid };
+      Object.keys(hikitsugu).forEach(function (k) {
+        // すでにURLに書いてあるものは、書いた人の意図を優先して上書きしない
+        if (hikitsugu[k] && !u.searchParams.has(k)) u.searchParams.set(k, hikitsugu[k]);
+      });
+      a.href = u.toString();
+    }, true);
+
+    /* 検索広告・SNS広告から来た方は、当社をはじめて見る方が多い。
+       「前から知っている人向け」の書き方だと伝わらないので、
+       はじめての方に必要な情報（見積り無料・追加請求なし・断れる）に差し替える。
+       電話は1画面目に出す。ハウスクリーニングは電話で決める方が多い。
+       既存客が来る src（sms・qr 等）の画面は変えない。 */
+    var KOUKOKU = ['gads', 'ig', 'fb', 'gbp'];
+    if (KOUKOKU.indexOf(src) !== -1) {
+      var sashikae = function (id, html) {
+        var el = document.getElementById(id);
+        if (el) el.innerHTML = html;
+      };
+      sashikae('hero-area', '✓ 東京・千葉・神奈川／はじめての方も歓迎');
+      sashikae('hero-sub',  'キッチン、浴室、レンジフード、洗濯機、追い焚き配管。1箇所ずつ頼むより、同時施工のほうが1箇所あたり3,300円おトク（コンロは4,730円）です。<b>お見積りは無料で、見積り以上の追加請求は一切ありません。</b>どこを頼むか決まっていなくても、下の料金シミュレーターで目安が出ます。');
+      sashikae('hero-perk', 'はじめての方でも、<b>お見積りは無料</b>です。金額にご納得いただいてから作業に入りますので、その場でお断りいただいても構いません。');
+      /* 電話は1画面目に入れる。CTAの塊は価格・実績の下にあるので、
+         広告流入のときだけ電話ボタンを本文の直後へ引き上げる。
+         スマホの1画面（およそ700px）に収めるのが狙い。 */
+      /* 電話は1画面目に入れる。ただし下部の追従バーが画面の下1/5を覆うので、
+         「本文の直後」だと実際にはバーの裏に隠れてしまう（実測で確認）。
+         エリア表示の直後＝見出しの上に置くと、写真の下にすぐ出て確実に見える。
+         広告で来た方は見出しを読む前に電話したい層も多いので、順番として妥当。 */
+      var tel = document.getElementById('hero-tel');
+      var area = document.getElementById('hero-area');
+      if (tel && area && area.parentNode) {
+        tel.hidden = false;
+        tel.classList.add('tel-cta-ue');
+        area.parentNode.insertBefore(tel, area.nextSibling);
+      }
+    }
     var es = document.getElementById('h-src'); if (es) es.value = src;
     var ec = document.getElementById('h-cid'); if (ec) ec.value = cid;
   })();
@@ -1148,12 +1247,22 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
   // Metaの標準イベント名への読み替え
   var META_MAP = { generate_lead: 'Lead', phone_click: 'Contact', line_click: 'Contact' };
 
+  // 流入元（?src= / ?cid=）。QR・SMS・施設カードなど、どこから来たかの目印。
+  // head 側の gtag('config') にも同じ値を載せてあるので page_view にも付くが、
+  // 個々のイベントにも付けておくと、GA4で「この施設からの電話クリック」まで割れる。
+  var Q = null;
+  try { Q = new URLSearchParams(location.search); } catch (e) { Q = null; }
+  var SRC = (Q && Q.get('src')) || 'direct';
+  var CID = (Q && Q.get('cid')) || '';
+
   function send(name, params) {
     var p = params || {};
     // どのLPのどのパターンかは、全イベントに必ず付ける
     p.lp_id = PAGE.lp_id;
     p.lp_variant = PAGE.lp_variant;
     p.page_kind = PAGE.kind;
+    p.traffic_src = SRC;
+    if (CID) p.traffic_cid = CID;
 
     log(name, p);
 
@@ -1497,6 +1606,9 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
 
   log('計測スクリプト読み込み完了', PAGE, 'gtag=' + (typeof window.gtag === 'function'));
 })();
-</script>
+</script><script>(function(){function mkid(){var d=new Date();var p=function(n){return(n<10?'0':'')+n;};var r='';var c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';for(var i=0;i<4;i++){r+=c.charAt(Math.floor(Math.random()*c.length));}return 'OH-'+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-mizumawari-'+r;}
+var Q;try{Q=new URLSearchParams(location.search);}catch(e){Q=null;}var g=Q&&(Q.get('gclid')||Q.get('wbraid')||Q.get('gbraid'))||'';try{if(g){localStorage.setItem('oh_gclid',JSON.stringify({v:g,t:Date.now()}));}}catch(e){}
+function gclid(){try{var o=JSON.parse(localStorage.getItem('oh_gclid')||'null');if(!o||!o.v)return '';if(Date.now()-o.t>7776000000){localStorage.removeItem('oh_gclid');return '';}return o.v;}catch(e){return '';}}
+var f=document.querySelector('form.form');if(!f)return;f.addEventListener('submit',function(){var id=mkid();var h=f.querySelector('input[name="order_id"]');if(h){h.value=id;}var gh=f.querySelector('input[name="gclid"]');if(gh){gh.value=gclid();}try{sessionStorage.setItem('oh_order_id',id);}catch(e){}},true);})();</script><!-- ONE HITTER 計測タグ --><script>(function(){var cb=function(){};var s=document.createElement('script');s.type='text/javascript';s.src='https://www.rentracks.jp/js/itp/rt.track.js?t='+(new Date()).getTime();if(s.readyState){s.onreadystatechange=function(){if(s.readyState==='loaded'||s.readyState==='complete'){s.onreadystatechange=null;cb();}};}else{s.onload=function(){cb();};}document.getElementsByTagName('head')[0].appendChild(s);})();</script>
 </body>
 </html>

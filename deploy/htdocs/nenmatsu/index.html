@@ -7,13 +7,13 @@
 <meta name="description" content="12月は繁忙期料金として1箇所につき3,300円が加算されます。11月30日までのご予約なら通常価格。レンジフード＋浴室で33,660円（税込）、半日で完了。東京・千葉・神奈川、自社施工。">
 
 <meta name="robots" content="noindex,follow">
-<link rel="canonical" href="https://lp.one-hitter.jp/nenmatsu/">
+<link rel="canonical" href="https://lp.onehitter.jp/nenmatsu/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="ワンヒッター株式会社">
 <meta property="og:title" content="年末大掃除 11月までなら通常価格｜レンジフード・浴室・キッチン｜ONE HITTER">
 <meta property="og:description" content="12月は繁忙期料金として1箇所につき3,300円が加算されます。11月30日までのご予約なら通常価格。レンジフード＋浴室で33,660円（税込）、半日で完了。東京・千葉・神奈川、自社施工。">
-<meta property="og:url" content="https://lp.one-hitter.jp/nenmatsu/">
-<meta property="og:image" content="https://lp.one-hitter.jp/nenmatsu/img/og.jpg">
+<meta property="og:url" content="https://lp.onehitter.jp/nenmatsu/">
+<meta property="og:image" content="https://lp.onehitter.jp/nenmatsu/img/og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="ja_JP">
@@ -22,13 +22,17 @@
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-<script>window.OH_M={"page":{"kind":"lp","lp_id":"nenmatsu","lp_variant":"A"},"google_ads":{"conversion_id":"","labels":{"generate_lead":"","phone_click":"","line_click":""},"phone_conversion_label":""},"debug":false};</script>
+<!-- ONE HITTER 計測タグ -->
+<script>window.OH_M={"page":{"kind":"lp","lp_id":"nenmatsu","lp_variant":"A"},"google_ads":{"conversion_id":"AW-18450975194","labels":{"generate_lead":"e-nVCPqV2PccENqTjt5E","phone_click":"2qAcCOiw3fccENqTjt5E","line_click":""},"phone_conversion_label":""},"debug":false};</script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-DLJCTKGTDN"></script>
 <script>
 window.dataLayer=window.dataLayer||[];
 function gtag(){dataLayer.push(arguments);}
 gtag('js',new Date());
-gtag('config','G-DLJCTKGTDN',{'lp_id':'nenmatsu','lp_variant':'A'});
+var oh_src=new URLSearchParams(location.search).get('src')||'direct';
+var oh_cid=new URLSearchParams(location.search).get('cid')||'';
+gtag('config','G-DLJCTKGTDN',{'lp_id':'nenmatsu','lp_variant':'A','traffic_src':oh_src,'traffic_cid':oh_cid});
+gtag('config','AW-18450975194');
 </script>
 </head>
 <body>
@@ -1224,6 +1228,55 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     var clean = function(v, n){ return (v || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, n); };
     var src = clean(q.get('src'), 20) || 'direct';
     var cid = clean(q.get('cid'), 20);
+
+    /* Google広告のクリックID。成果を広告に結びつけるのに要る。
+       申し込みは来訪と同じ日とは限らないので、URLから拾って localStorage に持たせ、
+       あとで申し込まれたときにフォームへ載せる（Googleの計測可能期間に合わせて90日）。
+       gclid が付かない経路（iOSアプリ内など）では wbraid / gbraid が来るので同じ扱いにする。 */
+    var GCLID_KAGI = 'oh_gclid';
+    var GCLID_HI = 90 * 24 * 60 * 60 * 1000;
+    var gclid = clean(q.get('gclid'), 120) || clean(q.get('wbraid'), 120) || clean(q.get('gbraid'), 120);
+    try {
+      if (gclid) {
+        localStorage.setItem(GCLID_KAGI, JSON.stringify({ v: gclid, t: Date.now() }));
+      } else {
+        var nokori = JSON.parse(localStorage.getItem(GCLID_KAGI) || 'null');
+        if (nokori && nokori.v && (Date.now() - nokori.t) < GCLID_HI) {
+          gclid = nokori.v;                       // 前回のクリックを引き継ぐ
+        } else if (nokori) {
+          localStorage.removeItem(GCLID_KAGI);    // 90日を過ぎたものは消す
+        }
+      }
+    } catch (e) { /* プライベートモード等で localStorage が使えないことがある */ }
+    /* 隠し欄そのものは build-site.py（計測担当の実装）が入れて、送信時に値を詰める。
+       ここで拾った gclid は、下の「別ホストへの引き継ぎ」で使う。 */
+
+    /* 別ホストへの導線に、流入の情報を引き継がせる。
+       予約フォームは yoyaku.onehitter.jp で、このLPとは別ホスト。
+       localStorage はホストをまたいで共有されないので、
+       リンクを踏んだ時点でURLに載せないと、向こうでは「流入元＝空」になる。
+       （2026-09-14 CMOの指摘。予約フォーム側は保存の実装済み）
+
+       いまのところLPから予約フォームへのリンクは1本も無い。
+       あとで足したときに黙って切れるのを防ぐために入れてある。
+
+       ★読み込み時に一括で書き換える作りにすると、このスクリプトより後ろに
+         置かれたリンクや、あとからJSで足したリンクに効かない（実際に効かなかった）。
+         押された瞬間に書き換えるので、どこにどう足されても効く。 */
+    var BESSITE = /(^|\.)onehitter-yoyaku\.netlify\.app$|(^|\.)yoyaku\.onehitter\.jp$|(^|\.)one-hitter-booking\.netlify\.app$/;
+    document.addEventListener('click', function (ev) {
+      var a = ev.target && ev.target.closest ? ev.target.closest('a[href]') : null;
+      if (!a) return;
+      var u;
+      try { u = new URL(a.href, location.href); } catch (e) { return; }
+      if (!BESSITE.test(u.hostname)) return;
+      var hikitsugu = { src: src, cid: cid, gclid: gclid };
+      Object.keys(hikitsugu).forEach(function (k) {
+        // すでにURLに書いてあるものは、書いた人の意図を優先して上書きしない
+        if (hikitsugu[k] && !u.searchParams.has(k)) u.searchParams.set(k, hikitsugu[k]);
+      });
+      a.href = u.toString();
+    }, true);
     var es = document.getElementById('h-src'); if (es) es.value = src;
     var ec = document.getElementById('h-cid'); if (ec) ec.value = cid;
   })();
@@ -1264,12 +1317,22 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
   // Metaの標準イベント名への読み替え
   var META_MAP = { generate_lead: 'Lead', phone_click: 'Contact', line_click: 'Contact' };
 
+  // 流入元（?src= / ?cid=）。QR・SMS・施設カードなど、どこから来たかの目印。
+  // head 側の gtag('config') にも同じ値を載せてあるので page_view にも付くが、
+  // 個々のイベントにも付けておくと、GA4で「この施設からの電話クリック」まで割れる。
+  var Q = null;
+  try { Q = new URLSearchParams(location.search); } catch (e) { Q = null; }
+  var SRC = (Q && Q.get('src')) || 'direct';
+  var CID = (Q && Q.get('cid')) || '';
+
   function send(name, params) {
     var p = params || {};
     // どのLPのどのパターンかは、全イベントに必ず付ける
     p.lp_id = PAGE.lp_id;
     p.lp_variant = PAGE.lp_variant;
     p.page_kind = PAGE.kind;
+    p.traffic_src = SRC;
+    if (CID) p.traffic_cid = CID;
 
     log(name, p);
 
@@ -1613,6 +1676,9 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
 
   log('計測スクリプト読み込み完了', PAGE, 'gtag=' + (typeof window.gtag === 'function'));
 })();
-</script>
+</script><script>(function(){function mkid(){var d=new Date();var p=function(n){return(n<10?'0':'')+n;};var r='';var c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';for(var i=0;i<4;i++){r+=c.charAt(Math.floor(Math.random()*c.length));}return 'OH-'+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-nenmatsu-'+r;}
+var Q;try{Q=new URLSearchParams(location.search);}catch(e){Q=null;}var g=Q&&(Q.get('gclid')||Q.get('wbraid')||Q.get('gbraid'))||'';try{if(g){localStorage.setItem('oh_gclid',JSON.stringify({v:g,t:Date.now()}));}}catch(e){}
+function gclid(){try{var o=JSON.parse(localStorage.getItem('oh_gclid')||'null');if(!o||!o.v)return '';if(Date.now()-o.t>7776000000){localStorage.removeItem('oh_gclid');return '';}return o.v;}catch(e){return '';}}
+var f=document.querySelector('form.form');if(!f)return;f.addEventListener('submit',function(){var id=mkid();var h=f.querySelector('input[name="order_id"]');if(h){h.value=id;}var gh=f.querySelector('input[name="gclid"]');if(gh){gh.value=gclid();}try{sessionStorage.setItem('oh_order_id',id);}catch(e){}},true);})();</script>
 </body>
 </html>
