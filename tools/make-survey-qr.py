@@ -25,7 +25,10 @@ import urllib.parse
 import segno
 
 # ---- ここだけ書き換える -------------------------------------------------
-SURVEY_BASE = "https://one-hitter-survey.netlify.app/"
+# 独自ドメインを使う。中身は netlify.app 側とバイト単位で同一で（2026-09-17 実測）、
+# すでに配ったQR（netlify.app 宛）もそのまま動く。
+# 刷り物に出る文字列なので、お客様が見て当社のものだと分かるほうを選ぶ。
+SURVEY_BASE = "https://survey.onehitter.jp/"
 # ------------------------------------------------------------------------
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
