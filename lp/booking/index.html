@@ -257,11 +257,18 @@ footer a{color:var(--invert-ink);}
 .hikae .ln .v{text-align:right;font-weight:600;word-break:break-all}
 .hikae-memo{margin:.8rem 0 .9rem;font-size:.85rem}
 
-/* 支払方法。送信ボタンの直前に置く（金額を見たあとの「現金がいるのか」に答える） */
-.oshiharai{background:var(--accent-soft);border:1px solid var(--line);border-radius:10px;
-  padding:13px 14px;display:flex;flex-direction:column;gap:5px;}
-.oshiharai b{display:block;font-size:13.5px;line-height:1.7;color:var(--ink);text-wrap:balance;}
-.oshiharai p{margin:0;font-size:12px;color:var(--ink-soft);line-height:1.85;}
+/* 押す直前の不安に、その順番どおりに答える4行。
+   「お金を取られるか → 決まってしまうか → やめられるか → 払えるか」。
+   並び順に意味があるので入れ替えないこと。
+   2行目・3行目と同じ内容が完了画面（#done-first と「ご変更・キャンセル」）にもある。
+   重複ではなく意図で、どちらも消さないこと（押す前の人は完了画面を読めない）。 */
+.anshin{margin:0;padding:14px 15px;list-style:none;background:var(--accent-soft);
+  border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;gap:9px;}
+.anshin li{position:relative;padding-left:21px;display:flex;flex-direction:column;gap:3px;}
+.anshin li::before{content:"✓";position:absolute;left:0;top:0;color:var(--accent);
+  font-weight:700;font-size:13px;line-height:1.75;}
+.anshin b{font-size:13.5px;line-height:1.75;color:var(--ink);}
+.anshin small{font-size:11.5px;color:var(--ink-soft);line-height:1.85;}
 
 </style>
 <!-- ONE HITTER 計測タグ -->
@@ -381,10 +388,12 @@ gtag('config','AW-18450975194');
       </div>
       <dl class="kakunin" id="kakunin"></dl>
       <div class="total" id="total2"></div>
-      <div class="oshiharai">
-        <b>お支払いは、作業が終わってからその場で。</b>
-        <p>現金をご用意いただく必要はありません。クレジット／デビットカード（Visa・Mastercard・JCB・American Express・Diners Club・Discover）、交通系IC・iD・QUICPay、PayPay・d払い・楽天ペイ・au PAY・メルペイがご利用いただけます。前払い・事前の振込はありません。</p>
-      </div>
+      <ul class="anshin">
+        <li><b>ご予約の時点で、費用は発生しません。</b><small>前払いも、事前の振込もありません。</small></li>
+        <li><b>はじめての方には、お電話で作業内容と料金をご説明してから確定します。</b></li>
+        <li><b>前日までにご連絡いただければ、キャンセル料はかかりません。</b></li>
+        <li><b>お支払いは、作業が終わってからその場で。</b><small>現金をご用意いただく必要はありません。各種クレジット／デビットカード、交通系IC・iD・QUICPay、PayPay・d払い・楽天ペイ・au PAY・メルペイがお使いいただけます。</small></li>
+      </ul>
       <p class="err" id="e4"></p>
       <div class="nav">
         <button class="btn ghost" data-back="3">もどる</button>
