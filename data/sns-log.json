@@ -81,5 +81,25 @@
     "media_ids": [
       "28610301858657874"
     ]
+  },
+  {
+    "id": "w01-4",
+    "platform": "instagram",
+    "posted_at": "2026-09-17T09:04:29+09:00",
+    "permalink": "https://www.instagram.com/p/DdXh8u3lDRo/",
+    "post_id": "18087527408450686",
+    "media_ids": [
+      "18087527408450686"
+    ]
+  },
+  {
+    "id": "w01-4",
+    "platform": "facebook",
+    "posted_at": "2026-09-17T09:04:36+09:00",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1105191458963871",
+    "post_id": "103698149101436_1105191458963871",
+    "media_ids": [
+      "1105191442297206"
+    ]
   }
 ]
