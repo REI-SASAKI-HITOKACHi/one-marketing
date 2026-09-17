@@ -31,7 +31,13 @@ def tenken(src):
     if not re.search(r'href="[^"]*(privacy|policy)[^"]*"', h) and not re.search(r'個人情報の取扱い|プライバシーポリシー', text):
         ng.append('個人情報の取扱い／プライバシーポリシーへのリンクが無い')
     if re.search(r"['\"]sms:|location\.href\s*=\s*['\"]?sms", h): ng.append('sms: を組み立てるスクリプトが同居している（送信ツールは社内用ホストへ）')
-    if re.search(r'type="password"|クレジットカード|card ?number', h, re.I): ng.append('パスワード／カード番号の入力欄がある')
+    # ★見るのは「入力欄があるか」。語が出てくるだけでNGにしない。
+    #   特商法の表記は支払方法として「クレジットカード」に触れる必要があり、
+    #   語で弾くと、載せなければならないページが配信できない（2026-09-17 実際に弾かれた）。
+    if re.search(r'type="password"', h, re.I) \
+       or re.search(r'<input[^>]*(card[_-]?number|カード番号|セキュリティコード|cvv|cvc)', h, re.I) \
+       or re.search(r'(name|id|placeholder)\s*=\s*["\'][^"\']*(card[_-]?number|カード番号)', h, re.I):
+        ng.append('パスワード／カード番号の入力欄がある')
     if re.search(r'prefers-color-scheme\s*:\s*dark|data-theme="dark"', h): ng.append('ダークモード対応が入っている（お客様のページは常に白地。2026-09-12 オーナー指示）')
     return ng
 
