@@ -136,18 +136,21 @@ TSUIKA_CSS = """
 .hikae .ln .v{text-align:right;font-weight:600;word-break:break-all}
 .hikae-memo{margin:.8rem 0 .9rem;font-size:.85rem}
 
-/* 押す直前の不安に、その順番どおりに答える4行。
-   「お金を取られるか → 決まってしまうか → やめられるか → 払えるか」。
-   並び順に意味があるので入れ替えないこと。
-   2行目・3行目と同じ内容が完了画面（#done-first と「ご変更・キャンセル」）にもある。
-   重複ではなく意図で、どちらも消さないこと（押す前の人は完了画面を読めない）。 */
+/* 押す直前の不安に答える2行。中身は4つある。
+     1行目＝押す前の不安（お金を取られるか／決まってしまうか）
+     2行目＝押した後の条件（やめられるか／払えるか）
+   この順番と、4つの中身は減らさないこと。どれが効くかは測るまで分からない。
+   同じ内容が完了画面（#done-first と「ご変更・キャンセル」）にもあるが、
+   重複ではなく意図。押す前の人は完了画面を読めないので、どちらも消さないこと。
+   ⚠️ 読ませたい文なので、詰めたくなっても font-size は下げないこと
+      （小さくすると無いのと同じ。2026-09-17 CMO指示）。 */
 .anshin{margin:0;padding:14px 15px;list-style:none;background:var(--accent-soft);
-  border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;gap:9px;}
-.anshin li{position:relative;padding-left:21px;display:flex;flex-direction:column;gap:3px;}
+  border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;gap:11px;}
+.anshin li{position:relative;padding-left:21px;font-size:13px;line-height:1.85;
+  color:var(--ink-soft);}
 .anshin li::before{content:"✓";position:absolute;left:0;top:0;color:var(--accent);
-  font-weight:700;font-size:13px;line-height:1.75;}
-.anshin b{font-size:13.5px;line-height:1.75;color:var(--ink);}
-.anshin small{font-size:11.5px;color:var(--ink-soft);line-height:1.85;}
+  font-weight:700;font-size:13px;line-height:1.85;}
+.anshin b{font-size:13.5px;color:var(--ink);}
 """
 
 
@@ -322,10 +325,8 @@ TEMPLATE = r"""<!doctype html>
       <dl class="kakunin" id="kakunin"></dl>
       <div class="total" id="total2"></div>
       <ul class="anshin">
-        <li><b>ご予約の時点で、費用は発生しません。</b><small>前払いも、事前の振込もありません。</small></li>
-        <li><b>はじめての方には、お電話で作業内容と料金をご説明してから確定します。</b></li>
-        <li><b>前日までにご連絡いただければ、キャンセル料はかかりません。</b></li>
-        <li><b>お支払いは、作業が終わってからその場で。</b><small>現金をご用意いただく必要はありません。各種クレジット／デビットカード、交通系IC・iD・QUICPay、PayPay・d払い・楽天ペイ・au PAY・メルペイがお使いいただけます。</small></li>
+        <li><b>ご予約の時点で、費用は発生しません。</b>前払いも事前の振込もありません。はじめての方には、お電話で作業内容と料金をご説明してから確定します。</li>
+        <li><b>前日までのご連絡なら、キャンセル料はかかりません。</b>お支払いは作業が終わってからその場で。現金をご用意いただく必要はなく、各種クレジット／デビットカード、交通系IC・iD・QUICPay、PayPay・d払い・楽天ペイ・au PAY・メルペイがお使いいただけます。</li>
       </ul>
       <p class="err" id="e4"></p>
       <div class="nav">
