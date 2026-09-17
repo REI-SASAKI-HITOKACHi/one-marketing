@@ -438,6 +438,10 @@ NOT_FIT_RE = re.compile(r"リサイクル|ランドセル|学習塾|写真館|�
 NO_STORE_RE = re.compile(r"サブスク|定額制?レンタル|通販|オンラインストア|オンラインショップ|ネットショップ|"
                          r"ネット通販|ECサイト|お取り寄せ|宅配専門|無店舗", re.I)
 NOT_DOGCAT_RE = re.compile(r"熱帯魚|アクア|サンマリン|ディスカス|金魚|メダカ|水族|昆虫|爬虫|は虫|カブト|クワガタ|小鳥|バード|インコ|オウム|金魚|めだか|レプタイル|リクガメ")
+# 名前では分からない店を、ページの中身で見分ける（2026-09-16）。業態そのものを表す言葉だけを並べる。
+# 2種類以上そろったときだけ対象外にする（fill_form で判定）
+NOT_DOGCAT_SITE_RE = re.compile(r"水草|観賞魚|熱帯魚|アクアリウム|水槽レンタル|水槽設置|水槽メンテナンス|生体販売|生き物調達|"
+                                r"飼育相談|サンゴ|海水魚|爬虫類|両生類|昆虫販売|クワガタ|カブトムシ")
 
 
 CONTACT_LINK_RE = re.compile(r"(問い?合わ?せ|問合せ|お問合わせ|contact|inquiry|mail ?form|メールフォーム)", re.I)
@@ -555,8 +559,15 @@ async def fill_form(pg, url: str, text: str, email_from: str, subject: str, hop:
             break
         except Exception:
             await pg.wait_for_timeout(1500)
-    if NO_SALES_RE.search(re.sub(r"<[^>]+>", " ", html)):
+    plain = re.sub(r"<[^>]+>", " ", html)
+    if NO_SALES_RE.search(plain):
         return {"ok": False, "reason": "営業お断り・患者専用の記載"}
+    # 犬猫以外を扱う店を、名前ではなくページの中身で見分ける（2026-09-16）。
+    # 「エイチ・ツー豊洲店」は名前からは分からないが、ページは「水草レイアウト水槽の設置」「生き物調達」
+    # 「飼育相談」で、犬猫を迎えるご家庭向けの読本とは相手が違う。NOT_DOGCAT_RE は名前しか見ていない。
+    # 言葉が2種類以上そろったときだけ外す（トリミングサロンが熱帯魚に触れているだけ、を誤って外さないため）
+    if len({m for m in NOT_DOGCAT_SITE_RE.findall(plain)}) >= 2:
+        return {"ok": False, "reason": "犬猫以外を扱う店（ページの中身で判定）"}
     # 画像認証・reCAPTCHA v2（チェック式）は機械では通せない → 人（ブラウザ担当）に回す。v3（invisible）はそのまま送れる
     # reCAPTCHA は見える版（チェック式）も見えない版も、こちらでトークンを作れないのでサーバーに弾かれる。
     # g-recaptcha-response の欄があれば、その時点で人に回す（2026-09-14：オリンピック系のフォームで判明）
