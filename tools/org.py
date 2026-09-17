@@ -125,11 +125,17 @@ def osu(mes='掲示板を更新'):
 
 
 def honbun(a):
-    if a.本文:
-        return a.本文
-    if sys.stdin.isatty():
-        sys.exit('本文がありません。標準入力で渡すか --本文 を使ってください。')
-    return sys.stdin.read()
+    # 空の本文で既存の中身を上書きしてしまう事故が2回起きた（crm 9/11・web-inflow 9/17）。
+    # 端末でない実行環境では stdin がすぐ空で返るので、isatty だけでは防げない。
+    # 中身が空なら、書かずに止める。
+    t = a.本文 if a.本文 else ('' if sys.stdin.isatty() else sys.stdin.read())
+    if not t.strip():
+        sys.exit(
+            '本文が空です。何も書き換えていません。\n'
+            '  標準入力で渡す: echo "本文" | python3 tools/org.py ...\n'
+            '  引数で渡す:     python3 tools/org.py ... --本文 "本文"\n'
+            '  いまの現況を読むだけなら: python3 tools/org.py 現況一覧')
+    return t
 
 
 def ima():
