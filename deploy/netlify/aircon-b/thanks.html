@@ -63,8 +63,10 @@ footer a{color:var(--invert-ink);}
 window.dataLayer=window.dataLayer||[];
 function gtag(){dataLayer.push(arguments);}
 gtag('js',new Date());
-var oh_src=new URLSearchParams(location.search).get('src')||'direct';
-var oh_cid=new URLSearchParams(location.search).get('cid')||'';
+function oh_clean(v,n){return (v||'').replace(/[^A-Za-z0-9_-]/g,'').slice(0,n);}
+var oh_q=new URLSearchParams(location.search);
+var oh_src=oh_clean(oh_q.get('src'),20)||'direct';
+var oh_cid=oh_clean(oh_q.get('cid'),40);
 gtag('config','G-DLJCTKGTDN',{'lp_id':'aircon','lp_variant':'B','traffic_src':oh_src,'traffic_cid':oh_cid});
 gtag('config','AW-18450975194');
 </script>

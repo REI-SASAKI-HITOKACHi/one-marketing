@@ -250,8 +250,16 @@ def tracking_head(cfg: dict, page: dict, tel: str = "") -> str:
                  # これが無いと「どのQR・どの施設・どのSMSから来たか」を
                  # GA4のレポートで分解できない。フォームの hidden 欄は
                  # 送信した人の分しか残らないので、閲覧数は取れない。
-                 "var oh_src=new URLSearchParams(location.search).get('src')||'direct';",
-                 "var oh_cid=new URLSearchParams(location.search).get('cid')||'';"]
+                 # ⚠️ フォームの hidden 欄と**まったく同じ削り方**をすること。
+                 #    片方だけ生の値にすると、GA4 と Netlify Forms で
+                 #    同じ訪問が違う名前になり、突き合わせられなくなる。
+                 #    （英数字と _ - だけ／20文字まで。規約は
+                 #      docs/流入の見分け方-src規約.md）
+                 "function oh_clean(v,n){return (v||'')"
+                 ".replace(/[^A-Za-z0-9_-]/g,'').slice(0,n);}",
+                 "var oh_q=new URLSearchParams(location.search);",
+                 "var oh_src=oh_clean(oh_q.get('src'),20)||'direct';",
+                 "var oh_cid=oh_clean(oh_q.get('cid'),40);"]
         if ga4:
             lines.append("gtag('config','%s',{'lp_id':'%s','lp_variant':'%s',"
                          "'traffic_src':oh_src,'traffic_cid':oh_cid});"

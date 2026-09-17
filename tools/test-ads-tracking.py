@@ -235,6 +235,38 @@ with sync_playwright() as pw:
     chk("アンケートからは広告のコンバージョンを撃たない", conversions(pg) == [], conversions(pg))
     c.close()
 
+    # --- 10. GA4 の traffic_src と、フォームの hidden 欄 src が一致するか ---
+    #
+    # 片方だけ生の値にしていると、**同じ訪問が GA4 と Netlify Forms で
+    # 違う名前になり、突き合わせられなくなる**。
+    # 規約は docs/流入の見分け方-src規約.md（英数字と _ - だけ／20文字まで）。
+    from urllib.parse import quote
+    for given in ("gads_mizumawari", "gads_aircon", "gads_brand",
+                  "日本語", "a" * 30, "gads mizu!"):
+        c = ctx()
+        pg = c.new_page()
+        pg.goto(f"{BASE}/mizumawari/index.html?src={quote(given)}")
+        pg.wait_for_timeout(250)
+        cfg = pg.evaluate(
+            "(function(){var o=null,L=window.dataLayer||[];for(var i=0;i<L.length;i++){"
+            "var a=L[i];if(a&&a[0]==='config'&&a[2]&&a[2].traffic_src!==undefined)o=a[2];}"
+            "return o;})()")
+        ga4 = (cfg or {}).get("traffic_src")
+        hid = pg.evaluate(
+            "(function(){var e=document.querySelector('input[name=src]');"
+            "return e?e.value:null;})()")
+        if hid is None:
+            # このブランチの lp/ には hidden 欄がまだ無い（LP担当のブランチが正）。
+            # 片側しか見られないので、GA4側が規約どおり削られているかだけ見る。
+            import re as _re
+            kitai = (_re.sub(r"[^A-Za-z0-9_-]", "", given)[:20]) or "direct"
+            chk(f"?src={given[:16]!r} GA4側が規約どおり削られる", ga4 == kitai,
+                f"GA4={ga4!r} 期待={kitai!r}")
+        else:
+            chk(f"?src={given[:16]!r} で GA4 とフォームが同じ値になる", ga4 == hid,
+                f"GA4={ga4!r} フォーム={hid!r}")
+        c.close()
+
     b.close()
 
 _httpd.shutdown()
