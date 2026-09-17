@@ -139,7 +139,9 @@ def main() -> None:
     else:
         print("| 経過 | 自動承認まで | 発生日 | 注文ID（備考） | 報酬 |")
         print("|---:|---:|---|---|---:|")
-        for keika, hi, r in sorted(taishou, reverse=True):
+        # 経過日数だけで並べる。同じ日の成果が複数あると、
+        # 3つ目の要素（行の dict）まで比べにいって落ちる
+        for keika, hi, r in sorted(taishou, key=lambda x: -x[0]):
             nokori = KIGEN - keika
             bikou = (r.get(col["bikou"]) or "").strip() if col["bikou"] else ""
             hou = (r.get(col["houshuu"]) or "").strip() if col["houshuu"] else ""
