@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>ご実家のおそうじを、贈れます｜ワンヒッター株式会社</title>
+<meta name="description" content="年末、実家に帰る前に。親の家をプロが洗います。日程は贈ったあなたが決められます。東京・千葉・神奈川。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho+B1:wght@600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0D3B5C; --ink-2:#14506F;
+  --paper:#F3F7F9; --paper-2:#E6EDF1;
+  --surface:#FFFFFF;
+  --text:#13232E; --text-2:#3C5262;
+  --steel:#536A78;
+  --rule:#D7E1E7; --rule-2:#B4C5D0;
+  --cta:#C0300C; --cta-deep:#8F2408; --cta-fill:#B72C0A; --cta-fill-h:#8F2408;
+  --cta-soft:#FCEAE4; --cta-ink:#FFB894;
+  --aqua:#0C6B7F; --aqua-soft:#DDEDF1; --aqua-fill:#0C5F6B;
+  --on-ink:#EDF4F8; --on-ink-2:#A8C2D2;
+  --ok:#1B6B4F;
+  /* お客様が開くページ。ライト基調で固定（2026-09-06 オーナー判断／ダーク反転の事故の再発防止） */
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--text);
+  font-family:"Noto Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:16px;line-height:1.85;-webkit-text-size-adjust:100%}
+.wrap{width:min(720px,100% - 32px);margin-inline:auto}
+h1,h2,h3{line-height:1.5;margin:0}
+p{margin:0 0 1em}
+a{color:var(--aqua)}
+
+/* ── ファーストビュー ───────────────────────── */
+.fv{background:var(--ink);color:var(--on-ink);padding:44px 0 36px}
+.fv .lead{font-size:14px;color:var(--on-ink-2);letter-spacing:.04em;margin-bottom:10px}
+.fv h1{font-family:"Shippori Mincho B1","Yu Mincho",serif;font-size:31px;letter-spacing:.01em}
+.fv h1 .em{color:var(--cta-ink)}
+.fv .sub{margin-top:18px;font-size:16px;color:var(--on-ink)}
+.fv .area{margin-top:20px;padding:11px 14px;border:1px solid rgba(255,255,255,.28);
+  border-radius:8px;font-size:14px;color:var(--on-ink-2)}
+.fv .area b{color:var(--on-ink)}
+
+/* ── 共通 ───────────────────────────────── */
+section{padding:40px 0}
+section.alt{background:var(--surface)}
+h2{font-family:"Shippori Mincho B1","Yu Mincho",serif;font-size:23px;color:var(--ink);
+  margin-bottom:8px}
+.h2sub{color:var(--steel);font-size:14px;margin-bottom:22px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:20px 18px}
+section.alt .card{background:var(--paper)}
+.card + .card{margin-top:14px}
+.card h3{font-size:17px;color:var(--ink);margin-bottom:6px}
+.note{font-size:13px;color:var(--steel);line-height:1.8}
+.hr{height:1px;background:var(--rule);margin:26px 0}
+
+/* ── 体制（誰が伺うのか） ────────────────────── */
+.taisei li{margin-bottom:14px}
+.taisei b{color:var(--ink)}
+
+/* ── 郵便番号 ────────────────────────────── */
+.zip{background:var(--aqua-soft);border:1px solid var(--rule-2);border-radius:12px;padding:22px 18px}
+.zip label{display:block;font-weight:700;color:var(--ink);margin-bottom:8px}
+.zip .row{display:flex;gap:10px;flex-wrap:wrap}
+.zip input{flex:1 1 180px;min-width:0;font:inherit;padding:13px 14px;
+  border:1px solid var(--rule-2);border-radius:8px;background:#fff;color:var(--text)}
+.zip button{flex:0 0 auto;font:inherit;font-weight:700;padding:13px 22px;border:0;border-radius:8px;
+  background:var(--aqua-fill);color:#fff;cursor:pointer}
+.zip button:hover{background:var(--ink)}
+.zip .hint{font-size:13px;color:var(--steel);margin-top:10px}
+#zipOut{margin-top:16px}
+.ok{background:#E8F3EE;border:1px solid #9CC9B6;color:#124C39;border-radius:8px;padding:14px 16px}
+.ng{background:var(--paper-2);border:1px solid var(--rule-2);color:var(--text-2);border-radius:8px;padding:14px 16px}
+
+/* ── メニュー ────────────────────────────── */
+#menu[hidden]{display:none}
+.menu{display:grid;gap:14px}
+.plan{border:1px solid var(--rule);border-radius:12px;background:var(--surface);padding:18px;position:relative}
+.plan.reco{border:2px solid var(--cta);background:var(--cta-soft)}
+.plan .tag{position:absolute;top:-11px;left:16px;background:var(--cta-fill);color:#fff;
+  font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px}
+.plan .name{font-weight:700;color:var(--ink);font-size:17px}
+.plan .price{font-size:27px;font-weight:700;color:var(--cta);letter-spacing:-.01em;margin-top:4px}
+.plan .price span{font-size:14px;font-weight:400;color:var(--text-2);margin-left:4px}
+.plan .desc{font-size:14px;color:var(--text-2);margin-top:6px}
+.tsuika{margin-top:18px;background:var(--ink);color:var(--on-ink);border-radius:12px;padding:18px}
+.tsuika b{color:var(--cta-ink);font-size:17px}
+
+/* ── 流れ ───────────────────────────────── */
+ol.nagare{counter-reset:s;list-style:none;padding:0;margin:0}
+ol.nagare li{position:relative;padding-left:44px;margin-bottom:18px}
+ol.nagare li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:2px;
+  width:30px;height:30px;border-radius:50%;background:var(--aqua-fill);color:#fff;
+  display:grid;place-items:center;font-weight:700;font-size:14px}
+ol.nagare b{color:var(--ink)}
+
+/* ── 実績 ───────────────────────────────── */
+.jisseki{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center}
+.jisseki div{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px 8px}
+.jisseki .n{font-size:24px;font-weight:700;color:var(--ink);line-height:1.3}
+.jisseki .l{font-size:12px;color:var(--steel)}
+
+/* ── FAQ ───────────────────────────────── */
+details{border:1px solid var(--rule);border-radius:10px;background:var(--surface);padding:0;margin-bottom:10px}
+summary{cursor:pointer;padding:15px 16px;font-weight:700;color:var(--ink);list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"＋";float:right;color:var(--aqua)}
+details[open] summary::after{content:"−"}
+details .body{padding:0 16px 16px;color:var(--text-2);font-size:15px}
+
+/* ── フッター ────────────────────────────── */
+footer{background:var(--ink);color:var(--on-ink-2);padding:30px 0 40px;font-size:13px;line-height:1.9}
+footer b{color:var(--on-ink)}
+footer a{color:var(--on-ink)}
+
+.machi{background:#FFF6E5;border:1px solid #E0C48A;border-radius:8px;padding:12px 14px;
+  font-size:13px;color:#6B4E12;margin:14px 0}
+@media(max-width:480px){
+  .fv h1{font-size:26px}
+  .jisseki{grid-template-columns:1fr;text-align:left}
+  .jisseki div{display:flex;gap:10px;align-items:baseline}
+}
+</style>
+</head>
+<body>
+
+<!-- 1 ファーストビュー：情景＋立ち会える＋エリア -->
+<header class="fv">
+  <div class="wrap">
+    <p class="lead">ワンヒッター株式会社｜ハウスクリーニング</p>
+    <h1>年末、実家に帰る前に。<br><span class="em">親の家を、プロが洗います。</span></h1>
+    <p class="sub">
+      「もう脚立にのぼるのは危ないから」──<br>
+      そう言って、親が掃除をあきらめた場所が、実家にありませんか。
+    </p>
+    <p class="sub"><b>日程は、贈ったあなたが決められます。当日、ご一緒いただけます。</b></p>
+    <div class="area">
+      お伺いできるのは <b>東京都・千葉県・神奈川県</b> のご実家に限ります。<br>
+      ご実家の郵便番号で、先に確認できます。
+    </div>
+  </div>
+</header>
+
+<!-- 2 誰が伺うのか：不安1に答える。ここが最重要 -->
+<section class="alt">
+  <div class="wrap">
+    <h2>どういう人間が、伺うのか</h2>
+    <p class="h2sub">贈り物としていちばん気になるのは、値段よりここだと思います。</p>
+
+    <div class="card">
+      <ul class="taisei" style="margin:0;padding-left:1.1em">
+        <li><b>下請けには出しません。当社のスタッフが伺います。</b><br>
+          <span class="note">清掃業では、受けた会社と実際に作業する会社が違うことが珍しくありません。当社はそれをしていません。</span></li>
+        <li><b>当日になって誰が来るか分からない、ということがありません。</b><br>
+          <span class="note">伺う人間は決まっています。</span></li>
+        <li><b>作業日の前日に、確認のご連絡を差し上げます。</b><br>
+          <span class="note">突然インターホンが鳴る、ということにはなりません。</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>日程を決めるのは、贈ったあなたです</h3>
+      <p style="margin:0">
+        ご実家に伺う日を、あなたのご都合に合わせられます。<br>
+        <b>当日ご一緒いただけますし、難しければ、受け取る方だけでも承ります。</b>
+      </p>
+      <p class="note" style="margin:10px 0 0">
+        ご一緒いただけない場合は、作業の前後を写真でご報告します。
+      </p>
+    </div>
+
+    <p class="note" style="margin-top:16px">
+      運営：ワンヒッター株式会社（代表取締役 佐々木 沙樹）／〒134-0081 東京都江戸川区北葛西5-14-11 クオーディア西葛西503
+    </p>
+  </div>
+</section>
+
+<!-- 3 何をするのか -->
+<section>
+  <div class="wrap">
+    <h2>何をするのか</h2>
+    <p class="h2sub">家庭用の洗剤では落ちないところを、分解して洗います。</p>
+    <div class="card">
+      <p style="margin:0">
+        エアコンは分解して、ニオイの元になっている熱交換器の奥まで専用の機材で洗浄します。
+        浴室は、床や壁の黒ずみ、鏡のうろこ、エプロンの内側まで。
+        レンジフードはファンとフィルターを外して洗います。
+      </p>
+      <p class="note" style="margin:12px 0 0">
+        作業中は、汚れがどれだけ出たかをその場でお見せしています。
+      </p>
+    </div>
+    <div class="machi">【写真・確認待ち】施工写真（汚水・ビフォーアフター／顔の写っていない作業中の写真）をここに入れる。<code>assets/photos/</code> の実写のみ。素材写真は使わない。</div>
+  </div>
+</section>
+
+<!-- 4 郵便番号：価格より先。ここでエリア判定 -->
+<section class="alt">
+  <div class="wrap">
+    <h2>まず、ご実家の郵便番号を</h2>
+    <p class="h2sub">お伺いできる地域かを先に確認します。贈り主さまのご住所ではありません。</p>
+
+    <div class="zip">
+      <label for="zip">ご実家（お届け先）の郵便番号</label>
+      <div class="row">
+        <input id="zip" type="text" inputmode="numeric" autocomplete="postal-code"
+               placeholder="例：134-0081" maxlength="8">
+        <button type="button" id="zipBtn">確認する</button>
+      </div>
+      <p class="hint">ハイフンはあってもなくても構いません。番地までは不要です。</p>
+      <div id="zipOut" hidden></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 メニューと価格：エリア内と分かった人だけが見る -->
+<section id="menu" hidden>
+  <div class="wrap">
+    <h2>メニューと料金</h2>
+    <p class="h2sub">よくご依頼いただくものを3つ。ほかのご希望も承ります。</p>
+
+    <div class="menu">
+      <div class="plan">
+        <div class="name">エアコン 1台</div>
+        <div class="price">10,780円<span>税込</span></div>
+        <p class="desc">いちばん多いご依頼です。分解して洗浄します。</p>
+      </div>
+      <div class="plan reco">
+        <span class="tag">おすすめ</span>
+        <div class="name">浴室 または レンジフード（どちらか1つ）</div>
+        <div class="price">18,480円<span>税込</span></div>
+        <p class="desc">
+          浴室の黒ずみや滑りは、年を重ねた親にとって安全に直結します。
+          レンジフードは、何年も触っていないことが多い場所です。
+        </p>
+      </div>
+      <div class="plan">
+        <div class="name">エアコン ＋ 浴室</div>
+        <div class="price">25,960円<span>税込</span></div>
+        <p class="desc">同時に伺うため、それぞれ別に頼むより 3,300円 少なくなります。</p>
+      </div>
+    </div>
+
+    <div class="tsuika">
+      <b>追加のお支払いはありません。</b>
+      <p style="margin:6px 0 0">繁忙期の加算も、駐車場代も、当社が負担します。</p>
+    </div>
+
+    <div class="machi">【料金・確認待ち】お掃除機能付きエアコンのオプション（+6,600円／不要なら返金）は、<b>Squareの部分返金の可否と返金可能期間が確認できるまで書かない</b>（CMO指示 2026-09-17）。運用設計は <code>docs/gift/2026-09-17-お掃除機能付きエアコンの運用設計.md</code>。</div>
+
+    <div class="hr"></div>
+
+    <h3 style="color:var(--ink);font-size:17px;margin-bottom:6px">ご予約の時期について</h3>
+    <p style="margin:0">
+      <b>1月・2月が取りやすく、ゆっくりご相談いただけます。</b><br>
+      年内をご希望の場合は、お早めにお申し込みください。
+    </p>
+  </div>
+</section>
+
+<!-- 6 当日の流れ -->
+<section class="alt">
+  <div class="wrap">
+    <h2>お申し込みから、当日まで</h2>
+    <ol class="nagare">
+      <li><b>お申し込み</b><br><span class="note">この時点で費用は発生しません。前払い・事前の振込はありません。</span></li>
+      <li><b>こちらからお電話します</b><br><span class="note">作業の内容と料金をご説明してから確定します。ご実家のご都合も伺います。</span></li>
+      <li><b>日程が決まったら、お支払い</b></li>
+      <li><b>前日に、確認のご連絡</b></li>
+      <li><b>当日、ご実家へ伺います</b><br><span class="note">ご一緒いただける場合は、汚れの出方をその場でお見せします。</span></li>
+    </ol>
+    <p class="note" style="margin-top:4px">
+      前日までにご連絡いただければ、キャンセル料はかかりません。
+    </p>
+  </div>
+</section>
+
+<!-- 7 実績 -->
+<section>
+  <div class="wrap">
+    <h2>これまでのご利用</h2>
+    <div class="jisseki">
+      <div><div class="n">957<span style="font-size:14px">名</span></div><div class="l">ご利用のお客様</div></div>
+      <div><div class="n">98.6<span style="font-size:14px">%</span></div><div class="l">「人に勧めたい」</div></div>
+      <div><div class="n">★5.0</div><div class="l">Googleクチコミ 24件</div></div>
+    </div>
+    <p class="note" style="margin-top:12px">
+      満足度は、ご利用後アンケートで「人に勧めたい」とお答えいただいた割合です（2023年1月〜2025年12月／209名中206名・自社調べ）。
+    </p>
+  </div>
+</section>
+
+<!-- 8 よくあるご質問 -->
+<section class="alt">
+  <div class="wrap">
+    <h2>よくあるご質問</h2>
+
+    <div class="machi">【FAQ・確認待ち】「親が『いらない』と言ったら？」は、<b>キャンセル時の返金条件が未決</b>のため書けない（構成 §7 2c）。決まり次第ここに追加する。</div>
+
+    <details><summary>日程はどうやって決めますか？</summary>
+      <div class="body">贈り主さまとご相談して決めます。そのうえで、受け取る方のご都合も伺います。どちらかだけで勝手に決めることはありません。</div></details>
+
+    <details><summary>立ち会えない場合はどうなりますか？</summary>
+      <div class="body">受け取る方だけでも施工できます。その場合は、作業の前後を写真でご報告します。</div></details>
+
+    <details><summary>追加料金はかかりますか？</summary>
+      <div class="body">かかりません。繁忙期の加算も、駐車場が確保できない場合のコインパーキング代も、当社が負担します。</div></details>
+
+    <details><summary>親に金額は分かってしまいますか？</summary>
+      <div class="body">分かりません。金額の記載があるものは、受け取る方にはお渡ししません。</div></details>
+
+    <details><summary>実家が対応エリア外でした</summary>
+      <div class="body">申し訳ありません。現在は東京都・千葉県・神奈川県のみの対応です。</div></details>
+  </div>
+</section>
+
+<!-- 9 申込フォーム -->
+<section>
+  <div class="wrap">
+    <h2>お申し込み</h2>
+    <div class="machi">【フォーム・確認待ち】申込フォーム（贈り主と受け取る方の2人ぶん＋連名の贈り主欄／お掃除機能付きの「はい・いいえ・わからない」）と、Square決済への導線は、<b>返金の運用が決まってから</b>実装する。</div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p style="margin:0 0 10px">
+      <b>ワンヒッター株式会社</b><br>
+      代表取締役 佐々木 沙樹<br>
+      〒134-0081 東京都江戸川区北葛西5-14-11 クオーディア西葛西503<br>
+      電話 <a href="tel:08080438259">080-8043-8259</a>（8:00〜20:00）<br>
+      対応地域 東京都・千葉県・神奈川県
+    </p>
+    <p style="margin:0">
+      <a href="/tokushoho/">特定商取引法に基づく表記</a>　／　
+      <a href="https://one-hitter.jp/privacy_policy/">個人情報の取扱いについて</a>　／　
+      <a href="https://one-hitter.jp/">公式サイト</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // 対応エリアの郵便番号の上3桁。東京100-208／神奈川210-259／千葉260-299
+  // ※ ここはあくまで入口の足切り。実際に伺えるかは、お申し込み後のお電話で確定する
+  //   （特商法ページにも「地域によりお伺いできない場合があります」と記載済み）
+  function inArea(n){
+    return (n>=100 && n<=208) || (n>=210 && n<=259) || (n>=260 && n<=299);
+  }
+  var zip = document.getElementById('zip');
+  var btn = document.getElementById('zipBtn');
+  var out = document.getElementById('zipOut');
+  var menu = document.getElementById('menu');
+
+  function judge(){
+    var v = (zip.value || '').replace(/[^0-9]/g, '');
+    out.hidden = false;
+    if (v.length < 3){
+      out.className = 'ng';
+      out.textContent = '郵便番号を3桁以上ご入力ください。';
+      menu.hidden = true;
+      return;
+    }
+    var atama = parseInt(v.slice(0,3), 10);
+    if (inArea(atama)){
+      out.className = 'ok';
+      out.innerHTML = '<b>お伺いできる地域です。</b>下に料金をご案内します。';
+      menu.hidden = false;
+      // 【計測・確認待ち】gift_zip_submit（エリア内／外＋都道府県）を計測担当の仕様で入れる
+      menu.scrollIntoView({behavior:'smooth', block:'start'});
+    } else {
+      out.className = 'ng';
+      out.innerHTML = '申し訳ありません。<b>現在は東京都・千葉県・神奈川県のみ</b>の対応です。'
+        + '<br>お力になれず恐れ入ります。';
+      menu.hidden = true;
+      // エリア外でも郵便番号は記録する（他社は案内しない。CMO判断 2026-09-17）
+      // 「1都2県に住む人のうち、親も1都2県にいる割合」を測るため
+    }
+  }
+  btn.addEventListener('click', judge);
+  zip.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); judge(); }});
+})();
+</script>
+</body>
+</html>
