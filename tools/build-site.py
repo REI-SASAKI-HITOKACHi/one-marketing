@@ -569,7 +569,10 @@ def copy_kanseihin(out: pathlib.Path) -> None:
     ソースを直しても配信物に反映されず、両者がずれていた（2026-09-06）。
     """
     cfg = load_measurement()
-    for name in ("survey",):
+    # tokushoho（特定商取引法に基づく表記）も同じ形の完成品。
+    # PAGES に足すと lp_id や og の欄が要るが、これは商品ページではないので
+    # こちら側で写す。ここに名前を足さないと、配信しても本番に出ない。
+    for name in ("survey", "tokushoho"):
         src = ROOT / "lp" / name / "index.html"
         if not src.exists():
             continue
