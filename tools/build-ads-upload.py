@@ -18,8 +18,11 @@ MAX_CPC = "500"
 # Google が提示した正表記をそのまま使う。市区名だけ（「江戸川区」等）は無効（2026-09-15 実測）
 LOCATIONS = ("Edogawa City,Tokyo,Japan;Koto City,Tokyo,Japan;Sumida City,Tokyo,Japan;"
              "Katsushika City,Tokyo,Japan;Urayasu,Chiba,Japan;Ichikawa,Chiba,Japan")
-AIRCON = "https://lp.onehitter.jp/aircon/?src=gads&cid={campaignid}"
-MIZU = "https://lp.onehitter.jp/mizumawari/?src=gads&cid={campaignid}"
+# src は広告グループの着地ごとに分ける（?src= 規約）。LP は区切りの前だけ見るので
+# gads / gads_aircon のどちらでも文言は切り替わるが、GA4 へは切り落とす前の値が渡る。
+# 全部 gads にすると、同じ /mizumawari/ に着く3グループが GA4 側で見分けられない。
+AIRCON = "https://lp.onehitter.jp/aircon/?src=gads_aircon&cid={campaignid}"
+MIZU = "https://lp.onehitter.jp/mizumawari/?src=gads_mizumawari&cid={campaignid}"
 
 # 全角は2、半角は1。Google の見出し30／説明文90／パス15 はこの単位。
 def width(s):
