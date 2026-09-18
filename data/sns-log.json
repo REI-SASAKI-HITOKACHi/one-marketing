@@ -122,5 +122,25 @@
       "1106070865542597",
       "1106070912209259"
     ]
+  },
+  {
+    "id": "w01-5r",
+    "platform": "instagram",
+    "posted_at": "2026-09-18T12:04:34+09:00",
+    "permalink": "https://www.instagram.com/reel/DdabTLSkQxd/",
+    "post_id": "18476568919117691",
+    "media_ids": [
+      "18476568919117691"
+    ]
+  },
+  {
+    "id": "w01-5r",
+    "platform": "facebook",
+    "posted_at": "2026-09-18T12:04:38+09:00",
+    "permalink": "https://www.facebook.com/103698149101436/videos/4649362321968581",
+    "post_id": "4649362321968581",
+    "media_ids": [
+      "4649362321968581"
+    ]
   }
 ]
