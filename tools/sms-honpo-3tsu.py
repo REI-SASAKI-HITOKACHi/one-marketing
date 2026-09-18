@@ -55,6 +55,12 @@ UNIT = 70                          # KDDI：1通＝70文字
 MAX_UNITS = 3                      # 3通案
 PRICE = 11.0                       # 税込11円/通（税抜10.0の階梯）
 
+# ★70文字ごとに自動分割されたとき、**通の境界をまたいではいけない文字列**。
+#   端末で1通に結合して表示されるかは KDDI 未回答（2026-09-17）。
+#   結合されない端末では、またいだ番号は2つにちぎれて押せなくなる。
+#   **確認を待たず、またがない形にする**（CMO 2026-09-18）。
+MATAGANAI = ["080-1344-3137"]
+
 # D列「▶ 送る」のリンク先。社内用の中継ページ（cmo の build-sms-list.py と同じ）。
 # ★宛先と本文は「#」より後ろ（フラグメント）に入れる。サーバーに送られないので、
 #   Netlify の記録にお客様の電話番号も本文も残らない。「?」に変えないこと。
@@ -213,6 +219,24 @@ def tsuu(s):
     return max(1, math.ceil(len(s) / UNIT))
 
 
+def matagi(body):
+    """MATAGANAI の文字列が、70文字の境界をまたいでいないか。
+
+    またいでいる (文字列, 開始位置, またいだ境界) の一覧を返す。空なら合格。
+    **1通目に収まらず2通目へ続く、という形も「またぎ」として数える。**
+    """
+    warui = []
+    for kw in MATAGANAI:
+        i = body.find(kw)
+        while i >= 0:
+            # 0始まりで [i, i+len) が、どの境界（UNIT の倍数）をまたぐか
+            for kyoukai in range(UNIT, len(body) + UNIT, UNIT):
+                if i < kyoukai < i + len(kw):
+                    warui.append((kw, i + 1, kyoukai))
+            i = body.find(kw, i + 1)
+    return warui
+
+
 def kugiri(s):
     """70文字ごとに切る。KDDI が実際に分割する位置。"""
     return [s[i:i + UNIT] for i in range(0, len(s), UNIT)] or [""]
@@ -361,6 +385,23 @@ def main():
     print(f"費用の見込み: {total}通 × {PRICE:.0f}円 = {total*PRICE:,.0f}円"
           f"（1人あたり {total/len(taishou):.2f}通）")
 
+    # ---- 検算3：電話番号が通の境界をまたいでいないか ----
+    mataide = [(n, name, matagi(b)) for n, name, _t, b, _a in taishou if matagi(b)]
+    nashi = [kw for kw in MATAGANAI
+             if any(kw not in b for _n, _na, _t, b, _a in taishou)]
+    if nashi:
+        print(f"\n★★ 本文に見つからない必須の文字列: {nashi}")
+    if mataide:
+        print(f"\n★★ 電話番号が通の境界をまたぐ行: {len(mataide)}件")
+        for n, name, w in mataide[:5]:
+            for kw, pos, kyoukai in w:
+                print(f"   行{n} {sei(name)}さま 「{kw}」が{pos}文字目から。"
+                      f"{kyoukai}文字目（{kyoukai//UNIT}通目の終わり）でちぎれます")
+        if len(mataide) > 5:
+            print(f"   …ほか {len(mataide)-5}件")
+    else:
+        print(f"★ 電話番号が通の境界をまたぐ行はありません（全{len(taishou)}名）")
+
     # ---- 3通の区切りを見せる ----
     if SHOW3:
         ln, n, name = naga[0]
@@ -376,6 +417,8 @@ def main():
         return 0
     if koeta:
         sys.exit(f"\n{MAX_UNITS}通を超えた行があるので書き込みません。")
+    if mataide or nashi:
+        sys.exit("\n電話番号が通の境界をまたぐ（または本文に無い）ので書き込みません。")
 
     # 書き換える前に控えを取る。
     # ★Drive のコピーはサービスアカウントに保存容量が無く 403 になる（2026-09-14 確認）。
