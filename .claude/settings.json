@@ -5,6 +5,7 @@
       "Bash(python3 tools/drive_client.py:*)",
       "Bash(python3 tools/build-site.py:*)",
       "Bash(python3 tools/deploy-netlify.py:*)",
+      "Bash(python3 tools/deploy-booking.py:*)",
       "Bash(python3 tools/make-survey-qr.py:*)",
       "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
       "Bash(git branch:*)", "Bash(git add:*)", "Bash(git commit:*)", "Bash(git push:*)",
