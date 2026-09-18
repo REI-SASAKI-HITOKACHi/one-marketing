@@ -408,18 +408,23 @@ function apiSaveEstimate(payload) {
     try {
       // 通信再送や複数端末の同時操作で同じ見積が2件できるのを防ぐ。
       // ロックの中で見るので、後から来た方は必ず既存を引き当てる。
-      const seen = requestId ? readSavedRequest_(requestId) : null;
+      // キャッシュが生きていれば1往復で済む。切れていたらシートの request_id 列を見る
+      const seen = requestId
+        ? (readSavedRequest_(requestId, 'estimate')
+           || findRowByRequestId_(sheet, requestId, 'estimate_id'))
+        : null;
 
       if (seen) {
-        estimateId = seen.estimateId;
+        estimateId = seen.documentId;
         rowNumber = seen.rowNumber;
         duplicated = true;
+        rememberSavedRequest_(requestId, estimateId, rowNumber, 'estimate');
       } else {
         estimateId = generateEstimateId_(sheet);
         const record = buildEstimateRecord_(payload, ctx, calc, estimateId);
         record.request_id = requestId;
         rowNumber = appendObject_(sheet, record);
-        if (requestId) rememberSavedRequest_(requestId, estimateId, rowNumber);
+        if (requestId) rememberSavedRequest_(requestId, estimateId, rowNumber, 'estimate');
       }
     } finally {
       lock.releaseLock();
@@ -445,29 +450,74 @@ function apiSaveEstimate(payload) {
   });
 }
 
-function requestCacheKey_(requestId) {
-  return 'estimate_req_' + requestId;
+/**
+ * 再送判定の記録。
+ *
+ * kind で見積と請求を分ける。**分けないと、呼ぶ側が1件の仕事に1つの requestId を
+ * 振ったときに壊れる。** saveEstimate の次に同じ requestId で saveInvoice が来ると、
+ * 見積の記録を引き当てて「請求番号＝見積番号」を返し、請求行は1行も書かれないまま
+ * ok:true が返る。外から見ると成功に見えるので、気づくのは請求書を探すときになる。
+ */
+function requestCacheKey_(requestId, kind) {
+  return 'req_' + (kind || 'estimate') + '_' + requestId;
 }
 
-function readSavedRequest_(requestId) {
+function readSavedRequest_(requestId, kind) {
   try {
-    const raw = CacheService.getScriptCache().get(requestCacheKey_(requestId));
+    const raw = CacheService.getScriptCache().get(requestCacheKey_(requestId, kind));
     return raw ? JSON.parse(raw) : null;
   } catch (e) {
     return null;
   }
 }
 
-function rememberSavedRequest_(requestId, estimateId, rowNumber) {
+function rememberSavedRequest_(requestId, documentId, rowNumber, kind) {
   try {
     CacheService.getScriptCache().put(
-      requestCacheKey_(requestId),
-      JSON.stringify({ estimateId: estimateId, rowNumber: rowNumber }),
-      1800 // 30分。再送はこの範囲で起きる
+      requestCacheKey_(requestId, kind),
+      JSON.stringify({ documentId: documentId, rowNumber: rowNumber }),
+      1800 // 30分。ほとんどの再送はこの範囲で起きる
     );
   } catch (e) {
     console.warn('リクエストIDの記録に失敗しました：' + toErrorMessage_(e));
   }
+}
+
+/**
+ * キャッシュが切れたあとの再送を、シートの request_id 列で拾う。
+ *
+ * キャッシュは30分で消えるし、GAS側の都合で先に消えることもある。消えたあとに
+ * 同じ requestId で再送が来ると、**同じ見積・同じ請求がもう1件できる。**
+ * 通信が切れたまま何時間か後に呼ぶ側が再試行する、という起こり方をする。
+ * シートに書いた request_id は消えないので、キャッシュが外れたときはこちらで見る。
+ *
+ * 新規保存のたびに1列ぶんの読み取りが1回増えるが、採番（generateDocumentId_）が
+ * すでに同じ量を読んでいるので、増えるのは1往復。二重発行の代償に比べれば安い。
+ */
+function findRowByRequestId_(sheet, requestId, idHeader) {
+  const key = String(requestId == null ? '' : requestId).trim();
+  if (!key) return null;
+
+  const info = getHeaderInfo_(sheet);
+  const reqCol = info.map['request_id'];
+  const idCol = info.map[idHeader];
+  if (!reqCol || !idCol) return null;
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow <= info.headerRow) return null;
+
+  const reqs = sheet.getRange(info.headerRow + 1, reqCol, lastRow - info.headerRow, 1).getDisplayValues();
+
+  // 新しい行から見る。同じ requestId が複数あるなら最後に書けたものが正
+  for (let i = reqs.length - 1; i >= 0; i--) {
+    if (String(reqs[i][0] || '').trim() !== key) continue;
+
+    const rowNumber = info.headerRow + 1 + i;
+    const id = String(sheet.getRange(rowNumber, idCol, 1, 1).getDisplayValues()[0][0] || '').trim();
+    if (id) return { documentId: id, rowNumber: rowNumber };
+  }
+
+  return null;
 }
 
 /**

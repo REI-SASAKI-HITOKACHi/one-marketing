@@ -52,13 +52,16 @@ if node tools/live-master-test.js | tail -1; then :; else fail=1; fi
 step "7. 外部API（doPost）"
 if node tools/dopost-test.js | tail -1; then :; else fail=1; fi
 
-step "8. 予約フォームとの金額一致"
+step "8. 採番と二重作成防止"
+if node tools/numbering-dedup-test.js | tail -1; then :; else fail=1; fi
+
+step "9. 予約フォームとの金額一致"
 if node tools/booking-form-parity-test.js | tail -2; then :; else fail=1; fi
 
-step "9. シートAPI呼び出し回数（旧コードとの比較）"
+step "10. シートAPI呼び出し回数（旧コードとの比較）"
 if node tools/api-call-benchmark.js | tail -8; then :; else fail=1; fi
 
-step "10. clasp用ビルドが通るか"
+step "11. clasp用ビルドが通るか"
 if bash tools/build-clasp.sh >/dev/null 2>&1; then
   n=$(ls -1 clasp-build 2>/dev/null | wc -l | tr -d ' ')
   if [ "$n" = "8" ]; then
@@ -70,7 +73,7 @@ else
   printf '  ✗ build-clasp.sh が失敗\n'; fail=1
 fi
 
-step "11. 貼り付けバンドルがsrcと一致しているか"
+step "12. 貼り付けバンドルがsrcと一致しているか"
 before=$(md5sum deploy-paste/* 2>/dev/null | md5sum)
 if bash tools/build-paste-bundle.sh >/dev/null 2>&1; then
   after=$(md5sum deploy-paste/* 2>/dev/null | md5sum)
@@ -83,7 +86,7 @@ else
   printf '  ✗ build-paste-bundle.sh が失敗\n'; fail=1
 fi
 
-step "12. マスタTSVがコードと一致しているか"
+step "13. マスタTSVがコードと一致しているか"
 before=$(md5sum master/*.tsv 2>/dev/null | md5sum)
 node tools/gen-master-tsv.js >/dev/null
 after=$(md5sum master/*.tsv 2>/dev/null | md5sum)

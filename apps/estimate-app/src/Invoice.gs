@@ -121,18 +121,24 @@ function apiSaveInvoice(payload) {
     let duplicated = false;
 
     try {
-      const seen = requestId ? readSavedRequest_(requestId) : null;
+      // 見積と請求はキャッシュの名前空間を分ける（kind）。同じ requestId を
+      // 見積と請求の両方に使われても、互いの番号を引き当てない
+      const seen = requestId
+        ? (readSavedRequest_(requestId, 'invoice')
+           || findRowByRequestId_(invoiceSheet, requestId, 'invoice_id'))
+        : null;
 
       if (seen) {
-        invoiceId = seen.estimateId; // 同じキャッシュ構造を使い回している
+        invoiceId = seen.documentId;
         rowNumber = seen.rowNumber;
         duplicated = true;
+        rememberSavedRequest_(requestId, invoiceId, rowNumber, 'invoice');
       } else {
         invoiceId = generateInvoiceId_(invoiceSheet);
         const record = buildInvoiceRecord_(p, ctx, prepared, invoiceId, existing);
         record.request_id = requestId;
         rowNumber = appendObject_(invoiceSheet, record);
-        if (requestId) rememberSavedRequest_(requestId, invoiceId, rowNumber);
+        if (requestId) rememberSavedRequest_(requestId, invoiceId, rowNumber, 'invoice');
       }
     } finally {
       lock.releaseLock();
