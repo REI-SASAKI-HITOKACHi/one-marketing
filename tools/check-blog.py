@@ -38,7 +38,8 @@ BANNED = ["除菌", "殺菌", "抗菌", "病気", "危険", "守る", "ここか
           "いかがでしょうか", "ぜひ", "安心", "大切な", "しっかり", "おそうじ本舗", "ビフォーアフター"]
 # 満足度は 98.6% が正（CLAUDE.md）。98.8% はパンフレット・サイトの誤り
 BAD_NUMBERS = ["98.8%", "98.8％"]
-CTA_RE = re.compile(r"https://lp\.onehitter\.jp/(aircon|mizumawari)/\?src=blog")
+CTA_RE = re.compile(r"https://lp\.onehitter\.jp/(aircon|mizumawari)/\?src=(blog[A-Za-z0-9_-]*)")
+SRC_RE = re.compile(r"^blog[A-Za-z0-9_-]*$")
 TEL_RE = re.compile(r"0\d{1,3}-\d{2,4}-\d{4}")
 PRICE_RE = re.compile(r"([1-9][0-9,]{2,7})\s*円")
 IMG_RE = re.compile(r"^!\[([^\]]*)\]\(([^)]+)\)\s*$", re.M)
@@ -132,11 +133,18 @@ def check(path: pathlib.Path, prices: set) -> tuple:
     if fm.get("description"):
         if len(fm["description"]) > 120:
             ng.append(f"description が {len(fm['description'])}字（120字以内）")
-    if fm.get("eyecatch"):
-        if "/" in fm["eyecatch"]:
-            ng.append("eyecatch はファイル名だけ（assets/photos/ 直下）")
-        elif PHOTO_DIR.exists() and not (PHOTO_DIR / fm["eyecatch"]).exists():
-            warn.append(f"eyecatch の写真が assets/photos/ に無い: {fm['eyecatch']}")
+    for k in ("eyecatch", "ogp"):
+        if fm.get(k):
+            if "/" in fm[k]:
+                ng.append(f"{k} はファイル名だけ（assets/photos/ 直下）")
+            elif PHOTO_DIR.exists() and not (PHOTO_DIR / fm[k]).exists():
+                warn.append(f"{k} の写真が assets/photos/ に無い: {fm[k]}")
+    # ?src= は既定 blog。記事ごとに分けるときだけ blog_ で始める（README「記事ごとに分けたいとき」）
+    if fm.get("src"):
+        if not SRC_RE.match(fm["src"]):
+            ng.append(f"src は blog で始まる半角英数と _ - だけ（いまは {fm['src']}）")
+        elif len(fm["src"]) > 20:
+            ng.append(f"src が {len(fm['src'])}字（20文字まで。LPが切り捨てる）")
 
     # 本文
     n = honbun_len(body)
@@ -181,8 +189,13 @@ def check(path: pathlib.Path, prices: set) -> tuple:
         ng.append("金額を書いているのに「税込」が本文に無い")
 
     # 予約導線
-    if not CTA_RE.search(body):
+    m_cta = CTA_RE.search(body)
+    if not m_cta:
         ng.append("予約導線の URL が無い（https://lp.onehitter.jp/{aircon|mizumawari}/?src=blog）")
+    else:
+        want = fm.get("src") or "blog"
+        if m_cta.group(2) != want:
+            ng.append(f"予約導線の ?src={m_cta.group(2)} と front matter の src={want} が違う")
 
     # 投稿ツールに渡さない欄
     used_internal = [k for k in INTERNAL_FIELDS if k in fm]
