@@ -23,12 +23,19 @@ import urllib.request
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / "lp" / "booking"
+SRC_301 = ROOT / "lp" / "booking-redirect"   # 旧ホストへ送る301だけの中身
 API = "https://api.netlify.com/api/v1"
 
 # 予約フォームのサイト。ここを書き換えないこと（LPサイトと取り違えないため）
 # 2026-09-12：旧ホスト one-hitter-booking.netlify.app が Google セーフブラウジングに
 # 「安全でない」と判定された（お客様から Chrome の警告の報告）ため、新ホストへ移した。
-# 旧サイトにも同じ内容を配信し続ける（送信済みSMSのリンク先として残す）：--old を付ける。
+#
+# 2026-09-19（オーナーGO）：旧ホストは **301専用** にした。--old はその301を配信する。
+#   それまでは旧ホストにも同じ中身を配信し続けていたが、2ホストに同じページがある形が
+#   片方だけ古くなる事故を生んだ。9/19 07:00 の時点で旧ホストは 9/18 21:45 の空き枠を
+#   出したままで、同日 14:00-17:00 の打合せと重なる時間を「空き」として見せていた。
+#   ホストを1つにすれば、この種類の事故は二度と起きない。
+#   送信済みSMSのリンク先は 301 で新ホストへ引き継がれる（:splat とクエリも残る）。
 SITE_ID = "39408b76-e5d0-46f4-bee8-418ef6cfb36a"
 SITE_NAME = "onehitter-yoyaku"
 OLD_SITE_ID = "83984fb0-5839-421b-bb99-63c8aff47fb9"
@@ -79,24 +86,35 @@ def main() -> None:
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--notify", action="append", default=[])
     ap.add_argument("--old", action="store_true",
-                    help="旧ホスト one-hitter-booking.netlify.app にも同じ内容を配信する（送信済みSMSのリンク先）")
+                    help="旧ホスト one-hitter-booking.netlify.app に301だけを配信する（送信済みSMSのリンク先を新ホストへ寄せる）")
     a = ap.parse_args()
-    global SITE_ID, SITE_NAME
+    global SITE_ID, SITE_NAME, SRC
     if a.old:
-        SITE_ID, SITE_NAME = OLD_SITE_ID, OLD_SITE_NAME
+        # 旧ホストには予約ページそのものを置かない。置くと、また片方だけ古くなる。
+        SITE_ID, SITE_NAME, SRC = OLD_SITE_ID, OLD_SITE_NAME, SRC_301
 
     if not SRC.exists():
         sys.exit(f"{SRC} がありません。先に python3 tools/build-booking.py を実行してください。")
     files = atsumeru()
-    # 2026-09-12 事故の再発防止：お客様が開くページは配信前に必ず点検する（NG なら配信しない）
-    import subprocess
-    chk = subprocess.run([sys.executable, str(ROOT / "tools" / "check-public-page.py"), str(SRC / "index.html")])
-    if chk.returncode != 0:
-        sys.exit("check-public-page.py が NG。配信を中止します。")
-    if "/index.html" not in files:
-        sys.exit("index.html がありません。配信を中止します。")
-    if "/slots.json" not in files:
-        sys.exit("slots.json がありません。先に python3 tools/build-slots.py を実行してください。")
+    if a.old:
+        # 301だけのサイトなので、お客様が読むページは無い。点検の対象も無い。
+        if "/_redirects" not in files:
+            sys.exit("_redirects がありません。配信を中止します。")
+        if "/index.html" in files:
+            sys.exit("旧ホストは301専用です。index.html を置かないでください。")
+        # Search Console の所有権確認ファイルは、301に食われない実ファイルとして残す
+        if "/google1a88c31fe28c2256.html" not in files:
+            sys.exit("google1a88c31fe28c2256.html がありません（Search Console の所有権）。配信を中止します。")
+    else:
+        # 2026-09-12 事故の再発防止：お客様が開くページは配信前に必ず点検する（NG なら配信しない）
+        import subprocess
+        chk = subprocess.run([sys.executable, str(ROOT / "tools" / "check-public-page.py"), str(SRC / "index.html")])
+        if chk.returncode != 0:
+            sys.exit("check-public-page.py が NG。配信を中止します。")
+        if "/index.html" not in files:
+            sys.exit("index.html がありません。配信を中止します。")
+        if "/slots.json" not in files:
+            sys.exit("slots.json がありません。先に python3 tools/build-slots.py を実行してください。")
 
     print(f"配信先: {SITE_NAME}（{SITE_ID}）")
     for rel, p in files.items():

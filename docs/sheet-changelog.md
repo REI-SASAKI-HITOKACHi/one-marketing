@@ -1140,3 +1140,12 @@ Google 透明性レポートの API で `one-hitter-booking.netlify.app` が sta
 
 `data/sheets/backup/<タブ名>.json.gz` を展開して、`python3 tools/sheets_client.py addtab` で作り直し、`write` で流し込む。
 **git に版が残っているので、Drive のコピーより確実に戻せます。**
+
+## 2026-09-19 旧予約ホストを301専用にした（スプシ変更なし・記録のみ）
+
+シートは触っていない。ホストの話だが、あとから経緯を追えるようにここにも1行残す。
+
+`one-hitter-booking.netlify.app` を 301 専用にした（→ `https://yoyaku.onehitter.jp/`）。
+2ホストに同じ予約ページを配信し続ける形が、片方だけ古くなる事故を生んでいたため。
+オーナーGO 2026-09-19。詳細は `tools/deploy-booking.py` の冒頭コメントと
+`lp/booking-redirect/_redirects`。
