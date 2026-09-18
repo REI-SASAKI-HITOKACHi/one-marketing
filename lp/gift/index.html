@@ -132,6 +132,40 @@ footer a{color:var(--on-ink)}
   padding:4px 11px;background:var(--ink);color:var(--on-ink)}
 .shot.after .cap{background:var(--aqua-fill);color:#fff}
 .shot-note{margin:6px 0 0;font-size:13.5px;line-height:1.75;color:var(--text-2)}
+/* 申込フォーム */
+.f-sec{margin:0 0 26px}
+.f-sec > h3{font-size:16px;color:var(--ink);margin:0 0 4px;padding-bottom:6px;border-bottom:2px solid var(--rule)}
+.f-sec > .lead{font-size:13.5px;color:var(--text-2);margin:8px 0 14px}
+.fld{margin:0 0 16px}
+.fld > label,.fld > .q{display:block;font-weight:700;color:var(--ink);margin:0 0 6px;font-size:14.5px}
+.fld .hosoku{font-size:13px;color:var(--steel);margin:0 0 8px;line-height:1.7}
+.fld input[type=text],.fld input[type=tel],.fld input[type=email],.fld select,.fld textarea{
+  width:100%;font:inherit;padding:12px 13px;border:1px solid var(--rule-2);border-radius:8px;
+  background:var(--surface);color:var(--text)}
+.fld textarea{min-height:82px;resize:vertical}
+.fld .nin{font-weight:400;font-size:12.5px;color:var(--steel);margin-left:6px}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:12px 13px;border:1px solid var(--rule-2);
+  border-radius:8px;background:var(--surface);cursor:pointer}
+.opt:hover{border-color:var(--aqua)}
+.opt input{margin:3px 0 0;flex:0 0 auto}
+.opt .t{font-weight:600}
+.opt .p{color:var(--cta);font-weight:700;margin-left:6px}
+.opt .d{display:block;font-size:12.5px;color:var(--steel);margin-top:3px;font-weight:400}
+.f-err{display:none;color:var(--cta-deep);font-size:13.5px;font-weight:600;margin-top:6px;line-height:1.7}
+.fld.warui .f-err{display:block}
+.fld.warui input[type=text],.fld.warui input[type=tel],.fld.warui input[type=email],
+.fld.warui select,.fld.warui textarea{border-color:var(--cta)}
+.zip-kotei{display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+  background:var(--aqua-soft);border:1px solid var(--rule-2);border-radius:8px;padding:12px 14px}
+.zip-kotei b{font-size:17px;color:var(--ink)}
+.zip-kotei button{font:inherit;font-size:13px;padding:8px 14px;border:1px solid var(--rule-2);
+  border-radius:6px;background:var(--surface);color:var(--ink);cursor:pointer}
+.f-go{width:100%;font:inherit;font-weight:700;font-size:17px;padding:17px;border:0;border-radius:10px;
+  background:var(--cta-fill);color:#fff;cursor:pointer}
+.f-go:hover{background:var(--cta-fill-h)}
+.f-go[disabled]{opacity:.55;cursor:default}
+.f-go-note{text-align:center;font-size:13px;color:var(--steel);margin:10px 0 0}
 </style>
 </head>
 <body>
@@ -370,7 +404,177 @@ footer a{color:var(--on-ink)}
 <section>
   <div class="wrap">
     <h2>お申し込み</h2>
-    <div class="machi">【フォーム・確認待ち】申込フォーム（贈り主と受け取る方の2人ぶん＋連名の贈り主欄／お掃除機能付きの「はい・いいえ・わからない」）と、Square決済への導線は、<b>返金の運用が決まってから</b>実装する。</div>
+    <p class="h2sub">入力は3分ほどです。<b>この時点では、費用は発生しません。</b></p>
+
+    <form id="giftForm" novalidate>
+
+      <div class="f-sec">
+        <h3>1. ご希望の内容</h3>
+
+        <div class="fld" id="f-menu">
+          <span class="q">どちらをご希望ですか</span>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="メニュー" value="エアコン1台"><span><span class="t">エアコン 1台</span><span class="p">10,780円</span></span></label>
+            <label class="opt"><input type="radio" name="メニュー" value="浴室"><span><span class="t">浴室</span><span class="p">18,480円</span></span></label>
+            <label class="opt"><input type="radio" name="メニュー" value="レンジフード"><span><span class="t">レンジフード</span><span class="p">18,480円</span></span></label>
+            <label class="opt"><input type="radio" name="メニュー" value="エアコン＋浴室"><span><span class="t">エアコン ＋ 浴室</span><span class="p">25,960円</span><span class="d">別々に頼むより 3,300円 少なくなります</span></span></label>
+            <label class="opt"><input type="radio" name="メニュー" value="その他・相談したい"><span><span class="t">その他・相談したい</span><span class="d">お電話でご相談ください</span></span></label>
+          </div>
+          <p class="f-err">ご希望のメニューをお選びください。</p>
+        </div>
+
+        <div class="fld" id="f-osouji" hidden>
+          <span class="q">ご実家のエアコンは、お掃除機能付きですか</span>
+          <p class="hosoku">分からなくて大丈夫です。「わからない」をお選びいただくと、お掃除機能付きの料金（17,380円）でお預かりし、当日ノーマルタイプだった場合は 6,600円 をお返しします。</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="お掃除機能付き" value="はい"><span class="t">はい</span></label>
+            <label class="opt"><input type="radio" name="お掃除機能付き" value="いいえ"><span class="t">いいえ</span></label>
+            <label class="opt"><input type="radio" name="お掃除機能付き" value="わからない"><span class="t">わからない</span></label>
+          </div>
+          <p class="f-err">お掃除機能付きかどうかをお選びください。分からなければ「わからない」で構いません。</p>
+        </div>
+
+        <div class="fld" id="f-jiki">
+          <span class="q">ご希望の時期</span>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="ご希望の時期" value="年内"><span class="t">年内</span></label>
+            <label class="opt"><input type="radio" name="ご希望の時期" value="1月"><span class="t">1月</span></label>
+            <label class="opt"><input type="radio" name="ご希望の時期" value="2月"><span class="t">2月</span></label>
+            <label class="opt"><input type="radio" name="ご希望の時期" value="まだ決めていない"><span class="t">まだ決めていない</span></label>
+          </div>
+          <p class="f-err">ご希望の時期をお選びください。お日にちは、このあとのお電話で決めます。</p>
+        </div>
+      </div>
+
+      <div class="f-sec">
+        <h3>2. ご実家（お届け先）のこと</h3>
+
+        <div class="fld" id="f-uke-na">
+          <label for="uke-na">受け取る方のお名前</label>
+          <input id="uke-na" type="text" name="受け取る方のお名前" autocomplete="off">
+          <p class="f-err">受け取る方のお名前をご記入ください。</p>
+        </div>
+
+        <div class="fld">
+          <label for="kankei">贈り主さまとのご関係<span class="nin">任意</span></label>
+          <select id="kankei" name="ご関係">
+            <option value="">選ばない</option>
+            <option>母</option><option>父</option><option>両親</option>
+            <option>義理の親</option><option>その他</option>
+          </select>
+        </div>
+
+        <div class="fld">
+          <span class="q">ご実家の郵便番号</span>
+          <div class="zip-kotei">
+            <b id="zipHyoji">—</b>
+            <span style="font-size:13.5px;color:var(--text-2)">お伺いできる地域です</span>
+            <button type="button" id="zipModoru">別の郵便番号で調べ直す</button>
+          </div>
+          <input type="hidden" name="ご実家の郵便番号" id="zipHidden">
+        </div>
+
+        <div class="fld">
+          <label for="uke-jusho">ご実家のご住所（番地まで）<span class="nin">任意</span></label>
+          <p class="hosoku">このあとのお電話で伺っても構いません。</p>
+          <input id="uke-jusho" type="text" name="ご実家のご住所" autocomplete="off">
+        </div>
+
+        <div class="fld">
+          <label for="uke-tel">ご実家のお電話番号<span class="nin">任意</span></label>
+          <p class="hosoku">お分かりになる範囲で構いません。分からなければ、このあとのお電話で伺います。</p>
+          <input id="uke-tel" type="tel" name="ご実家のお電話番号" inputmode="tel" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="f-sec">
+        <h3>3. 贈り主さま（お客様）のこと</h3>
+
+        <div class="fld" id="f-oku-na">
+          <label for="oku-na">お名前</label>
+          <input id="oku-na" type="text" name="贈り主さまのお名前" autocomplete="name">
+          <p class="f-err">贈り主さまのお名前をご記入ください。</p>
+        </div>
+
+        <div class="fld" id="f-oku-tel">
+          <label for="oku-tel">お電話番号</label>
+          <p class="hosoku">日程のご相談で、こちらからおかけします。</p>
+          <input id="oku-tel" type="tel" name="贈り主さまのお電話番号" inputmode="tel" autocomplete="tel">
+          <p class="f-err">お電話番号をご記入ください。日程のご相談で、こちらからおかけします。</p>
+        </div>
+
+        <div class="fld" id="f-oku-mail">
+          <label for="oku-mail">メールアドレス</label>
+          <p class="hosoku">お申し込みの控えをお送りします。</p>
+          <input id="oku-mail" type="email" name="贈り主さまのメールアドレス" autocomplete="email">
+          <p class="f-err">メールアドレスをご確認ください（控えをお送りします）。</p>
+        </div>
+
+        <div class="fld">
+          <label for="renmei">連名で贈る方のお名前<span class="nin">任意</span></label>
+          <p class="hosoku">3名様まで。ご実家へのカードに、連名でお入れします。</p>
+          <textarea id="renmei" name="連名で贈る方"></textarea>
+        </div>
+      </div>
+
+      <div class="f-sec">
+        <h3>4. お伝えしたいこと</h3>
+        <div class="fld">
+          <label for="msg">ご実家へのメッセージ<span class="nin">任意</span></label>
+          <p class="hosoku">100字程度。カードにお入れします。</p>
+          <textarea id="msg" name="ご実家へのメッセージ" maxlength="200"></textarea>
+        </div>
+        <div class="fld">
+          <label for="youbou">その他のご要望<span class="nin">任意</span></label>
+          <textarea id="youbou" name="その他のご要望"></textarea>
+        </div>
+      </div>
+
+      <div class="f-sec">
+        <h3>5. 確認</h3>
+
+        <div class="fld" id="f-hanashi">
+          <span class="q">ご実家に、この贈り物のことをお話しされていますか</span>
+          <p class="hosoku">どちらでも構いません。まだの場合は、お電話のときに進め方をご相談します。</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="お話し済みか" value="はい"><span class="t">はい</span></label>
+            <label class="opt"><input type="radio" name="お話し済みか" value="これからお話しします"><span class="t">これからお話しします</span></label>
+          </div>
+          <p class="f-err">どちらかをお選びください。まだの場合も、そのままお申し込みいただけます。</p>
+        </div>
+
+        <div class="fld" id="f-doui">
+          <label class="opt" style="cursor:pointer">
+            <input type="checkbox" id="doui" name="同意" value="同意する">
+            <span class="t" style="font-weight:400">
+              <a href="https://one-hitter.jp/privacy_policy/" target="_blank" rel="noopener">個人情報の取扱い</a>
+              と特定商取引法に基づく表記に同意する
+            </span>
+          </label>
+          <p class="f-err">個人情報の取扱いに、ご同意をお願いします。</p>
+        </div>
+      </div>
+
+      <input type="hidden" name="流入元" id="srcHidden">
+
+      <button type="submit" class="f-go" id="giftGo">この内容で申し込む</button>
+      <p class="f-go-note">※ この時点でのお支払いはありません</p>
+    </form>
+
+    <div id="giftDone" hidden>
+      <div class="card" style="border-color:var(--ok)">
+        <h3 style="margin:0 0 10px;color:var(--ink);font-size:18px">お申し込みを承りました。</h3>
+        <p style="margin:0 0 12px">
+          このあと、担当より お電話（<a href="tel:080-8043-8259">080-8043-8259</a>）でご連絡いたします。<br>
+          作業の内容とお日にちをご相談してから、確定いたします。
+        </p>
+        <p style="margin:0 0 12px"><b>お支払いは、お日にちが決まってからです。この時点では、まだ費用は発生していません。</b></p>
+        <p class="note" style="margin:0">
+          ※ お電話は 8:00〜20:00 のあいだにいたします。<br>
+          ※ 番号を登録しておいていただけると、お受け取りいただきやすくなります。
+        </p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -418,6 +622,12 @@ footer a{color:var(--on-ink)}
       out.className = 'ok';
       out.innerHTML = '<b>お伺いできる地域です。</b>下に料金をご案内します。';
       menu.hidden = false;
+      // フォームへ引き継ぐ。フォーム内では書き換えられない（ゲートの抜け道を作らない）
+      var h = document.getElementById('zipHyoji');
+      var hid = document.getElementById('zipHidden');
+      var seikei = v.length > 3 ? v.slice(0,3) + '-' + v.slice(3,7) : v;
+      if (h) { h.textContent = seikei; }
+      if (hid) { hid.value = seikei; }
       // 【計測・確認待ち】gift_zip_submit（エリア内／外＋都道府県）を計測担当の仕様で入れる
       menu.scrollIntoView({behavior:'smooth', block:'start'});
     } else {
@@ -431,7 +641,146 @@ footer a{color:var(--on-ink)}
   }
   btn.addEventListener('click', judge);
   zip.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); judge(); }});
+
+  /* 「別の郵便番号で調べ直す」…フォーム内では直せない。ゲートに戻す */
+  var modoru = document.getElementById('zipModoru');
+  if (modoru) {
+    modoru.addEventListener('click', function(){
+      zip.value = '';
+      document.querySelector('.zip').scrollIntoView({behavior:'smooth', block:'center'});
+      zip.focus();
+    });
+  }
+})();
+
+/* ===== 申込フォーム ===== */
+(function(){
+  var form = document.getElementById('giftForm');
+  if (!form) { return; }
+  var done = document.getElementById('giftDone');
+  var go   = document.getElementById('giftGo');
+  var osouji = document.getElementById('f-osouji');
+
+  /* 流入元（?src=）を拾う。広告の出どころを申込に残すため */
+  try {
+    var sp = new URLSearchParams(location.search);
+    var src = sp.get('src') || '';
+    var h = document.getElementById('srcHidden');
+    if (h) { h.value = src; }
+  } catch (e) { /* 取れなくても申込は通す */ }
+
+  /* エアコンを含むメニューのときだけ、お掃除機能付きを聞く */
+  function menuAtai(){
+    var r = form.querySelector('input[name="メニュー"]:checked');
+    return r ? r.value : '';
+  }
+  function osoujiIru(){
+    return menuAtai().indexOf('エアコン') >= 0;
+  }
+  form.addEventListener('change', function(e){
+    if (e.target.name === 'メニュー') {
+      osouji.hidden = !osoujiIru();
+      if (osouji.hidden) { keshi(osouji); }
+    }
+    /* 直したら赤を消す。入力の途中で赤くはしない */
+    var fld = e.target.closest ? e.target.closest('.fld') : null;
+    if (fld) { keshi(fld); }
+  });
+
+  function keshi(fld){ fld.classList.remove('warui'); }
+  function warui(fld){ fld.classList.add('warui'); }
+
+  function kara(id){
+    var el = document.getElementById(id);
+    return !el || !(el.value || '').trim();
+  }
+  function radioNashi(na){
+    return !form.querySelector('input[name="' + na + '"]:checked');
+  }
+  /* メールは「＠があって前後に文字がある」程度だけ見る。弾きすぎない */
+  function mailOkashii(v){
+    return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+
+    var warui_ra = [];
+    function miru(jouken, id){
+      var fld = document.getElementById(id);
+      if (!fld) { return; }
+      if (jouken) { warui(fld); warui_ra.push(fld); } else { keshi(fld); }
+    }
+
+    miru(radioNashi('メニュー'), 'f-menu');
+    miru(osoujiIru() && radioNashi('お掃除機能付き'), 'f-osouji');
+    miru(radioNashi('ご希望の時期'), 'f-jiki');
+    miru(kara('uke-na'), 'f-uke-na');
+    miru(kara('oku-na'), 'f-oku-na');
+    miru(kara('oku-tel'), 'f-oku-tel');
+    miru(kara('oku-mail') || mailOkashii(document.getElementById('oku-mail').value.trim()), 'f-oku-mail');
+    miru(radioNashi('お話し済みか'), 'f-hanashi');
+    miru(!document.getElementById('doui').checked, 'f-doui');
+
+    if (warui_ra.length) {
+      /* ページ上部にまとめて出さない。最初のエラーまで連れていく */
+      warui_ra[0].scrollIntoView({behavior:'smooth', block:'center'});
+      var utsu = warui_ra[0].querySelector('input,select,textarea');
+      if (utsu) { try { utsu.focus({preventScroll:true}); } catch(e2){ utsu.focus(); } }
+      return;
+    }
+
+    go.disabled = true;
+    go.textContent = '送信しています…';
+
+    var d = new FormData(form);
+    d.append('form-name', 'gift');
+    if (!osoujiIru()) { d.delete('お掃除機能付き'); }
+
+    var body = new URLSearchParams();
+    d.forEach(function(v, k){ body.append(k, v); });
+
+    fetch('/', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: body.toString()
+    }).then(function(r){
+      if (!r.ok) { throw new Error('http ' + r.status); }
+      form.hidden = true;
+      done.hidden = false;
+      done.scrollIntoView({behavior:'smooth', block:'start'});
+    }).catch(function(){
+      go.disabled = false;
+      go.textContent = 'この内容で申し込む';
+      alert('送信がうまくいきませんでした。\nお手数ですが 080-8043-8259 までお電話ください。');
+    });
+  });
 })();
 </script>
+
+<!-- Netlifyがデプロイ時にこのフォームを見つけて受け口を作る。画面には出さない。
+     送信はJavaScriptから同じ項目名でPOSTする。
+     ★name を変えたら、送信側も必ず合わせること。予約フォーム（yoyaku）とは別の受け口にする。 -->
+<form name="gift" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="hidden" name="form-name" value="gift">
+  <input type="text" name="bot-field">
+  <input type="text" name="メニュー">
+  <input type="text" name="お掃除機能付き">
+  <input type="text" name="ご希望の時期">
+  <input type="text" name="受け取る方のお名前">
+  <input type="text" name="ご関係">
+  <input type="text" name="ご実家の郵便番号">
+  <input type="text" name="ご実家のご住所">
+  <input type="text" name="ご実家のお電話番号">
+  <input type="text" name="贈り主さまのお名前">
+  <input type="text" name="贈り主さまのお電話番号">
+  <input type="text" name="贈り主さまのメールアドレス">
+  <textarea name="連名で贈る方"></textarea>
+  <textarea name="ご実家へのメッセージ"></textarea>
+  <textarea name="その他のご要望"></textarea>
+  <input type="text" name="お話し済みか">
+  <input type="text" name="同意">
+  <input type="text" name="流入元">
+</form>
 </body>
 </html>
