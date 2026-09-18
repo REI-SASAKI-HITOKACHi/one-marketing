@@ -38,6 +38,7 @@ import json
 import pathlib
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -129,6 +130,19 @@ def collect(token: str, prop: str, monday: dt.date) -> dict:
     out["予約フォーム（全ホスト合計）"] = sum(
         v for (h, _), v in sessions.items() if h in YOYAKU_HOSTS)
 
+    # --- 広告グループ別（着地URLの ?ag= から拾う） ---
+    #
+    # **受け側の実装がいらないのが肝。** GA4は着地URLをクエリ付きで持っているので、
+    # 広告のURLに &ag={adgroupid} を足すだけで、広告グループ別のセッションが取れる。
+    # LPの hidden 欄も、Netlify Forms も、台帳の列も増やさなくてよい。
+    ag = {}
+    for (host, land), (n,) in rows(res):
+        q = urllib.parse.parse_qs(urllib.parse.urlparse(land).query)
+        v = (q.get("ag") or [""])[0]
+        if v:
+            ag[(v, land.split("?")[0])] = ag.get((v, land.split("?")[0]), 0) + n
+    out["_ad_groups"] = ag
+
     # --- イベント数 ---
     res = run_report(token, prop, {
         "dateRanges": dr,
@@ -189,6 +203,9 @@ def main() -> None:
         def clean(d: dict) -> dict:
             out = {k: v for k, v in d.items() if not k.startswith("_")}
             out["流入元別"] = d.get("_traffic_src")
+            # (広告グループID, 着地パス) のタプル鍵はJSONにできないので文字列へ
+            out["広告グループ別"] = {f"{g} {path}": v
+                                     for (g, path), v in (d.get("_ad_groups") or {}).items()}
             out["ホスト別の内訳"] = {f"{h} {p}": v
                                      for (h, p), v in (d.get("_sessions") or {}).items()}
             return out
@@ -217,6 +234,19 @@ def main() -> None:
         print("|---|---:|")
         for k, v in sorted(ts.items(), key=lambda x: -x[1]):
             print(f"| {k or '(空)'} | {v:,} |")
+
+    print("\n## 広告グループ（`?ag=`）別のセッション\n")
+    ag = ima.get("_ad_groups") or {}
+    if not ag:
+        print("該当なし（`?ag=` 付きの着地が0件）。"
+              "**広告のURLに `&ag={adgroupid}` が入っていないか、まだクリックがありません。**")
+    else:
+        print("| 広告グループID | 着地ページ | セッション |")
+        print("|---|---|---:|")
+        for (g, path), v in sorted(ag.items(), key=lambda x: -x[1]):
+            print(f"| `{g}` | `{path}` | {v:,} |")
+        print("\n> IDと広告グループ名の対応は Google広告の管理画面で見てください"
+              "（`docs/広告-コンバージョン計測.md`）。")
 
     print("\n> 予約フォームは複数ホストの合計です："
           + " / ".join(f"`{h}`" for h in YOYAKU_HOSTS)
