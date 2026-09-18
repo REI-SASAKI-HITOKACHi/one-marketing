@@ -1188,8 +1188,12 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
        はじめての方に必要な情報（見積り無料・追加請求なし・断れる）に差し替える。
        電話は1画面目に出す。ハウスクリーニングは電話で決める方が多い。
        既存客が来る src（sms・qr 等）の画面は変えない。 */
+    // 広告のキャンペーンごとに src を分ける運用があるので、区切りの前だけで見る。
+    // 例）gads / gads_aircon / gads-brand / GADS_AIRCON → どれも 'gads' 扱い。
+    // 入稿は人が手で打つ。大文字やハイフンで来ても文言が切り替わらない、を避ける。
+    // GA4 と別ホストへの引き継ぎには、切り落とす前の src をそのまま渡す（媒体別に見たいため）。
     var KOUKOKU = ['gads', 'ig', 'fb', 'gbp'];
-    if (KOUKOKU.indexOf(src) !== -1) {
+    if (KOUKOKU.indexOf(String(src).toLowerCase().split(/[-_]/)[0]) !== -1) {
       var sashikae = function (id, html) {
         var el = document.getElementById(id);
         if (el) el.innerHTML = html;
