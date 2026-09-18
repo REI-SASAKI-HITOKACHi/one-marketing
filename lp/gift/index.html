@@ -123,6 +123,15 @@ footer a{color:var(--on-ink)}
   .jisseki{grid-template-columns:1fr;text-align:left}
   .jisseki div{display:flex;gap:10px;align-items:baseline}
 }
+/* 施工写真。lp/mizumawari と同じ作り方に揃えてある */
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
+.shot{position:relative;overflow:hidden;background:var(--ink-2)}
+.shot img{display:block;width:100%;height:100%;object-fit:cover;aspect-ratio:3/4}
+.shot.yoko img{aspect-ratio:4/3}
+.shot .cap{position:absolute;left:0;top:0;font-weight:600;font-size:10.5px;letter-spacing:.14em;
+  padding:4px 11px;background:var(--ink);color:var(--on-ink)}
+.shot.after .cap{background:var(--aqua-fill);color:#fff}
+.shot-note{margin:6px 0 0;font-size:13.5px;line-height:1.75;color:var(--text-2)}
 </style>
 </head>
 <body>
@@ -193,7 +202,29 @@ footer a{color:var(--on-ink)}
         作業中は、汚れがどれだけ出たかをその場でお見せしています。
       </p>
     </div>
-    <div class="machi">【写真・確認待ち】施工写真（汚水・ビフォーアフター／顔の写っていない作業中の写真）をここに入れる。<code>assets/photos/</code> の実写のみ。素材写真は使わない。</div>
+    <div class="ba">
+      <figure class="shot" style="margin:0">
+        <img src="img/bath-before.jpg" alt="浴室の床と壁　洗浄前" loading="lazy" width="600" height="800">
+        <span class="cap">BEFORE</span>
+      </figure>
+      <figure class="shot after" style="margin:0">
+        <img src="img/bath-after.jpg" alt="同じ浴室の床と壁　洗浄後" loading="lazy" width="600" height="800">
+        <span class="cap">AFTER</span>
+      </figure>
+    </div>
+    <p class="shot-note"><b>浴室</b>　同じ日・同じ浴室の、作業の前と後です（2026年7月の施工）。</p>
+
+    <div class="ba">
+      <figure class="shot yoko" style="margin:0">
+        <img src="img/aircon-inside.jpg" alt="壁掛けエアコンの前面パネルを外し、熱交換器のアルミの羽根が見えている状態" loading="lazy" width="800" height="600">
+        <span class="cap">エアコンの中</span>
+      </figure>
+      <figure class="shot" style="margin:0">
+        <img src="img/water.jpg" alt="エアコン1台を洗浄したあとに出た汚水" loading="lazy" width="600" height="800">
+        <span class="cap">洗浄後に出た水</span>
+      </figure>
+    </div>
+    <p class="shot-note"><b>エアコン</b>　前面パネルを外すと、熱交換器のアルミの羽根はこうなっています。右は1台を洗ったあとに出た水です。フィルターを洗っても、この奥までは届きません（2026年7月の施工）。</p>
   </div>
 </section>
 
