@@ -101,5 +101,26 @@
     "media_ids": [
       "1105191442297206"
     ]
+  },
+  {
+    "id": "w01-5",
+    "platform": "instagram",
+    "posted_at": "2026-09-18T09:01:00+09:00",
+    "permalink": "https://www.instagram.com/p/DdaGVqtlyyR/",
+    "post_id": "17970833172156698",
+    "media_ids": [
+      "17970833172156698"
+    ]
+  },
+  {
+    "id": "w01-5",
+    "platform": "facebook",
+    "posted_at": "2026-09-18T09:01:07+09:00",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1106070965542587",
+    "post_id": "103698149101436_1106070965542587",
+    "media_ids": [
+      "1106070865542597",
+      "1106070912209259"
+    ]
   }
 ]
