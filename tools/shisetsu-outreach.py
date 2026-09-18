@@ -444,6 +444,11 @@ NOT_DOGCAT_SITE_RE = re.compile(r"水草|観賞魚|熱帯魚|アクアリウム|
                                 r"飼育相談|サンゴ|海水魚|爬虫類|両生類|昆虫販売|クワガタ|カブトムシ")
 # 犬猫を扱っている手がかり。上の除外語が出ていても、これが出ていれば対象に残す（2026-09-18）
 DOGCAT_RE = re.compile(r"犬|イヌ|ワンちゃん|わんちゃん|子犬|猫|ネコ|ねこ|子猫|トリミング|ドッグ|キャット")
+# 人の美容室・理容室（2026-09-18）。Places の「トリミング」は、ペットの美容と人の美容の両方に付く。
+# No.517「NOT BAD BARBER」（種別=トリミング・サイトが beauty.hotpepper.jp）に読本の依頼を送ってしまった。
+# 犬猫の語が出ないのに人の美容の語が出るページは、業種違いとみなす
+HUMAN_SALON_RE = re.compile(r"美容室|美容院|ヘアサロン|ヘアーサロン|理容室|理髪|バーバー|barber|"
+                            r"カット\s*[¥￥\d]|カラー\s*[¥￥\d]|パーマ\s*[¥￥\d]|縮毛矯正|メンズカット", re.I)
 
 
 CONTACT_LINK_RE = re.compile(r"(問い?合わ?せ|問合せ|お問合わせ|contact|inquiry|mail ?form|メールフォーム)", re.I)
@@ -575,8 +580,12 @@ async def fill_form(pg, url: str, text: str, email_from: str, subject: str, hop:
     #   かねだい 足立店           除外語5種／犬猫の語22回  → **対象**（犬猫も扱う）
     #   ニャンラブ 北綾瀬         除外語5種／犬猫の語132回 → **対象**（猫の店）
     # 大きな店はサイトの案内に全動物を並べるので、除外語は出る。**犬猫の語が出ないことのほうが効く。**
-    if len({m for m in NOT_DOGCAT_SITE_RE.findall(plain)}) >= 2 and len(DOGCAT_RE.findall(plain)) < 3:
+    n_dogcat = len(DOGCAT_RE.findall(plain))
+    if len({m for m in NOT_DOGCAT_SITE_RE.findall(plain)}) >= 2 and n_dogcat < 3:
         return {"ok": False, "reason": "犬猫以外を扱う店（ページの中身で判定）"}
+    # 人の美容室・理容室。Places の「トリミング」には人の美容室も混ざる（2026-09-18 実測）
+    if HUMAN_SALON_RE.search(plain) and n_dogcat < 3:
+        return {"ok": False, "reason": "人の美容室・理容室（業種違い）"}
     # 画像認証・reCAPTCHA v2（チェック式）は機械では通せない → 人（ブラウザ担当）に回す。v3（invisible）はそのまま送れる
     # reCAPTCHA は見える版（チェック式）も見えない版も、こちらでトークンを作れないのでサーバーに弾かれる。
     # g-recaptcha-response の欄があれば、その時点で人に回す（2026-09-14：オリンピック系のフォームで判明）
