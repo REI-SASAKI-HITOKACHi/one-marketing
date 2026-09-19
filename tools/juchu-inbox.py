@@ -14,6 +14,11 @@
   予約フォームと同じ形にする：**ここでは data/calendar/juchu-todo.json を出すところまで**。
   実際の予定づくりは、毎時のルーティンの中でマーケ部長が行う。
 
+【郵便番号】
+  2026-09-19 オーナー指示でフォームの郵便番号欄をなくした。
+  住所から引いてここで入れる（tools/yubin.py）。索引は端末へ送らない。
+  同じ月のタブに、人が入れた「同じ住所＋郵便番号」があれば、そちらを優先する。
+
 【予定のタイトル】
   2026-09-04 のMTG決定「地域（区/市）/施工種類/台数」に揃える。
   **顧客名と金額はタイトルに入れない**（カレンダーを共有したときに外へ出るため）。
@@ -31,6 +36,7 @@ import urllib.request
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 import sheets_client as sc
+import yubin
 
 SS = "1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64"
 SITE_ID = "f1b64c82-173e-4b1a-9e7f-bf24026fed0e"     # oh-naibu-sms-k7q3x（社内用）
@@ -57,6 +63,26 @@ def chiiki(jusho):
     """住所から「江戸川区」「市川市」などを取り出す。取れなければ空。"""
     m = re.search(r"([一-龥ぁ-んァ-ヶ]{2,5}[区市町村])", str(jusho))
     return m.group(1) if m else ""
+
+
+def yubin_dasu(jusho, jisseki):
+    """住所から郵便番号を出す。台帳に人が入れた実績があればそれを優先する。"""
+    j = re.sub(r"[\s\u3000]", "", str(jusho or ""))
+    if not j:
+        return "", ""
+    for ban, you in jisseki.items():
+        if ban and (j.startswith(you) or you.startswith(j[:8])):
+            return ban, "台帳の実績から"
+    y = yubin.hiku(jusho)
+    return (y, "住所から自動判定") if y else ("", "")
+
+
+def _owari_moji(hi, fun):
+    """終了時刻。24時をまたぐときは翌日にする。"""
+    import datetime
+    d0 = datetime.date.fromisoformat(hi) + datetime.timedelta(days=fun // (24 * 60))
+    f = fun % (24 * 60)
+    return f"{d0.isoformat()}T{f//60:02d}:{f%60:02d}:00+09:00"
 
 
 def taitoru(d):
@@ -135,13 +161,23 @@ def main():
                 aita = 4 + i + 1
         gyo = max(aita, 4)
 
+        # 郵便番号は住所から出す（フォームには欄が無い。2026-09-19 オーナー指示）。
+        # 同じタブに人が入れた「郵便番号＋住所」があれば、そちらを先に使う。
+        jisseki = {}
+        for r in call(han(f"'{tab}'!G4:H60")).get("values", []):
+            if len(r) >= 2 and str(r[0]).strip() and str(r[1]).strip():
+                jisseki[str(r[0]).strip()] = re.sub(r"[\s\u3000]", "", str(r[1]))
+        yubin_ban, yubin_moto = yubin_dasu(d.get("住所", ""), jisseki)
+
         hondate = [[
             d.get("売上種類", ""), hi.replace("-", "/"), d.get("流入経路", ""),
-            d.get("氏名", ""), d.get("TEL", ""), d.get("郵便番号", ""),
+            d.get("氏名", ""), d.get("TEL", ""), yubin_ban,
             d.get("住所", ""), d.get("売上（税込）", ""), d.get("実施メニュー", ""),
         ]]
         biko = ("★受注フォームから自動で入りました（" + str(d.get("入力日時", ""))[:16] + "）。"
                 + ("見込み " + str(d.get("見込み金額", "")) + "円。" if d.get("見込み金額") else "")
+                + ("郵便番号は" + yubin_moto + "。" if yubin_moto else "")
+                + ("【ヒアリング】" + str(d["ヒアリング"]) + "　" if d.get("ヒアリング") else "")
                 + str(d.get("備考", "")))
         if a.dry_run:
             print(f"  [予定] {tab} {gyo}行目 ← {d.get('氏名')} / {d.get('実施メニュー')} / {d.get('売上（税込）')}円")
@@ -158,18 +194,27 @@ def main():
         fun = int(str(d.get("所要の目安（分）", "60")) or 60)
         jikoku = str(d.get("開始時刻", "09:00"))[:5] or "09:00"
         h, mi = (int(x) for x in jikoku.split(":"))
-        owari_fun = h * 60 + mi + fun
+        # 終了時刻はフォームで直せる（2026-09-19 オーナー指示）。入っていればそれを使う。
+        owari_ire = str(d.get("終了時刻", "")).strip()[:5]
+        if re.fullmatch(r"\d{1,2}:\d{2}", owari_ire):
+            oh, omi = (int(x) for x in owari_ire.split(":"))
+            owari_fun = oh * 60 + omi
+            if owari_fun <= h * 60 + mi:
+                owari_fun += 24 * 60
+        else:
+            owari_fun = h * 60 + mi + fun
         todo.append({
             "id": s["id"],
             "タイトル": taitoru(d),
             "開始": f"{hi}T{jikoku}:00+09:00",
-            "終了": f"{hi}T{owari_fun//60:02d}:{owari_fun%60:02d}:00+09:00",
+            "終了": _owari_moji(hi, owari_fun),
             "場所": d.get("住所", ""),
             "説明": "\n".join(x for x in [
                 f"{d.get('売上種類','')} {d.get('氏名','')}さま",
                 f"{d.get('実施メニュー','')}",
                 f"¥{d.get('売上（税込）','')}",
                 f"TEL {d.get('TEL','')}" if d.get("TEL") else "",
+                f"【ヒアリング】{d.get('ヒアリング','')}" if d.get("ヒアリング") else "",
                 str(d.get("備考", "")),
                 "※受注フォームから自動で作りました",
             ] if x),
