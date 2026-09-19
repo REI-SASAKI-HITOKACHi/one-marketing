@@ -21,8 +21,8 @@ LOCATIONS = ("Edogawa City,Tokyo,Japan;Koto City,Tokyo,Japan;Sumida City,Tokyo,J
 # src は広告グループの着地ごとに分ける（?src= 規約）。LP は区切りの前だけ見るので
 # gads / gads_aircon のどちらでも文言は切り替わるが、GA4 へは切り落とす前の値が渡る。
 # 全部 gads にすると、同じ /mizumawari/ に着く3グループが GA4 側で見分けられない。
-AIRCON = "https://lp.onehitter.jp/aircon/?src=gads_aircon&cid={campaignid}"
-MIZU = "https://lp.onehitter.jp/mizumawari/?src=gads_mizumawari&cid={campaignid}"
+AIRCON = "https://lp.onehitter.jp/aircon/?src=gads_aircon&cid={campaignid}&ag={adgroupid}"
+MIZU = "https://lp.onehitter.jp/mizumawari/?src=gads_mizumawari&cid={campaignid}&ag={adgroupid}"
 
 # 全角は2、半角は1。Google の見出し30／説明文90／パス15 はこの単位。
 def width(s):
