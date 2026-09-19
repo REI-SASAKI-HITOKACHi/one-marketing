@@ -3,6 +3,12 @@
 
   python3 tools/delete-sheet-tabs.py            # 消す予定を出すだけ（既定）
   python3 tools/delete-sheet-tabs.py --jikkou   # 実際に消す
+  python3 tools/delete-sheet-tabs.py --settou=控え_ --jikkou   # 接頭辞を絞って消す
+
+★ 目次49行目に「履歴退避_冬季見込み客_* の9本は 2026-09-11 の書き換え前の状態です。
+  消さないでください（オーナー指示のバックアップ）」と残っている。
+  控えは git にあるが、**オーナーの指示が生きているうちは触らない。**
+  --settou=控え_ を付けると、この9本を外して実行できる。
 
 ★ オーナー指示（2026-09-18）
   「君が作成したシートのみを対象にしてね。こっちが作成した（元々あった）シートは
@@ -51,6 +57,14 @@ def hikae_ga_aru(namae):
 
 def main():
     jikkou = "--jikkou" in sys.argv
+    # 接頭辞を絞れるようにする（2026-09-19）。
+    # 目次49行目に「履歴退避_冬季見込み客_* の9本は消さないでください（オーナー指示の
+    # バックアップ）」と残っているため、競合しない 控え_ だけを先に消せる形が要る。
+    shibori = None
+    for a in sys.argv[1:]:
+        if a.startswith("--settou="):
+            shibori = a.split("=", 1)[1]
+    settou = (shibori,) if shibori else SETTOU
     token = sc.access_token(sc.load_credentials())
     meta = sc.call(token, f"/{SHEET_ID}", query={"fields": "sheets.properties"})
     tabs = [s["properties"] for s in meta["sheets"]]
@@ -58,7 +72,7 @@ def main():
     kesu, nokosu = [], []
     for t in tabs:
         na = t["title"]
-        if not na.startswith(SETTOU):
+        if not na.startswith(settou):
             continue                      # オーナーのタブ。数えもしない
         ok, riyuu = hikae_ga_aru(na)
         (kesu if ok else nokosu).append((na, t["sheetId"], riyuu))
