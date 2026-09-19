@@ -42,6 +42,9 @@ spec = importlib.util.spec_from_file_location("sc", os.path.join(ROOT, "tools", 
 sc = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(sc)
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import hikae  # noqa: E402  控えは git に取る（20260919-02-crm）
+
 SS = "1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64"
 TAB = "冬季見込み客_2026"
 HEAD_ROW = 5                       # 見出しの行
@@ -421,18 +424,10 @@ def main():
         sys.exit("\n電話番号が通の境界をまたぐ（または本文に無い）ので書き込みません。")
 
     # 書き換える前に控えを取る。
-    # ★Drive のコピーはサービスアカウントに保存容量が無く 403 になる（2026-09-14 確認）。
-    #   同じスプレッドシート内にタブを複製して代える。
-    import datetime
-    meta = sc.call(tok, f"/{SS}?fields=sheets.properties")
-    gid = [s["properties"]["sheetId"] for s in meta["sheets"]
-           if s["properties"]["title"] == TAB][0]
-    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    sc.call(tok, f"/{SS}:batchUpdate", "POST",
-            {"requests": [{"duplicateSheet": {
-                "sourceSheetId": gid,
-                "newSheetName": f"控え_冬季見込み客_{stamp}"}}]})
-    print(f"控えタブを作りました: 控え_冬季見込み客_{stamp}")
+    # ★控えは **スプシのタブではなく git** に取る（20260919-02-crm・全スレ共通）。
+    #   Drive のコピーはサービスアカウントに保存容量が無く 403 になる（2026-09-14 確認）。
+    #   タブに複製する方式は、タブが77本まで膨らんでオーナーから指摘が出たのでやめた。
+    hikae.git_ni_toru(tok, TAB)
 
     data = [{"range": f"{TAB}!F{n}", "values": [[b]]} for n, _, _, b, _ in taishou]
     sc.call(tok, f"/{SS}/values:batchUpdate", "POST",

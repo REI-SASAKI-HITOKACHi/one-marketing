@@ -51,6 +51,7 @@ def _mod(name, path):
 
 sc = _mod("sc", "sheets_client.py")
 meigi = _mod("meigi_check", "meigi_check.py")
+hikae = _mod("hikae", "hikae.py")
 
 SS = "1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64"
 TAB = "冬季見込み客_2026"
@@ -114,14 +115,8 @@ def main():
         print("\n直すものがありません。")
         return 0
 
-    meta = sc.call(tok, f"/{SS}?fields=sheets.properties")
-    gid = [s["properties"]["sheetId"] for s in meta["sheets"]
-           if s["properties"]["title"] == TAB][0]
-    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    sc.call(tok, f"/{SS}:batchUpdate", "POST",
-            {"requests": [{"duplicateSheet": {"sourceSheetId": gid,
-                                              "newSheetName": f"控え_冬季見込み客_{stamp}"}}]})
-    print(f"\n控えタブを作りました: 控え_冬季見込み客_{stamp}")
+    # ★控えはタブではなく git（20260919-02-crm）
+    hikae.git_ni_toru(tok, TAB)
 
     c_ku, c_ri = a1(ix["配信区分"] + 1), a1(ix["送らない理由"] + 1)
     data = []

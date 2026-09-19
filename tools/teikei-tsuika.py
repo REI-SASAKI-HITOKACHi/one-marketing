@@ -47,6 +47,7 @@ def _mod(name, path):
 
 
 sc = _mod("sc", "sheets_client.py")
+hikae = _mod("hikae", "hikae.py")
 
 SS = "1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64"
 TAB = "【毎月更新】リピート/業務提携"
@@ -266,15 +267,8 @@ def main():
         print("\n書くものがありません。")
         return 0
 
-    # ---- 控えを取ってから ----
-    meta = sc.call(tok, f"/{SS}?fields=sheets.properties")
-    gid = [s["properties"]["sheetId"] for s in meta["sheets"]
-           if s["properties"]["title"] == TAB][0]
-    hikae = f"控え_業務提携_{datetime.datetime.now():%Y%m%d-%H%M%S}"
-    sc.call(tok, f"/{SS}:batchUpdate", "POST", {"requests": [{"duplicateSheet": {
-        "sourceSheetId": gid, "newSheetName": hikae,
-        "insertSheetIndex": 0}}]})
-    print(f"\n控えタブを作りました: {hikae}")
+    # ---- 控えを取ってから（★タブではなく git。20260919-02-crm）----
+    hikae.git_ni_toru(tok, TAB)
 
     sc.call(tok, f"/{SS}/values:batchUpdate", "POST",
             {"valueInputOption": "USER_ENTERED", "data": data})

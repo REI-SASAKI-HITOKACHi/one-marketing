@@ -44,6 +44,9 @@ spec = importlib.util.spec_from_file_location("sc", os.path.join(ROOT, "tools", 
 sc = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(sc)
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import hikae  # noqa: E402  控えは git に取る（20260919-02-crm）
+
 SS = "1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64"
 TAB = "【毎月更新】リピート/業務提携"
 WRITE = ("--confirm" in sys.argv and "WRITE" in sys.argv)
@@ -128,13 +131,9 @@ def main():
         print("\n書き込みません（計画のみ）。実行するには: --confirm WRITE")
         return 0
 
-    # 1. 控えタブ
-    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    # 1. 控え（★タブではなく git。20260919-02-crm）
     if not FORMULAS_ONLY:
-        sc.call(tok, f"/{SS}:batchUpdate", "POST",
-                {"requests": [{"duplicateSheet": {"sourceSheetId": gid,
-                                                  "newSheetName": f"控え_業務提携_{stamp}"}}]})
-        print(f"\n控えタブを作りました: 控え_業務提携_{stamp}")
+        hikae.git_ni_toru(tok, TAB)
 
     if not FORMULAS_ONLY:
         # 2〜3. 列を足して見出しと表示形式
