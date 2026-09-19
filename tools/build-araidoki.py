@@ -31,6 +31,7 @@ BRAND = "洗いどき"
 BRAND_EN = "araidoki"
 TAGLINE = "掃除の相談所"
 UNEI = "ワンヒッター株式会社"
+UNEI_TEL = "080-8043-8259"   # tools/media_common.py と同じ。本舗の番号は出さない
 UNEI_ADDR = "〒134-0081 東京都江戸川区北葛西5-14-11"
 FORM_NAME = "araidoki-tehai"
 
@@ -148,7 +149,7 @@ def foot() -> str:
   <div class="wrap">
     <b>{BRAND}｜{TAGLINE}</b>
     <p>
-      運営：{UNEI}（ハウスクリーニング業）<br>
+      運営：{UNEI}（ハウスクリーニング業）／電話 {UNEI_TEL}<br>
       判定は目安です。実際の状態は、作業前に現物を確認してご説明します。<br>
       <a href="./unei.html">運営者情報</a>
       <a href="https://one-hitter.jp/privacy_policy/" target="_blank" rel="noopener">個人情報の取扱いについて</a>

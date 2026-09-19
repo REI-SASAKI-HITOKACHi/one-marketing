@@ -109,14 +109,13 @@ def page(c: dict) -> str:
     <span class="eyebrow">{esc(t['名'])}｜図鑑</span>
     <h1>{esc(c['地名'])}の{esc(t['名'])}の中身</h1>
     <div class="zk-meta">{''.join(f'<span>{esc(m)}</span>' for m in meta)}</div>
-    <p class="lead" style="font-size:12.5px">実際の現場の写真です。お宅が特定できる部分は写していません。</p>
   </div>
 """
     # 組写真（確認済みのペアだけ）
     for b, a in c["組写真"]:
         html += f"""
   <div class="q">
-    <div class="head"><h2>同じ場所を、同じ角度から</h2><p class="why">左が作業前、右が作業後。同一箇所であることを確認して並べています。</p></div>
+    <div class="head"><h2>同じ場所を、同じ角度から</h2><p class="why">左が作業前、右が作業後。</p></div>
     <div class="zk-grid">
       <figure><img src="img/{b}" alt="{esc(t['名'])}の作業前" loading="lazy"><figcaption><b>BEFORE</b> 作業前</figcaption></figure>
       <figure><img src="img/{a}" alt="{esc(t['名'])}の作業後" loading="lazy"><figcaption><b>AFTER</b> 作業後</figcaption></figure>
@@ -162,7 +161,7 @@ def index_page(cases: list) -> str:
   <div class="intro">
     <span class="eyebrow">図鑑</span>
     <h1>汚れの図鑑</h1>
-    <p class="lead">実際の現場で撮った、エアコン・レンジフード・浴室・洗濯機の中身。お宅が特定できる部分は写していません。新しい現場から順に増えます。</p>
+    <p class="lead">実際の現場で撮った、エアコン・レンジフード・浴室・洗濯機の中身。新しい現場から順に増えます。</p>
   </div>
   <div class="zk-list">{items}
   </div>
@@ -183,7 +182,6 @@ def genko(c: dict) -> str:
 
 {c['ひとこと']}
 
-{'同じ場所を同じ角度から撮っています。' if pair else '作業前の写真です。'}撮影 {c['日付']}。お宅が特定できる部分は写していません。
 うちはどう？ → プロフィールのリンクから30秒で判定できます。
 
 {tags}"""
