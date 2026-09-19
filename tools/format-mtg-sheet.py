@@ -13,6 +13,13 @@
   python3 tools/format-mtg-sheet.py            # 何をするか出すだけ
   python3 tools/format-mtg-sheet.py --jikkou   # 当てる
 
+★順番に注意（2026-09-19 に実際に踏んだ）
+  このツールはセル全体の textFormat を上書きするので、**先に張ったリンクが消える。**
+  値を書き換えたあとは、必ずこの順で流すこと。
+    1. python3 tools/format-mtg-sheet.py   --jikkou   （色・折り返し・結合・プルダウン）
+    2. python3 tools/format-mtg-numbers.py --jikkou   （￥・％・3桁区切り）
+    3. python3 tools/link-mtg-sanshou.py   --jikkou   （リンク）★かならず最後
+
 【何をするか】
   1. 全体を折り返し・上揃えに（長い文章が読めるようになる。いちばん効く）
   2. 列幅を、いちばん多い表の形に合わせる
