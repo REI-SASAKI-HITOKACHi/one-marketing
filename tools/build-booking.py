@@ -398,9 +398,28 @@ TEMPLATE = r"""<!doctype html>
     S.menus.forEach(function(m){ n += (state.qty[m.n] || 0); });
     return n;
   }
+  /* 所要時間（分）。
+     複数施工の短縮：1種目につき30分ひく／最大60分まで
+     （MTGシート 第1回 2026-09-04・15行目のオーナー確定ルール。
+      受注フォーム tools/build-juchu.py の keisan() と同じ考え方に揃えてある）。
+     数えるのは「種目の数」で、台数（同じメニューの複数台）では引かない。
+     念のため、引いた結果が1種目ぶんの所要（いちばん長いメニュー1台ぶん）を
+     下回らないようにしている。 */
+  var TANSHUKU_FUN = 30;      // 1種目増えるごとにひく分
+  var TANSHUKU_JOUGEN = 60;   // ひける上限（分）
   function shoyouFun(){
-    var f = 0;
-    S.menus.forEach(function(m){ f += (state.qty[m.n] || 0) * m.m; });
+    var f = 0, shurui = 0, saichou = 0;
+    S.menus.forEach(function(m){
+      var n = state.qty[m.n] || 0;
+      if (!n) { return; }
+      shurui += 1;
+      f += n * m.m;
+      if (m.m > saichou) { saichou = m.m; }
+    });
+    if (shurui >= 2) {
+      f -= Math.min(TANSHUKU_JOUGEN, (shurui - 1) * TANSHUKU_FUN);
+      if (f < saichou) { f = saichou; }
+    }
     return f;
   }
   function kingaku(){
