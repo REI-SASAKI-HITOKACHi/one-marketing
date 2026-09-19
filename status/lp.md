@@ -1,29 +1,31 @@
 # LP・サイト担当 の現況
 
-更新: 2026-09-18 21:54
+更新: 2026-09-19 13:19
 
-2026-09-18 13:xx【配信しました】オーナー本人の確認を直接取って実行。commit a41cd82。
+2026-09-19 04:xx【アンケートの保存を復旧して配信・301一本化も完了】commit a247ff1。
 
-ホスト one-hitter-lp ／ https://lp.onehitter.jp ／ 77ファイル中10ファイル更新
-- /aircon/ /mizumawari/：?src=gads_* を受ける版（広告有効化の条件）
-- LP4本：支払方法・「ご予約の時点では費用は発生しません」・フッターに特商法リンク
-- /tokushoho/：新規公開
-- 予約フォームは触っていない（CMOの回）
+🔴 最大の発見：アンケートの回答は、これまで1件も保存されていなかった。
+フォームに action が無く、post() が何も送らないまま完了画面を出していた。
+お客様には「ありがとうございました」が出て、回答は捨てられていた。
+GA4の survey_complete だけが残っていたので、件数は分かるが中身が無い。
+原因は二重：(1) LPのフォーム差し替えは class="form" を見ており survey-form に当たらない
+(2) アンケートは copy_kanseihin を通るのでその置換自体を通らない。
+docs/survey-redesign.md に仕様はあったが実装が無かった。
+CMOの「先にテスト送信して台帳に入るまで見る」という指示が無ければ気づけなかった。
 
-【配信前に見つけて直した重大な欠け】
-lp/tokushoho/ はビルドを一度も通っておらず、deploy/ に存在していなかった。
-そのまま配信したら「出した」と報告しつつ本番に1ページも増えていなかった。
-copy_kanseihin の対象に tokushoho を追加して解決。
+【直して配信した（オーナー確認を2回取得）】
+- copy_kanseihin に target を渡し Netlify Forms を差し込む。開始タグが無ければ
+  ビルドを止める（黙って保存されない状態に戻らないように）
+- 本番でテスト送信し保存を確認。自由記述・顧客ID（?id=）・src も通ることを手元で確認
+- フォーム通知：info@one-hitter.her.jp と k-watanabe@one-hitter.her.jp（オーナー指定）
+- one-hitter-survey を301専用に。netlify.app も survey.onehitter.jp も
+  lp.onehitter.jp/survey/ へ。クエリ引き継ぎ確認済み。QRの刷り直し不要
+- Search Console の所有権ファイルが survey.onehitter.jp で404だったのも直った
+- canonical を lp.onehitter.jp/survey/ に入れ替え
+- 固定URL5本すべて200
 
-【本番で実測して確認したこと】
-- ?src=gads_aircon / gads_mizumawari / gads_brand / gads の4通りで
-  文言差し替えと1画面目の電話（top 312px）が出る。direct は通常のまま
-- コンバージョン3ラベルとも本番のHTMLに存在
-- 特商法ページ 200・24,693バイト。社名4・所在地1・電話2・支払方法4項目
-- LP4本すべてのフッターから /tokushoho/ へのリンクが出ている（404の時間なし）
-- 固定URL5本（one-hitter-lp.netlify.app）すべて200。1本も落ちていない
-- 98.8% の混入は本番6本すべて0件
+【オーナーへの依頼】本番にテスト行が2件（通常1・迷惑扱い1）。削除をお願いする。
+迷惑扱いはヘッドレスで送った私の試験方法のせい。iPhone条件では通常の箱に入る。
 
-【次】アンケートのGA4（20260914-03-lp）。ただし既に直っており、残るのは
-lp.onehitter.jp/survey/ → survey.onehitter.jp の301が出ていない点のみ。
-計測にも検索にも実害なし。一本化を進めるかCMOの判断待ち。
+【残り】公式サイトの G-DZF7NP8CTG は129ページ中0件で外す対象なし。計測担当の確認待ち。
+【次】10月のギフトブロック（docs/gift/ はまだ私のブランチに来ていない）
