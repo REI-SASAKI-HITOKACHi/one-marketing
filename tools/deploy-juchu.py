@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""受注フォームを社内用ホストへ配信する。
+"""社内用ホスト（受注フォーム・作業完了フォーム・SMSツール）を配信する。
 
 ★ 社内用ホスト oh-naibu-sms-k7q3x にだけ送る。
   お客様用ホスト（yoyaku / lp / survey …）には**絶対に置かない**。
@@ -17,7 +17,8 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 #   2026-09-19 に実際に消した：juchu だけ送って、SMSツール（s.html・qr/・robots.txt）が404になった。
 #   Netlify の配信は「送ったファイルが全部」なので、同居しているものを必ず一緒に送ること。
 SRC_TACHI = [(ROOT / "lp" / "naibu-sms", ""),      # ルートに置く（既存のSMSツール）
-             (ROOT / "lp" / "juchu", "/juchu")]     # /juchu/ に置く（受注フォーム）
+             (ROOT / "lp" / "juchu", "/juchu"),     # /juchu/ に置く（受注フォーム）
+             (ROOT / "lp" / "kanryo", "/kanryo")]   # /kanryo/ に置く（作業完了フォーム）
 API = "https://api.netlify.com/api/v1"
 SITE_ID = "f1b64c82-173e-4b1a-9e7f-bf24026fed0e"   # oh-naibu-sms-k7q3x（社内用）
 SITE_NAME = "oh-naibu-sms-k7q3x"
@@ -57,6 +58,8 @@ def main():
                 files[saki + "/" + p.relative_to(moto).as_posix()] = p
     if "/juchu/index.html" not in files:
         sys.exit("受注フォームがありません。先に python3 tools/build-juchu.py を実行してください。")
+    if "/kanryo/index.html" not in files:
+        sys.exit("作業完了フォームがありません。先に python3 tools/build-kanryo.py を実行してください。")
     if "/s.html" not in files:
         sys.exit("SMSツール（s.html）がありません。まるごと配信できないので中止します。")
     print(f"配信先: {SITE_NAME}（社内用・{SITE_ID}）")
@@ -85,8 +88,9 @@ def main():
     if d["state"] != "ready":
         sys.exit("配信に失敗しました: " + str(d.get("error_message")))
     moto = d.get("ssl_url") or d.get("deploy_ssl_url")
-    print("受注フォーム:", moto + "/juchu/")
-    print("SMSツール  :", moto + "/s.html")
+    print("受注フォーム  :", moto + "/juchu/")
+    print("作業完了フォーム:", moto + "/kanryo/")
+    print("SMSツール    :", moto + "/s.html")
 
 
 if __name__ == "__main__":

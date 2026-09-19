@@ -44,6 +44,7 @@ FORM = "juchu"
 SUMI = ROOT / "data" / "juchu-torikomi.json"          # 取り込み済みのID（タブを増やさない）
 TEIKEI = ROOT / "data" / "teikei-saki.json"           # 提携先の選択肢（表記ゆれ防止）
 TODO = ROOT / "data" / "calendar" / "juchu-todo.json"
+KANRYO = ROOT / "data" / "kanryo-yotei.json"   # 作業完了フォームを送る材料（tools/kanryo-okuru.py）
 TEST = ("テスト", "test", "てすと")
 NETLIFY_TOKEN = os.path.expanduser("~/.config/one-hitter/netlify-token.txt")
 
@@ -140,6 +141,7 @@ def main():
         return f"/{SS}/values/" + urllib.parse.quote(rng, safe="")
 
     todo = json.loads(TODO.read_text(encoding="utf-8")) if TODO.exists() else []
+    kanryo = json.loads(KANRYO.read_text(encoding="utf-8")) if KANRYO.exists() else []
     shiranai = []   # 一覧に無い提携先（台帳に足す必要がある）
     teikei = set(json.loads(TEIKEI.read_text(encoding="utf-8"))["選択肢"]) if TEIKEI.exists() else set()
     ireta = []
@@ -225,6 +227,18 @@ def main():
             ] if x),
             "台帳": f"{tab} {gyo}行目",
         })
+        # 作業完了フォームを送るための材料。**お客様の情報はここ（手元）にだけ置く。**
+        #   URLの # に入れて送るので、社内ホストには置かない（tools/build-kanryo.py の説明）
+        kanryo.append({
+            "id": s["id"],
+            "氏名": d.get("氏名", ""),
+            "売上種類": d.get("売上種類", ""),
+            "施工日付": hi,
+            "開始時刻": jikoku,
+            "メニュー": [x for x in str(d.get("実施メニュー", "")).split("／") if x],
+            "金額": str(d.get("売上（税込）", "")),
+            "台帳": f"{tab} {gyo}行目",
+        })
         ireta.append(s["id"])
 
     if shiranai:
@@ -240,6 +254,7 @@ def main():
         return
     TODO.parent.mkdir(parents=True, exist_ok=True)
     TODO.write_text(json.dumps(todo, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    KANRYO.write_text(json.dumps(kanryo, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     SUMI.write_text(json.dumps(sorted(sumi | set(ireta)), ensure_ascii=False, indent=2) + "\n",
                     encoding="utf-8")
     print(f"\nカレンダーに作る予定: {TODO}（{len(todo)}件）")
