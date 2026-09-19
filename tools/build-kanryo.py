@@ -13,6 +13,8 @@
     ２．アンケート依頼画面下部に次へボタンを設置
     ３．作業完了フォーム本編
       ・施工写真添付欄（マーケ部長が即収集してSNS投稿へ反映させる）
+        → 2026-09-19 オーナー指示で、複数を一度に選んで最大20枚まで。
+          それ以上の現場は、残りを手でドライブへ上げる。
       ・作業終了時刻（データを蓄積・集計して後から施工時間計算の正確化への資産とする）
       ・施工内容（受注フォームの内容を自動表示して実際に施工した項目にチェック）
         表示＋追加受注欄（メニュー選択肢＋手入力欄｜追加受注がある場合は最終金額を
@@ -116,14 +118,20 @@ HTML = r"""<!doctype html>
  .juchu{background:var(--usu);border-radius:10px;padding:12px;font-size:14px}
  .juchu b{font-size:16px}
  .juchu div{padding:2px 0}
- .shashin{display:grid;grid-template-columns:1fr 1fr;gap:10px}
- .waku{border:1.5px dashed var(--fuchi);border-radius:10px;aspect-ratio:4/3;display:flex;
-   align-items:center;justify-content:center;position:relative;overflow:hidden;background:var(--usu);cursor:pointer}
- .waku img{width:100%;height:100%;object-fit:cover}
- .waku span{font-size:13px;color:var(--gure);text-align:center;padding:6px}
- .waku input{position:absolute;inset:0;opacity:0;cursor:pointer}
- .waku em{position:absolute;right:4px;top:4px;background:rgba(0,0,0,.6);color:#fff;font-style:normal;
-   font-size:11px;padding:2px 6px;border-radius:6px}
+ .erabu-sha{position:relative;display:block;border:1.5px dashed var(--ao);border-radius:10px;
+   padding:18px 12px;text-align:center;background:var(--usu);color:var(--ao);
+   font-size:15px;font-weight:700;cursor:pointer}
+ .erabu-sha input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+ .sha-joutai{font-size:13px;color:var(--gure);margin-top:8px}
+ .sha-joutai.ippai{color:var(--aka);font-weight:700}
+ .shashin{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+ .sha{position:relative;aspect-ratio:1/1;border:1px solid var(--fuchi);border-radius:10px;
+   overflow:hidden;background:var(--usu)}
+ .sha img{width:100%;height:100%;object-fit:cover;display:block}
+ .sha em{position:absolute;left:3px;bottom:3px;background:rgba(0,0,0,.55);color:#fff;font-style:normal;
+   font-size:10px;padding:1px 5px;border-radius:6px}
+ .sha button{position:absolute;right:3px;top:3px;width:28px;height:28px;padding:0;border:0;border-radius:50%;
+   background:rgba(0,0,0,.62);color:#fff;font-size:16px;line-height:1;cursor:pointer}
  .kz{display:flex;align-items:center;gap:6px}
  .kz button{width:46px;height:46px;font-size:24px;line-height:1;border-radius:10px;
    border:1.5px solid var(--fuchi);background:#fff;color:var(--moji);cursor:pointer}
@@ -193,8 +201,13 @@ HTML = r"""<!doctype html>
 
 <section>
   <h2>1　施工写真<span class="hitsu">1枚以上</span></h2>
+  <label class="erabu-sha" id="sha-erabu">写真を選ぶ（まとめて選べます）
+    <input type="file" id="sha-file" accept="image/*" multiple>
+  </label>
+  <p class="sha-joutai" id="sha-joutai"></p>
   <div class="shashin" id="shashin"></div>
-  <p class="chu">送る前に小さくするので、枚数が多くても重くなりません。<br>
+  <p class="chu">あとからもう一度選ぶと、前の写真に足されます。20枚まで入ります。<br>
+     送る前に小さくするので、枚数が多くても重くなりません。<br>
      SNSに使うので、お宅が分かるもの（表札・窓の外・郵便物）は写さないでください。</p>
   <p class="err" id="e-shashin">写真を1枚以上入れてください</p>
 </section>
@@ -289,16 +302,19 @@ HTML = r"""<!doctype html>
   <input type="text" name="BeforeAfter確認済み">
   <input type="text" name="お客様周辺情報"><input type="text" name="迷ったこと">
   <input type="text" name="入力日時">
-  <input type="file" name="施工写真1"><input type="file" name="施工写真2">
-  <input type="file" name="施工写真3"><input type="file" name="施工写真4">
+  <input type="file" name="施工写真1"><input type="file" name="施工写真2"><input type="file" name="施工写真3"><input type="file" name="施工写真4">
+  <input type="file" name="施工写真5"><input type="file" name="施工写真6"><input type="file" name="施工写真7"><input type="file" name="施工写真8">
+  <input type="file" name="施工写真9"><input type="file" name="施工写真10"><input type="file" name="施工写真11"><input type="file" name="施工写真12">
+  <input type="file" name="施工写真13"><input type="file" name="施工写真14"><input type="file" name="施工写真15"><input type="file" name="施工写真16">
+  <input type="file" name="施工写真17"><input type="file" name="施工写真18"><input type="file" name="施工写真19"><input type="file" name="施工写真20">
 </form>
 
 <script>
 (function(){
   var TSUIKA = __TSUIKA__;
   var $ = function(id){ return document.getElementById(id); };
-  var WAKU = 4, MAX = 1600, SHITSU = 0.82;
-  var shashin = [];       // {name, blob}
+  var MAI = 20, MAX = 1600, SHITSU = 0.82;   // 20枚まで。超えたぶんはドライブへ手で
+  var shashin = [];       // {blob, puri}
   var tsuikaHai = [];     // {na, kin, kazu}
   var jotai = { kure:'' };
   var J = null;           // 受注の内容（URLの # から）
@@ -365,29 +381,57 @@ HTML = r"""<!doctype html>
     img.src = url;
   }
   (function(){
-    var oya = $('shashin');
-    for (var i = 0; i < WAKU; i++) {
-      (function(i){
-        var w = document.createElement('div'); w.className = 'waku';
-        var s = document.createElement('span'); s.textContent = i === 0 ? '写真を選ぶ' : '＋';
-        var f = document.createElement('input');
-        f.type = 'file'; f.accept = 'image/*'; f.setAttribute('aria-label', (i+1) + '枚目の写真');
-        f.addEventListener('change', function(){
-          var file = f.files && f.files[0]; if (!file) { return; }
-          s.textContent = '小さくしています…';
-          chiisaku(file, function(bl, puri){
-            shashin[i] = { name: '写真' + (i+1) + '.jpg', blob: bl };
-            w.innerHTML = '';
-            if (puri) { var im = new Image(); im.src = puri; w.appendChild(im); }
-            var em = document.createElement('em');
-            em.textContent = Math.round(bl.size / 1024) + 'KB';
-            w.appendChild(em); w.appendChild(f);
-            kakusu('e-shashin');
-          });
-        });
-        w.appendChild(s); w.appendChild(f); oya.appendChild(w);
-      })(i);
+    var fin = $('sha-file'), oya = $('shashin'), jo = $('sha-joutai');
+
+    function joutai(moji, warui){
+      jo.textContent = moji || (shashin.length + '枚／' + MAI + '枚まで');
+      jo.className = 'sha-joutai' + (warui ? ' ippai' : '');
     }
+    function narabu(){
+      oya.innerHTML = '';
+      shashin.forEach(function(s, i){
+        var d = document.createElement('div'); d.className = 'sha';
+        if (s.puri) { var im = new Image(); im.src = s.puri; im.alt = (i+1) + '枚目'; d.appendChild(im); }
+        var em = document.createElement('em');
+        em.textContent = Math.round(s.blob.size / 1024) + 'KB';
+        d.appendChild(em);
+        var b = document.createElement('button');
+        b.type = 'button'; b.textContent = '×';
+        b.setAttribute('aria-label', (i+1) + '枚目を消す');
+        b.addEventListener('click', function(){ shashin.splice(i, 1); narabu(); joutai(); });
+        d.appendChild(b); oya.appendChild(d);
+      });
+    }
+    fin.addEventListener('change', function(){
+      var hai = Array.prototype.slice.call(fin.files || []);
+      fin.value = '';                       // 同じ写真をもう一度選べるように空にする
+      if (!hai.length) { return; }
+      var aki = Math.max(0, MAI - shashin.length);
+      var afure = Math.max(0, hai.length - aki);
+      hai = hai.slice(0, aki);
+      if (!hai.length) {
+        joutai('写真は' + MAI + '枚までです。残りはドライブへ手でアップしてください。', 1);
+        return;
+      }
+      var i = 0;
+      (function tsugi(){
+        if (i >= hai.length) {
+          narabu();
+          if (afure) {
+            joutai(shashin.length + '枚。' + MAI + '枚を超えたので、'
+                   + afure + '枚は入りませんでした。残りはドライブへ手でアップしてください。', 1);
+          } else { joutai(); }
+          kakusu('e-shashin');
+          return;
+        }
+        joutai((i + 1) + '/' + hai.length + ' 枚を準備しています…');
+        chiisaku(hai[i], function(bl, puri){
+          shashin.push({ blob: bl, puri: puri });
+          i += 1; narabu(); tsugi();
+        });
+      })();
+    });
+    joutai();
   })();
 
   /* ---- 2 作業終了時刻 ---- */
@@ -504,7 +548,7 @@ HTML = r"""<!doctype html>
   $('send').addEventListener('click', function(){
     if ($('hp').value) { return; }
     var ng = null;
-    if (!shashin.filter(Boolean).length) { dasu('e-shashin'); ng = 1; }
+    if (!shashin.length) { dasu('e-shashin'); ng = 1; }
     var yatta = [], yaranai = [];
     ((J && J.m) || []).forEach(function(na, i){ (naiyoIre[i] ? yatta : yaranai).push(na); });
     if ((J && J.m || []).length && !yatta.length && !tsuikaHai.length) { dasu('e-naiyo'); ng = 1; }
@@ -547,7 +591,7 @@ HTML = r"""<!doctype html>
     };
     Object.keys(atai).forEach(function(k){ fd.append(k, atai[k]); });
     shashin.forEach(function(s, i){
-      if (s) { fd.append('施工写真' + (i+1), new File([s.blob], s.name, {type:'image/jpeg'})); }
+      fd.append('施工写真' + (i+1), new File([s.blob], '写真' + (i+1) + '.jpg', {type:'image/jpeg'}));
     });
     var b = $('send'); b.disabled = true; b.textContent = '送っています…';
     fetch('/', { method:'POST', body: fd })
@@ -555,7 +599,7 @@ HTML = r"""<!doctype html>
         document.body.className = 'sumi';
         $('head').style.display = 'none';
         $('owari-naka').textContent = atai['氏名'] + ' さま　'
-          + atai['作業終了時刻'] + ' 終了　写真 ' + shashin.filter(Boolean).length + '枚';
+          + atai['作業終了時刻'] + ' 終了　写真 ' + shashin.length + '枚';
         window.scrollTo(0,0);
       })
       .catch(function(){
