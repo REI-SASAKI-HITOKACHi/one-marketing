@@ -12,6 +12,12 @@
     ・**カレンダーの予定はフォームが作る**（和真さんの入力を1回にする）
     ・**受注が決まった時点**で入れる（金額は見込みでよく、あとから直せる）
 
+  オーナー指示（2026-09-19 第3弾）
+    ・提携先はプルダウン選択へ（表記ゆれ防止）。新規入力欄もほしい → data/teikei-saki.json
+    ・**本舗はキャンペーンごとに料金が変わる。和真さんからLINEで知らせが来たら、
+      その都度いちばん新しい料金を本部サイトで確認して data/prices-honpo.json に反映し、
+      build → deploy まで流すこと。**（手順は docs/受注フォーム.md）
+
   オーナー指示（2026-09-19 第2弾・8点）
     1 流入経路は売上シートの選択肢を全部出す      → data/ryunyu-keiro.json
     2 ワンヒッターと本舗で料金が違う。本舗は本部HPの正規料金 → data/prices-honpo.json
@@ -108,8 +114,11 @@ def yotei_dasu():
 
 def main():
     oh = hyou(json.loads((ROOT / "data" / "prices.json").read_text(encoding="utf-8")), "oh")
-    honpo = hyou(json.loads((ROOT / "data" / "prices-honpo.json").read_text(encoding="utf-8")), "honpo")
+    honpo_moto = json.loads((ROOT / "data" / "prices-honpo.json").read_text(encoding="utf-8"))
+    honpo_toku = honpo_moto.get("取得日", "（不明）")
+    honpo = hyou(honpo_moto, "honpo")
     keiro = json.loads((ROOT / "data" / "ryunyu-keiro.json").read_text(encoding="utf-8"))
+    teikei = json.loads((ROOT / "data" / "teikei-saki.json").read_text(encoding="utf-8"))
     yotei, toku = yotei_dasu()
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -118,14 +127,17 @@ def main():
                    .replace("__HONPO__", json.dumps(honpo, ensure_ascii=False))
                    .replace("__KEIRO__", json.dumps(keiro["選択肢"], ensure_ascii=False))
                    .replace("__HOUJIN__", json.dumps(keiro["法人名を聞く"], ensure_ascii=False))
-                   .replace("__HEARING__", json.dumps(HEARING, ensure_ascii=False)),
+                   .replace("__HEARING__", json.dumps(HEARING, ensure_ascii=False))
+                   .replace("__TEIKEI__", json.dumps(teikei["選択肢"], ensure_ascii=False)),
                    encoding="utf-8")
     print(f"書き出しました: {OUT}  {OUT.stat().st_size:,} bytes")
     print(f"  ワンヒッター 本メニュー {len(oh['menu'])}件／オプション {len(oh['opt'])}件"
           f"／繁忙期加算 {oh['hanki']['金額']}円（{oh['hanki']['対象月']}月）")
     print(f"  おそうじ本舗 本メニュー {len(honpo['menu'])}件／オプション {len(honpo['opt'])}件"
           f"／繁忙期加算なし（本部は土日祝の割増なし）")
-    print(f"  流入経路 {len(keiro['選択肢'])}件／ヒアリング {len(HEARING)}件")
+    print(f"  流入経路 {len(keiro['選択肢'])}件／提携先 {len(teikei['選択肢'])}件／ヒアリング {len(HEARING)}件")
+    print(f"  ★本舗の料金は {honpo_toku} 取得。キャンペーンが変わったら "
+          f"data/prices-honpo.json を直して流し直すこと")
     print(f"  既存の予定 {YOTEI}  {YOTEI.stat().st_size:,} bytes（{len(yotei)}件・取得 {toku}）")
 
 
@@ -153,8 +165,13 @@ HTML = r"""<!doctype html>
  .erabu.komakai button{min-width:0;flex:0 1 auto;padding:10px 12px;font-size:14px}
  .erabu button[aria-pressed=true]{background:var(--ao);border-color:var(--ao);color:#fff;font-weight:700}
  label{display:block;font-size:13px;color:var(--gure);margin:12px 0 4px}
- input[type=text],input[type=tel],input[type=date],input[type=time],input[type=number],textarea{
-   width:100%;padding:12px;font-size:16px;border:1.5px solid var(--fuchi);border-radius:10px;background:#fff}
+ input[type=text],input[type=tel],input[type=date],input[type=time],input[type=number],textarea,select{
+   width:100%;padding:12px;font-size:16px;border:1.5px solid var(--fuchi);border-radius:10px;background:#fff;
+   color:var(--moji);-webkit-appearance:none;appearance:none}
+ select{background-image:linear-gradient(45deg,transparent 50%,var(--gure) 50%),
+   linear-gradient(135deg,var(--gure) 50%,transparent 50%);
+   background-position:calc(100% - 18px) 21px,calc(100% - 12px) 21px;
+   background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:36px}
  textarea{min-height:76px}
  .menu-gyo{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--usu)}
  .menu-gyo .na{flex:1;font-size:14px;line-height:1.45}
@@ -215,8 +232,13 @@ HTML = r"""<!doctype html>
   <div class="erabu komakai" id="keiro"></div>
   <p class="err" id="e-keiro">選んでください</p>
   <div id="houjin-box" hidden>
-    <label>提携先・紹介元のお名前</label>
-    <input type="text" id="houjin" placeholder="例）株式会社レジェンド">
+    <label>提携先・紹介元</label>
+    <select id="houjin-sel"></select>
+    <div id="houjin-shin" hidden>
+      <label>新しい先のお名前<span class="hitsu">一覧に無いとき</span></label>
+      <input type="text" id="houjin" placeholder="例）株式会社◯◯">
+      <p class="chu">台帳にも足しておきます。会社名は正式名称でお願いします。</p>
+    </div>
   </div>
 </section>
 
@@ -314,7 +336,8 @@ HTML = r"""<!doctype html>
 <script>
 (function(){
   var HYOU = { 'One Hitter': __OH__, '本舗': __HONPO__ };
-  var KEIRO = __KEIRO__, HOUJIN = __HOUJIN__, HEARING = __HEARING__;
+  var KEIRO = __KEIRO__, HOUJIN = __HOUJIN__, HEARING = __HEARING__, TEIKEI = __TEIKEI__;
+  var SHINKI = '＋ 新しい先を入れる（一覧に無い）';
   var $ = function(id){ return document.getElementById(id); };
   var jotai = { shurui:'', keiro:'', kazu:{}, optKazu:{}, owariTe:false };
   var YOTEI = null;
@@ -331,6 +354,25 @@ HTML = r"""<!doctype html>
     });
   }
   botanTsukuru($('keiro'), KEIRO);
+
+  /* ---- 提携先・紹介元（表記ゆれを防ぐためプルダウン。無い先は新規入力） ---- */
+  (function(){
+    var sel = $('houjin-sel');
+    [''].concat(TEIKEI).concat([SHINKI]).forEach(function(v){
+      var o = document.createElement('option');
+      o.value = v; o.textContent = v || '選んでください';
+      sel.appendChild(o);
+    });
+    sel.addEventListener('change', function(){
+      $('houjin-shin').hidden = (sel.value !== SHINKI);
+      if (sel.value !== SHINKI) { $('houjin').value = ''; }
+    });
+  })();
+  function houjinMoji(){
+    var sel = $('houjin-sel');
+    if ($('houjin-box').hidden) { return ''; }
+    return (sel.value === SHINKI) ? $('houjin').value.trim() : sel.value;
+  }
 
   function botan(oyaId, key, ato){
     var oya = $(oyaId);
@@ -613,7 +655,7 @@ HTML = r"""<!doctype html>
       '見込み金額': String(mikomi),
       '実施メニュー': menuMoji(),
       '所要の目安（分）': String(jotai.fun),
-      '法人名': $('houjin').value.trim(),
+      '法人名': houjinMoji(),
       'ヒアリング': kikuMoji(),
       '備考': $('memo').value.trim(),
       '入力日時': new Date().toISOString()

@@ -42,6 +42,7 @@ SS = "1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64"
 SITE_ID = "f1b64c82-173e-4b1a-9e7f-bf24026fed0e"     # oh-naibu-sms-k7q3x（社内用）
 FORM = "juchu"
 SUMI = ROOT / "data" / "juchu-torikomi.json"          # 取り込み済みのID（タブを増やさない）
+TEIKEI = ROOT / "data" / "teikei-saki.json"           # 提携先の選択肢（表記ゆれ防止）
 TODO = ROOT / "data" / "calendar" / "juchu-todo.json"
 TEST = ("テスト", "test", "てすと")
 NETLIFY_TOKEN = os.path.expanduser("~/.config/one-hitter/netlify-token.txt")
@@ -139,6 +140,8 @@ def main():
         return f"/{SS}/values/" + urllib.parse.quote(rng, safe="")
 
     todo = json.loads(TODO.read_text(encoding="utf-8")) if TODO.exists() else []
+    shiranai = []   # 一覧に無い提携先（台帳に足す必要がある）
+    teikei = set(json.loads(TEIKEI.read_text(encoding="utf-8"))["選択肢"]) if TEIKEI.exists() else set()
     ireta = []
     for s in atarashii:
         d = s.get("data") or {}
@@ -189,6 +192,8 @@ def main():
             if d.get("法人名"):
                 call(han(f"'{tab}'!U{gyo}"), "PUT", {"values": [[d["法人名"]]]},
                      q={"valueInputOption": "USER_ENTERED"})
+        if d.get("法人名") and teikei and d["法人名"] not in teikei:
+            shiranai.append((d["法人名"], f"{tab} {gyo}行目"))
             print(f"  入れました: {tab} {gyo}行目 ← {d.get('氏名')}")
 
         fun = int(str(d.get("所要の目安（分）", "60")) or 60)
@@ -221,6 +226,14 @@ def main():
             "台帳": f"{tab} {gyo}行目",
         })
         ireta.append(s["id"])
+
+    if shiranai:
+        # 提携先はプルダウンから選ぶ決まり（表記ゆれ防止）。新しい名前は人が台帳へ足す。
+        print(f"\n🔴 一覧に無い提携先が {len(shiranai)}件 届いています。**台帳に足してください。**")
+        for na, ba in shiranai:
+            print(f"   - 「{na}」（{ba}）")
+        print("   足す先: スプレッドシートの『【毎月更新】リピート/業務提携』タブ B列")
+        print("   足したら: python3 tools/build-teikei-list.py → build-juchu.py → deploy-juchu.py")
 
     if a.dry_run:
         print(f"\n--dry-run のため書いていません。カレンダーの予定 {len(todo)}件ぶんも作っていません。")
