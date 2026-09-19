@@ -28,8 +28,22 @@ if grep -q '`' src/Calc.html || grep -q '\${' src/Calc.html; then
   exit 1
 fi
 
+# --- Python の呼び名を決める ---
+# Windows（Git Bash）には python3 が無く、python か py -3 になる。
+# 呼び名の違いだけでビルドが落ちて、テストが誤って失敗するのを防ぐ。
+if command -v python3 >/dev/null 2>&1; then
+  PY_CMD="python3"
+elif command -v python >/dev/null 2>&1; then
+  PY_CMD="python"
+elif command -v py >/dev/null 2>&1; then
+  PY_CMD="py -3"
+else
+  echo "エラー: python が見つかりません（python3 / python / py -3 のどれか）。" >&2
+  exit 1
+fi
+
 # --- コード：3つの.gsを連結し、計算エンジンを埋め込む ---
-python3 - <<'PY'
+$PY_CMD - <<'PY'
 import io, re
 
 calc = io.open('src/Calc.html', encoding='utf-8').read()

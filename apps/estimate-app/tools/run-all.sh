@@ -74,9 +74,9 @@ else
 fi
 
 step "12. 貼り付けバンドルがsrcと一致しているか"
-before=$(md5sum deploy-paste/* 2>/dev/null | md5sum)
+before=$(node tools/hash-files.js deploy-paste)
 if bash tools/build-paste-bundle.sh >/dev/null 2>&1; then
-  after=$(md5sum deploy-paste/* 2>/dev/null | md5sum)
+  after=$(node tools/hash-files.js deploy-paste)
   if [ "$before" = "$after" ]; then
     printf '  ✓ deploy-paste/ は最新\n'
   else
@@ -87,9 +87,9 @@ else
 fi
 
 step "13. マスタTSVがコードと一致しているか"
-before=$(md5sum master/*.tsv 2>/dev/null | md5sum)
+before=$(node tools/hash-files.js master .tsv)
 node tools/gen-master-tsv.js >/dev/null
-after=$(md5sum master/*.tsv 2>/dev/null | md5sum)
+after=$(node tools/hash-files.js master .tsv)
 if [ "$before" = "$after" ]; then
   printf '  ✓ master/*.tsv は最新\n'
 else
