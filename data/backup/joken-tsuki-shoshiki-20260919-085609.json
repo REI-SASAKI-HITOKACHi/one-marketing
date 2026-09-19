@@ -1,0 +1,2709 @@
+{
+  "冬季見込み客_2026": [
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1005,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$E6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1005,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1005,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$E6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1005,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$E6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$E6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 1006,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 962,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 962,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 962,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 962,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 962,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 962,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 962,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$F6<>\"\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8784314,
+            "green": 0.9490196,
+            "blue": 0.9098039
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8784314,
+              "green": 0.9490196,
+              "blue": 0.9098039
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 962,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$I6<>\"送信可\""
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.54901963,
+              "green": 0.54901963,
+              "blue": 0.54901963
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.54901963,
+                "green": 0.54901963,
+                "blue": 0.54901963
+              }
+            }
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 962,
+          "startColumnIndex": 17,
+          "endColumnIndex": 18
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "TEXT_EQ",
+          "values": [
+            {
+              "userEnteredValue": "SMS不可"
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 1,
+            "green": 0.8862745,
+            "blue": 0.8666667
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 1,
+              "green": 0.8862745,
+              "blue": 0.8666667
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 962,
+          "startColumnIndex": 17,
+          "endColumnIndex": 18
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "TEXT_EQ",
+          "values": [
+            {
+              "userEnteredValue": "除外"
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 962,
+          "startColumnIndex": 17,
+          "endColumnIndex": 18
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "TEXT_EQ",
+          "values": [
+            {
+              "userEnteredValue": "保留"
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 1,
+            "green": 0.9490196,
+            "blue": 0.8
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 1,
+              "green": 0.9490196,
+              "blue": 0.8
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 962,
+          "startColumnIndex": 17,
+          "endColumnIndex": 18
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "TEXT_EQ",
+          "values": [
+            {
+              "userEnteredValue": "送信可"
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8392157,
+            "green": 0.9372549,
+            "blue": 0.8862745
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8392157,
+              "green": 0.9372549,
+              "blue": 0.8862745
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 962,
+          "startColumnIndex": 17,
+          "endColumnIndex": 18
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "TEXT_EQ",
+          "values": [
+            {
+              "userEnteredValue": "SMS不可"
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 1,
+            "green": 0.8862745,
+            "blue": 0.8666667
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 1,
+              "green": 0.8862745,
+              "blue": 0.8666667
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 962,
+          "startColumnIndex": 17,
+          "endColumnIndex": 18
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "TEXT_EQ",
+          "values": [
+            {
+              "userEnteredValue": "除外"
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.92941177,
+            "green": 0.92941177,
+            "blue": 0.92941177
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.92941177,
+              "green": 0.92941177,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 962,
+          "startColumnIndex": 17,
+          "endColumnIndex": 18
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "TEXT_EQ",
+          "values": [
+            {
+              "userEnteredValue": "保留"
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 1,
+            "green": 0.9490196,
+            "blue": 0.8
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 1,
+              "green": 0.9490196,
+              "blue": 0.8
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 962,
+          "startColumnIndex": 17,
+          "endColumnIndex": 18
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "TEXT_EQ",
+          "values": [
+            {
+              "userEnteredValue": "送信可"
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.8392157,
+            "green": 0.9372549,
+            "blue": 0.8862745
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.8392157,
+              "green": 0.9372549,
+              "blue": 0.8862745
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 962,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$A6<=3"
+            }
+          ]
+        },
+        "format": {
+          "backgroundColor": {
+            "red": 0.88235295,
+            "green": 0.93333334,
+            "blue": 0.92941177
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.88235295,
+              "green": 0.93333334,
+              "blue": 0.92941177
+            }
+          }
+        }
+      }
+    },
+    {
+      "ranges": [
+        {
+          "sheetId": 420479187,
+          "startRowIndex": 5,
+          "endRowIndex": 962,
+          "startColumnIndex": 0,
+          "endColumnIndex": 27
+        }
+      ],
+      "booleanRule": {
+        "condition": {
+          "type": "CUSTOM_FORMULA",
+          "values": [
+            {
+              "userEnteredValue": "=$A6=9"
+            }
+          ]
+        },
+        "format": {
+          "textFormat": {
+            "foregroundColor": {
+              "red": 0.6784314,
+              "green": 0.70980394,
+              "blue": 0.6862745
+            },
+            "foregroundColorStyle": {
+              "rgbColor": {
+                "red": 0.6784314,
+                "green": 0.70980394,
+                "blue": 0.6862745
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "お詫びSMS_20260912": []
+}
