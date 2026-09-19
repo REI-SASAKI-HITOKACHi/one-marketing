@@ -299,6 +299,8 @@ def pick(rows: list, n: int, how: str, exclude: tuple = ()) -> list:
             continue  # 読本の相手に合わない店には送らない
         if NO_STORE_RE.search(r["施設名"]):
             continue  # カードを置く実店舗が無い（ネット完結）事業者には送らない（2026-09-15）
+        if ng_type(r["種別"], r.get("type", ""), r["施設名"]):
+            continue  # Places の type が業種違い（2026-09-20。No.514 玩具店・No.517 理容室で2回続けた）
         c = r["contact"]
         if c.get("no_sales"):
             continue
@@ -450,6 +452,52 @@ DOGCAT_RE = re.compile(r"犬|イヌ|ワンちゃん|わんちゃん|子犬|猫|�
 HUMAN_SALON_RE = re.compile(r"美容室|美容院|ヘアサロン|ヘアーサロン|理容室|理髪|バーバー|barber|"
                             r"カット\s*[¥￥\d]|カラー\s*[¥￥\d]|パーマ\s*[¥￥\d]|縮毛矯正|メンズカット", re.I)
 
+# Places の `type` で、名前もページも見ずに業種違いを弾く（2026-09-20）。
+# 「種別」は検索語（例「台東区 ペットショップ」）から付いているだけで、店の実態とは限らない。
+# No.514「ケンエレスタンド エキュート上野店」（type=toy_store の玩具・雑貨店）に読本の依頼を送っていた。
+# No.517「NOT BAD BARBER」（type=barber_shop）も同じ形。接触済み107件を突き合わせると、合わないのはこの2件だけ。
+#
+# ★白名簿にしない。★ 知らない type を黙って落とすと、9/16 の犬猫フィルタと同じ「採り過ぎの除外」になる。
+# **どう見ても読本の置き場所にならない業種だけ**を並べる。迷うものは入れない。
+NG_TYPE_COMMON = {"hair_salon", "barber_shop", "massage", "dentist", "cemetery", "wholesaler",
+                  "corporate_office", "auto_parts_store", "building_materials_store",
+                  "japanese_izakaya_restaurant", "movie_theater", "amusement_center"}
+NG_TYPE = {
+    # 犬猫の読本：人の美容・玩具・書店など、犬猫の飼い主が通らない店
+    "pet": NG_TYPE_COMMON | {"toy_store", "book_store", "furniture_store", "cosmetics_store",
+                             "electronics_store", "convenience_store", "confectionery",
+                             "dessert_shop", "dessert_restaurant", "deli"},
+    # 赤ちゃんの読本：動物専門の施設
+    "baby": NG_TYPE_COMMON | {"veterinary_care", "pet_store", "pet_care", "pet_boarding_service",
+                              "dog_cafe", "cat_cafe", "zoo"},
+}
+PET_KIND = ("ペットショップ", "トリミング", "動物病院")
+# ドメインが第三者に渡ったあとに載りがちな中身（2026-09-20。uenoland.com の実物で確認）
+GAMBLING_RE = re.compile(r"카지노|바카라|토토사이트|온라인카지노|슬롯사이트|casino|baccarat|"
+                         r"online slots|betting site|オンラインカジノ|ブックメーカー", re.I)
+
+
+# ★施設名が業種を名乗っていたら、type より名前を採る。★
+# 試しに type だけで弾いたら、**犬の美容室3軒（type=hair_salon）・ドッグマッサージ・トイドッグカフェ・
+# 子育て支援センター2か所・キッズランド**まで落ちた。Places の type は、犬の美容室に人の美容室と同じ type を、
+# 子育て支援センターに amusement_center を付ける。9/18 の犬猫フィルタとまったく同じ採り過ぎ。
+PET_NAME_RE = re.compile(r"犬|イヌ|わんこ|ワンちゃん|わんちゃん|子犬|猫|ネコ|ねこ|ニャン|にゃん|子猫|"
+                         r"トリミング|ペット|ドッグ|ドック|どっぐ|どっく|キャット|\bdog\b|\bcat\b|\bpet\b|\bvet\b", re.I)
+BABY_NAME_RE = re.compile(r"子育て|こども|子ども|子供|赤ちゃん|ベビー|ベビ|マタニティ|ママ|マミー|"
+                          r"保育|児童|小児|産科|産院|助産|キッズ|\bbaby\b|\bkids\b|\bmam+a\b", re.I)
+
+
+def ng_type(kind: str, t: str, name: str = "") -> str:
+    """業種違いなら理由を返す。判断できなければ空（送る側に倒す）"""
+    if not t:
+        return ""
+    pet = kind in PET_KIND
+    if t not in NG_TYPE["pet" if pet else "baby"]:
+        return ""
+    if (PET_NAME_RE if pet else BABY_NAME_RE).search(name or ""):
+        return ""  # 名前が業種を名乗っている。type のほうが間違っている
+    return f"Places の type が業種違い（{t}）"
+
 
 CONTACT_LINK_RE = re.compile(r"(問い?合わ?せ|問合せ|お問合わせ|contact|inquiry|mail ?form|メールフォーム)", re.I)
 
@@ -586,6 +634,14 @@ async def fill_form(pg, url: str, text: str, email_from: str, subject: str, hop:
     # 人の美容室・理容室。Places の「トリミング」には人の美容室も混ざる（2026-09-18 実測）
     if HUMAN_SALON_RE.search(plain) and n_dogcat < 3:
         return {"ok": False, "reason": "人の美容室・理容室（業種違い）"}
+    # 登録されているサイトが、店のものでなくなっている（2026-09-20）。
+    # No.514「ケンエレスタンド エキュート上野店」のサイト uenoland.com は、2026-08 に
+    # 韓国語のオンラインカジノ紹介サイトに変わっていた。そこに載っている info@ に読本の依頼を送っていた。
+    # **日本語がほとんど無いページは、日本の店の問い合わせ先ではない。**
+    if len(re.findall(r"[ぁ-んァ-ヶ一-龯]", plain)) < 60:
+        return {"ok": False, "reason": "日本語がほとんど無いページ（サイトが別人のものに変わっている疑い）"}
+    if GAMBLING_RE.search(plain):
+        return {"ok": False, "reason": "賭博・アダルト系のページ（サイトが別人のものに変わっている疑い）"}
     # 画像認証・reCAPTCHA v2（チェック式）は機械では通せない → 人（ブラウザ担当）に回す。v3（invisible）はそのまま送れる
     # reCAPTCHA は見える版（チェック式）も見えない版も、こちらでトークンを作れないのでサーバーに弾かれる。
     # g-recaptcha-response の欄があれば、その時点で人に回す（2026-09-14：オリンピック系のフォームで判明）
