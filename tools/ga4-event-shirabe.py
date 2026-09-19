@@ -4,6 +4,8 @@
     python3 tools/ga4-event-shirabe.py                  # 直近90日
     python3 tools/ga4-event-shirabe.py --days 28
     python3 tools/ga4-event-shirabe.py --event purchase  # 1つだけ詳しく見る
+    python3 tools/ga4-event-shirabe.py --event survey_complete \
+        --start 2026-09-05 --end 2026-09-19 --daily        # 期間を切って日別も
 
 ## 何のためのものか
 
@@ -87,11 +89,19 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--property", default=PROPERTY)
     ap.add_argument("--days", type=int, default=90, help="さかのぼる日数（既定 90）")
+    ap.add_argument("--start", help="開始日（YYYY-MM-DD）。--days より優先")
+    ap.add_argument("--end", default="today", help="終了日（YYYY-MM-DD。既定 today）")
     ap.add_argument("--event", help="この名前のイベントだけ、ホスト・ページ別に詳しく見る")
+    ap.add_argument("--daily", action="store_true",
+                    help="--event と一緒に使うと、日別の件数も出す")
     args = ap.parse_args()
 
-    start = (dt.date.today() - dt.timedelta(days=args.days)).isoformat()
-    dr = [{"startDate": start, "endDate": "today"}]
+    if args.start:
+        start, kikan = args.start, f"{args.start}〜{args.end}"
+    else:
+        start = (dt.date.today() - dt.timedelta(days=args.days)).isoformat()
+        kikan = f"直近{args.days}日"
+    dr = [{"startDate": start, "endDate": args.end}]
 
     sc = load_sheets_client()
     token = sc.access_token(sc.load_credentials(), scope=SCOPE)
@@ -107,16 +117,41 @@ def main() -> None:
             "limit": "200",
         })
         got = rows(res)
-        print(f"# `{args.event}` の出どころ（直近{args.days}日）\n")
+        print(f"# `{args.event}` の出どころ（{kikan}）\n")
         if not got:
-            print(f"**0件です。** 直近{args.days}日、`{args.event}` は一度も届いていません。\n")
+            print(f"**0件です。** {kikan}、`{args.event}` は一度も届いていません。\n")
             print("> **誰も撃っていない名前です。** キーイベントから外して問題ありません。")
             return
+        gokei = sum(n for _, (n,) in got)
+        print(f"**合計 {gokei:,} 件**（下のホストの合算）\n")
         print("| ホスト | ページ | 件数 |")
         print("|---|---|---:|")
         for (host, path), (n,) in sorted(got, key=lambda x: -x[1][0]):
             print(f"| `{host}` | `{path}` | {n:,} |")
         print(f"\n> **撃たれています。** 外すと、上のページの計測が止まります。")
+
+        if args.daily:
+            res = run_report(token, args.property, {
+                "dateRanges": dr,
+                "dimensions": [{"name": "date"}],
+                "metrics": [{"name": "eventCount"}],
+                "dimensionFilter": {"filter": {
+                    "fieldName": "eventName",
+                    "stringFilter": {"matchType": "EXACT", "value": args.event}}},
+                "orderBys": [{"dimension": {"dimensionName": "date"}}],
+                "limit": "400",
+            })
+            hi = rows(res)
+            print(f"\n## 日別\n")
+            if not hi:
+                print("該当なし。")
+            else:
+                print("| 日 | 件数 |")
+                print("|---|---:|")
+                for (d8,), (n,) in hi:
+                    # GA4 の date は YYYYMMDD
+                    mite = f"{d8[:4]}-{d8[4:6]}-{d8[6:]}" if len(d8) == 8 else d8
+                    print(f"| {mite} | {n:,} |")
         return
 
     res = run_report(token, args.property, {
@@ -130,7 +165,7 @@ def main() -> None:
     for (name, host), (n,) in rows(res):
         tbl.setdefault(name, {})[host] = tbl.setdefault(name, {}).get(host, 0) + n
 
-    print(f"# GA4に届いているイベント（直近{args.days}日・プロパティ {args.property}）\n")
+    print(f"# GA4に届いているイベント（{kikan}・プロパティ {args.property}）\n")
     print("| イベント | 合計 | ホスト別の内訳 |")
     print("|---|---:|---|")
     for name in sorted(tbl, key=lambda k: -sum(tbl[k].values())):
