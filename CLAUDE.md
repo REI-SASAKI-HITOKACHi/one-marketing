@@ -93,6 +93,7 @@ echo "本文" | python3 tools/org.py 依頼 --from <自分> --to <相手> --件�
 | `lp/survey/` | ご利用後アンケート（新版。作り直したもの、未公開） |
 | `docs/survey-redesign.md` | アンケート再設計の仕様書。自社ページ1本に一本化（配信は現場QRが主・SMSが補助） |
 | `docs/sns-operation-memo.md` | SNS運用（着手前のメモ） |
+| `docs/MTG資料の作り方.md` | 定例MTG資料（`MTGシート`）のレイアウト・作る順番・リンク・章立て・MTG前後のスプシ更新 |
 | `docs/org/` | スレッド組織の決まり・役割定義。**まずここを読む** |
 | `tools/org.py` | スレッド間の掲示板。`読む` `依頼` `返信` `完了` `現況` |
 
