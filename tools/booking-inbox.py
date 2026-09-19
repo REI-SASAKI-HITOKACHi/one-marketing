@@ -82,11 +82,29 @@ def main() -> None:
     for sid in LP_SITE_IDS:
         forms += [f for f in netlify(f'/sites/{sid}/forms') if f['name'].startswith('reserve-')]
     subs = []
+    meiwaku = []
     for f in forms:
         for s in netlify(f"/forms/{f['id']}/submissions"):
             s['_form'] = f['name']
             subs.append(s)
+        # ★Netlify は申し込みを勝手に「迷惑」へ振り分ける。既定の一覧には出てこない。
+        #   2026-09-19 に実測：テスト送信が verified 0件・spam 1件だった。
+        #   お客様の本物が迷惑に入ると、黙って消える。**取り込みはしないが、必ず目に出す。**
+        for s in netlify(f"/forms/{f['id']}/submissions?state=spam"):
+            s['_form'] = f['name']
+            meiwaku.append(s)
     print(f'Netlifyに届いている申し込み: {len(subs)}件（予約フォーム＋LP）')
+    if meiwaku:
+        print()
+        print(f'🔴 迷惑判定に {len(meiwaku)}件あります。**自動では取り込みません。人が見てください。**')
+        print('   お客様の本物が混ざっていることがあります（ヘッドレスや珍しい端末で送ると入りやすい）。')
+        print('   Netlify の管理画面 → Forms → 対象フォーム → Spam で中身を確認し、')
+        print('   本物なら「Mark as not spam」にすると、次回このツールが拾います。')
+        for s in meiwaku:
+            d = s.get('data') or {}
+            na = d.get('お名前') or d.get('name') or '（氏名なし）'
+            print(f"   - {s['_form']} {s['created_at'][:16]} {s['id']} 氏名={na}")
+        print()
     tesuto = [s for s in subs if any(k in str((s.get('data') or {}).get('お名前', '') or (s.get('data') or {}).get('name', '')).lower() for k in TEST_KOTOBA)]
     if tesuto:
         print(f'テスト送信 {len(tesuto)}件は取り込まない（Netlify側で削除すること）:')
