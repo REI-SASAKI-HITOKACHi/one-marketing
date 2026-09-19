@@ -22,6 +22,10 @@ HOSTS = [
     'tenken.onehitter.jp',              # 無料点検（独自ドメイン）
 
     # ── 裏側のホスト（送信済みリンクの行き先として生かしてあるもの含む） ──
+    'araidoki.netlify.app',             # 洗い時図鑑。★公開中。SNS・GBPからお客様が踏む（2026-09-20 追加。
+                                        #   README 4.10.1「新しいホストは当日中に HOSTS へ」に5日間反していた）
+    'oh-naibu-sms-k7q3x.netlify.app',   # 社内用（受注フォーム /juchu/・作業完了フォーム /kanryo/）。
+                                        #   お客様は踏まないが、判定を受けると和真さんが現場で入力できなくなる
     'one-hitter-booking.netlify.app',   # 旧予約フォーム（2026-09-12 に判定 → 2026-09-15 解除を確認）
     'onehitter-yoyaku.netlify.app',     # 予約フォーム（現行）
     'one-hitter-lp.netlify.app',        # LP4本
