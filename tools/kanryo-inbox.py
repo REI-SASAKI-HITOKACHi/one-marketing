@@ -110,9 +110,10 @@ def main():
 
         # --- 写真を手元に落とす（SNSの素材にする） ---
         mai = 0
-        for k, v in (s.get("data") or {}).items():
-            if not k.startswith("施工写真") or not isinstance(v, dict) or not v.get("url"):
-                continue
+        shashin_ran = [(int(re.sub(r"\D", "", k) or 0), k, v)
+                       for k, v in (s.get("data") or {}).items()
+                       if k.startswith("施工写真") and isinstance(v, dict) and v.get("url")]
+        for _, k, v in sorted(shashin_ran):     # 施工写真1〜20 を番号の順に（最大20枚）
             mai += 1
             saki = SHASHIN / f"{d.get('施工日付','日付なし')}_{re.sub(r'[^0-9A-Za-zぁ-んァ-ヶ一-龥]', '', na)}_{mai}.jpg"
             if a.dry_run:
