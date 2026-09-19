@@ -561,7 +561,42 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict)
           f"画像{len(list(img_dst.iterdir()))}点")
 
 
-def copy_kanseihin(out: pathlib.Path) -> None:
+SURVEY_FORM_OPEN = '<form class="survey-form" onsubmit="return false;">'
+
+# アンケートの回答の保存先。ここを通さないと、お客様には「ありがとうございました」が
+# 出るのに回答はどこにも残らない（2026-09-19 に判明。それまで1件も保存されていなかった）。
+#
+# ・PAGES を通る3LPの差し替え（FORM_OPEN / FORM_NETLIFY）は
+#   <form class="form" …> を見ているので、class="survey-form" のこのページには当たらない。
+#   アンケートは copy_kanseihin を通るため、そちらの置換自体を通らない。
+#   二重に外れていたので、誰も気づかなかった。
+# ・送信は画面側の fetch（payload() が form.elements を集める）。
+#   Netlify Forms は本文に form-name が要るので、隠し欄として form の中に置く。
+#   payload() は name のある欄を全部拾うので、これで本文に入る。
+# ・x_field は自動投稿よけ。Netlify 側で netlify-honeypot に指定する。
+SURVEY_FORM_NETLIFY = (
+    '<form class="survey-form" name="survey" method="post" action="/survey/"'
+    ' data-netlify="true" netlify-honeypot="x_field">\n'
+    '    <input type="hidden" name="form-name" value="survey">\n'
+    '    <p hidden><label>この欄は入力しないでください <input name="x_field"></label></p>'
+)
+
+
+def survey_form(doc: str, target: str) -> str:
+    """アンケートのフォームに、配信先に応じた送信先を差し込む。"""
+    if SURVEY_FORM_OPEN not in doc:
+        raise SystemExit(
+            "lp/survey/index.html のフォーム開始タグが変わっています。"
+            "差し込めないと回答が保存されないので、ここで止めます。"
+        )
+    if target != "netlify":
+        # PHP版の送信先（/form/send.php）はアンケートの項目に対応していない。
+        # 対応させるまでは、現状どおり送信先なしのままにする。
+        return doc
+    return doc.replace(SURVEY_FORM_OPEN, SURVEY_FORM_NETLIFY, 1)
+
+
+def copy_kanseihin(out: pathlib.Path, target: str) -> None:
     """完成した文書としてソースにあるページを、そのまま配信先へ写す。
 
     アンケート（lp/survey/）は断片ではなく <html> から始まる完成品なので
@@ -584,6 +619,9 @@ def copy_kanseihin(out: pathlib.Path) -> None:
         page = {"kind": name, "lp_id": name, "lp_variant": "A"}
         doc = doc.replace("</head>", tracking_head(cfg, page) + "\n</head>", 1)
         doc = doc.replace("</body>", tracking_body() + "\n</body>", 1)
+
+        if name == "survey":
+            doc = survey_form(doc, target)
 
         dst = out / name
         dst.mkdir(parents=True, exist_ok=True)
@@ -619,4 +657,4 @@ if __name__ == "__main__":
             print(f"  {meta['dir']}: 電話番号を {tel} に差し替え（コールトラッキング）")
         build_page(name, meta, target, out, cfg)
 
-    copy_kanseihin(out)
+    copy_kanseihin(out, target)

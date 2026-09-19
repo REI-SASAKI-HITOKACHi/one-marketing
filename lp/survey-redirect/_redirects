@@ -1,0 +1,17 @@
+# アンケートの正は https://lp.onehitter.jp/survey/（CMO決定 2026-09-19、20260914-03-lp）。
+# このサイト（one-hitter-survey）は中身を持たず、301で寄せるだけにする。
+#
+# 現場に出ているQRは one-hitter-survey.netlify.app を指して刷られている。
+# 301にしておけば刷り直さずに全部が正しい方へ着く。これが一本化の最大の理由。
+# survey.onehitter.jp も同じサイトなので、同じく寄る。
+#
+# ⚠️ 以前はこのサイトが中身を持ち、_redirects にフルURLの規則を書いていたが、
+#    Netlifyは「実ファイルが規則より優先」なので /index.html があると301が出なかった。
+#    中身を置かないこの形なら、確実に301になる。
+#
+# :splat とクエリ（?id= &src=）は引き継がれる。SMS経由の顧客IDは落ちない。
+#
+# ※ google1a88c31fe28c2256.html（Search Consoleの所有権）は実ファイルとして
+#   このディレクトリに置いてある。実ファイルは規則より優先されるので、
+#   301されずにそのまま返る。消さないこと。
+/*  https://lp.onehitter.jp/survey/:splat  301

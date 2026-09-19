@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>お掃除のご感想をお聞かせください｜ONE HITTER</title>
 
-<link rel="canonical" href="https://survey.onehitter.jp/">
+<link rel="canonical" href="https://lp.onehitter.jp/survey/">
 <meta name="description" content="ワンヒッター株式会社（ONE HITTER）のご利用後アンケートです。所要1分、必須は3問だけです。">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#0E7C93">
@@ -239,7 +239,9 @@ gtag('config','AW-18450975194');
     <span class="lab"><span id="steplab">1 / 4</span><span id="steptitle">満足度</span></span>
   </div>
 
-  <form class="survey-form" onsubmit="return false;">
+  <form class="survey-form" name="survey" method="post" action="/survey/" data-netlify="true" netlify-honeypot="x_field">
+    <input type="hidden" name="form-name" value="survey">
+    <p hidden><label>この欄は入力しないでください <input name="x_field"></label></p>
 
     <input type="hidden" name="cust_id" id="h-id">
     <input type="hidden" name="cust_name" id="h-name">

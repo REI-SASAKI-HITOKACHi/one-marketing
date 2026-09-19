@@ -44,7 +44,10 @@ BUNKATSU = {
     # 同じページを2サイトに置いていたため、片方だけ配信して金額が食い違った（2026-09-08）。
     "one-hitter-nenmatsu": {"src": None, "hissu": ["/_redirects"],
                             "root": "lp/nenmatsu-redirect"},
-    "one-hitter-survey":   {"src": "survey",   "hissu": ["/index.html"]},
+    # アンケートの正は one-hitter-lp/survey/（CMO決定 2026-09-19）。
+    # この別サイトは中身を持たず、301で寄せるだけ。現場のQRを刷り直さずに済む。
+    "one-hitter-survey":   {"src": None, "hissu": ["/_redirects"],
+                            "root": "lp/survey-redirect"},
     # 予約フォームは lp/booking/ を build-booking.py が直接書き出す
     "one-hitter-booking":  {"src": None,       "hissu": ["/index.html"],
                             "root": "lp/booking"},
