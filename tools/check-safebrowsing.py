@@ -5,7 +5,7 @@
 status 3 ＝「安全でない」判定（Google のテスト用危険サイトと同じ応答）。1＝安全、4＝問題なし、6＝データなし、302/HTML＝レート制限（次回に回す）。
 終了コード：3 が1つでもあれば 1。
 """
-import re, sys, urllib.request
+import json, re, sys, urllib.request
 HOSTS = [
     # ⚠ 並び順に意味がある。**お客様が実際に踏むホストを先に置く。**
     #    後ろのホストほど 429 に当たりやすく、判定が取れないまま終わりやすい
@@ -42,7 +42,56 @@ URL = 'https://transparencyreport.google.com/transparencyreport/api/v3/safebrows
 # ⚠ 一覧の後ろのほうのホストは毎回 429 に当たりやすく、「次回に回す」を続けると
 #    永久に判定が取れない（2026-09-15、onehitter.jp が10番目で毎回取れていなかった）。
 #    取れなかったぶんは、間隔を空けて追いかける。
+import datetime
+import os
 import time
+
+# ★ 2026-09-20 追加。**並び順が固定だと、後ろのホストが毎回 429 に当たって
+#    何時間も判定が取れないままになる。**「次回に回す」と書いてあっても、
+#    次回も同じ順で同じところが落ちるので、次回が来ない。
+#    → 前回いつ判定が取れたかを覚えておき、**古いものから先に叩く。**
+#    お客様が踏むホストは、それでも常にバックエンドより先。
+KIROKU = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                      'data', 'safebrowsing-last.json')
+
+# お客様が実際に踏むホスト。ここが落ちると実害が出るので、必ず先に叩く。
+OKYAKU_MUKE = frozenset({
+    'lp.onehitter.jp', 'onehitter.jp', 'one-hitter.jp', 'yoyaku.onehitter.jp',
+    'survey.onehitter.jp', 'dokuhon.onehitter.jp', 'tenken.onehitter.jp',
+    'araidoki.netlify.app',
+})
+
+# これより長く判定が取れていないホストがあれば、最後に警告を出す
+FURUI_JIKAN = 6 * 3600
+
+
+def kiroku_yomu():
+    try:
+        with open(KIROKU, encoding='utf-8') as f:
+            return json.load(f)
+    except Exception:
+        # 記録が無い・壊れているのは、点検そのものを止める理由にならない
+        return {}
+
+
+def kiroku_kaku(d):
+    try:
+        os.makedirs(os.path.dirname(KIROKU), exist_ok=True)
+        with open(KIROKU, 'w', encoding='utf-8') as f:
+            json.dump(d, f, ensure_ascii=False, indent=1, sort_keys=True)
+    except Exception as e:
+        print(f'※ 前回時刻の記録に失敗（点検そのものには影響しません）: {e}')
+
+
+def junban(hosts, mae):
+    """お客様向けを先に、そのなかで「前回取れてから長いもの」を先に並べる。"""
+    moto = {h: i for i, h in enumerate(hosts)}
+
+    def key(h):
+        t = (mae.get(h) or {}).get('at', '')   # 記録が無ければ '' で最優先
+        return (0 if h in OKYAKU_MUKE else 1, t, moto[h])
+
+    return sorted(hosts, key=key)
 
 
 def hantei(h):
@@ -65,8 +114,10 @@ def hantei(h):
 OIKAKE = '--oikake' in sys.argv
 MACHI = (4, 15, 30) if OIKAKE else (4,)
 
+MAE = kiroku_yomu()
+
 kekka = {}
-nokori = list(HOSTS)
+nokori = junban(HOSTS, MAE)        # ★固定順ではなく、古いものから
 for machi in MACHI:                # 追いかけるたびに間隔を広げる
     if not nokori:
         break
@@ -95,6 +146,32 @@ for h in HOSTS:
         continue
     print(f'{h}: {LABEL.get(r, f"status={r}")}')
     bad += (r == 3)
+
+IMA = datetime.datetime.now(datetime.timezone.utc)
+for h, r in kekka.items():
+    if isinstance(r, int):         # 判定が取れたものだけ記録する
+        MAE[h] = {'at': IMA.isoformat(timespec='seconds'), 'status': r}
+kiroku_kaku(MAE)
+
+# ★ 何時間も判定が取れていないホストを名指しする。
+#    「今回取れなかった」より「ずっと取れていない」のほうが危ない。
+furui = []
+for h in HOSTS:
+    at = (MAE.get(h) or {}).get('at')
+    if not at:
+        furui.append((h, 'まだ一度も取れていません'))
+        continue
+    try:
+        sa = (IMA - datetime.datetime.fromisoformat(at)).total_seconds()
+    except Exception:
+        continue
+    if sa > FURUI_JIKAN:
+        furui.append((h, f'前回取れたのは {sa / 3600:.1f} 時間前'))
+if furui:
+    print('\n🔴 長く判定が取れていないホストがあります（今回の失敗より重い）')
+    for h, riyuu in furui:
+        print(f'   {h}: {riyuu}')
+    print('   → 単独で叩くか、--oikake を付けて確実に取ること')
 
 if nokori:
     print(f'\n※ {len(nokori)}件は判定が取れませんでした: {" ".join(nokori)}')

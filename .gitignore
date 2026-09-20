@@ -16,3 +16,6 @@ scratch-*.json
 
 # 顧客の電話番号を含む控えは git に入れない（2026-09-11。~/.cache/one-hitter/backup/ に置く）
 data/backup/*.json
+
+# セーフブラウジング点検の前回時刻（実行時の状態。成果物ではない）
+data/safebrowsing-last.json
