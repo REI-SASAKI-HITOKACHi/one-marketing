@@ -824,6 +824,8 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
       
       <input type="hidden" name="src" id="h-src" value="direct">
       <input type="hidden" name="cid" id="h-cid" value="">
+      
+      <input type="hidden" name="ag" id="h-ag" value="">
       <div class="field">
         <div class="lab"><label for="f-name">お名前</label><span class="req">必須</span></div>
         <input id="f-name" name="name" type="text" autocomplete="name" required>
@@ -962,6 +964,10 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     var clean = function(v, n){ return (v || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, n); };
     var src = clean(q.get('src'), 20) || 'direct';
     var cid = clean(q.get('cid'), 20);
+    /* 広告グループID。Google広告が ?ag={adgroupid} で渡す。
+       src と同じく素性が不明な値なので、同じ clean を通す。
+       広告以外（QR・SNS等）から来た人は空文字のままで、何も変わらない。 */
+    var ag = clean(q.get('ag'), 20);
 
     /* Google広告のクリックID。成果を広告に結びつけるのに要る。
        申し込みは来訪と同じ日とは限らないので、URLから拾って localStorage に持たせ、
@@ -1004,7 +1010,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
       var u;
       try { u = new URL(a.href, location.href); } catch (e) { return; }
       if (!BESSITE.test(u.hostname)) return;
-      var hikitsugu = { src: src, cid: cid, gclid: gclid };
+      var hikitsugu = { src: src, cid: cid, ag: ag, gclid: gclid };
       Object.keys(hikitsugu).forEach(function (k) {
         // すでにURLに書いてあるものは、書いた人の意図を優先して上書きしない
         if (hikitsugu[k] && !u.searchParams.has(k)) u.searchParams.set(k, hikitsugu[k]);
@@ -1047,6 +1053,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     }
     var es = document.getElementById('h-src'); if (es) es.value = src;
     var ec = document.getElementById('h-cid'); if (ec) ec.value = cid;
+    var ea = document.getElementById('h-ag');  if (ea) ea.value = ag;
   })();
 </script>
 
