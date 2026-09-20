@@ -29,7 +29,7 @@
  *   そのため LINE の X-Line-Signature による署名検証ができない。
  *   代わりに次で守っている。
  *     ・ウェブアプリURLは推測できない長いランダム文字列
- *     ・SETTEI.kyokaGroupId を設定すれば、そのグループ以外のイベントは捨てる
+ *     ・SETTEI.kyokaGroupIds に書いたグループ以外のイベントは捨てる
  *   社内連絡の用途なので、この程度で釣り合うと判断している。
  *   お客様の個人情報をこの経路に流さないこと。
  */
@@ -39,12 +39,21 @@ var SETTEI = {
   logTab: 'LINE_ログ',
 
   /**
-   * 受け付けるグループID。
-   * 最初は空のままでよい（空なら全部受ける）。
+   * 受け付けるグループID。**複数書ける。**
+   * 空の配列なら全部受ける（最初はそれでよい）。
    * グループにアカウントを招待すると join イベントが届き、
-   * 下の kakunin() でグループIDが分かるので、それをここに貼る。
+   * 下の kakunin() でグループIDが分かるので、それをここに足す。
+   *
+   * ★2026-09-20 修正：もとは1つしか書けなかった。
+   *   業務連絡グループだけを入れた結果、**アルバイトさんを含むグループの発言が
+   *   黙って捨てられる状態**になっていた（ログに2件入っていたのが増えなくなる）。
+   *   グループを増やすたびにここへ1行足すこと。**足し忘れると、
+   *   エラーも出ずに記録だけ止まる。**
    */
-  kyokaGroupId: 'Cdaad037f60f5bc8b2c8138ce0afffc78',
+  kyokaGroupIds: [
+    'Cdaad037f60f5bc8b2c8138ce0afffc78',  // 【業務連絡】ONE-HITTER（和真さん・オーナー）
+    'Ca3a150bba0f292bc23e591741b931cf4',  // アルバイトさん（芳賀さん）を含むグループ。2026-09-19 参加
+  ],
 };
 
 // ============================== 受け口 ==============================
@@ -61,7 +70,7 @@ function doPost(e) {
       var gid = src.groupId || src.roomId || '';
 
       // 許可グループを決めてあるなら、それ以外は捨てる
-      if (SETTEI.kyokaGroupId && gid !== SETTEI.kyokaGroupId) return;
+      if (SETTEI.kyokaGroupIds.length && SETTEI.kyokaGroupIds.indexOf(gid) < 0) return;
 
       var honbun = '';
       if (ev.type === 'message') {
@@ -152,7 +161,8 @@ function hyoujimei_(userId, groupId) {
 /**
  * グループにアカウントを招待したあと、これを実行する。
  * ログに届いた join イベントからグループIDを拾って表示する。
- * 表示されたIDを SETTEI.kyokaGroupId に貼れば、他所からのイベントを弾けるようになる。
+ * 表示されたIDを SETTEI.kyokaGroupIds に足せば、他所からのイベントを弾けるようになる。
+ * ★すでに使っているグループを消さないこと。消すと、そのグループの記録が黙って止まる。
  */
 function kakunin() {
   var sh = logSheet_();
