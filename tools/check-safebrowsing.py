@@ -114,6 +114,20 @@ def hantei(h):
 OIKAKE = '--oikake' in sys.argv
 MACHI = (4, 15, 30) if OIKAKE else (4,)
 
+# ★ 2026-09-20 追加。**このツール自身が「単独で叩くと取れることが多い」と
+#    案内していたのに、単独で叩く手段が無かった。**
+#    `python3 tools/check-safebrowsing.py lp.onehitter.jp survey.onehitter.jp`
+#    のようにホスト名を並べると、そこだけを叩く（前回時刻の記録も更新される）。
+SITEI = [a for a in sys.argv[1:] if not a.startswith('-')]
+if SITEI:
+    shiranai = [h for h in SITEI if h not in HOSTS]
+    if shiranai:
+        # 一覧に無いホストを黙って叩くと、監視に入れ忘れたまま
+        # 「点検した」という誤った安心が残る
+        sys.exit('監視の一覧に無いホストです: ' + ' '.join(shiranai) +
+                 '\n  HOSTS に足してから叩いてください（docs/org/README.md 4.10.1）')
+    HOSTS = SITEI
+
 MAE = kiroku_yomu()
 
 kekka = {}
@@ -177,5 +191,5 @@ if nokori:
     print(f'\n※ {len(nokori)}件は判定が取れませんでした: {" ".join(nokori)}')
     if not OIKAKE:
         print('  --oikake を付けると、間隔を広げて3周まで追いかけます（数分かかります）')
-    print('  単独で叩くと取れることが多い（一覧の後ろのホストほど 429 に当たりやすい）')
+    print('  単独で叩くには: python3 tools/check-safebrowsing.py <ホスト名> [<ホスト名>…]')
 sys.exit(1 if bad else 0)
