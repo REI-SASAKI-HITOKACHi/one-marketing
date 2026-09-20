@@ -1207,6 +1207,19 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
         sStarted = true;
         send('survey_start', {});
       });
+
+      // 「送信を押した」ところ。完了画面（survey_complete）とは別に数える。
+      //
+      // アンケートのページは、送信を押すと fetch で送ってから完了画面を出す。
+      // **送信は届いたのに完了画面が出なかった**場合、survey_complete は撃たれず、
+      // GA4からは「誰も答えていない」ようにしか見えない。
+      // （2026-09-19 に、回答が1件届いているのに survey_complete が0件、という形で起きた）
+      //
+      // この2つが揃っていれば「押したが完了画面まで行かなかった」と分かる。
+      // 片方しか無ければ、どちらが欠けたかで原因が絞れる。
+      sForm.addEventListener('submit', function () {
+        send('survey_submit', {});
+      });
     }
 
     // 進んだ画面の記録。戻って進み直しても二重に数えない
