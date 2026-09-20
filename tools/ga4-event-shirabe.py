@@ -6,6 +6,8 @@
     python3 tools/ga4-event-shirabe.py --event purchase  # 1つだけ詳しく見る
     python3 tools/ga4-event-shirabe.py --event survey_complete \
         --start 2026-09-05 --end 2026-09-19 --daily        # 期間を切って日別も
+    python3 tools/ga4-event-shirabe.py --event page_view --by country
+                                                       # 国別に割る（botの切り分け）
 
 ## 何のためのものか
 
@@ -94,6 +96,8 @@ def main() -> None:
     ap.add_argument("--event", help="この名前のイベントだけ、ホスト・ページ別に詳しく見る")
     ap.add_argument("--daily", action="store_true",
                     help="--event と一緒に使うと、日別の件数も出す")
+    ap.add_argument("--by", help="--event と一緒に使うと、この軸でも割る"
+                                 "（例 country / deviceCategory / sessionSource）")
     args = ap.parse_args()
 
     if args.start:
@@ -129,6 +133,26 @@ def main() -> None:
         for (host, path), (n,) in sorted(got, key=lambda x: -x[1][0]):
             print(f"| `{host}` | `{path}` | {n:,} |")
         print(f"\n> **撃たれています。** 外すと、上のページの計測が止まります。")
+
+        if args.by:
+            res = run_report(token, args.property, {
+                "dateRanges": dr,
+                "dimensions": [{"name": args.by}, {"name": "hostName"}],
+                "metrics": [{"name": "eventCount"}],
+                "dimensionFilter": {"filter": {
+                    "fieldName": "eventName",
+                    "stringFilter": {"matchType": "EXACT", "value": args.event}}},
+                "limit": "200",
+            })
+            waru = rows(res)
+            print(f"\n## {args.by} 別\n")
+            if not waru:
+                print("該当なし。")
+            else:
+                print(f"| {args.by} | ホスト | 件数 |")
+                print("|---|---|---:|")
+                for (a, host), (n,) in sorted(waru, key=lambda x: -x[1][0]):
+                    print(f"| `{a or '(空)'}` | `{host}` | {n:,} |")
 
         if args.daily:
             res = run_report(token, args.property, {
