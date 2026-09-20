@@ -36,6 +36,9 @@ const KITEI = [
   ['mizumawari', 'https://one-hitter-lp.netlify.app/mizumawari/'],
   ['nenmatsu',   'https://one-hitter-lp.netlify.app/nenmatsu/'],
   ['yoyaku',     'https://yoyaku.onehitter.jp/'],
+  // 特商法のページ（2026-09-18 公開）。お客様がLPのフッターから開く。
+  // 公開したページをこの一覧に足し忘れると、次に配色を触ったとき黙って暗くなる。
+  ['tokushoho',  'https://lp.onehitter.jp/tokushoho/'],
   ['dokuhon',    'https://one-hitter-dokuhon.netlify.app/'],
   ['tenken',     'https://one-hitter-tenken.netlify.app/'],
 ];
