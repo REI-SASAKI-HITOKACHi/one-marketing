@@ -102,8 +102,25 @@ def meigi_hyou(cache=None):
         if j[3] not in MEIGI: continue
         if j[1]: by_tel[j[1]].append(j)
         if j[2]: by_name[j[2]].append(j)
-    saishin = lambda L: (lambda j: (MEIGI[j[3]], str(j[0])))(max(L, key=lambda c: c[0]))
     return {k: saishin(L) for k, L in by_tel.items()}, {k: saishin(L) for k, L in by_name.items()}
+
+
+def saishin(L):
+    """いちばん新しい施工の名義を返す。(名義, 最新施工日)
+
+    ## 同じ日に自社と本舗の両方があるときは「本舗」（和真さん 2026-09-20）
+
+    > 同じ日に自社が入ってる場合追加分で自社にしてる場合があるからそれは本舗受注にして
+
+    **その日の自社行は「追加分」の起票で、現場そのものは本舗案件**だから。
+    ここを自社と判定すると、**本舗のお客様にワンヒッター名義で連絡してしまう**（9/11 の事故と同じ型）。
+
+    **「本舗 → 後日 自社」で自社を採る原則は変えていない。** 変わるのは**同じ日**のときだけ。
+    ★以前は max() で先に見つかった方を採っていたので、同日はデータの並び順しだいだった。
+    """
+    saidai = max(c[0] for c in L)
+    sonohi = {MEIGI[c[3]] for c in L if c[0] == saidai}
+    return ("本舗" if "本舗" in sonohi else sonohi.pop()), str(saidai)
 
 
 def meigi_shiraberu(hyou, tel, name):
