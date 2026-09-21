@@ -62,7 +62,10 @@ def yomu_shikou():
             v = sc.call(tok_get(), f"/{ss}/values/{urllib.parse.quote(tab + '!A1:T500', safe='')}").get('values', [])
             hi = next((i for i, r in enumerate(v) if '施工日付' in r or (y == '2022' and '日付' in r)), None)
             if hi is None: continue
-            h = ['施工日付' if c == '日付' else c for c in v[hi]]; ix = {c: i for i, c in enumerate(h)}   # 2022の6・7月は「日付」
+            # ★見出しの前後に空白が入っている年がある（2023の ' 売上（税込） '）。
+            #   strip しないと、その列だけ静かに空になる（2026-09-21 に実際に踏んだ）。
+            h = ['施工日付' if str(c).strip() == '日付' else str(c).strip() for c in v[hi]]
+            ix = {c: i for i, c in enumerate(h)}   # 2022の6・7月は「日付」
             g = lambda r, k: str(r[ix[k]] if k in ix and ix[k] < len(r) else '').strip()
             for r in v[hi + 1:]:
                 hizuke = g(r, '施工日付')
