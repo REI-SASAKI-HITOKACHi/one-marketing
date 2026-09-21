@@ -39,7 +39,7 @@ import sheets_client as sc
 import yubin
 
 SS = "1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64"
-SITE_ID = "6e568d1d-4a66-4167-8d0f-7b15ce8b0828"     # oh-genba-form-m8x2q（社内用・受注/完了フォーム専用。2026-09-22 に oh-naibu-sms から分離。旧サイトの取り込み済みIDは data/*-torikomi.json に残る）
+SITE_ID = "f1b64c82-173e-4b1a-9e7f-bf24026fed0e"     # oh-naibu-sms-k7q3x（社内用）
 FORM = "juchu"
 SUMI = ROOT / "data" / "juchu-torikomi.json"          # 取り込み済みのID（タブを増やさない）
 TEIKEI = ROOT / "data" / "teikei-saki.json"           # 提携先の選択肢（表記ゆれ防止）
