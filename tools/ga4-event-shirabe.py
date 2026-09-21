@@ -8,6 +8,8 @@
         --start 2026-09-05 --end 2026-09-19 --daily        # 期間を切って日別も
     python3 tools/ga4-event-shirabe.py --event page_view --by country
                                                        # 国別に割る（botの切り分け）
+    python3 tools/ga4-event-shirabe.py --param traffic_src=ig --daily
+                                                       # ?src=ig だけに絞って日別
 
 ## 何のためのものか
 
@@ -87,6 +89,41 @@ def rows(res: dict) -> list:
     return out
 
 
+def dim_name(name: str) -> str:
+    """`traffic_src` のような素の名前は、カスタムディメンションとして解決する。
+
+    GA4 の Data API では、こちらが送るイベントパラメータは
+    `customEvent:` を付けないと次元として使えない。
+    毎回それを手で書くと打ち間違えるので、ここで面倒を見る。
+    `:` を含む名前（`country` や `sessionSource` など標準のもの）はそのまま通す。
+    """
+    HYOUJUN = {"country", "city", "deviceCategory", "hostName", "pagePath",
+               "sessionSource", "sessionMedium", "date", "eventName",
+               "landingPagePlusQueryString", "sessionCampaignName"}
+    if ":" in name or name in HYOUJUN:
+        return name
+    return "customEvent:" + name
+
+
+def build_filter(event: str, params: list) -> dict:
+    """イベント名と --param を合わせた絞り込みを作る。無ければ None。"""
+    jouken = []
+    if event:
+        jouken.append({"filter": {"fieldName": "eventName",
+                                  "stringFilter": {"matchType": "EXACT", "value": event}}})
+    for p in params:
+        if "=" not in p:
+            sys.exit(f"--param は「名前=値」の形で指定してください（受け取った値：{p}）")
+        na, _, atai = p.partition("=")
+        jouken.append({"filter": {"fieldName": dim_name(na.strip()),
+                                  "stringFilter": {"matchType": "EXACT", "value": atai.strip()}}})
+    if not jouken:
+        return None
+    if len(jouken) == 1:
+        return jouken[0]
+    return {"andGroup": {"expressions": jouken}}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--property", default=PROPERTY)
@@ -98,6 +135,11 @@ def main() -> None:
                     help="--event と一緒に使うと、日別の件数も出す")
     ap.add_argument("--by", help="--event と一緒に使うと、この軸でも割る"
                                  "（例 country / deviceCategory / sessionSource）")
+    ap.add_argument("--param", action="append", default=[], metavar="名前=値",
+                    help="この値のものだけに絞る（何度でも指定できる。すべてに一致した行だけ残る）。"
+                         "名前に : が無ければカスタムディメンション扱い"
+                         "（`traffic_src=ig` → `customEvent:traffic_src`）。"
+                         "`:` を含めれば標準の次元も使える（`country=Japan` は `country=Japan` のまま）")
     args = ap.parse_args()
 
     if args.start:
@@ -110,21 +152,29 @@ def main() -> None:
     sc = load_sheets_client()
     token = sc.access_token(sc.load_credentials(), scope=SCOPE)
 
-    if args.event:
+    shiboru = build_filter(args.event, args.param)
+
+    if args.event or args.param:
         res = run_report(token, args.property, {
             "dateRanges": dr,
             "dimensions": [{"name": "hostName"}, {"name": "pagePath"}],
             "metrics": [{"name": "eventCount"}],
-            "dimensionFilter": {"filter": {
-                "fieldName": "eventName",
-                "stringFilter": {"matchType": "EXACT", "value": args.event}}},
+            "dimensionFilter": shiboru,
             "limit": "200",
         })
         got = rows(res)
-        print(f"# `{args.event}` の出どころ（{kikan}）\n")
+        # 見出し。--event だけ／--param だけ／両方、のどれでも読める形にする
+        namae = " かつ ".join(
+            ([f"`{args.event}`"] if args.event else []) + [f"`{x}`" for x in args.param])
+        print(f"# {namae} の出どころ（{kikan}）\n")
         if not got:
-            print(f"**0件です。** {kikan}、`{args.event}` は一度も届いていません。\n")
-            print("> **誰も撃っていない名前です。** キーイベントから外して問題ありません。")
+            print(f"**0件です。** {kikan}、{namae} に当たるものは1件も届いていません。\n")
+            if args.event and not args.param:
+                print("> **誰も撃っていない名前です。** キーイベントから外して問題ありません。")
+            else:
+                print("> **0件と「まだ記録が始まっていない」は別物です。**"
+                      "カスタムディメンションは登録から24〜48時間はレポートに出ません。"
+                      "**登録日より前の期間が含まれていないか確かめてください。**")
             return
         gokei = sum(n for _, (n,) in got)
         print(f"**合計 {gokei:,} 件**（下のホストの合算）\n")
@@ -139,9 +189,7 @@ def main() -> None:
                 "dateRanges": dr,
                 "dimensions": [{"name": args.by}, {"name": "hostName"}],
                 "metrics": [{"name": "eventCount"}],
-                "dimensionFilter": {"filter": {
-                    "fieldName": "eventName",
-                    "stringFilter": {"matchType": "EXACT", "value": args.event}}},
+                "dimensionFilter": shiboru,
                 "limit": "200",
             })
             waru = rows(res)
@@ -162,9 +210,7 @@ def main() -> None:
                 "dateRanges": dr,
                 "dimensions": dims,
                 "metrics": [{"name": "eventCount"}],
-                "dimensionFilter": {"filter": {
-                    "fieldName": "eventName",
-                    "stringFilter": {"matchType": "EXACT", "value": args.event}}},
+                "dimensionFilter": shiboru,
                 "orderBys": [{"dimension": {"dimensionName": "date"}}],
                 "limit": "400",
             })
