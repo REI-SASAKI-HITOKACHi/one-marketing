@@ -25,7 +25,7 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 YOTEI = ROOT / "data" / "kanryo-yotei.json"
 SUMI = ROOT / "data" / "kanryo-okurizumi.json"
-BASE = "https://oh-naibu-sms-k7q3x.netlify.app/kanryo/"
+BASE = "https://oh-genba-form-m8x2q.netlify.app/kanryo/"   # 2026-09-22 旧 oh-naibu-sms がセーフブラウジング判定を受けたため分離
 JST = datetime.timezone(datetime.timedelta(hours=9))
 SAKI_FUN = 30   # 開始から何分後に送るか
 

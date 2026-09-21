@@ -36,7 +36,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 import sheets_client as sc
 
 SS = "1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64"
-SITE_ID = "f1b64c82-173e-4b1a-9e7f-bf24026fed0e"     # oh-naibu-sms-k7q3x（社内用）
+SITE_ID = "6e568d1d-4a66-4167-8d0f-7b15ce8b0828"     # oh-genba-form-m8x2q（社内用・受注/完了フォーム専用。2026-09-22 に oh-naibu-sms から分離。旧サイトの取り込み済みIDは data/*-torikomi.json に残る）
 FORM = "kanryo"
 SUMI = ROOT / "data" / "kanryo-torikomi.json"
 JIKAN = ROOT / "data" / "kanryo-jikan.json"          # 実所要の蓄積（施工時間の精度を上げる資産）

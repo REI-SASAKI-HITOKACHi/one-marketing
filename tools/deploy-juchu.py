@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """社内用ホスト（受注フォーム・作業完了フォーム・SMSツール）を配信する。
 
-★ 社内用ホスト oh-naibu-sms-k7q3x にだけ送る。
+★ 社内用ホスト oh-genba-form-m8x2q にだけ送る（2026-09-22 に oh-naibu-sms-k7q3x から分離。旧ホストは sms: を組み立てる s.html が同居していてセーフブラウジング判定を受けた）。
   お客様用ホスト（yoyaku / lp / survey …）には**絶対に置かない**。
   2026-09-12 に、社内ツールをお客様用ホストへ同居させてセーフブラウジングに
   フィッシング判定された事故がある（docs/事故報告-2026-09-12-セーフブラウジング.md）。
@@ -16,12 +16,12 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 # ★社内ホストは「まるごと」配信する。1つのフォルダだけ送ると、他のページが消える。
 #   2026-09-19 に実際に消した：juchu だけ送って、SMSツール（s.html・qr/・robots.txt）が404になった。
 #   Netlify の配信は「送ったファイルが全部」なので、同居しているものを必ず一緒に送ること。
-SRC_TACHI = [(ROOT / "lp" / "naibu-sms", ""),      # ルートに置く（既存のSMSツール）
+SRC_TACHI = [(ROOT / "lp" / "genba-root", ""),     # ルート（robots.txt だけ）。★SMSツール（naibu-sms）は同居させない（2026-09-22 判定を受けた原因）
              (ROOT / "lp" / "juchu", "/juchu"),     # /juchu/ に置く（受注フォーム）
              (ROOT / "lp" / "kanryo", "/kanryo")]   # /kanryo/ に置く（作業完了フォーム）
 API = "https://api.netlify.com/api/v1"
-SITE_ID = "f1b64c82-173e-4b1a-9e7f-bf24026fed0e"   # oh-naibu-sms-k7q3x（社内用）
-SITE_NAME = "oh-naibu-sms-k7q3x"
+SITE_ID = "6e568d1d-4a66-4167-8d0f-7b15ce8b0828"   # oh-genba-form-m8x2q（社内用・受注/完了フォーム専用）
+SITE_NAME = "oh-genba-form-m8x2q"
 TOKEN_KITEI = os.path.expanduser("~/.config/one-hitter/netlify-token.txt")
 
 
@@ -60,8 +60,10 @@ def main():
         sys.exit("受注フォームがありません。先に python3 tools/build-juchu.py を実行してください。")
     if "/kanryo/index.html" not in files:
         sys.exit("作業完了フォームがありません。先に python3 tools/build-kanryo.py を実行してください。")
-    if "/s.html" not in files:
-        sys.exit("SMSツール（s.html）がありません。まるごと配信できないので中止します。")
+    if "/s.html" in files:
+        sys.exit("SMSツール（s.html）が混ざっています。sms: を組み立てるページを同居させるとホストごと判定を受けます（2026-09-22）。中止。")
+    if "/robots.txt" not in files or "/kanryo/index.html" not in files:
+        sys.exit("robots.txt か作業完了フォームがありません。まるごと配信できないので中止します。")
     print(f"配信先: {SITE_NAME}（社内用・{SITE_ID}）")
     for rel, p in files.items():
         print(f"  {rel:<16} {p.stat().st_size:>8,} bytes")
@@ -90,7 +92,7 @@ def main():
     moto = d.get("ssl_url") or d.get("deploy_ssl_url")
     print("受注フォーム  :", moto + "/juchu/")
     print("作業完了フォーム:", moto + "/kanryo/")
-    print("SMSツール    :", moto + "/s.html")
+    print("robots.txt   :", moto + "/robots.txt")
 
 
 if __name__ == "__main__":
