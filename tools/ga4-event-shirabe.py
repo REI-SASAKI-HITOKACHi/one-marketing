@@ -155,9 +155,12 @@ def main() -> None:
                     print(f"| `{a or '(空)'}` | `{host}` | {n:,} |")
 
         if args.daily:
+            # --by と一緒に使われたら、日 × その軸で出す。
+            # 「?src=ig が何日に何件来たか」のように、日別の内訳が要るときのため。
+            dims = [{"name": "date"}] + ([{"name": args.by}] if args.by else [])
             res = run_report(token, args.property, {
                 "dateRanges": dr,
-                "dimensions": [{"name": "date"}],
+                "dimensions": dims,
                 "metrics": [{"name": "eventCount"}],
                 "dimensionFilter": {"filter": {
                     "fieldName": "eventName",
@@ -166,16 +169,22 @@ def main() -> None:
                 "limit": "400",
             })
             hi = rows(res)
-            print(f"\n## 日別\n")
+            print(f"\n## 日別" + (f"（{args.by} 別）" if args.by else "") + "\n")
             if not hi:
                 print("該当なし。")
             else:
-                print("| 日 | 件数 |")
-                print("|---|---:|")
-                for (d8,), (n,) in hi:
-                    # GA4 の date は YYYYMMDD
-                    mite = f"{d8[:4]}-{d8[4:6]}-{d8[6:]}" if len(d8) == 8 else d8
-                    print(f"| {mite} | {n:,} |")
+                def mite(d8):
+                    return f"{d8[:4]}-{d8[4:6]}-{d8[6:]}" if len(d8) == 8 else d8
+                if args.by:
+                    print(f"| 日 | {args.by} | 件数 |")
+                    print("|---|---|---:|")
+                    for d, (n,) in sorted(hi):
+                        print(f"| {mite(d[0])} | `{d[1] or '(空)'}` | {n:,} |")
+                else:
+                    print("| 日 | 件数 |")
+                    print("|---|---:|")
+                    for (d8,), (n,) in hi:
+                        print(f"| {mite(d8)} | {n:,} |")
         return
 
     res = run_report(token, args.property, {
