@@ -135,7 +135,7 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 
 .hero{position:relative;background:var(--paper);color:var(--text);isolation:isolate;}
 .hero-bg{
-  position:absolute;top:0;left:0;right:0;height:min(62vw,330px);margin:0;
+  position:absolute;top:0;left:0;right:0;height:min(36vw,190px);margin:0;
   z-index:0;overflow:hidden;background:var(--paper-2);
 }
 .hero-bg img{width:100%;height:100%;object-fit:cover;object-position:50% 46%;display:block;}
@@ -147,15 +147,22 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 }
 .hero-in{
   position:relative;z-index:1;max-width:760px;margin:0 auto;
-  padding:calc(min(62vw,330px) - 52px) 22px 44px;
-  display:flex;flex-direction:column;gap:20px;
+  
+  padding:calc(min(36vw,190px) - 44px) 22px 36px;
+  display:flex;flex-direction:column;gap:10px;
 }
+
 .hero .area{
-  align-self:flex-start;font-size:12px;font-weight:700;letter-spacing:.06em;
-  color:var(--aqua);border:1px solid var(--aqua);padding:5px 13px;
-  background:rgba(var(--scrim),.82);
+  align-self:flex-start;font-size:12px;font-weight:500;letter-spacing:.04em;
+  color:var(--aqua);padding:0;background:none;border:0;line-height:1.5;
 }
-.hero h1{font-size:clamp(26px,6.4vw,44px);color:var(--text);line-height:1.4;letter-spacing:.01em;text-wrap:balance;}
+
+.price-tag .peak-line{
+  display:block;margin-top:6px;font-size:12px;color:var(--cta);font-weight:700;
+}
+
+.trust .star{color:#F5A623;letter-spacing:-.04em;}
+.hero h1{font-size:clamp(26px,6.4vw,44px);color:var(--text);line-height:1.28;letter-spacing:.01em;text-wrap:balance;}
 
 .hero h1 .hl{
   background:linear-gradient(transparent 62%, var(--mark) 62%, var(--mark) 94%, transparent 94%);
@@ -171,7 +178,7 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 .price-tag .lab{font-size:12.5px;color:var(--steel);line-height:1.7;letter-spacing:.04em;}
 .price-tag .big{
   font-family:"Oswald",sans-serif;font-weight:500;
-  font-size:clamp(52px,15vw,86px);line-height:.86;color:var(--text);letter-spacing:-.01em;
+  font-size:clamp(42px,11.5vw,72px);line-height:.86;color:var(--text);letter-spacing:-.01em;
 }
 .price-tag .unit{font-family:"Noto Sans JP",sans-serif;font-size:.26em;font-weight:700;margin-left:.1em;letter-spacing:0;}
 .price-tag .tail{font-size:12.5px;color:var(--steel);padding-bottom:8px;line-height:1.8;}
@@ -181,11 +188,11 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 .perk b{color:var(--cta);}
 
 .trust{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule-2);}
-.trust div{padding:16px 8px 0;text-align:left;display:flex;flex-direction:column;gap:3px;
+.trust div{padding:8px 8px 0;text-align:left;display:flex;flex-direction:column;gap:3px;
   border-right:1px solid var(--rule);}
 .trust div:last-child{border-right:0;}
 .trust div:not(:first-child){padding-left:14px;}
-.trust .t{font-family:"Oswald",sans-serif;font-weight:500;font-size:26px;color:var(--text);line-height:1;}
+.trust .t{font-family:"Oswald",sans-serif;font-weight:500;font-size:23px;color:var(--text);line-height:1;}
 .trust .b{font-size:10.5px;color:var(--steel);line-height:1.6;}
 .hero-cta{display:flex;flex-direction:column;gap:9px;}
 .hero-note{font-size:11px;color:var(--steel);line-height:1.7;}
@@ -438,29 +445,30 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     <img src="img/hero-bg.jpg" alt="" width="1600" height="1067" fetchpriority="high" decoding="async">
   </div>
   <div class="hero-in">
-    <span class="area" id="hero-area">✓ 東京・千葉・神奈川 対応／最短即日</span>
+    <span class="area" id="hero-area">江戸川区・西葛西のエアコンクリーニング</span>
     <h1>フィルターを掃除しても<br><span class="hl">カビ臭い</span>。<br>原因は、内部のカビです。</h1>
-    <p class="sub" id="hero-sub">エアコンを分解し、ニオイの根源になっている熱交換器の奥まで専用機材で洗浄します。作業は60分、ご依頼から最短即日。お見積り以上の追加請求は、一切ありません。</p>
 
     <div class="price-tag">
       <span class="lab">ノーマルエアコン<br>1台あたり</span>
       <span class="big"><span class="num">10,780</span><span class="unit">円</span></span>
-      <span class="tail">／60分（税込）<br>お掃除機能付きは 17,380円／120分</span>
+      <span class="tail">／60分（税込）<br>お掃除機能付きは 17,380円／120分
+        <span class="peak-line" id="peak-line">5〜7月・12月は +3,300円（いまは加算なし）</span>
+      </span>
     </div>
 
-    <p class="perk" id="hero-perk">LINEご登録の方には、<b>防カビコート（通常 3,630円）を無料</b>でお付けしています。カビの再発を抑えるコーティングです。</p>
-
+    
     <div class="trust">
+      <div><span class="t num"><span class="star">★</span>5.0</span><span class="b">Googleクチコミ 23件<br>（2026年9月時点）</span></div>
       <div><span class="t num">98.6%</span><span class="b">が「他の人に勧めたい」<br>と回答<sup>※1</sup></span></div>
       <div><span class="t num">0円</span><span class="b">お見積り後の<br>追加請求</span></div>
-      <div><span class="t num">60<small>分</small></span><span class="b">1台あたりの<br>作業時間</span></div>
     </div>
 
     <div class="hero-cta">
-      <a class="btn lg tel-cta" id="hero-tel" href="tel:08080438259" hidden>電話で相談する<span class="tel-no">080-8043-8259</span><span class="tel-time">8:00〜20:00／担当 渡辺</span></a>
-      <a class="btn lg" href="#form">かんたん5項目でWEB予約する</a>
-      <a class="btn lg line" href="https://lin.ee/7kD9WGN">LINEで無料クーポンを受け取る</a>
+      <a class="btn lg" href="#quote">この条件で見積りを出す</a>
+      <a class="btn lg tel-cta" id="hero-tel" href="tel:08080438259">電話で相談する<span class="tel-no">080-8043-8259</span><span class="tel-time">8:00〜20:00／担当 渡辺</span></a>
     </div>
+
+    <p class="sub" id="hero-sub">エアコンを分解し、ニオイの根源になっている熱交換器の奥まで専用機材で洗浄します。作業は60分、ご依頼から最短即日。お見積り以上の追加請求は、一切ありません。</p>
     <p class="hero-note">※1 「他の人に勧めたい」と回答した割合：集計期間 2023年1月〜2025年12月、回答209名中206名、自社調べ</p>
   </div>
 </div>
@@ -632,7 +640,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
   </div>
 </section>
 
-<section>
+<section id="quote">
   <div class="wrap">
     <div class="sec-h">
       <span class="eyebrow">Simulator</span>
@@ -682,6 +690,8 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
           <p class="paid-note">※駐車スペースがない場合は、コインパーキング代を実費でいただきます。金額は事前にお伝えします。</p>
         </div>
         <a class="btn lg" href="#form">この内容で予約に進む</a>
+        
+        <p class="perk" id="hero-perk">LINEご登録の方には、<b>防カビコート（通常 3,630円）を無料</b>でお付けしています。カビの再発を抑えるコーティングです。</p>
       </div>
     </div>
   </div>
@@ -970,6 +980,21 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     }
   });
 })();
+
+  /* 価格の3行目。繁忙期（5〜7月・12月）かどうかで文面を変える。
+     HTMLの既定値は「加算なし」なので、JSが動かなくても端境期は正しい。
+     固定文にすると12月にLPが嘘をつくので、月で出し分ける。 */
+  (function(){
+    var el = document.getElementById('peak-line');
+    if (!el) { return; }
+    var m = new Date().getMonth() + 1;
+    var hanbouki = (m >= 5 && m <= 7) || m === 12;
+    el.textContent = hanbouki
+      ? '5〜7月・12月は +3,300円（いまは加算のある時期です）'
+      : '5〜7月・12月は +3,300円（いまは加算なし）';
+    el.style.color = hanbouki ? 'var(--text-2)' : 'var(--cta)';
+  })();
+
   /* 流入元の記録。?src= と ?cid= を hidden に写す。
      値は素性が不明なので、長さと文字種を制限してから入れる。 */
   (function(){
@@ -1046,23 +1071,15 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
         var el = document.getElementById(id);
         if (el) el.innerHTML = html;
       };
-      sashikae('hero-area', '✓ 東京・千葉・神奈川／はじめての方も歓迎');
+      /* 区名の行（§5-2）は広告でも出し分けない。上書きすると区名が消える */
       sashikae('hero-sub',  'エアコンを分解し、ニオイの根源になっている熱交換器の奥まで専用機材で洗浄します。作業は1台60分。<b>お見積りは無料で、見積り以上の追加請求は一切ありません。</b>はじめてのご依頼でも、当日の流れをご説明してから作業に入ります。');
       sashikae('hero-perk', 'はじめての方でも、<b>お見積りは無料</b>です。金額にご納得いただいてから作業に入りますので、その場でお断りいただいても構いません。');
       /* 電話は1画面目に入れる。CTAの塊は価格・実績の下にあるので、
          広告流入のときだけ電話ボタンを本文の直後へ引き上げる。
          スマホの1画面（およそ700px）に収めるのが狙い。 */
-      /* 電話は1画面目に入れる。ただし下部の追従バーが画面の下1/5を覆うので、
-         「本文の直後」だと実際にはバーの裏に隠れてしまう（実測で確認）。
-         エリア表示の直後＝見出しの上に置くと、写真の下にすぐ出て確実に見える。
-         広告で来た方は見出しを読む前に電話したい層も多いので、順番として妥当。 */
-      var tel = document.getElementById('hero-tel');
-      var area = document.getElementById('hero-area');
-      if (tel && area && area.parentNode) {
-        tel.hidden = false;
-        tel.classList.add('tel-cta-ue');
-        area.parentNode.insertBefore(tel, area.nextSibling);
-      }
+      /* 2026-09-14 に入れた「広告のときだけ電話を見出しの上へ」は、
+         §5-2 の並び（区名→見出し→価格→信頼3つ→CTA2つ）と矛盾するのでやめた。
+         電話は副CTAとして常に出るようになったので、出し分ける必要がなくなった。 */
     }
     var es = document.getElementById('h-src'); if (es) es.value = src;
     var ec = document.getElementById('h-cid'); if (ec) ec.value = cid;
