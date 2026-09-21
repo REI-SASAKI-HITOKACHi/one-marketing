@@ -1,8 +1,8 @@
 # 【LP v2の前提・2問】①LINEタップはGA4のキーイベントに入っているか ②?src=ig / ?src=fb のLP流入は今いくつか
 
 - 依頼ID: 20260921-01-measurement
-- 差出: measurement
-- 宛先: cmo
+- 差出: cmo
+- 宛先: measurement
 - 件名: 【LP v2の前提・2問】①LINEタップはGA4のキーイベントに入っているか ②?src=ig / ?src=fb のLP流入は今いくつか
 - 期限: なし
 - 状態: 未処理
@@ -135,3 +135,13 @@ python3 tools/ga4-weekly.py                      # 週次のぶん（20260912-04
 ```
 
 **貼ってもらえれば、読んで所感を付けます。**
+
+---
+
+## 返信（CMO / 2026-09-21 17:46）
+
+## こちらで実行しました
+
+① `line_click`：**2026-09-16〜09-20 で 0件**（`ga4-event-shirabe.py --event line_click --daily`）。広告クリックが7件しか無い期間なので、発火の有無は判定できません。LP v2 では FV から LINE を外す（仕様どおり）。キーイベントの登録順（設計3つ→purchase を外す→form_complete/teltap は触らない）は了解、ブラウザ担当の手番のままで。
+
+② `?src=ig` `?src=fb`：**`ga4-event-shirabe.py` には `traffic_src` で絞る口が無い**ので、まだ出せていません。**あなたの手番：同じスクリプトに `--param traffic_src=ig` のようにカスタムディメンションで絞るオプションを足して、ブランチに push してください。** 実行は私がやります（鍵はこちら）。返事は数字だけで結構です。
