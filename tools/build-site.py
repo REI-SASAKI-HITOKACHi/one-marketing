@@ -221,6 +221,39 @@ def swap_tel(src: str, number: str) -> str:
     return src
 
 
+# ============================================================
+# 自社アンケートの満足度。**ここ1か所だけを直せば全ページに効く。**
+#
+# 2026-09-21：これまで「98.6%（209名中206名／2023年1月〜2025年12月）」と書いていたが、
+# 一次データ（Googleフォームの回答シート2ファイル）で再現できなかった。
+# 母数が209に届かず（集計可能な最大192件）、2025年の回答が1件も無い。
+# 詳細は docs/アンケート98.6%の一次集計-2026-09-21.md（CMO作成）。
+# 出どころをオーナーに確認中。**確認が取れたら、この辞書を戻すだけで元に戻る。**
+#
+# いま入れている値は、一次データから実際に計算できたもの：
+#   合算・全期間の平均 9.45／10点、N=192、2022年6月〜2024年8月
+#   （CMOの指示は「9.4」だったが、§3.3 の合算・全期間の計算値は 9.45 なので
+#     計算値をそのまま使う。丸めて下げるより、出せる数字を出すほうが強い）
+MANZOKU = {
+    "{{MANZOKU_NUM}}":  "9.45",
+    "{{MANZOKU_UNIT}}": "<small>／10点</small>",
+    "{{MANZOKU_LAB}}":  "ご利用後アンケートの<br>総合満足度<sup>※1</sup>",
+    "{{MANZOKU_NOTE}}": "※1 ご利用後アンケートの総合満足度（10点満点）の平均："
+                        "回答192名、集計期間 2022年6月〜2024年8月、自社調べ",
+    "{{MANZOKU_FINE}}": "総合満足度は自社実施のご利用者アンケートに基づく平均値です"
+                        "（10点満点／回答192名／集計期間 2022年6月〜2024年8月）。",
+}
+
+
+def manzoku(html: str) -> str:
+    """満足度の差し込み。置き換え漏れがあればビルドを止める。"""
+    for k, v in MANZOKU.items():
+        html = html.replace(k, v)
+    if "{{MANZOKU" in html:
+        raise SystemExit("満足度の差し込みに漏れがあります（{{MANZOKU…}} が残っています）")
+    return html
+
+
 def tracking_head(cfg: dict, page: dict, tel: str = "") -> str:
     """<head> に入れる分。gtag の読み込みと、このページが何なのかの申告。"""
     ga4 = ((cfg.get("ga4") or {}).get("measurement_id") or "").strip()
@@ -502,6 +535,7 @@ def make_og(src: pathlib.Path, dst: pathlib.Path, line1: str, line2: str) -> Non
 
 def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict) -> None:
     src = (ROOT / "lp" / name / "index.html").read_text(encoding="utf-8")
+    src = manzoku(src)   # 満足度の差し込み（MANZOKU が唯一の出どころ）
 
     if FORM_OPEN not in src:
         raise SystemExit(f"{name}: フォームの開始タグが見つかりません")
