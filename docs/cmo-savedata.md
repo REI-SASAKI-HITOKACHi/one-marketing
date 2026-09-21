@@ -1968,3 +1968,4 @@ crm の回答：
 - **旧ホストは残置**（s.html は 和真さんの ▶送る リンク577件の飛び先。Chrome では赤い警告になる）。**CMO判断：手動SMSの残り300件は KDDI 開通まで一時停止**（crm の実測で最も弱い層・期待受注0〜1件）。08:00 に和真さんへ新URLと一時停止をLINE。
 - 旧サイトの取り込み済みID（data/*-torikomi.json）はそのまま。旧サイトに未取り込みは0件だった。
 - 残り：Search Console 登録（新ホストは社内用なので不要）、`docs/org/README.md` 4.8.2 の社内ホスト名の更新、crm の SMSタブ分離設計（`20260921-05-crm`）は継続。
+- 新サイトは既定で **`processing_settings.ignore_html_forms: true`（フォーム検出オフ）** だった。API で false に直して再配信 → `juchu`・`kanryo` の2フォームが登録された（01:2x）。**APIで作った Netlify サイトはフォーム検出を必ず有効化してから配信する**（教訓）。
