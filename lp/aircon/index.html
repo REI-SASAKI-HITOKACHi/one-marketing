@@ -21,8 +21,10 @@
                              ユアマイスター・くらしのマーケット）はいずれも
                              白か寒色寄りの白が地で、清潔感は青が担っている */
   --ink-2:#14506F;
-  --paper:#F3F7F9;        /* 冷たい白。温かいベージュから寄せ替えた */
-  --paper-2:#E6EDF1;
+  --paper:#FAF7F2;        /* 温白。冷たい白（#F3F7F9）から寄せ替えた。
+                             8/28調査 S-2：おそうじ革命 #F6F4EC／#F1F0E0 を実測。
+                             冷たい白は「清潔」だが「家」に見えない。 */
+  --paper-2:#F0EAE1;      /* --paper と同じ温度に揃える。ここだけ寒色だと浮く */
   --surface:#FFFFFF;
   --text:#13232E;
   --text-2:#3C5262;
@@ -44,7 +46,10 @@
   --on-ink:#EDF4F8;
   --on-ink-2:#A8C2D2;
   --ok:#1B6B4F;
-  --scrim:243,247,249;    /* = --paper。写真の上に敷く白 */
+  --scrim:250,247,242;    /* = --paper。写真の上に敷く白。paper を変えたら必ず合わせる */
+  --mark:#FFE566;         /* 見出しの黄マーカー。8/28調査 S-5。
+                             朱色の下線から変更。下線は「リンク」に見える */
+  --btn-shadow:var(--cta-deep);  /* ボタンのオフセット影。variant ごとに上書きする */
 }
 
 *{box-sizing:border-box;}
@@ -92,17 +97,23 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
   border:0;cursor:pointer;font-family:inherit;text-decoration:none;font-weight:700;
-  font-size:14px;padding:11px 20px;line-height:1.4;border-radius:2px;
-  background:var(--cta-fill);color:#fff;transition:background .15s,transform .1s;
+  font-size:14px;padding:11px 20px;line-height:1.4;border-radius:10px;
+  background:var(--cta-fill);color:#fff;
+  /* 押せることを影で示す。押下で2px沈めて影を縮める（8/28調査 S-3・CaSy の実測）。
+     色は面ごとに違うので --btn-shadow を variant で上書きする。 */
+  box-shadow:0 3px 0 var(--btn-shadow);
+  transition:background .15s,transform .08s,box-shadow .08s;
 }
 .btn:hover{background:var(--cta-fill-h);}
-.btn:active{transform:translateY(1px);}
-.btn.line{background:#06C755;color:#08140F;}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--btn-shadow);}
+.btn.line{background:#06C755;color:#08140F;--btn-shadow:#04913F;}
 .btn.line:hover{background:#05B84E;}
-.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--rule-2);}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--rule-2);
+  --btn-shadow:var(--rule-2);}
 .btn.ghost:hover{background:var(--paper-2);}
 .btn.lg{
-  width:100%;min-height:64px;font-size:17px;padding:18px 22px;border-radius:2px;
+  /* 主CTAだけピル。8/28調査 B-14：おそうじ本舗 9999px・カジタク 200px */
+  width:100%;min-height:64px;font-size:17px;padding:18px 22px;border-radius:9999px;
   letter-spacing:.04em;text-wrap:balance;
 }
 
@@ -135,9 +146,11 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
   background:rgba(var(--scrim),.82);
 }
 .hero h1{font-size:clamp(26px,6.4vw,44px);color:var(--text);line-height:1.4;letter-spacing:.01em;text-wrap:balance;}
+/* 黄マーカー（8/28調査 S-5）。下線は「リンク」に見えるので変更した。
+   background で引くので、行が折り返しても各行に付く。 */
 .hero h1 .hl{
-  text-decoration:underline;text-decoration-color:var(--cta);
-  text-decoration-thickness:.11em;text-underline-offset:.2em;text-decoration-skip-ink:none;
+  background:linear-gradient(transparent 62%, var(--mark) 62%, var(--mark) 94%, transparent 94%);
+  padding:0 .06em;
 }
 .hero .sub{color:var(--text-2);font-size:15px;line-height:2.05;max-width:38em;}
 
@@ -170,6 +183,8 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 .hero-cta{display:flex;flex-direction:column;gap:9px;}
 .hero-note{font-size:11px;color:var(--steel);line-height:1.7;}
 .tel-cta{background:var(--surface);color:var(--ink);border:2px solid var(--ink);
+  /* 白い面に赤い影が付くと安っぽく見える。影は面の色系統に合わせる */
+  --btn-shadow:var(--ink);
   flex-direction:column;gap:2px;line-height:1.25;}
 .tel-cta .tel-no{font-family:"Barlow",system-ui,sans-serif;font-weight:700;font-size:20px;letter-spacing:.02em;}
 .tel-cta .tel-time{font-size:11px;color:var(--text-2);font-weight:500;}
@@ -209,7 +224,9 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 
 
 /* ===== バンド ===== */
-section{padding:60px 0;background:var(--paper);}
+/* 縦を1画面ぶん短くする（§5-9）。スマホ48px／PC72px */
+section{padding:48px 0;background:var(--paper);}
+@media(min-width:900px){section{padding:72px 0;}}
 section.alt{background:var(--surface);}
 section.dark{background:var(--ink);color:var(--on-ink);}
 section.dark h2,section.dark h3{color:#fff;}
@@ -219,7 +236,7 @@ section.dark .eyebrow{color:var(--aqua-ink);}
 /* 見出しは左揃え、罫で切る */
 .sec-h{display:flex;flex-direction:column;gap:12px;margin-bottom:34px;
   border-bottom:1px solid var(--rule-2);padding-bottom:16px;}
-.sec-h h2{font-size:clamp(23px,5.4vw,34px);}
+.sec-h h2{font-size:clamp(23px,5.4vw,38px);line-height:1.28;}
 .sec-h p{font-size:14px;color:var(--steel);line-height:1.95;}
 section.dark .sec-h{border-bottom-color:rgba(255,255,255,.2);}
 section.dark .sec-h p{color:var(--on-ink-2);}
@@ -378,7 +395,7 @@ details p{padding:0 0 18px 26px;font-size:14px;color:var(--text-2);line-height:2
 .field .req{color:var(--cta);font-size:11px;margin-left:6px;}
 .field input,.field select,.field textarea{
   padding:13px 14px;border:1px solid var(--rule-2);font-family:inherit;font-size:16px;
-  background:var(--surface);color:var(--text);width:100%;border-radius:0;
+  background:var(--surface);color:var(--text);width:100%;border-radius:8px;
 }
 .consent{font-size:11.5px;color:var(--steel);line-height:1.85;margin:-2px 0 4px;}
 .consent a{color:var(--aqua);}
@@ -393,6 +410,8 @@ details p{padding:0 0 18px 26px;font-size:14px;color:var(--text-2);line-height:2
 .sticky .btn small{display:block;font-size:9px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
 .sticky-note{font-size:10.5px;color:var(--on-ink-2);text-align:center;line-height:1.4;}
 .sticky .btn.call{flex:0 0 auto;background:transparent;color:var(--on-ink);
+  /* 追従バーは濃紺の帯の上。影は出さない（帯の中で浮くため） */
+  box-shadow:none;
   border:1px solid rgba(255,255,255,.4);padding:9px 15px;font-size:15px;}
 .sticky .btn.call small{font-size:9px;color:var(--on-ink-2);}
 .sticky .btn.call:hover{background:rgba(255,255,255,.08);}
