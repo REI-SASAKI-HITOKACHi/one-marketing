@@ -289,6 +289,7 @@ label.ck input{width:20px;height:20px;margin-top:2px;flex:none}
     <ul><li>基本は<b>元請けがお客様から領収 → 着金後5日以内に下請けへ支払う</b></li>
         <li>案件を出すとき、<b>お客様からの入金予定日</b>と<b>下請けへの支払予定日</b>を必ず開示する。受ける人はそれを確認してから手を挙げる</li>
         <li>下請けが現場で領収する案件は、出すときにその印を付ける。受ける人は<b>領収後5日以内に元請け分を支払う</b>ことに同意してから手を挙げる</li>
+        <li><b>お客様の入金が遅れても、元請けは支払予定日に払う（原則）。</b> 大型案件などで難しいときは「支払が遅れる場合の申し送り」で下請けに新しい日付と理由を通知できる。ただし<b>遅延は1件として記録</b>され、募集時の事業者情報に「支払遅延 ○件」として全員に見える</li>
         <li><b>案件の完了は双方のクローズで決まる。</b> 支払予定日に元請け・下請けの双方へURL付きの通知が届き、各自が「支払った／入金を確認した」「クレームは発生していない」等にチェックして「本案件をクローズする」を押す。どちらかが未押下の間は毎日対応依頼メールが届く</li>
         <li>請求書は成立条件から<b>自動作成</b>。施工日以降、当事者どちらもPDFで保存できる。システム上の保存は施工日から60日</li>
         <li>振込手数料は払う側。カード等の決済手数料が発生した案件は「外部手数料」として手取りから引く</li></ul>
@@ -364,6 +365,7 @@ function seed(){
     jobs.push({id:'d'+i,poster,items,opts,price,fee,workerPrice:wp,area,date:dt,slot:'午前',status:'done',applicants:[worker],accepted:worker,
       collect:i%4===3?'shita':'moto',payin:i%4===3?'':dt,payout:addDaysTo(dt,5),close:{moto:{at:addDaysTo(dt,6)},shita:{at:addDaysTo(dt,6)}},
       customer:{name:'（完了済み）',addr:'',tel:'',note:''},rating:5-(i%3)*0.5});});
+  jobs.find(x=>x.id==='d6').delay={at:addDaysTo(jobs.find(x=>x.id==='d6').date,5),newDate:addDaysTo(jobs.find(x=>x.id==='d6').date,20),reason:'お客様の入金が遅れたため'};
   // 募集中
   jobs.push({id:'o1',poster:'m1',items:[[AC.名称,2]],opts:['エアコン 防カビコート'],price:25190,fee:0,workerPrice:18900,area:'江戸川区',date:addDays(5),slot:'午前',status:'open',applicants:[],accepted:null,collect:'moto',payin:addDays(5),payout:addDays(10),
     customer:{name:'山田 花子',addr:'江戸川区船堀1-2-3 ○○マンション501',tel:'090-0000-0001',note:'室外機はベランダ。駐車はコインP'}});
@@ -376,16 +378,16 @@ function seed(){
   // 成立済み・未完了（自分の案件で顧客情報が見える例）
   jobs.push({id:'a1',poster:'m2',items:[[AC.名称,1]],opts:[],price:10780,fee:0,workerPrice:8000,area:'江東区',date:addDays(2),slot:'午前',status:'matched',applicants:['m1'],accepted:'m1',collect:'moto',payin:addDays(2),payout:addDays(7),close:{moto:{at:today()}},
     customer:{name:'高橋 三郎',addr:'江東区大島3-3-3',tel:'090-0000-0005',note:'犬がいます'}});
-  return {members,jobs,me:'m1',model:'teiji',rate:0.75,version:5};
+  return {members,jobs,me:'m1',model:'teiji',rate:0.75,version:6};
 }
 
 /* ---------- 保存 ---------- */
-const KEY='kyoryokuten-demo-v5';
+const KEY='kyoryokuten-demo-v6';
 let S;
-function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.version===5){S=s;return}}catch(e){}S=seed();save()}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.version===6){S=s;return}}catch(e){}S=seed();save()}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
   if(API_URL){fetch(API_URL,{method:'POST',body:JSON.stringify({action:'save',state:S})}).catch(()=>{})}}
-async function loadRemote(){if(!API_URL)return;try{const r=await fetch(API_URL+'?action=load');const j=await r.json();if(j&&j.state&&j.state.version===5){S=j.state;localStorage.setItem(KEY,JSON.stringify(S))}}catch(e){}}
+async function loadRemote(){if(!API_URL)return;try{const r=await fetch(API_URL+'?action=load');const j=await r.json();if(j&&j.state&&j.state.version===6){S=j.state;localStorage.setItem(KEY,JSON.stringify(S))}}catch(e){}}
 
 /* ---------- 計算 ---------- */
 const member=id=>S.members.find(m=>m.id===id);
@@ -394,6 +396,8 @@ function net(j){return Math.round(j.price*(1-(j.fee||0)))}
 function rate(j){const n=net(j);return n?j.workerPrice/n:0}
 function itemsLabel(j){return j.items.map(([n,q])=>n.replace('クリーニング','').replace('（ノーマル）','')+(q>1?' ×'+q:'')).concat(j.opts.map(o=>'＋'+o.replace('エアコン ',''))).join('、')}
 function acUnits(j){return j.items.filter(([n])=>n.startsWith('エアコン')).reduce((a,[,q])=>a+q,0)}
+function delays(mid){return S.jobs.filter(j=>j.poster===mid&&(j.delay||(j.close&&j.close.shita&&j.close.shita.late))).length}
+function delayTag(mid){const n=delays(mid);return n?`<span class="tag low">支払遅延 ${n}件</span>`:`<span class="tag done">支払遅延 0件</span>`}
 function belowMin(j,m){ // 自分の最低受け額（エアコン1台換算）を下回るか
   const u=acUnits(j);if(!u||j.items.length!==1)return false;return j.workerPrice/u<m.minAC}
 function calcPrice(items,opts,dateStr){
@@ -425,7 +429,8 @@ function jobCard(j,ctx){
   const st={open:'募集中',matched:'成立',done:'完了'}[j.status];
   const sched=j.collect==='shita'
     ?`<div class="sched"><div><div class="k">集金</div><div class="v">下請けが現場で領収</div></div><div><div class="k">元請け分の支払期限</div><div class="v">領収後5日以内（${addDaysTo(j.date,5)}）</div></div></div>`
-    :`<div class="sched"><div><div class="k">お客様からの入金予定</div><div class="v">${j.payin||'—'}</div></div><div><div class="k">下請けへの支払予定（着金後5日）</div><div class="v">${j.payout||'—'}</div></div></div>`;
+    :`<div class="sched"><div><div class="k">お客様からの入金予定</div><div class="v">${j.payin||'—'}</div></div><div><div class="k">下請けへの支払予定（着金後5日）</div><div class="v">${j.delay?`<s style="color:var(--muted);font-weight:400">${j.payout}</s> → ${j.delay.newDate}`:(j.payout||'—')}</div></div></div>`
+    +(j.delay?`<div class="note" style="border-left-color:var(--bad)"><b>⚠ 元請けからの申し送り（${j.delay.at}）</b>：支払予定を <b>${j.delay.newDate}</b> に変更。理由：${j.delay.reason||'—'}。<b>支払遅延として記録されます。</b></div>`:'');
   let actions='';
   if(j.status==='open'){
     if(mine){
@@ -447,7 +452,7 @@ function jobCard(j,ctx){
     actions=`<div class="sub" style="margin-top:6px">施工：${member(j.accepted).name}${j.rating?`　元請け評価 ★${j.rating}`:''}</div>
     ${party?`<div class="row" style="margin-top:8px"><button class="btn ghost sm" data-act="invoice" data-j="${j.id}">📄 請求書（PDF保存）</button><span class="sub">保存期限 ${addDaysTo(j.date,60)}（施工日から60日）</span></div>`:''}`}
   return `<div class="card ${low&&j.status==='open'?'dim':''}">
-    <div class="top"><div><div class="title">${itemsLabel(j)}</div><div class="sub">${j.area}　${j.date}（${j.slot}）　出した人：${mine?'あなた':p.name}</div></div><span class="tag ${j.status}">${st}</span></div>
+    <div class="top"><div><div class="title">${itemsLabel(j)}</div><div class="sub">${j.area}　${j.date}（${j.slot}）　出した人：${mine?'あなた':p.name} ${delayTag(j.poster)}</div></div><span class="tag ${j.status}">${st}</span></div>
     ${moneyHtml(j)}${sched}${actions}</div>`;
 }
 
@@ -470,6 +475,7 @@ function renderMembers(){
     return `<div class="card"><div class="top"><div><div class="title">${m.name}${m.id===S.me?' <span class="tag mine">あなた</span>':''}${m.id==='m1'?' <span class="tag mine">運営</span>':''}</div><div class="sub">${m.area}</div></div>
       <div style="text-align:right;font-size:12px;color:var(--muted)">票の重み<br><b style="font-size:16px;color:var(--ink)">${took+gave}</b></div></div>
       <div class="kv" style="margin-top:8px"><span class="k">受けた／出した</span><span>${took}件 ／ ${gave}件</span><span class="k">元請け評価</span><span>★${r}</span>
+      <span class="k">支払遅延</span><span>${delays(m.id)?`<span class="tag low">${delays(m.id)}件</span>`:'0件'}<small style="color:var(--muted)">（元請けとして。申し送り＋下請けの申告）</small></span>
       <span class="k">賠償責任保険</span><span>${m.insurance?'✅ 登録済み':'<span class="tag low">未登録（受注不可）</span>'}</span>
       <span class="k">インボイス</span><span>${m.invoice?'✅ 登録事業者':'⚠️ 免税事業者（元請けの控除に影響）'}</span>
       <span class="k">最低受け額</span><span>エアコン1台 ${yen(m.minAC)}〜</span>${m.note?`<span class="k">メモ</span><span>${m.note}</span>`:''}</div></div>`}).join('');
@@ -545,13 +551,15 @@ function closePanel(j){
   const myParty=j.poster===S.me?'moto':(j.accepted===S.me?'shita':null);
   if(!myParty) return '';
   const other=myParty==='moto'?'shita':'moto';
+  const delayBtn=(myParty==='moto'&&!j.delay&&j.collect!=='shita')?`<div class="row" style="margin-top:8px"><button class="btn quiet sm" data-act="delay" data-j="${j.id}">支払が遅れる場合の申し送り</button><span class="sub">下請けに通知され、遅延1件として記録されます</span></div>`:'';
   const notifyDay=j.collect==='shita'?addDaysTo(j.date,5):j.payout;
   const mineDone=!!j.close[myParty], otherDone=!!j.close[other];
-  const mail=`<div class="note" style="margin-top:10px"><b>📧 ${notifyDay} に双方へ通知（登録アドレスへURL付き）</b><br>「施工代金の支払い・入金を済ませたうえで、本案件をクローズしてください」。どちらかが未押下の間は<b>毎日</b>対応依頼メールが届きます。</div>`;
+  const mail=delayBtn+`<div class="note" style="margin-top:10px"><b>📧 ${notifyDay} に双方へ通知（登録アドレスへURL付き）</b><br>「施工代金の支払い・入金を済ませたうえで、本案件をクローズしてください」。どちらかが未押下の間は<b>毎日</b>対応依頼メールが届きます。</div>`;
   if(mineDone){
     return mail+`<div class="okbox">あなたはクローズ済み（${j.close[myParty].at}）。${otherDone?'双方クローズ済み':`相手（${member(myParty==='moto'?j.accepted:j.poster).name}）のクローズ待ち。毎日催促メールが送られます`}</div>`;
   }
-  const items=closeItems(j,myParty).map((t,i)=>`<label class="ck"><input type="checkbox" class="cl-ck" data-j="${j.id}"><span>${t}</span></label>`).join('');
+  const items=closeItems(j,myParty).map((t,i)=>`<label class="ck"><input type="checkbox" class="cl-ck" data-j="${j.id}"><span>${t}</span></label>`).join('')
+    +(myParty==='shita'&&j.collect!=='shita'?`<label class="ck" style="border-style:dashed"><input type="checkbox" class="cl-opt" data-j="${j.id}" ${j.delay?'':'checked'}><span>入金は支払予定日どおりだった<br><small style="color:var(--muted)">外すと元請けの「支払遅延」として記録されます${j.delay?'（申し送りがあるため既に遅延として記録）':''}</small></span></label>`:'');
   const rating=myParty==='moto'?`<div class="field" style="margin:6px 0"><label>下請けの評価（相場・票の重みには影響しない。受注停止基準の元データ）</label><select class="cl-rate" data-j="${j.id}"><option value="5">★5 問題なし</option><option value="4">★4</option><option value="3">★3</option><option value="2">★2 要改善</option><option value="1">★1 不可</option></select></div>`:'';
   return mail+`<div style="margin-top:8px"><b>本案件のクローズ（${myParty==='moto'?'元請け':'下請け'}として）</b>${items}${rating}
     <div class="row" style="margin-top:6px"><button class="btn cta sm" data-act="close" data-j="${j.id}" data-party="${myParty}" disabled>本案件をクローズする</button>${otherDone?'<span class="tag done">相手はクローズ済み</span>':'<span class="tag matched">相手は未クローズ</span>'}</div></div>`;
@@ -561,6 +569,18 @@ document.addEventListener('change',e=>{
   const card=e.target.closest('.card');const all=[...card.querySelectorAll('.cl-ck')];
   card.querySelector('[data-act=close]').disabled=!all.every(c=>c.checked);
 });
+function showDelay(j){
+  const box=document.createElement('div');box.className='modal';
+  box.innerHTML=`<div class="box"><h3>支払が遅れる場合の申し送り</h3>
+    <p class="lead">原則は支払予定日（${j.payout}）に払います。大型案件などでどうしても難しいときだけ使ってください。下請け（${member(j.accepted).name}）に通知され、<b>あなたの「支払遅延」に1件加算</b>されます。</p>
+    <div class="field"><label>新しい支払予定日</label><input type="date" id="dlDate" value="${addDaysTo(j.payout,14)}"></div>
+    <div class="field"><label>理由（下請けに見えます）</label><input type="text" id="dlReason" placeholder="例：お客様（法人）の支払サイトが翌月末のため"></div>
+    <div class="row actions"><button class="btn cta" id="dlOk">申し送りを送る</button><button class="btn quiet" id="dlNo">やめる</button></div></div>`;
+  document.body.appendChild(box);
+  $('#dlNo',box).onclick=()=>box.remove();
+  $('#dlOk',box).onclick=()=>{const d=$('#dlDate',box).value;if(!d){toast('日付を入れてください');return}
+    j.delay={at:today(),newDate:d,reason:$('#dlReason',box).value.trim()};box.remove();save();renderAll();toast('申し送りを送りました。支払遅延として記録されました')};
+}
 function showInvoice(j){
   const poster=member(j.poster),worker=member(j.accepted);
   const shita=j.collect==='shita';
@@ -639,8 +659,9 @@ document.addEventListener('click',e=>{
   if(act==='apply'){if(!me().insurance){toast('保険の証券番号が未登録のため受注できません');return}
     confirmApply(j,()=>{if(!j.applicants.includes(S.me))j.applicants.push(S.me);save();renderAll();toast('手を挙げました。出した人に通知が飛びます')});return}
   if(act==='invoice'){showInvoice(j);return}
-  if(act==='close'){j.close=j.close||{};const party=b.dataset.party;const sel=b.closest('.card').querySelector('.cl-rate');
-    j.close[party]={at:today()};if(party==='moto'&&sel)j.rating=+sel.value;
+  if(act==='delay'){showDelay(j);return}
+  if(act==='close'){j.close=j.close||{};const party=b.dataset.party;const card=b.closest('.card');const sel=card.querySelector('.cl-rate');const opt=card.querySelector('.cl-opt');
+    j.close[party]={at:today(),late:party==='shita'&&opt?!opt.checked:false};if(party==='moto'&&sel)j.rating=+sel.value;
     if(j.close.moto&&j.close.shita){j.status='done';toast('双方がクローズしました。案件完了。相場と票の重みに反映されました')}
     else{toast('クローズしました。相手が押すまで毎日催促メールが送られます')}}
   if(act==='withdraw'){j.applicants=j.applicants.filter(a=>a!==S.me);toast('取り消しました')}
