@@ -40,6 +40,13 @@ SOUTAI = ["先週", "先日", "今週", "今月", "昨日", "本日", "今日", 
 # 写真が付かないので、写真がある前提の書き方は使えない
 # 「上の」「下の」は入れない。「扉の下のレール」のような普通の言い回しまで落ちる（2026-09-20 実測）
 SHASHIN = ["枚目", "写真", "画像", "ご覧", "こちらの1枚", "ビフォーアフター"]
+# 他の投稿を前提にする指示語（2026-09-22 cmo 査読より）。予約投稿はバラけて出るので通じない。
+# 004 の「**同じ**江戸川区のお宅の2台目」が実際にこれで落ちた
+SASHIJI = ["同じお宅", "同じ江戸川区", "前回の", "先ほどの", "上の投稿", "さきほど"]
+# 社内の作業記録（時刻）。お客様価値が無く、法人の現場だと相手が推測されうる
+JIKOKU_RE = re.compile(r"\d{1,2}\s*時\s*\d{1,2}\s*分|\d{1,2}:\d{2}")
+# 繁忙期加算（docs/price-master.md）。予約投稿が 5〜7月・12月に出ると請求額と食い違う
+HANBOKI = ["繁忙期", "3,300円", "3300円"]
 
 PRICE_RE = re.compile(r"([1-9][0-9,]{2,7})\s*円")
 TEL_RE = re.compile(r"0\d{1,3}-\d{2,4}-\d{4}")
@@ -85,6 +92,15 @@ def check(body: str, prices: set) -> list:
         ng.append("本文に電話番号（GBPのプロフィール側に出る）")
     if URL_RE.search(body):
         ng.append("本文にURL（導線はボタンで出す）")
+    for w in SASHIJI:
+        if w in body:
+            ng.append(f"他の投稿を前提にする「{w}」（予約投稿はバラけて出る）")
+    m_ji = JIKOKU_RE.search(body)
+    if m_ji:
+        ng.append(f"時刻の記載「{m_ji.group()}」（社内の作業記録。相手が推測されうる）")
+    # 金額を書いたら繁忙期加算に触れる（書かないと 5〜7月・12月に請求額と食い違う）
+    if PRICE_RE.search(body) and not any(w in body for w in HANBOKI):
+        ng.append("金額を書いているのに繁忙期加算（5〜7月・12月／+3,300円）に触れていない")
     for p in {x.replace(",", "") for x in PRICE_RE.findall(body)}:
         if prices and p not in prices and int(p) >= 1000:
             ng.append(f"{int(p):,}円 が docs/price-master.md に無い")
@@ -106,6 +122,15 @@ def main() -> int:
     for f in files:
         blocks = BLOCK_RE.findall(f.read_text(encoding="utf-8"))
         print(f"\n■ {f.name}（{len(blocks)}本）")
+        # 束の中で締めの1文が丸かぶりしていないか（2026-09-22 cmo 査読で 006/007 が完全一致していた）
+        shime = {}
+        for i, b in enumerate(blocks, 1):
+            last = b.strip().splitlines()[-1].strip()
+            shime.setdefault(last, []).append(i)
+        for last, idx in shime.items():
+            if len(idx) > 1:
+                print(f"  [NG] {idx} 本目の締め文が同じ: {last[:40]}")
+                bad += len(idx) - 1
         for i, b in enumerate(blocks, 1):
             total += 1
             ng = check(b.strip(), prices)
