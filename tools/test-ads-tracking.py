@@ -210,6 +210,84 @@ with sync_playwright() as pw:
             chk(f"{lp}: 設定が空のうちはLINEでも撃たない", got == [], got)
         c.close()
 
+    # --- 9. アンケートのLINEボタンを、広告の成果に混ぜていないか ---
+    #
+    # LPのLINEボタン        … 公式アカウントを友だち追加（＝見込み客）
+    # アンケートのLINEボタン … 友だちに紹介文を送る（＝本人は既存のお客様）
+    #
+    # 混ぜると、**広告費をかけていない既存のお客様が「広告の成果」に化ける**。
+    # CPAが実態より良く見えて、出稿の判断を誤る。
+    c = ctx()
+    pg = c.new_page()
+    pg.goto(f"{BASE}/survey/index.html")
+    pg.wait_for_timeout(300)
+    pg.evaluate("document.addEventListener('click',function(e){e.preventDefault();},true)")
+    n = pg.eval_on_selector_all("a[href*='lin.ee'],a[href*='line.me']", "e => e.length")
+    pg.evaluate("document.querySelectorAll(\"a[href*='lin.ee'],a[href*='line.me']\")"
+                ".forEach(function(a){a.click();})")
+    pg.wait_for_timeout(300)
+    names = pg.evaluate("(window.dataLayer||[]).filter(function(a){return a&&a[0]==='event';})"
+                        ".map(function(a){return a[1];})")
+    chk(f"アンケートのLINEボタン {n}本は refer_share になる",
+        n > 0 and names.count("refer_share") == n, names)
+    chk("アンケートでは line_click を出さない（出すと既存客が広告の成果に化ける）",
+        "line_click" not in names, names)
+    chk("アンケートからは広告のコンバージョンを撃たない", conversions(pg) == [], conversions(pg))
+    c.close()
+
+    # --- 10. GA4 の traffic_src と、フォームの hidden 欄 src が一致するか ---
+    #
+    # 片方だけ生の値にしていると、**同じ訪問が GA4 と Netlify Forms で
+    # 違う名前になり、突き合わせられなくなる**。
+    # 規約は docs/流入の見分け方-src規約.md（英数字と _ - だけ／20文字まで）。
+    from urllib.parse import quote
+    for given in ("gads_mizumawari", "gads_aircon", "gads_brand",
+                  "日本語", "a" * 30, "gads mizu!"):
+        c = ctx()
+        pg = c.new_page()
+        pg.goto(f"{BASE}/mizumawari/index.html?src={quote(given)}")
+        pg.wait_for_timeout(250)
+        cfg = pg.evaluate(
+            "(function(){var o=null,L=window.dataLayer||[];for(var i=0;i<L.length;i++){"
+            "var a=L[i];if(a&&a[0]==='config'&&a[2]&&a[2].traffic_src!==undefined)o=a[2];}"
+            "return o;})()")
+        ga4 = (cfg or {}).get("traffic_src")
+        hid = pg.evaluate(
+            "(function(){var e=document.querySelector('input[name=src]');"
+            "return e?e.value:null;})()")
+        if hid is None:
+            # このブランチの lp/ には hidden 欄がまだ無い（LP担当のブランチが正）。
+            # 片側しか見られないので、GA4側が規約どおり削られているかだけ見る。
+            import re as _re
+            kitai = (_re.sub(r"[^A-Za-z0-9_-]", "", given)[:20]) or "direct"
+            chk(f"?src={given[:16]!r} GA4側が規約どおり削られる", ga4 == kitai,
+                f"GA4={ga4!r} 期待={kitai!r}")
+        else:
+            chk(f"?src={given[:16]!r} で GA4 とフォームが同じ値になる", ga4 == hid,
+                f"GA4={ga4!r} フォーム={hid!r}")
+        c.close()
+
+    # --- 11. 二度押ししても注文IDが変わらないか ---
+    #
+    # 変わると、Netlify Forms に残るIDと sessionStorage のIDが食い違い、
+    # **サンクスページのアフィリエイトタグが、当社の受信記録に無いIDを先方へ送る。**
+    # オフラインインポートの突き合わせ鍵（order_id）も合わなくなる。
+    c = ctx()
+    pg = c.new_page()
+    pg.goto(f"{BASE}/mizumawari/index.html")
+    pg.evaluate("document.querySelector('form.form')"
+                ".addEventListener('submit',function(e){e.preventDefault();},false)")
+    pg.fill("#f-name", "テスト"); pg.fill("#f-tel", "08000000000"); pg.fill("#f-zip", "1340084")
+    ids = []
+    for _ in range(3):
+        pg.eval_on_selector("form.form", "f => f.requestSubmit ? f.requestSubmit() : f.submit()")
+        pg.wait_for_timeout(120)
+        ids.append((pg.eval_on_selector("input[name=order_id]", "e => e.value"),
+                    pg.evaluate("sessionStorage.getItem('oh_order_id')")))
+    chk("二度押ししても注文IDが変わらない", len(set(ids)) == 1, ids)
+    chk("隠し欄と sessionStorage が同じID", ids[-1][0] == ids[-1][1], ids[-1])
+    c.close()
+
     b.close()
 
 _httpd.shutdown()
