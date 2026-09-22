@@ -30,7 +30,7 @@
 | 2 | 09-24 | `2026-09-24-aircon-filter-two-weeks.md` | 読本 | IMG_8021.jpg | 905字 | aircon |
 | 3 | 09-25 | `2026-09-25-edogawa-aircon-fan-dust.md` | 事例研究 | IMG_8007.jpg | 856字 | aircon |
 | 4 | 09-26 | `2026-09-26-aircon-spray-warning.md` | 読本 | IMG_8010.jpg | 814字 | aircon |
-| 5 | 09-27 | `2026-09-27-edogawa-aircon-dirty-water.md` | 事例研究 | IMG_8023.jpg | 994字 | aircon |
+| 5 | 09-27 | `2026-09-27-edogawa-aircon-dirty-water.md` | 事例研究 | **IMG_8023-bucket.jpg** | 1,071字 | aircon |
 | 6 | 09-28 | `2026-09-28-bathroom-mold-79.md` | 読本 | IMG_7987.jpg | 952字 | mizumawari |
 | 7 | 09-29 | `2026-09-29-edogawa-aircon-looks-clean.md` | 事例研究 | IMG_8019.jpg | 801字 | aircon |
 | 8 | 09-30 | `2026-09-30-mold-temperature-humidity.md` | 読本 | IMG_7987.jpg | 890字 | mizumawari |
