@@ -113,8 +113,7 @@ def check(path: pathlib.Path, prices: set) -> tuple:
     if fm.get("date"):
         try:
             d = dt.date.fromisoformat(fm["date"])
-            if d.weekday() != 2:
-                warn.append(f"date {fm['date']} が水曜ではない（{'月火水木金土日'[d.weekday()]}曜）")
+            # 2026-09-22 オーナー指示で「週1本・毎週水曜」→「毎日投稿（向こう100日）」に変更。曜日は見ない
             today = dt.date.today()
             if d < today and fm.get("status", "draft") != "published":
                 ng.append(f"公開予定日 {fm['date']} を過ぎているのに status が published でない")
@@ -187,6 +186,10 @@ def check(path: pathlib.Path, prices: set) -> tuple:
             ng.append(f"{int(p):,}円 が docs/price-master.md に無い")
     if re.search(r"[0-9],?[0-9]{3}\s*円", body) and "税込" not in body:
         ng.append("金額を書いているのに「税込」が本文に無い")
+    # 繁忙期加算（docs/price-master.md）。書かないと 5〜7月・12月の請求額と食い違う。
+    # GBP 第1束で同じ穴が出た（cmo 査読 2026-09-20）ので、ブログにも同じ門を置く
+    if PRICE_RE.search(body) and not any(w in body for w in ("繁忙期", "3,300円", "3300円")):
+        ng.append("金額を書いているのに繁忙期加算（5〜7月・12月／+3,300円）に触れていない")
 
     # 予約導線
     m_cta = CTA_RE.search(body)
