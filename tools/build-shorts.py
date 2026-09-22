@@ -5,7 +5,6 @@
   - 使うのは現場で撮った実写だけ。生成AIで映像を作らない・足さない・直さない。
     動くのはカメラワーク（ゆっくり寄る）と、作業前→作業後のワイプだけ。
   - 作業前→作業後のワイプは、JSONの「組写真」（同一箇所の確認済みペア）にしか使わない。
-  - 全フレームに「実際の現場写真（合成なし）」の表示を入れる。
   - 文言は JSON の「見えたもの」「ひとこと」をそのまま使う（生成器で断定語の検査済み）。
 
 使い方:
@@ -107,7 +106,7 @@ def canvas(photo, zoom):
 def badge(img):
     d = ImageDraw.Draw(img)
     f = font(28)
-    t = "実際の現場写真（合成なし）"
+    t = ""   # 「実際の現場写真（合成なし）」は書かない（2026-09-19 恒久ルール）
     tw = f.getlength(t)
     d.rounded_rectangle((W - tw - 90, 60, W - 40, 116), radius=14, fill=(0, 0, 0))
     d.text((W - tw - 65, 70), t, font=f, fill=(255, 255, 255))
@@ -199,7 +198,7 @@ def build(c: dict):
 
     seq = []
     # 1. つかみ：最初の1枚に題名
-    seq.append(frames_kenburns(before[0], 2.5, title, f"撮影 {c['日付']}", 1.0, 1.05))
+    seq.append(frames_kenburns(before[0], 2.5, title, "", 1.0, 1.05))
     # 2. 作業前の写真に「見えたもの」を1つずつ
     photos = before + water
     for i, p in enumerate(photos[:3]):
@@ -207,7 +206,7 @@ def build(c: dict):
         seq.append(frames_kenburns(p, 3.5, None, cap, 1.0, 1.14))
     # 3. 同一箇所のペアがあればワイプ
     for b, a in pairs[:1]:
-        seq.append(frames_wipe(b, a, 4.0, "同じ場所を、同じ角度から"))
+        seq.append(frames_wipe(b, a, 4.0, "左が作業前、右が作業後"))
     # 4. 締め
     seq.append(frames_end(before[0], 3.5, c["ひとこと"], c["対象"]))
 

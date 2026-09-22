@@ -100,7 +100,7 @@ def kensa(c: dict):
 def page(c: dict) -> str:
     t = TAISHOU[c["対象"]]
     title = f"{c['地名']}の{t['名']}の中身｜{c['日付']}"
-    meta = [c["地名"], t["名"], f"撮影 {c['日付']}"]
+    meta = [c["地名"], t["名"]]   # 「撮影 日付」は書かない（2026-09-19 恒久ルール）
     if c.get("使用年数"):
         meta.append(f"使用 {c['使用年数']}")
     meta += c.get("環境", [])
@@ -115,7 +115,7 @@ def page(c: dict) -> str:
     for b, a in c["組写真"]:
         html += f"""
   <div class="q">
-    <div class="head"><h2>同じ場所を、同じ角度から</h2><p class="why">左が作業前、右が作業後。</p></div>
+    <div class="head"><p class="why">左が作業前、右が作業後。</p></div>
     <div class="zk-grid">
       <figure><img src="img/{b}" alt="{esc(t['名'])}の作業前" loading="lazy"><figcaption><b>BEFORE</b> 作業前</figcaption></figure>
       <figure><img src="img/{a}" alt="{esc(t['名'])}の作業後" loading="lazy"><figcaption><b>AFTER</b> 作業後</figcaption></figure>
@@ -232,6 +232,11 @@ Instagramと同じ本文をAPIでページにも投稿する（ハッシュタ�
 
 
 def main():
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--index", action="store_true", help="検索に出す（noindex を外す）。配信は別の判断")
+    if ap.parse_args().index:
+        ara.INDEX = True
     cases = []
     for p in sorted(SRC.glob("*.json")):
         c = json.loads(p.read_text(encoding="utf-8"))

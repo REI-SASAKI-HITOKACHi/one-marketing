@@ -30,8 +30,9 @@ API = "https://api.netlify.com/api/v1"
 SITE_NAME = "araidoki"
 TOKEN_KITEI = os.path.expanduser("~/.config/one-hitter/netlify-token.txt")
 
-# 試作の間、検索エンジンにも他のサイトにも拾われないようにする
-HEADERS = """/*
+# 既定は noindex（試作のまま拾われないように）。--index で検索に出す。
+# ★ページ側（build-araidoki.py --index）と必ず揃えること。片方だけだと食い違う。
+HEADERS_NOINDEX = """/*
   X-Robots-Tag: noindex, nofollow
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
@@ -40,7 +41,9 @@ HEADERS = """/*
 /*.jpg
   Cache-Control: public, max-age=2592000
 """
-ROBOTS = "User-agent: *\nDisallow: /\n"
+HEADERS_INDEX = HEADERS_NOINDEX.replace("  X-Robots-Tag: noindex, nofollow\n", "")
+ROBOTS_NOINDEX = "User-agent: *\nDisallow: /\n"
+ROBOTS_INDEX = "User-agent: *\nAllow: /\n"
 
 
 def token() -> str:
@@ -66,14 +69,14 @@ def call(tok, method, path, payload=None, raw=None, ctype="application/json"):
         sys.exit(f"Netlify {method} {path} が {e.code}: {e.read().decode()[:400]}")
 
 
-def atsumeru() -> dict:
+def atsumeru(index: bool = False) -> dict:
     files = {}
     for p in sorted(SRC.rglob("*")):
         if p.is_dir() or p.name.startswith("."):
             continue
         files["/" + p.relative_to(SRC).as_posix()] = p.read_bytes()
-    files["/_headers"] = HEADERS.encode()
-    files["/robots.txt"] = ROBOTS.encode()
+    files["/_headers"] = (HEADERS_INDEX if index else HEADERS_NOINDEX).encode()
+    files["/robots.txt"] = (ROBOTS_INDEX if index else ROBOTS_NOINDEX).encode()
     return files
 
 
@@ -98,9 +101,20 @@ def main() -> None:
     ap.add_argument("--create", action="store_true")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--notify", action="append", default=[])
+    ap.add_argument("--index", action="store_true",
+                    help="検索に出す（robots.txt と X-Robots-Tag を外す）。"
+                         "ページ側も python3 tools/build-araidoki.py --index / build-zukan.py --index で作り直すこと")
     a = ap.parse_args()
 
-    files = atsumeru()
+    files = atsumeru(a.index)
+    # ページ側とヘッダ側が食い違うと、意図と逆のことが起きる。先に止める
+    honbun = files.get("/index.html", b"").decode("utf-8", "replace")
+    if a.index and "noindex" in honbun:
+        sys.exit("--index ですが、ページに noindex が残っています。"
+                 "先に python3 tools/build-araidoki.py --index と build-zukan.py --index を実行してください。")
+    if not a.index and "noindex" not in honbun:
+        sys.exit("--index なしですが、ページに noindex がありません。"
+                 "先に python3 tools/build-araidoki.py と build-zukan.py を実行してください。")
     if "/index.html" not in files:
         sys.exit("index.html がありません。先に python3 tools/build-araidoki.py を実行してください。")
     print(f"送るファイル {len(files)}件（{sum(len(b) for b in files.values()):,} bytes）")
@@ -135,7 +149,10 @@ def main() -> None:
         ct = r.headers.get("Content-Type", "")
         body = r.read(4000).decode("utf-8", "replace")
         xr = r.headers.get("X-Robots-Tag", "")
-    ok = ct.startswith("text/html") and "noindex" in body and "noindex" in xr
+    if a.index:
+        ok = ct.startswith("text/html") and "noindex" not in body and "noindex" not in xr
+    else:
+        ok = ct.startswith("text/html") and "noindex" in body and "noindex" in xr
     print("検証:", "OK" if ok else "NG", f"(Content-Type={ct}, X-Robots-Tag={xr})")
     if not ok:
         sys.exit("配信後の検証に失敗しました")

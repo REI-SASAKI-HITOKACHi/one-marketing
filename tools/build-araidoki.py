@@ -27,6 +27,10 @@ RULES = ROOT / "data" / "araidoki-rules.json"
 SURVEY = ROOT / "lp" / "survey" / "index.html"
 OUTDIR = ROOT / "lp" / "media" / "araidoki"
 
+# 検索に出すかどうか。既定は noindex（試作のまま外に出さない）。
+# --index を付けたときだけ検索に出す。**実際に出るのは配信したときなので、配信は別の判断。**
+INDEX = False
+
 BRAND = "洗いどき"
 BRAND_EN = "araidoki"
 TAGLINE = "掃除の相談所"
@@ -114,6 +118,7 @@ def esc(s: str) -> str:
 
 
 def head(title: str, desc: str) -> str:
+    ROBOTS_META = "" if INDEX else '<meta name="robots" content="noindex,nofollow">\n'
     return f"""<!doctype html>
 <html lang="ja">
 <head>
@@ -121,8 +126,7 @@ def head(title: str, desc: str) -> str:
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(desc)}">
-<meta name="robots" content="noindex,nofollow">
-<meta name="theme-color" content="#0E7C93">
+{ROBOTS_META}<meta name="theme-color" content="#0E7C93">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=Shippori+Mincho+B1:wght@600&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
@@ -485,6 +489,11 @@ def build_unei() -> str:
 
 
 def main():
+    global INDEX
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--index", action="store_true", help="検索に出す（noindex を外す）。配信は別の判断")
+    INDEX = ap.parse_args().index
     rules = json.loads(RULES.read_text(encoding="utf-8"))
     prices = json.loads(PRICES.read_text(encoding="utf-8"))
     OUTDIR.mkdir(parents=True, exist_ok=True)
