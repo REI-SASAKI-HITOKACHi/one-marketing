@@ -30,10 +30,10 @@ a{color:var(--accent)}
 /* ヘッダー */
 header{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
 header .wrap{display:flex;align-items:center;gap:10px;min-height:56px;padding-top:6px;padding-bottom:6px}
-.brand{font-weight:700;font-size:16px;letter-spacing:.02em;display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.brand{font-weight:700;font-size:15px;letter-spacing:.01em;display:flex;align-items:center;gap:6px;flex:1;min-width:0;white-space:nowrap}
 .brand .demo{font-size:11px;font-weight:700;color:var(--warn);background:var(--warn-soft);border-radius:999px;padding:1px 8px}
 .who{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
-.who select{max-width:150px;border:1px solid var(--line-strong);border-radius:8px;padding:6px 8px;background:#fff;font-size:13px}
+.who select{max-width:118px;border:1px solid var(--line-strong);border-radius:8px;padding:6px 8px;background:#fff;font-size:13px}
 
 /* タブ（下固定） */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);z-index:20;padding-bottom:env(safe-area-inset-bottom)}
@@ -143,6 +143,24 @@ label.ck input{width:20px;height:20px;margin-top:2px;flex:none}
 .inv th{background:#f1f1f1;color:#111}
 .inv .total{font-size:17px;font-weight:700;margin-top:10px;text-align:right}
 .inv .foot{font-size:11px;color:#555;margin-top:12px}
+/* 明細行（見積書の形） */
+.line{display:grid;grid-template-columns:1fr 30px;gap:4px 6px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--line)}
+.line .nm{grid-column:1/2}
+.line .nm select,.line .nm input{width:100%;border:1px solid var(--line-strong);border-radius:8px;padding:8px 10px;background:#fff;font-size:14px;min-height:40px}
+.line .nm input.other{margin-top:4px}
+.line .rm{grid-column:2/3;grid-row:1/3;background:none;border:0;color:var(--muted);font-size:18px;padding:0}
+.line .amt{grid-column:1/2;display:grid;grid-template-columns:1fr 20px 64px 20px 1fr;gap:4px;align-items:center;font-size:13px}
+.line .amt input{width:100%;border:1px solid var(--line-strong);border-radius:8px;padding:7px 8px;font-size:14px;min-height:38px;text-align:right}
+.line .amt .sub{text-align:right;font-weight:700;font-size:14px;color:var(--ink)}
+.line .amt .op{text-align:center;color:var(--muted)}
+.lines-total{display:flex;justify-content:space-between;align-items:baseline;padding:10px 2px 2px;font-size:14px}
+.lines-total b{font-size:19px}
+.srow{display:grid;grid-template-columns:24px 1fr 86px 86px 26px;gap:6px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.srow input[type=text],.srow input[type=number]{width:100%;border:1px solid var(--line-strong);border-radius:8px;padding:7px 8px;font-size:14px;min-height:38px}
+.srow input[type=number]{text-align:right}
+.srow .rm{background:none;border:0;color:var(--muted);font-size:18px;padding:0}
+.shead{display:grid;grid-template-columns:24px 1fr 86px 86px 26px;gap:6px;font-size:11px;color:var(--muted);padding:4px 0}
+.thumb{max-width:100%;max-height:260px;border:1px solid var(--line);border-radius:8px;display:block}
 @media print{body{background:#fff;padding:0}header,nav.tabs,.modal .actions,.toast{display:none !important}.modal{position:static;background:none;display:block}.modal .box{max-height:none;border-radius:0;padding:0}.inv{border:0}}
 </style>
 </head>
@@ -150,7 +168,8 @@ label.ck input{width:20px;height:20px;margin-top:2px;flex:none}
 
 <header><div class="wrap">
   <div class="brand">協力店ネット<span class="demo">デモ</span></div>
-  <div class="who"><span>操作中：</span><select id="whoSel" aria-label="いま操作している会員"></select></div>
+  <div class="who"><span style="white-space:nowrap">操作中</span><select id="whoSel" aria-label="いま操作している会員"></select></div>
+  <button class="btn quiet sm" type="button" id="gearBtn" title="自社設定" style="min-height:34px;padding:4px 9px;font-size:16px">⚙</button>
 </div></header>
 
 <main class="wrap">
@@ -162,15 +181,25 @@ label.ck input{width:20px;height:20px;margin-top:2px;flex:none}
   <div id="jobsList"></div>
 </section>
 
-<!-- ======== 出す ======== -->
+<!-- ======== 協力依頼 ======== -->
 <section class="page" id="p-post">
-  <h1>案件を出す</h1>
-  <p class="lead">受け切れない案件を仲間に。金額は全部見える前提で入れてください。</p>
+  <h1>協力依頼</h1>
+  <p class="lead">受け切れない案件を仲間に。お客様に出した<b>見積書をそのまま載せる</b>か、<b>見積書の形で入力</b>します。金額は全部見える前提です。</p>
   <form id="postForm" autocomplete="off">
-    <div class="field"><label>メニュー（台数・箇所数）</label><div class="chk" id="menuChk"></div>
-      <div class="hint">1箇所目は単体価格、2箇所目以降は同時施工価格で自動計算（見積ルールと同じ）。</div></div>
-    <div class="field"><label>オプション</label><div class="chk" id="optChk"></div></div>
-    <div class="row" style="gap:12px">
+    <h2>見積書</h2>
+    <div class="card" style="padding:12px 12px 10px">
+      <div class="row"><label class="btn ghost sm" for="fQuote" style="cursor:pointer">📎 見積書をアップロード</label><input type="file" id="fQuote" accept="image/*,application/pdf" hidden><button type="button" class="btn sm" id="ocrBtn" disabled>🔍 読み取って明細に入れる</button></div>
+      <div class="hint">写真・スクリーンショット（画像）は文字を読み取って明細に入れられます。PDFは添付のみ。<b>見積書には顧客情報が載るので、成立した相手だけに表示</b>されます。読み取り結果は必ず目で確認してください。</div>
+      <div id="quotePreview" style="margin-top:8px"></div>
+      <div id="ocrStatus" class="hint" style="margin-top:4px"></div>
+    </div>
+
+    <h2>明細（見積書の形で入力）</h2>
+    <div id="lineRows"></div>
+    <div class="row" style="margin-top:8px"><button type="button" class="btn ghost sm" id="addRow">＋ 行を追加</button><span class="hint">単価は<b>自社設定</b>から自動で入ります。案件ごとに書き換えてよい。「その他」で自由入力。</span></div>
+    <div class="lines-total"><span>合計（税込）</span><b id="linesTotal">¥0</b></div>
+
+    <div class="row" style="gap:12px;margin-top:6px">
       <div class="field" style="flex:1;min-width:140px"><label>施工日</label><input type="date" id="fDate" required></div>
       <div class="field" style="flex:1;min-width:140px"><label>時間帯</label><select id="fSlot"><option>午前</option><option>午後</option><option>終日</option></select></div>
     </div>
@@ -178,12 +207,12 @@ label.ck input{width:20px;height:20px;margin-top:2px;flex:none}
       <datalist id="areaList"><option>江戸川区<option>江東区<option>葛飾区<option>墨田区<option>足立区<option>市川市<option>浦安市<option>船橋市<option>松戸市<option>川崎市</datalist></div>
 
     <h2>金額</h2>
-    <div class="field"><label>お客様への請求額（税込）</label><input type="number" id="fPrice" min="0" step="10" required>
-      <div class="hint" id="priceHint">メニューから自動で入ります。値引きしたら書き換えてください。繁忙期（5〜7月・12月）は1台+3,300円を足しています。</div></div>
+    <div class="field"><label>お客様への請求額（税込）</label><input type="number" id="fPrice" min="0" step="1" required>
+      <div class="hint" id="priceHint">明細の合計が自動で入ります。値引きなどで見積と違うときは書き換えてください。</div></div>
     <div class="field"><label>外部手数料（ポータル等に払う分）</label>
       <div class="seg" id="feeSeg"><button type="button" data-v="0" class="on">なし</button><button type="button" data-v="0.20">20%（くらし等）</button><button type="button" data-v="0.35">35%（マッチングPF）</button></div>
-      <div class="hint">率は<b>手数料を引いた後の手取り</b>に掛けます。請求額に掛けると元請けが赤字になる案件があります。</div></div>
-    <div class="field"><label>施工者に払う額（税込）</label><input type="number" id="fWorker" min="0" step="10" required>
+      <div class="hint">率は<b>手数料を引いた後の手取り</b>に掛けます。</div></div>
+    <div class="field"><label>下請けに払う額（税込）</label><input type="number" id="fWorker" min="0" step="1" required>
       <div class="hint" id="workerHint"></div></div>
     <div id="postMoneyWrap"></div>
     <div class="legend"><span><i></i>施工者</span><span><b></b>元請け</span></div>
@@ -198,22 +227,22 @@ label.ck input{width:20px;height:20px;margin-top:2px;flex:none}
     </div>
 
     <h2>お客様情報（成立した相手だけに表示）</h2>
-    <div class="private"><div class="cap">🔒 一覧には出ません。成立後、受けた人だけが見られます。</div>
+    <div class="private"><div class="cap">🔒 一覧には出ません。成立後、受けた人だけが見られます。アップロードした見積書もここに入ります。</div>
       <div class="field"><label>氏名</label><input type="text" id="fCname" placeholder="例：山田 花子"></div>
       <div class="field"><label>住所</label><input type="text" id="fCaddr" placeholder="例：江戸川区船堀1-2-3 ○○マンション501"></div>
       <div class="field"><label>電話</label><input type="tel" id="fCtel" placeholder="例：090-0000-0000"></div>
       <div class="field"><label>連絡事項</label><textarea id="fCnote" placeholder="駐車場、エアコンの型番、ペット、鍵の受け渡し など"></textarea></div>
     </div>
     <div class="note">現場では<b>元請けの名前</b>で名乗ります。自社の名刺は渡しません（ルール参照）。</div>
-    <button class="btn cta full" type="submit">この内容で募集する</button>
+    <button class="btn cta full" type="submit">この内容で協力を依頼する</button>
   </form>
 </section>
 
-<!-- ======== 自分の案件 ======== -->
+<!-- ======== 依頼案件一覧 ======== -->
 <section class="page" id="p-mine">
-  <h1>自分の案件</h1>
-  <h2>出した案件</h2><div id="mineOut"></div>
-  <h2>受けた案件・手を挙げた案件</h2><div id="mineIn"></div>
+  <h1>依頼案件一覧</h1>
+  <h2>出した依頼</h2><div id="mineOut"></div>
+  <h2>受けた依頼・手を挙げた依頼</h2><div id="mineIn"></div>
 </section>
 
 <!-- ======== 会員 ======== -->
@@ -221,8 +250,6 @@ label.ck input{width:20px;height:20px;margin-top:2px;flex:none}
   <h1>会員</h1>
   <p class="lead">受けた数と出した数の合計が票の重み。保険とインボイス登録は参加条件。</p>
   <div id="membersList"></div>
-  <h2>自分の最低受け額（この額未満の案件は薄く表示）</h2>
-  <div class="card" id="minPriceBox"></div>
 </section>
 
 <!-- ======== 相場 ======== -->
@@ -311,12 +338,33 @@ label.ck input{width:20px;height:20px;margin-top:2px;flex:none}
   </div>
 </section>
 
+<!-- ======== 自社設定 ======== -->
+<section class="page" id="p-settings">
+  <h1>自社設定</h1>
+  <p class="lead">ここで決めた単価が<b>協力依頼の明細に自動で入り</b>、最低単価が<b>受ける案件の下限</b>になります。設定は自分にだけ見えます（最低単価と対応メニューは会員一覧に出ます）。</p>
+  <div class="card">
+    <div class="row" style="gap:12px">
+      <div class="field" style="flex:1;min-width:140px"><label>稼働可能人数</label><input type="number" id="sCap" min="1" max="50"></div>
+      <div class="field" style="flex:2;min-width:180px"><label>会社名（表示名）</label><input type="text" id="sName"></div>
+    </div>
+    <div class="field"><label>保有設備</label><div class="chk" id="sEquip"></div></div>
+  </div>
+  <h2>自社料金表（対応可能メニュー）</h2>
+  <p class="hint" style="font-size:12px;color:var(--muted)">「対応」を外したメニューは受けない（募集で薄く表示）。<b>単価</b>＝自分が元請けのときの請求単価（税込）。<b>最低単価</b>＝下請けで受けるときの下限（1台・1箇所あたり、税込）。</p>
+  <div class="card" style="padding:10px 12px">
+    <div class="shead"><span>対応</span><span>メニュー</span><span style="text-align:right">単価</span><span style="text-align:right">最低単価</span><span></span></div>
+    <div id="sMenus"></div>
+    <div class="row" style="margin-top:8px"><button type="button" class="btn ghost sm" id="sAddMenu">＋ メニューを追加</button></div>
+  </div>
+  <button type="button" class="btn cta full" id="sSave" style="margin-top:10px">自社設定を保存</button>
+</section>
+
 </main>
 
 <nav class="tabs"><div class="wrap">
   <button data-p="jobs" class="on"><span class="ic">📋</span>案件<span class="n" id="nOpen" hidden></span></button>
-  <button data-p="post"><span class="ic">➕</span>出す</button>
-  <button data-p="mine"><span class="ic">🧾</span>自分</button>
+  <button data-p="post"><span class="ic">➕</span>協力依頼</button>
+  <button data-p="mine"><span class="ic">🧾</span>依頼案件</button>
   <button data-p="members"><span class="ic">👥</span>会員</button>
   <button data-p="market"><span class="ic">📈</span>相場</button>
   <button data-p="rules"><span class="ic">📜</span>ルール</button>
@@ -341,75 +389,82 @@ const median=a=>{if(!a.length)return null;const s=[...a].sort((x,y)=>x-y),m=s.le
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1800)}
 
 /* ---------- 初期データ（架空。実在の会社・人物ではない） ---------- */
+const EQUIP=['高圧洗浄機','脚立・はしご','天カセ（業務用）対応','エアコン完全分解','ロボ（お掃除機能付き）対応','車両（軽バン）','高所作業（2階外壁）'];
+const AC_NAME='エアコンクリーニング（ノーマル）';
+function menuList(factor){
+  // 自社料金表の初期値：料金マスターに係数を掛けて散らす。最低単価＝単価の7割（オプションは6割）
+  const r100=v=>Math.round(v/100)*100;
+  return PRICES.menus.map(m=>({name:m.名称,unit:Math.round(m.単体*factor/10)*10,min:r100(m.単体*factor*0.7),on:true,custom:false}))
+    .concat(PRICES.options.map(o=>({name:o.名称,unit:Math.round(o.価格*factor/10)*10,min:r100(o.価格*factor*0.6),on:true,custom:false})));
+}
 function seed(){
   const members=[
-    {id:'m1',name:'ワンヒッター',area:'江戸川区',insurance:true,invoice:true,minAC:7000,rating:4.8,note:'運営。案件は同じルールで出す'},
-    {id:'m2',name:'協力店A',area:'江東区',insurance:true,invoice:true,minAC:7000,rating:4.7,note:''},
-    {id:'m3',name:'協力店B',area:'葛飾区',insurance:true,invoice:false,minAC:6000,rating:4.5,note:'インボイス未登録'},
-    {id:'m4',name:'協力店C',area:'市川市',insurance:true,invoice:true,minAC:7500,rating:4.9,note:''},
-    {id:'m5',name:'協力店D',area:'浦安市',insurance:false,invoice:true,minAC:5500,rating:4.2,note:'保険の証券番号 未登録'},
+    {id:'m1',name:'ワンヒッター',area:'江戸川区',insurance:true,invoice:true,rating:4.8,note:'運営。案件は同じルールで出す',cap:2,equip:['高圧洗浄機','脚立・はしご','エアコン完全分解','ロボ（お掃除機能付き）対応','車両（軽バン）'],menus:menuList(1.0)},
+    {id:'m2',name:'協力店A',area:'江東区',insurance:true,invoice:true,rating:4.7,note:'',cap:1,equip:['高圧洗浄機','脚立・はしご','ロボ（お掃除機能付き）対応'],menus:menuList(1.0)},
+    {id:'m3',name:'協力店B',area:'葛飾区',insurance:true,invoice:false,rating:4.5,note:'インボイス未登録',cap:2,equip:['高圧洗浄機','脚立・はしご','天カセ（業務用）対応','車両（軽バン）','高所作業（2階外壁）'],menus:menuList(0.93)},
+    {id:'m4',name:'協力店C',area:'市川市',insurance:true,invoice:true,rating:4.9,note:'',cap:1,equip:['高圧洗浄機','エアコン完全分解','ロボ（お掃除機能付き）対応'],menus:menuList(1.05)},
+    {id:'m5',name:'協力店D',area:'浦安市',insurance:false,invoice:true,rating:4.2,note:'保険の証券番号 未登録',cap:1,equip:['脚立・はしご'],menus:menuList(0.9)},
   ];
-  const AC=PRICES.menus[0];
+  // ワンヒッターの料金表は料金マスターそのまま（係数1.0）。エアコンの最低単価は 7,000 に
+  members[0].menus.find(x=>x.name===AC_NAME).min=7000;
+  members[1].menus.find(x=>x.name===AC_NAME).min=7000;
+  members[2].menus.find(x=>x.name===AC_NAME).min=6000;
+  members[3].menus.find(x=>x.name===AC_NAME).min=7500;
+  members[4].menus.find(x=>x.name===AC_NAME).min=5500;
+  const AC=AC_NAME;
+  const it=(name,qty,unit)=>({name,qty,unit});
   const jobs=[];
-  // 成立済み（相場の元になる）。金額は料金マスターと近い値で散らす
+  // 成立済み（相場の元になる）
   const doneSpec=[
-    ['m1','m2',[[AC.名称,1]],[],10780,0,8100,'江戸川区'],['m1','m3',[[AC.名称,2]],[],21560,0,16200,'江戸川区'],
-    ['m2','m4',[[AC.名称,1]],[],11000,0,8300,'江東区'],['m4','m1',[[AC.名称,1]],[],10780,0,8000,'市川市'],
-    ['m2','m3',[[AC.名称,1]],['エアコン 防カビコート'],14410,0,10800,'江東区'],
-    ['m1','m4',[['浴室クリーニング',1],['キッチンクリーニング',1],['レンジフードクリーニング',1]],[],48840,0,36600,'江戸川区'],
-    ['m3','m2',[['浴室クリーニング',1]],[],18480,0,13900,'葛飾区'],['m1','m2',[['レンジフードクリーニング',1]],[],18480,0,13900,'江戸川区'],
-    ['m4','m3',[[AC.名称,1]],[],27250,0.35,13300,'市川市'],['m2','m1',[['エアコンクリーニング（お掃除機能付き）',1]],[],17380,0,13000,'江東区'],
-    ['m1','m3',[[AC.名称,3]],[],32340,0,24300,'江戸川区'],['m3','m4',[['洗濯機クリーニング',1]],[],17380,0,13000,'葛飾区'],
+    ['m1','m2',[it(AC,1,10780)],10780,0,8100,'江戸川区'],['m1','m3',[it(AC,2,10780)],21560,0,16200,'江戸川区'],
+    ['m2','m4',[it(AC,1,11000)],11000,0,8300,'江東区'],['m4','m1',[it(AC,1,10780)],10780,0,8000,'市川市'],
+    ['m2','m3',[it(AC,1,10780),it('エアコン 防カビコート',1,3630)],14410,0,10800,'江東区'],
+    ['m1','m4',[it('浴室クリーニング',1,18480),it('キッチンクリーニング',1,15180),it('レンジフードクリーニング',1,15180)],48840,0,36600,'江戸川区'],
+    ['m3','m2',[it('浴室クリーニング',1,18480)],18480,0,13900,'葛飾区'],['m1','m2',[it('レンジフードクリーニング',1,18480)],18480,0,13900,'江戸川区'],
+    ['m4','m3',[it(AC,1,27250)],27250,0.35,13300,'市川市'],['m2','m1',[it('エアコンクリーニング（お掃除機能付き）',1,17380)],17380,0,13000,'江東区'],
+    ['m1','m3',[it(AC,3,10780)],32340,0,24300,'江戸川区'],['m3','m4',[it('洗濯機クリーニング',1,17380)],17380,0,13000,'葛飾区'],
   ];
-  doneSpec.forEach((d,i)=>{const [poster,worker,items,opts,price,fee,wp,area]=d;const dt=addDays(-40+i*3);
-    jobs.push({id:'d'+i,poster,items,opts,price,fee,workerPrice:wp,area,date:dt,slot:'午前',status:'done',applicants:[worker],accepted:worker,
+  doneSpec.forEach((d,i)=>{const [poster,worker,items,price,fee,wp,area]=d;const dt=addDays(-40+i*3);
+    jobs.push({id:'d'+i,poster,items,price,fee,workerPrice:wp,area,date:dt,slot:'午前',status:'done',applicants:[worker],accepted:worker,
       collect:i%4===3?'shita':'moto',payin:i%4===3?'':dt,payout:addDaysTo(dt,5),close:{moto:{at:addDaysTo(dt,6)},shita:{at:addDaysTo(dt,6)}},
       customer:{name:'（完了済み）',addr:'',tel:'',note:''},rating:5-(i%3)*0.5});});
   jobs.find(x=>x.id==='d6').delay={at:addDaysTo(jobs.find(x=>x.id==='d6').date,5),newDate:addDaysTo(jobs.find(x=>x.id==='d6').date,20),reason:'お客様の入金が遅れたため'};
   // 募集中
-  jobs.push({id:'o1',poster:'m1',items:[[AC.名称,2]],opts:['エアコン 防カビコート'],price:25190,fee:0,workerPrice:18900,area:'江戸川区',date:addDays(5),slot:'午前',status:'open',applicants:[],accepted:null,collect:'moto',payin:addDays(5),payout:addDays(10),
+  jobs.push({id:'o1',poster:'m1',items:[it(AC,2,10780),it('エアコン 防カビコート',1,3630)],price:25190,fee:0,workerPrice:18900,area:'江戸川区',date:addDays(5),slot:'午前',status:'open',applicants:[],accepted:null,collect:'moto',payin:addDays(5),payout:addDays(10),
     customer:{name:'山田 花子',addr:'江戸川区船堀1-2-3 ○○マンション501',tel:'090-0000-0001',note:'室外機はベランダ。駐車はコインP'}});
-  jobs.push({id:'o2',poster:'m2',items:[['浴室クリーニング',1],['追い焚き配管クリーニング',1]],opts:[],price:35090,fee:0,workerPrice:26300,area:'江東区',date:addDays(7),slot:'終日',status:'open',applicants:['m3'],accepted:null,collect:'moto',payin:addDays(37),payout:addDays(42),
+  jobs.push({id:'o2',poster:'m2',items:[it('浴室クリーニング',1,18480),it('追い焚き配管クリーニング',1,16610)],price:35090,fee:0,workerPrice:27000,area:'江東区',date:addDays(7),slot:'終日',status:'open',applicants:['m3'],accepted:null,collect:'moto',payin:addDays(37),payout:addDays(42),
     customer:{name:'佐藤 一郎',addr:'江東区亀戸4-5-6',tel:'090-0000-0002',note:'鍵は管理人室'}});
-  jobs.push({id:'o3',poster:'m4',items:[[AC.名称,1]],opts:[],price:7000,fee:0.20,workerPrice:4200,area:'市川市',date:addDays(3),slot:'午後',status:'open',applicants:[],accepted:null,collect:'shita',payin:'',payout:addDays(8),
+  jobs.push({id:'o3',poster:'m4',items:[it(AC,1,7000)],price:7000,fee:0.20,workerPrice:4200,area:'市川市',date:addDays(3),slot:'午後',status:'open',applicants:[],accepted:null,collect:'shita',payin:'',payout:addDays(8),
     customer:{name:'鈴木 次郎',addr:'市川市行徳駅前2-7',tel:'090-0000-0003',note:'ポータル経由。単価低め'}});
-  jobs.push({id:'o4',poster:'m3',items:[[AC.名称,6]],opts:[],price:64680,fee:0,workerPrice:48500,area:'葛飾区',date:addDays(10),slot:'終日',status:'open',applicants:[],accepted:null,collect:'moto',payin:addDays(40),payout:addDays(45),
+  jobs.push({id:'o4',poster:'m3',items:[it(AC,6,10780)],price:64680,fee:0,workerPrice:48500,area:'葛飾区',date:addDays(10),slot:'終日',status:'open',applicants:[],accepted:null,collect:'moto',payin:addDays(40),payout:addDays(45),
     customer:{name:'（法人）○○整骨院',addr:'葛飾区新小岩1-1',tel:'03-0000-0004',note:'6台。2人で1日。営業時間外の18時以降'}});
-  // 成立済み・未完了（自分の案件で顧客情報が見える例）
-  jobs.push({id:'a1',poster:'m2',items:[[AC.名称,1]],opts:[],price:10780,fee:0,workerPrice:8000,area:'江東区',date:addDays(2),slot:'午前',status:'matched',applicants:['m1'],accepted:'m1',collect:'moto',payin:addDays(2),payout:addDays(7),close:{moto:{at:today()}},
+  // 成立済み・未完了（顧客情報が見える例）
+  jobs.push({id:'a1',poster:'m2',items:[it(AC,1,10780)],price:10780,fee:0,workerPrice:8000,area:'江東区',date:addDays(2),slot:'午前',status:'matched',applicants:['m1'],accepted:'m1',collect:'moto',payin:addDays(2),payout:addDays(7),close:{moto:{at:today()}},
     customer:{name:'高橋 三郎',addr:'江東区大島3-3-3',tel:'090-0000-0005',note:'犬がいます'}});
-  return {members,jobs,me:'m1',model:'teiji',rate:0.75,version:6};
+  return {members,jobs,me:'m1',model:'teiji',rate:0.75,version:7};
 }
 
 /* ---------- 保存 ---------- */
-const KEY='kyoryokuten-demo-v6';
+const KEY='kyoryokuten-demo-v7';
 let S;
-function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.version===6){S=s;return}}catch(e){}S=seed();save()}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.version===7){S=s;return}}catch(e){}S=seed();save()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('保存できませんでした（容量超過の可能性。見積書の画像が大きすぎるかも）')}
   if(API_URL){fetch(API_URL,{method:'POST',body:JSON.stringify({action:'save',state:S})}).catch(()=>{})}}
-async function loadRemote(){if(!API_URL)return;try{const r=await fetch(API_URL+'?action=load');const j=await r.json();if(j&&j.state&&j.state.version===6){S=j.state;localStorage.setItem(KEY,JSON.stringify(S))}}catch(e){}}
+async function loadRemote(){if(!API_URL)return;try{const r=await fetch(API_URL+'?action=load');const j=await r.json();if(j&&j.state&&j.state.version===7){S=j.state;localStorage.setItem(KEY,JSON.stringify(S))}}catch(e){}}
 
 /* ---------- 計算 ---------- */
 const member=id=>S.members.find(m=>m.id===id);
 const me=()=>member(S.me);
 function net(j){return Math.round(j.price*(1-(j.fee||0)))}
 function rate(j){const n=net(j);return n?j.workerPrice/n:0}
-function itemsLabel(j){return j.items.map(([n,q])=>n.replace('クリーニング','').replace('（ノーマル）','')+(q>1?' ×'+q:'')).concat(j.opts.map(o=>'＋'+o.replace('エアコン ',''))).join('、')}
-function acUnits(j){return j.items.filter(([n])=>n.startsWith('エアコン')).reduce((a,[,q])=>a+q,0)}
+const shortName=n=>n.replace('クリーニング','').replace('（ノーマル）','').replace('エアコン ','');
+function itemsLabel(j){return j.items.map(x=>shortName(x.name)+(x.qty>1?' ×'+x.qty:'')).join('、')}
 function delays(mid){return S.jobs.filter(j=>j.poster===mid&&(j.delay||(j.close&&j.close.shita&&j.close.shita.late))).length}
 function delayTag(mid){const n=delays(mid);return n?`<span class="tag low">支払遅延 ${n}件</span>`:`<span class="tag done">支払遅延 0件</span>`}
-function belowMin(j,m){ // 自分の最低受け額（エアコン1台換算）を下回るか
-  const u=acUnits(j);if(!u||j.items.length!==1)return false;return j.workerPrice/u<m.minAC}
-function calcPrice(items,opts,dateStr){
-  // 1箇所目は単体、2箇所目以降は同時施工。単体がいちばん高いものを1箇所目に
-  const rows=[];items.forEach(([name,q])=>{const m=PRICES.menus.find(x=>x.名称===name);for(let i=0;i<q;i++)rows.push(m)});
-  rows.sort((a,b)=>b.単体-a.単体);
-  let sum=rows.reduce((a,m,i)=>a+(i===0?m.単体:m.同時),0);
-  opts.forEach(o=>{const x=PRICES.options.find(y=>y.名称===o);if(x)sum+=x.価格});
-  const mo=dateStr?new Date(dateStr).getMonth()+1:0;
-  if(PRICES.busy_months.includes(mo)){const ac=items.filter(([n])=>n.startsWith('エアコン')).reduce((a,[,q])=>a+q,0);sum+=PRICES.busy_add*ac}
-  return sum;
-}
+function minOf(m,name){const x=(m.menus||[]).find(y=>y.name===name);return x?x.min:null}
+function belowMin(j,m){ // 自社設定の最低単価（メニューごと）の合計を、施工額が下回るか。対応外メニューが含まれていれば薄く表示
+  let sum=0;for(const it of j.items){const x=(m.menus||[]).find(y=>y.name===it.name);if(!x)continue;if(!x.on)return true;sum+=x.min*it.qty}
+  return sum>0&&j.workerPrice<sum}
 
 /* ---------- 描画：金額ブロック ---------- */
 function moneyHtml(j){
@@ -443,7 +498,7 @@ function jobCard(j,ctx){
   if(j.status==='matched'){
     const canSee=j.accepted===S.me||mine;
     actions=`<div class="private ${canSee?'':'locked'}" style="margin-top:8px">${canSee?
-      `<div class="cap">🔒 お客様情報（${mine?'あなたが出した案件':'あなたが受けた案件'}）</div><div class="kv"><span class="k">氏名</span><span>${j.customer.name}</span><span class="k">住所</span><span>${j.customer.addr}</span><span class="k">電話</span><span><a href="tel:${j.customer.tel}">${j.customer.tel}</a></span><span class="k">連絡</span><span>${j.customer.note||'—'}</span></div>
+      `<div class="cap">🔒 お客様情報（${mine?'あなたが出した案件':'あなたが受けた案件'}）</div>${j.quote?(j.quote.type.startsWith('image/')?`<img class="thumb" src="${j.quote.data}" alt="見積書">`:`<a class="btn ghost sm" href="${j.quote.data}" download="${j.quote.name}">📎 見積書（${j.quote.name}）</a>`):''}<div class="kv"><span class="k">氏名</span><span>${j.customer.name}</span><span class="k">住所</span><span>${j.customer.addr}</span><span class="k">電話</span><span><a href="tel:${j.customer.tel}">${j.customer.tel}</a></span><span class="k">連絡</span><span>${j.customer.note||'—'}</span></div>
        <div class="row" style="margin-top:8px"><span class="sub">施工：${member(j.accepted).name}（現場では「${p.name}」として名乗る）</span></div>
        ${closePanel(j)}`
       :`🔒 お客様情報は成立した相手（${member(j.accepted).name}）だけに表示`}</div>`;
@@ -472,25 +527,24 @@ function renderMembers(){
   $('#membersList').innerHTML=S.members.map(m=>{
     const took=S.jobs.filter(j=>j.accepted===m.id&&j.status!=='open').length,gave=S.jobs.filter(j=>j.poster===m.id&&j.status!=='open').length;
     const rs=S.jobs.filter(j=>j.accepted===m.id&&j.status==='done'&&j.rating).map(j=>j.rating);const r=rs.length?(rs.reduce((a,b)=>a+b,0)/rs.length).toFixed(1):'—';
-    return `<div class="card"><div class="top"><div><div class="title">${m.name}${m.id===S.me?' <span class="tag mine">あなた</span>':''}${m.id==='m1'?' <span class="tag mine">運営</span>':''}</div><div class="sub">${m.area}</div></div>
+    const onMenus=(m.menus||[]).filter(x=>x.on);
+    return `<div class="card"><div class="top"><div><div class="title">${m.name}${m.id===S.me?' <span class="tag mine">あなた</span>':''}${m.id==='m1'?' <span class="tag mine">運営</span>':''}</div><div class="sub">${m.area}　稼働可能 ${m.cap||1}人</div></div>
       <div style="text-align:right;font-size:12px;color:var(--muted)">票の重み<br><b style="font-size:16px;color:var(--ink)">${took+gave}</b></div></div>
       <div class="kv" style="margin-top:8px"><span class="k">受けた／出した</span><span>${took}件 ／ ${gave}件</span><span class="k">元請け評価</span><span>★${r}</span>
       <span class="k">支払遅延</span><span>${delays(m.id)?`<span class="tag low">${delays(m.id)}件</span>`:'0件'}<small style="color:var(--muted)">（元請けとして。申し送り＋下請けの申告）</small></span>
       <span class="k">賠償責任保険</span><span>${m.insurance?'✅ 登録済み':'<span class="tag low">未登録（受注不可）</span>'}</span>
       <span class="k">インボイス</span><span>${m.invoice?'✅ 登録事業者':'⚠️ 免税事業者（元請けの控除に影響）'}</span>
-      <span class="k">最低受け額</span><span>エアコン1台 ${yen(m.minAC)}〜</span>${m.note?`<span class="k">メモ</span><span>${m.note}</span>`:''}</div></div>`}).join('');
-  const m=me();
-  $('#minPriceBox').innerHTML=`<div class="row between"><div><div class="title">${m.name}</div><div class="sub">エアコン1台あたり、これ未満の案件は薄く表示されます</div></div>
-    <div class="row"><input type="number" id="minAC" value="${m.minAC}" step="100" style="width:110px;border:1px solid var(--line-strong);border-radius:8px;padding:8px"><button class="btn sm" id="minSave">保存</button></div></div>`;
-  $('#minSave').onclick=()=>{m.minAC=+$('#minAC').value||0;save();toast('最低受け額を保存しました');renderAll()};
+      <span class="k">対応メニュー</span><span>${onMenus.length}本${onMenus.length<(m.menus||[]).length?`（対応外：${(m.menus||[]).filter(x=>!x.on).map(x=>shortName(x.name)).join('・')}）`:''}</span>
+      <span class="k">最低単価</span><span>エアコン1台 ${minOf(m,AC_NAME)!=null?yen(minOf(m,AC_NAME))+'〜':'—'}</span>
+      <span class="k">保有設備</span><span>${(m.equip||[]).join('・')||'—'}</span>${m.note?`<span class="k">メモ</span><span>${m.note}</span>`:''}</div></div>`}).join('');
 }
 function renderMarket(){
   const done=S.jobs.filter(j=>j.status==='done');
   const rows=[];
   PRICES.menus.forEach(mn=>{
-    const single=done.filter(j=>j.items.length===1&&j.items[0][0]===mn.名称&&!j.opts.length);
+    const single=done.filter(j=>j.items.length===1&&j.items[0].name===mn.名称);
     if(!single.length)return;
-    const perUnitW=single.map(j=>j.workerPrice/j.items[0][1]),perUnitP=single.map(j=>net(j)/j.items[0][1]),rs=single.map(rate);
+    const perUnitW=single.map(j=>j.workerPrice/j.items[0].qty),perUnitP=single.map(j=>net(j)/j.items[0].qty),rs=single.map(rate);
     rows.push(`<tr><td>${mn.名称.replace('クリーニング','').replace('（ノーマル）','').replace('（お掃除機能付き）','<br><small>お掃除機能付き</small>')}</td><td class="num">${single.length}</td><td class="num">${yen(median(perUnitP))}</td><td class="num"><b>${yen(median(perUnitW))}</b></td><td class="num">${pct(median(rs))}</td></tr>`)});
   const allR=done.map(rate);
   $('#marketTable').innerHTML=`<table><thead><tr><th>1台・1箇所<br>あたり</th><th class="num">成立</th><th class="num">手取り</th><th class="num">施工額</th><th class="num">取り分</th></tr></thead><tbody>${rows.join('')||'<tr><td colspan=5 class="empty">まだ成立がありません</td></tr>'}</tbody></table>
@@ -512,7 +566,7 @@ function renderSettings(){
 function renderAll(){renderWho();renderJobs();renderMine();renderMembers();renderMarket();renderSettings();syncPostMoney()}
 
 /* ---------- 出すフォーム ---------- */
-const form={items:new Map(),opts:new Set(),fee:0,collect:'moto',userTouchedWorker:false,userTouchedPrice:false};
+const form={rows:[],fee:0,collect:'moto',userTouchedWorker:false,userTouchedPrice:false,quote:null};
 function syncSched(){
   const moto=form.collect==='moto';
   $('#fPayinWrap').hidden=!moto;
@@ -609,47 +663,155 @@ function showInvoice(j){
   $('#invClose',box).onclick=()=>box.remove();
   $('#invPrint',box).onclick=()=>window.print();
 }
-function buildChecks(){
-  $('#menuChk').innerHTML=PRICES.menus.map(m=>`<label data-n="${m.名称}"><input type="checkbox">${m.名称.replace('クリーニング','')}<span class="sub">${yen(m.単体)}</span><input type="number" class="qty" value="1" min="1" max="20" hidden></label>`).join('');
-  $('#optChk').innerHTML=PRICES.options.map(o=>`<label data-n="${o.名称}"><input type="checkbox">${o.名称}<span class="sub">${yen(o.価格)}</span></label>`).join('');
-  $$('#menuChk label').forEach(l=>{const cb=$('input[type=checkbox]',l),q=$('.qty',l);
-    cb.onchange=()=>{l.classList.toggle('on',cb.checked);q.hidden=!cb.checked;if(cb.checked)form.items.set(l.dataset.n,+q.value||1);else form.items.delete(l.dataset.n);form.userTouchedPrice=false;syncPostMoney()};
-    q.onclick=e=>e.preventDefault();q.oninput=()=>{form.items.set(l.dataset.n,Math.max(1,+q.value||1));form.userTouchedPrice=false;syncPostMoney()}});
-  $$('#optChk label').forEach(l=>{const cb=$('input',l);cb.onchange=()=>{l.classList.toggle('on',cb.checked);if(cb.checked)form.opts.add(l.dataset.n);else form.opts.delete(l.dataset.n);form.userTouchedPrice=false;syncPostMoney()}});
+/* ---------- 協力依頼フォーム：明細（見積書の形） ---------- */
+function myMenus(){return (me().menus||[]).filter(x=>x.on)}
+function addLine(init){
+  const r=Object.assign({id:uid(),name:'',other:'',unit:0,qty:1},init||{});
+  if(!r.name&&myMenus().length){r.name=myMenus()[0].name;r.unit=myMenus()[0].unit}
+  form.rows.push(r);renderLines();
+}
+function renderLines(){
+  const ms=myMenus();
+  $('#lineRows').innerHTML=form.rows.map(r=>{
+    const known=ms.some(x=>x.name===r.name);
+    const opts=ms.map(x=>`<option value="${x.name}" ${x.name===r.name?'selected':''}>${shortName(x.name)}（${yen(x.unit)}）</option>`).join('')+`<option value="__other" ${!known?'selected':''}>その他（手入力）</option>`;
+    return `<div class="line" data-r="${r.id}">
+      <div class="nm"><select class="ln-sel">${opts}</select>${!known?`<input type="text" class="ln-other other" placeholder="メニュー名を入力" value="${r.other||r.name||''}">`:''}</div>
+      <button type="button" class="rm ln-rm" title="行を削除">✕</button>
+      <div class="amt"><input type="number" class="ln-unit" value="${r.unit||''}" placeholder="単価" step="10" min="0"><span class="op">×</span><input type="number" class="ln-qty" value="${r.qty}" min="1" max="99"><span class="op">=</span><span class="sub">${yen((r.unit||0)*(r.qty||0))}</span></div>
+    </div>`}).join('')||`<div class="empty">「＋ 行を追加」か、見積書の読み取りで明細を入れてください</div>`;
+  $('#linesTotal').textContent=yen(linesTotal());
+  $$('#lineRows .line').forEach(el=>{
+    const r=form.rows.find(x=>x.id===el.dataset.r);
+    $('.ln-sel',el).onchange=e=>{const v=e.target.value;if(v==='__other'){r.name=r.other||'';r.unit=r.unit||0}else{r.name=v;const m=ms.find(x=>x.name===v);r.unit=m?m.unit:r.unit}form.userTouchedPrice=false;renderLines();syncPostMoney()};
+    const o=$('.ln-other',el);if(o)o.oninput=e=>{r.name=e.target.value.trim();r.other=r.name};
+    $('.ln-unit',el).oninput=e=>{r.unit=+e.target.value||0;form.userTouchedPrice=false;$('.sub',el).textContent=yen(r.unit*r.qty);$('#linesTotal').textContent=yen(linesTotal());syncPostMoney()};
+    $('.ln-qty',el).oninput=e=>{r.qty=Math.max(1,+e.target.value||1);form.userTouchedPrice=false;$('.sub',el).textContent=yen(r.unit*r.qty);$('#linesTotal').textContent=yen(linesTotal());syncPostMoney()};
+    $('.ln-rm',el).onclick=()=>{form.rows=form.rows.filter(x=>x.id!==r.id);form.userTouchedPrice=false;renderLines();syncPostMoney()};
+  });
+}
+function linesTotal(){return form.rows.reduce((a,r)=>a+(r.unit||0)*(r.qty||0),0)}
+
+/* 見積書のアップロードと読み取り */
+function setQuote(file){
+  const rd=new FileReader();
+  rd.onload=()=>{form.quote={name:file.name,type:file.type,data:rd.result};
+    $('#quotePreview').innerHTML=file.type.startsWith('image/')?`<img class="thumb" src="${rd.result}" alt="見積書">`:`<div class="okbox">📎 ${file.name}（PDF。添付のみ、読み取りは画像で）</div>`;
+    $('#ocrBtn').disabled=!file.type.startsWith('image/');
+    if(rd.result.length>1500000)$('#ocrStatus').textContent='画像が大きめです。端末内保存の容量に注意（本番はサーバー保存）。';
+  };
+  rd.readAsDataURL(file);
+}
+const OCR_KEYS=[[/お掃除機能|自動掃除|ロボ|フィルター自動/,'エアコンクリーニング（お掃除機能付き）'],[/エアコン|ｴｱｺﾝ/,'エアコンクリーニング（ノーマル）'],[/レンジフード|換気扇/,'レンジフードクリーニング'],[/キッチン|台所/,'キッチンクリーニング'],[/浴室|お風呂|バス|ユニットバス/,'浴室クリーニング'],[/追い?焚|追炊/,'追い焚き配管クリーニング'],[/洗濯機/,'洗濯機クリーニング'],[/トイレ/,'トイレクリーニング'],[/洗面/,'洗面台クリーニング'],[/コンロ|ガス台/,'コンロクリーニング'],[/防カビ|防かび/,'エアコン 防カビコート'],[/室外機/,'エアコン 室外機セット'],[/防虫/,'エアコン 防虫キャップ'],[/コーティング/,'お掃除時短コーティング']];
+function parseQuote(text){
+  const z=s=>s.replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/[，、]/g,',').replace(/[¥￥]/g,'').replace(/[ \t\u3000]+/g,' ');
+  const rows=[];
+  text.split(/\r?\n/).map(z).forEach(line=>{
+    let name=null;for(const [re,n] of OCR_KEYS){if(re.test(line)){name=n;break}}
+    if(!name)return;
+    const nums=[...line.matchAll(/\d{1,3}(?:,\d{3})+|\d{4,7}/g)].map(m=>+m[0].replace(/,/g,'')).filter(v=>v>=500&&v<=2000000);
+    const qm=line.match(/(\d{1,2})\s*(台|箇所|ヶ所|か所|カ所|式|個|本|枚)/)||line.match(/[x×]\s*(\d{1,2})/);
+    let qty=qm?Math.max(1,+qm[1]):1;
+    if(!nums.length)return;
+    nums.sort((a,b)=>a-b);
+    let unit=nums[0];if(qty>1&&nums.length===1&&nums[0]%qty===0)unit=nums[0]/qty;
+    rows.push({name,qty,unit});
+  });
+  return rows;
+}
+async function runOcr(){
+  const st=$('#ocrStatus');
+  if(!form.quote||!form.quote.type.startsWith('image/')){st.textContent='画像（写真・スクリーンショット）のときだけ読み取れます';return}
+  try{
+    st.textContent='読み取り用の部品を読み込み中…（初回は数十秒かかります）';
+    if(!window.Tesseract){await new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';sc.onload=res;sc.onerror=rej;document.head.appendChild(sc)})}
+    const worker=await Tesseract.createWorker('jpn',1,{logger:m=>{if(m.status==='recognizing text')st.textContent='読み取り中 '+Math.round(m.progress*100)+'%';else if(m.status&&m.status!=='recognizing text')st.textContent='準備中：'+m.status}});
+    const {data}=await worker.recognize(form.quote.data);await worker.terminate();
+    const rows=parseQuote(data.text||'');
+    if(!rows.length){st.innerHTML='明細を見つけられませんでした。手で入力してください。<details><summary>読み取った文字</summary><pre style="white-space:pre-wrap;font-size:11px">'+(data.text||'').replace(/</g,'&lt;')+'</pre></details>';return}
+    form.rows=[];rows.forEach(r=>form.rows.push({id:uid(),name:r.name,other:'',unit:r.unit,qty:r.qty}));
+    form.userTouchedPrice=false;renderLines();syncPostMoney();
+    st.innerHTML=`${rows.length}行を明細に入れました。<b>金額と台数を目で確認してください。</b><details><summary>読み取った文字</summary><pre style="white-space:pre-wrap;font-size:11px">${(data.text||'').replace(/</g,'&lt;')}</pre></details>`;
+  }catch(e){st.textContent='読み取りに失敗しました（通信できない環境か、画像が不鮮明）。手で入力してください。'}
+}
+
+function buildPostForm(){
+  $('#addRow').onclick=()=>{addLine();syncPostMoney()};
+  $('#fQuote').onchange=e=>{if(e.target.files[0])setQuote(e.target.files[0])};
+  $('#ocrBtn').onclick=runOcr;
   $$('#feeSeg button').forEach(b=>b.onclick=()=>{$$('#feeSeg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');form.fee=+b.dataset.v;syncPostMoney()});
-  $('#fDate').value=addDays(4);$('#fDate').oninput=()=>{form.userTouchedPrice=false;syncPostMoney();syncSched()};
+  $('#fDate').value=addDays(4);$('#fDate').oninput=()=>{syncSched()};
   $('#fPayin').value=addDays(4);$('#fPayin').oninput=syncSched;
   $$('#collectSeg button').forEach(b=>b.onclick=()=>{$$('#collectSeg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');form.collect=b.dataset.v;syncSched()});
   syncSched();
   $('#fPrice').oninput=()=>{form.userTouchedPrice=true;form.userTouchedWorker=false;syncPostMoney()};
   $('#fWorker').oninput=()=>{form.userTouchedWorker=true;syncPostMoney(true)};
+  renderLines();
 }
 function syncPostMoney(fromWorker){
-  const items=[...form.items.entries()],opts=[...form.opts];
-  if(!form.userTouchedPrice&&items.length){$('#fPrice').value=calcPrice(items,opts,$('#fDate').value)}
+  if(!form.userTouchedPrice){$('#fPrice').value=linesTotal()||''}
   const price=+$('#fPrice').value||0,n=Math.round(price*(1-form.fee));
   const w=$('#fWorker');
   if(S.model!=='teiji'){w.readOnly=true;w.value=Math.round(n*S.rate)}
-  else{w.readOnly=false;if(!form.userTouchedWorker||!fromWorker&&!form.userTouchedWorker)w.value=Math.round(n*S.rate)}
+  else{w.readOnly=false;if(!form.userTouchedWorker)w.value=Math.round(n*S.rate)}
   const j={price,fee:form.fee,workerPrice:+w.value||0};
   $('#postMoneyWrap').innerHTML=moneyHtml(j);
   $('#workerHint').textContent=S.model==='teiji'?`既定値は手取り×${pct(S.rate)}。変えてよい。取り分率は全員に見える。`:S.model==='rate'?`率モデル：手取り×${pct(S.rate)} で固定（変更不可）`:`固定モデル：この画面では手取り×${pct(S.rate)} で代用`;
 }
+function resetPostForm(){
+  form.rows=[];form.fee=0;form.collect='moto';form.userTouchedPrice=form.userTouchedWorker=false;form.quote=null;
+  $('#postForm').reset();$('#quotePreview').innerHTML='';$('#ocrStatus').textContent='';$('#ocrBtn').disabled=true;
+  $$('#collectSeg button').forEach((b,i)=>b.classList.toggle('on',i===0));$('#fPayinWrap').hidden=false;$('#fPayin').value=addDays(4);$('#fDate').value=addDays(4);syncSched();
+  $$('#feeSeg button').forEach((b,i)=>b.classList.toggle('on',i===0));
+  renderLines();syncPostMoney();
+}
 $('#postForm').onsubmit=e=>{
   e.preventDefault();
-  const items=[...form.items.entries()];if(!items.length){toast('メニューを選んでください');return}
+  const items=form.rows.filter(r=>r.name&&r.unit>0).map(r=>({name:r.name,qty:r.qty,unit:r.unit}));
+  if(!items.length){toast('明細を1行以上入れてください');return}
   const price=+$('#fPrice').value||0,wp=+$('#fWorker').value||0;
   if(wp>Math.round(price*(1-form.fee))){toast('施工額が手取りを超えています');return}
   if(form.collect==='moto'&&!$('#fPayin').value){toast('お客様からの入金予定日を入れてください（必須開示）');return}
-  S.jobs.push({id:uid(),poster:S.me,items,opts:[...form.opts],price,fee:form.fee,workerPrice:wp,area:$('#fArea').value.trim()||'—',date:$('#fDate').value,slot:$('#fSlot').value,status:'open',applicants:[],accepted:null,
+  S.jobs.push({id:uid(),poster:S.me,items,price,fee:form.fee,workerPrice:wp,area:$('#fArea').value.trim()||'—',date:$('#fDate').value,slot:$('#fSlot').value,status:'open',applicants:[],accepted:null,
     collect:form.collect,payin:form.collect==='moto'?$('#fPayin').value:'',payout:form.collect==='moto'?addDaysTo($('#fPayin').value,5):addDaysTo($('#fDate').value,5),
+    quote:form.quote,
     customer:{name:$('#fCname').value.trim()||'（未入力）',addr:$('#fCaddr').value.trim(),tel:$('#fCtel').value.trim(),note:$('#fCnote').value.trim()}});
-  save();e.target.reset();form.items.clear();form.opts.clear();form.fee=0;form.collect='moto';form.userTouchedPrice=form.userTouchedWorker=false;
-  $$('#collectSeg button').forEach((b,i)=>b.classList.toggle('on',i===0));$('#fPayinWrap').hidden=false;$('#fPayin').value=addDaysTo(addDays(4),0);syncSched();
-  $$('#menuChk label,#optChk label').forEach(l=>{l.classList.remove('on');const q=$('.qty',l);if(q){q.hidden=true;q.value=1}});
-  $$('#feeSeg button').forEach((b,i)=>b.classList.toggle('on',i===0));$('#fDate').value=addDays(4);
-  toast('募集を出しました。会員に通知が飛びます');go('jobs');renderAll();
+  save();resetPostForm();
+  toast('協力依頼を出しました。会員に通知が飛びます');go('jobs');renderAll();
 };
+
+/* ---------- 自社設定 ---------- */
+function renderCompany(){
+  const m=me();
+  $('#sName').value=m.name;$('#sCap').value=m.cap||1;
+  $('#sEquip').innerHTML=EQUIP.map(e=>`<label class="${(m.equip||[]).includes(e)?'on':''}"><input type="checkbox" ${(m.equip||[]).includes(e)?'checked':''} value="${e}">${e}</label>`).join('');
+  $$('#sEquip label').forEach(l=>{$('input',l).onchange=e=>l.classList.toggle('on',e.target.checked)});
+  renderCompanyMenus(JSON.parse(JSON.stringify(m.menus||[])));
+}
+let sDraft=[];
+function renderCompanyMenus(draft){
+  sDraft=draft;
+  $('#sMenus').innerHTML=sDraft.map((x,i)=>`<div class="srow" data-i="${i}"><input type="checkbox" class="s-on" ${x.on?'checked':''} title="対応">
+    ${x.custom?`<input type="text" class="s-name" value="${x.name}" placeholder="メニュー名">`:`<span style="font-size:13px;line-height:1.3">${shortName(x.name)}${x.name.includes('お掃除機能')?'<br><small>お掃除機能付き</small>':''}</span>`}
+    <input type="number" class="s-unit" value="${x.unit}" step="10" min="0"><input type="number" class="s-min" value="${x.min}" step="100" min="0">
+    ${x.custom?`<button type="button" class="rm s-rm">✕</button>`:'<span></span>'}</div>`).join('');
+  $$('#sMenus .srow').forEach(el=>{const i=+el.dataset.i;
+    $('.s-on',el).onchange=e=>sDraft[i].on=e.target.checked;
+    const n=$('.s-name',el);if(n)n.oninput=e=>sDraft[i].name=e.target.value.trim();
+    $('.s-unit',el).oninput=e=>sDraft[i].unit=+e.target.value||0;
+    $('.s-min',el).oninput=e=>sDraft[i].min=+e.target.value||0;
+    const rm=$('.s-rm',el);if(rm)rm.onclick=()=>{sDraft.splice(i,1);renderCompanyMenus(sDraft)};
+  });
+}
+$('#sAddMenu').onclick=()=>{sDraft.push({name:'',unit:0,min:0,on:true,custom:true});renderCompanyMenus(sDraft);const last=$$('#sMenus .s-name').pop();if(last)last.focus()};
+$('#sSave').onclick=()=>{
+  const m=me();
+  m.name=$('#sName').value.trim()||m.name;m.cap=Math.max(1,+$('#sCap').value||1);
+  m.equip=$$('#sEquip input:checked').map(i=>i.value);
+  m.menus=sDraft.filter(x=>x.name).map(x=>({name:x.name,unit:x.unit,min:x.min,on:!!x.on,custom:!!x.custom}));
+  save();toast('自社設定を保存しました');renderAll();renderCompany();
+};
+$('#gearBtn').onclick=()=>go('settings');
 
 /* ---------- 操作 ---------- */
 document.addEventListener('click',e=>{
@@ -670,15 +832,15 @@ document.addEventListener('click',e=>{
 
   save();renderAll();
 });
-$('#whoSel').onchange=e=>{S.me=e.target.value;save();renderAll();toast(`${me().name} として操作します`)};
+$('#whoSel').onchange=e=>{S.me=e.target.value;save();resetPostForm();renderAll();if($('#p-settings').classList.contains('on'))renderCompany();toast(`${me().name} として操作します`)};
 $$('#modelSeg button').forEach(b=>b.onclick=()=>{S.model=b.dataset.v;save();renderAll()});
 $$('#rateSeg button').forEach(b=>b.onclick=()=>{S.rate=+b.dataset.v;form.userTouchedWorker=false;save();renderAll()});
 $('#resetBtn').onclick=()=>{if(confirm('デモデータを初期状態に戻します。よいですか？')){S=seed();save();renderAll();go('jobs');toast('初期化しました')}};
-function go(p){$$('section.page').forEach(s=>s.classList.toggle('on',s.id==='p-'+p));$$('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.p===p));window.scrollTo(0,0);if(p==='post')syncPostMoney()}
+function go(p){$$('section.page').forEach(s=>s.classList.toggle('on',s.id==='p-'+p));$$('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.p===p));window.scrollTo(0,0);if(p==='post'){renderLines();syncPostMoney()}if(p==='settings')renderCompany()}
 $$('nav.tabs button').forEach(b=>b.onclick=()=>go(b.dataset.p));
 
 /* ---------- 起動 ---------- */
-load();buildChecks();renderAll();loadRemote().then(()=>renderAll());
+load();buildPostForm();renderAll();loadRemote().then(()=>renderAll());
 </script>
 </body>
 </html>

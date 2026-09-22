@@ -1,0 +1,18 @@
+{
+  "v": 4,
+  "createdOnFiles": {"v": 1, "at": "2026-09-22T05:00:00Z"},
+  "title": "協力店ネット 石田さん向け",
+  "order": ["cover", "what", "gains", "worry1", "worry2", "worry3", "share", "pricing", "payment", "rules", "demo", "stage2", "stage3", "decide"],
+  "sections": {
+    "s1": {"description": "何を一緒に作りたいか、第1段の中身を一枚で", "start": "cover"},
+    "s2": {"description": "石田さんの得と、3つの不安への答え", "start": "gains"},
+    "s3": {"description": "お金とルールの叩き台。数字は出典のあるものだけ", "start": "share"},
+    "s4": {"description": "動くデモの流れと、第2段・第3段の絵", "start": "demo"},
+    "s5": {"description": "今日、石田さんに決めてほしいこと", "start": "decide"}
+  },
+  "faces": {
+    "noto-sans-jp": {"family": "Noto Sans JP", "href": "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap"},
+    "noto-serif-jp": {"family": "Noto Serif JP", "href": "https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@600&display=swap"}
+  },
+  "designSystems": []
+}
