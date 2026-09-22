@@ -552,7 +552,7 @@ function closePanel(j){
   if(!myParty) return '';
   const other=myParty==='moto'?'shita':'moto';
   const delayBtn=(myParty==='moto'&&!j.delay&&j.collect!=='shita')?`<div class="row" style="margin-top:8px"><button class="btn quiet sm" data-act="delay" data-j="${j.id}">支払が遅れる場合の申し送り</button><span class="sub">下請けに通知され、遅延1件として記録されます</span></div>`:'';
-  const notifyDay=j.collect==='shita'?addDaysTo(j.date,5):j.payout;
+  const notifyDay=j.collect==='shita'?addDaysTo(j.date,5):(j.delay?j.delay.newDate:j.payout);
   const mineDone=!!j.close[myParty], otherDone=!!j.close[other];
   const mail=delayBtn+`<div class="note" style="margin-top:10px"><b>📧 ${notifyDay} に双方へ通知（登録アドレスへURL付き）</b><br>「施工代金の支払い・入金を済ませたうえで、本案件をクローズしてください」。どちらかが未押下の間は<b>毎日</b>対応依頼メールが届きます。</div>`;
   if(mineDone){
