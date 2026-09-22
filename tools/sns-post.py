@@ -274,11 +274,40 @@ def fb_post(entry: dict, urls: list[str]) -> dict:
 
 # ---------- 1件を処理 ----------
 
+def gate_card(entry: dict, dry_run: bool) -> None:
+    """この投稿がカード画像（dist/cards/<id>...）を使うなら、その文字を check-cards に通す。
+    NG なら投稿を止める（dry-run のときは警告だけ）。写真だけの回は素通り。"""
+    ids = {pathlib.Path(m).stem.split("-")[0] + "-" + pathlib.Path(m).stem.split("-")[1]
+           for m in entry.get("media", []) if "dist/cards/" in m}
+    ids &= {p.stem for p in (ROOT / "data" / "sns-cards").glob("*.json")}
+    if not ids:
+        return
+    try:
+        p = pathlib.Path(__file__).resolve().parent / "check-cards.py"
+        spec = importlib.util.spec_from_file_location("check_cards", p)
+        cc = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cc)
+    except Exception as ex:                        # 道具が無い/壊れているなら、止めずに知らせる
+        print("    カード点検を飛ばしました（check-cards.py が読めません）:", mask(str(ex)))
+        return
+    prices = cc.cg.load_prices()
+    for cid in sorted(ids):
+        d = json.loads((cc.SPECS / f"{cid}.json").read_text(encoding="utf-8"))
+        ng = cc.check(cid, d, prices)
+        if ng:
+            print(f"    ✗ カード {cid} に問題があります：")
+            for x in ng:
+                print("       ", x)
+            if not dry_run:
+                raise ValueError(f"カード {cid} が check-cards で NG。投稿を止めました")
+
+
 def process(entry: dict, dry_run: bool, only_container: bool, deployer) -> None:
     print(f"\n■ {entry['id']}  {entry['scheduled_at']}  {entry['type']}  {'/'.join(entry['platforms'])}  [{entry['status']}]"
           + (f"  {entry.pop('_due')}" if "_due" in entry else ""))
     if entry.get("memo"):
         print("  ", entry["memo"])
+    gate_card(entry, dry_run)   # カード画像の文字を出す前に機械で確かめる（2026-09-22）
     paths = prepare_media(entry)
     urls = deployer.publish_files(paths, dry_run=dry_run)
     ulist = [urls[str(p)] for p in paths]
