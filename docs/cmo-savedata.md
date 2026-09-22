@@ -2011,3 +2011,9 @@ crm の回答：
 - lp 返信：読本・点検の「ダーク崩れ」は、9/15 にアンケートCSSからダーク記述を消す前に生成したまま作り直していないだけ。`build-dokuhon.py` / `build-tenken.py` / `build-tenken-slots.py` を回せば直る。生成物は web-inflow の持ち物・ブランチ → web-inflow に依頼（20260922-01-web-inflow）。配信は朝に判断。
 - measurement 返信：オフラインCV 設計＋道具 完成（計測ブランチ `2844fc0`）。月1・order_id 突合・値＝売上税込・施工日・「受注（オフライン）」新設サブCV。質問2つに答えた：①台帳に order_id 列は無い → **予約_Web に `注文ID`・`gclid` を足した（変更26）**、施工日・売上は crm の `★売上行への参照`/`★売上（税込）` から取る形に道具を寄せてもらう ②GA4 9/14〜20：form_submit 4（9/15 /mizumawari/）に対し generate_lead は /mizumawari/thanks 2（9/15）＋ yoyaku 1（9/20、和真さんの動作確認）。差2件の切り分けは measurement。
 - 予約フォーム（yoyaku）の gclid の欄名は「広告のクリックID」、LPフォームは `gclid`／`order_id`。booking-inbox は両方拾う。
+
+### 2026-09-23 00:4x JST 毎時点検（夜間）
+- カレンダー変化あり（9/28 21:00〜翌05:00 夜勤が追加。10/16 施工が範囲入り）→ `watanabe-events.json`・空き枠・予約ページを作り直しコミット（`ecf50f4`）。**配信は自動モードに Production Deploy として止められ未配信**。朝に `python3 tools/deploy-booking.py` と `--old` を回す。Netlify forms は新旧とも `yoyaku` あり。
+- measurement：オフラインCV道具を予約_Web 1本入力に寄せた（`acc4582`）。二度押しの差2件は 9/15 のレントラックステスト2件（PC/スマホ）で説明がつく。**本物の不具合**：LPフォームの注文IDが送信のたびに作り直される → 計測が修正（テスト付き）。本番反映は lp の配信待ち → 20260923-01-lp（?ag= と同じ回で配信）。20260922-01-measurement 完了。
+- web-inflow：読本3・点検5ページを再生成しコミット（`claude/web-inflow` `0ebf384`、未配信）。配色以外は機械照合で差なし。**ただし配色・書体がLP系（Noto Sans JP／Shippori Mincho／#0C6B7F）に揃い、角丸・影も変わる**。決めた：`lp/survey/index.html` は lp ブランチが正、生成前にそこから取り込む（media_common にコメント1行）。点検ページのルミテスター文言はオーナー回答待ちのまま（外した版は作らせない）。20260922-01-web-inflow 完了。
+- 朝オーナーに聞くこと（1通にまとめる）：①ルミテスターは会社にあるか（点検ページ・LP2本の文言） ②?ag= と注文ID修正を同じ回で配信してよいか ③読本・点検の再生成版（配色がLP系に変わる）を配信してよいか。予約ページの配信は承認不要（既存運用）なので朝に自分で回す。
