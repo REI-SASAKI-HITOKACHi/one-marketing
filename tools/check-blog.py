@@ -43,6 +43,8 @@ SRC_RE = re.compile(r"^blog[A-Za-z0-9_-]*$")
 TEL_RE = re.compile(r"0\d{1,3}-\d{2,4}-\d{4}")
 PRICE_RE = re.compile(r"([1-9][0-9,]{2,7})\s*円")
 IMG_RE = re.compile(r"^!\[([^\]]*)\]\(([^)]+)\)\s*$", re.M)
+# 出典URL＝予約導線（lp.onehitter.jp）以外の URL。引用の例外を認める条件（cmo 決定 2026-09-22）
+SHUTTEN_RE = re.compile(r"https?://(?!lp\.onehitter\.jp)\S+")
 
 
 def load_prices() -> set:
@@ -171,9 +173,18 @@ def check(path: pathlib.Path, prices: set) -> tuple:
         warn.append("写真が1枚も無い")
 
     # 書かないこと
+    # 公的機関の案内・製品表示・お客様のクチコミの「原文引用」だけは禁止語を通す（cmo 決定 2026-09-22）。
+    # 通す範囲は > の引用ブロックの中だけ。条件は、同じ記事に出典URLがあること。
+    # 言い換えると根拠がずれるので、原文のまま引いて出典を添える形に寄せるための例外。
+    lines = body.split("\n")
+    quoted = "\n".join(l for l in lines if l.lstrip().startswith(">"))
+    outside = "\n".join(l for l in lines if not l.lstrip().startswith(">"))
+    has_shutten = bool(SHUTTEN_RE.search(body))
     for w in BANNED:
-        if w in body:
+        if w in outside:
             ng.append(f"禁止語「{w}」が本文にある")
+        elif w in quoted and not has_shutten:
+            ng.append(f"禁止語「{w}」が引用の中にあるが、出典URLが記事に無い（引用の例外は出典URLが条件）")
     for w in BAD_NUMBERS:
         if w in text:
             ng.append(f"{w} は使わない（満足度は 98.6% が正）")
