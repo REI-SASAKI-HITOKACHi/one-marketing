@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """受注が確定した申込を、Google広告へ戻すためのCSVを作る（アップロードはしない）。
 
-    python3 tools/ads-offline-cv.py --yoyaku 予約_Web.csv --daicho 9月_売上.csv
-    python3 tools/ads-offline-cv.py --yoyaku … --daicho … --out data/ads-offline-2026-10.csv
+    python3 tools/ads-offline-cv.py 予約_Web.csv
+    python3 tools/ads-offline-cv.py 予約_Web.csv --out data/ads-offline-2026-10.csv
 
 **既定は下見（dry-run）です。** `--out` を付けたときだけファイルを書きます。
 **アップロードはしません。** 管理画面に入る操作は、この道具の外です。
@@ -18,16 +18,22 @@
 そのために `gclid`（広告のクリックID）をフォームに残してあります
 （`docs/広告-コンバージョン計測.md` 第5章）。
 
-## 突き合わせ方
+## 入力は「予約_Web タブのCSV」1本だけ
 
-```
-予約_Web タブ            台帳（◯月_売上）
-  order_id  ←──────────→  order_id
-  gclid                    施工日・売上
-```
+**台帳（◯月_売上）には `order_id` も `gclid` もありません**（2026-09-22 CMO確認）。
+**台帳には足さず、予約_Web 側で完結させる**と決まりました。
 
-**`order_id` が唯一の鍵です。** 申込のときにLPが採番して（`OH-YYYYMMDD-<LP>-XXXX`）、
-Netlify Forms の受信内容に残り、予約_Web タブへ入ります。
+| 予約_Web の列 | 何に使うか |
+|---|---|
+| `注文ID`（LPが採番した `OH-…`） | 申込1件の識別 |
+| `NetlifyのID` | **予約フォーム経由は注文IDが無い**ので、そのときの鍵 |
+| `gclid` ／「広告のクリックID」 | Google広告へ戻す先 |
+| `★売上（税込）` | 戻す金額 |
+| `★台帳の最終施工日` | コンバージョンの日時 |
+| 申込日時 | 90日の期限を測る起点 |
+
+**`★` の列は crm が台帳と紐づけたものです**（`20260913-03-crm`）。
+**台帳そのものは開きません。**
 
 ## 出さないもの
 
@@ -60,12 +66,16 @@ KIGEN_NICHI = 90
 # 列の見出しは人が付けるので揺れる。候補を並べて探し、
 # 見つからなければ**実際の見出しを表示して止める**。黙って空を返さない。
 COLS = {
-    "order_id": ["order_id", "注文ID", "注文番号", "受付番号"],
-    "gclid":    ["gclid", "Google Click ID", "クリックID"],
-    "moushikomi": ["申込日", "申込日時", "受信日時", "作成日"],
-    "sekou":    ["施工日", "作業日", "完了日", "施工日付"],
-    "uriage":   ["売上", "売上金額", "請求額", "金額", "合計"],
+    "order_id": ["注文ID", "order_id", "注文番号", "受付番号"],
+    "netlify":  ["NetlifyのID", "Netlify ID", "netlify_id", "ID"],
+    "gclid":    ["gclid", "広告のクリックID", "Google Click ID", "クリックID"],
+    "moushikomi": ["申込日時", "申込日", "受信日時", "作成日"],
+    "sekou":    ["★台帳の最終施工日", "施工日", "施工日付", "作業日", "完了日"],
+    "uriage":   ["★売上（税込）", "売上（税込）", "売上", "売上金額", "請求額", "金額"],
 }
+
+# 無くても止めない列。無ければその機能だけ落ちる。
+NAKUTEMOII = {"order_id", "netlify", "moushikomi"}
 
 
 def pick(headers, cands):
@@ -90,20 +100,27 @@ def read_csv(path: pathlib.Path) -> list:
 
 
 def need(rows, path, *keys):
-    """必要な列を探す。1つでも無ければ、実際の見出しを出して止める。"""
+    """必要な列を探す。**無いと成り立たない列**が欠けていたら、見出しを出して止める。
+
+    NAKUTEMOII に入っている列は、無ければ None にして先へ進む。
+    （予約フォーム経由には注文IDが無い、など、実務上あり得る欠けがあるため）
+    """
     if not rows:
         sys.exit(f"{path} に行がありません。")
     heads = list(rows[0].keys())
     col = {}
     for k in keys:
         c = pick(heads, COLS[k])
-        if not c:
+        if not c and k not in NAKUTEMOII:
             print(f"{path} の見出しは次のとおりです：\n", file=sys.stderr)
             for h in heads:
                 print("  ・" + str(h), file=sys.stderr)
             sys.exit(f"\n『{COLS[k][0]}』にあたる列が見つかりません。"
                      f"\nこのスクリプトの COLS に、実際の見出しを足してください。")
         col[k] = c
+    if not col.get("order_id") and not col.get("netlify"):
+        sys.exit(f"{path}：『注文ID』も『NetlifyのID』も見つかりません。"
+                 "\n申込1件を見分ける鍵がないので、続けられません。")
     return col
 
 
@@ -125,8 +142,7 @@ def parse_yen(s):
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--yoyaku", required=True, help="予約_Web タブのCSV（order_id と gclid）")
-    ap.add_argument("--daicho", required=True, help="台帳のCSV（order_id・施工日・売上）")
+    ap.add_argument("yoyaku", help="予約_Web タブのCSV（これ1本だけ）")
     ap.add_argument("--name", default="受注（オフライン）",
                     help="Google広告のコンバージョンアクション名。"
                          "**タグで撃っている『申込』と同じ名前にしないこと**")
@@ -139,46 +155,35 @@ def main() -> None:
     kyou = dt.date.fromisoformat(args.kijun) if args.kijun else dt.date.today()
     header = [h.strip() for h in args.header.split(",")] if args.header else HEADER
 
-    yp, dp = pathlib.Path(args.yoyaku), pathlib.Path(args.daicho)
-    for p in (yp, dp):
-        if not p.exists():
-            sys.exit(f"{p} がありません。")
+    yp = pathlib.Path(args.yoyaku)
+    if not yp.exists():
+        sys.exit(f"{yp} がありません。")
+    rows = read_csv(yp)
+    col = need(rows, yp, "order_id", "netlify", "gclid", "moushikomi", "sekou", "uriage")
 
-    yrows, drows = read_csv(yp), read_csv(dp)
-    ycol = need(yrows, yp, "order_id", "gclid", "moushikomi")
-    dcol = need(drows, dp, "order_id", "sekou", "uriage")
+    deta, nashi_gclid, mada, kigengire, kagi_nashi = [], 0, 0, [], 0
+    for r in rows:
+        def v(k):
+            return (r.get(col[k]) or "").strip() if col.get(k) else ""
 
-    # 予約側：order_id → (gclid, 申込日時)
-    moushi = {}
-    for r in yrows:
-        oid = (r.get(ycol["order_id"]) or "").strip()
-        if oid:
-            moushi[oid] = ((r.get(ycol["gclid"]) or "").strip(),
-                           parse_date(r.get(ycol["moushikomi"])))
-
-    deta, nashi_gclid, nashi_oid, kigengire, zero = [], 0, 0, [], 0
-    for r in drows:
-        oid = (r.get(dcol["order_id"]) or "").strip()
-        if not oid:
+        kagi = v("order_id") or v("netlify")
+        if not kagi:
+            kagi_nashi += 1
             continue
-        if oid not in moushi:
-            nashi_oid += 1
-            continue
-        gclid, mdt = moushi[oid]
+        gclid = v("gclid")
         if not gclid:
             nashi_gclid += 1
             continue
-        uriage = parse_yen(r.get(dcol["uriage"]))
-        if uriage <= 0:
-            zero += 1
+        uriage = parse_yen(v("uriage"))
+        sekou = parse_date(v("sekou"))
+        if uriage <= 0 or sekou is None:
+            # 施工前・入金前・キャンセル。**次の月に回るだけで、異常ではない**
+            mada += 1
             continue
-        sekou = parse_date(r.get(dcol["sekou"]))
-        if sekou is None:
-            continue
-        # クリックからの日数。90日を超えるとGoogle広告が受け取らない
+        mdt = parse_date(v("moushikomi"))
         keika = (sekou.date() - mdt.date()).days if mdt else None
         if keika is not None and keika > KIGEN_NICHI:
-            kigengire.append((oid, keika, uriage))
+            kigengire.append((kagi, keika, uriage))
             continue
         deta.append({
             header[0]: gclid,
@@ -189,24 +194,33 @@ def main() -> None:
         })
 
     print(f"# オフラインCVインポート用CSV（{kyou}）\n")
-    print(f"| | 件数 |")
-    print(f"|---|---:|")
-    print(f"| 台帳の行 | {len(drows):,} |")
+    print("| | 件数 |")
+    print("|---|---:|")
+    print(f"| 予約_Web の行 | {len(rows):,} |")
     print(f"| **戻せる（CSVに入る）** | **{len(deta):,}** |")
-    print(f"| 予約_Web に無い注文ID | {nashi_oid:,} |")
     print(f"| gclid が空（広告経由でない） | {nashi_gclid:,} |")
-    print(f"| 売上が0または空 | {zero:,} |")
+    print(f"| 施工前・入金前・キャンセル | {mada:,} |")
+    print(f"| 注文IDもNetlifyのIDも無い | {kagi_nashi:,} |")
     print(f"| **クリックから{KIGEN_NICHI}日超（戻せない）** | **{len(kigengire):,}** |")
+
+    if not col.get("order_id"):
+        print("\n> ⚠️ 『注文ID』の列がありません。**NetlifyのIDを鍵にしています。**")
+    if not col.get("moushikomi"):
+        print(f"\n> ⚠️ 申込日時の列がありません。**{KIGEN_NICHI}日の期限を見ていません。**"
+              "\n> **期限切れが混ざっていても気づけません。**")
 
     if deta:
         gokei = sum(int(d[header[3]]) for d in deta)
         print(f"\n**戻す金額の合計 {gokei:,}円**"
               f"（1件あたり平均 {gokei // len(deta):,}円）")
+    else:
+        print("\n**戻せる行はありません。** 広告経由の受注がまだ無いか、"
+              "施工・入金がこれからか、のどちらかです。**0行のCSVが出ます。**")
 
     if kigengire:
         print(f"\n> ## ⚠️ {len(kigengire)}件が{KIGEN_NICHI}日を過ぎていて戻せません\n>")
-        for oid, k, u in sorted(kigengire, key=lambda x: -x[1])[:10]:
-            print(f"> ・`{oid}` … 申込から{k}日／{u:,}円")
+        for kagi, k, u in sorted(kigengire, key=lambda x: -x[1])[:10]:
+            print(f"> ・`{kagi}` … 申込から{k}日／{u:,}円")
         print(">\n> **インポートの間隔が空きすぎています。**"
               f"**{KIGEN_NICHI}日を超えると、いくらで成約しても戻せません。**")
 
@@ -226,10 +240,9 @@ def main() -> None:
     print(f"\n**{out} に {len(deta)}件 書きました。**")
     print("\n## 次にやること（人の手）\n")
     print("1. **列名を、管理画面のテンプレートと見比べる**（最初の1回だけ）")
-    print(f"2. Google広告 → [目標] → [コンバージョン] → [アップロード] → このファイルを選ぶ")
-    print(f"3. **必ず「プレビュー」で確かめてから適用する。**"
-          "エラー行が出たら、直してからもう一度")
-    print(f"4. アップロードしたら、**このファイルを `data/` に残しておく。**"
+    print("2. Google広告 → [目標] → [コンバージョン] → [アップロード] → このファイルを選ぶ")
+    print("3. **必ず「プレビュー」で確かめてから適用する。** エラー行が出たら、直してからもう一度")
+    print("4. アップロードしたら、**このファイルを `data/` に残しておく。**"
           "二重に上げないための控えになります")
     print("\n> **この道具はアップロードしません。** 管理画面に入る操作は人の手です。")
 

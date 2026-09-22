@@ -267,6 +267,27 @@ with sync_playwright() as pw:
                 f"GA4={ga4!r} フォーム={hid!r}")
         c.close()
 
+    # --- 11. 二度押ししても注文IDが変わらないか ---
+    #
+    # 変わると、Netlify Forms に残るIDと sessionStorage のIDが食い違い、
+    # **サンクスページのアフィリエイトタグが、当社の受信記録に無いIDを先方へ送る。**
+    # オフラインインポートの突き合わせ鍵（order_id）も合わなくなる。
+    c = ctx()
+    pg = c.new_page()
+    pg.goto(f"{BASE}/mizumawari/index.html")
+    pg.evaluate("document.querySelector('form.form')"
+                ".addEventListener('submit',function(e){e.preventDefault();},false)")
+    pg.fill("#f-name", "テスト"); pg.fill("#f-tel", "08000000000"); pg.fill("#f-zip", "1340084")
+    ids = []
+    for _ in range(3):
+        pg.eval_on_selector("form.form", "f => f.requestSubmit ? f.requestSubmit() : f.submit()")
+        pg.wait_for_timeout(120)
+        ids.append((pg.eval_on_selector("input[name=order_id]", "e => e.value"),
+                    pg.evaluate("sessionStorage.getItem('oh_order_id')")))
+    chk("二度押ししても注文IDが変わらない", len(set(ids)) == 1, ids)
+    chk("隠し欄と sessionStorage が同じID", ids[-1][0] == ids[-1][1], ids[-1])
+    c.close()
+
     b.close()
 
 _httpd.shutdown()

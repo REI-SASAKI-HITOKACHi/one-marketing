@@ -397,8 +397,17 @@ def order_id_script(dir_name: str) -> str:
             "return o.v;}catch(e){return '';}}\n"
             # --- 送信時にフォームへ入れる ---
             "var f=document.querySelector('form.form');if(!f)return;"
+            # 注文IDは1ページにつき1つ。**押すたびに作り直さない。**
+            #
+            # 二度押しすると submit は2回起きる。作り直すと、
+            #   Netlify Forms に残るのは1回目のID（先に送信が出ていくため）
+            #   sessionStorage に残るのは2回目のID（後から上書きされる）
+            # となり、**サンクスページのアフィリエイトタグが、当社の受信記録に
+            # 無いIDを先方へ送ることになる。** 成果の突き合わせが壊れ、
+            # オフラインインポートの突き合わせ鍵（order_id）も合わなくなる。
+            "var id='';"
             "f.addEventListener('submit',function(){"
-            "var id=mkid();"
+            "if(!id){id=mkid();}"
             "var h=f.querySelector('input[name=\"order_id\"]');if(h){h.value=id;}"
             "var gh=f.querySelector('input[name=\"gclid\"]');if(gh){gh.value=gclid();}"
             "try{sessionStorage.setItem('oh_order_id',id);}catch(e){}"

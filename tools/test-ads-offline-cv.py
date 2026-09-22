@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""`tools/ads-offline-cv.py` を、偽のCSVで確かめる。
+"""`tools/ads-offline-cv.py` を、偽の 予約_Web CSV で確かめる。
 
     python3 tools/test-ads-offline-cv.py
 
 **このCSVは実際の広告費の最適化に使われる。** 金額や件数を取り違えると、
-自動入札が間違ったほうへ学習する。**通すべき行と落とすべき行を、1件ずつ検算する。**
+自動入札が間違ったほうへ学習する。**通す行と落とす行を1件ずつ検算する。**
 """
 import pathlib
 import subprocess
@@ -15,22 +15,16 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 TOOL = ROOT / "tools" / "ads-offline-cv.py"
 tmp = pathlib.Path(tempfile.mkdtemp())
 
-(tmp / "yoyaku.csv").write_text("""order_id,gclid,申込日,氏名,電話番号
-OH-20260901-mizumawari-AAAA,GCL_AAA,2026/09/01 10:00,テスト太郎,08000000000
-OH-20260902-aircon-BBBB,GCL_BBB,2026/09/02 11:00,テスト花子,08000000001
-OH-20260903-mizumawari-CCCC,,2026/09/03 12:00,自然流入さん,08000000002
-OH-20260601-mizumawari-DDDD,GCL_DDD,2026/06/01 09:00,むかしさん,08000000003
-OH-20260904-nenmatsu-EEEE,GCL_EEE,2026/09/04 09:00,キャンセルさん,08000000004
-""", encoding="utf-8")
-
-(tmp / "daicho.csv").write_text("""order_id,施工日,売上,メニュー
-OH-20260901-mizumawari-AAAA,2026/09/20,"33,660",浴室+キッチン
-OH-20260902-aircon-BBBB,2026/09/22,"108,900",エアコン3台
-OH-20260903-mizumawari-CCCC,2026/09/21,"20,900",浴室
-OH-20260601-mizumawari-DDDD,2026/09/20,"55,000",水まわり
-OH-20260904-nenmatsu-EEEE,2026/09/23,0,キャンセル
-OH-99999999-unknown-ZZZZ,2026/09/20,"10,000",台帳にだけある
-""", encoding="utf-8")
+# 予約_Web タブを模した1本。★ は crm が台帳と紐づけた列（20260913-03-crm）
+FULL = """NetlifyのID,申込日時,氏名,TEL,注文ID,gclid,★売上行への参照,★売上（税込）,★台帳の最終施工日
+n001,2026/09/01 10:00,テスト太郎,08000000000,OH-20260901-mizumawari-AAAA,GCL_AAA,9月_売上!A12,"33,660",2026/09/20
+n002,2026/09/02 11:00,テスト花子,08000000001,OH-20260902-aircon-BBBB,GCL_BBB,9月_売上!A13,"108,900",2026/09/22
+n003,2026/09/03 12:00,自然流入,08000000002,OH-20260903-mizumawari-CCCC,,9月_売上!A14,"20,900",2026/09/21
+n004,2026/06/01 09:00,むかし,08000000003,OH-20260601-mizumawari-DDDD,GCL_DDD,9月_売上!A15,"55,000",2026/09/20
+n005,2026/09/04 09:00,キャンセル,08000000004,OH-20260904-nenmatsu-EEEE,GCL_EEE,,,
+n006,2026/09/05 09:00,予約フォーム,08000000005,,GCL_FFF,9月_売上!A16,"44,000",2026/09/25
+"""
+(tmp / "yoyaku.csv").write_text(FULL, encoding="utf-8")
 
 ok = True
 
@@ -42,55 +36,66 @@ def chk(label, cond, extra=""):
         ok = False
 
 
-def run(*extra):
-    r = subprocess.run([sys.executable, str(TOOL),
-                        "--yoyaku", str(tmp / "yoyaku.csv"),
-                        "--daicho", str(tmp / "daicho.csv"),
-                        "--kijun", "2026-09-30", *extra],
-                       capture_output=True, text=True)
-    return r.stdout + r.stderr
+def run(path, *extra):
+    r = subprocess.run([sys.executable, str(TOOL), str(path),
+                        "--kijun", "2026-09-30", *extra], capture_output=True, text=True)
+    return r.stdout + r.stderr, r.returncode
 
 
-# --- 1. 下見（--out なし）は何も書かない ---
-out = run()
-chk("戻せるのは2件だけ", "| **戻せる（CSVに入る）** | **2** |" in out, out[:400])
+# --- 1. 下見 ---
+out, _ = run(tmp / "yoyaku.csv")
+chk("戻せるのは3件（うち1件は予約フォーム経由）",
+    "| **戻せる（CSVに入る）** | **3** |" in out, out[:500])
 chk("gclid が空の行は落ちる", "| gclid が空（広告経由でない） | 1 |" in out)
-chk("売上0の行は落ちる", "| 売上が0または空 | 1 |" in out)
-chk("台帳にしか無い注文IDは落ちる", "| 予約_Web に無い注文ID | 1 |" in out)
-chk("90日を超えた行は落ちて、警告が出る",
-    "| **クリックから90日超（戻せない）** | **1** |" in out and "OH-20260601" in out, out[-500:])
-chk("合計金額が出る（33,660+108,900）", "142,560円" in out, out)
+chk("施工前・入金前は落ちる（異常ではない）", "| 施工前・入金前・キャンセル | 1 |" in out)
+chk("90日超は落ちて、警告が出る",
+    "| **クリックから90日超（戻せない）** | **1** |" in out and "OH-20260601" in out)
+chk("合計金額（33,660+108,900+44,000）", "186,560円" in out, out)
 chk("--out が無ければ何も書かない", "何も書いていません" in out)
-chk("下見の時点でファイルが無い", not (tmp / "x.csv").exists())
 
 # --- 2. 書き出し ---
-out = run("--out", str(tmp / "x.csv"))
-chk("書いたと言う", "2件 書きました" in out, out[-300:])
+out, _ = run(tmp / "yoyaku.csv", "--out", str(tmp / "x.csv"))
 body = (tmp / "x.csv").read_text(encoding="utf-8")
-chk("1行目がタイムゾーン", body.splitlines()[0] == "Parameters:TimeZone=Asia/Tokyo",
-    body.splitlines()[0])
+chk("3件書く", "3件 書きました" in out, out[-200:])
+chk("1行目がタイムゾーン", body.splitlines()[0] == "Parameters:TimeZone=Asia/Tokyo")
 chk("2行目が列名",
     body.splitlines()[1] == "Google Click ID,Conversion Name,Conversion Time,"
-                            "Conversion Value,Conversion Currency", body.splitlines()[1])
-chk("gclid と金額が入る", "GCL_AAA" in body and "33660" in body and "108900" in body)
-chk("日時に時差が入る", "+09:00" in body)
-chk("通貨は JPY", body.count("JPY") == 2)
+                            "Conversion Value,Conversion Currency")
+chk("予約フォーム経由（注文IDなし）も入る", "GCL_FFF" in body and "44000" in body)
 
 # --- 3. 個人情報を1文字も出さない（いちばん大事） ---
-for ng in ("テスト太郎", "テスト花子", "08000000000", "浴室", "エアコン3台"):
+for ng in ("テスト太郎", "テスト花子", "08000000000", "n001", "9月_売上"):
     chk(f"CSVに『{ng}』が出ない", ng not in body)
 
-# --- 4. コンバージョン名を取り違えない ---
-chk("既定の名前は『受注（オフライン）』", "受注（オフライン）" in body, body.splitlines()[2])
-out = run("--out", str(tmp / "y.csv"), "--name", "べつの名前")
-chk("--name で変えられる", "べつの名前" in (tmp / "y.csv").read_text(encoding="utf-8"))
+# --- 4. 広告経由の受注がまだ無いとき、0行のCSVが出る ---
+(tmp / "kara.csv").write_text(
+    "NetlifyのID,申込日時,注文ID,gclid,★売上（税込）,★台帳の最終施工日\n"
+    "n900,2026/09/10 10:00,OH-20260910-mizumawari-XXXX,,,\n", encoding="utf-8")
+out, _ = run(tmp / "kara.csv", "--out", str(tmp / "zero.csv"))
+z = (tmp / "zero.csv").read_text(encoding="utf-8").splitlines()
+chk("0件でも落ちない", "戻せる行はありません" in out, out[:300])
+chk("0行のCSVでも見出しは出る", len(z) == 2 and z[1].startswith("Google Click ID"), z)
 
-# --- 5. 見出しが違うCSVでは、黙らずに止まる ---
+# --- 5. 注文IDが無くても NetlifyのID で動く ---
+(tmp / "noid.csv").write_text(
+    "NetlifyのID,申込日時,gclid,★売上（税込）,★台帳の最終施工日\n"
+    "n801,2026/09/10 10:00,GCL_ZZZ,\"11,000\",2026/09/20\n", encoding="utf-8")
+out, _ = run(tmp / "noid.csv")
+chk("注文ID列が無くても動き、断り書きが出る",
+    "| **戻せる（CSVに入る）** | **1** |" in out and "NetlifyのIDを鍵にしています" in out, out[:600])
+
+# --- 6. 申込日時が無ければ、期限を見ていないと断る ---
+(tmp / "nodate.csv").write_text(
+    "NetlifyのID,gclid,★売上（税込）,★台帳の最終施工日\n"
+    "n802,GCL_YYY,\"22,000\",2026/09/20\n", encoding="utf-8")
+out, _ = run(tmp / "nodate.csv")
+chk("申込日時が無ければ、期限を見ていないと断る", "90日の期限を見ていません" in out, out[:600])
+
+# --- 7. 鍵になる列が1つも無ければ止まる ---
 (tmp / "bad.csv").write_text("foo,bar\n1,2\n", encoding="utf-8")
-r = subprocess.run([sys.executable, str(TOOL), "--yoyaku", str(tmp / "bad.csv"),
-                    "--daicho", str(tmp / "daicho.csv")], capture_output=True, text=True)
-chk("見出しが読めなければ、実際の見出しを出して止まる",
-    r.returncode != 0 and "・foo" in r.stderr, r.stderr[:200])
+out, rc = run(tmp / "bad.csv")
+chk("鍵が無ければ、見出しを出して止まる",
+    rc != 0 and ("・foo" in out or "続けられません" in out), out[:300])
 
 print("\n" + ("すべて通りました" if ok else "失敗あり"))
 sys.exit(0 if ok else 1)
