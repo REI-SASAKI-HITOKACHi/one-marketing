@@ -2145,3 +2145,4 @@ crm の回答：
 3. 対処：①browser で `git pull` して autoMode 入りの設定を取り込む ②settings.json の autoMode.allow に「Claude in Chrome で business.google.com と one-hitter.jp の管理画面を操作し自社画像を上げる」許可を足す（CMO は Self-Modification で書けない。設定案ファイルの編集も止められた→本文をチャットでオーナーに渡した）③それでも駄目なら拒否文言の原文で切り分け。
 4. 迂回：GBP は API 審査（9/28 確認）が通れば CMO が自動投稿できる。ブログ本文の画像は自社ホスト（onehitter.jp 配下）の URL を `<img>` で差せる可能性がある（要実測）が、アイキャッチは CMS のアップロード欄なので拡張が要る。
 - **settings.json に browser 用の autoMode 許可を追加**（オーナー貼付、`fd59d68`）：CMS（one-hitter.jp/_sys/）とGBP（business.google.com）への投稿・編集、Claude in Chrome での自社画像のアップロード。削除・CMS設定変更はオーナー確認のまま。browser は git pull で取り込んで再開。
+- **GBP 第1束5本すべてに CTA が付いた**（browser 9/24 未明、settings.json 反映後は止まらず）。010 は「詳細」→ one-hitter.jp/corporation/?src=gbp（200 確認）。残り：写真つき 002・003 とブログ画像は Claude in Chrome の navigate 拒否が解けてから。切り分けに `/chrome` の表示と拒否文言の原文を browser に求めた。
