@@ -13,6 +13,15 @@
 #    強調したいときは行を分けるか、■ の見出しを使う。
 #    この注意書きと末尾の根拠表は社内向けなので、記号があっても構いません。
 #
+# ⚠️ Gmailの下書きに貼るときは、**本文をいったん全部消してから貼り直すこと。**
+#    2026-09-23、下書きの2か所でURLが
+#      https://www.google.com/url?q=https://lp.onehitter.jp/…&source=gmail&ust=…
+#    の形になっていた（Gmailのリダイレクト）。**その長いURLが、そのまま先方の画面に出ます。**
+#    2行だけ直すより、本文を全部貼り直すほうが速くて確実です。
+#    貼ったあと、URLが2つとも短いままか目で見てください。
+#      https://lp.onehitter.jp/mizumawari/
+#      https://one-hitter.jp/privacy_policy/
+#
 # 送信：オーナー（info@one-hitter.her.jp から）
 # 宛先：new@rentracks.co.jp（株式会社レントラックス 嶋崎 拓哉 様）
 
