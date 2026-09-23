@@ -564,7 +564,7 @@ TEMPLATE = r"""<!doctype html>
     return new Promise(function(res, rej){
       var name = '__cb' + (++jsonpN) + '_' + Date.now();
       var sc = document.createElement('script');
-      var t = setTimeout(function(){ owari(); rej(new Error('timeout')); }, 20000);
+      var t = setTimeout(function(){ owari(); rej(new Error('timeout')); }, 8000);
       function owari(){
         clearTimeout(t);
         delete window[name];
@@ -649,7 +649,12 @@ TEMPLATE = r"""<!doctype html>
         if (!d || !d.ok) { throw new Error((d && d.error) || 'error'); }
         state.slots = d.slots || [];
         drawSlots();
-      }).catch(shippai);
+      }).catch(function(){
+        /* Apps Script が止まっていたら、最後に書き出した slots.json に戻る */
+        fetch(S.slots + '?t=' + Date.now(), { cache: 'no-store' })
+          .then(function(r){ if (!r.ok) { throw new Error('http ' + r.status); } return r.json(); })
+          .then(egaku).catch(shippai);
+      });
       return;
     }
     if (slotsCache) { egaku(slotsCache); return; }
