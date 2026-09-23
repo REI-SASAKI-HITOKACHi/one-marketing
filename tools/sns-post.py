@@ -322,7 +322,11 @@ def gate_shashin(entry: dict, dry_run: bool) -> None:
     決まり：
       media に `assets/photos/` `dist/shorts/` `dist/sns-media/` が入る回は、entry に
         ロゴ確認: "2026-09-23 web-inflow が全カットを目視。ロゴ・制服・社名入りの道具・書類なし"
-      のような記録が要る。空文字や "未" で始まる値は無いものとして扱う。
+        ロゴ確認済: true
+        確認者: "web-inflow（2026-09-23）"
+      が要る（オーナー決定 2026-09-23「確認した印と確認者」）。
+      空文字や "未" で始まる値は無いものとして扱う。`ロゴ確認済` を立てたのに `確認者` が
+      無い回は出さない。**顧客名は出さない**（同決定）。
       `現場日` があれば check-meigi.py で名義を引いて表示する（表示だけ。止めない）。
       カードだけの回（dist/cards/ のみ）は現場写真ではないので素通り。
     """
@@ -332,6 +336,12 @@ def gate_shashin(entry: dict, dry_run: bool) -> None:
         return
 
     kakunin = str(entry.get("ロゴ確認") or entry.get("logo_checked") or "").strip()
+    sumi = entry.get("ロゴ確認済") is True
+    kakuninsha = str(entry.get("確認者") or "").strip()
+    if sumi and not kakuninsha:
+        print("    ✗ `ロゴ確認済` はあるのに `確認者` がありません（誰が見たかを残すこと）")
+        if not dry_run:
+            raise ValueError(f"{entry['id']}: `確認者` が無いので投稿を止めました")
     if not kakunin or kakunin.startswith("未"):
         print("    ✗ 現場の写真・動画を使っているのに `ロゴ確認` の記録がありません")
         for m in genba:
@@ -341,6 +351,8 @@ def gate_shashin(entry: dict, dry_run: bool) -> None:
             raise ValueError(f"{entry['id']}: `ロゴ確認` が無いので投稿を止めました")
     else:
         print(f"    ロゴ確認: {kakunin}")
+        if kakuninsha:
+            print(f"    確認者: {kakuninsha}")
 
     # 名義は参考。止める理由にはしない（2026-09-23 オーナー判断）
     hizuke = entry.get("現場日") or entry.get("genba_date")
