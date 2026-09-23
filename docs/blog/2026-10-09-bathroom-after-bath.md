@@ -1,7 +1,7 @@
 ---
 title: "入浴のあと、最後の人がやる2つのこと｜TOTOとLIXILの案内から"
 date: 2026-10-09
-category: 読本
+category: 水まわり
 eyecatch: IMG_7987.jpg
 description: "浴室の汚れを減らすために、入浴後にできること。TOTO・LIXIL・東京都の資料に書かれている手順を、順番に並べました。"
 tags: [ハウスクリーニング]
@@ -55,3 +55,5 @@ LIXILのよくあるご質問には、洗い場の床にピンク色の汚れが
 ## ご予約
 
 浴室クリーニングのご予約はこちらから。https://lp.onehitter.jp/mizumawari/?src=blog
+
+LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN

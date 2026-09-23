@@ -1,7 +1,7 @@
 ---
 title: "エアコンのフィルターは2週間に1度｜メーカーが案内している目安と、洗い方"
 date: 2026-09-24
-category: 読本
+category: エアコン
 eyecatch: IMG_8021.jpg
 description: "エアコンのフィルター掃除の頻度を、ダイキンと東京都の資料から確かめました。洗い方の手順と、フィルターでは届かない場所の話。"
 tags: [ハウスクリーニング]
@@ -51,3 +51,5 @@ status: draft
 ## ご予約
 
 内部の分解洗浄のご予約はこちらから。https://lp.onehitter.jp/aircon/?src=blog
+
+LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN

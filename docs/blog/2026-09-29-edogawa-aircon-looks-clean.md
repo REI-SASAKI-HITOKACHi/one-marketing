@@ -1,7 +1,7 @@
 ---
 title: "江戸川区のエアコンクリーニング事例｜フィルターの埃は薄いのに、中は別だった2台目"
 date: 2026-09-29
-category: 事例研究
+category: エアコン
 eyecatch: IMG_8019.jpg
 description: "2026年9月、江戸川区の2台目のエアコン。フィルターの埃は薄いほうでした。外から見える汚れと、内側の汚れが一致しないという話です。"
 tags: [江戸川区, ハウスクリーニング]
@@ -51,3 +51,5 @@ status: draft
 ## ご予約
 
 エアコンクリーニングのご予約はこちらから。https://lp.onehitter.jp/aircon/?src=blog
+
+LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN

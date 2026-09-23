@@ -1,7 +1,7 @@
 ---
 title: "塩素系の洗浄剤は、必ず単独で｜国民生活センターの資料にある注意"
 date: 2026-10-07
-category: 読本
+category: 水まわり
 eyecatch: IMG_7987.jpg
 description: "浴室や洗濯槽で使う塩素系洗浄剤について、国民生活センターと東京都の資料に書かれている注意を並べました。換気の目安と、混ぜてはいけないものまで。"
 tags: [ハウスクリーニング]
@@ -56,3 +56,5 @@ status: draft
 ## ご予約
 
 浴室・洗濯機のご予約はこちらから。https://lp.onehitter.jp/mizumawari/?src=blog
+
+LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN

@@ -1,7 +1,7 @@
 ---
 title: "江戸川区のエアコンクリーニング事例｜作業の前に、壁と床と家具を覆います"
 date: 2026-10-03
-category: 事例研究
+category: エアコン
 eyecatch: IMG_8011.jpg
 description: "2026年9月、江戸川区の現場から。エアコンの分解洗浄で、水と薬剤を使う前にどこを覆うのか。当日にお客様へお願いすることも書きました。"
 tags: [江戸川区, ハウスクリーニング]
@@ -67,3 +67,5 @@ status: draft
 ## ご予約
 
 エアコンクリーニングのご予約はこちらから。https://lp.onehitter.jp/aircon/?src=blog
+
+LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN

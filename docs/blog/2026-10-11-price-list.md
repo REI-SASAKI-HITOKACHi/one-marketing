@@ -71,3 +71,5 @@ status: draft
 ## ご予約
 
 ご予約はこちらから。https://lp.onehitter.jp/mizumawari/?src=blog
+
+LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN

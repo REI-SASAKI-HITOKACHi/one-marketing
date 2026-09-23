@@ -1,7 +1,7 @@
 ---
 title: "江戸川区のレンジフードクリーニング事例｜羽根の1枚ずつに層になっていた油"
 date: 2026-10-01
-category: 事例研究
+category: レンジフード
 eyecatch: IMG_7877.jpg
 description: "2026年8月、江戸川区のレンジフード。中のシロッコファンは羽根と羽根の間が油で埋まりかけていました。吸い込みが落ちる仕組みまで。"
 tags: [江戸川区, ハウスクリーニング]
@@ -55,3 +55,5 @@ status: draft
 ## ご予約
 
 レンジフードクリーニングのご予約はこちらから。https://lp.onehitter.jp/mizumawari/?src=blog
+
+LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN

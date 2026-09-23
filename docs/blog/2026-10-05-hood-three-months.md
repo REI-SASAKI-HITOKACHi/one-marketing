@@ -1,7 +1,7 @@
 ---
 title: "レンジフードの手入れは3か月に1度｜パナソニックの案内と、つけ置きの温度"
 date: 2026-10-05
-category: 読本
+category: レンジフード
 eyecatch: IMG_7880.jpg
 description: "レンジフードのフィルターとファンの手入れの頻度を、パナソニックの案内から確かめました。つけ置きの温度と時間、使わないほうがよいものまで。"
 tags: [ハウスクリーニング]
@@ -58,3 +58,5 @@ status: draft
 ## ご予約
 
 レンジフードクリーニングのご予約はこちらから。https://lp.onehitter.jp/mizumawari/?src=blog
+
+LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN

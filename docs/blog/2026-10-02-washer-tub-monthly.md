@@ -1,7 +1,7 @@
 ---
 title: "洗濯槽の槽洗浄は月に1回｜パナソニックと東芝が書いている頻度と、やり方"
 date: 2026-10-02
-category: 読本
+category: 洗濯機
 eyecatch: IMG_7985.jpg
 description: "洗濯物に付く黒いカスの正体と、槽洗浄の頻度。パナソニック・東芝ライフスタイルの案内をもとに、手順と、やってはいけないことを並べました。"
 tags: [ハウスクリーニング]
@@ -54,3 +54,5 @@ status: draft
 ## ご予約
 
 洗濯機クリーニングのご予約はこちらから。https://lp.onehitter.jp/mizumawari/?src=blog
+
+LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN

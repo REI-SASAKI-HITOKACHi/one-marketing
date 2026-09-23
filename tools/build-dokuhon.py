@@ -31,7 +31,7 @@ GA4_ID = "G-DLJCTKGTDN"   # LP用の測定ID（認証情報ドキュメント6�
 
 # 読本ページ専用のCSS。LPのトークンは使わず「白い紙」に固定する（設計メモ：紙の質感。ダークモードは捨てる）
 BOOK_CSS = """
-:root{--paper:#FBFAF7;--ink:#171A1C;--ink-2:#4A5054;--ink-3:#7C8388;--rule:#E3E0D9;--accent:#0E6E82;--accent-ink:#0A5262;}
+:root{color-scheme:light;/* 広告の受け皿と同じく、OSのダークモードに追従させない（2026-09-23 cmo 判断） */--paper:#FBFAF7;--ink:#171A1C;--ink-2:#4A5054;--ink-3:#7C8388;--rule:#E3E0D9;--accent:#0E6E82;--accent-ink:#0A5262;}
 *{box-sizing:border-box;}
 html{background:var(--paper);}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;font-size:17px;line-height:2;-webkit-font-smoothing:antialiased;letter-spacing:.01em;}

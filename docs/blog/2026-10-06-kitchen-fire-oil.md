@@ -1,7 +1,7 @@
 ---
 title: "レンジフードにたまる油と、こんろまわりの火｜東京消防庁が出している注意"
 date: 2026-10-06
-category: 読本
+category: レンジフード
 eyecatch: IMG_7877.jpg
 description: "東京消防庁がキッチンの火災について出している注意のうち、レンジフードの油脂に関する部分をまとめました。ふだんできる手当ても並べています。"
 tags: [ハウスクリーニング]
@@ -52,3 +52,5 @@ status: draft
 ## ご予約
 
 レンジフード・キッチンのご予約はこちらから。https://lp.onehitter.jp/mizumawari/?src=blog
+
+LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN

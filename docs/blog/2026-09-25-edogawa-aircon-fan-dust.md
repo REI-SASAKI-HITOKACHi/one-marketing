@@ -1,7 +1,7 @@
 ---
 title: "江戸川区のエアコンクリーニング事例｜前面パネルを外すと、送風ファンのまわりに埃"
 date: 2026-09-25
-category: 事例研究
+category: エアコン
 eyecatch: IMG_8007.jpg
 description: "2026年9月、江戸川区の壁掛けエアコン。前面パネルを外した先の送風ファンのまわりに埃がたまっていました。ここが風に乗って部屋へ出る場所です。"
 tags: [江戸川区, ハウスクリーニング]
@@ -62,3 +62,5 @@ status: draft
 ## ご予約
 
 エアコンクリーニングのご予約はこちらから。https://lp.onehitter.jp/aircon/?src=blog
+
+LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN

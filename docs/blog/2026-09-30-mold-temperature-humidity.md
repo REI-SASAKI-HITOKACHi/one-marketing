@@ -1,7 +1,7 @@
 ---
 title: "カビが育つのは20〜35℃・湿度70%以上｜湿度計を1つ置くところから"
 date: 2026-09-30
-category: 読本
+category: 水まわり
 eyecatch: IMG_7987.jpg
 description: "東京都の指針に書かれているカビの生育条件と、湿度60%を超えさせないための具体策。加湿器の手入れの頻度まで、一次資料の記載で並べました。"
 tags: [ハウスクリーニング]
@@ -53,3 +53,5 @@ status: draft
 ## ご予約
 
 浴室・水まわりのクリーニングのご予約はこちらから。https://lp.onehitter.jp/mizumawari/?src=blog
+
+LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN

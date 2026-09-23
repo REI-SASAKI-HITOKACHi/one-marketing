@@ -1,7 +1,7 @@
 ---
 title: "江戸川区のエアコンクリーニング事例｜洗い終わってバケツに残った、黒く濁った水"
 date: 2026-09-27
-category: 事例研究
+category: エアコン
 eyecatch: IMG_8023-bucket.jpg
 description: "2026年9月、江戸川区のお宅で壁掛けエアコンを分解洗浄した日に出た汚水です。どこに入っていたものが出てくるのかを書きました。"
 tags: [江戸川区, ハウスクリーニング]
@@ -63,3 +63,5 @@ status: draft
 ## ご予約
 
 エアコンクリーニングのご予約はこちらから。https://lp.onehitter.jp/aircon/?src=blog
+
+LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN

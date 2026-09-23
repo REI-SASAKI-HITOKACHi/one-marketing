@@ -1,7 +1,7 @@
 ---
 title: "エアコンの洗浄スプレーを内部に使わないでください｜メーカー3社と国の機関の案内"
 date: 2026-09-26
-category: 読本
+category: エアコン
 eyecatch: IMG_8010.jpg
 description: "市販のエアコン洗浄スプレーについて、ダイキン・三菱電機・製品評価技術基盤機構が出している案内を、原文のまま並べました。何が起きるのかも。"
 tags: [ハウスクリーニング]
@@ -53,3 +53,5 @@ status: draft
 ## ご予約
 
 内部の分解洗浄のご予約はこちらから。https://lp.onehitter.jp/aircon/?src=blog
+
+LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN

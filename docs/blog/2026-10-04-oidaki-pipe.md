@@ -1,7 +1,7 @@
 ---
 title: "お湯張りで浮く黒い粒｜追い焚き配管の内側と、保健所が書いている手入れ"
 date: 2026-10-04
-category: 読本
+category: 水まわり
 eyecatch: IMG_7987.jpg
 description: "お湯を張ったときに浮く黒い粒や膜の出どころと、市販の風呂釜洗浄剤の使い方。愛知県江南保健所の資料の記載をもとに書きました。"
 tags: [ハウスクリーニング]
@@ -52,3 +52,5 @@ status: draft
 ## ご予約
 
 追い焚き配管・浴室クリーニングのご予約はこちらから。https://lp.onehitter.jp/mizumawari/?src=blog
+
+LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN

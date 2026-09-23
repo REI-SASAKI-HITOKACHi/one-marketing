@@ -1,7 +1,7 @@
 ---
 title: "江戸川区のエアコンクリーニング事例｜熱交換器に出ていた黒い帯と白い埃の筋"
 date: 2026-09-23
-category: 事例研究
+category: エアコン
 eyecatch: IMG_8009.jpg
 description: "2026年9月、江戸川区で壁掛けエアコン2台。1台目の前面パネルを外すと、熱交換器のアルミに黒い帯と白い埃の筋が出ていました。洗浄後の同じ角度の写真まで。"
 tags: [江戸川区, ハウスクリーニング]
@@ -49,3 +49,5 @@ status: draft
 ## ご予約
 
 エアコンクリーニングのご予約はこちらから。https://lp.onehitter.jp/aircon/?src=blog
+
+LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN

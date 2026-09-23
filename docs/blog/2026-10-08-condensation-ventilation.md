@@ -1,7 +1,7 @@
 ---
 title: "結露を減らす換気の仕方｜東京都の指針にある、窓の開け方と家具の置き方"
 date: 2026-10-08
-category: 読本
+category: エアコン
 eyecatch: IMG_8003.jpg
 description: "東京都の指針から、結露を減らすための具体策を数字ごとに並べました。窓2か所、家具は壁から5cm、就寝前5分。24時間換気の扱いまで。"
 tags: [ハウスクリーニング]
@@ -59,3 +59,5 @@ status: draft
 ## ご予約
 
 エアコンクリーニングのご予約はこちらから。https://lp.onehitter.jp/aircon/?src=blog
+
+LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN

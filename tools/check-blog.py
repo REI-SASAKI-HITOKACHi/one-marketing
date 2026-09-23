@@ -28,7 +28,9 @@ PRICE_MD = ROOT / "docs" / "price-master.md"
 PHOTO_DIR = ROOT / "assets" / "photos"
 
 REQUIRED = ("title", "date", "category", "eyecatch", "description")
-CATEGORIES = ("事例研究", "読本", "お知らせ")
+# 2026-09-23 cmo 判断：カテゴリは公式サイトの過去記事に合わせてメニュー名にする
+# （docs/blog-過去記事の型.md。過去記事は「水まわり」「洗濯機」のようにメニュー別だった）
+CATEGORIES = ("エアコン", "水まわり", "洗濯機", "レンジフード", "トイレ", "お知らせ")
 STATUSES = ("draft", "reviewed", "published")
 # サイトに出さない欄。投稿ツールはここを落とす
 INTERNAL_FIELDS = ("source", "notes", "status")
@@ -149,8 +151,9 @@ def check(path: pathlib.Path, prices: set) -> tuple:
 
     # 本文
     n = honbun_len(body)
-    if not (800 <= n <= 1500):
-        ng.append(f"本文 {n}字（800〜1,500字）")
+    # 上限は 2026-09-23 cmo 判断で 1,500 → 3,000。過去記事の「◯選」の型が 2,000〜2,800字あるため
+    if not (800 <= n <= 3000):
+        ng.append(f"本文 {n}字（800〜3,000字）")
     if re.search(r"^#\s", body, re.M):
         ng.append("本文に # の見出しがある（## から使う）")
     if re.search(r"^####\s", body, re.M):
