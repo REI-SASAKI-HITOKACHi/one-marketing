@@ -29,8 +29,9 @@
 window.dataLayer=window.dataLayer||[];
 function gtag(){dataLayer.push(arguments);}
 gtag('js',new Date());
-var oh_src=new URLSearchParams(location.search).get('src')||'direct';
-var oh_cid=new URLSearchParams(location.search).get('cid')||'';
+var ohClean=function(v,n){return (v||'').replace(/[^A-Za-z0-9_-]/g,'').slice(0,n);};
+var oh_src=ohClean(new URLSearchParams(location.search).get('src'),20)||'direct';
+var oh_cid=ohClean(new URLSearchParams(location.search).get('cid'),20);
 gtag('config','G-DLJCTKGTDN',{'lp_id':'aircon','lp_variant':'B','traffic_src':oh_src,'traffic_cid':oh_cid});
 gtag('config','AW-18450975194');
 </script>
@@ -47,8 +48,8 @@ gtag('config','AW-18450975194');
   color-scheme:light;
   --ink:#0D3B5C;          
   --ink-2:#14506F;
-  --paper:#FAF7F2;        
-  --paper-2:#F0EAE1;      
+  --paper:#F3F7F9;        
+  --paper-2:#E6EDF1;
   --surface:#FFFFFF;
   --text:#13232E;
   --text-2:#3C5262;
@@ -68,9 +69,7 @@ gtag('config','AW-18450975194');
   --on-ink:#EDF4F8;
   --on-ink-2:#A8C2D2;
   --ok:#1B6B4F;
-  --scrim:250,247,242;    
-  --mark:#FFE566;         
-  --btn-shadow:var(--cta-deep);  
+  --scrim:243,247,249;    
 }
 
 *{box-sizing:border-box;}
@@ -114,28 +113,23 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
   border:0;cursor:pointer;font-family:inherit;text-decoration:none;font-weight:700;
-  font-size:14px;padding:11px 20px;line-height:1.4;border-radius:10px;
-  background:var(--cta-fill);color:#fff;
-  
-  box-shadow:0 3px 0 var(--btn-shadow);
-  transition:background .15s,transform .08s,box-shadow .08s;
+  font-size:14px;padding:11px 20px;line-height:1.4;border-radius:2px;
+  background:var(--cta-fill);color:#fff;transition:background .15s,transform .1s;
 }
 .btn:hover{background:var(--cta-fill-h);}
-.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--btn-shadow);}
-.btn.line{background:#06C755;color:#08140F;--btn-shadow:#04913F;}
+.btn:active{transform:translateY(1px);}
+.btn.line{background:#06C755;color:#08140F;}
 .btn.line:hover{background:#05B84E;}
-.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--rule-2);
-  --btn-shadow:var(--rule-2);}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--rule-2);}
 .btn.ghost:hover{background:var(--paper-2);}
 .btn.lg{
-  
-  width:100%;min-height:64px;font-size:17px;padding:18px 22px;border-radius:9999px;
+  width:100%;min-height:64px;font-size:17px;padding:18px 22px;border-radius:2px;
   letter-spacing:.04em;text-wrap:balance;
 }
 
 .hero{position:relative;background:var(--paper);color:var(--text);isolation:isolate;}
 .hero-bg{
-  position:absolute;top:0;left:0;right:0;height:min(36vw,190px);margin:0;
+  position:absolute;top:0;left:0;right:0;height:min(62vw,330px);margin:0;
   z-index:0;overflow:hidden;background:var(--paper-2);
 }
 .hero-bg img{width:100%;height:100%;object-fit:cover;object-position:50% 46%;display:block;}
@@ -147,26 +141,18 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 }
 .hero-in{
   position:relative;z-index:1;max-width:760px;margin:0 auto;
-  
-  padding:calc(min(36vw,190px) - 44px) 22px 36px;
-  display:flex;flex-direction:column;gap:10px;
+  padding:calc(min(62vw,330px) - 52px) 22px 44px;
+  display:flex;flex-direction:column;gap:20px;
 }
-
 .hero .area{
-  align-self:flex-start;font-size:12px;font-weight:500;letter-spacing:.04em;
-  color:var(--aqua);padding:0;background:none;border:0;line-height:1.5;
+  align-self:flex-start;font-size:12px;font-weight:700;letter-spacing:.06em;
+  color:var(--aqua);border:1px solid var(--aqua);padding:5px 13px;
+  background:rgba(var(--scrim),.82);
 }
-
-.price-tag .peak-line{
-  display:block;margin-top:6px;font-size:12px;color:var(--cta);font-weight:700;
-}
-
-.trust .star{color:#F5A623;letter-spacing:-.04em;}
-.hero h1{font-size:clamp(26px,6.4vw,44px);color:var(--text);line-height:1.28;letter-spacing:.01em;text-wrap:balance;}
-
+.hero h1{font-size:clamp(26px,6.4vw,44px);color:var(--text);line-height:1.4;letter-spacing:.01em;text-wrap:balance;}
 .hero h1 .hl{
-  background:linear-gradient(transparent 62%, var(--mark) 62%, var(--mark) 94%, transparent 94%);
-  padding:0 .06em;
+  text-decoration:underline;text-decoration-color:var(--cta);
+  text-decoration-thickness:.11em;text-underline-offset:.2em;text-decoration-skip-ink:none;
 }
 .hero .sub{color:var(--text-2);font-size:15px;line-height:2.05;max-width:38em;}
 
@@ -178,7 +164,7 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 .price-tag .lab{font-size:12.5px;color:var(--steel);line-height:1.7;letter-spacing:.04em;}
 .price-tag .big{
   font-family:"Oswald",sans-serif;font-weight:500;
-  font-size:clamp(42px,11.5vw,72px);line-height:.86;color:var(--text);letter-spacing:-.01em;
+  font-size:clamp(52px,15vw,86px);line-height:.86;color:var(--text);letter-spacing:-.01em;
 }
 .price-tag .unit{font-family:"Noto Sans JP",sans-serif;font-size:.26em;font-weight:700;margin-left:.1em;letter-spacing:0;}
 .price-tag .tail{font-size:12.5px;color:var(--steel);padding-bottom:8px;line-height:1.8;}
@@ -188,11 +174,11 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 .perk b{color:var(--cta);}
 
 .trust{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule-2);}
-.trust div{padding:8px 8px 0;text-align:left;display:flex;flex-direction:column;gap:3px;
+.trust div{padding:16px 8px 0;text-align:left;display:flex;flex-direction:column;gap:3px;
   border-right:1px solid var(--rule);}
 .trust div:last-child{border-right:0;}
 .trust div:not(:first-child){padding-left:14px;}
-.trust .t{font-family:"Oswald",sans-serif;font-weight:500;font-size:23px;color:var(--text);line-height:1;}
+.trust .t{font-family:"Oswald",sans-serif;font-weight:500;font-size:26px;color:var(--text);line-height:1;}
 .trust .b{font-size:10.5px;color:var(--steel);line-height:1.6;}
 .hero-cta{display:flex;flex-direction:column;gap:9px;}
 .hero-note{font-size:11px;color:var(--steel);line-height:1.7;}
@@ -229,8 +215,7 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 .ba+.shot-note{margin-bottom:26px;}
 .ba{display:grid;grid-template-columns:1fr 1fr;gap:3px;}
 
-section{padding:48px 0;background:var(--paper);}
-@media(min-width:900px){section{padding:72px 0;}}
+section{padding:60px 0;background:var(--paper);}
 section.alt{background:var(--surface);}
 section.dark{background:var(--ink);color:var(--on-ink);}
 section.dark h2,section.dark h3{color:#fff;}
@@ -239,7 +224,7 @@ section.dark .eyebrow{color:var(--aqua-ink);}
 
 .sec-h{display:flex;flex-direction:column;gap:12px;margin-bottom:34px;
   border-bottom:1px solid var(--rule-2);padding-bottom:16px;}
-.sec-h h2{font-size:clamp(23px,5.4vw,38px);line-height:1.28;}
+.sec-h h2{font-size:clamp(23px,5.4vw,34px);}
 .sec-h p{font-size:14px;color:var(--steel);line-height:1.95;}
 section.dark .sec-h{border-bottom-color:rgba(255,255,255,.2);}
 section.dark .sec-h p{color:var(--on-ink-2);}
@@ -389,7 +374,7 @@ details p{padding:0 0 18px 26px;font-size:14px;color:var(--text-2);line-height:2
 .field .req{color:var(--cta);font-size:11px;margin-left:6px;}
 .field input,.field select,.field textarea{
   padding:13px 14px;border:1px solid var(--rule-2);font-family:inherit;font-size:16px;
-  background:var(--surface);color:var(--text);width:100%;border-radius:8px;
+  background:var(--surface);color:var(--text);width:100%;border-radius:0;
 }
 .consent{font-size:11.5px;color:var(--steel);line-height:1.85;margin:-2px 0 4px;}
 .consent a{color:var(--aqua);}
@@ -403,8 +388,6 @@ details p{padding:0 0 18px 26px;font-size:14px;color:var(--text-2);line-height:2
 .sticky .btn small{display:block;font-size:9px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
 .sticky-note{font-size:10.5px;color:var(--on-ink-2);text-align:center;line-height:1.4;}
 .sticky .btn.call{flex:0 0 auto;background:transparent;color:var(--on-ink);
-  
-  box-shadow:none;
   border:1px solid rgba(255,255,255,.4);padding:9px 15px;font-size:15px;}
 .sticky .btn.call small{font-size:9px;color:var(--on-ink-2);}
 .sticky .btn.call:hover{background:rgba(255,255,255,.08);}
@@ -438,30 +421,29 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     <img src="img/hero-bg.jpg" alt="" width="1600" height="1067" fetchpriority="high" decoding="async">
   </div>
   <div class="hero-in">
-    <span class="area">江戸川区・西葛西のエアコンクリーニング</span>
+    <span class="area">✓ 東京・千葉・神奈川 対応／最短即日</span>
     <h1>エアコン分解洗浄、<br><span class="hl">1台 10,780円</span>／60分。<br>最短即日でうかがいます。</h1>
 
     <div class="price-tag">
       <span class="lab">ノーマルエアコン<br>1台あたり</span>
       <span class="big"><span class="num">10,780</span><span class="unit">円</span></span>
-      <span class="tail">／60分（税込）<br>お掃除機能付きは 17,380円／120分
-        <span class="peak-line" id="peak-line">5〜7月・12月は +3,300円（いまは加算なし）</span>
-      </span>
-    </div>
-
-    
-    <div class="trust">
-      <div><span class="t num"><span class="star">★</span>5.0</span><span class="b">Googleクチコミ 23件<br>（2026年9月時点）</span></div>
-      <div><span class="t num">98.6%</span><span class="b">が「他の人に勧めたい」<br>と回答<sup>※1</sup></span></div>
-      <div><span class="t num">0円</span><span class="b">お見積り後の<br>追加請求</span></div>
-    </div>
-
-    <div class="hero-cta">
-      <a class="btn lg" href="#quote">この条件で見積りを出す</a>
-      <a class="btn lg tel-cta" href="tel:08080438259">電話で相談する<span class="tel-no">080-8043-8259</span><span class="tel-time">8:00〜20:00／担当 渡辺</span></a>
+      <span class="tail">／60分（税込）<br>お掃除機能付きは 17,380円／120分</span>
     </div>
 
     <p class="sub">送風ファンを取り外し、熱交換器の奥まで専用機材で洗浄します。お見積り以上の追加請求は、一切ありません。</p>
+
+    <p class="perk">LINEご登録の方には、<b>防カビコート（通常 3,630円）を無料</b>でお付けしています。カビの再発を抑えるコーティングです。</p>
+
+    <div class="trust">
+      <div><span class="t num">98.6%</span><span class="b">が「他の人に勧めたい」<br>と回答<sup>※1</sup></span></div>
+      <div><span class="t num">0円</span><span class="b">お見積り後の<br>追加請求</span></div>
+      <div><span class="t num">60<small>分</small></span><span class="b">1台あたりの<br>作業時間</span></div>
+    </div>
+
+    <div class="hero-cta">
+      <a class="btn lg" href="#form">この内容でWEB予約する</a>
+      <a class="btn lg line" href="https://lin.ee/7kD9WGN">LINEで予約する｜防カビコート無料</a>
+    </div>
     <p class="hero-note">※1 「他の人に勧めたい」と回答した割合：集計期間 2023年1月〜2025年12月、回答209名中206名、自社調べ</p>
   </div>
 </div>
@@ -633,7 +615,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
   </div>
 </section>
 
-<section id="quote">
+<section>
   <div class="wrap">
     <div class="sec-h">
       <span class="eyebrow">Simulator</span>
@@ -683,8 +665,6 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
           <p class="paid-note">※駐車スペースがない場合は、コインパーキング代を実費でいただきます。金額は事前にお伝えします。</p>
         </div>
         <a class="btn lg" href="#form">この内容で予約に進む</a>
-        
-        <p class="perk">LINEご登録の方には、<b>防カビコート（通常 3,630円）を無料</b>でお付けしています。カビの再発を抑えるコーティングです。</p>
       </div>
     </div>
   </div>
@@ -971,21 +951,6 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     }
   });
 })();
-
-  /* 価格の3行目。繁忙期（5〜7月・12月）かどうかで文面を変える。
-     HTMLの既定値は「加算なし」なので、JSが動かなくても端境期は正しい。
-     固定文にすると12月にLPが嘘をつくので、月で出し分ける。 */
-  (function(){
-    var el = document.getElementById('peak-line');
-    if (!el) { return; }
-    var m = new Date().getMonth() + 1;
-    var hanbouki = (m >= 5 && m <= 7) || m === 12;
-    el.textContent = hanbouki
-      ? '5〜7月・12月は +3,300円（いまは加算のある時期です）'
-      : '5〜7月・12月は +3,300円（いまは加算なし）';
-    el.style.color = hanbouki ? 'var(--text-2)' : 'var(--cta)';
-  })();
-
   /* 流入元の記録。?src= と ?cid= を hidden に写す。
      値は素性が不明なので、長さと文字種を制限してから入れる。 */
   (function(){

@@ -289,8 +289,13 @@ def tracking_head(cfg: dict, page: dict, tel: str = "") -> str:
                  # これが無いと「どのQR・どの施設・どのSMSから来たか」を
                  # GA4のレポートで分解できない。フォームの hidden 欄は
                  # 送信した人の分しか残らないので、閲覧数は取れない。
-                 "var oh_src=new URLSearchParams(location.search).get('src')||'direct';",
-                 "var oh_cid=new URLSearchParams(location.search).get('cid')||'';"]
+                 # GA4 とフォームの隠し欄で、同じ値になるように同じ整形を通す。
+                 # LP側は素性の分からない値を入れないため clean（英数と _- のみ・20文字）を
+                 # かけている。GA4だけ生の値だと、**GA4と台帳で流入元が食い違う**。
+                 # test-ads-tracking.py の「GA4とフォームが同じ値になる」で担保。
+                 "var ohClean=function(v,n){return (v||'').replace(/[^A-Za-z0-9_-]/g,'').slice(0,n);};",
+                 "var oh_src=ohClean(new URLSearchParams(location.search).get('src'),20)||'direct';",
+                 "var oh_cid=ohClean(new URLSearchParams(location.search).get('cid'),20);"]
         if ga4:
             lines.append("gtag('config','%s',{'lp_id':'%s','lp_variant':'%s',"
                          "'traffic_src':oh_src,'traffic_cid':oh_cid});"

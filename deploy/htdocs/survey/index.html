@@ -210,8 +210,9 @@ footer a{color:var(--invert-ink);}
 window.dataLayer=window.dataLayer||[];
 function gtag(){dataLayer.push(arguments);}
 gtag('js',new Date());
-var oh_src=new URLSearchParams(location.search).get('src')||'direct';
-var oh_cid=new URLSearchParams(location.search).get('cid')||'';
+var ohClean=function(v,n){return (v||'').replace(/[^A-Za-z0-9_-]/g,'').slice(0,n);};
+var oh_src=ohClean(new URLSearchParams(location.search).get('src'),20)||'direct';
+var oh_cid=ohClean(new URLSearchParams(location.search).get('cid'),20);
 gtag('config','G-DLJCTKGTDN',{'lp_id':'survey','lp_variant':'A','traffic_src':oh_src,'traffic_cid':oh_cid});
 gtag('config','AW-18450975194');
 </script>

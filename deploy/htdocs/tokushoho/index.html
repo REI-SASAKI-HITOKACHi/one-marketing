@@ -14,8 +14,8 @@
 :root{
   
   color-scheme:light;
-
-  --paper:#FAF7F2; --surface:#FFFFFF; --text:#13232E; --text-2:#3C5262;
+  
+  --paper:#F3F7F9; --surface:#FFFFFF; --text:#13232E; --text-2:#3C5262;
   --steel:#536A78; --rule:#D7E1E7; --ink:#0D3B5C; --on-ink:#EDF4F8;
   --on-ink-2:#A8C2D2; --cta:#C0300C;
 }
@@ -51,8 +51,9 @@ td li{margin:2px 0;}
 window.dataLayer=window.dataLayer||[];
 function gtag(){dataLayer.push(arguments);}
 gtag('js',new Date());
-var oh_src=new URLSearchParams(location.search).get('src')||'direct';
-var oh_cid=new URLSearchParams(location.search).get('cid')||'';
+var ohClean=function(v,n){return (v||'').replace(/[^A-Za-z0-9_-]/g,'').slice(0,n);};
+var oh_src=ohClean(new URLSearchParams(location.search).get('src'),20)||'direct';
+var oh_cid=ohClean(new URLSearchParams(location.search).get('cid'),20);
 gtag('config','G-DLJCTKGTDN',{'lp_id':'tokushoho','lp_variant':'A','traffic_src':oh_src,'traffic_cid':oh_cid});
 gtag('config','AW-18450975194');
 </script>
