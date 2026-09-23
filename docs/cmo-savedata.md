@@ -2146,3 +2146,4 @@ crm の回答：
 4. 迂回：GBP は API 審査（9/28 確認）が通れば CMO が自動投稿できる。ブログ本文の画像は自社ホスト（onehitter.jp 配下）の URL を `<img>` で差せる可能性がある（要実測）が、アイキャッチは CMS のアップロード欄なので拡張が要る。
 - **settings.json に browser 用の autoMode 許可を追加**（オーナー貼付、`fd59d68`）：CMS（one-hitter.jp/_sys/）とGBP（business.google.com）への投稿・編集、Claude in Chrome での自社画像のアップロード。削除・CMS設定変更はオーナー確認のまま。browser は git pull で取り込んで再開。
 - **GBP 第1束5本すべてに CTA が付いた**（browser 9/24 未明、settings.json 反映後は止まらず）。010 は「詳細」→ one-hitter.jp/corporation/?src=gbp（200 確認）。残り：写真つき 002・003 とブログ画像は Claude in Chrome の navigate 拒否が解けてから。切り分けに `/chrome` の表示と拒否文言の原文を browser に求めた。
+- **ブログ19本にアイキャッチが入った**（browser 9/24 朝、CMS へ直接 POST。公開ページで確認：1684 → article/1685 の画像）。詰まりの原因＝CMS の隠しラジオ `[file_action][image]` を送ると画像が無視される／画像0枚の記事は外部POSTで1枚目が入らない（種画像→差し替えの2段）。本文中の画像25か所は着手許可。GBP 002・003 の写真つきは Chrome 許可待ち。browser が「GBPを20本に（オーナー指示）」と書いてきたが原文未着 → 原文の共有を求めた（原稿は web-inflow の分担のまま）。
