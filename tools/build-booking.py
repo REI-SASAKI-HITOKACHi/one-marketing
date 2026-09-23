@@ -29,7 +29,7 @@ OUT = ROOT / "lp" / "booking" / "index.html"
 
 # Apps Script のウェブアプリURL。デプロイ後にここを差し替える。
 # 空のままでも画面は動くが、空き枠は「準備中」と出る。
-API_URL = ""
+API_URL = "https://script.google.com/macros/s/AKfycbzuuMGVICQPoLlUrFBarb1zAgi_kVdc1vDrRJoyhAJ_tvOG-eHnmTHDGWhuvix3E3_odQ/exec"
 # 空き枠の置き場所。tools/build-slots.py が作る。ページと同じオリジンなのでCORSにならない
 SLOTS_URL = "./slots.json"
 # Netlifyフォームの名前。デプロイ時にNetlifyが検出して受け口を作る
