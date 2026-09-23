@@ -29,7 +29,7 @@ OUT = ROOT / "lp" / "booking" / "index.html"
 
 # Apps Script のウェブアプリURL。デプロイ後にここを差し替える。
 # 空のままでも画面は動くが、空き枠は「準備中」と出る。
-API_URL = ""
+API_URL = "https://script.google.com/macros/s/AKfycbzuuMGVICQPoLlUrFBarb1zAgi_kVdc1vDrRJoyhAJ_tvOG-eHnmTHDGWhuvix3E3_odQ/exec"
 # 空き枠の置き場所。tools/build-slots.py が作る。ページと同じオリジンなのでCORSにならない
 SLOTS_URL = "./slots.json"
 # Netlifyフォームの名前。デプロイ時にNetlifyが検出して受け口を作る
@@ -564,7 +564,7 @@ TEMPLATE = r"""<!doctype html>
     return new Promise(function(res, rej){
       var name = '__cb' + (++jsonpN) + '_' + Date.now();
       var sc = document.createElement('script');
-      var t = setTimeout(function(){ owari(); rej(new Error('timeout')); }, 20000);
+      var t = setTimeout(function(){ owari(); rej(new Error('timeout')); }, 8000);
       function owari(){
         clearTimeout(t);
         delete window[name];
@@ -649,7 +649,12 @@ TEMPLATE = r"""<!doctype html>
         if (!d || !d.ok) { throw new Error((d && d.error) || 'error'); }
         state.slots = d.slots || [];
         drawSlots();
-      }).catch(shippai);
+      }).catch(function(){
+        /* Apps Script が止まっていたら、最後に書き出した slots.json に戻る */
+        fetch(S.slots + '?t=' + Date.now(), { cache: 'no-store' })
+          .then(function(r){ if (!r.ok) { throw new Error('http ' + r.status); } return r.json(); })
+          .then(egaku).catch(shippai);
+      });
       return;
     }
     if (slotsCache) { egaku(slotsCache); return; }

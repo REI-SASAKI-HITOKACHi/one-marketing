@@ -19,6 +19,7 @@ import argparse
 import datetime
 import importlib.util
 import json
+import re
 import os
 import subprocess
 import sys
@@ -46,6 +47,18 @@ JST = ZoneInfo('Asia/Tokyo')
 ATAMA = ['受信日時', '状態', 'お名前', 'お電話番号', 'ご住所', 'ご希望日', 'ご希望時刻',
          'ご希望の内容', '所要(分)', '概算金額', 'ご要望', '流入元', 'カレンダー登録',
          'NetlifyのID']
+# 末尾に足した2列（2026-09-22、広告のオフラインCV用。列の位置は見出し行から探す。無ければ書かない）
+OSHIRI = ['注文ID', 'gclid']
+
+
+def retsu(i: int) -> str:
+    """0始まりの列番号を A1 の列記号に（0→A, 27→AB）"""
+    out = ''
+    i += 1
+    while i:
+        i, r = divmod(i - 1, 26)
+        out = chr(65 + r) + out
+    return out
 
 
 def netlify_token() -> str:
@@ -139,9 +152,13 @@ def main() -> None:
     if not atarashii:
         return
 
-    gyou, shirase, yotei = [], [], []
+    gyou, shirase, yotei, oshiri = [], [], [], []
     for s in sorted(atarashii, key=lambda x: x['created_at']):
         d = s.get('data') or {}
+        # 注文ID（LPが採番 OH-…）と gclid（広告のクリックID）。どのフォームでも生の欄名から拾う
+        # 予約フォーム（yoyaku）は欄名が日本語（広告のクリックID）、LPのフォームは gclid/order_id
+        oshiri.append([str(d.get('order_id') or ''),
+                       str(d.get('gclid') or d.get('広告のクリックID') or '')])
         if s['_form'] != 'yoyaku':
             # LP のフォーム（name/tel/zip/menu/when/lp/src/cid/order_id）を予約フォームの列名に寄せる
             lp = d.get('lp') or s['_form'].replace('reserve-', '')
@@ -183,16 +200,28 @@ def main() -> None:
 
     if a.dry_run:
         print('\n--- 追記する行 ---')
-        for g in gyou:
-            print(' ', g[:8])
+        for g, o in zip(gyou, oshiri):
+            print(' ', g[:8], '注文ID/gclid:', o)
         print('\n--- カレンダーに入れるもの ---')
         print(json.dumps(yotei, ensure_ascii=False, indent=1))
         print('\n--dry-run のため何も書いていません。')
         return
 
-    call(f'/{SS}/values/{TAB}!A1:append', 'POST', {'values': gyou},
-         q={'valueInputOption': 'USER_ENTERED', 'insertDataOption': 'INSERT_ROWS'})
+    res = call(f'/{SS}/values/{TAB}!A1:append', 'POST', {'values': gyou},
+               q={'valueInputOption': 'USER_ENTERED', 'insertDataOption': 'INSERT_ROWS'})
     print(f'{TAB} に {len(gyou)}件 追記しました')
+    # 注文ID・gclid は末尾の列へ（見出し行に無ければ書かない。中間の列は他スレッドの持ち物なので触らない）
+    midashi = call(f'/{SS}/values/{TAB}!1:1').get('values', [[]])[0]
+    m = re.search(r'!A(\d+):', res.get('updates', {}).get('updatedRange', ''))
+    if m and all(c in midashi for c in OSHIRI):
+        r0 = int(m.group(1))
+        i0, i1 = midashi.index(OSHIRI[0]), midashi.index(OSHIRI[1])
+        if i1 == i0 + 1:
+            a1 = f'{TAB}!{retsu(i0)}{r0}:{retsu(i1)}{r0 + len(oshiri) - 1}'
+            call(f'/{SS}/values/{a1}', 'PUT', {'values': oshiri}, q={'valueInputOption': 'RAW'})
+            print(f'注文ID・gclid を {a1} に書きました')
+    else:
+        print('（注文ID・gclid の列が見出しに無いので書いていません）')
 
     out = f'{ROOT}/data/calendar/booking-todo.json'
     with open(out, 'w', encoding='utf-8') as f:

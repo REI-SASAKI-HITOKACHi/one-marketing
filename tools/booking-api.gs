@@ -76,8 +76,8 @@ var SETTEI = {
   yakinAkeSaihayaku: 13,  // 夜勤明けの日は13:00以降から
   yakinMaeShuuryou: 18,   // 夜勤がある日は18:00までに施工完了
 
-  /** 何日先まで出すか。当日と翌日は出さない（準備が要るため） */
-  saitanNichi: 2,
+  /** 何日先まで出すか。当日は出さない。翌日から出す（2026-09-15 オーナー決定「最短翌日で」。build-slots.py と同じ） */
+  saitanNichi: 1,
   saichouNichi: 21,
 
   /** タイムゾーン。空ならスクリプトの設定を使う */
@@ -120,14 +120,9 @@ function doGet(e) {
  * ブラウザがプリフライトを飛ばし、Apps Scriptがそれに答えられないため。
  */
 function doPost(e) {
-  var res;
-  try {
-    var body = JSON.parse((e && e.postData && e.postData.contents) || '{}');
-    res = yoyakuSuru_(body);
-  } catch (err) {
-    res = { ok: false, error: String(err) };
-  }
-  return kaesu_(res, null);
+  // 2026-09-23：予約の受付は Netlify Forms（予約ページの送信）で行う。
+  // このスクリプトは空き枠を返すだけにする。誰でも叩けるURLで【仮】予定を作れる口を開けない。
+  return kaesu_({ ok: false, error: '受付はこのURLでは行いません' }, null);
 }
 
 function kaesu_(obj, callback) {
@@ -173,6 +168,10 @@ function akiWaku_(shoyouFun) {
     // 実際の施工・バイト・通院はすべて時刻の入った予定になっている。
     // 終日予定で丸一日を塞ぐと、TODOが1件あるだけでその日が予約できなくなる。
     if (ev.isAllDayEvent()) { return; }
+    // 「予定なし（空き時間として表示）」の予定は塞がりに数えない（build-slots.py と同じ）
+    try {
+      if (ev.getTransparency && ev.getTransparency() === CalendarApp.EventTransparency.TRANSPARENT) { return; }
+    } catch (ignore) {}
     var s = ev.getStartTime();
     var e = ev.getEndTime();
     fusagi.push({ s: s.getTime(), e: e.getTime() });
