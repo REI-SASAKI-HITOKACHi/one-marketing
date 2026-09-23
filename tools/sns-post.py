@@ -302,60 +302,70 @@ def gate_card(entry: dict, dry_run: bool) -> None:
                 raise ValueError(f"カード {cid} が check-cards で NG。投稿を止めました")
 
 
-def gate_meigi(entry: dict, dry_run: bool) -> None:
-    """現場の写真・動画を使う回は、台帳の名義が自社であることを機械で確かめる。
+def gate_shashin(entry: dict, dry_run: bool) -> None:
+    """現場の写真・動画を使う回は、「本舗のロゴが写っていないことを確かめた」記録があることを門にする。
 
-    なぜ要るか（2026-09-23）：
-      w01-3・w01-3r（9/09 の現場）を本舗名義のまま出していた。今朝 w02-3・w02-3r で
-      同じことが起きかけた（どちらも 9/09 の現場）。**目で見て気づくのに頼るのをやめる。**
-      オーナー決定 2026-09-13「本舗の案件を混ぜないように注意してね」。
+    経緯（ここを取り違えないこと）：
+      2026-09-23 朝、私は「台帳の名義が本舗なら出さない」という門を入れた。**これは厳しすぎた。**
+      同日オーナー判断で、実際の決まりはこうだと示された：
+
+        「本舗名義の現場であっても本舗のロゴが映っていなければ問題ない。
+          ロゴの映り込みを確認して問題なければ出して」
+
+      つまり見るのは**台帳の名義ではなく、写真に本舗のブランドが写っているかどうか**。
+      ロゴ・制服・社名入りの道具や車・書類・本舗の電話番号（080-1344-3137）が写っていれば出さない。
+      写っていなければ、台帳が本舗名義でも出してよい。
+
+    機械にはロゴは見えないので、この門が保証するのは「**人が見て、結果を書き残した**」ことだけ。
+    `ロゴ確認` が無い回は出さない。名義は参考として表示するだけで、止める理由にはしない。
 
     決まり：
-      media に `assets/photos/` か `dist/shorts/` `dist/sns-media/` が入っている回は、
-      entry に `現場日`（YYYY-MM-DD の配列か文字列）が要る。
-      無ければ出さない。あれば check-meigi.py にかけ、自社でなければ出さない。
+      media に `assets/photos/` `dist/shorts/` `dist/sns-media/` が入る回は、entry に
+        ロゴ確認: "2026-09-23 web-inflow が全カットを目視。ロゴ・制服・社名入りの道具・書類なし"
+      のような記録が要る。空文字や "未" で始まる値は無いものとして扱う。
+      `現場日` があれば check-meigi.py で名義を引いて表示する（表示だけ。止めない）。
       カードだけの回（dist/cards/ のみ）は現場写真ではないので素通り。
     """
-    genba = [m for m in entry.get("media", [])
-             if "assets/photos/" in m or "dist/shorts/" in m or "dist/sns-media/" in m]
+    genba = [m for m in entry.get("media", []) if any(
+        k in m for k in ("assets/photos/", "dist/shorts/", "dist/sns-media/"))]
     if not genba:
         return
+
+    kakunin = str(entry.get("ロゴ確認") or entry.get("logo_checked") or "").strip()
+    if not kakunin or kakunin.startswith("未"):
+        print("    ✗ 現場の写真・動画を使っているのに `ロゴ確認` の記録がありません")
+        for m in genba:
+            print("       ", m)
+        print("      見るもの: 本舗のロゴ／制服／社名入りの道具・車／書類／080-1344-3137")
+        if not dry_run:
+            raise ValueError(f"{entry['id']}: `ロゴ確認` が無いので投稿を止めました")
+    else:
+        print(f"    ロゴ確認: {kakunin}")
+
+    # 名義は参考。止める理由にはしない（2026-09-23 オーナー判断）
     hizuke = entry.get("現場日") or entry.get("genba_date")
     if isinstance(hizuke, str):
         hizuke = [hizuke]
     if not hizuke:
-        print("    ✗ 現場の写真・動画を使っているのに `現場日` がありません。名義を確かめられません")
-        for m in genba:
-            print("       ", m)
-        if not dry_run:
-            raise ValueError(f"{entry['id']}: `現場日` が無いので名義を確かめられません。投稿を止めました")
         return
     try:
         p = pathlib.Path(__file__).resolve().parent / "check-meigi.py"
         spec = importlib.util.spec_from_file_location("check_meigi", p)
         cm = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(cm)
-    except Exception as ex:
-        # 名義が確かめられないなら出さない。ここは「通す」側に倒さない
-        print("    ✗ 名義の照合ができません（check-meigi.py が読めません）:", mask(str(ex)))
-        if not dry_run:
-            raise ValueError(f"{entry['id']}: 名義を確かめられないので投稿を止めました")
-        return
-    try:
         tok = cm.sc.access_token(cm.sc.load_credentials(),
                                  "https://www.googleapis.com/auth/spreadsheets.readonly")
     except Exception as ex:
-        print("    ✗ 台帳を読めません:", mask(str(ex)))
-        if not dry_run:
-            raise ValueError(f"{entry['id']}: 台帳が読めず名義を確かめられないので投稿を止めました")
+        print("    （参考の名義照合はできませんでした:", mask(str(ex)), "）")
         return
     for d in hizuke:
-        r = cm.shiraberu(tok, d)
-        hantei = r["判定"]
-        print(f"    名義 {d}: {hantei}" + (f"（{ '／'.join(x['名義'] for x in r['行']) }）" if r["行"] else ""))
-        if hantei != "自社":
-            if not dry_run:
-                raise ValueError(f"{entry['id']}: {d} は「{hantei}」。自社名義ではないので投稿を止めました")
+        try:
+            r = cm.shiraberu(tok, d)
+        except Exception as ex:
+            print(f"    （{d} の名義照合に失敗:", mask(str(ex)), "）")
+            continue
+        suffix = "／".join(x["名義"] for x in r["行"])
+        print(f"    参考・台帳の名義 {d}: {r['判定']}" + (f"（{suffix}）" if suffix else ""))
 
 
 def process(entry: dict, dry_run: bool, only_container: bool, deployer) -> None:
@@ -363,7 +373,7 @@ def process(entry: dict, dry_run: bool, only_container: bool, deployer) -> None:
           + (f"  {entry.pop('_due')}" if "_due" in entry else ""))
     if entry.get("memo"):
         print("  ", entry["memo"])
-    gate_meigi(entry, dry_run)  # 現場写真の名義を台帳で確かめる（2026-09-23）
+    gate_shashin(entry, dry_run)  # 現場写真に本舗のロゴが無いか、確認の記録を門にする（2026-09-23）
     gate_card(entry, dry_run)   # カード画像の文字を出す前に機械で確かめる（2026-09-22）
     paths = prepare_media(entry)
     urls = deployer.publish_files(paths, dry_run=dry_run)
