@@ -302,11 +302,68 @@ def gate_card(entry: dict, dry_run: bool) -> None:
                 raise ValueError(f"カード {cid} が check-cards で NG。投稿を止めました")
 
 
+def gate_meigi(entry: dict, dry_run: bool) -> None:
+    """現場の写真・動画を使う回は、台帳の名義が自社であることを機械で確かめる。
+
+    なぜ要るか（2026-09-23）：
+      w01-3・w01-3r（9/09 の現場）を本舗名義のまま出していた。今朝 w02-3・w02-3r で
+      同じことが起きかけた（どちらも 9/09 の現場）。**目で見て気づくのに頼るのをやめる。**
+      オーナー決定 2026-09-13「本舗の案件を混ぜないように注意してね」。
+
+    決まり：
+      media に `assets/photos/` か `dist/shorts/` `dist/sns-media/` が入っている回は、
+      entry に `現場日`（YYYY-MM-DD の配列か文字列）が要る。
+      無ければ出さない。あれば check-meigi.py にかけ、自社でなければ出さない。
+      カードだけの回（dist/cards/ のみ）は現場写真ではないので素通り。
+    """
+    genba = [m for m in entry.get("media", [])
+             if "assets/photos/" in m or "dist/shorts/" in m or "dist/sns-media/" in m]
+    if not genba:
+        return
+    hizuke = entry.get("現場日") or entry.get("genba_date")
+    if isinstance(hizuke, str):
+        hizuke = [hizuke]
+    if not hizuke:
+        print("    ✗ 現場の写真・動画を使っているのに `現場日` がありません。名義を確かめられません")
+        for m in genba:
+            print("       ", m)
+        if not dry_run:
+            raise ValueError(f"{entry['id']}: `現場日` が無いので名義を確かめられません。投稿を止めました")
+        return
+    try:
+        p = pathlib.Path(__file__).resolve().parent / "check-meigi.py"
+        spec = importlib.util.spec_from_file_location("check_meigi", p)
+        cm = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cm)
+    except Exception as ex:
+        # 名義が確かめられないなら出さない。ここは「通す」側に倒さない
+        print("    ✗ 名義の照合ができません（check-meigi.py が読めません）:", mask(str(ex)))
+        if not dry_run:
+            raise ValueError(f"{entry['id']}: 名義を確かめられないので投稿を止めました")
+        return
+    try:
+        tok = cm.sc.access_token(cm.sc.load_credentials(),
+                                 "https://www.googleapis.com/auth/spreadsheets.readonly")
+    except Exception as ex:
+        print("    ✗ 台帳を読めません:", mask(str(ex)))
+        if not dry_run:
+            raise ValueError(f"{entry['id']}: 台帳が読めず名義を確かめられないので投稿を止めました")
+        return
+    for d in hizuke:
+        r = cm.shiraberu(tok, d)
+        hantei = r["判定"]
+        print(f"    名義 {d}: {hantei}" + (f"（{ '／'.join(x['名義'] for x in r['行']) }）" if r["行"] else ""))
+        if hantei != "自社":
+            if not dry_run:
+                raise ValueError(f"{entry['id']}: {d} は「{hantei}」。自社名義ではないので投稿を止めました")
+
+
 def process(entry: dict, dry_run: bool, only_container: bool, deployer) -> None:
     print(f"\n■ {entry['id']}  {entry['scheduled_at']}  {entry['type']}  {'/'.join(entry['platforms'])}  [{entry['status']}]"
           + (f"  {entry.pop('_due')}" if "_due" in entry else ""))
     if entry.get("memo"):
         print("  ", entry["memo"])
+    gate_meigi(entry, dry_run)  # 現場写真の名義を台帳で確かめる（2026-09-23）
     gate_card(entry, dry_run)   # カード画像の文字を出す前に機械で確かめる（2026-09-22）
     paths = prepare_media(entry)
     urls = deployer.publish_files(paths, dry_run=dry_run)
