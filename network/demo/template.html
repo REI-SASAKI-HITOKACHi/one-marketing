@@ -395,9 +395,10 @@ const EXTRA_MENUS=[{name:'業務用エアコン（天カセ）クリーニング
 function menuList(factor){
   // 自社料金表の初期値：料金マスターに係数を掛けて散らす。最低単価＝単価の7割（オプションは6割）
   const r100=v=>Math.round(v/100)*100;
-  return PRICES.menus.map(m=>({name:m.名称,unit:Math.round(m.単体*factor/10)*10,min:r100(m.単体*factor*0.7),on:true,custom:false}))
-    .concat(EXTRA_MENUS.map(x=>({name:x.name,unit:Math.round(x.unit*factor/10)*10,min:r100(x.min*factor),on:true,custom:false})))
-    .concat(PRICES.options.map(o=>({name:o.名称,unit:Math.round(o.価格*factor/10)*10,min:r100(o.価格*factor*0.6),on:true,custom:false})));
+  const base=PRICES.menus.map(m=>({name:m.名称,unit:Math.round(m.単体*factor/10)*10,min:r100(m.単体*factor*0.7),on:true,custom:false}));
+  const extra=EXTRA_MENUS.map(x=>({name:x.name,unit:Math.round(x.unit*factor/10)*10,min:r100(x.min*factor),on:true,custom:false}));
+  const i=base.findIndex(x=>x.name==='エアコンクリーニング（お掃除機能付き）');base.splice(i>=0?i+1:base.length,0,...extra); // 業務用はエアコンの並びに
+  return base.concat(PRICES.options.map(o=>({name:o.名称,unit:Math.round(o.価格*factor/10)*10,min:r100(o.価格*factor*0.6),on:true,custom:false})));
 }
 function seed(){
   const members=[
