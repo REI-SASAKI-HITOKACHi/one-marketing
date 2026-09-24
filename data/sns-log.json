@@ -182,5 +182,47 @@
     "media_ids": [
       "1109605555189128"
     ]
+  },
+  {
+    "id": "w02-3",
+    "platform": "instagram",
+    "posted_at": "2026-09-24T09:14:49+09:00",
+    "permalink": "https://www.instagram.com/p/DdpksgFjKQu/",
+    "post_id": "17892815121674279",
+    "media_ids": [
+      "17892815121674279"
+    ]
+  },
+  {
+    "id": "w02-3",
+    "platform": "facebook",
+    "posted_at": "2026-09-24T09:14:57+09:00",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1111352511681099",
+    "post_id": "103698149101436_1111352511681099",
+    "media_ids": [
+      "1111352398347777",
+      "1111352435014440",
+      "1111352481681102"
+    ]
+  },
+  {
+    "id": "w02-4",
+    "platform": "instagram",
+    "posted_at": "2026-09-24T09:15:11+09:00",
+    "permalink": "https://www.instagram.com/p/DdpkvOBDKBT/",
+    "post_id": "18105893597623039",
+    "media_ids": [
+      "18105893597623039"
+    ]
+  },
+  {
+    "id": "w02-4",
+    "platform": "facebook",
+    "posted_at": "2026-09-24T09:15:14+09:00",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1111352738347743",
+    "post_id": "103698149101436_1111352738347743",
+    "media_ids": [
+      "1111352721681078"
+    ]
   }
 ]
