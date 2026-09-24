@@ -16,8 +16,9 @@
  * 【★正直に書いておく制約】
  *   ・doGet/doPost は送信元を検証できない。URLを知っていれば誰でも書ける。
  *     デモ用途（架空データ）に限る。本番はここに載せない。
- *   ・保存は「状態のJSONを丸ごと1セルに置く」だけ。同時に2人が操作すると後勝ち。
- *     デモでは問題にならないが、本番の設計ではない。
+ *   ・保存は「状態のJSONを丸ごと1セルに置く」だけ。版番号（rev）で同時更新を検出して
+ *     古い方を拒否する。1セル5万文字の上限があるので、見積書の画像を付けた案件が増えると
+ *     入り切らない（その場合は保存に失敗して端末内だけに残る）。デモ用の作りで、本番の設計ではない。
  */
 
 var SETTEI = {
@@ -56,8 +57,22 @@ function doPost(e) {
   if (body.action !== 'save' || !body.state) return out_({ ok: false, error: 'unknown action' });
   var json = JSON.stringify(body.state);
   if (json.length > 45000) return out_({ ok: false, error: 'too large' }); // 1セルの上限（5万文字）の手前で止める
-  var sh = sheet_();
-  sh.getRange('A2').setValue(json);
-  sh.getRange('B2').setValue(new Date());
-  return out_({ ok: true });
+  var lock = LockService.getScriptLock();
+  lock.waitLock(5000);
+  try {
+    var sh = sheet_();
+    var raw = sh.getRange('A2').getValue();
+    var cur = null;
+    if (raw) { try { cur = JSON.parse(raw); } catch (err) { cur = null; } }
+    // 楽観ロック：送り手が見ていた版（baseRev）とサーバーの版が違えば拒否し、最新を返す
+    var serverRev = cur && cur.rev ? cur.rev : 0;
+    if (typeof body.baseRev === 'number' && cur && body.baseRev !== serverRev) {
+      return out_({ ok: false, conflict: true, state: cur });
+    }
+    sh.getRange('A2').setValue(json);
+    sh.getRange('B2').setValue(new Date());
+    return out_({ ok: true, rev: body.state.rev || 0 });
+  } finally {
+    lock.releaseLock();
+  }
 }

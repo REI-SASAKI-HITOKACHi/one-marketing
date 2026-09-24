@@ -167,7 +167,7 @@ label.ck input{width:20px;height:20px;margin-top:2px;flex:none}
 <body>
 
 <header><div class="wrap">
-  <div class="brand">協力店ネット<span class="demo">デモ</span></div>
+  <div class="brand">協力店ネット<span class="demo" id="modeBadge">デモ</span></div>
   <div class="who"><span style="white-space:nowrap">操作中</span><select id="whoSel" aria-label="いま操作している会員"></select></div>
   <button class="btn quiet sm" type="button" id="gearBtn" title="自社設定" style="min-height:34px;padding:4px 9px;font-size:16px">⚙</button>
 </div></header>
@@ -448,9 +448,26 @@ function seed(){
 const KEY='kyoryokuten-demo-v7';
 let S;
 function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.version===7){S=s;return}}catch(e){}S=seed();save()}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('保存できませんでした（容量超過の可能性。見積書の画像が大きすぎるかも）')}
-  if(API_URL){fetch(API_URL,{method:'POST',body:JSON.stringify({action:'save',state:S})}).catch(()=>{})}}
-async function loadRemote(){if(!API_URL)return;try{const r=await fetch(API_URL+'?action=load');const j=await r.json();if(j&&j.state&&j.state.version===7){S=j.state;localStorage.setItem(KEY,JSON.stringify(S))}}catch(e){}}
+/* 共有モード（API_URL あり）：保存は「自分が見ていた版（rev）」を添えて送る。サーバー側の rev が違えば拒否され、
+   最新を取り直して画面を更新する（後勝ちで相手の操作を消さないため）。2〜3秒ごとに最新を取りに行く */
+let syncBusy=false;
+function applyRemote(state){const meBefore=(S&&S.me)||localStorage.getItem(KEY+':me');S=state;if(meBefore&&S.members.some(m=>m.id===meBefore))S.me=meBefore;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function save(){
+  S.rev=(S.rev||0)+1;
+  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('保存できませんでした（容量超過の可能性。見積書の画像が大きすぎるかも）')}
+  if(!API_URL)return;
+  const body=JSON.stringify({action:'save',state:S,baseRev:S.rev-1});
+  syncBusy=true;
+  fetch(API_URL,{method:'POST',body}).then(r=>r.json()).then(j=>{
+    if(j&&j.ok===false&&j.conflict&&j.state){applyRemote(j.state);renderAll();toast('他の端末で更新がありました。画面を最新にしました。もう一度操作してください')}
+  }).catch(()=>{toast('サーバーに届きませんでした（この端末には保存済み）')}).finally(()=>{syncBusy=false});
+}
+async function loadRemote(){if(!API_URL)return;try{const r=await fetch(API_URL+'?action=load');const j=await r.json();
+  if(j&&j.state&&j.state.version===7){applyRemote(j.state)}
+  else if(j&&j.ok&&!j.state){save()} /* サーバーが空なら、この端末の初期データを置く */
+}catch(e){}}
+function startPolling(){if(!API_URL)return;setInterval(async()=>{if(syncBusy||document.querySelector('.modal'))return;try{const r=await fetch(API_URL+'?action=load&rev='+(S.rev||0));const j=await r.json();
+  if(j&&j.state&&j.state.version===7&&(j.state.rev||0)>(S.rev||0)){const onPost=$('#p-post').classList.contains('on');applyRemote(j.state);if(!onPost)renderAll();else{renderJobs();renderMine();renderMembers();renderMarket()}}}catch(e){}},2500)}
 
 /* ---------- 計算 ---------- */
 const member=id=>S.members.find(m=>m.id===id);
@@ -832,7 +849,7 @@ document.addEventListener('click',e=>{
 
   save();renderAll();
 });
-$('#whoSel').onchange=e=>{S.me=e.target.value;save();resetPostForm();renderAll();if($('#p-settings').classList.contains('on'))renderCompany();toast(`${me().name} として操作します`)};
+$('#whoSel').onchange=e=>{S.me=e.target.value;try{localStorage.setItem(KEY+':me',S.me)}catch(x){}save();resetPostForm();renderAll();if($('#p-settings').classList.contains('on'))renderCompany();toast(`${me().name} として操作します`)};
 $$('#modelSeg button').forEach(b=>b.onclick=()=>{S.model=b.dataset.v;save();renderAll()});
 $$('#rateSeg button').forEach(b=>b.onclick=()=>{S.rate=+b.dataset.v;form.userTouchedWorker=false;save();renderAll()});
 $('#resetBtn').onclick=()=>{if(confirm('デモデータを初期状態に戻します。よいですか？')){S=seed();save();renderAll();go('jobs');toast('初期化しました')}};
@@ -840,7 +857,8 @@ function go(p){$$('section.page').forEach(s=>s.classList.toggle('on',s.id==='p-'
 $$('nav.tabs button').forEach(b=>b.onclick=()=>go(b.dataset.p));
 
 /* ---------- 起動 ---------- */
-load();buildPostForm();renderAll();loadRemote().then(()=>renderAll());
+if(API_URL){$('#modeBadge').textContent='デモ・共有';$('#modeBadge').title='複数の端末で同じデータを見ています'}
+load();buildPostForm();renderAll();loadRemote().then(()=>{renderAll();startPolling()});
 </script>
 </body>
 </html>
