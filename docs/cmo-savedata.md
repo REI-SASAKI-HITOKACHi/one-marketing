@@ -2147,3 +2147,4 @@ crm の回答：
 - **settings.json に browser 用の autoMode 許可を追加**（オーナー貼付、`fd59d68`）：CMS（one-hitter.jp/_sys/）とGBP（business.google.com）への投稿・編集、Claude in Chrome での自社画像のアップロード。削除・CMS設定変更はオーナー確認のまま。browser は git pull で取り込んで再開。
 - **GBP 第1束5本すべてに CTA が付いた**（browser 9/24 未明、settings.json 反映後は止まらず）。010 は「詳細」→ one-hitter.jp/corporation/?src=gbp（200 確認）。残り：写真つき 002・003 とブログ画像は Claude in Chrome の navigate 拒否が解けてから。切り分けに `/chrome` の表示と拒否文言の原文を browser に求めた。
 - **ブログ19本にアイキャッチが入った**（browser 9/24 朝、CMS へ直接 POST。公開ページで確認：1684 → article/1685 の画像）。詰まりの原因＝CMS の隠しラジオ `[file_action][image]` を送ると画像が無視される／画像0枚の記事は外部POSTで1枚目が入らない（種画像→差し替えの2段）。本文中の画像25か所は着手許可。GBP 002・003 の写真つきは Chrome 許可待ち。browser が「GBPを20本に（オーナー指示）」と書いてきたが原文未着 → 原文の共有を求めた（原稿は web-inflow の分担のまま）。
+- **GBP 予約投稿が20本に**（browser 9/24 午前、オーナーが browser に直接「GBPも20本」。原文は未着）。9/24〜11/1 に2日おき。新規15本はブログ19本から起こした知識型・写真なし・ボタンは全部「予約」。**`?src=gbp` の有無を確認中**（無ければ入れ直し）。web-inflow の10本は 11/3 以降の枠に回し、事例型（写真あり）を優先。
