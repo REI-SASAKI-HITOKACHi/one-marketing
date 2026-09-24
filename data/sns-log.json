@@ -224,5 +224,25 @@
     "media_ids": [
       "1111352721681078"
     ]
+  },
+  {
+    "id": "w02-3r",
+    "platform": "instagram",
+    "posted_at": "2026-09-24T12:08:05+09:00",
+    "permalink": "https://www.instagram.com/reel/Ddp4fRKDGNW/",
+    "post_id": "17871211818601800",
+    "media_ids": [
+      "17871211818601800"
+    ]
+  },
+  {
+    "id": "w02-3r",
+    "platform": "facebook",
+    "posted_at": "2026-09-24T12:08:10+09:00",
+    "permalink": "https://www.facebook.com/103698149101436/videos/1105014032214005",
+    "post_id": "1105014032214005",
+    "media_ids": [
+      "1105014032214005"
+    ]
   }
 ]
