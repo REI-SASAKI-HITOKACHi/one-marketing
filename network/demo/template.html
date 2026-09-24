@@ -391,10 +391,12 @@ function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');cl
 /* ---------- 初期データ（架空。実在の会社・人物ではない） ---------- */
 const EQUIP=['高圧洗浄機','脚立・はしご','天カセ（業務用）対応','エアコン完全分解','ロボ（お掃除機能付き）対応','車両（軽バン）','高所作業（2階外壁）'];
 const AC_NAME='エアコンクリーニング（ノーマル）';
+const EXTRA_MENUS=[{name:'業務用エアコン（天カセ）クリーニング',unit:27000,min:18900}]; // デモ用。data/prices.json には無い
 function menuList(factor){
   // 自社料金表の初期値：料金マスターに係数を掛けて散らす。最低単価＝単価の7割（オプションは6割）
   const r100=v=>Math.round(v/100)*100;
   return PRICES.menus.map(m=>({name:m.名称,unit:Math.round(m.単体*factor/10)*10,min:r100(m.単体*factor*0.7),on:true,custom:false}))
+    .concat(EXTRA_MENUS.map(x=>({name:x.name,unit:Math.round(x.unit*factor/10)*10,min:r100(x.min*factor),on:true,custom:false})))
     .concat(PRICES.options.map(o=>({name:o.名称,unit:Math.round(o.価格*factor/10)*10,min:r100(o.価格*factor*0.6),on:true,custom:false})));
 }
 function seed(){
@@ -447,7 +449,8 @@ function seed(){
 /* ---------- 保存 ---------- */
 const KEY='kyoryokuten-demo-v7';
 let S;
-function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.version===7){S=s;return}}catch(e){}S=seed();save()}
+function migrate(){(S.members||[]).forEach(m=>{m.menus=m.menus||[];EXTRA_MENUS.forEach(x=>{if(!m.menus.some(y=>y.name===x.name)){const i=m.menus.findIndex(y=>y.name==='エアコンクリーニング（お掃除機能付き）');m.menus.splice(i>=0?i+1:m.menus.length,0,{name:x.name,unit:x.unit,min:x.min,on:true,custom:false})}})})}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.version===7){S=s;migrate();return}}catch(e){}S=seed();save()}
 /* 共有モード（API_URL あり）：保存は「自分が見ていた版（rev）」を添えて送る。サーバー側の rev が違えば拒否され、
    最新を取り直して画面を更新する（後勝ちで相手の操作を消さないため）。2〜3秒ごとに最新を取りに行く */
 let syncBusy=false;
@@ -463,7 +466,7 @@ function save(){
   }).catch(()=>{toast('サーバーに届きませんでした（この端末には保存済み）')}).finally(()=>{syncBusy=false});
 }
 async function loadRemote(){if(!API_URL)return;try{const r=await fetch(API_URL+'?action=load');const j=await r.json();
-  if(j&&j.state&&j.state.version===7){applyRemote(j.state)}
+  if(j&&j.state&&j.state.version===7){applyRemote(j.state);migrate()}
   else if(j&&j.ok&&!j.state){save()} /* サーバーが空なら、この端末の初期データを置く */
 }catch(e){}}
 function startPolling(){if(!API_URL)return;setInterval(async()=>{if(syncBusy||document.querySelector('.modal'))return;try{const r=await fetch(API_URL+'?action=load&rev='+(S.rev||0));const j=await r.json();
@@ -474,7 +477,7 @@ const member=id=>S.members.find(m=>m.id===id);
 const me=()=>member(S.me);
 function net(j){return Math.round(j.price*(1-(j.fee||0)))}
 function rate(j){const n=net(j);return n?j.workerPrice/n:0}
-const shortName=n=>n.replace('クリーニング','').replace('（ノーマル）','').replace('エアコン ','');
+const shortName=n=>n.replace('クリーニング','').replace('（ノーマル）','').replace('エアコン ','').replace('業務用エアコン（天カセ）','業務用エアコン（天カセ）');
 function itemsLabel(j){return j.items.map(x=>shortName(x.name)+(x.qty>1?' ×'+x.qty:'')).join('、')}
 function delays(mid){return S.jobs.filter(j=>j.poster===mid&&(j.delay||(j.close&&j.close.shita&&j.close.shita.late))).length}
 function delayTag(mid){const n=delays(mid);return n?`<span class="tag low">支払遅延 ${n}件</span>`:`<span class="tag done">支払遅延 0件</span>`}
@@ -691,7 +694,7 @@ function renderLines(){
   const ms=myMenus();
   $('#lineRows').innerHTML=form.rows.map(r=>{
     const known=ms.some(x=>x.name===r.name);
-    const opts=ms.map(x=>`<option value="${x.name}" ${x.name===r.name?'selected':''}>${shortName(x.name)}（${yen(x.unit)}）</option>`).join('')+`<option value="__other" ${!known?'selected':''}>その他（手入力）</option>`;
+    const opts=ms.map(x=>`<option value="${x.name}" ${x.name===r.name?'selected':''}>${shortName(x.name)}</option>`).join('')+`<option value="__other" ${!known?'selected':''}>その他（手入力）</option>`;
     return `<div class="line" data-r="${r.id}">
       <div class="nm"><select class="ln-sel">${opts}</select>${!known?`<input type="text" class="ln-other other" placeholder="メニュー名を入力" value="${r.other||r.name||''}">`:''}</div>
       <button type="button" class="rm ln-rm" title="行を削除">✕</button>
@@ -719,7 +722,7 @@ function setQuote(file){
   };
   rd.readAsDataURL(file);
 }
-const OCR_KEYS=[[/お掃除機能|自動掃除|ロボ|フィルター自動/,'エアコンクリーニング（お掃除機能付き）'],[/エアコン|ｴｱｺﾝ/,'エアコンクリーニング（ノーマル）'],[/レンジフード|換気扇/,'レンジフードクリーニング'],[/キッチン|台所/,'キッチンクリーニング'],[/浴室|お風呂|バス|ユニットバス/,'浴室クリーニング'],[/追い?焚|追炊/,'追い焚き配管クリーニング'],[/洗濯機/,'洗濯機クリーニング'],[/トイレ/,'トイレクリーニング'],[/洗面/,'洗面台クリーニング'],[/コンロ|ガス台/,'コンロクリーニング'],[/防カビ|防かび/,'エアコン 防カビコート'],[/室外機/,'エアコン 室外機セット'],[/防虫/,'エアコン 防虫キャップ'],[/コーティング/,'お掃除時短コーティング']];
+const OCR_KEYS=[[/業務用|天カセ|天井カセット|天吊/,'業務用エアコン（天カセ）クリーニング'],[/お掃除機能|自動掃除|ロボ|フィルター自動/,'エアコンクリーニング（お掃除機能付き）'],[/エアコン|ｴｱｺﾝ/,'エアコンクリーニング（ノーマル）'],[/レンジフード|換気扇/,'レンジフードクリーニング'],[/キッチン|台所/,'キッチンクリーニング'],[/浴室|お風呂|バス|ユニットバス/,'浴室クリーニング'],[/追い?焚|追炊/,'追い焚き配管クリーニング'],[/洗濯機/,'洗濯機クリーニング'],[/トイレ/,'トイレクリーニング'],[/洗面/,'洗面台クリーニング'],[/コンロ|ガス台/,'コンロクリーニング'],[/防カビ|防かび/,'エアコン 防カビコート'],[/室外機/,'エアコン 室外機セット'],[/防虫/,'エアコン 防虫キャップ'],[/コーティング/,'お掃除時短コーティング']];
 function parseQuote(text){
   const z=s=>s.replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/[，、]/g,',').replace(/[¥￥]/g,'').replace(/[ \t\u3000]+/g,' ');
   const rows=[];
