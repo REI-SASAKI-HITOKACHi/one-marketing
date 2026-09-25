@@ -76,7 +76,7 @@ def main():
         for f in fs:
             aru.add(os.path.join(ne, f).replace("\\", "/"))
 
-    rows = rd(f"'{TAB}'!A1:I330")
+    rows = rd(f"'{TAB}'!A1:I1000")
     shigoto = []          # (行, 列, [(開始, 長さ, URL, 見えている文字)])
     for gi, r in enumerate(rows, 1):
         if gi < DAI3:

@@ -41,7 +41,7 @@ import sheets_client as sc
 
 SS = "1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64"
 TAB = "MTGシート"
-HANI = f"'{TAB}'!A1:I300"
+HANI = f"'{TAB}'!A1:I1000"
 
 # ---------------------------------------------------------------- 書式の3種類
 SHOSHIKI = {
