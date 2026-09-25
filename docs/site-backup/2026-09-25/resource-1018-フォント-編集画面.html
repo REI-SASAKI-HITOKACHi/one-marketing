@@ -1,0 +1,3750 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+<meta name="keywords" content="" />
+<link rel="shortcut icon" href="/favicon.ico" />
+
+<meta name="viewport" content="width=device-width,user-scalable=no,maximum-scale=1" />
+<meta name="robots" content="noindex,nofollow" />
+
+<link rel="stylesheet" href="https://unpkg.com/material-components-web@3.2.0/dist/material-components-web.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<link rel="stylesheet" href="/_lib/jodit.min.css">
+<style>
+	.mdc-top-app-bar__section a[href="/_sys/"]{
+		margin-left: 1rem;
+	}
+	.mdc-top-app-bar__section a[href="/_sys/"] img{
+		max-height:30px;
+	}
+	span.ttl{
+		max-width: calc(100% - 22px);
+	}
+	.jodit-wysiwyg img {
+		max-width: 100%;
+		height: auto!important;
+	}
+	.jodit_wysiwyg p {
+		min-height:14px;
+	}
+</style>
+<link rel="stylesheet" href="/_sys/assets/css/common.css?ver=3" />
+	<script src="https://unpkg.com/material-components-web@3.2.0/dist/material-components-web.min.js"></script>
+	<script>
+		mdc.autoInit();
+	</script>
+	<script src="/_lib/jodit.min.js"></script>
+
+	</head>
+	<body class="mdc-typography">
+	
+		
+			
+			<header class="mdc-top-app-bar mdc-top-app-bar--fixed mdc-elevation--z2">
+				<div class="mdc-top-app-bar__row">
+					<div class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+						<a href="#" class="material-icons mdc-top-app-bar__navigation-icon">menu</a>
+						<a href="/_sys/"><img src="/_sys/assets/img/logo.png" alt="OWLet" /></a>
+					
+											<div class="mdc-menu-surface--anchor" id="icon-notifications" data-info-exists="0">
+							<span class="notifications_button">
+								<i class="menu-surface-button material-icons" aria-hidden="true">notifications</i>
+								<span class="material-badge" id="notifications-count" style="top: 10px; left: 6px;"></span>
+								<span class="menu-surface-button">お知らせ</span>
+							</span>
+							<div class="mdc-menu mdc-menu-surface" id="information_list"></div>
+						</div>
+										</div>
+				</div>
+			</header>
+			<aside id="drawer" class="mdc-drawer mdc-drawer--open mdc-top-app-bar--fixed-adjust mdc-drawer--dismissible">
+				<div class="mdc-drawer__header" id="menu_header">
+					<div class="mdc-drawer__title"><span class="account_info"><span class="account_name">admin</span><span class="menu_expand"><i class="material-icons arrow_down">keyboard_arrow_down</i><i class="material-icons arrow_up">keyboard_arrow_up</i></span></span></div>
+					<form method="post" action="/_sys/" class="form-logout">
+						<input type="hidden" name="_[action]" value="sys_login" />
+						<input type="hidden" name="_[success]" value="/_sys/" />
+						<input type="hidden" name="mode" value="logout" />
+						<button class="logout">ログアウト</button>
+					</form>
+					<div class="page_edit">
+						<button class="mdc-button mdc-button--raised page_edit_button" id="btn_cms">
+							<i class="material-icons mdc-button__icon" aria-hidden="true">edit</i>
+							<span class="mdc-button__label">ページ編集</span>
+						</button>
+					</div>
+				</div>
+				<hr class="mdc-list-divider" role="separator" />
+				<div class="mdc-drawer__content">
+					<nav class="mdc-list">
+	<a class="mdc-list-item theme-home" href="/_sys/" aria-selected="true"><i class="material-icons mdc-list-item__graphic" aria-hidden="true">home</i><span class="mdc-list-item__text">HOME</span></a>
+	<div class="mdc-list-item theme-report leftmenu-expander">
+		<i class="material-icons mdc-list-item__graphic" aria-hidden="true">timeline</i>
+		<span class="mdc-list-item__text">レポート</span>
+		<span class="menu_expand"><i class="material-icons arrow_down">keyboard_arrow_down</i><i class="material-icons arrow_up">keyboard_arrow_up</i></span></span>
+	</div>
+	<div class="mdc-list-group leftmenu-sub">
+		<a class="mdc-list-item theme-report" href="/_sys/report/" tabindex="-1">
+	<span class="mdc-list-item__text">サイトレポート</span>
+</a>
+<div class="mdc-list-group">
+	<h3 class="mdc-list-group__subheader">SEO</h3>
+	<a class="mdc-list-item theme-report" href="/_sys/report/seo/">
+		<span class="mdc-list-item__text">SEOレポート</span>
+	</a>
+	<a class="mdc-list-item theme-report" href="/_sys/report/seo/link.html">
+		<span class="mdc-list-item__text">リンク数ランキング</span>
+	</a>
+	</div>
+<div class="mdc-list-group">
+	<h3 class="mdc-list-group__subheader">SNS</h3>
+	<a class="mdc-list-item theme-report" href="/_sys/report/sns/">
+		<span class="mdc-list-item__text">SNS流入計測</span>
+	</a>
+	</div>
+<a class="mdc-list-item theme-report" href="/_sys/report/sitemaps/">
+	<span class="mdc-list-item__text">サイトマップ</span>
+</a>
+<a class="mdc-list-item theme-report" href="/_sys/report/public_log/">
+	<span class="mdc-list-item__text">更新ログ</span>
+</a>
+<a class="mdc-list-item theme-report" href="/_sys/report/db_volume/">
+	<span class="mdc-list-item__text">DB容量</span>
+</a>
+	</div>
+	<div class="mdc-list-item theme-contents leftmenu-expander expand">
+		<i class="material-icons mdc-list-item__graphic" aria-hidden="true">description</i>
+		<span class="mdc-list-item__text">コンテンツ</span>
+		<span class="menu_expand"><i class="material-icons arrow_down">keyboard_arrow_down</i><i class="material-icons arrow_up">keyboard_arrow_up</i></span></span>
+	</div>
+	<div class="mdc-list-group leftmenu-sub">
+		<a class="edit_detail_page mdc-list-item theme-contents" href="/_sys/contents/page/" tabindex="-1">
+	<span class="mdc-list-item__text">ページ編集</span>
+</a>
+<div class="mdc-list-group">
+	<h3 class="mdc-list-group__subheader">アーティクル</h3>	<a class="mdc-list-item theme-setting" href="/_sys/contents/article/543/">
+		<span class="mdc-list-item__text">会社情報・アクセス</span>
+	</a>	<a class="mdc-list-item theme-setting" href="/_sys/contents/article/804/">
+		<span class="mdc-list-item__text">メニュー</span>
+	</a>	<a class="mdc-list-item theme-setting" href="/_sys/contents/article/1944/">
+		<span class="mdc-list-item__text">ギャラリー (施術事例)</span>
+	</a>	<a class="mdc-list-item theme-setting" href="/_sys/contents/article/1831/">
+		<span class="mdc-list-item__text">お客様の声</span>
+	</a>	<a class="mdc-list-item theme-setting" href="/_sys/contents/article/1806/">
+		<span class="mdc-list-item__text">代表あいさつ</span>
+	</a>	<a class="mdc-list-item theme-setting" href="/_sys/contents/article/561/">
+		<span class="mdc-list-item__text">ブログ</span>
+	</a>	<a class="mdc-list-item theme-setting" href="/_sys/contents/article/1587/">
+		<span class="mdc-list-item__text">アイコン</span>
+	</a>	<a class="mdc-list-item theme-setting" href="/_sys/contents/article/1891/">
+		<span class="mdc-list-item__text">署名リンク</span>
+	</a></div><div class="mdc-list-group"><h3 class="mdc-list-group__subheader">リソース</h3>
+<a class="mdc-list-item theme-setting" href="/_sys/contents/resource/5/">
+	<span class="mdc-list-item__text">Webサイト基本情報</span>
+</a><a class="mdc-list-item theme-setting" href="/_sys/contents/resource/1590/">
+	<span class="mdc-list-item__text">見出し</span>
+</a><a class="mdc-list-item theme-setting" href="/_sys/contents/resource/1607/">
+	<span class="mdc-list-item__text">ボタン</span>
+</a><a class="mdc-list-item theme-setting" href="/_sys/contents/resource/17/">
+	<span class="mdc-list-item__text">サイト幅</span>
+</a><a class="mdc-list-item theme-setting" href="/_sys/contents/resource/20/">
+	<span class="mdc-list-item__text">カラー</span>
+</a><a class="mdc-list-item theme-setting mdc-list-item--activated" href="/_sys/contents/resource/1018/">
+	<span class="mdc-list-item__text">フォント</span>
+</a><a class="mdc-list-item theme-setting" href="/_sys/contents/resource/11/">
+	<span class="mdc-list-item__text">グローバルナビゲーション</span>
+</a><a class="mdc-list-item theme-setting" href="/_sys/contents/resource/1312/">
+	<span class="mdc-list-item__text">ハンバーガーメニュー</span>
+</a><a class="mdc-list-item theme-setting" href="/_sys/contents/resource/114/">
+	<span class="mdc-list-item__text">フッターナビゲーション</span>
+</a><a class="mdc-list-item theme-setting" href="/_sys/contents/resource/117/">
+	<span class="mdc-list-item__text">グローバルナビ追従</span>
+</a><a class="mdc-list-item theme-setting" href="/_sys/contents/resource/120/">
+	<span class="mdc-list-item__text">フッターナビ追従</span>
+</a><a class="mdc-list-item theme-setting" href="/_sys/contents/resource/2111/">
+	<span class="mdc-list-item__text">ブログ署名</span>
+</a><a class="mdc-list-item theme-setting" href="/_sys/contents/resource/123/">
+	<span class="mdc-list-item__text">ローディング</span>
+</a><a class="mdc-list-item theme-setting" href="/_sys/contents/resource/1114/">
+	<span class="mdc-list-item__text">Pay</span>
+</a><a class="mdc-list-item theme-setting" href="/_sys/contents/resource/1481/">
+	<span class="mdc-list-item__text">Google翻訳</span>
+</a><a class="mdc-list-item theme-setting" href="/_sys/contents/resource/1747/">
+	<span class="mdc-list-item__text">多言語用</span>
+</a><a class="mdc-list-item theme-setting" href="/_sys/contents/resource/2234/">
+	<span class="mdc-list-item__text">インスタ投稿表示</span>
+</a></div>	</div>
+	<div class="mdc-list-item theme-contact leftmenu-expander">
+		<i class="material-icons mdc-list-item__graphic" aria-hidden="true">email</i><span class="material-badge">223</span>		<span class="mdc-list-item__text">お問い合わせ</span>
+		<span class="menu_expand"><i class="material-icons arrow_down">keyboard_arrow_down</i><i class="material-icons arrow_up">keyboard_arrow_up</i></span></span>
+	</div>
+	<div class="mdc-list-group leftmenu-sub">
+		<a class="mdc-list-item long-text theme-contact" href="/_sys/contact/form/270/">
+	<span class="mdc-list-item__text">お問い合わせ</span>
+</a><a class="mdc-list-item long-text theme-contact" href="/_sys/contact/form/2325/">
+	<span class="mdc-list-item__text">法人向けお問い合わせ</span>
+</a>	</div>
+		<div class="mdc-list-group leftmenu-sub">
+		<a class="mdc-list-item theme-commu" href="/_sys/commu/sns/">
+	<span class="mdc-list-item__text">SNS投稿管理</span>
+</a>	</div>
+		<div class="mdc-list-item theme-setting leftmenu-expander">
+		<i class="material-icons mdc-list-item__graphic" aria-hidden="true">settings</i>
+		<span class="mdc-list-item__text">設定</span>
+		<span class="menu_expand"><i class="material-icons arrow_down">keyboard_arrow_down</i><i class="material-icons arrow_up">keyboard_arrow_up</i></span></span>
+	</div>
+	<div class="mdc-list-group leftmenu-sub">
+		<div class="mdc-list-item theme-setting leftmenu-expander">
+	<span class="mdc-list-item__text">フォーム (2)</span>
+	<span class="menu_expand"><i class="material-icons arrow_down">keyboard_arrow_down</i><i class="material-icons arrow_up">keyboard_arrow_up</i></span>
+</div><div class="mdc-list-group leftmenu-sub">
+	<a class="mdc-list-item long-text theme-setting" href="/_sys/setting/form/">
+		<i class="material-icons mdc-list-item__graphic" aria-hidden="true">list</i><span class="mdc-list-item__text">一覧</span>
+	</a>		<a class="mdc-list-item long-text theme-setting" href="/_sys/setting/form/270/">
+			<span class="mdc-list-item__text">お問い合わせ</span>
+		</a>
+			<a class="mdc-list-item long-text theme-setting" href="/_sys/setting/form/2325/">
+			<span class="mdc-list-item__text">法人向けお問い合わせ</span>
+		</a>
+	</div>
+<div class="mdc-list-item theme-setting leftmenu-expander" >
+	<span class="mdc-list-item__text">規約管理 (1)</span>
+	<span class="menu_expand"><i class="material-icons arrow_down">keyboard_arrow_down</i><i class="material-icons arrow_up">keyboard_arrow_up</i></span>
+</div><div class="mdc-list-group leftmenu-sub">
+	<a class="mdc-list-item theme-setting" href="/_sys/setting/rules/">
+		<i class="material-icons mdc-list-item__graphic" aria-hidden="true">list</i><span class="mdc-list-item__text">一覧</span>
+	</a>		<a class="mdc-list-item theme-setting" href="/_sys/setting/rules/6/">
+			<span class="mdc-list-item__text">「個人情報の取り扱いについて」</span>
+		</a>
+	</div><div class="only-pc mdc-list-item theme-setting leftmenu-expander">
+	<span class="mdc-list-item__text">アーティクル (8)</span>
+	<span class="menu_expand"><i class="material-icons arrow_down">keyboard_arrow_down</i><i class="material-icons arrow_up">keyboard_arrow_up</i></span>
+</div><div class="mdc-list-group leftmenu-sub">
+	<a class="mdc-list-item theme-setting" href="/_sys/setting/article/">
+		<i class="material-icons mdc-list-item__graphic" aria-hidden="true">list</i><span class="mdc-list-item__text">一覧</span>
+	</a>		<a class="mdc-list-item theme-setting" href="/_sys/setting/article/543/">
+			<span class="mdc-list-item__text">会社情報・アクセス</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/article/804/">
+			<span class="mdc-list-item__text">メニュー</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/article/1944/">
+			<span class="mdc-list-item__text">ギャラリー (施術事例)</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/article/1831/">
+			<span class="mdc-list-item__text">お客様の声</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/article/1806/">
+			<span class="mdc-list-item__text">代表あいさつ</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/article/561/">
+			<span class="mdc-list-item__text">ブログ</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/article/1587/">
+			<span class="mdc-list-item__text">アイコン</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/article/1891/">
+			<span class="mdc-list-item__text">署名リンク</span>
+		</a>
+	</div>
+<div class="mdc-list-item theme-setting leftmenu-expander">
+	<span class="mdc-list-item__text">ディレクトリ (10)</span>
+	<span class="menu_expand"><i class="material-icons arrow_down">keyboard_arrow_down</i><i class="material-icons arrow_up">keyboard_arrow_up</i></span>
+</div><div class="mdc-list-group leftmenu-sub">
+	<a class="mdc-list-item theme-setting" href="/_sys/setting/directory/">
+		<i class="material-icons mdc-list-item__graphic" aria-hidden="true">list</i><span class="mdc-list-item__text">一覧</span>
+	</a>		<a class="mdc-list-item theme-setting" href="/_sys/setting/directory/group/345/">
+			<span class="mdc-list-item__text">会社情報・アクセス</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/directory/group/357/">
+			<span class="mdc-list-item__text">ブログ</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/directory/group/363/">
+			<span class="mdc-list-item__text">メニュー用</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/directory/group/1586/">
+			<span class="mdc-list-item__text">アイコン</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/directory/group/1777/">
+			<span class="mdc-list-item__text">施工事例</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/directory/group/1804/">
+			<span class="mdc-list-item__text">スタッフ</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/directory/group/1830/">
+			<span class="mdc-list-item__text">お客様の声</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/directory/group/1890/">
+			<span class="mdc-list-item__text">署名用</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/directory/group/1912/">
+			<span class="mdc-list-item__text">seo</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/directory/group/2274/">
+			<span class="mdc-list-item__text">サービス</span>
+		</a>
+	</div><div class="mdc-list-item theme-setting leftmenu-expander">
+	<span class="mdc-list-item__text">タグ (11)</span>
+	<span class="menu_expand"><i class="material-icons arrow_down">keyboard_arrow_down</i><i class="material-icons arrow_up">keyboard_arrow_up</i></span>
+</div><div class="mdc-list-group leftmenu-sub">
+	<a class="mdc-list-item theme-setting" href="/_sys/setting/tag/">
+		<i class="material-icons mdc-list-item__graphic" aria-hidden="true">list</i><span class="mdc-list-item__text">一覧</span>
+	</a>		<a class="mdc-list-item theme-setting" href="/_sys/setting/tag/group/441/">
+			<span class="mdc-list-item__text">店舗情報</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/tag/group/444/">
+			<span class="mdc-list-item__text">メニュー</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/tag/group/447/">
+			<span class="mdc-list-item__text">ピックアップ</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/tag/group/459/">
+			<span class="mdc-list-item__text">メニュー大カテゴリ</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/tag/group/462/">
+			<span class="mdc-list-item__text">メニュー小カテゴリ</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/tag/group/1470/">
+			<span class="mdc-list-item__text">よくある質問</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/tag/group/1780/">
+			<span class="mdc-list-item__text">ギャラリー</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/tag/group/1913/">
+			<span class="mdc-list-item__text">お知らせ</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/tag/group/1925/">
+			<span class="mdc-list-item__text">ブログカテゴリ</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/tag/group/2133/">
+			<span class="mdc-list-item__text">ブログタグ</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/tag/group/2310/">
+			<span class="mdc-list-item__text">サービスタグ</span>
+		</a>
+	</div><div class="mdc-list-item theme-setting leftmenu-expander">
+	<span class="mdc-list-item__text">リソース (17)</span>
+	<span class="menu_expand"><i class="material-icons arrow_down">keyboard_arrow_down</i><i class="material-icons arrow_up">keyboard_arrow_up</i></span>
+</div><div class="mdc-list-group leftmenu-sub">
+	<a class="mdc-list-item theme-setting" href="/_sys/setting/resource/">
+		<i class="material-icons mdc-list-item__graphic" aria-hidden="true">list</i><span class="mdc-list-item__text">一覧</span>
+	</a>		<a class="mdc-list-item theme-setting" href="/_sys/setting/resource/group/5/">
+			<span class="mdc-list-item__text">Webサイト基本情報</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/resource/group/1590/">
+			<span class="mdc-list-item__text">見出し</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/resource/group/1607/">
+			<span class="mdc-list-item__text">ボタン</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/resource/group/17/">
+			<span class="mdc-list-item__text">サイト幅</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/resource/group/20/">
+			<span class="mdc-list-item__text">カラー</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/resource/group/1018/">
+			<span class="mdc-list-item__text">フォント</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/resource/group/11/">
+			<span class="mdc-list-item__text">グローバルナビゲーション</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/resource/group/1312/">
+			<span class="mdc-list-item__text">ハンバーガーメニュー</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/resource/group/114/">
+			<span class="mdc-list-item__text">フッターナビゲーション</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/resource/group/117/">
+			<span class="mdc-list-item__text">グローバルナビ追従</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/resource/group/120/">
+			<span class="mdc-list-item__text">フッターナビ追従</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/resource/group/2111/">
+			<span class="mdc-list-item__text">ブログ署名</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/resource/group/123/">
+			<span class="mdc-list-item__text">ローディング</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/resource/group/1114/">
+			<span class="mdc-list-item__text">Pay</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/resource/group/1481/">
+			<span class="mdc-list-item__text">Google翻訳</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/resource/group/1747/">
+			<span class="mdc-list-item__text">多言語用</span>
+		</a>
+			<a class="mdc-list-item theme-setting" href="/_sys/setting/resource/group/2234/">
+			<span class="mdc-list-item__text">インスタ投稿表示</span>
+		</a>
+	</div>
+<a class="mdc-list-item theme-setting" href="/_sys/setting/analytics/">
+	<span class="mdc-list-item__text">Google Analytics</span>
+</a>
+<a class="mdc-list-item theme-setting" href="/_sys/setting/sns/">
+	<span class="mdc-list-item__text">SNS投稿</span>
+</a>
+<a class="mdc-list-item theme-setting" href="/_sys/setting/redirect/">
+	<span class="mdc-list-item__text">リダイレクト設定</span>
+</a>
+<a class="mdc-list-item theme-setting" href="/_sys/setting/mail_account/">
+	<span class="mdc-list-item__text">メールアカウント</span>
+</a><a class="mdc-list-item theme-setting" href="/_sys/setting/sys_account/">
+	<span class="mdc-list-item__text">管理者アカウント</span>
+</a>
+<a class="mdc-list-item theme-setting" href="/_sys/setting/manager/">
+	<span class="mdc-list-item__text">サイト管理者情報</span>
+</a>
+	</div>
+        <div class="mdc-list-item leftmenu-expander">
+                <i class="material-icons mdc-list-item__graphic" aria-hidden="true">help</i>
+                <span class="mdc-list-item__text">ヘルプ</span>
+                <span class="menu_expand"><i class="material-icons arrow_down">keyboard_arrow_down</i><i class="material-icons arrow_up">keyboard_arrow_up</i></span></span>
+        </div>
+        <div class="mdc-list-group leftmenu-sub">
+            <a class="mdc-list-item" target="_blank" href="https://drive.google.com/file/d/1BbgMYLXAXJUc3DMV2UI_WUSKCEWWbYT1/view">
+                <span class="mdc-list-item__text">クイックマニュアル</span>
+            </a>
+            <a class="mdc-list-item" target="_blank" href="http://www.asteer-support.com/asteersystem/manual/manual.pdf">
+                <span class="mdc-list-item__text">操作マニュアル</span>
+            </a>
+            <a class="mdc-list-item" target="_blank" href="https://drive.google.com/file/d/1lox3lj3gPTjoTBHZtjTcAOKc5wOfe6Iy/view">
+                <span class="mdc-list-item__text">メール設定マニュアル</span>
+            </a>
+            <a class="mdc-list-item" target="_blank"href="http://www.freephotosite.sk-t-inc.com/">
+                <span class="mdc-list-item__text">フリー画像素材集</span>
+            </a>
+            <a class="mdc-list-item" target="_blank"href="https://drive.google.com/file/d/1BpOoMGuf61MxX6VmgUbkp0TGMhEISuoN/view">
+                <span class="mdc-list-item__text">あうんマニュアル</span>
+            </a>
+            <a class="mdc-list-item" target="_blank" href="https://inquiry-room.com/aun/">
+                <span class="mdc-list-item__text">修正フォーム</span>
+            </a>
+            <a class="mdc-list-item" target="_blank" href="https://seocheki.net/">
+                <span class="mdc-list-item__text">SEOチェキ</span>
+            </a>
+            <a class="mdc-list-item" target="_blank"href="https://related-keywords.com/">
+                <span class="mdc-list-item__text">ラッコキーワード</span>
+            </a>
+            <a class="mdc-list-item" target="_blank" href="https://drive.google.com/file/d/1nZbCSDLniw_TESqbTFMr0-JIMC1ad3ox/view">
+                <span class="mdc-list-item__text">SEOテクニック</span>
+            </a>
+            <a class="mdc-list-item" target="_blank" href="https://analytics.google.com/">
+                <span class="mdc-list-item__text">アナリティクス</span>
+            </a>
+            <a class="mdc-list-item" target="_blank" href="https://search.google.com/search-console/">
+                <span class="mdc-list-item__text">サーチコンソール</span>
+            </a>
+            <a class="mdc-list-item" target="_blank"href="https://drive.google.com/file/d/1tgZ1VNtjftquHDwEn_zT6dxaqCsYGnD2/view">
+                <span class="mdc-list-item__text">チームビューワーダウンロード</span>
+            </a>
+            <a class="mdc-list-item" target="_blank" href="https://drive.google.com/file/d/1rtMnD7I56-9miInEOGz5YqCjhI5JHEfj/view">
+                <span class="mdc-list-item__text">リサイズ超簡単proダウンロード</span>
+            </a>
+            <a class="mdc-list-item" target="_blank" href="https://drive.google.com/file/d/1mG0DIi7zs1kWJ4QyUsRu7NGa9Kb5kAw2/view">
+                <span class="mdc-list-item__text">chromeダウンロード</span>
+            </a>
+        </div>
+</nav>
+				</div>
+			</aside>
+			<div class="mdc-drawer-app-content mdc-top-app-bar--fixed-adjust">
+				<main class="theme-contents">
+					
+						<header class="top-header theme-contents">
+	<div class="header-icon"><i class="material-icons">description</i></div>
+	<div class="bread-crumb">
+		<ul class="bread-crumb-list" itemscope="" itemtype="http://schema.org/BreadcrumbList">
+			<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem">
+				<i class="material-icons">home</i>
+			</li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem">
+				<span itemprop="name">コンテンツ</span>
+			</li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem">
+				<span itemprop="name">リソース</span>
+			</li>		</ul>
+	</div>
+	<h2>フォント</h2>
+</header>
+					
+					<div class="main-content">
+						<div class="layout-normal">
+	
+		<form method="post" action="/_sys/contents/resource/1018/" enctype="multipart/form-data" class="translate_wrapper">
+			<input type="hidden" name="_[action]" value="datastore" />
+			<input type="hidden" name="_[success]" value="/_sys/contents/resource/1018/cmp/1/" />
+			<input type="hidden" name="datastore[type]" value="resource" />
+			<input type="hidden" name="group" value="1018" />
+			
+			
+			<ul class="article_content tab-switch-content lang-input force_translate_contents" style="padding:1rem;">
+				
+					<li data-content="lang0" class="active" data-kv_suffix="">
+						
+							<div class="form-field-container">
+								
+																								<div class="mdc-form-field"><div class="mdc-select mdc-select--outlined">
+						<i class="mdc-select__dropdown-icon"></i>
+						<select class="mdc-select__native-control" name="input_ci[font_pattern]" style="min-width: 240px;">
+							<option value="" disabled  selected="selected"></option>
+							<option value="NO">
+								WEBフォント直接入力(PC・スマホ)							</option><option value="PC">
+								WEBフォント直接入力(PCのみ)							</option><option value="07">
+								07FontList_伝統的_明朝体							</option><option value="08">
+								08FontList_和風_明朝体							</option><option value="09">
+								09FontList_安心感_明朝体							</option><option value="10">
+								10FontList_カッコイイ_ゴシック体							</option><option value="14">
+								14FontList_信頼感_セリフ体							</option><option value="15">
+								15FontList_クール_ゴシック体							</option><option value="22">
+								22FontList_安心感_ゴシック体							</option><option value="23">
+								23FontList_信頼感_セリフ体							</option><option value="28">
+								28FontList_高級感_明朝体							</option><option value="29">
+								29FontList_安心感_ゴシック							</option><option value="33">
+								33FontList_信頼感_セリフ体							</option><option value="36">
+								36FontList_優しい_セリフ体							</option><option value="46">
+								46FontList_シンプル_ゴシック体							</option><option value="A">
+								A							</option><option value="B">
+								B							</option><option value="C">
+								C							</option><option value="D">
+								D							</option><option value="E">
+								E							</option><option value="F">
+								F							</option>													</select>
+						<div class="mdc-notched-outline">
+							<div class="mdc-notched-outline__leading"></div>
+							<div class="mdc-notched-outline__notch">
+								<label class="mdc-floating-label">フォントパターン</label>
+							</div>
+							<div class="mdc-notched-outline__trailing"></div>
+						</div>
+					</div></div>
+										<div class="owlet-input-sample"><a href="https://docs.google.com/spreadsheets/d/1NQnwzwsnhmH2NXOnlLp9znwy4ccqeh9Im5B1mLbLGQ4/edit#gid=1447837968" target="_blank">フォントの参考はこちら</a><br /><br />
+※「WEBフォント直接入力」の場合、それぞれの入力欄を入力してください。</div>										
+								
+							</div>
+						
+							<div class="form-field-container">
+								
+															<div class="mdc-text-field mdc-text-field--outlined">
+		<input type="text" id="input_ci[text_family]" class="mdc-text-field__input oneline" name="input_ci[text_family]" value="'Noto Sans JP', sans-serif" />
+	<div class="mdc-notched-outline">
+		<div class="mdc-notched-outline__leading"></div>
+		<div class="mdc-notched-outline__notch">
+			<label for="input_ci[text_family]" class="mdc-floating-label">テキストフォントファミリー</label>
+		</div>
+		<div class="mdc-notched-outline__trailing"></div>
+	</div>
+</div>			<div class="owlet-input-sample">例）'Noto Serif JP'</div>
+							
+								
+							</div>
+						
+							<div class="form-field-container">
+								
+															<div class="mdc-text-field mdc-text-field--outlined">
+		<input type="text" id="input_ci[text_style]" class="mdc-text-field__input oneline" name="input_ci[text_style]" value="normal" />
+	<div class="mdc-notched-outline">
+		<div class="mdc-notched-outline__leading"></div>
+		<div class="mdc-notched-outline__notch">
+			<label for="input_ci[text_style]" class="mdc-floating-label">テキストフォントスタイル</label>
+		</div>
+		<div class="mdc-notched-outline__trailing"></div>
+	</div>
+</div>			<div class="owlet-input-sample">例）normal</div>
+							
+								
+							</div>
+						
+							<div class="form-field-container">
+								
+															<div class="mdc-text-field mdc-text-field--outlined">
+		<input type="text" id="input_ci[text_weight]" class="mdc-text-field__input oneline" name="input_ci[text_weight]" value="400" />
+	<div class="mdc-notched-outline">
+		<div class="mdc-notched-outline__leading"></div>
+		<div class="mdc-notched-outline__notch">
+			<label for="input_ci[text_weight]" class="mdc-floating-label">テキスト太さ</label>
+		</div>
+		<div class="mdc-notched-outline__trailing"></div>
+	</div>
+</div>			<div class="owlet-input-sample">例）400</div>
+							
+								
+							</div>
+						
+							<div class="form-field-container">
+								
+															<div class="mdc-text-field mdc-text-field--outlined">
+		<input type="text" id="input_ci[text_css_url]" class="mdc-text-field__input oneline" name="input_ci[text_css_url]" value="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&amp;amp;amp;amp;amp;amp;amp;amp;display=swap" />
+	<div class="mdc-notched-outline">
+		<div class="mdc-notched-outline__leading"></div>
+		<div class="mdc-notched-outline__notch">
+			<label for="input_ci[text_css_url]" class="mdc-floating-label">テキストフォントURL</label>
+		</div>
+		<div class="mdc-notched-outline__trailing"></div>
+	</div>
+</div>			<div class="owlet-input-sample">※通常テキストなど<br />
+例）https://fonts.googleapis.com/○○○&display=swap<br />
+コードのURL部分のみ記述してください。</div>
+							
+								
+							</div>
+						
+							<div class="form-field-container">
+								
+															<div class="mdc-text-field mdc-text-field--outlined">
+		<input type="text" id="input_ci[title1_family]" class="mdc-text-field__input oneline" name="input_ci[title1_family]" value="'Noto Sans JP', sans-serif" />
+	<div class="mdc-notched-outline">
+		<div class="mdc-notched-outline__leading"></div>
+		<div class="mdc-notched-outline__notch">
+			<label for="input_ci[title1_family]" class="mdc-floating-label">タイトル1フォントファミリー</label>
+		</div>
+		<div class="mdc-notched-outline__trailing"></div>
+	</div>
+</div>			<div class="owlet-input-sample">例）'Noto Serif JP'</div>
+							
+								
+							</div>
+						
+							<div class="form-field-container">
+								
+															<div class="mdc-text-field mdc-text-field--outlined">
+		<input type="text" id="input_ci[title1_style]" class="mdc-text-field__input oneline" name="input_ci[title1_style]" value="normal" />
+	<div class="mdc-notched-outline">
+		<div class="mdc-notched-outline__leading"></div>
+		<div class="mdc-notched-outline__notch">
+			<label for="input_ci[title1_style]" class="mdc-floating-label">タイトル1フォントスタイル</label>
+		</div>
+		<div class="mdc-notched-outline__trailing"></div>
+	</div>
+</div>			<div class="owlet-input-sample">例）normal</div>
+							
+								
+							</div>
+						
+							<div class="form-field-container">
+								
+															<div class="mdc-text-field mdc-text-field--outlined">
+		<input type="text" id="input_ci[title1_weight]" class="mdc-text-field__input oneline" name="input_ci[title1_weight]" value="700" />
+	<div class="mdc-notched-outline">
+		<div class="mdc-notched-outline__leading"></div>
+		<div class="mdc-notched-outline__notch">
+			<label for="input_ci[title1_weight]" class="mdc-floating-label">タイトル1フォント太さ</label>
+		</div>
+		<div class="mdc-notched-outline__trailing"></div>
+	</div>
+</div>			<div class="owlet-input-sample">例）400</div>
+							
+								
+							</div>
+						
+							<div class="form-field-container">
+								
+															<div class="mdc-text-field mdc-text-field--outlined">
+		<input type="text" id="input_ci[title1_css_url]" class="mdc-text-field__input oneline" name="input_ci[title1_css_url]" value="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&amp;amp;amp;amp;amp;amp;amp;amp;display=swap" />
+	<div class="mdc-notched-outline">
+		<div class="mdc-notched-outline__leading"></div>
+		<div class="mdc-notched-outline__notch">
+			<label for="input_ci[title1_css_url]" class="mdc-floating-label">タイトル1フォントURL</label>
+		</div>
+		<div class="mdc-notched-outline__trailing"></div>
+	</div>
+</div>			<div class="owlet-input-sample">※見出し（日本語）など<br />
+例）https://fonts.googleapis.com/○○○&display=swap<br />
+コードのURL部分のみ記述してください。</div>
+							
+								
+							</div>
+						
+							<div class="form-field-container">
+								
+															<div class="mdc-text-field mdc-text-field--outlined">
+		<input type="text" id="input_ci[title2_family]" class="mdc-text-field__input oneline" name="input_ci[title2_family]" value="'Noto Sans JP', sans-serif" />
+	<div class="mdc-notched-outline">
+		<div class="mdc-notched-outline__leading"></div>
+		<div class="mdc-notched-outline__notch">
+			<label for="input_ci[title2_family]" class="mdc-floating-label">タイトル2フォントファミリー</label>
+		</div>
+		<div class="mdc-notched-outline__trailing"></div>
+	</div>
+</div>			<div class="owlet-input-sample">例）'Noto Serif JP'</div>
+							
+								
+							</div>
+						
+							<div class="form-field-container">
+								
+															<div class="mdc-text-field mdc-text-field--outlined">
+		<input type="text" id="input_ci[title2_style]" class="mdc-text-field__input oneline" name="input_ci[title2_style]" value="normal" />
+	<div class="mdc-notched-outline">
+		<div class="mdc-notched-outline__leading"></div>
+		<div class="mdc-notched-outline__notch">
+			<label for="input_ci[title2_style]" class="mdc-floating-label">タイトル2フォントスタイル</label>
+		</div>
+		<div class="mdc-notched-outline__trailing"></div>
+	</div>
+</div>			<div class="owlet-input-sample">例）normal</div>
+							
+								
+							</div>
+						
+							<div class="form-field-container">
+								
+															<div class="mdc-text-field mdc-text-field--outlined">
+		<input type="text" id="input_ci[title2_weight]" class="mdc-text-field__input oneline" name="input_ci[title2_weight]" value="900" />
+	<div class="mdc-notched-outline">
+		<div class="mdc-notched-outline__leading"></div>
+		<div class="mdc-notched-outline__notch">
+			<label for="input_ci[title2_weight]" class="mdc-floating-label">タイトル2フォント太さ</label>
+		</div>
+		<div class="mdc-notched-outline__trailing"></div>
+	</div>
+</div>			<div class="owlet-input-sample">例）400</div>
+							
+								
+							</div>
+						
+							<div class="form-field-container">
+								
+															<div class="mdc-text-field mdc-text-field--outlined">
+		<input type="text" id="input_ci[title2_css_url]" class="mdc-text-field__input oneline" name="input_ci[title2_css_url]" value="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&amp;amp;amp;amp;amp;amp;amp;amp;display=swap" />
+	<div class="mdc-notched-outline">
+		<div class="mdc-notched-outline__leading"></div>
+		<div class="mdc-notched-outline__notch">
+			<label for="input_ci[title2_css_url]" class="mdc-floating-label">タイトル2フォントURL</label>
+		</div>
+		<div class="mdc-notched-outline__trailing"></div>
+	</div>
+</div>			<div class="owlet-input-sample">※メインビジュアル テキストLなど<br />
+例）https://fonts.googleapis.com/○○○&display=swap<br />
+コードのURL部分のみ記述してください。</div>
+							
+								
+							</div>
+						
+							<div class="form-field-container">
+								
+															<div class="mdc-text-field mdc-text-field--outlined">
+		<input type="text" id="input_ci[en_family]" class="mdc-text-field__input oneline" name="input_ci[en_family]" value="'Montserrat', sans-serif" />
+	<div class="mdc-notched-outline">
+		<div class="mdc-notched-outline__leading"></div>
+		<div class="mdc-notched-outline__notch">
+			<label for="input_ci[en_family]" class="mdc-floating-label">英数字フォントファミリー</label>
+		</div>
+		<div class="mdc-notched-outline__trailing"></div>
+	</div>
+</div>			<div class="owlet-input-sample">例）'Noto Serif JP'</div>
+							
+								
+							</div>
+						
+							<div class="form-field-container">
+								
+															<div class="mdc-text-field mdc-text-field--outlined">
+		<input type="text" id="input_ci[en_style]" class="mdc-text-field__input oneline" name="input_ci[en_style]" value="normal" />
+	<div class="mdc-notched-outline">
+		<div class="mdc-notched-outline__leading"></div>
+		<div class="mdc-notched-outline__notch">
+			<label for="input_ci[en_style]" class="mdc-floating-label">英数字フォントスタイル</label>
+		</div>
+		<div class="mdc-notched-outline__trailing"></div>
+	</div>
+</div>			<div class="owlet-input-sample">例）normal</div>
+							
+								
+							</div>
+						
+							<div class="form-field-container">
+								
+															<div class="mdc-text-field mdc-text-field--outlined">
+		<input type="text" id="input_ci[en_weight]" class="mdc-text-field__input oneline" name="input_ci[en_weight]" value="700" />
+	<div class="mdc-notched-outline">
+		<div class="mdc-notched-outline__leading"></div>
+		<div class="mdc-notched-outline__notch">
+			<label for="input_ci[en_weight]" class="mdc-floating-label">英数字フォント太さ</label>
+		</div>
+		<div class="mdc-notched-outline__trailing"></div>
+	</div>
+</div>			<div class="owlet-input-sample">例）400</div>
+							
+								
+							</div>
+						
+							<div class="form-field-container">
+								
+															<div class="mdc-text-field mdc-text-field--outlined">
+		<input type="text" id="input_ci[en_css_url]" class="mdc-text-field__input oneline" name="input_ci[en_css_url]" value="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&amp;amp;amp;amp;amp;amp;amp;amp;display=swap" />
+	<div class="mdc-notched-outline">
+		<div class="mdc-notched-outline__leading"></div>
+		<div class="mdc-notched-outline__notch">
+			<label for="input_ci[en_css_url]" class="mdc-floating-label">英数字フォントURL</label>
+		</div>
+		<div class="mdc-notched-outline__trailing"></div>
+	</div>
+</div>			<div class="owlet-input-sample">※見出し（英語）など<br />
+例）https://fonts.googleapis.com/○○○&display=swap<br />
+コードのURL部分のみ記述してください。</div>
+							
+								
+							</div>
+						
+							<div class="form-field-container">
+								
+												<div class="mdc-text-field mdc-text-field--textarea textarea-with-length-limit" data-limit="">
+						<textarea name="input_ci[common_css_url]" class="mdc-text-field__input" cols="90" id="input_ci[common_css_url]">&lt;style id=&quot;codex-brand-override&quot;&gt;
+body {
+  background:
+    radial-gradient(circle at top left, rgba(244, 67, 54, 0.08), transparent 28%),
+    linear-gradient(180deg, #f6f1eb 0%, #f3efe9 100%) !important;
+  color: #202223 !important;
+}
+
+@media (max-width: 960px) {
+  body main [data-lib=&quot;28887&quot;] .-w-catch-big-container {
+    min-height: 168px !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01,
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01.-w-anime-title {
+    display: block !important;
+    height: 168px !important;
+    font-family: &quot;Noto Sans JP&quot;, &quot;Hiragino Sans&quot;, &quot;Yu Gothic&quot;, sans-serif !important;
+    overflow: visible !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01::before {
+    content: &quot;徹底的に\A 寄り添う\A ハウスクリーニング&quot; !important;
+    white-space: pre-line !important;
+    display: block !important;
+    color: #202223 !important;
+    font-size: clamp(34px, 10vw, 52px) !important;
+    font-weight: 900 !important;
+    line-height: 1.06 !important;
+    letter-spacing: -0.03em !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01::after {
+    content: &quot;あなたに&quot; !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 1.06em !important;
+    color: #d95a3a !important;
+    font-size: clamp(34px, 10vw, 52px) !important;
+    font-weight: 900 !important;
+    line-height: 1.06 !important;
+    letter-spacing: -0.03em !important;
+    margin: 0 !important;
+  }
+}
+
+/* Requested desktop hero fix */
+@media (min-width: 961px) {
+  body main [data-lib=&quot;28887&quot;] .-w-wrapper {
+    padding: 34px 38px 48px !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] #swiper-container,
+  body main [data-lib=&quot;28887&quot;] .swiper-slide {
+    min-height: 660px !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-box-main-image__wrp-txt-wrp {
+    inset: 34px 38px 48px !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt {
+    min-height: 660px;
+    grid-template-columns: minmax(640px, 700px) 1fr;
+    grid-template-rows: auto auto;
+    gap: 22px 0;
+    align-items: start;
+    position: relative;
+    border-radius: 36px;
+    background:
+      linear-gradient(180deg, rgba(18, 24, 31, 0.12) 0%, rgba(18, 24, 31, 0.05) 100%),
+      url('/_img/ja/resource/10074/image/_/') 78% center / cover no-repeat,
+      linear-gradient(135deg, #f6efe6 0%, #eee1d3 100%);
+    background-blend-mode: multiply, normal, normal;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt::before {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 57%;
+    background: rgba(255, 255, 255, 0.84);
+    backdrop-filter: blur(3px);
+    z-index: 1;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-catch-big-container,
+  body main [data-lib=&quot;28887&quot;] .-w-catch-small-container {
+    position: relative;
+    z-index: 2;
+    grid-column: 1;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-catch-big-container {
+    grid-row: 1;
+    align-self: start;
+    padding: 154px 0 0 70px;
+    margin: 0;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-catch-small-container {
+    grid-row: 2;
+    align-self: start;
+    padding: 0 0 0 70px;
+    margin-top: -4px;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01,
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01.-w-anime-title {
+    max-width: 600px;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-catch-small {
+    max-width: 470px;
+    padding: 58px 24px 20px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow: 0 18px 36px rgba(79, 59, 42, 0.08);
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-catch-small::before {
+    left: 24px;
+    top: 16px;
+    font-size: 28px;
+  }
+}
+
+/* Premium homepage hero rebuild */
+body header[data-lib=&quot;28880&quot;] .-w-wrapper {
+  border: 1px solid rgba(217, 71, 57, 0.08);
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.96) !important;
+  box-shadow: 0 28px 60px rgba(58, 43, 33, 0.14);
+}
+
+body header[data-lib=&quot;28880&quot;] .-w-logo.-w-pc_logo img {
+  object-fit: contain;
+}
+
+body header[data-lib=&quot;28880&quot;] .-w-menu-item.icon-mail a {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  padding: 0 24px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, #e6543f 0%, #cb4534 100%) !important;
+  box-shadow: 0 18px 32px rgba(147, 49, 35, 0.18);
+}
+
+body header[data-lib=&quot;28880&quot;] .-w-menu-item.icon-mail a span {
+  color: #ffffff !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-catch-small {
+  position: relative;
+  min-height: 0;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-catch-small::before {
+  content: &quot;98.6%&quot;;
+  position: absolute;
+  color: #d94739;
+  font-family: &quot;Montserrat&quot;, sans-serif;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01,
+body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01.-w-anime-title {
+  color: #1f2224 !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.035em;
+  text-shadow: none !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01::before,
+body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01::after {
+  content: none !important;
+}
+
+@media (max-width: 960px) {
+  body header[data-lib=&quot;28880&quot;] .-w-wrapper {
+    padding: 14px 16px !important;
+    border-radius: 24px;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-catch-small {
+    min-height: 0;
+    border-radius: 22px;
+    margin-top: -8px;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01,
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01.-w-anime-title {
+    max-width: 100%;
+  }
+}
+
+/* Browser-verified refinement */
+body header[data-lib=&quot;28880&quot;] .-w-logo.-w-pc_logo a {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 18px;
+}
+
+body header[data-lib=&quot;28880&quot;] .-w-logo.-w-pc_logo img {
+  opacity: 0 !important;
+  width: 62px !important;
+  height: 62px !important;
+}
+
+body header[data-lib=&quot;28880&quot;] .-w-logo.-w-pc_logo a::before {
+  content: &quot;&quot;;
+  width: 62px;
+  height: 62px;
+  flex: 0 0 62px;
+  background: url('/_img/ja/resource/9/logo_rwd//') center / contain no-repeat;
+}
+
+body header[data-lib=&quot;28880&quot;] .-w-logo.-w-pc_logo a::after {
+  content: &quot;繝ｯ繝ｳ繝偵ャ繧ｿ繝ｼ譬ｪ蠑丈ｼ夂､ｾ&quot;;
+  color: #4c4f55;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-top-main-txt {
+  background-blend-mode: normal, multiply, normal, normal;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-catch-small {
+  border-radius: 22px;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-catch-small::before {
+  left: 24px;
+  top: 18px;
+  font-size: 30px;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-catch-big-container {
+  padding-bottom: 0;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01,
+body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01.-w-anime-title {
+  max-width: 700px;
+  font-size: clamp(40px, 3.65vw, 54px) !important;
+  line-height: 1.08 !important;
+}
+
+@media (max-width: 960px) {
+
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt {
+    display: flex !important;
+    flex-direction: column;
+    justify-content: flex-start;
+    border-radius: 28px;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-catch-small {
+    line-height: 1.6 !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-catch-small::before {
+    left: 16px;
+    top: 14px;
+    font-size: 24px;
+  }
+
+}
+
+/* Hero final override */
+
+body main [data-lib=&quot;28887&quot;] .-w-after,
+body main [data-lib=&quot;28887&quot;] .-w-wrapper::before,
+body main [data-lib=&quot;28887&quot;] .-w-wrapper::after,
+body main [data-lib=&quot;28887&quot;] .swiper-slide::before,
+body main [data-lib=&quot;28887&quot;] .swiper-slide::after,
+body main [data-lib=&quot;28887&quot;] .-w-top-main-txt::before,
+body main [data-lib=&quot;28887&quot;] .-w-top-main-txt::after {
+  content: none !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-top-main-txt {
+  grid-template-rows: auto 1fr;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-catch-small-container,
+body main [data-lib=&quot;28887&quot;] .-w-catch-big-container {
+  grid-column: 1;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-catch-small {
+  border: 1px solid rgba(217, 71, 57, 0.12);
+}
+
+@media (max-width: 960px) {
+
+}
+
+body .-w-general.-w-font_en,
+body .-w-font_en {
+  color: #7a8087 !important;
+  font-family: &quot;Montserrat&quot;, sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.24em !important;
+  text-transform: uppercase;
+}
+
+body .-w-general.-w-font_title2,
+body .-w-font_title2 {
+  color: #202223 !important;
+}
+
+body .-w-more_btn a,
+body .-w-menu-item.icon-mail a {
+  border-radius: 999px !important;
+}
+
+body .-w-more_btn a {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 14px;
+  min-height: 54px;
+  min-width: 220px;
+  padding: 0 28px !important;
+  border: 1px solid rgba(244, 67, 54, 0.16);
+  background: linear-gradient(135deg, #f44336 0%, #d94132 100%) !important;
+  box-shadow: 0 14px 28px rgba(130, 40, 30, 0.16);
+  color: #ffffff !important;
+  text-decoration: none !important;
+  position: relative;
+  overflow: hidden;
+}
+
+body .-w-more_btn a::before,
+body .-w-more_btn a::after,
+body .-w-more_btn a span::before,
+body .-w-more_btn a p::before,
+body .-w-more_btn a p::after {
+  content: none !important;
+}
+
+body .-w-more_btn a span,
+body .-w-more_btn a p {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 14px;
+  margin: 0 !important;
+  color: inherit !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  position: relative;
+  z-index: 1;
+}
+
+body .-w-more_btn a span::after,
+body .-w-more_btn a p::after {
+  content: &quot;&quot;;
+  width: 18px;
+  height: 1px;
+  background: currentColor;
+  display: block;
+}
+
+body header[data-lib=&quot;28880&quot;] {
+  position: relative !important;
+  z-index: 20;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body header[data-lib=&quot;28880&quot;] .-w-h1-wrap {
+  background: linear-gradient(90deg, #d94739 0%, #f05546 100%) !important;
+}
+
+body header[data-lib=&quot;28880&quot;] .-w-wrapper {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 12px 34px 14px !important;
+}
+
+body header[data-lib=&quot;28880&quot;] .-w-head_main {
+  border: 1px solid rgba(122, 128, 135, 0.12);
+  background: rgba(255, 255, 255, 0.96) !important;
+  box-shadow: 0 16px 34px rgba(55, 46, 40, 0.1);
+}
+
+body header[data-lib=&quot;28880&quot;] .-w-logo img {
+  max-height: 64px;
+  width: auto;
+}
+
+body header[data-lib=&quot;28880&quot;] .-w-menu-item &gt; a {
+  color: #202223 !important;
+}
+
+/* 2026-06-05: header horizontal wordmark refinement */
+@media (min-width: 961px) {
+  body header[data-lib=&quot;28880&quot;] .-w-logo.-w-pc_logo a {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+    min-width: 270px;
+  }
+
+  body header[data-lib=&quot;28880&quot;] .-w-logo.-w-pc_logo img {
+    opacity: 1 !important;
+    width: 62px !important;
+    height: 62px !important;
+    margin: 0 !important;
+    object-fit: contain;
+  }
+
+  body header[data-lib=&quot;28880&quot;] .-w-logo.-w-pc_logo a::after {
+    content: &quot;ONE HITTER\AHOUSE CLEANING SERVICE&quot; !important;
+    display: block;
+    color: #202223;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.18;
+    letter-spacing: 0.22em;
+    white-space: pre;
+  }
+
+  body header[data-lib=&quot;28880&quot;] .-w-logo.-w-pc_logo a::before {
+    content: none !important;
+  }
+
+  body header[data-lib=&quot;28880&quot;] .-w-menu-item &gt; a,
+  body header[data-lib=&quot;28880&quot;] .-w-menu-item.icon-mail a span {
+    white-space: nowrap !important;
+  }
+
+  body header[data-lib=&quot;28880&quot;] .-w-menu-item &gt; a {
+    font-size: 15px !important;
+    letter-spacing: 0.01em;
+  }
+
+  body header[data-lib=&quot;28880&quot;] .-w-menu-item.icon-mail a {
+    min-height: 50px;
+    padding: 0 20px !important;
+  }
+}
+
+@media (max-width: 960px) {
+  body header[data-lib=&quot;28880&quot;] .-w-logo.-w-sp_logo a {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+
+  body header[data-lib=&quot;28880&quot;] .-w-logo.-w-sp_logo img {
+    opacity: 1 !important;
+    width: auto !important;
+    height: 42px !important;
+    margin: 0 !important;
+    object-fit: contain;
+  }
+
+  body header[data-lib=&quot;28880&quot;] .-w-logo.-w-sp_logo a::before {
+    content: none !important;
+  }
+
+  body header[data-lib=&quot;28880&quot;] .-w-logo.-w-sp_logo a::after {
+    content: none !important;
+  }
+}
+
+body main [data-lib=&quot;28887&quot;] {
+  position: relative;
+  overflow: hidden !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-wrapper {
+  position: relative;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-wrapper::before {
+  content: &quot;&quot;;
+  position: absolute;
+  inset: 94px 48px 46px auto;
+  width: 390px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.95) 0 33%, transparent 34% 47%, rgba(122, 128, 135, 0.18) 48% 49%, transparent 50%),
+    conic-gradient(from -42deg, #f44336 0 285deg, rgba(244, 67, 54, 0.2) 286deg 360deg);
+  aspect-ratio: 1 / 1;
+  filter: drop-shadow(0 28px 40px rgba(60, 50, 44, 0.08));
+  z-index: 0 !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-wrapper::after {
+  content: &quot;98.6%&quot;;
+  position: absolute;
+  right: 132px;
+  top: 286px;
+  color: #202223;
+  font-family: &quot;Montserrat&quot;, sans-serif;
+  font-size: 64px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  z-index: 1 !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .swiper-slide {
+  border-radius: 34px !important;
+  overflow: hidden !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .swiper-slide img {
+  opacity: 0 !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-bg42925 {
+  background:
+    linear-gradient(90deg, rgba(255, 247, 239, 0.98) 0%, rgba(255, 247, 239, 0.94) 36%, rgba(255, 247, 239, 0.72) 58%, rgba(255, 247, 239, 0.08) 100%),
+    radial-gradient(circle at 78% 38%, rgba(255, 255, 255, 0.94) 0 22%, transparent 23%),
+    linear-gradient(135deg, #f6e6d0 0%, #f6efe7 54%, #ebe3da 100%) !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-bg43283 {
+  background:
+    linear-gradient(90deg, rgba(248, 245, 241, 0.98) 0%, rgba(248, 245, 241, 0.92) 38%, rgba(248, 245, 241, 0.22) 100%),
+    linear-gradient(135deg, #f3ece5 0%, #ebe2d8 55%, #dfd6cd 100%) !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .swiper-button-prev,
+body main [data-lib=&quot;28887&quot;] .swiper-button-next,
+body main [data-lib=&quot;28887&quot;] .swiper-pagination,
+body main [data-lib=&quot;28887&quot;] .-w-scroll_wrap,
+body main [data-lib=&quot;28887&quot;] .-w-nav_wrapper {
+  display: none !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-box-main-image__wrp-txt-wrp {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  z-index: 2 !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-top-main-txt {
+  width: min(100%, 1280px);
+  margin: 0 auto;
+  padding: 70px 84px 0;
+  position: relative;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-catch-small-container,
+body main [data-lib=&quot;28887&quot;] .-w-catch-big-container {
+  display: none;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-top-main-txt::before {
+  content: &quot;&quot;;
+  white-space: pre-line;
+  display: inline-block;
+  max-width: 560px;
+  padding: 16px 22px;
+  border-left: 6px solid #f44336;
+  background: rgba(255, 255, 255, 0.9);
+  color: #5e6368;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.8;
+  letter-spacing: 0.04em;
+  box-shadow: 0 18px 34px rgba(60, 50, 44, 0.08);
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-top-main-txt::after {
+  content: &quot;&quot;;
+  white-space: pre-line;
+  display: block;
+  max-width: 720px;
+  margin-top: 22px;
+  color: #202223;
+  font-size: clamp(36px, 4.6vw, 66px);
+  font-weight: 900;
+  line-height: 1.14;
+  letter-spacing: 0.01em;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01,
+body main [data-lib=&quot;28887&quot;] .-w-catch-small {
+  color: transparent !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  text-shadow: none !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01::after {
+  content: &quot;Customer Trust&quot;;
+  display: block;
+  margin-top: 18px;
+  color: #7a8087;
+  font-family: &quot;Montserrat&quot;, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+body main [data-lib=&quot;28887&quot;] .swiper-slide::before {
+  content: &quot;&quot;;
+  position: absolute;
+  inset: auto 66px 48px auto;
+  width: 236px;
+  height: 78px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 18px 34px rgba(60, 50, 44, 0.08);
+  z-index: 1 !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .swiper-slide::after {
+  content: &quot;&quot;;
+  position: absolute;
+  right: 92px;
+  bottom: 72px;
+  color: #202223;
+  font-size: 16px;
+  font-weight: 700;
+  z-index: 2 !important;
+}
+
+/* Hero rebuild */
+body main [data-lib=&quot;28887&quot;] {
+  background: linear-gradient(180deg, #f7f2eb 0%, #f1e7dd 100%) !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-wrapper {
+  padding: 28px 34px 40px !important;
+}
+
+body main [data-lib=&quot;28887&quot;] #swiper-container,
+body main [data-lib=&quot;28887&quot;] .swiper-slide {
+  min-height: 640px !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-wrapper::before,
+body main [data-lib=&quot;28887&quot;] .-w-wrapper::after,
+body main [data-lib=&quot;28887&quot;] .-w-top-main-txt::before,
+body main [data-lib=&quot;28887&quot;] .-w-top-main-txt::after,
+body main [data-lib=&quot;28887&quot;] .swiper-slide::before,
+body main [data-lib=&quot;28887&quot;] .swiper-slide::after {
+  content: none !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-bg42925,
+body main [data-lib=&quot;28887&quot;] .-w-bg43283 {
+  background: transparent !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-after {
+  display: none !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-box-main-image__wrp-txt-wrp {
+  inset: 28px 34px 40px !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-top-main-txt {
+  width: 100% !important;
+  min-height: 640px;
+  margin: 0 !important;
+  padding: 72px 70px !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+  align-items: stretch;
+  gap: 36px;
+  border-radius: 36px;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(248, 244, 239, 0.99) 0%, rgba(248, 244, 239, 0.99) 52%, rgba(248, 244, 239, 0.12) 52%, rgba(248, 244, 239, 0.12) 100%),
+    linear-gradient(90deg, rgba(248, 244, 239, 0) 0%, rgba(248, 244, 239, 0) 58%, rgba(248, 244, 239, 0.18) 100%),
+    url('/_img/ja/resource/10074/image/_/') right center / 46% 100% no-repeat,
+    linear-gradient(135deg, #f7f2eb 0%, #efe5da 100%);
+  box-shadow: 0 28px 54px rgba(70, 55, 46, 0.14);
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-catch-small-container,
+body main [data-lib=&quot;28887&quot;] .-w-catch-big-container {
+  display: block !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-catch-small-container {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: end;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-catch-small {
+  display: inline-block !important;
+  max-width: 470px;
+  padding: 18px 22px;
+  border-left: 5px solid #d94739;
+  background: rgba(255, 255, 255, 0.88);
+  color: #5e6368 !important;
+  font-size: 15px !important;
+  font-weight: 700;
+  line-height: 1.8 !important;
+  white-space: pre-line;
+  text-shadow: none !important;
+  box-shadow: 0 18px 30px rgba(70, 55, 46, 0.08);
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-catch-big-container {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: center;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01 {
+  max-width: 520px;
+  color: #202223 !important;
+  font-size: clamp(40px, 4.8vw, 68px) !important;
+  font-weight: 900 !important;
+  line-height: 1.08 !important;
+  letter-spacing: 0.01em;
+  text-shadow: none !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01::after {
+  content: none !important;
+}
+
+body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01::before {
+  content: &quot;98.6%&quot;;
+  position: absolute;
+  right: 48px;
+  top: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 132px;
+  min-height: 56px;
+  padding: 0 24px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 999px;
+  background: rgba(217, 71, 57, 0.92);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  font-family: &quot;Montserrat&quot;, sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0;
+  box-shadow: 0 18px 36px rgba(88, 34, 27, 0.18);
+}
+
+body section[data-lib=&quot;28940&quot;] {
+  padding-top: 44px !important;
+}
+
+body section[data-lib=&quot;28940&quot;] #concept {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 34px;
+}
+
+body section[data-lib=&quot;28940&quot;] .top_ttl {
+  padding: 42px 46px;
+  border: 1px solid rgba(122, 128, 135, 0.12);
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow: 0 20px 44px rgba(55, 46, 40, 0.08);
+}
+
+body section[data-lib=&quot;28940&quot;] .top_ttl .text,
+body section[data-lib=&quot;28940&quot;] .bot_txt .text {
+  color: #4d5358 !important;
+  line-height: 1.95;
+}
+
+body section[data-lib=&quot;28940&quot;] .-w-img_right img,
+body section[data-lib=&quot;28940&quot;] .-w-img_left img {
+  border-radius: 28px;
+  box-shadow: 0 18px 36px rgba(55, 46, 40, 0.12);
+}
+
+body section[data-lib=&quot;30831&quot;] .-w-ttl_wrap,
+body section[data-lib=&quot;31180&quot;] .-w-ttl_wrap,
+body section[data-instance=&quot;42934&quot;] .-w-ttl_wrap {
+  max-width: 1080px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+body section[data-lib=&quot;30831&quot;] .-w-ttl_wrap .-w-text,
+body section[data-lib=&quot;31180&quot;] .-w-ttl_wrap .-w-text,
+body section[data-instance=&quot;42934&quot;] .-w-ttl_wrap .-w-text {
+  color: #5e6368 !important;
+  line-height: 1.9;
+}
+
+body section[data-lib=&quot;30831&quot;] .-w-wrapper,
+body section[data-lib=&quot;31180&quot;] .ttl_wrap,
+body section[data-lib=&quot;31180&quot;] .-w-wrapper,
+body section[data-instance=&quot;42934&quot;] .-w-wrapper {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 34px !important;
+  padding-right: 34px !important;
+}
+
+body section[data-lib=&quot;30831&quot;] .-w-section_inner {
+  padding: 30px;
+  border: 1px solid rgba(122, 128, 135, 0.12);
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 20px 44px rgba(55, 46, 40, 0.08);
+}
+
+body section[data-lib=&quot;30831&quot;] table {
+  border-collapse: separate !important;
+  border-spacing: 0 14px !important;
+}
+
+body section[data-lib=&quot;30831&quot;] .-w-thead th {
+  color: #202223 !important;
+  font-size: 28px;
+  font-weight: 800;
+  text-align: left;
+}
+
+body section[data-lib=&quot;30831&quot;] .-w-tr th,
+body section[data-lib=&quot;30831&quot;] .-w-tr td {
+  padding: 22px 24px !important;
+  border: 0 !important;
+  background: #ffffff !important;
+}
+
+body section[data-lib=&quot;30831&quot;] .-w-tr th {
+  border-radius: 22px 0 0 22px;
+  color: #202223 !important;
+}
+
+body section[data-lib=&quot;30831&quot;] .-w-tr td {
+  border-radius: 0 22px 22px 0;
+  text-align: right;
+}
+
+body section[data-lib=&quot;30831&quot;] .-w-price p:first-child {
+  color: #d94739 !important;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+body section[data-lib=&quot;30831&quot;] .-w-price p:last-child {
+  color: #7a8087 !important;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+body section[data-lib=&quot;31180&quot;] .-w-gallery {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 22px;
+  align-items: stretch;
+}
+
+body section[data-lib=&quot;31180&quot;] .-w-gallery li {
+  list-style: none;
+  width: auto !important;
+  min-width: 0;
+}
+
+body section[data-lib=&quot;31180&quot;] article {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(122, 128, 135, 0.12);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 20px 44px rgba(55, 46, 40, 0.08);
+}
+
+body section[data-lib=&quot;31180&quot;] .-w-image {
+  width: 100%;
+  height: 220px;
+  padding: 10px 10px 0;
+}
+
+body section[data-lib=&quot;31180&quot;] .-w-gallery img,
+body section[data-instance=&quot;42934&quot;] .-w-contents_wrap img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 22px;
+}
+
+body section[data-lib=&quot;31180&quot;] .-w-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1 1 auto;
+  padding: 16px 18px 22px;
+}
+
+body section[data-lib=&quot;31180&quot;] .-w-cate span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(244, 67, 54, 0.1);
+  color: #d94739 !important;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+body section[data-lib=&quot;31180&quot;] .-w-title {
+  min-height: 3em;
+  color: #202223 !important;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+body section[data-lib=&quot;31180&quot;] .-w-more_btn,
+body section[data-instance=&quot;42934&quot;] .-w-more_btn {
+  text-align: center;
+}
+
+body section[data-instance=&quot;42934&quot;] .-w-section_inner {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+  align-items: stretch;
+}
+
+body section[data-instance=&quot;42934&quot;] .-w-contents_wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0;
+  height: 100% !important;
+  overflow: hidden;
+  border: 1px solid rgba(122, 128, 135, 0.12);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 20px 44px rgba(55, 46, 40, 0.08);
+  text-decoration: none !important;
+}
+
+body section[data-instance=&quot;42934&quot;] .-w-image {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  height: 190px !important;
+  padding: 10px 10px 0;
+}
+
+body section[data-instance=&quot;42934&quot;] .-w-image img {
+  display: block !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: none !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+body section[data-instance=&quot;42934&quot;] .-w-text_wrap {
+  flex: 1 1 auto;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  padding: 18px 20px 22px;
+}
+
+body section[data-instance=&quot;42934&quot;] .-w-title {
+  color: #202223 !important;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+body section[data-instance=&quot;42934&quot;] .-w-info {
+  display: grid !important;
+  grid-template-columns: 42px minmax(0, 1fr) !important;
+  gap: 12px !important;
+  align-items: start !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+}
+
+body section[data-instance=&quot;42934&quot;] .-w-info .-w-text {
+  color: #5e6368 !important;
+  font-size: 15px;
+  line-height: 1.85;
+  text-align: left;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  writing-mode: horizontal-tb !important;
+  word-break: normal !important;
+  overflow-wrap: anywhere !important;
+}
+
+body section[data-instance=&quot;42934&quot;] .-w-icon {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+body section[data-instance=&quot;42934&quot;] .-w-icon svg {
+  fill: #d94739;
+  width: 34px;
+  height: 34px;
+}
+
+body section[data-lib=&quot;30831&quot;] .-w-more_btn,
+body section[data-instance=&quot;42933&quot;] .-w-more_btn,
+body section[data-instance=&quot;42934&quot;] .-w-more_btn {
+  margin-top: 30px;
+  text-align: center;
+}
+
+body section[data-lib=&quot;30831&quot;] .-w-more_btn a,
+body section[data-instance=&quot;42933&quot;] .-w-more_btn a,
+body section[data-instance=&quot;42934&quot;] .-w-more_btn a {
+  min-width: 236px;
+  min-height: 60px;
+}
+
+body section[data-instance=&quot;42955&quot;] .-w-wrapper,
+body div[data-instance=&quot;42956&quot;] .-w-wrapper {
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 34px !important;
+  padding-right: 34px !important;
+}
+
+body section[data-instance=&quot;42955&quot;] .-w-content {
+  padding: 8px 0 6px;
+}
+
+body section[data-instance=&quot;42955&quot;] .-w-ttl_wrap,
+body section[data-instance=&quot;42955&quot;] .-w-inner {
+  text-align: center;
+}
+
+body section[data-instance=&quot;42955&quot;] .-w-text {
+  max-width: 920px;
+  margin: 18px auto 0;
+  color: #5e6368 !important;
+  line-height: 1.95;
+}
+
+body div[data-instance=&quot;42956&quot;] .-w-content_wrap {
+  margin-top: 28px;
+  padding: 20px;
+  border: 1px solid rgba(122, 128, 135, 0.12);
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 20px 44px rgba(55, 46, 40, 0.08);
+}
+
+body div[data-instance=&quot;42956&quot;] .-w-content_wrap_in {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+body div[data-instance=&quot;42956&quot;] .-w-left img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 24px;
+}
+
+body div[data-instance=&quot;42956&quot;] .-w-num {
+  margin-bottom: 14px;
+  color: #7a8087 !important;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+}
+
+body div[data-instance=&quot;42956&quot;] .-w-ttl span {
+  color: #202223 !important;
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+body div[data-instance=&quot;42956&quot;] .-w-textArea {
+  padding-top: 10px;
+}
+
+body div[data-instance=&quot;42956&quot;] .-w-textArea .-w-text,
+body div[data-instance=&quot;42956&quot;] .-w-textArea .-w-text p {
+  color: #4d5358 !important;
+  font-size: 16px;
+  line-height: 2;
+}
+
+body div[data-lib=&quot;30491&quot;] #foot_fixed {
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 40px rgba(52, 44, 39, 0.14);
+  backdrop-filter: blur(14px);
+}
+
+body div[data-lib=&quot;30491&quot;] .-w-tel_number {
+  color: #d94739 !important;
+}
+
+body section[data-lib=&quot;29402&quot;] .-w-bgimage {
+  background:
+    linear-gradient(135deg, rgba(32, 34, 35, 0.96) 0%, rgba(79, 84, 90, 0.94) 100%),
+    radial-gradient(circle at top right, rgba(244, 67, 54, 0.24), transparent 30%) !important;
+}
+
+body section[data-lib=&quot;29402&quot;] .-w-wrapper {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 46px 34px !important;
+}
+
+body section[data-lib=&quot;29402&quot;] .-w-wrap {
+  max-width: 720px;
+}
+
+body section[data-lib=&quot;29402&quot;] .-w-general,
+body section[data-lib=&quot;29402&quot;] .-w-textfont {
+  color: #ffffff !important;
+}
+
+body section[data-lib=&quot;29402&quot;] .-w-font_en {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+body section[data-lib=&quot;29402&quot;] .-w-textfont {
+  margin-top: 16px;
+  line-height: 1.9;
+}
+
+body div[data-lib=&quot;30499&quot;] .-w-wrapper,
+body section[data-lib=&quot;29505&quot;] .-w-wrapper,
+body div[data-lib=&quot;29772&quot;] .-w-wrapper,
+body div[data-lib=&quot;30245&quot;] .-w-wrapper {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 34px !important;
+  padding-right: 34px !important;
+}
+
+body div[data-lib=&quot;30499&quot;] #breadcrumb {
+  margin: 20px 0 0;
+  padding: 14px 18px;
+  border: 1px solid rgba(122, 128, 135, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+body div[data-lib=&quot;30499&quot;] #breadcrumb a,
+body div[data-lib=&quot;30499&quot;] #breadcrumb span {
+  color: #5e6368 !important;
+}
+
+body div[data-lib=&quot;30245&quot;] .-w-column {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 24px;
+  margin-top: 26px;
+  padding: 28px 30px;
+  border: 1px solid rgba(122, 128, 135, 0.12);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 18px 40px rgba(55, 46, 40, 0.08);
+}
+
+body div[data-lib=&quot;30245&quot;] .-w-left,
+body div[data-lib=&quot;30245&quot;] .-w-right {
+  color: #202223 !important;
+}
+
+body div[data-lib=&quot;30245&quot;] .-w-tel a {
+  color: #d94739 !important;
+  font-family: &quot;Montserrat&quot;, sans-serif;
+  font-size: 36px;
+  font-weight: 800;
+}
+
+body div[data-lib=&quot;29772&quot;] .-w-ttl_wrap,
+body section[data-lib=&quot;29505&quot;] .-w-ttl_wrap {
+  text-align: center;
+}
+
+body div[data-lib=&quot;29772&quot;] .-w-text,
+body section[data-lib=&quot;29505&quot;] .-w-text {
+  max-width: 880px;
+  margin: 0 auto 26px;
+  color: #5e6368 !important;
+  line-height: 1.9;
+}
+
+body div[data-lib=&quot;29772&quot;] .-w-form_wrap {
+  padding: 28px;
+  border: 1px solid rgba(122, 128, 135, 0.12);
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 20px 44px rgba(55, 46, 40, 0.08);
+}
+
+body div[data-lib=&quot;29772&quot;] .-w-form_wrap table {
+  width: 100%;
+  border-collapse: separate !important;
+  border-spacing: 0 16px !important;
+}
+
+body div[data-lib=&quot;29772&quot;] .-w-form_wrap th,
+body div[data-lib=&quot;29772&quot;] .-w-form_wrap td {
+  padding: 22px 24px !important;
+  border: 0 !important;
+  background: #fff !important;
+  vertical-align: top;
+}
+
+body div[data-lib=&quot;29772&quot;] .-w-form_wrap th {
+  width: 240px;
+  border-radius: 20px 0 0 20px;
+  color: #202223 !important;
+  font-weight: 800;
+}
+
+body div[data-lib=&quot;29772&quot;] .-w-form_wrap td {
+  border-radius: 0 20px 20px 0;
+}
+
+body div[data-lib=&quot;29772&quot;] input[type=&quot;text&quot;],
+body div[data-lib=&quot;29772&quot;] input[type=&quot;email&quot;],
+body div[data-lib=&quot;29772&quot;] input[type=&quot;tel&quot;],
+body div[data-lib=&quot;29772&quot;] textarea,
+body div[data-lib=&quot;29772&quot;] select {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 14px;
+  border: 1px solid rgba(122, 128, 135, 0.22);
+  border-radius: 14px;
+  background: #fbfbfb;
+  color: #202223;
+}
+
+body div[data-lib=&quot;29772&quot;] textarea {
+  min-height: 160px;
+  padding: 14px;
+}
+
+body div[data-lib=&quot;29772&quot;] input[type=&quot;radio&quot;] {
+  accent-color: #d94739;
+}
+
+body div[data-lib=&quot;29772&quot;] label:has(input[type=&quot;radio&quot;]) {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  margin: 0 10px 10px 0;
+  padding: 0 14px;
+  border: 1px solid rgba(122, 128, 135, 0.18);
+  border-radius: 999px;
+  background: #fafafa;
+  color: #202223;
+}
+
+body div[data-lib=&quot;29772&quot;] .zip1,
+body div[data-lib=&quot;29772&quot;] .zip2 {
+  max-width: 120px;
+  display: inline-block;
+}
+
+body div[data-lib=&quot;29772&quot;] .owlet-input-sample {
+  margin-top: 8px;
+  color: #7a8087 !important;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+body div[data-lib=&quot;29772&quot;] .-w-form-btn {
+  margin-top: 22px;
+  text-align: center;
+}
+
+body div[data-lib=&quot;29772&quot;] .-w-form-btn button {
+  min-width: 220px;
+  min-height: 56px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f44336 0%, #d94132 100%);
+  box-shadow: 0 14px 28px rgba(130, 40, 30, 0.16);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+body section[data-lib=&quot;29505&quot;] .-w-blog_wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+body section[data-lib=&quot;29505&quot;] .-w-blog-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+body section[data-lib=&quot;29505&quot;] .-w-blog-list &gt; li {
+  list-style: none;
+}
+
+body section[data-lib=&quot;29505&quot;] .-w-blog-list article {
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(122, 128, 135, 0.12);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 20px 44px rgba(55, 46, 40, 0.08);
+}
+
+body section[data-lib=&quot;29505&quot;] .-w-blog-list .-w-image {
+  padding: 10px 10px 0;
+}
+
+body section[data-lib=&quot;29505&quot;] .-w-blog-list .-w-image &gt; div {
+  aspect-ratio: 4 / 3;
+  border-radius: 22px;
+  background-size: cover !important;
+}
+
+body section[data-lib=&quot;29505&quot;] .-w-blog-list .-w-contents {
+  padding: 16px 18px 22px;
+}
+
+body section[data-lib=&quot;29505&quot;] .-w-datebox {
+  color: #7a8087 !important;
+  font-family: &quot;Montserrat&quot;, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+body section[data-lib=&quot;29505&quot;] .-w-directory {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  margin-top: 10px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(244, 67, 54, 0.1);
+  color: #d94739 !important;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+body section[data-lib=&quot;29505&quot;] .-w-blog-text-ttl,
+body section[data-lib=&quot;29505&quot;] .-w-blog-text h4 {
+  margin-top: 12px;
+  color: #202223 !important;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+body section[data-lib=&quot;29505&quot;] .-w-blog-text,
+body section[data-lib=&quot;29505&quot;] .-w-blog-text p {
+  color: #5e6368 !important;
+  line-height: 1.8;
+}
+
+body section[data-lib=&quot;29505&quot;] .-w-more span {
+  color: #d94739 !important;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+body div[data-lib=&quot;30502&quot;] .-w-dtl_headline {
+  position: relative;
+  overflow: hidden;
+  background-position: center center !important;
+  background-size: cover !important;
+}
+
+body div[data-lib=&quot;30502&quot;] .-w-dtl_headline::before {
+  content: &quot;&quot;;
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(135deg, rgba(32, 34, 35, 0.82) 0%, rgba(79, 84, 90, 0.7) 100%),
+    linear-gradient(90deg, rgba(244, 67, 54, 0.18), transparent);
+}
+
+body div[data-lib=&quot;30502&quot;] .-w-dtl_headline &gt; .-w-wrapper {
+  position: relative;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 34px 34px 50px !important;
+}
+
+body div[data-lib=&quot;30502&quot;] .-w-dtl_headline h2,
+body div[data-lib=&quot;30502&quot;] .-w-dtl_headline .-w-date,
+body div[data-lib=&quot;30502&quot;] .-w-dtl_headline .-w-cate_in,
+body div[data-lib=&quot;30502&quot;] .-w-dtl_headline #breadcrumb a,
+body div[data-lib=&quot;30502&quot;] .-w-dtl_headline #breadcrumb span {
+  color: #ffffff !important;
+}
+
+body div[data-lib=&quot;30502&quot;] .-w-dtl_headline h2 {
+  max-width: 900px;
+  font-size: clamp(30px, 3.8vw, 50px);
+  line-height: 1.25;
+}
+
+body div[data-lib=&quot;30502&quot;] .-w-dtl-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  align-items: center;
+  margin-top: 18px;
+}
+
+body div[data-lib=&quot;30502&quot;] .-w-dtl_headline .-w-cate_in {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  margin-right: 8px;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 12px;
+}
+
+body div[data-lib=&quot;30502&quot;] .-w-blog_main,
+body div[data-lib=&quot;30502&quot;] &gt; .-w-wrapper {
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+body div[data-lib=&quot;30502&quot;] .-w-blog_main section {
+  padding: 28px 30px;
+  border: 1px solid rgba(122, 128, 135, 0.12);
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 20px 44px rgba(55, 46, 40, 0.08);
+}
+
+body div[data-lib=&quot;30502&quot;] .-w-blog_main section {
+  margin-top: 24px;
+}
+
+body div[data-lib=&quot;30502&quot;] .-w-blog_main {
+  padding-top: 28px;
+}
+
+body div[data-lib=&quot;30502&quot;] .-w-image img,
+body .-w-before-image img,
+body .-w-after-image img {
+  width: 100%;
+  border-radius: 24px;
+}
+
+body div[data-lib=&quot;30502&quot;] .-w-text.-w-rich_text,
+body .-w-rich_text,
+body .-w-info_in {
+  margin-top: 22px;
+  color: #4d5358 !important;
+  font-size: 16px;
+  line-height: 2;
+}
+
+body div[data-lib=&quot;30502&quot;] .-w-text.-w-rich_text p,
+body .-w-rich_text p,
+body .-w-info_in p {
+  color: inherit !important;
+  line-height: inherit !important;
+}
+
+body div[data-lib=&quot;30502&quot;] .-w-rich_text span,
+body .-w-rich_text span,
+body .-w-rich_text strong,
+body .-w-rich_text b {
+  color: inherit !important;
+  font-family: &quot;Noto Sans JP&quot;, sans-serif !important;
+}
+
+body .-w-rich_text h2,
+body .-w-rich_text h3,
+body .-w-rich_text h4 {
+  color: #202223 !important;
+  line-height: 1.4;
+}
+
+body .-w-rich_text a {
+  color: #d94739 !important;
+}
+
+body .-w-before-image,
+body .-w-after-image,
+body .-w-image_container {
+  overflow: hidden;
+  border-radius: 24px;
+}
+
+body .-w-before-image,
+body .-w-after-image {
+  max-width: 920px;
+  margin: 0 auto 24px;
+  padding: 10px;
+  border: 1px solid rgba(122, 128, 135, 0.12);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 20px 44px rgba(55, 46, 40, 0.08);
+}
+
+body .-w-info_in {
+  padding: 18px 0 0;
+}
+
+body .-w-name span,
+body .-w-name_en span,
+body .-w-info_name span {
+  color: #202223 !important;
+}
+
+body footer[data-lib=&quot;29170&quot;] .-w-wrapper {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 76px 34px 34px !important;
+}
+
+body footer[data-lib=&quot;29170&quot;] .-w-foot_main {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 42px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+body footer[data-lib=&quot;29170&quot;] .-w-flogo img {
+  width: 176px;
+  height: auto;
+}
+
+body footer[data-lib=&quot;29170&quot;] .-w-fnav ul {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 22px;
+}
+
+body footer[data-lib=&quot;29170&quot;] {
+  background: #25292c !important;
+}
+
+body footer[data-lib=&quot;29170&quot;] .-w-company_name,
+body footer[data-lib=&quot;29170&quot;] .-w-company_address,
+body footer[data-lib=&quot;29170&quot;] .-w-tel,
+body footer[data-lib=&quot;29170&quot;] .-w-tel a,
+body footer[data-lib=&quot;29170&quot;] .-w-copyright,
+body footer[data-lib=&quot;29170&quot;] .-w-fnav a {
+  color: rgba(255, 255, 255, 0.84) !important;
+}
+
+@media (max-width: 960px) {
+  body header[data-lib=&quot;28880&quot;] .-w-wrapper,
+  body section[data-lib=&quot;28940&quot;] #concept,
+  body section[data-lib=&quot;30831&quot;] .-w-wrapper,
+  body section[data-lib=&quot;31180&quot;] .ttl_wrap,
+  body section[data-lib=&quot;31180&quot;] .-w-wrapper,
+  body section[data-instance=&quot;42934&quot;] .-w-wrapper,
+  body section[data-lib=&quot;29402&quot;] .-w-wrapper,
+  body footer[data-lib=&quot;29170&quot;] .-w-wrapper,
+  body div[data-lib=&quot;30499&quot;] .-w-wrapper,
+  body section[data-lib=&quot;29505&quot;] .-w-wrapper,
+  body div[data-lib=&quot;29772&quot;] .-w-wrapper,
+  body div[data-lib=&quot;30245&quot;] .-w-wrapper,
+  body div[data-lib=&quot;30502&quot;] .-w-dtl_headline &gt; .-w-wrapper,
+  body section[data-instance=&quot;42955&quot;] .-w-wrapper,
+  body div[data-instance=&quot;42956&quot;] .-w-wrapper {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-wrapper::before {
+    inset: auto 22px 34px auto;
+    width: 190px;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-wrapper::after {
+    right: 58px;
+    top: auto;
+    bottom: 132px;
+    font-size: 34px;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt {
+    padding: 52px 24px 0;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt::before {
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt::after {
+    font-size: clamp(28px, 8.4vw, 46px);
+  }
+
+  body main [data-lib=&quot;28887&quot;] .swiper-slide::before {
+    left: 24px;
+    right: 24px;
+    width: auto;
+    bottom: 22px;
+    height: 62px;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .swiper-slide::after {
+    right: auto;
+    left: 40px;
+    bottom: 42px;
+    font-size: 12px;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-wrapper {
+    padding: 18px 20px 24px !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] #swiper-container,
+  body main [data-lib=&quot;28887&quot;] .swiper-slide {
+    min-height: 540px !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-box-main-image__wrp-txt-wrp {
+    inset: 18px 20px 24px !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt {
+    min-height: 540px;
+    padding: 34px 26px !important;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    gap: 18px;
+    align-items: end;
+    background:
+      linear-gradient(180deg, rgba(248, 244, 239, 0.94) 0%, rgba(248, 244, 239, 0.96) 54%, rgba(248, 244, 239, 0.99) 100%),
+      url('/_img/ja/resource/10074/image/_/') center top / 100% 48% no-repeat,
+      linear-gradient(135deg, #f7f2eb 0%, #efe5da 100%);
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-catch-small {
+    max-width: 100%;
+    padding: 14px 16px;
+    font-size: 13px !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-catch-small-container,
+  body main [data-lib=&quot;28887&quot;] .-w-catch-big-container {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01 {
+    max-width: 100%;
+    font-size: clamp(34px, 10vw, 52px) !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01::after {
+    margin-top: 12px;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01::before {
+    right: 16px;
+    top: 206px;
+    min-width: 98px;
+    min-height: 44px;
+    padding: 0 16px;
+    border-width: 1px;
+    font-size: 22px;
+  }
+
+  body section[data-lib=&quot;28940&quot;] .top_ttl {
+    padding: 26px 22px;
+    border-radius: 24px;
+  }
+
+  body section[data-lib=&quot;30831&quot;] .-w-section_inner {
+    padding: 20px;
+    border-radius: 24px;
+  }
+
+  body section[data-lib=&quot;30831&quot;] .-w-tr th,
+  body section[data-lib=&quot;30831&quot;] .-w-tr td {
+    display: block;
+    width: 100%;
+    text-align: left;
+    border-radius: 0 !important;
+  }
+
+  body section[data-lib=&quot;30831&quot;] .-w-tr th {
+    border-radius: 18px 18px 0 0 !important;
+    padding-bottom: 8px !important;
+  }
+
+  body section[data-lib=&quot;30831&quot;] .-w-tr td {
+    border-radius: 0 0 18px 18px !important;
+    padding-top: 0 !important;
+  }
+
+  body section[data-lib=&quot;31180&quot;] .-w-gallery,
+  body section[data-instance=&quot;42934&quot;] .-w-section_inner,
+  body section[data-lib=&quot;29505&quot;] .-w-blog-list {
+    grid-template-columns: 1fr;
+  }
+
+  body footer[data-lib=&quot;29170&quot;] .-w-foot_main,
+  body footer[data-lib=&quot;29170&quot;] .-w-fnav ul {
+    grid-template-columns: 1fr;
+  }
+
+  body div[data-lib=&quot;30245&quot;] .-w-column {
+    grid-template-columns: 1fr;
+    padding: 20px;
+    border-radius: 22px;
+  }
+
+  body div[data-lib=&quot;29772&quot;] .-w-form_wrap {
+    padding: 18px;
+    border-radius: 24px;
+  }
+
+  body div[data-lib=&quot;29772&quot;] label:has(input[type=&quot;radio&quot;]) {
+    display: flex;
+    margin-right: 0;
+  }
+
+  body div[data-lib=&quot;29772&quot;] .-w-form_wrap th,
+  body div[data-lib=&quot;29772&quot;] .-w-form_wrap td {
+    display: block;
+    width: 100%;
+    border-radius: 0 !important;
+  }
+
+  body div[data-lib=&quot;29772&quot;] .-w-form_wrap th {
+    border-radius: 18px 18px 0 0 !important;
+    padding-bottom: 10px !important;
+  }
+
+  body div[data-lib=&quot;29772&quot;] .-w-form_wrap td {
+    border-radius: 0 0 18px 18px !important;
+    padding-top: 0 !important;
+  }
+
+  body div[data-lib=&quot;30502&quot;] .-w-blog_main section {
+    padding: 18px 20px;
+    border-radius: 24px;
+  }
+
+  body div[data-lib=&quot;30502&quot;] .-w-dtl_headline &gt; .-w-wrapper {
+    padding-top: 24px !important;
+    padding-bottom: 36px !important;
+  }
+
+  body div[data-lib=&quot;30502&quot;] .-w-dtl_headline h2 {
+    font-size: clamp(24px, 7vw, 34px);
+  }
+
+  body div[data-instance=&quot;42956&quot;] .-w-content_wrap {
+    padding: 16px;
+    border-radius: 24px;
+  }
+
+  body div[data-instance=&quot;42956&quot;] .-w-content_wrap_in {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  body div[data-instance=&quot;42956&quot;] .-w-left img {
+    aspect-ratio: 16 / 10;
+  }
+
+  body div[data-instance=&quot;42956&quot;] .-w-ttl span {
+    font-size: 28px;
+  }
+}
+
+/* 2026-06-01: desktop hero layout correction requested by client */
+@media (min-width: 961px) {
+  body main [data-lib=&quot;28887&quot;] .-w-wrapper {
+    padding-top: 36px !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] #swiper-container,
+  body main [data-lib=&quot;28887&quot;] .swiper-slide,
+  body main [data-lib=&quot;28887&quot;] .-w-box-main-image__wrp-txt-wrp {
+    min-height: 860px !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt {
+    position: relative !important;
+    display: grid !important;
+    grid-template-columns: minmax(620px, 700px) 1fr !important;
+    grid-template-rows: auto auto 1fr !important;
+    align-items: start !important;
+    gap: 20px 0 !important;
+    min-height: 860px !important;
+    padding: 150px 0 72px !important;
+    overflow: hidden !important;
+    border-radius: 38px !important;
+    background:
+      linear-gradient(90deg, rgba(255, 255, 255, 0.10) 40%, rgba(255, 255, 255, 0) 58%),
+      url(&quot;/_img/ja/resource/10073/image/_/&quot;) 58% center / cover no-repeat,
+      linear-gradient(135deg, #f6efe6 0%, #efe2d4 100%) !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt::before {
+    content: &quot;&quot; !important;
+    position: absolute !important;
+    inset: 86px auto 72px 54px !important;
+    width: min(500px, calc(100% - 280px)) !important;
+    border-radius: 34px !important;
+    background: rgba(255, 255, 255, 0.88) !important;
+    backdrop-filter: blur(3px) !important;
+    box-shadow: 0 24px 52px rgba(94, 73, 54, 0.10) !important;
+    z-index: 1 !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-catch-big-container,
+  body main [data-lib=&quot;28887&quot;] .-w-catch-small-container {
+    grid-column: 1 !important;
+    position: relative !important;
+    z-index: 2 !important;
+    margin: 0 !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-catch-big-container {
+    grid-row: 1 !important;
+    padding: 122px 0 0 76px !important;
+    align-self: start !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-catch-small-container {
+    grid-row: 2 !important;
+    padding: 0 0 0 76px !important;
+    align-self: start !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01,
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01.-w-anime-title {
+    max-width: 460px !important;
+    margin: 0 !important;
+    font-size: clamp(42px, 3.8vw, 62px) !important;
+    line-height: 1.04 !important;
+    letter-spacing: -0.03em !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-catch-small {
+    max-width: 420px !important;
+    margin: 0 !important;
+    padding: 58px 28px 24px !important;
+    border-radius: 24px !important;
+    background: rgba(255, 255, 255, 0.78) !important;
+    box-shadow: 0 20px 38px rgba(90, 69, 52, 0.08) !important;
+    font-size: 14px !important;
+    line-height: 1.7 !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-catch-small::before {
+    left: 28px !important;
+    top: 18px !important;
+  }
+}
+
+@media (max-width: 960px) {
+  body main [data-lib=&quot;28887&quot;] .-w-catch-big-container {
+    width: 100% !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01,
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01.-w-anime-title {
+    position: relative !important;
+    min-height: 7.2em !important;
+    color: transparent !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    letter-spacing: 0 !important;
+    text-shadow: none !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01::before,
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01.-w-anime-title::before {
+    content: &quot;徹底的に\A \A 寄り添う\A ハウスクリーニング&quot; !important;
+    white-space: pre-line !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    right: auto !important;
+    width: auto !important;
+    height: auto !important;
+    display: block !important;
+    padding: 0 !important;
+    background: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    color: #202223 !important;
+    font-family: &quot;Noto Sans JP&quot;, &quot;Hiragino Sans&quot;, &quot;Yu Gothic&quot;, sans-serif !important;
+    font-size: clamp(28px, 8.3vw, 37px) !important;
+    font-weight: 800 !important;
+    line-height: 1.14 !important;
+    letter-spacing: -0.045em !important;
+  }
+
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01::after,
+  body main [data-lib=&quot;28887&quot;] .-w-top-main-txt01.-w-anime-title::after {
+    content: &quot;あなたに&quot; !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 1.06em !important;
+    right: auto !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+    background: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    color: #d95a3a !important;
+    font-family: &quot;Noto Sans JP&quot;, &quot;Hiragino Sans&quot;, &quot;Yu Gothic&quot;, sans-serif !important;
+    font-size: clamp(28px, 8.3vw, 37px) !important;
+    font-weight: 800 !important;
+    line-height: 1.14 !important;
+    letter-spacing: -0.045em !important;
+    margin: 0 !important;
+  }
+}
+
+
+
+/* --- 2026-08-27 実績表記の統一（暫定）------------------------------
+   HTML本文の「ご利用者98.8％が…」を、根拠つきの正しい表記に差し替える。
+   本来はページ編集セッションでHTML自体を直すべきもの。
+   HTMLを直したら、このブロックは削除すること。
+------------------------------------------------------------------ */
+body main [data-lib=&quot;28887&quot;] .-w-catch-small {
+  color: transparent !important;
+  font-size: 0 !important;
+}
+body main [data-lib=&quot;28887&quot;] .-w-catch-small::after {
+  content: &quot;ご利用者98.6％が「他人に勧めたい会社」\A※2023年1月〜2025年12月／回答209名中206名&quot;;
+  display: block;
+  white-space: pre-line;
+  color: #5e6368;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.8;
+  letter-spacing: 0.01em;
+}
+@media (max-width: 960px) {
+  body main [data-lib=&quot;28887&quot;] .-w-catch-small::after {
+    font-size: 13px;
+    line-height: 1.75;
+  }
+}
+&lt;/style&gt;</textarea>
+			<div class="mdc-notched-outline">
+				<div class="mdc-notched-outline__leading"></div>
+				<div class="mdc-notched-outline__notch">
+					<label for="input_ci[common_css_url]" class="mdc-floating-label">スクリプトタグ用フォントURL</label>
+				</div>
+				<div class="mdc-notched-outline__trailing"></div>
+			</div>
+		</div>
+		<div class="owlet-input-sample">※Adobe fontsなど、scriptタグを埋め込む場合の入力欄<br />
+例）<br />
+＜script defer＞〇△□＜/script＞</div>
+			
+								
+							</div>
+						
+					</li>
+				
+			</ul>
+			<button type="submit" class="mdc-fab-style mdc-button mdc-button--unelevated" aria-label="done" style="bottom:2rem">
+				<span class="mdc-fab__icon material-icons">done</span>登録
+			</button>
+		</form>
+	
+	
+</div>
+					</div>
+					<footer class="copyright">
+						<span>Let's grow your ワンヒッター株式会社 website!</span>
+					</footer>				</main>
+				
+			</div>
+			<div id="page_cms_comment_dialog" class="mdc-dialog" role="alertdialog" aria-modal="true" aria-labelledby="ページ編集">
+				<div class="mdc-dialog__container">
+					<div class="mdc-dialog__surface">
+						<h2 class="mdc-dialog__title" id="my-dialog-title">ページ編集</h2>
+						<form id="cms_on" method="post" action="/_cms/page/" target="_blank">
+							<input type="hidden" name="_[action]" value="cms" />
+							<input type="hidden" name="_[success]" value="/_cms/page/" />
+							<input type="hidden" name="mode" value="on" />
+							<div class="mdc-dialog__content">
+								<p>作業予定や意気込みを記入してください。</p>
+								<textarea name="comment" style="min-width: 280px;min-height: 64px;"></textarea>
+							</div>
+							<footer class="mdc-dialog__actions">
+								<button type="button" class="mdc-button mdc-dialog__button button-cancel" data-mdc-dialog-action="no">
+									<span class="mdc-button__label">キャンセル</span>
+								</button>
+								<button type="submit" class="mdc-button mdc-dialog__button page_edit_button" data-mdc-dialog-action="yes">
+									<span class="mdc-button__label">ページ編集開始</span>
+								</button>
+							</footer>
+						</form>
+					</div>
+				</div>
+				<div class="mdc-dialog__scrim"></div>
+			</div>
+			<div id="dialog-information" class="mdc-dialog" role="alertdialog" aria-modal="true" aria-labelledby="お知らせ">
+				<div class="mdc-dialog__container">
+					<div class="mdc-dialog__surface">
+						<h2 class="mdc-dialog__title">お知らせ</h2>
+						<div class="mdc-dialog__content"></div>
+						<footer class="mdc-dialog__actions">
+							<button type="button" class="mdc-button mdc-dialog__button button-cancel" data-mdc-dialog-action="no">
+								<span class="mdc-button__label">閉じる</span>
+							</button>
+						</footer>
+					</div>
+				</div>
+				<div class="mdc-dialog__scrim"></div>
+			</div>
+			<div id="page_cms_dialog" class="mdc-dialog" aria-modal="true" aria-labelledby="ページ編集">
+				<div class="mdc-dialog__container">
+					<div class="mdc-dialog__surface" style="min-width:640px;">
+						<h2 class="mdc-dialog__title" id="my-dialog-title">ページ編集</h2>
+						<div class="mdc-dialog__content">
+							<div class="session_info" style="margin-bottom:10px;">
+								<p>編集内容を公開されていないセッションがあります。</p>
+								<p>このブラウザでセッションの続きから編集作業を再開、またはセッションを削除する事が出来ます。</p>
+								<p>他のブラウザで作業中のセッションを開始、または削除した場合、作業中のブラウザから編集内容が失われますのでご注意ください。</p>
+								<form id="cms_on" method="post" action="/_cms/page/" target="_blank">
+									<input type="hidden" name="_[action]" value="cms" />
+									<input type="hidden" name="_[success]" value="/_cms/page/" />
+									<input type="hidden" name="mode" value="on" />
+									<button type="submit" class="mdc-button mdc-button--raised page_edit_button" data-mdc-dialog-action="yes">
+										<span class="mdc-button__label">新しいセッションを開始する</span>
+									</button>
+								</form>
+															</div>
+							<div class="session-list"></div>
+						</div>
+						<footer class="mdc-dialog__actions">
+							<button type="button" class="mdc-button mdc-dialog__button button-cancel" data-mdc-dialog-action="no">
+								<span class="mdc-button__label">キャンセル</span>
+							</button>
+						</footer>
+					</div>
+				</div>
+				<div class="mdc-dialog__scrim"></div>
+			</div>
+						<div id="dialog_info" class="mdc-dialog" aria-modal="true" aria-labelledby="お知らせ">
+				<div class="mdc-dialog__container">
+					<div class="mdc-dialog__surface">
+						<h2 class="mdc-dialog__title"></h2>
+						<div class="mdc-dialog__content">
+
+						</div>
+						<footer class="mdc-dialog__actions">
+							<button type="button" class="mdc-button mdc-dialog__button button-cancel" data-mdc-dialog-action="no">
+								<span class="mdc-button__label">閉じる</span>
+							</button>
+						</footer>
+					</div>
+				</div>
+				<div class="mdc-dialog__scrim"></div>
+			</div>
+			
+			
+		
+		<style>
+.right_chat_window {
+    position: fixed;
+    bottom: 40px;
+    right:5px;
+    overflow-y: hidden;
+    border: 3px solid #EF5350FF;
+    border-radius: 9px;
+    height:calc(100vh - 180px);
+}
+.right_chat_picuture {
+    position: fixed;
+    bottom: 40px;
+    right: 0px;
+    height:calc(100vh - 180px);
+    cursor: pointer;
+    display: none;
+    z-index: 1100;
+}
+.right_chat_picuture iframe{
+    background: #fff;
+}
+.right_close_icon {
+    background-color: #da1229;
+    right: 25px;
+    top: 12px;
+    position: absolute;
+    z-index: 1;
+    width: 35px;
+    height: 35px;
+}
+.v-text-field__details{
+    display: none;
+}
+.right_chat_window{
+    border: 1px solid rgba(0,0,0,0.2);
+    box-shadow: 2px 2px 15px rgba(0,0,0,0.1);
+}
+.right_chat_bar{
+    position: fixed;
+    background: #ea3223;
+    color: #fff;
+    cursor: pointer;
+    z-index: 3;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    border-radius: 100px;
+    right: 15px;
+    bottom: 1rem;
+    padding: 0 15px;
+    font-size: 14px;
+    box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0,0,0,.12);
+    transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.right_chat_bar:hover{
+    box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0,0,0,.12);
+}
+.right_chat_bar img{
+    display: block;
+    width: 16px;
+    transform: translateY(-2px);
+}
+.right_chat_bar p{
+    margin-left: 5px;
+}
+.right_chat_bar:hover *{
+    opacity: 0.7;
+}
+@media screen and (max-width:550px) {
+    .right_chat_bar{
+	padding: 0;
+	bottom: 1rem;
+	right: 2rem;
+	width: 40px;
+    }
+    .right_chat_bar p{
+	display: none;
+    }
+}
+.chat_btn {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+}
+.chat_btn button {
+    display: flex;
+    background: unset;
+    border: unset;
+    border-radius: 80px;
+    background: #f3859d;
+    padding: 5px;
+}
+.chat_img img {
+    width: 80px;
+}
+.chea_text {
+    text-align: left;
+    padding: 20px 10px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 14px;
+}
+.chat_close_btn {
+    position: fixed;
+    bottom: 80px;
+    left: 350px;
+}
+
+.chat_close_btn button {
+    border-radius: 50%;
+    font-size: 22px;
+}
+
+.mdc-fab-style {
+    bottom: 4rem !important;
+}
+.select_delete_fab {
+    bottom: 7rem !important;
+}
+#detail_page_preview {
+    bottom: 7rem !important;
+}
+#ai-remake {
+    bottom: 10rem !important;
+}
+</style>
+<div id="amie_picture"  class="right_chat_bar">
+    <img src="/_sys/assets/img/bot.png" alt="チャットで質問する">
+    <p>チャットで質問する</p>
+</div>
+<div id="picture" class="right_chat_picuture">
+    <iframe class="right_chat_window" id="chat" scrolling="no" src="" style="width: 90vw;max-width: 400px;" frameborder="yes"></iframe>
+    <div class="right_close_icon" onClick="closeMe();">
+	<img src="https://s-web.amie-bot.com/static/data/image/close.png" alt="minimize" width="35" />
+    </div>
+</div>
+<script type="text/javascript">
+const boxElement=document.querySelector('#amie_picture');
+boxElement.addEventListener('click',onClickButton);
+setData();
+function setData() {
+    document.getElementById("chat").setAttribute("data-src", "https://s-web.amie-bot.com/helpbot/chat/ILV279?tagId=");
+}
+function onClickButton(){
+    document.getElementById("amie_picture").style.display = "none";
+    document.getElementById("picture").style.display = "block";
+    document.getElementById("chat").style.display = "block";
+    start_iframe("picture");
+}
+function start_iframe(iframe_id){
+    let eleiframe = document.getElementById(iframe_id).getElementsByTagName("iframe");
+    for(let item of eleiframe) {
+      if(item.getAttribute("data-src")){
+          let data_src = item.getAttribute("data-src");
+          item.setAttribute("src", data_src);
+      }
+    }
+}
+function closeMe(){
+    document.getElementById("picture").style.display = "none";
+    console.log(document.getElementById("picture").style.display);
+    document.getElementById("chat").style.display = "none";
+    document.getElementById("amie_picture").style.display = "block";
+    stop_iframe("picture");
+}
+function stop_iframe(iframe_id){
+    var eleiframe = document.getElementById(iframe_id).getElementsByTagName("iframe");
+    for(let item of eleiframe) {
+        if(item.getAttribute("src")){
+            let data_src = item.getAttribute("src");
+            item.setAttribute("data-src", data_src);
+            removeFrame();
+        }
+    }
+}
+function removeFrame() {
+    let eleiframeid = document.getElementById("chat");
+    // del
+    let parentframe = eleiframeid.parentElement;
+    parentframe.removeChild(eleiframeid);
+    // create
+    eleiframeid = document.createElement('iframe');
+    eleiframeid.id = "chat";
+    eleiframeid.classList.add("right_chat_window");
+    eleiframeid.style.width = "90vw";
+    eleiframeid.style.maxWidth = "400px";
+    eleiframeid.setAttribute("src", "");
+    eleiframeid.setAttribute("data-src", "https://s-web.amie-bot.com/helpbot/chat/ILV279?tagId=");
+    parentframe.appendChild(eleiframeid);
+}
+</script><script>
+	function switch_contents(tab,event){
+		const target=event.target.getAttribute('data-target');
+		var sc=document.getElementById(event.target.closest('.mdc-tab-bar').getAttribute('data-contents-group'));
+		if(!sc){
+			sc=tab.nextElementSibling;
+		}
+		sc.querySelectorAll(':scope > li').forEach((e)=>{
+			e.classList.remove('active');
+		});
+		sc.querySelector('[data-content='+target+']').classList.add('active');
+		attach_mdc(sc.querySelector('[data-content='+target+']'));
+	}
+
+	function triger_resizewindow(){
+		var evt = document.createEvent("HTMLEvents");
+		evt.initEvent('resize', true, true );
+		return window.dispatchEvent(evt);
+	}
+	var drawer=null;
+	document.querySelectorAll('.mdc-drawer').forEach(drawerEl=>{
+		drawer = new mdc.drawer.MDCDrawer.attachTo(drawerEl);
+		if(window.innerWidth>1400){
+			drawer.open=true;
+		}
+	});
+	
+	document.querySelectorAll('.mdc-top-app-bar').forEach(e=>{
+		const topAppBar = new mdc.topAppBar.MDCTopAppBar.attachTo(e);
+		topAppBar.setScrollTarget(document.querySelector('main'));
+		topAppBar.listen('MDCTopAppBar:nav', () => {
+			drawer.open = !drawer.open;
+			triger_resizewindow();
+		});
+	});
+
+	document.querySelectorAll('.account_info').forEach(e=>{
+		e.addEventListener('click',(event) => {
+			document.querySelector('#menu_header').classList.toggle('expand');
+			return false;
+		});
+	});
+
+	document.querySelectorAll('.leftmenu-expander').forEach((e)=>{
+		e.addEventListener('click',(event) => {
+			event.currentTarget.classList.toggle('expand');
+		});
+	});
+	document.querySelectorAll('.hover-tips').forEach(e=>{
+		e.addEventListener('click',event=>{
+			event.preventDefault();
+			event.stopPropagation();
+			document.querySelectorAll('.hover-tips').forEach(e=>{
+				e.classList.remove('active');
+			});
+			e.classList.toggle('active');
+		});
+	});
+	document.addEventListener('click',event=>{
+		document.querySelectorAll('.hover-tips').forEach(e=>{
+			e.classList.remove('active');
+		});
+	});
+
+	window.addEventListener('resize',(event)=>{
+		var d=document.getElementById('drawer');
+		if(d){
+			if(window.innerWidth<=1400){
+				d.classList.remove('mdc-drawer--dismissible');
+				d.classList.add('mdc-drawer--modal');
+				if(!document.querySelector('.mdc-drawer-scrim')){
+					d.insertAdjacentHTML('afterend','<div class="mdc-drawer-scrim"></div>');
+					d.parentNode.querySelector('.mdc-drawer-scrim').addEventListener('click',function(event){
+						drawer.open = false;
+					});
+					drawer.open = false;
+				}
+			}else{
+				d.classList.remove('mdc-drawer--modal');
+				d.classList.add('mdc-drawer--dismissible');
+				var scrim=document.querySelector('.mdc-drawer-scrim');
+				if(scrim){
+					scrim.parentNode.removeChild(scrim);
+				}
+			}
+		}
+	});
+	triger_resizewindow();
+
+	var switchs=[];
+	var selects=[];
+	var dialogs=[];
+	var menu=[];
+	var snackbar=[];
+	function attach_mdc(doc){
+		doc.querySelectorAll('.mdc-list').forEach((e)=>{
+			const list = mdc.list.MDCList.attachTo(e);
+			list.wrapFocus = true;
+		});
+		doc.querySelectorAll('.mdc-fab').forEach((e)=>{
+			mdc.ripple.MDCRipple.attachTo(e);
+		});
+		doc.querySelectorAll('.mdc-checkbox').forEach((e)=>{
+			mdc.ripple.MDCRipple.attachTo(e);
+		});
+		doc.querySelectorAll('.mdc-menu').forEach((e)=>{
+			menu[e.id]=mdc.menu.MDCMenu.attachTo(e);
+		});
+		doc.querySelectorAll('.mdc-dialog').forEach((e)=>{
+			dialogs[e.id]=mdc.dialog.MDCDialog.attachTo(e);
+		});
+		doc.querySelectorAll('.dialog-opener').forEach((e)=>{
+			e.addEventListener('click', (event) => {
+				dialogs[e.getAttribute('data-dialog')].open();
+			});
+		});
+		doc.querySelectorAll('.mdc-switch').forEach((e)=>{
+			switchs[e.id]=mdc.switchControl.MDCSwitch.attachTo(e);
+		});
+		doc.querySelectorAll('.mdc-select').forEach((e)=>{
+			selects[e.id]=mdc.select.MDCSelect.attachTo(e);
+		});
+		doc.querySelectorAll('.mdc-text-field').forEach((e)=>{
+			mdc.textField.MDCTextField.attachTo(e);
+		});
+		doc.querySelectorAll('.mdc-tab-bar').forEach((e)=>{
+			var tab=mdc.tabBar.MDCTabBar.attachTo(e);
+			tab.listen('MDCTab:interacted',(event)=>{
+				var n=event.target.parentNode.parentNode.parentNode.parentNode;
+				var f=n.getAttribute('data-function');
+				if(f!==null){
+					window[f](n,event);
+				}
+			});
+		});
+		doc.querySelectorAll('.mdc-snackbar').forEach((e)=>{
+			const sb=mdc.snackbar.MDCSnackbar.attachTo(e);
+			snackbar[e.id]=sb;
+			if(!e.getAttribute('data-close')){
+				sb.open();
+			}
+		});
+		doc.querySelectorAll('.mdc-floating-label').forEach((e)=>{
+			mdc.floatingLabel.MDCFloatingLabel.attachTo(e);
+		});
+		doc.querySelectorAll('.fileuploader').forEach((e)=>{
+			e.addEventListener('change',(event) => {
+				e.querySelector('.file_name').innerHTML=event.target.files[0].name;
+				return true;
+			});
+			e.addEventListener('dragover', event=>{
+				event.preventDefault();
+			});
+			e.addEventListener('dragleave', event=>{
+				event.preventDefault();
+			});
+			e.addEventListener('drop', event=>{
+				event.preventDefault();
+				var files = event.dataTransfer.files;
+				e.querySelector('input[type="file"]').files = files;
+				e.querySelector('.file_name').innerHTML=event.dataTransfer.files[0].name;
+			});
+		});
+			
+		doc.querySelectorAll('.input-cell input , .input-cell textarea').forEach(e=>{
+			e.addEventListener('input',event=>{
+				e.closest('tr').querySelectorAll('.done').forEach(d=>{
+					d.style.color='#00cc00';
+				});
+			});
+		});
+		doc.querySelectorAll('.input-cell select').forEach(e=>{
+			e.addEventListener('change',event=>{
+				e.closest('tr').querySelectorAll('.done').forEach(d=>{
+					d.style.color='#00cc00';
+				});
+			});
+		});
+		
+		var ua = navigator.userAgent.toLowerCase();
+		var isiPhone = (ua.indexOf('iphone') > -1);
+		var isiPad = (ua.indexOf('ipad') > -1);
+		var isAndroid = (ua.indexOf('android') > -1) && (ua.indexOf('mobile') > -1);
+		var isAndroidTablet = (ua.indexOf('android') > -1) && (ua.indexOf('mobile') == -1);
+		var is_mobile=isiPhone|isiPad |isAndroid|isAndroidTablet;
+		var editors=[];
+		
+		doc.querySelectorAll('.richtext').forEach(e=>{
+			let inner_html_length=e.innerHTML.length;
+			if(inner_html_length==0){
+				e.setAttribute('data-length',0);
+				e.innerHTML="<p></p>";
+			}
+			if(e.style.display!='none'){
+				if(0&&is_mobile){
+					var editor = new Jodit(e,{
+						"preset":"inline"
+						,"toolbarButtonSize": "small"
+						//,"buttons": "bold,strikethrough,underline,italic,|,ul,ol,outdent,indent,,font,fontsize,brush,paragraph,|,image,video,table,link,\n,|,,hr,fullsize"
+						,"popup": {
+	                        //selection: ["bold","strikethrough","underline","italic", "align", "\n", "font", "fontsize", "brush","image","video", "link"]
+	                        //selection: ["bold","strikethrough","underline","italic", "font", "brush","\n","ul","ol","outdent","indent","align"]
+							selection: ['source','bold','strikethrough','underline','italic','eraser',"\n",'superscript','subscript','ul','ol','outdent','indent',"\n"
+							,'font','fontsize','brush','paragraph','file','video','table',"\n",'link','align','undo','redo','selectall','cut','copy',"\n",'paste','copyformat','hr','symbol','fullsize','print','about']
+	                    }
+	                    ,useSearch:false
+	                    //,"enter": "BR"
+	                    ,"showCharsCounter": false
+	                    ,"showWordsCounter": false
+	                    ,"showXPathInStatusbar": false
+					});
+					editors.push(editor);
+					
+					editor.container.setAttribute('data-id',editors.length-1);
+					editor.container.style.userSelect='all';
+					editor.container.style.setProperty('-webkit-user-select','auto');
+					document.addEventListener('selectionchange',function(event){
+						if(document.activeElement==editor.container.querySelector('.jodit-wysiwyg')){
+							editor.__plugins['inlinepopup'].showPopup(function () { return window.getSelection().getRangeAt(0).getBoundingClientRect(); },"selection",undefined);
+							event.preventDefault();
+							event.stopPropagation();
+							return false;
+						}
+					});
+/*
+					editor.container.querySelector('.jodit-wysiwyg').addEventListener('keyup',function(event){
+						if(event.key=="Enter"){
+							if(isiPhone||isiPad){
+								document.querySelector('main').scrollTop = document.querySelector('main').scrollTop
+									+25
+								;
+							}else{
+								document.querySelector('main').scrollTop = document.querySelector('main').scrollTop
+									+window.getSelection().baseNode.querySelector('br').getBoundingClientRect().height
+								;
+							}
+						}
+					});
+*/
+				}else{
+					var editor = new Jodit(e,{
+						allowResizeX: true
+						,buttons: ['source','imageList','|','bold','strikethrough','underline','italic','eraser','|','superscript','subscript','|','ul','ol','|','outdent','indent','|'
+							,'font','fontsize','brush','paragraph','|','file','video','table','link','|','align','undo','redo','selectall','cut','copy','paste','copyformat','|','hr','symbol','fullsize','print','about']
+						,controls:{
+							imageList:{
+								name:'imageList'
+								,icon:'image'
+								,exec:function(editor){
+									var subw = 830;
+									var subh = 650;
+									var subp = "/jodit_image/jodit_images.html?id="+editor.id;
+									var subn = "images";
+									var subx = ( screen.availWidth  - subw ) / 2;
+									var suby = ( screen.availHeight - subh ) / 2;
+									var SubWinOpt = "width=" + subw + ",height=" + subh + ",top=" + suby + ",left=" + subx;
+									win = window.open(subp, subn, SubWinOpt);
+									function receiveMessage(event)
+									{
+										if(event.data.id!=undefined){
+											if(event.data.id==editor.id){
+												editor.selection.insertImage(event.data.img, null, null);
+											}
+										}else{
+											editor.selection.insertImage(event.data, null, null);
+										}
+										win.close();
+										//window.removeEventListener("message", receiveMessage, true); 
+									}
+									if(!editor.sets_event){
+										window.addEventListener("message", receiveMessage, true);
+										editor.sets_event=true;
+									}
+							}}
+						}
+						//,"buttons": "bold,strikethrough,underline,italic,|,ul,ol,outdent,indent,,font,fontsize,brush,paragraph,|,image,video,table,link,|,,hr,fullsize"
+						,toolbarAdaptive: false
+						,addNewLineOnDBLClick:false
+					});
+					editor.editor.addEventListener('click',function(ev){
+						if(editor.editor.innerHTML.length==0){
+							editor.editor.innerHTML='<p><br></p>';
+						}
+					});
+					editor.editor.addEventListener('keydown',function(ev){
+						if(editor.editor.innerHTML.length==0){
+							editor.editor.innerHTML='<p><br></p>';
+						}
+					});
+				}
+				e.addEventListener('change',function(event){
+					let ea=event.target.previousElementSibling.querySelector('.jodit-workplace > .jodit-wysiwyg');
+					if(ea){
+						ea.querySelectorAll('table').forEach(function(e){
+							e.classList.add('-x-on-richtext');
+						});
+						editor.value=ea.innerHTML;
+					}
+				});
+			}
+			window.addEventListener('submit',function(){
+				let v=editor.getEditorValue();
+				e.value=(v.trim()=='<p><br></p>'?'':v);
+			});
+		});
+		if(is_mobile){
+			var chs=0;
+			document.addEventListener('selectionchange',function(event){
+				var j=window.getSelection().anchorNode.parentNode.closest('.jodit-wysiwyg');
+				if(j){
+					var jw=j.parentNode.parentNode;
+					var edtr=editors[jw.getAttribute('data-id')];
+					if(edtr){
+						edtr.__plugins.inlinepopup.onChangeSelection();
+					}
+				}
+			});
+		}
+		doc.querySelectorAll('.fieldset .fieldset-delete').forEach(e=>{
+			e.addEventListener('change',event=>{
+				e.closest('.fieldset').querySelectorAll('.fieldset-input').forEach(fsi=>{
+					fsi.style.display=e.checked?'none':'block';
+				});
+			});
+		});
+
+		doc.querySelectorAll('.zip2addr').forEach(e=>{
+			e.addEventListener('click', event=>{
+				var closest=e.closest('.input_address');
+
+				fetch(
+					"/_lib/owl/address/zip2addr.html?zip="+closest.querySelector('input.zip1').value+closest.querySelector('input.zip2').value
+				).then(res=>{
+					return res.json();
+				}).then(data=>{
+					closest.querySelector('select.prefectures').value=data['prefecture'];
+					closest.querySelectorAll('input.address_full').forEach(e=>{
+						e.value=data['address1']+data['address2'];
+					});
+
+					fetch(
+						'/_lib/owl/address/select_city_options.html'+'?pref='+encodeURIComponent(data['prefecture'])+'&selected='+encodeURIComponent(data['address1'])
+					).then(res=>{
+						return res.text();
+					}).then(data=>{
+						closest.querySelectorAll('select.city').forEach(e=>{
+							e.innerHTML=data;
+						});
+					});
+					closest.querySelectorAll('input.address1').forEach(e=>{
+						e.value=data['address1'];
+					});
+					closest.querySelectorAll('input.address2').forEach(e=>{
+						e.value=data['address2'];
+					});
+				}).catch(e=>{
+					alert("郵便番号から住所の取得が出来ませんでした。");
+				});
+			});
+		});
+		doc.querySelectorAll('.prefectures').forEach(e=>{
+			e.addEventListener("change", event=>{
+				var closest=e.closest('.input_address');
+				fetch(
+					'/_lib/owl/address/select_city_options.html?pref='+encodeURIComponent(event.target.value)
+				).then(res=>{
+					return res.text();
+				}).then(res=>{
+					closest.querySelector('select.city').innerHTML=res;
+				});
+			});
+		});
+	}
+	attach_mdc(document);
+
+	document.querySelectorAll('#icon-notifications .menu-surface-button').forEach(e=>{
+		e.addEventListener('click',event=>{
+			menu['information_list'].open=true;
+		});
+	});
+
+	var info=[];
+	function attach_infomation(doc){
+		doc.querySelectorAll('.mdc-list-item').forEach(e=>{
+			e.addEventListener('click',event=>{
+				var id=e.getAttribute('data-id');
+				var dlg=document.getElementById('dialog-information');
+				dlg.querySelector('h2').innerHTML=info[id]['subject'];
+				dlg.querySelector('.mdc-dialog__content').innerHTML=
+					'<div style="text-align:right;margin-bottom: 32px;">'+info[id]['datetime']+'</div>'
+					+'<div style="white-space:pre-wrap;">'+info[id]['body']+'</div>'
+				;
+				dialogs['dialog-information'].open();
+			});
+		});
+	}
+	/*
+	fetch(
+		'/_sys/ajax/information.html'
+	).then(r=>{
+		return r.json();
+	}).then(json=>{
+		info=json['information'];
+		if(info!==undefined){
+			var il=document.getElementById('information_list');
+			var html='<ul class="mdc-list mdc-list--two-line"" role="menu" aria-hidden="true">';
+			for(var i in info){
+				html+=
+					'<li class="mdc-list-item" data-id="' + i + '"><span class="mdc-list-item__text" style="max-width:240px;">'
+					+'<span class="mdc-list-item__primary-text">'+info[i]['subject']+'</span>'
+					+'<span class="mdc-list-item__secondary-text">'+info[i]['datetime']+'</span>'
+					+'</span></li>'
+				;
+			}
+			html+='</ul>';
+			il.innerHTML=html;
+			attach_mdc(il);
+			attach_infomation(il);
+			document.getElementById('notifications-count').innerHTML=Object.keys(info).length;
+		}
+	});*/
+
+	function drag_sort(d,response_url,fd,callback){
+		d.querySelectorAll('.sortable').forEach(r=>{
+			var dragging_element=null;
+			r.querySelectorAll(':scope > *').forEach(e=>{
+				e.addEventListener('dragstart',event=>{
+					dragging_element=e;
+					e.style.opacity=0.5;
+					event.dataTransfer.setData("text", event.target.id);
+					event.dataTransfer.dropEffect = 'move';
+				});
+				e.addEventListener('dragover',event=>{
+					event.preventDefault();
+					e.closest('tbody').insertBefore(dragging_element , e);
+				});
+				e.addEventListener('dragend',event=>{
+					event.preventDefault();
+					fd.delete('s[]');
+					r.querySelectorAll(':scope > *:not(.sortable-disabled)').forEach(s=>{
+						fd.append('s[]',s.getAttribute('data-id'));
+					});
+					fetch(response_url, {
+						method: "post"
+						,body: fd
+					}).then(res => {
+						return res.text();
+					}).then(html=>{
+						e.style.opacity=1;
+						callback(html);
+					});
+				});
+			});
+		});
+	}
+	function progress_open(e){
+		if(e){
+			e.classList.remove('mdc-linear-progress--closed');
+			e.classList.add('mdc-linear-progress--indeterminate');
+		}
+	}
+	function progress_close(e){
+		if(e){
+			e.classList.remove('mdc-linear-progress--indeterminate');
+			e.classList.add('mdc-linear-progress--closed');
+		}
+	}
+	document.addEventListener('click',function(e){
+	var b=e.target.closest('.fieldset-delete-dom');
+	if(b){
+		var n=b.closest('.fieldset');
+		n.parentNode.removeChild(n);
+	}
+});
+function field_set_add_event(doc){
+	doc.querySelectorAll('.owlet-input-fieldset-add').forEach(e=>{
+		e.addEventListener('click',event=>{
+			var wrapper=e.closest('.owlet-input-fieldset');
+			var ciid=wrapper.getAttribute('data-fieldset-id');
+			var datastore=wrapper.getAttribute('data-fieldset-datastore');
+			var postprefix=wrapper.getAttribute('data-fieldset-postprefix');
+			var count=parseInt(wrapper.getAttribute('data-fieldset-count'));
+			var repeat_max=parseInt(wrapper.getAttribute('data-fieldset-repeat_max'));
+			fetch(
+				'/_lib/custom_input/fieldset/input.html$/datastore/'+datastore+'/fid/'+ciid+'/postprefix/'+postprefix+'/c/'+count+'/id/0/'
+				,{
+					method:'get'
+				}
+			).then(function(res){
+				return res.text();
+			}).then(function(html){
+				wrapper.setAttribute('data-fieldset-count',count+1);
+				var n=document.createElement("div");
+				n.setAttribute("class", "fieldset");
+				wrapper.querySelector('.owlet-input-fieldset-fields').appendChild(n);
+				n.innerHTML=html;
+				attach_mdc(n);
+
+if(typeof richtext_editor == 'function') {
+				n.querySelectorAll('.richtext').forEach(function(e){
+					richtext_editor(e);
+				});
+}
+				
+				field_set_add_event(n);
+				if(
+					repeat_max
+					&&wrapper.querySelectorAll(':scope > .owlet-input-fieldset-fields > .fieldset').length>=repeat_max
+				){
+					e.style.display='none';
+				}
+				var li=e.closest('.lang-input');
+				if(li){
+					var langs=li.querySelectorAll('[data-kv_suffix]').forEach(l=>{
+						var lang=l.getAttribute('data-kv_suffix');
+						if(lang!=''){
+							var lang_html=html.replace(/(id="fieldset,[0-9,]*)/g,'$1'+lang).replace(/(name="fieldset,[0-9,]*)/g,'$1'+lang);
+
+							var n=document.createElement("div");
+							n.setAttribute("class", "fieldset");
+							n.innerHTML=lang_html;
+							
+							n.querySelectorAll('input[type="hidden"]').forEach(p=>{
+								p.parentNode.removeChild(p);
+							});
+							n.querySelectorAll('[id$="[_priority]"]').forEach(p=>{
+								var fc=p.closest('.form-field-container');
+								fc.parentNode.removeChild(fc);
+							});
+							n.querySelectorAll('.owlet-input-fieldset-add').forEach(p=>{
+								p.parentNode.removeChild(p);
+							});
+							l.querySelector('[data-fieldset-postprefix="'+postprefix+'"] .owlet-input-fieldset-fields').appendChild(n)
+							attach_mdc(n);
+						}
+					});
+				}
+			});
+		});
+	});
+}
+field_set_add_event(document);
+
+				document.querySelector('#btn_cms').addEventListener('click',(event) => {
+					fetch('/_sys/cms_session/check.html').then(response => {
+						return response.text();
+					}).then(text => {
+						if(text=='select'){
+							fetch('/_sys/cms_session/list.html').then(response => {
+								return response.text();
+							}).then(text => {
+								document.querySelector('#page_cms_dialog .mdc-dialog__content .session-list').innerHTML=text;
+								dialogs['page_cms_dialog'].open();
+							});
+						}else{
+							//dialogs['page_cms_comment_dialog'].open();
+							document.querySelector('#cms_on').submit();
+						}
+					});
+					return false;
+				});
+				var bcn=document.querySelector('#btn_cms_new');
+				if(bcn){
+					bcn.addEventListener('click',(event) => {
+						dialogs['page_cms_dialog'].close();
+						dialogs['page_cms_comment_dialog'].open();
+					});
+				}
+				document.querySelectorAll('.memo').forEach(e=>{
+					e.addEventListener('change',(event) => {
+						var formData = new FormData();
+						formData.append('_[action]', 'datastore');
+						formData.append('datastore[type]', 'sys/memo');
+						formData.append('key', e.getAttribute('data-key'));
+						formData.append('memo', e.value);
+						fetch('/ajax_ok.html',{
+							method:'post'
+							,body:formData
+						});
+					});
+				});
+								window.addEventListener('DOMContentLoaded', (event) => {
+					fetch('/_sys/info/list.html').then(function(r){
+						return r.text();
+					}).then(function(html){
+						let l=document.querySelector('#information_list');
+						l.innerHTML=html;
+						let w=document.querySelector('#icon-notifications');
+						let len=l.querySelectorAll('li.notread').length;
+						let exists=l.querySelectorAll('li').length;
+						w.querySelector('#notifications-count').innerHTML=len;
+						if(len==0) w.querySelector('#notifications-count').innerHTML='';
+						w.setAttribute('data-info-exists',exists>0?1:0);
+
+						let l2=document.querySelector('#new_info');
+						if(l2!=null){
+							l2.innerHTML=html;
+							let w2=document.querySelector('#new_info_wrapper');
+							w2.setAttribute('data-info-exists',exists>0?1:0);
+						}
+					});
+					document.addEventListener('click',function(event){
+						let i=event.target.closest('.info-click [data-url]');
+						if(i){
+							dialogs['dialog_info'].open();
+							let dlg=document.querySelector('#dialog_info');
+							dlg.querySelector('.mdc-dialog__title').innerHTML=i.getAttribute('data-cat');
+							let cont=dlg.querySelector('.mdc-dialog__content');
+							cont.innerHTML='<div role="progressbar" class="mdc-linear-progress mdc-linear-progress--indeterminate">'
+								+'<div class="mdc-linear-progress__buffering-dots"></div>'
+								+'<div class="mdc-linear-progress__buffer"></div>'
+								+'<div class="mdc-linear-progress__bar mdc-linear-progress__primary-bar">'
+								+'      <span class="mdc-linear-progress__bar-inner"></span>'
+								+'</div>'
+								+'<div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar">'
+								+'      <span class="mdc-linear-progress__bar-inner"></span>'
+								+'</div>'
+							+'</div>';
+
+							if(i.classList.contains('notread')){
+								let k=i.dataset.key;
+								document.querySelectorAll('li.notread[data-key="'+k+'"]').forEach(e=>{
+									e.classList.remove('notread');
+								});
+								let w=document.querySelector('#icon-notifications #notifications-count');
+								if(w.innerHTML.length>0){
+									let count=parseInt(w.innerHTML,10);
+									count=count-1;
+									if(count>0){
+										w.innerHTML=count;
+									}else{
+										w.innerHTML='';
+									}
+								}
+							}
+
+							fetch('/_sys/info/$/u/'+btoa(encodeURIComponent(i.getAttribute('data-url')))).then(function(r){
+								return r.text();
+							}).then(function(html){
+								cont.innerHTML=html;
+							});
+						}
+					});
+				});
+							
+</script>
+</body>
+
+</html>
