@@ -40,7 +40,8 @@ BANNED = ["除菌", "殺菌", "抗菌", "病気", "危険", "守る", "ここか
           "いかがでしょうか", "ぜひ", "安心", "大切な", "しっかり", "おそうじ本舗", "ビフォーアフター"]
 # 満足度は 98.6% が正（CLAUDE.md）。98.8% はパンフレット・サイトの誤り
 BAD_NUMBERS = ["98.8%", "98.8％"]
-CTA_RE = re.compile(r"https://lp\.onehitter\.jp/(aircon|mizumawari)/\?src=(blog[A-Za-z0-9_-]*)")
+# 2026-09-25 cmo 判断：洗濯槽の記事は締めを無料点検に寄せる。tenken も導線として認める
+CTA_RE = re.compile(r"https://(?:lp\.onehitter\.jp/(aircon|mizumawari)/|(tenken)\.onehitter\.jp/)\?src=(blog[A-Za-z0-9_-]*)")
 SRC_RE = re.compile(r"^blog[A-Za-z0-9_-]*$")
 TEL_RE = re.compile(r"0\d{1,3}-\d{2,4}-\d{4}")
 PRICE_RE = re.compile(r"([1-9][0-9,]{2,7})\s*円")
@@ -208,11 +209,11 @@ def check(path: pathlib.Path, prices: set) -> tuple:
     # 予約導線
     m_cta = CTA_RE.search(body)
     if not m_cta:
-        ng.append("予約導線の URL が無い（https://lp.onehitter.jp/{aircon|mizumawari}/?src=blog）")
+        ng.append("予約導線の URL が無い（lp.onehitter.jp/{aircon|mizumawari}/ か tenken.onehitter.jp/ に ?src=blog）")
     else:
         want = fm.get("src") or "blog"
-        if m_cta.group(2) != want:
-            ng.append(f"予約導線の ?src={m_cta.group(2)} と front matter の src={want} が違う")
+        if m_cta.group(3) != want:
+            ng.append(f"予約導線の ?src={m_cta.group(3)} と front matter の src={want} が違う")
 
     # 投稿ツールに渡さない欄
     used_internal = [k for k in INTERNAL_FIELDS if k in fm]
