@@ -131,6 +131,23 @@ CMOが `onehitter-yoyaku` に `yoyaku.onehitter.jp` を割り当てたので、
 1. `yoyaku.onehitter.jp` を `one-hitter-booking` に付け替え、`onehitter-yoyaku` を削除する
 2. `onehitter-yoyaku` を正とし、`deploy-netlify.py` の `BUNKATSU` の向き先を差し替える
 
+### 【2026-09-25 追記】案2で寄せました。**事故が1件起きたあとです。**
+
+**9/23 に「予約フォームを配信した」と報告しましたが、お客様には1文字も届いていませんでした。**
+配信先が `one-hitter-booking` のままだったためです。同サイトは
+`yoyaku.onehitter.jp` へ **301するだけの抜け殻**で、中身を置いても誰も見ません。
+9/25 に本番を実測して判明しました（`QUICPay`・安心2行・`?src=` の受け口が本番に無い）。
+
+直したこと（`tools/deploy-booking.py`）：
+
+- 配信先を **`onehitter-yoyaku`** に変更。サイトIDは決め打ちをやめ、**名前から引く**
+- 引いたサイトに `yoyaku.onehitter.jp` が付いていなければ**配信前に止まる**（取り違え防止）
+- 配信後に **`https://yoyaku.onehitter.jp/` を実際に取得して、手元のHTMLとsha1が一致するまで確認する。**
+  一致しなければ異常終了する。**9/23 はこの確認が無かったので、届いていないのに「配信済み」と言えてしまった**
+
+`one-hitter-booking`（ID 83984fb0-…）は**まだ残っています。** 消すのはCMOかブラウザ担当の持ち物。
+残っていても実害はありませんが、次に誰かが取り違える種ではあります。
+
 ## ⛔ 以前あった問題（解消済み）
 
 **ゾーン作成はブラウザ担当が実施したので、この問題は解消しました。**

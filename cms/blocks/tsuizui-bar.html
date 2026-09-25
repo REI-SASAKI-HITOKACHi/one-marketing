@@ -1,0 +1,34 @@
+<!-- ワンヒッター：スマホ用の追従バー（2026-09-25 LP・サイト担当）
+     使い方は docs/公式サイト-予約導線ブロック.md
+     ・共通フッターの末尾（</body> の直前に出る場所）に貼ります
+     ・821px以上（PC）では出ません。PCはヘッダーの「WEB予約」が担当します
+     ・CMSが <style> を消してしまう場合は、このファイル末尾の「B案」を使ってください -->
+<style>
+#oh-bar{position:fixed;left:0;right:0;bottom:0;z-index:9999;display:flex;gap:6px;
+  padding:7px 8px calc(7px + env(safe-area-inset-bottom));background:rgba(255,255,255,.96);
+  border-top:1px solid #D7E1E7;box-shadow:0 -2px 10px rgba(19,35,46,.10);}
+#oh-bar a{flex:1 1 0;display:block;box-sizing:border-box;padding:11px 4px;border-radius:9999px;
+  text-decoration:none;text-align:center;font-weight:700;font-size:13px;line-height:1.35;
+  font-family:inherit;}
+#oh-bar .oh-b-yoyaku{background:#B72C0A;color:#FFFFFF;box-shadow:0 3px 0 #8F2408;}
+#oh-bar .oh-b-tel{background:#FFFFFF;color:#0D3B5C;border:2px solid #0D3B5C;box-shadow:0 3px 0 #0D3B5C;}
+#oh-bar .oh-b-line{background:#06C755;color:#08140F;box-shadow:0 3px 0 #04913F;}
+#oh-bar-space{height:78px;}
+@media (min-width:821px){#oh-bar,#oh-bar-space{display:none;}}
+@media print{#oh-bar,#oh-bar-space{display:none;}}
+</style>
+<div id="oh-bar-space"></div>
+<div id="oh-bar">
+  <a class="oh-b-tel" href="tel:080-8043-8259">電話</a>
+  <a class="oh-b-line" href="https://lin.ee/7kD9WGN">LINE</a>
+  <a class="oh-b-yoyaku" href="https://yoyaku.onehitter.jp/?src=hp-bar">空き枠を見る</a>
+</div>
+
+<!-- ===== B案：<style> が使えないCMS向け（インラインのみ・PCでも出ます） =====
+<div style="height:78px;"></div>
+<div style="position:fixed;left:0;right:0;bottom:0;z-index:9999;display:flex;gap:6px;padding:7px 8px;background:rgba(255,255,255,.96);border-top:1px solid #D7E1E7;box-shadow:0 -2px 10px rgba(19,35,46,.10);">
+  <a href="tel:080-8043-8259" style="flex:1 1 0;display:block;box-sizing:border-box;padding:11px 4px;border-radius:9999px;background:#FFFFFF;color:#0D3B5C;text-decoration:none;text-align:center;font-weight:700;font-size:13px;line-height:1.35;border:2px solid #0D3B5C;box-shadow:0 3px 0 #0D3B5C;">電話</a>
+  <a href="https://lin.ee/7kD9WGN" style="flex:1 1 0;display:block;box-sizing:border-box;padding:11px 4px;border-radius:9999px;background:#06C755;color:#08140F;text-decoration:none;text-align:center;font-weight:700;font-size:13px;line-height:1.35;box-shadow:0 3px 0 #04913F;">LINE</a>
+  <a href="https://yoyaku.onehitter.jp/?src=hp-bar" style="flex:1 1 0;display:block;box-sizing:border-box;padding:11px 4px;border-radius:9999px;background:#B72C0A;color:#FFFFFF;text-decoration:none;text-align:center;font-weight:700;font-size:13px;line-height:1.35;box-shadow:0 3px 0 #8F2408;">空き枠を見る</a>
+</div>
+===== B案ここまで ===== -->
