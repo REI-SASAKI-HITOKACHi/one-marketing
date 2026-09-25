@@ -345,7 +345,7 @@ footer { margin-top: 26px; padding-top: 8px; border-top: 1px solid #d5ded9;
 <div class="hyoushi">
   <div class="kaisha">ONE HITTER　ワンヒッター株式会社</div>
   <h1>2027年の計画</h1>
-  <div class="sub">売上 2,600万円 ／ 経常利益 507万円</div>
+  <div class="sub">売上 2,600万円 ／ 経常利益 566万円</div>
   <div class="rule"></div>
   <div class="meta">
     社内用　―　和真 へ<br>
@@ -410,7 +410,7 @@ footer { margin-top: 26px; padding-top: 8px; border-top: 1px solid #d5ded9;
 <h2><span class="no">2</span>2027年の目標</h2>
 
 <div class="box nobreak">
-<p style="font-size:14pt;line-height:1.6;margin-bottom:6px"><strong>売上 2,600万円　／　経常利益 507万円　／　施工 649件</strong></p>
+<p style="font-size:14pt;line-height:1.6;margin-bottom:6px"><strong>売上 2,600万円　／　経常利益 566万円　／　施工 649件</strong></p>
 <p class="kome" style="margin:0">2026年の見込み（1,700万円）から +53%。</p>
 </div>
 
@@ -438,7 +438,7 @@ footer { margin-top: 26px; padding-top: 8px; border-top: 1px solid #d5ded9;
 
 <div class="box kiiro nobreak">
 <div class="midashi">だから 2,600万は「安全な目標」じゃない。</div>
-<p><strong>2,600万は、今年と同じ利益を出すのにギリギリ届かない線</strong>だ（経常利益 507万に対して、今年の水準は528万）。ここを下回ると、去年より稼いだのに利益は減る、という年になる。</p>
+<p><strong>2,600万で、今年の利益をわずかに上回る</strong>（経常利益 566万に対して、今年の水準は561万）。<span class="kome">2026-09-25 に前提を1つ直した。おそうじ本舗の売上を推計値539万から実績ベースの389万に置き換えた。本舗が減るとロイヤリティ（39%）も減るので、同じ2,600万でも手元に残る額が507万→566万に増える。減った150万は自社で埋める（自社2,061万→2,211万）。</span>ここを下回ると、去年より稼いだのに利益は減る、という年になる。</p>
 <p style="margin-bottom:0">利益をきちんと増やすには、<strong>2,630万を超えるか、協力業者の支払条件を詰めるか</strong>のどちらかが要る。後者については §4 に実績を書いた。</p>
 </div>
 
@@ -452,7 +452,7 @@ footer { margin-top: 26px; padding-top: 8px; border-top: 1px solid #d5ded9;
 <tr><td>売上</td><td><b>2,600万</b></td><td>2,000万</td></tr>
 <tr><td>施工件数</td><td><b>649件</b></td><td>513件</td></tr>
 <tr><td>平均単価</td><td><b>40,062円</b></td><td>38,986円</td></tr>
-<tr><td>経常利益</td><td><b>507万</b></td><td>153万</td></tr>
+<tr><td>経常利益</td><td><b>566万</b></td><td>211万</td></tr>
 <tr><td>2026年（528万）との差</td><td>▲21万</td><td class="neg">▲375万</td></tr>
 <tr><td>赤字になる月</td><td>2月だけ</td><td class="neg">2月・8月・9月・12月</td></tr>
 </tbody></table>
@@ -590,7 +590,7 @@ __SHIHANKI__
 <tbody>
 <tr><td>アクティブな提携先</td><td>10社</td><td><b>15社</b></td></tr>
 <tr><td>年100万円以上の先</td><td>1社</td><td><b>4社</b></td></tr>
-<tr><td>業務提携の受注金額（通年）</td><td>約507万<br><span class="kome">うち8月の大型1件で168万</span></td><td><b>約750万</b></td></tr>
+<tr><td>業務提携の受注金額（通年）</td><td>約481万<br><span class="kome">うち8月の大型1件で168万</span></td><td><b>約750万</b></td></tr>
 <tr><td>業務提携の受注件数（通年）</td><td>約58件</td><td><b>約75件</b></td></tr>
 </tbody></table>
 
@@ -598,8 +598,8 @@ __SHIHANKI__
 
 <div class="box kiiro nobreak">
 <div class="midashi">ここは正直に書いておく。見た目よりきつい。</div>
-<p>2026年の業務提携は通年で約507万。<strong>ただしそのうち168万は、8月のBREXA1件だ。</strong>それを除いた実力は<strong>約339万</strong>。</p>
-<p style="margin-bottom:0">2027年の750万は、<strong>合計と比べれば+48%だが、実力と比べれば+121%</strong>になる。1社あたりで言うと、<strong>2026年 34万×10社 → 2027年 50万×15社</strong>。社数を1.5倍にして、1社あたりも1.5倍だ。<span class="hikari">「伸ばす」というより「作り直す」規模の話だと思っておいてほしい。</span></p>
+<p>2026年の業務提携は通年で約481万。<strong>ただしそのうち168万は、8月のBREXA1件だ。</strong>それを除いた実力は<strong>約313万</strong>。</p>
+<p style="margin-bottom:0">2027年の750万は、<strong>合計と比べれば+56%だが、実力と比べれば+140%</strong>になる。1社あたりで言うと、<strong>2026年 34万×10社 → 2027年 50万×15社</strong>。社数を1.5倍にして、1社あたりも1.5倍だ。<span class="hikari">「伸ばす」というより「作り直す」規模の話だと思っておいてほしい。</span></p>
 </div>
 
 <p class="kome">※提携先の管理タブは直った。5〜8月は<strong>26件・297万</strong>で確定した。テック山口の2件も入っている。<strong>あと5件だけ、提携先の案件か個人の紹介か分からないまま残っている（6/13の5件・10万円ぶん）。備考に「加藤さんご紹介」とある。どちらか教えてほしい。</strong>6/02と6/29の「加藤 かさい電器さん案件」は、かさい電器に紐づけてある。同じ加藤さんかどうかも知りたい。</p>
@@ -755,7 +755,7 @@ __SHIHANKI__
 <tbody>
 <tr><td>累計 売上</td><td>457万</td><td>1,312万</td><td>1,926万</td><td><b>2,600万</b></td></tr>
 <tr><td>累計 件数</td><td>115件</td><td>324件</td><td>480件</td><td><b>649件</b></td></tr>
-<tr><td>累計 経常利益</td><td>43万</td><td>293万</td><td>395万</td><td><b>507万</b></td></tr>
+<tr><td>累計 経常利益</td><td>53万</td><td>322万</td><td>438万</td><td><b>566万</b></td></tr>
 <tr><td>年計に対する進捗</td><td>18%</td><td>50%</td><td>74%</td><td><b>100%</b></td></tr>
 </tbody></table>
 
@@ -767,7 +767,7 @@ __SHIHANKI__
 <span class="kome">これが動かなければ、他を全部やっても届かない。逆にここが動けば他は後からついてくる。</span>
 </div></div>
 <div class="step"><div class="n">2</div><div>
-<b>提携先からの受注金額と件数。</b>（2026年 約507万・約58件 → 2027年 <b>約750万・約75件</b>）<br>
+<b>提携先からの受注金額と件数。</b>（2026年 約481万・約58件 → 2027年 <b>約750万・約75件</b>）<br>
 <span class="kome">社数だけ数えても意味がない。アクティブ10社→15社を追いかけつつ、見るのは金額と件数だ。</span>
 </div></div>
 </div>
@@ -830,7 +830,7 @@ __CHOUKI_HYOU__
 <h3>この表から読み取ってほしいこと</h3>
 
 <div class="step"><div class="n">1</div><div>
-<b>やがて、利益の伸びが売上の伸びを追い越す。</b>中と良は2028年から、保守的でも2029年からそうなる（保守的の2029年は売上+10%に対して利益+38%）。リピートのお客様は獲得コストがゼロだから、積み上がるほど利益率が上がる。2027年の507万に対して、2028年は586〜975万。
+<b>やがて、利益の伸びが売上の伸びを追い越す。</b>中と良は2028年から、保守的でも2029年からそうなる（保守的の2029年は売上+10%に対して利益+38%）。リピートのお客様は獲得コストがゼロだから、積み上がるほど利益率が上がる。2027年の566万に対して、2028年は586〜975万。
 </div></div>
 
 <div class="step"><div class="n">2</div><div>
