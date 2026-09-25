@@ -1,0 +1,376 @@
+<meta charset="utf-8">
+<title>2027年計画の進捗と、次の打ち手</title>
+<style>
+@page { size: A4 portrait; margin: 14mm 12mm 13mm; }
+* { box-sizing: border-box; }
+html { font-size: 10.5pt; }
+body { font-family: "IPAPGothic","IPAGothic",sans-serif; color: #20302d;
+       line-height: 1.72; margin: 0;
+       -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+h1,h2,h3 { line-height: 1.4; margin: 0; }
+p { margin: 0 0 0.8em; }
+.sec { page-break-before: always; }
+.nobreak { page-break-inside: avoid; }
+.hyoushi { height: 244mm; display: flex; flex-direction: column; justify-content: center; }
+.hyoushi .kaisha { font-size: 10pt; letter-spacing: .28em; color: #5c6d69; }
+.hyoushi h1 { font-size: 27pt; margin: 14px 0 0; letter-spacing: .03em; }
+.hyoushi .sub { font-size: 12.5pt; color: #3d4f4b; margin-top: 10px; }
+.hyoushi .rule { height: 3px; background: #0a5c50; width: 74px; margin: 24px 0; }
+.hyoushi .meta { font-size: 9.5pt; color: #5c6d69; line-height: 2; }
+h2 { font-size: 15.5pt; border-bottom: 2.5px solid #0a5c50; padding-bottom: 6px; margin-bottom: 14px; }
+h2 .no { font-size: 9.5pt; color: #0a5c50; letter-spacing: .12em; display: block; margin-bottom: 2px; }
+h3 { font-size: 12pt; margin: 18px 0 7px; color: #0a5c50; }
+.lead { font-size: 11.5pt; line-height: 1.85; }
+.hikari { background: linear-gradient(transparent 62%, #b8e4dc 62%); font-weight: bold; }
+.box { border: 1px solid #c9d4d0; background: #f4f7f5; padding: 12px 16px; margin: 13px 0; }
+.box.kiiro { background: #fdf6e6; border-color: #e3d3a8; }
+.box.aka { background: #fbeeec; border-color: #e8c4be; }
+.box.midori { background: #eef7f3; border-color: #a9d3c4; }
+.box p:last-child { margin-bottom: 0; }
+.box .midashi { font-weight: bold; margin-bottom: 5px; font-size: 11.5pt; }
+table { border-collapse: collapse; width: 100%; margin: 9px 0 4px; font-size: 9.3pt; }
+th, td { border: 1px solid #d5ded9; padding: 4px 6px; text-align: right; }
+th { background: #eef3f0; font-weight: bold; text-align: center; }
+td:first-child, th:first-child { text-align: left; }
+tr.b th, tr.b td { background: #eef3f0; font-weight: bold; }
+.neg { color: #c0392b; font-weight: bold; }
+.pos { color: #0a5c50; font-weight: bold; }
+ul, ol { margin: 5px 0 9px; padding-left: 1.4em; }
+li { margin-bottom: 4px; }
+.kome { font-size: 8.8pt; color: #5c6d69; }
+.kpi { display: flex; gap: 10px; margin: 12px 0; }
+.kpi .c { flex: 1; border: 1px solid #c9d4d0; background: #f4f7f5; padding: 10px 12px; text-align: center; }
+.kpi .c .l { font-size: 8.8pt; color: #5c6d69; }
+.kpi .c .v { font-size: 17pt; font-weight: bold; color: #0a5c50; line-height: 1.3; }
+.kpi .c .n { font-size: 8.5pt; color: #5c6d69; }
+.kpi .c.warn .v { color: #c0392b; }
+.step { display: flex; gap: 9px; margin-bottom: 9px; }
+.step .n { flex: none; width: 21px; height: 21px; border-radius: 50%; background: #0a5c50;
+           color: #fff; font-size: 9pt; text-align: center; line-height: 21px; font-weight: bold; }
+.step .t { flex: 1; }
+</style>
+
+<div class="hyoushi">
+  <div class="kaisha">ONE HITTER／経営企画室</div>
+  <h1>2027年計画の進捗と、<br>次の打ち手</h1>
+  <div class="sub">オーナーへの報告</div>
+  <div class="rule"></div>
+  <div class="meta">
+    2026年9月25日<br>
+    正式目標：中立 2,600万円（2026-09-13 決定）／裏目標：攻め 3,200万円
+  </div>
+  <div class="box kiiro" style="margin-top:22px">
+    <div class="midashi">先に、数字の鮮度について</div>
+    <p style="margin-bottom:0">この資料の実績値は <b>2026年9月21日時点の台帳</b>です。
+    <b>台帳は9月24日19:44に更新されているので、動いている可能性があります。</b>
+    今日、取り直そうとしましたが読めませんでした（このスレッドにシートの鍵が無く、
+    Driveのコネクタでは台帳が大きすぎて目的のタブまで届きません）。
+    <b>9月・10月の広告経由の受注が入っているかは「0件」ではなく「未確認」です。</b>
+    鍵を持つスレッドに範囲指定で読んでもらえば取れます。</p>
+  </div>
+
+  <div class="box" style="margin-top:14px">
+    <div class="midashi">この資料で言いたいことは、3つです。</div>
+    <p style="margin-bottom:6px">1. <b>計画は出来ています。</b>資料・数値モデル・来年度のスプレッドシートまで揃いました。</p>
+    <p style="margin-bottom:6px">2. <b>ただし、前提が動きました。</b>「自社+26%」は、8月の大型1件を除くと<b>+1.8%</b>です。</p>
+    <p style="margin-bottom:0">3. <b>2027年は「自社を2倍にする」計画になります。</b>いちばん安い玉が、まだ手つかずです。</p>
+  </div>
+</div>
+
+<div class="sec">
+<h2><span class="no">01</span>進捗 ── 計画そのものは出来ています</h2>
+
+<table>
+<thead><tr><th>もの</th><th style="text-align:center">状態</th><th>中身</th></tr></thead>
+<tbody>
+<tr><td>2027年 数値目標</td><td style="text-align:center"><b class="pos">完成</b></td><td>保守2,000万／中立2,600万／攻め3,200万。月次・四半期・費目まで</td></tr>
+<tr><td>和真さん向け説明資料</td><td style="text-align:center"><b class="pos">完成</b></td><td>PDF 19ページ。2028〜2030年の3年シミュレーション付き</td></tr>
+<tr><td>数値モデル</td><td style="text-align:center"><b class="pos">完成</b></td><td><code>tools/plan2027.py</code>。前提を1か所直せば資料もスプシも追従する</td></tr>
+<tr><td>2027年 スプレッドシート</td><td style="text-align:center"><b class="pos">完成</b></td><td>42タブ。<b>受注日・接触記録・自社／本舗の行</b>を今月追加</td></tr>
+<tr><td>Driveへの取り込み</td><td style="text-align:center">未</td><td><b>オーナーの手作業が要ります</b>（APIでは上げられません）</td></tr>
+</tbody>
+</table>
+
+<h3>中立 2,600万円の中身</h3>
+<div class="kpi">
+  <div class="c"><div class="l">売上</div><div class="v">2,600万</div><div class="n">649件・単価4.0万</div></div>
+  <div class="c"><div class="l">経常利益</div><div class="v">507万</div><div class="n">2026年の水準は561万</div></div>
+  <div class="c"><div class="l">赤字になる月</div><div class="v">2月だけ</div><div class="n">▲35,545円</div></div>
+  <div class="c"><div class="l">損益分岐</div><div class="v">1,980万</div><div class="n">人を1名増やした後</div></div>
+</div>
+
+<p class="kome">※ 2026年の会社手残り561万は、ロイヤリティの二重計上がクロと確定したあとの数字です。</p>
+
+<div class="box midori nobreak">
+<div class="midashi">今月やったこと（前回の報告以降）</div>
+<p style="margin-bottom:0">和真さん向け資料に3年シミュレーションを追加／2027年スプシに <b>受注日</b>・<b>接触回数</b>・<b>自社/本舗</b> の行を追加／
+12月の受付可能件数を算出（<b>約50件</b>）／複数台割引の損益／広告の判定枠／提携タブと月次タブの全件突合（1,674行）</p>
+</div>
+</div>
+
+<div class="sec">
+<h2><span class="no">02</span>いちばん大事な訂正</h2>
+
+<div class="box aka">
+<div class="midashi">「自社は+26%で伸びている」は、8月の大型1件を除くと <span class="hikari">+1.8%</span> です。</div>
+<p style="margin-bottom:0">CMOが売上種類で割り直した「自社+26%／本舗−27%」は、私が独立した集計と突き合わせて<b>1円まで合っていました。</b>
+ただし、<b>その伸びのほぼ全部が、8月のBREXA神奈川教習所1件（¥1,683,000）です。</b></p>
+</div>
+
+<table>
+<thead><tr><th>自社（One Hitter）1〜9月</th><th>2025年</th><th>2026年</th><th>差</th></tr></thead>
+<tbody>
+<tr><td>表面</td><td>¥6,822,265</td><td>¥8,627,308</td><td class="pos">+¥1,805,043（+26.5%）</td></tr>
+<tr class="b"><td><b>BREXAの1件を除くと</b></td><td>¥6,822,265</td><td><b>¥6,944,308</b></td><td><b class="neg">+¥122,043（+1.8%）</b></td></tr>
+</tbody>
+</table>
+
+<p>内訳で見ても同じです。自社の伸び +180万の中身は <b>業務提携 +201万</b>／早期予約 +82万／リピート +57万に対して、
+営業 −78万・紹介 −37万・チラシ −32万・<b>HP −14万</b>。<b>業務提携の+201万から BREXA を除くと +33万</b>です。</p>
+
+<div class="box kiiro">
+<div class="midashi">これが意味すること</div>
+<p style="margin-bottom:0"><b>2027年の自社の目標は、実質ベースだと +115%〜+131% になります。</b>
+「+26%が続けば届く」ではありません。<b>自社を2倍にする計画です。</b></p>
+</div>
+
+<table>
+<thead><tr><th>2026年 自社の着地見込み</th><th>金額</th><th>計画 自社2,061万は</th><th>本舗を実態に直すと（自社2,211万）</th></tr></thead>
+<tbody>
+<tr><td>表面（BREXA込み）</td><td>1,127万</td><td>+83%</td><td>+96%</td></tr>
+<tr class="b"><td><b>実質（BREXA除く）</b></td><td><b>958万</b></td><td><b>+115%</b></td><td><b>+131%</b></td></tr>
+</tbody>
+</table>
+<p class="kome">※ Q4（10〜12月）が2025年並みに積めた場合。BREXAのような案件がもう1件出れば、この見え方は変わります。</p>
+</div>
+
+<div class="sec">
+<h2><span class="no">03</span>2週間で、前提が5つ動きました</h2>
+
+<table>
+<thead><tr><th>何が</th><th>前</th><th>いま</th><th>効き方</th></tr></thead>
+<tbody>
+<tr><td><b>おそうじ本舗の売上</b></td><td>539万</td><td><b>389万</b></td><td>私が「今年度と同じ」を推計値で読んでいた。実績は389万</td></tr>
+<tr><td><b>③ マッチングサイト</b></td><td>390万<br>（据え置き）</td><td><b>269万</b><br>実体は「本部からの配分」</td><td>楽ラクーンは本舗側の経路でした。据え置きの根拠が無い</td></tr>
+<tr><td><b>② 提携の実力</b></td><td>339万<br>目標比 +121%</td><td><b>約310万</b><br>目標比 <b>+140%</b></td><td>年換算に全社の季節性を当てていた。②は6〜7月に集中する</td></tr>
+<tr><td>12月の受付可能件数</td><td>—</td><td><b>約50件</b></td><td>2025年12月の実績33件の1.5倍。<b>キャパは空いている</b></td></tr>
+<tr><td>年末ギフト</td><td>母の日2027</td><td><b>11月販売・1〜2月施工</b></td><td>非加算月に収まる。<b>2月の赤字は券4枚で消える</b></td></tr>
+</tbody>
+</table>
+
+<div class="box">
+<div class="midashi">本舗と③を実態に直すと、総売上が ▲271万 になります</div>
+<p>2,600万を守るなら、その271万を自社で埋めることになります（自社2,211万）。
+目標を下げるなら2,329万です。<b>ここは判断していただきたい点です（→ 06）。</b></p>
+<p style="margin-bottom:0"><b>なお、本舗を自社に置き換えるほど利益は増えます。</b>本舗の1円はロイヤリティで39銭を持っていくためです。
+同じ2,600万でも、本舗389万なら経常利益は507万→<b>566万</b>。本舗ゼロなら<b>719万</b>です。</p>
+</div>
+</div>
+
+<div class="sec">
+<h2><span class="no">04</span>2027年を作る3つの玉</h2>
+
+<p class="lead">自社958万（実質）から2,211万へ、<b>+1,253万</b>。その中身です。</p>
+
+<svg viewBox="0 0 560 113" style="width:100%;height:auto;display:block;margin:8px 0">
+<text x="0" y="17" font-size="10" font-family="IPAPGothic" fill="#20302d">④ 自社ネット新規</text>
+<rect x="132" y="3" width="323.4" height="18" fill="#0a5c50" rx="2"/>
+<text x="462.4" y="17" font-size="10" font-family="IPAPGothic" font-weight="bold" fill="#20302d">+487万　13万 → 500万</text>
+<text x="0" y="52" font-size="10" font-family="IPAPGothic" fill="#20302d">② 法人・提携</text>
+<rect x="132" y="38" width="292.2" height="18" fill="#0a5c50" rx="2"/>
+<text x="431.2" y="52" font-size="10" font-family="IPAPGothic" font-weight="bold" fill="#20302d">+440万　310万 → 750万</text>
+<text x="0" y="87" font-size="10" font-family="IPAPGothic" fill="#20302d">① リピート資産</text>
+<rect x="132" y="73" width="154.7" height="18" fill="#0a5c50" rx="2"/>
+<text x="293.7" y="87" font-size="10" font-family="IPAPGothic" font-weight="bold" fill="#20302d">+233万　617万 → 850万</text>
+</svg>
+
+<p class="kome">③（本部からの配分）と⑤（その他）は伸ばしません。オーナー決定どおりです。</p>
+
+<h3>それぞれの難しさ</h3>
+
+<table>
+<thead><tr><th>玉</th><th>2026年</th><th>2027年</th><th>倍率</th><th>いちばんの制約</th></tr></thead>
+<tbody>
+<tr><td><b>④ 自社ネット新規</b></td><td>13万・7件</td><td>500万・143件</td><td class="neg">20倍</td><td><b>広告費。月5万では構造的に届かない</b></td></tr>
+<tr><td><b>② 法人・提携</b></td><td>310万（実力）</td><td>750万</td><td class="neg">+140%</td><td><b>100万超の案件の本数。社数だけでは足りない</b></td></tr>
+<tr><td><b>① リピート資産</b></td><td>617万</td><td>850万</td><td>+38%</td><td><b>いちばん安い。獲得コストほぼゼロ</b></td></tr>
+</tbody>
+</table>
+
+<div class="box kiiro">
+<div class="midashi">いちばん大きい玉が、いちばんお金を要します</div>
+<p style="margin-bottom:0">④が+487万でいちばん大きい。そして④は広告費に直結します。
+<b>保守2,000万と攻め3,200万の差1,200万のうち、707万が④から来ています。</b>
+④が動くかどうかで、その年がどこに着地するかが決まります。</p>
+</div>
+</div>
+
+<div class="sec">
+<h2><span class="no">05</span>玉ごとの見立て</h2>
+
+<h3>④ 自社ネット新規 ── 月5万では届きません</h3>
+
+<p>9月20日から検索広告が動いています（日1,667円・月5万・江戸川区）。<b>これは付け替えではなく純増です。</b>
+2026年に裁量で動かせる広告の枠は実質ゼロでした（固定費60万＋本舗チラシ＋成果連動のキックバック）。</p>
+
+<div class="box aka">
+<div class="midashi">④の143件が成立するのは「月10万前後 × CPA 8,000円台」だけです</div>
+<table style="margin-top:8px">
+<thead><tr><th>月の広告費</th><th>年143件（月11.9件）に必要なCPA</th><th>会社のCPA上限 ¥9,500 に対して</th></tr></thead>
+<tbody>
+<tr class="b"><td><b>5万</b></td><td><b>¥4,202</b></td><td class="neg">上限の44%。厳しい</td></tr>
+<tr><td>10万</td><td>¥8,403</td><td>上限の88%。<b>ここが現実的</b></td></tr>
+<tr><td>15万</td><td>¥12,605</td><td class="neg">上限を超える</td></tr>
+</tbody>
+</table>
+<p style="margin-top:8px;margin-bottom:0"><b>10/1に見るべきは「続けるか」より「月10万に上げられる根拠が出ているか」です。</b>
+ただし10/1時点で貯まるのは13日ぶん・約2.2万円で、<b>CPAでは判断できません。</b>
+増額の判断は<b>11/1</b>に回すことをお勧めします。10月中旬が年末検索の立ち上がりなので、その手前で誤判定すると、いちばん効く時期に枠がありません。</p>
+</div>
+
+<p class="kome"><b>※ 9月20日からの配信で受注が入り始めているかは、今日は確認できていません（未確認であって0件ではありません）。</b>
+上に書いたとおり台帳が読めませんでした。10/1の判定までに、鍵を持つスレッドから取ります。</p>
+
+<p class="kome">※ 受注単価にも穴があります。2026年のHP経由の実績は平均 ¥15,775 で、④の前提 ¥34,965 の45%しかありません。
+件数が出ても売上が届かない可能性があるので、10/1には<b>受注件数と受注単価まで</b>取ります。</p>
+
+<h3 style="page-break-before:always">② 法人・提携 ── +140%。社数だけでは足りません</h3>
+
+<p>実力（大型1件を除く）は約310万。目標750万は <b>+140%</b> です。そして計画の94件は、単価から逆算すると
+<b>「100万超の案件が年に2〜3件、合計約320万」を前提にしています。2026年は1件（BREXA 168万）でした。</b></p>
+
+<table>
+<thead><tr><th>750万をどう作るか</th><th>必要な件数</th></tr></thead>
+<tbody>
+<tr><td>100万超が1件も出ない年</td><td class="neg">149件（いまの1.6倍の手数）</td></tr>
+<tr><td>168万の大型が1件出る年</td><td>120件</td></tr>
+<tr class="b"><td><b>計画の置き方</b></td><td><b>大型2〜3件 ＋ 91〜92件</b></td></tr>
+</tbody>
+</table>
+
+<p><b>だから②は「アクティブ社数10→15社」だけでは足りません。「100万超を年2件」を別建ての目標にすべきです。</b>
+入口は施設ターゲットリスト291件。BREXAのような施設・法人の天カセ案件がいちばん現実的で、
+<b>そこへの接触は web-inflow とブラウザ担当が、人手をほとんど使わずに回しています。</b></p>
+
+<h3>① リピート資産 ── いちばん安く、ほぼ手つかずです</h3>
+
+<div class="box midori">
+<div class="midashi">①の目標 +233万は、リピート率を5ポイント上げることとほぼ同じです</div>
+<table style="margin-top:8px">
+<thead><tr><th>リピート率</th><th>増える顧客</th><th>金額</th></tr></thead>
+<tbody>
+<tr><td>25% →  27%</td><td>19名</td><td>87万</td></tr>
+<tr class="b"><td><b>25% → 30%</b>（中立の前提）</td><td><b>48名</b></td><td><b>217万</b></td></tr>
+<tr><td>25% → 34%（攻め）</td><td>86名</td><td>391万</td></tr>
+</tbody>
+</table>
+<p style="margin-top:8px;margin-bottom:0">顧客台帳957名・リピート案件の平均単価 ¥45,375（2026年 69件）。
+<b>広告費は要りません。既にいる957名です。</b></p>
+</div>
+
+<p>2026年は<b>早期予約が8件→42件（+82万）</b>と伸びています。ここは動いています。
+一方で<b>12ヶ月以上ご無沙汰583名・換気扇未購入807名・浴室未購入780名</b>という在庫が残っています。
+<b>①は「効いている手がある、まだ全部に当てていない」状態です。</b></p>
+</div>
+
+<div class="sec">
+<h2><span class="no">06</span>判断していただきたいこと</h2>
+
+<div class="box">
+<div class="midashi">① 本舗389万・③269万に直すと、総売上が ▲271万 になります。どうしますか</div>
+<table style="margin-top:8px">
+<thead><tr><th>選択肢</th><th>自社</th><th>本舗</th><th>総売上</th><th>経常利益</th></tr></thead>
+<tbody>
+<tr><td>A いまの計画のまま</td><td>2,061万</td><td>539万</td><td>2,600万</td><td>507万</td></tr>
+<tr class="b"><td><b>B 総額2,600万を守り、自社で埋める</b></td><td><b>2,211万</b></td><td>389万</td><td>2,600万</td><td><b>566万</b></td></tr>
+<tr><td>C 目標を実態に合わせて下げる</td><td>2,061万</td><td>389万</td><td>2,450万</td><td>427万</td></tr>
+</tbody>
+</table>
+<p style="margin-top:8px;margin-bottom:0"><b>経営企画室の推奨は B です。</b>自社に置き換えるほど利益が出る（ロイヤリティ39%ぶん）こと、
+自社は伸び、本舗は縮んでいることの2つが理由です。<b>ただし自社2,211万は実質ベースで +131% です。楽ではありません。</b></p>
+</div>
+
+<div class="box">
+<div class="midashi">② 2026年スプレッドシートのロイヤリティ二重計上 ¥600,600／年 を直しますか</div>
+<p style="margin-bottom:0">crm が「クロ」と確定させています。過去の実績データの書き換えにあたるので、私の裁量では触りません。
+直すと2026年の会社手残りが上振れし、<b>2027年の比較の土台が変わります。</b></p>
+</div>
+
+<div class="box kiiro">
+<div class="midashi">③ 広告を11/1に月10万へ上げる余地を、先に握っておきたいです</div>
+<p style="margin-bottom:0">実測CPAが9,500円だった場合、④143件を守るには年間の広告費が <b>80万 → 136万（+56万）</b> になります。
++56万は中立の経常利益507万の11%です。<b>10月の実績を見てからで結構ですが、「出せる／出せない」だけ先に伺えると、11/1の判断が速くなります。</b></p>
+</div>
+</div>
+
+<div class="sec">
+<h2><span class="no">07</span>次の打ち手（提案）</h2>
+
+<div class="step"><div class="n">1</div><div class="t">
+<b>年末のQ4を埋めることが、2027年の起点を決めます。</b>
+2026年の着地がそのまま2027年の比較対象になります。12月の受付可能件数は約50件（2025年実績33件の1.5倍）で、
+<b>キャパは空いています。制約は需要側です。</b>
+<span class="kome">※ 年末大掃除は12月ではなく10月・11月に売るものです。締切は「11月30日まで通常価格／12月は1箇所+3,300円」が既にあり、新しく作る必要はありません。</span>
+</div></div>
+
+<div class="step"><div class="n">2</div><div class="t">
+<b>①リピートに、いちばん安い玉が残っています。</b>
+リピート率25%→30%で217万。広告費ゼロ。<b>①を「リピート率」で握り直すことを提案します</b>（いまは金額目標だけです）。
+12ヶ月以上ご無沙汰583名・換気扇未購入807名という在庫があります。
+</div></div>
+
+<div class="step"><div class="n">3</div><div class="t">
+<b>②は「100万超を年2件」を別建ての目標に。</b>
+社数（10→15社）だけでは750万に届きません。施設リスト291件への接触は既に人手なしで回っているので、
+<b>足りないのは人ではなく、その入口が法人受注に変わるかの実測です。</b>
+</div></div>
+
+<div class="step"><div class="n">4</div><div class="t">
+<b>④は11/1が本番です。</b>10/1は続けるかどうかだけ。10月まるまるの実績でCPAを見て、
+<b>6件以上なら月10万へ、3件以下なら止めて設計に戻す。</b>判定ラインは先に置いてあります。
+</div></div>
+
+<div class="step"><div class="n">5</div><div class="t">
+<b>2027年スプレッドシートを、年末までにDriveへ。</b>
+APIでは上げられないので、オーナーの手作業（ドラッグ&ドロップ→スプレッドシートとして開く）が要ります。
+<b>1月から使い始めるには、12月中に入れておきたいです。</b>
+</div></div>
+
+<div class="box midori">
+<div class="midashi">優先順位をつけるなら</div>
+<p style="margin-bottom:0"><b>いま・年内は 1（Q4を埋める）。来年に効くのは 2（リピート率）。いちばん大きいが金が要るのは 4（広告）。</b>
+2は広告費ゼロで217万なので、<b>先にここを取りにいくのが安いと考えています。</b></p>
+</div>
+</div>
+
+<div class="sec">
+<h2><span class="no">08</span>私が間違えて、直したこと</h2>
+
+<p>数字を扱う立場なので、記録として残します。<b>すべて自分で見つけて訂正したものではありません。</b>
+crm と CMO に指摘されて直したものが含まれます。</p>
+
+<table>
+<thead><tr><th>いつ</th><th>間違い</th><th>直した内容</th></tr></thead>
+<tbody>
+<tr><td>9/15</td><td>5〜8月の業務提携を「21件・219万」と4日間流通させた</td><td>台帳のどの行の組合せでも作れない数字だった。取り下げ。正は26件・¥2,967,485</td></tr>
+<tr><td>9/15</td><td>②の通年見込みを584万としていた</td><td>8月の大型1件を季節性で年換算していた。507万へ</td></tr>
+<tr><td>9/18</td><td>②の実力単価を <b>3回</b> 分母違いで出した</td><td>業務提携だけの金額を②ブロック全体の件数で割っていた。¥49,130 → ¥56,418</td></tr>
+<tr><td>9/18</td><td>12月タブの¥9,800を「重複の疑い」と報告</td><td><b>誤り。</b>日付の打ち間違いだった（crm 指摘）。年間累計は正しい</td></tr>
+<tr><td>9/19</td><td>「1社1件は過去より軽い」と書いた</td><td>分母が違った（受注した社 vs アクティブな社）。正しくは過去の1.9倍</td></tr>
+<tr><td>9/21</td><td><b>「②の秋の受注が消えた」</b>と警報を出した</td><td><b>台帳が未入力だっただけ。</b>9月は0件ではなく6件・¥321,240。全面的に取り下げ</td></tr>
+<tr><td>9/21</td><td>社数に基準日を付けていなかった</td><td>青山リアルティーを5日早く休眠に入れていた。以後、基準日を必ず付ける</td></tr>
+</tbody>
+</table>
+
+<div class="box aka">
+<div class="midashi">いちばん重い1件</div>
+<p style="margin-bottom:0"><b>「台帳に0件」を「受注が0件」と読みました。</b>
+9月タブに先の日付（早期予約）が入っているのを見て「入力済み」と判断しましたが、
+<b>先に予約が入る経路が入力済みでも、短リードタイムの経路が入力済みとは限りません。</b>
+この警報から、CMOが打ち手を1本作っています。訂正は各スレッドに送りました。</p>
+</div>
+
+<p class="kome">出典：<code>docs/2027-数値目標.md</code>（詳細版・更新履歴つき）／<code>docs/2027-自社と本舗に分けた計画.md</code>／
+<code>docs/2026-提携タブと月次タブの突合.md</code>／<code>docs/2027-広告の判定枠-10月1日.md</code>／
+<code>docs/2026-12月の受付可能件数と締め日.md</code>／数値モデルは <code>tools/plan2027.py</code></p>
+</div>
