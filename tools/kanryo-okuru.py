@@ -22,6 +22,8 @@ import pathlib
 import subprocess
 import sys
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 YOTEI = ROOT / "data" / "kanryo-yotei.json"
 SUMI = ROOT / "data" / "kanryo-okurizumi.json"
@@ -30,15 +32,39 @@ JST = datetime.timezone(datetime.timedelta(hours=9))
 SAKI_FUN = 30   # 開始から何分後に送るか
 
 
-def url(y):
-    d = {"i": y["id"], "r": y.get("台帳", ""), "n": y.get("氏名", ""),
-         "s": y.get("売上種類", ""), "d": y.get("施工日付", ""), "t": y.get("開始時刻", ""),
-         "m": y.get("メニュー", []), "k": y.get("金額", "")}
-    b = base64.urlsafe_b64encode(json.dumps(d, ensure_ascii=False).encode()).decode().rstrip("=")
+def kaku(d):
+    b = base64.urlsafe_b64encode(json.dumps(d, ensure_ascii=False, separators=(",", ":")).encode()).decode().rstrip("=")
     return BASE + "#" + b
 
 
-def honbun(y):
+def url(y, p=None):
+    d = {"i": y["id"], "r": y.get("台帳", ""), "n": y.get("氏名", ""),
+         "s": y.get("売上種類", ""), "d": y.get("施工日付", ""), "t": y.get("開始時刻", ""),
+         "m": y.get("メニュー", []), "k": y.get("金額", "")}
+    if p:   # まだ完了フォームが入っていない施工の一覧（2ページ目のプルダウンになる。2026-09-26 オーナー指示）
+        d["p"] = p
+    return kaku(d)
+
+
+def mishin_ichiran():
+    try:
+        import kanryo_mishin
+        return kanryo_mishin.ichiran()
+    except Exception as e:           # 一覧が作れなくても、完了フォームのリンク自体は送る
+        print(f"  ⚠ 未入力の一覧が作れませんでした（プルダウン無しで送ります）: {e}")
+        return []
+
+
+def saisoku_honbun(p):
+    """未入力のお客様をまとめて知らせる1通（python3 tools/kanryo-okuru.py --saisoku）。"""
+    return "\n".join(
+        ["【作業完了フォーム】まだ入っていないお客様が " + str(len(p)) + " 名います"]
+        + ["・" + x["d"][5:].replace("-", "/") + " " + x["n"] + " さま" for x in p]
+        + ["", "こちらから、お客様を選んで入れてください。", kaku({"p": p, "st": 1})])
+
+
+def honbun(y, p=None):
+    hoka = [x for x in (p or []) if x.get("r") != y.get("台帳")]
     return "\n".join([
         "【作業完了フォーム】" + y.get("氏名", "") + " さま",
         f"{y.get('施工日付','')} {y.get('開始時刻','')} 開始"
@@ -46,19 +72,37 @@ def honbun(y):
         "／".join(y.get("メニュー", [])),
         "",
         "作業が終わったら、こちらから入れてください。",
-        url(y),
+        url(y, p),
         "",
         "最初の画面はお客様に見せるものです（アンケートのQR）。",
         "お客様が回答されている間に、次回のご予約をご提案ください。",
         "下の「次へ（スタッフ用）」で入力画面に変わります。",
-    ])
+    ] + (["", f"※ ほかに作業完了フォームが未入力のお客様が {len(hoka)} 名います（入力画面のお客様欄から選べます）："]
+         + ["・" + x["d"][5:].replace("-", "/") + " " + x["n"] + " さま" for x in hoka] if hoka else []))
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--all", action="store_true", help="30分の縛りを外して全部送る")
+    ap.add_argument("--saisoku", action="store_true", help="未入力のお客様をまとめて1通で知らせる")
+    ap.add_argument("--ichiran", action="store_true", help="未入力のお客様の一覧を出すだけ")
     a = ap.parse_args()
+
+    if a.ichiran or a.saisoku:
+        p = mishin_ichiran()
+        print(f"作業完了フォームが未入力：{len(p)}名")
+        for x in p:
+            print(f"  {x['d']} {x['n']} さま（{x['r']}）")
+        if a.saisoku and p:
+            txt = saisoku_honbun(p)
+            if a.dry_run:
+                print("\n--dry-run のため送っていません。\n" + txt)
+                return
+            r = subprocess.run([sys.executable, str(ROOT / "tools" / "line_client.py"), "push", txt],
+                               capture_output=True, text=True)
+            print("  送りました" if r.returncode == 0 else f"  🔴 送れませんでした: {r.stderr.strip()[:200]}")
+        return
 
     if not YOTEI.exists():
         print("送る材料がありません（data/kanryo-yotei.json）。先に tools/juchu-inbox.py を動かしてください。")
@@ -88,13 +132,14 @@ def main():
         okuru.append(y)
 
     print(f"送る対象: {len(okuru)}件（未送信 {len([y for y in yotei if y['id'] not in sumi])}件中）")
+    p = mishin_ichiran() if okuru else []
     for y in okuru:
-        print(f"  {y.get('施工日付')} {y.get('開始時刻')} {y.get('氏名')} → {url(y)[:80]}…")
+        print(f"  {y.get('施工日付')} {y.get('開始時刻')} {y.get('氏名')} → {url(y, p)[:80]}…（未入力の一覧 {len(p)}名）")
     if a.dry_run:
         print("\n--dry-run のため送っていません。")
         return
     for y in okuru:
-        r = subprocess.run([sys.executable, str(ROOT / "tools" / "line_client.py"), "push", honbun(y)],
+        r = subprocess.run([sys.executable, str(ROOT / "tools" / "line_client.py"), "push", honbun(y, p)],
                            capture_output=True, text=True)
         if r.returncode != 0:
             print(f"  🔴 送れませんでした: {y.get('氏名')} {r.stderr.strip()[:200]}")

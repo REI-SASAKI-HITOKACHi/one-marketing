@@ -191,6 +191,12 @@ HTML = r"""<!doctype html>
 
 <section>
   <h2>この日の受注</h2>
+  <div id="erabi-box" hidden>
+    <label>お客様を選ぶ<span class="hitsu">必須</span></label>
+    <select id="erabi"></select>
+    <p class="chu" id="erabi-chu"></p>
+    <p class="err" id="e-erabi">お客様を選んでください（一覧に無いときは「リストにない」）</p>
+  </div>
   <div class="juchu" id="juchu">受注の内容が読み込めませんでした。手で入れてください。</div>
   <div id="te-name-box" hidden>
     <label>お客様のお名前<span class="hitsu">必須</span></label>
@@ -338,21 +344,85 @@ HTML = r"""<!doctype html>
   }
   J = yomu();
 
+  /* ---- まだ完了フォームが入っていないお客様の一覧（オーナー指示 2026-09-26 MTGシート F364）----
+     「顧客名は当日のスケジュールからプルダウンで選べるように（表記ゆれ防止）」
+     「今日以降の未作成者全員を出して、未入力をリマインドできるように」
+     一覧は LINE で送ったリンクの # のうしろ（J.p）に入っている。サーバには置かない。
+     ホーム画面のブックマーク（# なし）から開いたときのため、最後に開いたリンクの一覧を
+     この端末（和真さんのスマホ）の中だけに3日間とっておく。 */
+  var P = (J && J.p) || null;
+  try {
+    if (P) { localStorage.setItem('kanryo-p', JSON.stringify({t: Date.now(), p: P})); }
+    else {
+      var sv = JSON.parse(localStorage.getItem('kanryo-p') || 'null');
+      if (sv && Date.now() - sv.t < 3 * 86400000) { P = sv.p; }
+    }
+  } catch (e) {}
+  function hashKaku(o){
+    var s = JSON.stringify(o);
+    return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  }
+
   /* ---- 画面1：名乗りは受注の内容どおり。読めないときは出さない ---- */
   (function(){
     var na = J && J.s === '本舗' ? 'おそうじ本舗' : (J && J.s ? 'ワンヒッター株式会社' : '');
     $('nanori').textContent = na;
   })();
-  $('tsugi').addEventListener('click', function(){
+  function staff(){
     document.body.className = 'staff';
     $('head').style.display = ''; $('soku').style.display = '';
     window.scrollTo(0,0);
-  });
+  }
+  $('tsugi').addEventListener('click', staff);
+  if (J && J.st) { staff(); }   // プルダウンで選び直したときは、お客様用の画面を飛ばす
+
+  /* ---- お客様を選ぶ（プルダウン） ---- */
+  (function(){
+    if (!P || !P.length) { return; }
+    var sel = $('erabi'), box = $('erabi-box');
+    box.hidden = false;
+    function hyouji(y){
+      var md = String(y.d || '').slice(5).replace('-', '/');
+      return md + '　' + (y.n || '') + ' さま' + ((y.m && y.m.length) ? '（' + y.m.join('・') + '）' : '');
+    }
+    var ima = -1;
+    if (!J || !J.n) {
+      var o0 = document.createElement('option'); o0.value = ''; o0.textContent = '選んでください';
+      sel.appendChild(o0);
+    }
+    P.forEach(function(y, i){
+      var o = document.createElement('option'); o.value = String(i); o.textContent = hyouji(y);
+      if (J && J.n && ((J.r && y.r === J.r) || (J.i && y.i === J.i))) { ima = i; }
+      sel.appendChild(o);
+    });
+    var ot = document.createElement('option'); ot.value = 'te'; ot.textContent = 'リストにない（手で入れる）';
+    sel.appendChild(ot);
+    if (ima >= 0) { sel.value = String(ima); }
+    else if (J && J.n) {   // 一覧に無い受注で開いたとき（提出済みなど）は、その受注を先頭に足す
+      var oj = document.createElement('option'); oj.value = 'J'; oj.textContent = hyouji(J);
+      sel.insertBefore(oj, sel.firstChild); sel.value = 'J';
+    } else if (J && J.x) { sel.value = 'te'; }
+    var kazu = P.length;
+    $('erabi-chu').textContent = 'まだ作業完了フォームが入っていないお客様 ' + kazu + '名（9/26 以降の施工）。上から古い順です。';
+    sel.addEventListener('change', function(){
+      if (sel.value === '' || sel.value === 'J') { return; }
+      if (shashin.length && !confirm('選び直すと、選んだ写真が消えます。よろしいですか？')) {
+        sel.value = ima >= 0 ? String(ima) : (J && J.n ? 'J' : ''); return;
+      }
+      var o = sel.value === 'te' ? {x: 1} : JSON.parse(JSON.stringify(P[Number(sel.value)]));
+      o.p = P; o.st = 1;
+      location.hash = hashKaku(o);
+      location.reload();
+    });
+  })();
 
   /* ---- 受注の内容を出す ---- */
   function en(n){ return '¥' + Number(n || 0).toLocaleString(); }
   (function(){
-    if (!J) { $('te-name-box').hidden = false; return; }
+    if (!J || !J.n) {
+      if (P && P.length && !(J && J.x)) { $('juchu').textContent = '上の欄でお客様を選んでください。'; return; }
+      $('te-name-box').hidden = false; return;
+    }
     var d = $('juchu');
     d.innerHTML = '';
     function gyo(html){ var x = document.createElement('div'); x.innerHTML = html; d.appendChild(x); }
@@ -554,7 +624,8 @@ HTML = r"""<!doctype html>
     if ((J && J.m || []).length && !yatta.length && !tsuikaHai.length) { dasu('e-naiyo'); ng = 1; }
     if (!jotai.kure) { dasu('e-kure'); ng = 1; }
     if (jotai.kure === 'あり' && !$('kure-naka').value.trim()) { dasu('e-kure-naka'); ng = 1; }
-    if (!J && !$('te-name').value.trim()) { dasu('e-name'); ng = 1; }
+    if ((!J || !J.n) && P && P.length && !(J && J.x)) { dasu('e-erabi'); ng = 1; }
+    else if ((!J || !J.n) && !$('te-name').value.trim()) { dasu('e-name'); ng = 1; }
     if (ng) {
       var e = document.querySelector('.err.deru');
       if (e) { e.scrollIntoView({behavior:'smooth', block:'center'}); }
