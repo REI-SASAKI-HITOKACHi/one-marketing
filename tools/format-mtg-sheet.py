@@ -33,6 +33,7 @@
   4. 説明文の行（A列だけに中身がある長い行）は A〜I を結合して横幅いっぱいに
   5. 「決定」欄をプルダウンに（決定／保留／取り下げ／持ち帰り）。未記入は薄い黄で目立たせる
   6. 1行目を固定
+  7. 1行目と「━━━ 第N回」の行は折り返さない（はみ出し表示・高さ21px。オーナー指示 2026-09-26）
 """
 import json
 import re
@@ -120,10 +121,21 @@ def main():
             gyo_shoshiki(i, {"backgroundColor": KI, "textFormat": {"bold": True}},
                          "userEnteredFormat(backgroundColor,textFormat)"); kazu["★"] += 1
 
+    # 3b. 1行目と回の区切り行（━━━ 第N回 …）は折り返さない（オーナー指示 2026-09-26）
+    #     「1行目や333行目の日付変更行を毎回僕が直してるから、初めから僕と同じようにセル内で行を
+    #      折り返さないようにしてね。行が太くなりすぎて見づらいから」
+    #     オーナーの直し方の実物＝A列 wrapStrategy OVERFLOW_CELL（はみ出して表示）・行の高さ 21px。
+    hitoegyo = [i for i, r in enumerate(rows) if i == 0 or (r and r[0].startswith("━"))]
+    for i in hitoegyo:
+        gyo_shoshiki(i, {"wrapStrategy": "OVERFLOW_CELL"}, "userEnteredFormat.wrapStrategy")
+        req.append({"updateDimensionProperties": {
+            "range": {"sheetId": sid, "dimension": "ROWS", "startIndex": i, "endIndex": i + 1},
+            "properties": {"pixelSize": 21}, "fields": "pixelSize"}})
+
     # 4. 説明文の行は横幅いっぱいに
     ketsugou = [i for i, r in enumerate(rows)
                 if r and r[0].strip() and not any(c.strip() for c in r[1:])
-                and not r[0].startswith("━")
+                and not r[0].startswith("━") and i != 0
                 and (len(r[0]) >= 30 or r[0].startswith("■"))]
     for i in ketsugou:
         req.append({"mergeCells": {
