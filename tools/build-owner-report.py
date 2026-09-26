@@ -143,8 +143,8 @@ HTML = """<meta charset="utf-8">
 <h3>中立 2,600万円の中身</h3>
 <div class="kpi">
   <div class="c"><div class="l">売上</div><div class="v">2,600万</div><div class="n">649件・単価4.0万</div></div>
-  <div class="c"><div class="l">経常利益</div><div class="v">507万</div><div class="n">2026年の水準は561万</div></div>
-  <div class="c"><div class="l">赤字になる月</div><div class="v">2月だけ</div><div class="n">▲35,545円</div></div>
+  <div class="c"><div class="l">経常利益</div><div class="v">566万</div><div class="n">2026年の水準561万を上回る（9/25 案Bで507万→566万）</div></div>
+  <div class="c"><div class="l">赤字になる月</div><div class="v">2月だけ</div><div class="n">▲6,745円（ギフト券1枚で消える）</div></div>
   <div class="c"><div class="l">損益分岐</div><div class="v">1,980万</div><div class="n">人を1名増やした後</div></div>
 </div>
 
@@ -203,7 +203,7 @@ HTML = """<meta charset="utf-8">
 <tr><td><b>③ マッチングサイト</b></td><td>390万<br>（据え置き）</td><td><b>269万</b><br>実体は「本部からの配分」</td><td>楽ラクーンは本舗側の経路でした。据え置きの根拠が無い</td></tr>
 <tr><td><b>② 提携の実力</b></td><td>339万<br>目標比 +121%</td><td><b>約310万</b><br>目標比 <b>+140%</b></td><td>年換算に全社の季節性を当てていた。②は6〜7月に集中する</td></tr>
 <tr><td>12月の受付可能件数</td><td>—</td><td><b>約50件</b></td><td>2025年12月の実績33件の1.5倍。<b>キャパは空いている</b></td></tr>
-<tr><td>年末ギフト</td><td>母の日2027</td><td><b>11月販売・1〜2月施工</b></td><td>非加算月に収まる。<b>2月の赤字は券4枚で消える</b></td></tr>
+<tr><td>年末ギフト</td><td>次は母の日2027の予定だった<br><span class="kome">（母の日の広告はいま実施していない）</span></td><td><b>11月販売・1〜2月施工</b></td><td>非加算月に収まる。<b>2月の赤字は券1枚で消える</b>（案B反映後）</td></tr>
 </tbody>
 </table>
 
@@ -249,7 +249,7 @@ __TAMA__
 
 <h3>④ 自社ネット新規 ── 月5万では届きません</h3>
 
-<p>9月20日から検索広告が動いています（日1,667円・月5万・江戸川区）。<b>これは付け替えではなく純増です。</b>
+<p>9月20日から検索広告が動いています（江戸川区）。<b>9/26から日¥3,300（月10万相当）に上がりました（9/25オーナー承認）。判定日は10/9。</b><b>これは付け替えではなく純増です。</b>
 2026年に裁量で動かせる広告の枠は実質ゼロでした（固定費60万＋本舗チラシ＋成果連動のキックバック）。</p>
 
 <div class="box aka">
@@ -314,6 +314,14 @@ __TAMA__
 
 <div class="sec">
 <h2><span class="no">06</span>判断していただきたいこと</h2>
+
+<div class="box midori">
+<div class="midashi">✅ 9/25 に3件とも決めていただきました</div>
+<p style="margin-bottom:0">① <b>案B</b>（総額2,600万を守る。経常利益507万→<b>566万</b>）／
+② 二重計上は<b>直さない</b>（2027年との比較に毎回注記）／
+③ 広告の5万は<b>「初期」</b>。9/26から<b>日¥3,300</b>、判定は<b>10/9</b>。さらに上げるときはオーナー承認。
+以下はお伺いしたときの内容のまま残しています。</p>
+</div>
 
 <div class="box">
 <div class="midashi">① 本舗389万・③269万に直すと、総売上が ▲271万 になります。どうしますか</div>
