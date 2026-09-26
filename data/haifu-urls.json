@@ -71,6 +71,11 @@
       "url": "https://lp.onehitter.jp/survey/",
       "何": "アンケート本体",
       "渡した先": "お客様"
+    },
+    {
+      "url": "https://script.google.com/macros/s/AKfycbxoAYwtgFiSFBhHWVdNlziRUDjb3X_l6NO9NTXeR5RgsUFkpUKi1HJXdpS5XC-Jxj417w/exec",
+      "何": "見積アプリ（GAS ウェブアプリ・本番 /exec。デプロイIDを変えない）",
+      "渡した先": "和真さん（ホーム画面）・オーナー"
     }
   ]
 }
