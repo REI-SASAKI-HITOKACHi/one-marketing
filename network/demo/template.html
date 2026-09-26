@@ -255,9 +255,9 @@ label.ck input{width:20px;height:20px;margin-top:2px;flex:none}
 <!-- ======== 相場 ======== -->
 <section class="page" id="p-market">
   <h1>相場（成立した案件の中央値）</h1>
-  <p class="lead">誰かが決めた単価ではなく、<b>この網で実際に成立した金額</b>から自動で出します。全員が同じ数字を見ます。</p>
+  <p class="lead">誰かが決めた単価ではなく、<b>協力店ネットで実際に成立した金額</b>から自動で出します。全員が同じ数字を見ます。</p>
   <div id="marketTable"></div>
-  <h2>網の動き</h2>
+  <h2>協力店ネットの動き</h2>
   <div class="card"><div class="kv" id="statsKv"></div></div>
 </section>
 
@@ -282,7 +282,7 @@ label.ck input{width:20px;height:20px;margin-top:2px;flex:none}
   </div>
   <div class="card rule">
     <h3>2. 値決め</h3>
-    <p>網は率も単価表も決めない。出す人が案件ごとに請求額と施工額を書き、網は取り分率と相場の中央値を見せるだけ。受ける人は自分の最低受け額を決めておく。</p><p><b>仮置き：施工額の既定値は手取りの75%。</b> 会員の意見を聞いて見直す。</p><p><b>ご意見を伺いたいこと：</b>網として「これ未満では出さない・受けない」最低単価を一律に決めるか（安売り防止）。各自の最低受け額だけにするか。</p>
+    <p>協力店ネットは率も単価表も決めない。出す人が案件ごとに請求額と施工額を書き、システムは取り分率と相場の中央値を見せるだけ。受ける人は自分の最低受け額を決めておく。</p><p><b>仮置き：施工額の既定値は手取りの75%。</b> 会員の意見を聞いて見直す。</p><p><b>ご意見を伺いたいこと：</b>協力店ネット全体として「これ未満では出さない・受けない」最低単価を一律に決めるか（安売り防止）。各自の最低受け額だけにするか。</p>
   </div>
   <div class="card rule">
     <h3>3. 現場の名乗り</h3>
@@ -331,7 +331,7 @@ label.ck input{width:20px;height:20px;margin-top:2px;flex:none}
   </div>
   <div class="card rule">
     <h3>8. 決め方</h3>
-    <ul><li>票の重み＝この網で受けた数＋出した数</li>
+    <ul><li>票の重み＝協力店ネットで受けた数＋出した数</li>
         <li>3か月に1回、ルールの数値を見直す。過程は全員に見える</li></ul>
   </div>
   <div class="row between" style="margin-top:14px">
@@ -585,7 +585,7 @@ function renderWho(){
 function renderSettings(){
   $$('#modelSeg button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.model));
   $$('#rateSeg button').forEach(b=>b.classList.toggle('on',+b.dataset.v===S.rate));
-  $('#modelHint').textContent={teiji:'提示型：出す人が施工額を書く。既定値として「手取り×既定の取り分」を入れておくが、変えてよい。網は率を表示するだけ。',
+  $('#modelHint').textContent={teiji:'提示型：出す人が施工額を書く。既定値として「手取り×既定の取り分」を入れておくが、変えてよい。システムは率を表示するだけ。',
     rate:'率：施工額は「手取り×既定の取り分」で固定。出す人は変えられない。（全員で率を決める形＝法務確認の対象）',
     fixed:'固定：エアコン1台の施工額を表で決める（この画面では既定の取り分×料金マスターで代用）。オプション・値引きに追従しない。'}[S.model];
 }
