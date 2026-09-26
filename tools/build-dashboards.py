@@ -852,6 +852,10 @@ def main():
         made.append(getsuji_tab(a.getsuji))
     for tname in made:
         check_errors(sh, tname)
+        # MTGシートへのボタン（オーナー指示 2026-09-26。作り直すと消えるので毎回付け直す）
+        import subprocess
+        subprocess.run([sys.executable, str(ROOT / "tools" / "mtg-button.py"), "--jikkou", "--tab", tname],
+                       capture_output=True, text=True)
 
 
 if __name__ == "__main__":
