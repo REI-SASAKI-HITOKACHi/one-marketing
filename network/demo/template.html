@@ -162,6 +162,18 @@ label.ck input{width:20px;height:20px;margin-top:2px;flex:none}
 .shead{display:grid;grid-template-columns:24px 1fr 86px 86px 26px;gap:6px;font-size:11px;color:var(--muted);padding:4px 0}
 .thumb{max-width:100%;max-height:260px;border:1px solid var(--line);border-radius:8px;display:block}
 @media print{body{background:#fff;padding:0}header,nav.tabs,.modal .actions,.toast{display:none !important}.modal{position:static;background:none;display:block}.modal .box{max-height:none;border-radius:0;padding:0}.inv{border:0}}
+.seg button:disabled{opacity:.4;cursor:not-allowed}
+.tag.multi{background:#E4E9F7;color:#34479A}
+.split{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:6px 0;background:var(--surface-2)}
+.split .h{display:flex;flex-wrap:wrap;gap:2px 14px;font-size:12.5px;color:var(--ink-soft)}
+.split .h b{font-size:14.5px;color:var(--ink)}
+.split .meter{height:8px;border-radius:4px;background:var(--line);overflow:hidden;margin:6px 0 2px}
+.split .meter i{display:block;height:100%;background:var(--accent)}
+.split ul{list-style:none;padding:0;margin:4px 0 0;font-size:13px}
+.split li{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-top:1px dashed var(--line-strong)}
+.asg{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;padding:8px 0;border-top:1px dashed var(--line-strong)}
+.asg .grow{flex:1}
+.asg input{width:72px;border:1px solid var(--line-strong);border-radius:8px;padding:6px 8px;font-size:15px;min-height:40px;text-align:right;background:#fff}
 </style>
 </head>
 <body>
@@ -198,6 +210,12 @@ label.ck input{width:20px;height:20px;margin-top:2px;flex:none}
     <div id="lineRows"></div>
     <div class="row" style="margin-top:8px"><button type="button" class="btn ghost sm" id="addRow">＋ 行を追加</button><span class="hint">単価は<b>自社設定</b>から自動で入ります。案件ごとに書き換えてよい。「その他」で自由入力。</span></div>
     <div class="lines-total"><span>合計（税込）</span><b id="linesTotal">¥0</b></div>
+
+    <h2>依頼の仕方</h2>
+    <div class="field"><div class="seg" id="splitSeg"><button type="button" data-v="one" class="on">1社に任せる</button><button type="button" data-v="multi">複数社に分ける</button></div>
+      <div class="hint" id="splitHint">1社が全部を施工します。</div></div>
+    <div class="field" id="fUnitsWrap" hidden><label>分ける台数（合計）</label><input type="number" id="fUnits" min="2" max="999" step="1">
+      <div class="hint" id="unitsHint"></div></div>
 
     <div class="row" style="gap:12px;margin-top:6px">
       <div class="field" style="flex:1;min-width:140px"><label>施工日</label><input type="date" id="fDate" required></div>
@@ -277,12 +295,21 @@ label.ck input{width:20px;height:20px;margin-top:2px;flex:none}
   <div class="card rule">
     <h3>1. 何を見せるか（開示の3層）</h3>
     <ul><li><b>全員</b>：メニュー・エリア（区市）・日程・請求額・外部手数料・施工額・取り分率・成立したか</li>
-        <li><b>成立した相手だけ</b>：お客様の氏名・住所・電話・連絡事項</li>
+        <li><b>成立した相手だけ</b>（複数社で分担する案件は、決まった全社）：お客様の氏名・住所・電話・連絡事項</li>
         <li><b>運営も含めて誰も</b>：お客様情報を自社の営業に使わない</li></ul>
   </div>
   <div class="card rule">
     <h3>2. 値決め</h3>
     <p>協力店ネットは率も単価表も決めない。出す人が案件ごとに請求額と施工額を書き、システムは取り分率と相場の中央値を見せるだけ。受ける人は自分の最低受け額を決めておく。</p><p><b>仮置き：施工額の既定値は手取りの75%。</b> 会員の意見を聞いて見直す。</p><p><b>ご意見を伺いたいこと：</b>協力店ネット全体として「これ未満では出さない・受けない」最低単価を一律に決めるか（安売り防止）。各自の最低受け額だけにするか。</p>
+  </div>
+  <div class="card rule">
+    <h3>2-2. 大型案件は複数社で分担できる</h3>
+    <ul><li>出す人が「複数社に分ける」を選び、<b>分ける台数</b>を書く。施工額は<b>1台あたり</b>で全員に見える</li>
+        <li>受ける人は<b>対応できる台数</b>を添えて手を挙げる（自社設定の「1日に対応できる台数」が初期値）</li>
+        <li>出す人が会社ごとに台数を決める。<b>決めた会社から順に</b>お客様情報が開く。全台数が決まると募集は自動で締め切り</li>
+        <li>集まりきらないときは、募集を締め切って残りを自社で対応してよい</li>
+        <li>施工額・請求書・クローズ・評価は<b>会社ごと</b>。全社のクローズで案件完了。支払が遅れる申し送りは全社に届き、遅延は案件1件として記録</li>
+        <li>集金は元請けのみ（現場での領収は1社に任せる案件だけ）。現場では全社が元請けの名前で名乗る</li></ul>
   </div>
   <div class="card rule">
     <h3>3. 現場の名乗り</h3>
@@ -347,6 +374,7 @@ label.ck input{width:20px;height:20px;margin-top:2px;flex:none}
   <div class="card">
     <div class="row" style="gap:12px">
       <div class="field" style="flex:1;min-width:140px"><label>稼働可能人数</label><input type="number" id="sCap" min="1" max="50"></div>
+      <div class="field" style="flex:1;min-width:140px"><label>1日に対応できる台数</label><input type="number" id="sDay" min="1" max="200"></div>
       <div class="field" style="flex:2;min-width:180px"><label>会社名（表示名）</label><input type="text" id="sName"></div>
     </div>
     <div class="field"><label>保有設備</label><div class="chk" id="sEquip"></div></div>
@@ -407,11 +435,11 @@ function menuList(factor){
 }
 function seed(){
   const members=[
-    {id:'m1',name:'ワンヒッター',area:'江戸川区',insurance:true,invoice:true,rating:4.8,note:'運営。案件は同じルールで出す',cap:2,equip:['高圧洗浄機','脚立・はしご','エアコン完全分解','ロボ（お掃除機能付き）対応','車両（軽バン）'],menus:menuList(1.0)},
-    {id:'m2',name:'協力店A',area:'江東区',insurance:true,invoice:true,rating:4.7,note:'',cap:1,equip:['高圧洗浄機','脚立・はしご','ロボ（お掃除機能付き）対応'],menus:menuList(1.0)},
-    {id:'m3',name:'協力店B',area:'葛飾区',insurance:true,invoice:false,rating:4.5,note:'インボイス未登録',cap:2,equip:['高圧洗浄機','脚立・はしご','天カセ（業務用）対応','車両（軽バン）','高所作業（2階外壁）'],menus:menuList(0.93)},
-    {id:'m4',name:'協力店C',area:'市川市',insurance:true,invoice:true,rating:4.9,note:'',cap:1,equip:['高圧洗浄機','エアコン完全分解','ロボ（お掃除機能付き）対応'],menus:menuList(1.05)},
-    {id:'m5',name:'協力店D',area:'浦安市',insurance:false,invoice:true,rating:4.2,note:'保険の証券番号 未登録',cap:1,equip:['脚立・はしご'],menus:menuList(0.9)},
+    {id:'m1',name:'ワンヒッター',area:'江戸川区',insurance:true,invoice:true,rating:4.8,note:'運営。案件は同じルールで出す',cap:2,dayUnits:8,equip:['高圧洗浄機','脚立・はしご','エアコン完全分解','ロボ（お掃除機能付き）対応','車両（軽バン）'],menus:menuList(1.0)},
+    {id:'m2',name:'協力店A',area:'江東区',insurance:true,invoice:true,rating:4.7,note:'',cap:1,dayUnits:4,equip:['高圧洗浄機','脚立・はしご','ロボ（お掃除機能付き）対応'],menus:menuList(1.0)},
+    {id:'m3',name:'協力店B',area:'葛飾区',insurance:true,invoice:false,rating:4.5,note:'インボイス未登録',cap:2,dayUnits:10,equip:['高圧洗浄機','脚立・はしご','天カセ（業務用）対応','車両（軽バン）','高所作業（2階外壁）'],menus:menuList(0.93)},
+    {id:'m4',name:'協力店C',area:'市川市',insurance:true,invoice:true,rating:4.9,note:'',cap:1,dayUnits:6,equip:['高圧洗浄機','エアコン完全分解','天カセ（業務用）対応','ロボ（お掃除機能付き）対応'],menus:menuList(1.05)},
+    {id:'m5',name:'協力店D',area:'浦安市',insurance:false,invoice:true,rating:4.2,note:'保険の証券番号 未登録',cap:1,dayUnits:4,equip:['脚立・はしご'],menus:menuList(0.9)},
   ];
   // ワンヒッターの料金表は料金マスターそのまま（係数1.0）。エアコンの最低単価は 7,000 に
   members[0].menus.find(x=>x.name===AC_NAME).min=7000;
@@ -433,30 +461,46 @@ function seed(){
     ['m1','m3',[it(AC,3,10780)],32340,0,24300,'江戸川区'],['m3','m4',[it('洗濯機クリーニング',1,17380)],17380,0,13000,'葛飾区'],
   ];
   doneSpec.forEach((d,i)=>{const [poster,worker,items,price,fee,wp,area]=d;const dt=addDays(-40+i*3);
-    jobs.push({id:'d'+i,poster,items,price,fee,workerPrice:wp,area,date:dt,slot:'午前',status:'done',applicants:[worker],accepted:worker,
-      collect:i%4===3?'shita':'moto',payin:i%4===3?'':dt,payout:addBizDays(dt,5),close:{moto:{at:addDaysTo(dt,6)},shita:{at:addDaysTo(dt,6)}},
-      customer:{name:'（完了済み）',addr:'',tel:'',note:''},rating:5-(i%3)*0.5});});
+    jobs.push({id:'d'+i,poster,items,price,fee,workerPrice:wp,area,date:dt,slot:'午前',status:'done',multi:false,applicants:[worker],offers:{},
+      assign:[{m:worker,units:items.reduce((a,x)=>a+x.qty,0),workerPrice:wp,at:dt,close:{moto:{at:addDaysTo(dt,6)},shita:{at:addDaysTo(dt,6)}},rating:5-(i%3)*0.5}],
+      collect:i%4===3?'shita':'moto',payin:i%4===3?'':dt,payout:addBizDays(dt,5),
+      customer:{name:'（完了済み）',addr:'',tel:'',note:''}});});
   jobs.find(x=>x.id==='d6').delay={at:addDaysTo(jobs.find(x=>x.id==='d6').date,5),newDate:addDaysTo(jobs.find(x=>x.id==='d6').date,20),reason:'お客様の入金が遅れたため'};
   // 募集中
-  jobs.push({id:'o1',poster:'m1',items:[it(AC,2,10780),it('エアコン 防カビコート',1,3630)],price:25190,fee:0,workerPrice:18900,area:'江戸川区',date:addDays(5),slot:'午前',status:'open',applicants:[],accepted:null,collect:'moto',payin:addDays(5),payout:addBizDays(addDays(5),5),
+  jobs.push({id:'o1',poster:'m1',items:[it(AC,2,10780),it('エアコン 防カビコート',1,3630)],price:25190,fee:0,workerPrice:18900,area:'江戸川区',date:addDays(5),slot:'午前',status:'open',multi:false,applicants:[],offers:{},assign:[],collect:'moto',payin:addDays(5),payout:addBizDays(addDays(5),5),
     customer:{name:'山田 花子',addr:'江戸川区船堀1-2-3 ○○マンション501',tel:'090-0000-0001',note:'室外機はベランダ。駐車はコインP'}});
-  jobs.push({id:'o2',poster:'m2',items:[it('浴室クリーニング',1,18480),it('追い焚き配管クリーニング',1,16610)],price:35090,fee:0,workerPrice:27000,area:'江東区',date:addDays(7),slot:'終日',status:'open',applicants:['m3'],accepted:null,collect:'moto',payin:addDays(37),payout:addBizDays(addDays(37),5),
+  jobs.push({id:'o2',poster:'m2',items:[it('浴室クリーニング',1,18480),it('追い焚き配管クリーニング',1,16610)],price:35090,fee:0,workerPrice:27000,area:'江東区',date:addDays(7),slot:'終日',status:'open',multi:false,applicants:['m3'],offers:{},assign:[],collect:'moto',payin:addDays(37),payout:addBizDays(addDays(37),5),
     customer:{name:'佐藤 一郎',addr:'江東区亀戸4-5-6',tel:'090-0000-0002',note:'鍵は管理人室'}});
-  jobs.push({id:'o3',poster:'m4',items:[it(AC,1,7000)],price:7000,fee:0.20,workerPrice:4200,area:'市川市',date:addDays(3),slot:'午後',status:'open',applicants:[],accepted:null,collect:'shita',payin:'',payout:addBizDays(addDays(3),5),
+  jobs.push({id:'o3',poster:'m4',items:[it(AC,1,7000)],price:7000,fee:0.20,workerPrice:4200,area:'市川市',date:addDays(3),slot:'午後',status:'open',multi:false,applicants:[],offers:{},assign:[],collect:'shita',payin:'',payout:addBizDays(addDays(3),5),
     customer:{name:'鈴木 次郎',addr:'市川市行徳駅前2-7',tel:'090-0000-0003',note:'ポータル経由。単価低め'}});
-  jobs.push({id:'o4',poster:'m3',items:[it(AC,6,10780)],price:64680,fee:0,workerPrice:48500,area:'葛飾区',date:addDays(10),slot:'終日',status:'open',applicants:[],accepted:null,collect:'moto',payin:addDays(40),payout:addBizDays(addDays(40),5),
+  jobs.push({id:'o4',poster:'m3',items:[it(AC,6,10780)],price:64680,fee:0,workerPrice:48500,area:'葛飾区',date:addDays(10),slot:'終日',status:'open',multi:false,applicants:[],offers:{},assign:[],collect:'moto',payin:addDays(40),payout:addBizDays(addDays(40),5),
     customer:{name:'（法人）○○整骨院',addr:'葛飾区新小岩1-1',tel:'03-0000-0004',note:'6台。2人で1日。営業時間外の18時以降'}});
+  // 大型案件：複数社で分担（1社あたり4〜10台/日）
+  const BIZ=EXTRA_MENUS[0].name;
+  jobs.push({id:'o5',poster:'m1',items:[it(BIZ,50,27000)],price:1350000,fee:0,workerPrice:1012500,area:'江戸川区',date:addDays(14),slot:'終日',status:'open',multi:true,units:50,
+    applicants:['m3','m4','m2'],offers:{m3:10,m4:6,m2:4},assign:[{m:'m3',units:10,workerPrice:202500,at:today(),close:{}}],collect:'moto',payin:addDays(45),payout:addBizDays(addDays(45),5),
+    customer:{name:'（法人）○○物流センター',addr:'江戸川区臨海町3-3',tel:'03-0000-0006',note:'天井カセット50台。9〜18時。搬入口は北側。当日は現場責任者（元請け）が立ち会い'}});
+  jobs.push({id:'o6',poster:'m4',items:[it(BIZ,20,27000)],price:540000,fee:0,workerPrice:405000,area:'市川市',date:addDays(12),slot:'終日',status:'open',multi:true,units:20,
+    applicants:['m3'],offers:{m3:8},assign:[],collect:'moto',payin:addDays(40),payout:addBizDays(addDays(40),5),
+    customer:{name:'（法人）○○クリニック',addr:'市川市八幡2-2',tel:'047-000-0007',note:'天井カセット20台。休診日に実施'}});
   // 成立済み・未完了（顧客情報が見える例）
-  jobs.push({id:'a1',poster:'m2',items:[it(AC,1,10780)],price:10780,fee:0,workerPrice:8000,area:'江東区',date:addDays(2),slot:'午前',status:'matched',applicants:['m1'],accepted:'m1',collect:'moto',payin:addDays(2),payout:addBizDays(addDays(2),5),close:{moto:{at:today()}},
+  jobs.push({id:'a1',poster:'m2',items:[it(AC,1,10780)],price:10780,fee:0,workerPrice:8000,area:'江東区',date:addDays(2),slot:'午前',status:'matched',multi:false,applicants:['m1'],offers:{},
+    assign:[{m:'m1',units:1,workerPrice:8000,at:today(),close:{moto:{at:today()}}}],collect:'moto',payin:addDays(2),payout:addBizDays(addDays(2),5),
     customer:{name:'高橋 三郎',addr:'江東区大島3-3-3',tel:'090-0000-0005',note:'犬がいます'}});
-  return {members,jobs,me:'m1',model:'teiji',rate:0.75,version:7};
+  return {members,jobs,me:'m1',model:'teiji',rate:0.75,version:8};
 }
 
 /* ---------- 保存 ---------- */
 const KEY='kyoryokuten-demo-v7';
 let S;
-function migrate(){(S.members||[]).forEach(m=>{m.menus=m.menus||[];EXTRA_MENUS.forEach(x=>{if(!m.menus.some(y=>y.name===x.name)){const i=m.menus.findIndex(y=>y.name==='エアコンクリーニング（お掃除機能付き）');m.menus.splice(i>=0?i+1:m.menus.length,0,{name:x.name,unit:x.unit,min:x.min,on:true,custom:false})}})})}
-function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.version===7){S=s;migrate();return}}catch(e){}S=seed();save()}
+const okVer=v=>v===7||v===8;
+function migrate(){(S.members||[]).forEach(m=>{m.menus=m.menus||[];EXTRA_MENUS.forEach(x=>{if(!m.menus.some(y=>y.name===x.name)){const i=m.menus.findIndex(y=>y.name==='エアコンクリーニング（お掃除機能付き）');m.menus.splice(i>=0?i+1:m.menus.length,0,{name:x.name,unit:x.unit,min:x.min,on:true,custom:false})}});if(!m.dayUnits)m.dayUnits=(m.cap||1)*4});
+  // v7→v8：施工者1社（accepted）を、会社ごとの割り当て（assign）に移す。クローズと評価も割り当ての中へ
+  (S.jobs||[]).forEach(j=>{
+    if(!j.assign)j.assign=j.accepted?[{m:j.accepted,units:units(j),workerPrice:j.workerPrice,at:j.date,close:j.close||{},rating:j.rating}]:[];
+    delete j.accepted;delete j.close;delete j.rating;j.offers=j.offers||{};j.multi=!!j.multi;});
+  S.version=8}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&okVer(s.version)){S=s;migrate();return}}catch(e){}S=seed();save()}
 /* 共有モード（API_URL あり）：保存は「自分が見ていた版（rev）」を添えて送る。サーバー側の rev が違えば拒否され、
    最新を取り直して画面を更新する（後勝ちで相手の操作を消さないため）。2〜3秒ごとに最新を取りに行く */
 let syncBusy=false;
@@ -472,11 +516,11 @@ function save(){
   }).catch(()=>{toast('サーバーに届きませんでした（この端末には保存済み）')}).finally(()=>{syncBusy=false});
 }
 async function loadRemote(){if(!API_URL)return;try{const r=await fetch(API_URL+'?action=load');const j=await r.json();
-  if(j&&j.state&&j.state.version===7){applyRemote(j.state);migrate()}
+  if(j&&j.state&&okVer(j.state.version)){applyRemote(j.state);migrate()}
   else if(j&&j.ok&&!j.state){save()} /* サーバーが空なら、この端末の初期データを置く */
 }catch(e){}}
 function startPolling(){if(!API_URL)return;setInterval(async()=>{if(syncBusy||document.querySelector('.modal'))return;try{const r=await fetch(API_URL+'?action=load&rev='+(S.rev||0));const j=await r.json();
-  if(j&&j.state&&j.state.version===7&&(j.state.rev||0)>(S.rev||0)){const onPost=$('#p-post').classList.contains('on');applyRemote(j.state);if(!onPost)renderAll();else{renderJobs();renderMine();renderMembers();renderMarket()}}}catch(e){}},2500)}
+  if(j&&j.state&&okVer(j.state.version)&&(j.state.rev||0)>(S.rev||0)){const onPost=$('#p-post').classList.contains('on');applyRemote(j.state);migrate();if(!onPost)renderAll();else{renderJobs();renderMine();renderMembers();renderMarket()}}}catch(e){}},2500)}
 
 /* ---------- 計算 ---------- */
 const member=id=>S.members.find(m=>m.id===id);
@@ -485,12 +529,26 @@ function net(j){return Math.round(j.price*(1-(j.fee||0)))}
 function rate(j){const n=net(j);return n?j.workerPrice/n:0}
 const shortName=n=>n.replace('クリーニング','').replace('（ノーマル）','').replace('エアコン ','').replace('業務用エアコン（天カセ）','業務用エアコン（天カセ）');
 function itemsLabel(j){return j.items.map(x=>shortName(x.name)+(x.qty>1?' ×'+x.qty:'')).join('、')}
-function delays(mid){return S.jobs.filter(j=>j.poster===mid&&(j.delay||(j.close&&j.close.shita&&j.close.shita.late))).length}
+function delays(mid){return S.jobs.filter(j=>j.poster===mid&&(j.delay||assigns(j).some(a=>a.close&&a.close.shita&&a.close.shita.late))).length}
 function delayTag(mid){const n=delays(mid);return n?`<span class="tag low">支払遅延 ${n}件</span>`:`<span class="tag done">支払遅延 0件</span>`}
 function minOf(m,name){const x=(m.menus||[]).find(y=>y.name===name);return x?x.min:null}
 function belowMin(j,m){ // 自社設定の最低単価（メニューごと）の合計を、施工額が下回るか。対応外メニューが含まれていれば薄く表示
   let sum=0;for(const it of j.items){const x=(m.menus||[]).find(y=>y.name===it.name);if(!x)continue;if(!x.on)return true;sum+=x.min*it.qty}
   return sum>0&&j.workerPrice<sum}
+/* 施工者は会社ごとの「割り当て」（assign）で持つ。1社に任せる案件は1件だけ。
+   複数社で分担する案件（multi）は「分ける台数」を持ち、施工額は1台あたりで割って会社ごとに決める */
+function units(j){return j.units||j.items.reduce((a,x)=>a+x.qty,0)}
+function assigns(j){return j.assign||[]}
+function assignedUnits(j){return assigns(j).reduce((a,x)=>a+x.units,0)}
+function remaining(j){return Math.max(0,units(j)-assignedUnits(j))}
+function isWorker(j,mid){return assigns(j).some(a=>a.m===mid)}
+function assignOf(j,mid){return assigns(j).find(a=>a.m===mid)}
+function perUnit(j){return j.workerPrice/units(j)}
+function shareWP(j,n){ // n台分の施工額。全台数が埋まる割り当てで端数を吸収し、合計を施工額ぴったりにする
+  if(assignedUnits(j)+n===units(j))return j.workerPrice-assigns(j).reduce((a,x)=>a+x.workerPrice,0);
+  return Math.round(perUnit(j)*n)}
+function allClosed(j){return assigns(j).length>0&&assigns(j).every(a=>a.close&&a.close.moto&&a.close.shita)}
+function workersText(j){return assigns(j).map(a=>member(a.m).name+(j.multi?` ${a.units}台`:'')).join('、')}
 
 /* ---------- 描画：金額ブロック ---------- */
 function moneyHtml(j){
@@ -505,9 +563,16 @@ function moneyHtml(j){
 }
 
 /* ---------- 描画：案件カード ---------- */
+function splitHtml(j){ // 複数社で分担する案件：台数の埋まり具合と、決まった会社
+  if(!j.multi)return '';
+  const u=units(j),d=assignedUnits(j),r=remaining(j);
+  const list=assigns(j).map(a=>`<li><span>${member(a.m).name}${a.m===S.me?'（あなた）':''}</span><span>${a.units}台　${yen(a.workerPrice)}</span></li>`).join('');
+  return `<div class="split"><div class="h"><span>合計 <b>${u}台</b></span><span>1台あたり施工額 <b>${yen(perUnit(j))}</b></span><span>決定 <b>${d}台</b>（${assigns(j).length}社）</span>${j.status==='open'?`<span>残り <b style="color:var(--bad)">${r}台</b></span>`:(r?`<span>残り${r}台は元請けが対応</span>`:'')}</div>
+    <div class="meter"><i style="width:${u?Math.min(100,d/u*100):0}%"></i></div>${list?`<ul>${list}</ul>`:''}</div>`;
+}
 function jobCard(j,ctx){
-  const p=member(j.poster),m=me(),mine=j.poster===S.me,applied=j.applicants.includes(S.me),low=belowMin(j,m)&&!mine;
-  const st={open:'募集中',matched:'成立',done:'完了'}[j.status];
+  const p=member(j.poster),m=me(),mine=j.poster===S.me,applied=j.applicants.includes(S.me),myA=assignOf(j,S.me),low=belowMin(j,m)&&!mine&&!myA;
+  const st={open:j.multi&&assigns(j).length?'募集中（一部決定）':'募集中',matched:'成立',done:'完了'}[j.status];
   const sched=j.collect==='shita'
     ?`<div class="sched"><div><div class="k">集金</div><div class="v">下請けが現場で領収</div></div><div><div class="k">元請け分の支払期限</div><div class="v">領収後5営業日以内（${addBizDays(j.date,5)}）</div></div></div>`
     :`<div class="sched"><div><div class="k">お客様からの入金予定</div><div class="v">${j.payin||'—'}</div></div><div><div class="k">下請けへの支払予定（着金後5営業日）</div><div class="v">${j.delay?`<s style="color:var(--muted);font-weight:400">${j.payout}</s> → ${j.delay.newDate}`:(j.payout||'—')}</div></div></div>`
@@ -515,26 +580,36 @@ function jobCard(j,ctx){
   let actions='';
   if(j.status==='open'){
     if(mine){
-      actions=j.applicants.length?`<div class="row" style="margin-top:6px"><span class="sub">手を挙げた人：</span>${j.applicants.map(a=>`<button class="btn sm" data-act="accept" data-j="${j.id}" data-m="${a}">${member(a).name} に決める</button>`).join('')}</div>`
-        :`<div class="sub" style="margin-top:6px">まだ手が挙がっていません</div>`;
-      actions+=`<div class="row" style="margin-top:6px"><button class="btn quiet sm" data-act="cancel" data-j="${j.id}">募集を取り下げる</button></div>`;
-    }else if(applied){actions=`<div class="row" style="margin-top:6px"><span class="tag matched">手を挙げています</span><button class="btn quiet sm" data-act="withdraw" data-j="${j.id}">取り消す</button></div>`}
+      const cands=j.applicants.filter(a=>!isWorker(j,a));
+      if(j.multi){
+        actions=cands.length?`<div style="margin-top:6px"><div class="sub">手を挙げた人に台数を割り当てます。決めた会社から順にお客様情報が開きます。</div>${cands.map(a=>{const mx=Math.min((j.offers||{})[a]||remaining(j),remaining(j));
+            return `<div class="asg"><b>${member(a).name}</b><span class="sub">対応できる台数 ${(j.offers||{})[a]||'—'}台</span><span class="grow"></span><input type="number" min="1" max="${mx}" value="${mx}" aria-label="${member(a).name}に任せる台数"><span>台</span><button class="btn sm" data-act="assign" data-j="${j.id}" data-m="${a}">この台数で決める</button></div>`}).join('')}</div>`
+          :`<div class="sub" style="margin-top:6px">${assigns(j).length?'ほかに手を挙げた人はいません':'まだ手が挙がっていません'}</div>`;
+      }else{
+        actions=cands.length?`<div class="row" style="margin-top:6px"><span class="sub">手を挙げた人：</span>${cands.map(a=>`<button class="btn sm" data-act="accept" data-j="${j.id}" data-m="${a}">${member(a).name} に決める</button>`).join('')}</div>`
+          :`<div class="sub" style="margin-top:6px">まだ手が挙がっていません</div>`;
+      }
+      actions+=`<div class="row" style="margin-top:6px">${assigns(j).length?`<button class="btn quiet sm" data-act="closeRecruit" data-j="${j.id}">募集を締め切る（残り${remaining(j)}台は自社で対応）</button>`:`<button class="btn quiet sm" data-act="cancel" data-j="${j.id}">募集を取り下げる</button>`}</div>`;
+    }else if(myA){actions=`<div class="row" style="margin-top:6px"><span class="tag done">あなたに${myA.units}台で決まりました</span></div>`}
+    else if(applied){actions=`<div class="row" style="margin-top:6px"><span class="tag matched">手を挙げています${j.multi?`（${(j.offers||{})[S.me]||'—'}台）`:''}</span><button class="btn quiet sm" data-act="withdraw" data-j="${j.id}">取り消す</button></div>`}
     else{actions=`<div class="row" style="margin-top:6px"><button class="btn cta" data-act="apply" data-j="${j.id}">この案件に手を挙げる</button>${low?`<span class="tag low">あなたの最低受け額 未満</span>`:''}</div>`}
   }
-  if(j.status==='matched'){
-    const canSee=j.accepted===S.me||mine;
-    actions=`<div class="private ${canSee?'':'locked'}" style="margin-top:8px">${canSee?
+  if(assigns(j).length&&j.status!=='done'){
+    const canSee=mine||!!myA;
+    actions+=`<div class="private ${canSee?'':'locked'}" style="margin-top:8px">${canSee?
       `<div class="cap">🔒 お客様情報（${mine?'あなたが出した案件':'あなたが受けた案件'}）</div>${j.quote?(j.quote.type.startsWith('image/')?`<img class="thumb" src="${j.quote.data}" alt="見積書">`:`<a class="btn ghost sm" href="${j.quote.data}" download="${j.quote.name}">📎 見積書（${j.quote.name}）</a>`):''}<div class="kv"><span class="k">氏名</span><span>${j.customer.name}</span><span class="k">住所</span><span>${j.customer.addr}</span><span class="k">電話</span><span><a href="tel:${j.customer.tel}">${j.customer.tel}</a></span><span class="k">連絡</span><span>${j.customer.note||'—'}</span></div>
-       <div class="row" style="margin-top:8px"><span class="sub">施工：${member(j.accepted).name}（現場では「${p.name}」として名乗る）</span></div>
-       ${closePanel(j)}`
-      :`🔒 お客様情報は成立した相手（${member(j.accepted).name}）だけに表示`}</div>`;
+       <div class="row" style="margin-top:8px"><span class="sub">施工：${workersText(j)}（現場では${j.multi?'全社が':''}「${p.name}」として名乗る）</span></div>
+       ${closeSection(j)}`
+      :`🔒 お客様情報は決まった相手（${workersText(j)}）だけに表示`}</div>`;
   }
-  if(j.status==='done'){const party=(j.accepted===S.me||mine);
-    actions=`<div class="sub" style="margin-top:6px">施工：${member(j.accepted).name}${j.rating?`　元請け評価 ★${j.rating}`:''}</div>
-    ${party?`<div class="row" style="margin-top:8px"><button class="btn ghost sm" data-act="invoice" data-j="${j.id}">📄 請求書（PDF保存）</button><span class="sub">保存期限 ${addDaysTo(j.date,60)}（施工日から60日）</span></div>`:''}`}
+  if(j.status==='done'){
+    const mineInv=assigns(j).filter(a=>mine||a.m===S.me);
+    actions=`<div class="sub" style="margin-top:6px">施工：${assigns(j).map(a=>member(a.m).name+(j.multi?` ${a.units}台`:'')+(a.rating?`（評価 ★${a.rating}）`:'')).join('、')}</div>
+    ${mineInv.length?`<div class="row" style="margin-top:8px">${mineInv.map(a=>`<button class="btn ghost sm" data-act="invoice" data-j="${j.id}" data-m="${a.m}">📄 請求書${mine&&assigns(j).length>1?`（${member(a.m).name}）`:''}（PDF保存）</button>`).join('')}<span class="sub">保存期限 ${addDaysTo(j.date,60)}（施工日から60日）</span></div>`:''}`}
+  const myShare=myA&&j.multi?`<div class="okbox" style="margin:6px 0">あなたの分：<b>${myA.units}台　施工額 ${yen(myA.workerPrice)}</b></div>`:'';
   return `<div class="card ${low&&j.status==='open'?'dim':''}">
-    <div class="top"><div><div class="title">${itemsLabel(j)}</div><div class="sub">${j.area}　${j.date}（${j.slot}）　出した人：${mine?'あなた':p.name} ${delayTag(j.poster)}</div></div><span class="tag ${j.status}">${st}</span></div>
-    ${moneyHtml(j)}${sched}${actions}</div>`;
+    <div class="top"><div><div class="title">${itemsLabel(j)}${j.multi?' <span class="tag multi">複数社で分担</span>':''}</div><div class="sub">${j.area}　${j.date}（${j.slot}）　出した人：${mine?'あなた':p.name} ${delayTag(j.poster)}</div></div><span class="tag ${j.status}">${st}</span></div>
+    ${moneyHtml(j)}${splitHtml(j)}${myShare}${sched}${actions}</div>`;
 }
 
 /* ---------- 各ページ ---------- */
@@ -545,16 +620,16 @@ function renderJobs(){
 }
 function renderMine(){
   const out=S.jobs.filter(j=>j.poster===S.me).sort((a,b)=>b.date.localeCompare(a.date));
-  const inn=S.jobs.filter(j=>j.poster!==S.me&&(j.applicants.includes(S.me)||j.accepted===S.me)).sort((a,b)=>b.date.localeCompare(a.date));
+  const inn=S.jobs.filter(j=>j.poster!==S.me&&(j.applicants.includes(S.me)||isWorker(j,S.me))).sort((a,b)=>b.date.localeCompare(a.date));
   $('#mineOut').innerHTML=out.length?out.map(j=>jobCard(j)).join(''):`<div class="empty">まだ出していません</div>`;
   $('#mineIn').innerHTML=inn.length?inn.map(j=>jobCard(j)).join(''):`<div class="empty">まだありません。「案件」から手を挙げてください</div>`;
 }
 function renderMembers(){
   $('#membersList').innerHTML=S.members.map(m=>{
-    const took=S.jobs.filter(j=>j.accepted===m.id&&j.status!=='open').length,gave=S.jobs.filter(j=>j.poster===m.id&&j.status!=='open').length;
-    const rs=S.jobs.filter(j=>j.accepted===m.id&&j.status==='done'&&j.rating).map(j=>j.rating);const r=rs.length?(rs.reduce((a,b)=>a+b,0)/rs.length).toFixed(1):'—';
+    const took=S.jobs.filter(j=>isWorker(j,m.id)).length,gave=S.jobs.filter(j=>j.poster===m.id&&assigns(j).length).length;
+    const rs=S.jobs.flatMap(j=>assigns(j).filter(a=>a.m===m.id&&a.rating).map(a=>a.rating));const r=rs.length?(rs.reduce((a,b)=>a+b,0)/rs.length).toFixed(1):'—';
     const onMenus=(m.menus||[]).filter(x=>x.on);
-    return `<div class="card"><div class="top"><div><div class="title">${m.name}${m.id===S.me?' <span class="tag mine">あなた</span>':''}${m.id==='m1'?' <span class="tag mine">運営</span>':''}</div><div class="sub">${m.area}　稼働可能 ${m.cap||1}人</div></div>
+    return `<div class="card"><div class="top"><div><div class="title">${m.name}${m.id===S.me?' <span class="tag mine">あなた</span>':''}${m.id==='m1'?' <span class="tag mine">運営</span>':''}</div><div class="sub">${m.area}　稼働可能 ${m.cap||1}人・1日 ${m.dayUnits||'—'}台</div></div>
       <div style="text-align:right;font-size:12px;color:var(--muted)">票の重み<br><b style="font-size:16px;color:var(--ink)">${took+gave}</b></div></div>
       <div class="kv" style="margin-top:8px"><span class="k">受けた／出した</span><span>${took}件 ／ ${gave}件</span><span class="k">元請け評価</span><span>★${r}</span>
       <span class="k">支払遅延</span><span>${delays(m.id)?`<span class="tag low">${delays(m.id)}件</span>`:'0件'}<small style="color:var(--muted)">（元請けとして。申し送り＋下請けの申告）</small></span>
@@ -576,7 +651,7 @@ function renderMarket(){
   $('#marketTable').innerHTML=`<table><thead><tr><th>1台・1箇所<br>あたり</th><th class="num">成立</th><th class="num">手取り</th><th class="num">施工額</th><th class="num">取り分</th></tr></thead><tbody>${rows.join('')||'<tr><td colspan=5 class="empty">まだ成立がありません</td></tr>'}</tbody></table>
     <p class="hint" style="font-size:12px;color:var(--muted);margin-top:8px">中央値＝成立した案件の真ん中の値。全案件の取り分率の中央値：<b>${allR.length?pct(median(allR)):'—'}</b>（施工者側）。既存の仲介と比べると、紹介料12%・くらしのマーケット20%・本舗ロイヤリティ約28%・マッチングPF約35%が元請け／仲介側の取り分。</p>`;
   const open=S.jobs.filter(j=>j.status==='open').length,matched=S.jobs.filter(j=>j.status==='matched').length;
-  const gmv=done.reduce((a,j)=>a+j.price,0),paid=done.reduce((a,j)=>a+j.workerPrice,0);
+  const gmv=done.reduce((a,j)=>a+j.price,0),paid=done.reduce((a,j)=>a+assigns(j).reduce((b,x)=>b+x.workerPrice,0),0);
   $('#statsKv').innerHTML=`<span class="k">会員</span><span>${S.members.length}社</span><span class="k">募集中／成立／完了</span><span>${open}／${matched}／${done.length}件</span><span class="k">完了案件の請求額 合計</span><span>${yen(gmv)}</span><span class="k">うち施工者に渡った額</span><span>${yen(paid)}（${gmv?pct(paid/gmv):'—'}）</span><span class="k">利用料</span><span>当面ゼロ（会員10社・成立20件から月500円程度、投票で決める）</span>`;
 }
 function renderWho(){
@@ -592,7 +667,7 @@ function renderSettings(){
 function renderAll(){renderWho();renderJobs();renderMine();renderMembers();renderMarket();renderSettings();syncPostMoney()}
 
 /* ---------- 出すフォーム ---------- */
-const form={rows:[],fee:0,collect:'moto',userTouchedWorker:false,userTouchedPrice:false,quote:null};
+const form={rows:[],fee:0,collect:'moto',multi:false,userTouchedUnits:false,userTouchedWorker:false,userTouchedPrice:false,quote:null};
 function syncSched(){
   const moto=form.collect==='moto';
   $('#fPayinWrap').hidden=!moto;
@@ -600,21 +675,27 @@ function syncSched(){
   $('#fPayout').value=moto?addBizDays($('#fPayin').value,5):addBizDays($('#fDate').value,5);
 }
 function confirmApply(j,ok){
-  const shita=j.collect==='shita';
+  const shita=j.collect==='shita',rem=remaining(j),def=Math.max(1,Math.min(me().dayUnits||1,rem));
   const box=document.createElement('div');box.className='modal';
   box.innerHTML=`<div class="box"><h3>受ける前の確認</h3>
     <p class="lead" style="margin-bottom:6px">${itemsLabel(j)}　${j.area}　${j.date}（${j.slot}）</p>
-    ${moneyHtml(j)}
+    ${moneyHtml(j)}${splitHtml(j)}
+    ${j.multi?`<div class="field"><label>対応できる台数（残り${rem}台）</label><input type="number" id="ckUnits" min="1" max="${rem}" value="${def}"><div class="hint" id="ckAmt"></div></div>`:''}
     <label class="ck"><input type="checkbox" id="ck1"><span>${shita
       ?`<b>自分が現場で全額を領収</b>し、元請け分 <b>${yen(net(j)-j.workerPrice)}</b> を<b>領収後5営業日以内（${addBizDays(j.date,5)}まで）</b>に ${member(j.poster).name} へ支払うことを確認しました`
+      :j.multi?`施工額は<b>1台あたり ${yen(perUnit(j))} × 決まった台数</b>。お客様からの入金予定は <b>${j.payin}</b>、支払予定は<b>着金後5営業日以内（${j.payout}）</b>であることを確認しました`
       :`お客様からの入金予定は <b>${j.payin}</b>、施工額 <b>${yen(j.workerPrice)}</b> の支払予定は<b>着金後5営業日以内（${j.payout}）</b>であることを確認しました`}</span></label>
     <label class="ck"><input type="checkbox" id="ck2"><span>現場では <b>${member(j.poster).name}</b> の名前で名乗り、自社の名刺は渡しません</span></label>
     <div class="row actions" style="margin-top:10px"><button class="btn cta" id="ckOk" disabled>確認して手を挙げる</button><button class="btn quiet" id="ckNo">やめる</button></div></div>`;
   document.body.appendChild(box);
-  const upd=()=>{$('#ckOk',box).disabled=!($('#ck1',box).checked&&$('#ck2',box).checked)};
-  $('#ck1',box).onchange=upd;$('#ck2',box).onchange=upd;
+  const nIn=$('#ckUnits',box);
+  const getN=()=>nIn?Math.floor(+nIn.value||0):units(j);
+  const nOk=()=>!nIn||(getN()>=1&&getN()<=rem);
+  const amt=()=>{if(!nIn)return;$('#ckAmt',box).innerHTML=nOk()?`${getN()}台なら施工額 <b>${yen(Math.round(perUnit(j)*getN()))}</b>。台数は出した人が決めます（希望より少なくなることがあります）`:`1〜${rem}台で入れてください`};
+  const upd=()=>{amt();$('#ckOk',box).disabled=!($('#ck1',box).checked&&$('#ck2',box).checked&&nOk())};
+  $('#ck1',box).onchange=upd;$('#ck2',box).onchange=upd;if(nIn)nIn.oninput=upd;amt();
   $('#ckNo',box).onclick=()=>box.remove();
-  $('#ckOk',box).onclick=()=>{box.remove();ok()};
+  $('#ckOk',box).onclick=()=>{const n=getN();box.remove();ok(n)};
 }
 /* クローズ手続き：入金予定日に双方へURL付き通知 → 各自がチェックして押下 → 双方押下で完了。未押下は毎日催促 */
 function closeItems(j,party){
@@ -626,33 +707,39 @@ function closeItems(j,party){
     ? ['元請けに元請け分を支払った','クレーム・やり直しは発生していない','元請けの対応（情報・連絡）に問題はなかった']
     : ['受注代金の入金を確認した','クレーム・やり直しは発生していない','元請けの対応（情報・連絡）に問題はなかった'];
 }
-function closePanel(j){
-  j.close=j.close||{};
-  const myParty=j.poster===S.me?'moto':(j.accepted===S.me?'shita':null);
-  if(!myParty) return '';
-  const other=myParty==='moto'?'shita':'moto';
-  const delayBtn=(myParty==='moto'&&!j.delay&&j.collect!=='shita')?`<div class="row" style="margin-top:8px"><button class="btn quiet sm" data-act="delay" data-j="${j.id}">支払が遅れる場合の申し送り</button><span class="sub">下請けに通知され、遅延1件として記録されます</span></div>`:'';
-  const notifyDay=j.collect==='shita'?addBizDays(j.date,5):(j.delay?j.delay.newDate:j.payout);
-  const mineDone=!!j.close[myParty], otherDone=!!j.close[other];
-  const mail=delayBtn+`<div class="note" style="margin-top:10px"><b>📧 ${notifyDay} に双方へ通知（登録アドレスへURL付き）</b><br>「施工代金の支払い・入金を済ませたうえで、本案件をクローズしてください」。どちらかが未押下の間は<b>毎日</b>対応依頼メールが届きます。</div>`;
+function closeSection(j){ // 元請けは決まった全社ぶん、下請けは自分の分だけクローズする
+  const mine=j.poster===S.me,myA=assignOf(j,S.me);
+  if(!mine&&!myA)return '';
+  const shita=j.collect==='shita';
+  const delayBtn=(mine&&!j.delay&&!shita)?`<div class="row" style="margin-top:8px"><button class="btn quiet sm" data-act="delay" data-j="${j.id}">支払が遅れる場合の申し送り</button><span class="sub">${j.multi?'決まった全社':'下請け'}に通知され、遅延1件として記録されます</span></div>`:'';
+  const notifyDay=shita?addBizDays(j.date,5):(j.delay?j.delay.newDate:j.payout);
+  const mail=delayBtn+`<div class="note" style="margin-top:10px"><b>📧 ${notifyDay} に${j.multi?'元請けと各社':'双方'}へ通知（登録アドレスへURL付き）</b><br>「施工代金の支払い・入金を済ませたうえで、本案件をクローズしてください」。どちらかが未押下の間は<b>毎日</b>対応依頼メールが届きます。${j.multi?'<br>クローズは<b>会社ごと</b>。全社がそろうと案件完了です。':''}</div>`;
+  return mail+(mine?assigns(j):[myA]).map(a=>closePanel(j,a)).join('');
+}
+function closePanel(j,a){
+  a.close=a.close||{};
+  const myParty=j.poster===S.me?'moto':'shita',other=myParty==='moto'?'shita':'moto';
+  const otherName=myParty==='moto'?member(a.m).name:member(j.poster).name;
+  const who=j.multi&&myParty==='moto'?`${member(a.m).name}（${a.units}台・${yen(a.workerPrice)}）`:'';
+  const mineDone=!!a.close[myParty], otherDone=!!a.close[other];
   if(mineDone){
-    return mail+`<div class="okbox">あなたはクローズ済み（${j.close[myParty].at}）。${otherDone?'双方クローズ済み':`相手（${member(myParty==='moto'?j.accepted:j.poster).name}）のクローズ待ち。毎日催促メールが送られます`}</div>`;
+    return `<div class="okbox">${who?who+'：':''}あなたはクローズ済み（${a.close[myParty].at}）。${otherDone?'双方クローズ済み':`相手（${otherName}）のクローズ待ち。毎日催促メールが送られます`}</div>`;
   }
-  const items=closeItems(j,myParty).map((t,i)=>`<label class="ck"><input type="checkbox" class="cl-ck" data-j="${j.id}"><span>${t}</span></label>`).join('')
-    +(myParty==='shita'&&j.collect!=='shita'?`<label class="ck" style="border-style:dashed"><input type="checkbox" class="cl-opt" data-j="${j.id}" ${j.delay?'':'checked'}><span>入金は支払予定日どおりだった<br><small style="color:var(--muted)">外すと元請けの「支払遅延」として記録されます${j.delay?'（申し送りがあるため既に遅延として記録）':''}</small></span></label>`:'');
-  const rating=myParty==='moto'?`<div class="field" style="margin:6px 0"><label>下請けの評価（相場・票の重みには影響しない。受注停止基準の元データ）</label><select class="cl-rate" data-j="${j.id}"><option value="5">★5 問題なし</option><option value="4">★4</option><option value="3">★3</option><option value="2">★2 要改善</option><option value="1">★1 不可</option></select></div>`:'';
-  return mail+`<div style="margin-top:8px"><b>本案件のクローズ（${myParty==='moto'?'元請け':'下請け'}として）</b>${items}${rating}
-    <div class="row" style="margin-top:6px"><button class="btn cta sm" data-act="close" data-j="${j.id}" data-party="${myParty}" disabled>本案件をクローズする</button>${otherDone?'<span class="tag done">相手はクローズ済み</span>':'<span class="tag matched">相手は未クローズ</span>'}</div></div>`;
+  const items=closeItems(j,myParty).map(t=>`<label class="ck"><input type="checkbox" class="cl-ck"><span>${t}</span></label>`).join('')
+    +(myParty==='shita'&&j.collect!=='shita'?`<label class="ck" style="border-style:dashed"><input type="checkbox" class="cl-opt" ${j.delay?'':'checked'}><span>入金は支払予定日どおりだった<br><small style="color:var(--muted)">外すと元請けの「支払遅延」として記録されます${j.delay?'（申し送りがあるため既に遅延として記録）':''}</small></span></label>`:'');
+  const rating=myParty==='moto'?`<div class="field" style="margin:6px 0"><label>${who?member(a.m).name+'の':'下請けの'}評価（相場・票の重みには影響しない。受注停止基準の元データ）</label><select class="cl-rate"><option value="5">★5 問題なし</option><option value="4">★4</option><option value="3">★3</option><option value="2">★2 要改善</option><option value="1">★1 不可</option></select></div>`:'';
+  return `<div class="clp" style="margin-top:8px"><b>${who?who+' の':'本案件の'}クローズ（${myParty==='moto'?'元請け':'下請け'}として）</b>${items}${rating}
+    <div class="row" style="margin-top:6px"><button class="btn cta sm" data-act="close" data-j="${j.id}" data-m="${a.m}" data-party="${myParty}" disabled>本案件をクローズする</button>${otherDone?'<span class="tag done">相手はクローズ済み</span>':'<span class="tag matched">相手は未クローズ</span>'}</div></div>`;
 }
 document.addEventListener('change',e=>{
   if(!e.target.classList.contains('cl-ck'))return;
-  const card=e.target.closest('.card');const all=[...card.querySelectorAll('.cl-ck')];
-  card.querySelector('[data-act=close]').disabled=!all.every(c=>c.checked);
+  const box=e.target.closest('.clp');const all=[...box.querySelectorAll('.cl-ck')];
+  box.querySelector('[data-act=close]').disabled=!all.every(c=>c.checked);
 });
 function showDelay(j){
   const box=document.createElement('div');box.className='modal';
   box.innerHTML=`<div class="box"><h3>支払が遅れる場合の申し送り</h3>
-    <p class="lead">原則は支払予定日（${j.payout}）に払います。大型案件などでどうしても難しいときだけ使ってください。下請け（${member(j.accepted).name}）に通知され、<b>あなたの「支払遅延」に1件加算</b>されます。</p>
+    <p class="lead">原則は支払予定日（${j.payout}）に払います。大型案件などでどうしても難しいときだけ使ってください。下請け（${workersText(j)}）に通知され、<b>あなたの「支払遅延」に1件加算</b>されます。</p>
     <div class="field"><label>新しい支払予定日</label><input type="date" id="dlDate" value="${addDaysTo(j.payout,14)}"></div>
     <div class="field"><label>理由（下請けに見えます）</label><input type="text" id="dlReason" placeholder="例：お客様（法人）の支払サイトが翌月末のため"></div>
     <div class="row actions"><button class="btn cta" id="dlOk">申し送りを送る</button><button class="btn quiet" id="dlNo">やめる</button></div></div>`;
@@ -661,15 +748,15 @@ function showDelay(j){
   $('#dlOk',box).onclick=()=>{const d=$('#dlDate',box).value;if(!d){toast('日付を入れてください');return}
     j.delay={at:today(),newDate:d,reason:$('#dlReason',box).value.trim()};box.remove();save();renderAll();toast('申し送りを送りました。支払遅延として記録されました')};
 }
-function showInvoice(j){
-  const poster=member(j.poster),worker=member(j.accepted);
+function showInvoice(j,a){
+  const poster=member(j.poster),worker=member(a.m);
   const shita=j.collect==='shita';
   // 元請け領収：下請け→元請けへ「施工額」の請求書。下請け領収：元請け→下請けへ「元請け分」の請求書
   const from=shita?poster:worker, to=shita?worker:poster;
-  const amount=shita?(net(j)-j.workerPrice):j.workerPrice;
+  const amount=shita?(net(j)-a.workerPrice):a.workerPrice;
   const tax=Math.round(amount-amount/1.1), base=amount-tax;
   const due=shita?addBizDays(j.date,5):j.payout;
-  const no=`KN-${j.date.replace(/-/g,'')}-${j.id.toUpperCase()}`;
+  const no=`KN-${j.date.replace(/-/g,'')}-${j.id.toUpperCase()}${j.multi?'-'+(assigns(j).indexOf(a)+1):''}`;
   const box=document.createElement('div');box.className='modal';
   box.innerHTML=`<div class="box">
     <div class="row between actions" style="margin-bottom:10px"><b>請求書（PDF保存は「印刷」→「PDFに保存」）</b><div class="row"><button class="btn sm" id="invPrint">🖨 印刷／PDF保存</button><button class="btn quiet sm" id="invClose">閉じる</button></div></div>
@@ -681,9 +768,9 @@ function showInvoice(j){
         <div>お支払期限：<b>${due}</b>${shita?'（領収後5営業日以内）':'（お客様からの着金後5営業日以内）'}</div></div>
         <div style="text-align:right;font-size:12px"><div>請求書番号：${no}</div><div>発行日：${today()}</div><div style="margin-top:8px;font-weight:700;font-size:14px">${from.name}</div><div>${from.area}</div><div>登録番号：${from.invoice?'T0000000000000（デモ）':'（免税事業者・登録なし）'}</div></div></div>
       <table><thead><tr><th>施工日</th><th>内容</th><th class="num">金額（税抜）</th></tr></thead>
-        <tbody><tr><td>${j.date}</td><td>${shita?'元請け取り分（'+itemsLabel(j)+'／'+j.area+'）':itemsLabel(j)+'　施工（'+j.area+'）'}</td><td class="num">${yen(base)}</td></tr></tbody>
+        <tbody><tr><td>${j.date}</td><td>${shita?'元請け取り分（'+itemsLabel(j)+'／'+j.area+'）':itemsLabel(j)+(j.multi?'のうち '+a.units+'台分':'')+'　施工（'+j.area+'）'}</td><td class="num">${yen(base)}</td></tr></tbody>
         <tfoot><tr><th colspan="2" class="num">10%対象 小計</th><td class="num">${yen(base)}</td></tr><tr><th colspan="2" class="num">消費税（10%）</th><td class="num">${yen(tax)}</td></tr><tr><th colspan="2" class="num">合計</th><td class="num"><b>${yen(amount)}</b></td></tr></tfoot></table>
-      <div class="foot">この請求書は協力店ネット（仮称）が案件の成立条件（請求額 ${yen(j.price)}、外部手数料 ${pct(j.fee||0)}、施工額 ${yen(j.workerPrice)}、取り分 ${pct(rate(j))}）から自動作成しました。当事者双方がダウンロードできます。システム上の保存期限は施工日から60日（${addDaysTo(j.date,60)}）。<b>各社の帳簿保存（7年）は各社で行ってください。</b>振込手数料はお支払い側のご負担でお願いします。</div>
+      <div class="foot">この請求書は協力店ネット（仮称）が案件の成立条件（請求額 ${yen(j.price)}、外部手数料 ${pct(j.fee||0)}、施工額 ${yen(j.workerPrice)}、取り分 ${pct(rate(j))}${j.multi?`、全${units(j)}台のうち${a.units}台分＝${yen(a.workerPrice)}`:''}）から自動作成しました。当事者双方がダウンロードできます。システム上の保存期限は施工日から60日（${addDaysTo(j.date,60)}）。<b>各社の帳簿保存（7年）は各社で行ってください。</b>振込手数料はお支払い側のご負担でお願いします。</div>
     </div></div>`;
   document.body.appendChild(box);
   $('#invClose',box).onclick=()=>box.remove();
@@ -768,11 +855,21 @@ function buildPostForm(){
   $('#fFee').oninput=e=>{const v=Math.min(90,Math.max(0,parseFloat(e.target.value)||0));form.fee=v/100;syncPostMoney()};
   $('#fDate').value=addDays(4);$('#fDate').oninput=()=>{syncSched()};
   $('#fPayin').value=addDays(4);$('#fPayin').oninput=syncSched;
-  $$('#collectSeg button').forEach(b=>b.onclick=()=>{$$('#collectSeg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');form.collect=b.dataset.v;syncSched()});
+  $$('#collectSeg button').forEach(b=>b.onclick=()=>{if(b.disabled)return;$$('#collectSeg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');form.collect=b.dataset.v;syncSched()});
   syncSched();
+  $$('#splitSeg button').forEach(b=>b.onclick=()=>{setMulti(b.dataset.v==='multi');syncPostMoney()});
+  $('#fUnits').oninput=()=>{form.userTouchedUnits=true;syncPostMoney()};
   $('#fPrice').oninput=()=>{form.userTouchedPrice=true;form.userTouchedWorker=false;syncPostMoney()};
   $('#fWorker').oninput=()=>{form.userTouchedWorker=true;syncPostMoney(true)};
   renderLines();
+}
+function setMulti(on){
+  form.multi=on;
+  $$('#splitSeg button').forEach(b=>b.classList.toggle('on',(b.dataset.v==='multi')===on));
+  $('#fUnitsWrap').hidden=!on;
+  $('#splitHint').innerHTML=on?'大型案件向け。<b>1台あたりの施工額</b>で募集し、手を挙げた会社ごとに台数を決めます。決めた会社から順にお客様情報が開きます。集金は元請けのみ。':'1社が全部を施工します。';
+  const sh=$('#collectSeg button[data-v=shita]');sh.disabled=on;
+  if(on&&form.collect==='shita'){form.collect='moto';$$('#collectSeg button').forEach(x=>x.classList.toggle('on',x.dataset.v==='moto'));syncSched()}
 }
 function syncPostMoney(fromWorker){
   if(!form.userTouchedPrice){$('#fPrice').value=linesTotal()||''}
@@ -782,10 +879,15 @@ function syncPostMoney(fromWorker){
   else{w.readOnly=false;if(!form.userTouchedWorker)w.value=Math.round(n*S.rate)}
   const j={price,fee:form.fee,workerPrice:+w.value||0};
   $('#postMoneyWrap').innerHTML=moneyHtml(j);
+  if(form.multi){
+    const u=$('#fUnits');if(!form.userTouchedUnits)u.value=Math.max(2,...form.rows.map(r=>r.qty||0),0);
+    const n2=+u.value||0;
+    $('#unitsHint').innerHTML=n2>=2?`1台あたり施工額 <b>${yen((+w.value||0)/n2)}</b>。受ける人は対応できる台数を添えて手を挙げ、あなたが会社ごとに台数を決めます。例：1社4〜10台なら ${Math.ceil(n2/10)}〜${Math.ceil(n2/4)}社`:'2台以上にしてください';
+  }
   $('#workerHint').textContent=S.model==='teiji'?`既定値は手取り×${pct(S.rate)}。変えてよい。取り分率は全員に見える。`:S.model==='rate'?`率モデル：手取り×${pct(S.rate)} で固定（変更不可）`:`固定モデル：この画面では手取り×${pct(S.rate)} で代用`;
 }
 function resetPostForm(){
-  form.rows=[];form.fee=0;form.collect='moto';form.userTouchedPrice=form.userTouchedWorker=false;form.quote=null;
+  form.rows=[];form.fee=0;form.collect='moto';form.userTouchedPrice=form.userTouchedWorker=form.userTouchedUnits=false;form.quote=null;setMulti(false);
   $('#postForm').reset();$('#quotePreview').innerHTML='';$('#ocrStatus').textContent='';$('#ocrBtn').disabled=true;
   $$('#collectSeg button').forEach((b,i)=>b.classList.toggle('on',i===0));$('#fPayinWrap').hidden=false;$('#fPayin').value=addDays(4);$('#fDate').value=addDays(4);syncSched();
   $('#fFee').value=0;
@@ -798,7 +900,9 @@ $('#postForm').onsubmit=e=>{
   const price=+$('#fPrice').value||0,wp=+$('#fWorker').value||0;
   if(wp>Math.round(price*(1-form.fee))){toast('施工額が手取りを超えています');return}
   if(form.collect==='moto'&&!$('#fPayin').value){toast('お客様からの入金予定日を入れてください（必須開示）');return}
-  S.jobs.push({id:uid(),poster:S.me,items,price,fee:form.fee,workerPrice:wp,area:$('#fArea').value.trim()||'—',date:$('#fDate').value,slot:$('#fSlot').value,status:'open',applicants:[],accepted:null,
+  const nU=Math.floor(+$('#fUnits').value||0);
+  if(form.multi&&nU<2){toast('分ける台数は2台以上にしてください');return}
+  S.jobs.push({id:uid(),poster:S.me,items,price,fee:form.fee,workerPrice:wp,area:$('#fArea').value.trim()||'—',date:$('#fDate').value,slot:$('#fSlot').value,status:'open',multi:form.multi,...(form.multi?{units:nU}:{}),applicants:[],offers:{},assign:[],
     collect:form.collect,payin:form.collect==='moto'?$('#fPayin').value:'',payout:form.collect==='moto'?addBizDays($('#fPayin').value,5):addBizDays($('#fDate').value,5),
     quote:form.quote,
     customer:{name:$('#fCname').value.trim()||'（未入力）',addr:$('#fCaddr').value.trim(),tel:$('#fCtel').value.trim(),note:$('#fCnote').value.trim()}});
@@ -809,7 +913,7 @@ $('#postForm').onsubmit=e=>{
 /* ---------- 自社設定 ---------- */
 function renderCompany(){
   const m=me();
-  $('#sName').value=m.name;$('#sCap').value=m.cap||1;
+  $('#sName').value=m.name;$('#sCap').value=m.cap||1;$('#sDay').value=m.dayUnits||'';
   $('#sEquip').innerHTML=EQUIP.map(e=>`<label class="${(m.equip||[]).includes(e)?'on':''}"><input type="checkbox" ${(m.equip||[]).includes(e)?'checked':''} value="${e}">${e}</label>`).join('');
   $$('#sEquip label').forEach(l=>{$('input',l).onchange=e=>l.classList.toggle('on',e.target.checked)});
   renderCompanyMenus(JSON.parse(JSON.stringify(m.menus||[])));
@@ -832,7 +936,7 @@ function renderCompanyMenus(draft){
 $('#sAddMenu').onclick=()=>{sDraft.push({name:'',unit:0,min:0,on:true,custom:true});renderCompanyMenus(sDraft);const last=$$('#sMenus .s-name').pop();if(last)last.focus()};
 $('#sSave').onclick=()=>{
   const m=me();
-  m.name=$('#sName').value.trim()||m.name;m.cap=Math.max(1,+$('#sCap').value||1);
+  m.name=$('#sName').value.trim()||m.name;m.cap=Math.max(1,+$('#sCap').value||1);m.dayUnits=Math.max(1,+$('#sDay').value||1);
   m.equip=$$('#sEquip input:checked').map(i=>i.value);
   m.menus=sDraft.filter(x=>x.name).map(x=>({name:x.name,unit:x.unit,min:x.min,on:!!x.on,custom:!!x.custom}));
   save();toast('自社設定を保存しました');renderAll();renderCompany();
@@ -845,16 +949,24 @@ document.addEventListener('click',e=>{
   const j=S.jobs.find(x=>x.id===b.dataset.j);if(!j)return;
   const act=b.dataset.act;
   if(act==='apply'){if(!me().insurance){toast('保険の証券番号が未登録のため受注できません');return}
-    confirmApply(j,()=>{if(!j.applicants.includes(S.me))j.applicants.push(S.me);save();renderAll();toast('手を挙げました。出した人に通知が飛びます')});return}
-  if(act==='invoice'){showInvoice(j);return}
+    confirmApply(j,n=>{if(!j.applicants.includes(S.me))j.applicants.push(S.me);if(j.multi){j.offers=j.offers||{};j.offers[S.me]=n}save();renderAll();toast(j.multi?`${n}台で手を挙げました。出した人に通知が飛びます`:'手を挙げました。出した人に通知が飛びます')});return}
+  if(act==='invoice'){const a=assignOf(j,b.dataset.m);if(a)showInvoice(j,a);return}
   if(act==='delay'){showDelay(j);return}
-  if(act==='close'){j.close=j.close||{};const party=b.dataset.party;const card=b.closest('.card');const sel=card.querySelector('.cl-rate');const opt=card.querySelector('.cl-opt');
-    j.close[party]={at:today(),late:party==='shita'&&opt?!opt.checked:false};if(party==='moto'&&sel)j.rating=+sel.value;
-    if(j.close.moto&&j.close.shita){j.status='done';toast('双方がクローズしました。案件完了。相場と票の重みに反映されました')}
+  if(act==='close'){const a=assignOf(j,b.dataset.m);if(!a)return;const party=b.dataset.party;const box=b.closest('.clp');const sel=box.querySelector('.cl-rate');const opt=box.querySelector('.cl-opt');
+    a.close=a.close||{};a.close[party]={at:today(),late:party==='shita'&&opt?!opt.checked:false};if(party==='moto'&&sel)a.rating=+sel.value;
+    if(j.status!=='open'&&allClosed(j)){j.status='done';toast(j.multi?'全社のクローズがそろいました。案件完了。相場と票の重みに反映されました':'双方がクローズしました。案件完了。相場と票の重みに反映されました')}
+    else if(a.close.moto&&a.close.shita){toast(`${member(a.m).name} の分は双方クローズ済み。${j.status==='open'?'募集中のため、締め切り後に案件完了':'ほかの会社のクローズ待ち'}`)}
     else{toast('クローズしました。相手が押すまで毎日催促メールが送られます')}}
-  if(act==='withdraw'){j.applicants=j.applicants.filter(a=>a!==S.me);toast('取り消しました')}
-  if(act==='accept'){j.accepted=b.dataset.m;j.status='matched';toast(`${member(j.accepted).name} に決めました。お客様情報が相手に開きます`)}
-  if(act==='cancel'){S.jobs=S.jobs.filter(x=>x.id!==j.id);toast('募集を取り下げました')}
+  if(act==='withdraw'){if(isWorker(j,S.me)){toast('台数が決まった後は取り消せません。出した人に連絡してください');return}j.applicants=j.applicants.filter(a=>a!==S.me);if(j.offers)delete j.offers[S.me];toast('取り消しました')}
+  if(act==='accept'){if(assigns(j).length)return;j.assign=[{m:b.dataset.m,units:units(j),workerPrice:j.workerPrice,at:today(),close:{}}];j.status='matched';toast(`${member(b.dataset.m).name} に決めました。お客様情報が相手に開きます`)}
+  if(act==='assign'){const inp=b.closest('.asg').querySelector('input');const n=Math.floor(+inp.value||0),mx=+inp.max;
+    if(isWorker(j,b.dataset.m))return;
+    if(n<1||n>mx){toast(`1〜${mx}台で入れてください`);return}
+    j.assign=j.assign||[];j.assign.push({m:b.dataset.m,units:n,workerPrice:shareWP(j,n),at:today(),close:{}});
+    if(remaining(j)===0){j.status='matched';toast(`全${units(j)}台の割り当てが決まりました。募集を締め切りました`)}
+    else{toast(`${member(b.dataset.m).name} に${n}台で決めました。お客様情報が開きます（残り${remaining(j)}台）`)}}
+  if(act==='closeRecruit'){if(!assigns(j).length)return;const r=remaining(j);j.status=allClosed(j)?'done':'matched';toast(r?`募集を締め切りました。残り${r}台は自社で対応します`:'募集を締め切りました')}
+  if(act==='cancel'){if(assigns(j).length){toast('決まった会社があるため取り下げできません');return}S.jobs=S.jobs.filter(x=>x.id!==j.id);toast('募集を取り下げました')}
 
   save();renderAll();
 });
