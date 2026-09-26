@@ -1,0 +1,76 @@
+{
+  "_説明": "人（和真さん・芳賀さん・お客様・提携先）に一度でも渡したURL。ここにあるホストは消さない。移す時は必ず 301 を残す。毎時のルーティン ■0 で tools/check-haifu-urls.py が 200/301 を確かめる。",
+  "_出所": "2026-09-26 受注フォームの旧ホスト（oh-genba-form-m8x2q）を 9/22 に消していて、和真さんの手元のリンクが 404 になった事故から作成。",
+  "urls": [
+    {
+      "url": "https://oh-naibu-sms-k7q3x.netlify.app/juchu/",
+      "何": "受注フォーム（社内）",
+      "渡した先": "和真さん"
+    },
+    {
+      "url": "https://oh-naibu-sms-k7q3x.netlify.app/kanryo/",
+      "何": "作業完了フォーム（社内）",
+      "渡した先": "和真さん"
+    },
+    {
+      "url": "https://oh-genba-form-m8x2q.netlify.app/juchu/",
+      "何": "受注フォームの旧URL（9/22 に一度配布）→ 301 で現行へ",
+      "渡した先": "和真さん"
+    },
+    {
+      "url": "https://oh-genba-form-m8x2q.netlify.app/kanryo/",
+      "何": "完了フォームの旧URL → 301 で現行へ",
+      "渡した先": "和真さん"
+    },
+    {
+      "url": "https://yoyaku.onehitter.jp/",
+      "何": "予約ページ",
+      "渡した先": "お客様（SMS・GBP・公式サイト）"
+    },
+    {
+      "url": "https://one-hitter-booking.netlify.app/",
+      "何": "予約ページの旧ホスト → 301",
+      "渡した先": "お客様（9/9〜のSMS）"
+    },
+    {
+      "url": "https://lp.onehitter.jp/mizumawari/",
+      "何": "水まわりLP",
+      "渡した先": "お客様（広告・レントラックス）"
+    },
+    {
+      "url": "https://lp.onehitter.jp/aircon/",
+      "何": "エアコンLP",
+      "渡した先": "お客様（広告）"
+    },
+    {
+      "url": "https://lp.onehitter.jp/nenmatsu/",
+      "何": "年末LP",
+      "渡した先": "お客様（SNS 10/1〜）"
+    },
+    {
+      "url": "https://tenken.onehitter.jp/",
+      "何": "無料点検ページ",
+      "渡した先": "お客様（SNS）"
+    },
+    {
+      "url": "https://one-hitter.jp/",
+      "何": "公式サイト",
+      "渡した先": "全員"
+    },
+    {
+      "url": "https://survey.onehitter.jp/",
+      "何": "アンケート（現場QR）→ 301 で lp.onehitter.jp/survey/",
+      "渡した先": "お客様（現場QR）"
+    },
+    {
+      "url": "https://one-hitter-survey.netlify.app/",
+      "何": "アンケートの旧ホスト → 301",
+      "渡した先": "お客様（旧QR）"
+    },
+    {
+      "url": "https://lp.onehitter.jp/survey/",
+      "何": "アンケート本体",
+      "渡した先": "お客様"
+    }
+  ]
+}

@@ -25,6 +25,7 @@ HOSTS = [
     'araidoki.netlify.app',             # 洗い時図鑑。★公開中。SNS・GBPからお客様が踏む（2026-09-20 追加。
                                         #   README 4.10.1「新しいホストは当日中に HOSTS へ」に5日間反していた）
     'oh-naibu-sms-k7q3x.netlify.app',   # 社内用（受注フォーム /juchu/・作業完了フォーム /kanryo/）。
+    'oh-genba-form-m8x2q.netlify.app',  # 受注・完了フォームの旧ホスト。301 で oh-naibu-sms へ（2026-09-26 復旧。消さない）
                                         #   お客様は踏まないが、判定を受けると和真さんが現場で入力できなくなる
     'one-hitter-booking.netlify.app',   # 旧予約フォーム（2026-09-12 に判定 → 2026-09-15 解除を確認）
     'onehitter-yoyaku.netlify.app',     # 予約フォーム（現行）

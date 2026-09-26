@@ -67,7 +67,7 @@ def main():
         sys.exit(f"{TAB} タブがありません。")
 
     o = subprocess.run([sys.executable, os.path.join(os.path.dirname(__file__), "sheets_client.py"),
-                        "read", SS, f"'{TAB}'!A1:I400"], capture_output=True, text=True)
+                        "read", SS, f"'{TAB}'!A1:I1000"], capture_output=True, text=True)
     if o.returncode:
         sys.exit(o.stderr[:300])
     rows = [[str(c) for c in r] for r in json.loads(o.stdout or "[]")]
