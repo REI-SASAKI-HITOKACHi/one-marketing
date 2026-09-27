@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""予約フォーム（one-hitter-booking）だけを配信する。
+"""予約フォーム（onehitter-yoyaku ＝ yoyaku.onehitter.jp）だけを配信する。
 
 ★ LPサイト（one-hitter-lp）には絶対に触らない。
   そちらは tools/deploy-netlify.py の担当で、LP概要プレゼンのスレッドが使っている。
@@ -26,18 +26,20 @@ SRC = ROOT / "lp" / "booking"
 SRC_301 = ROOT / "lp" / "booking-redirect"   # 旧ホストへ送る301だけの中身
 API = "https://api.netlify.com/api/v1"
 
-# 予約フォームのサイト。ここを書き換えないこと（LPサイトと取り違えないため）
-# 2026-09-12：旧ホスト one-hitter-booking.netlify.app が Google セーフブラウジングに
-# 「安全でない」と判定された（お客様から Chrome の警告の報告）ため、新ホストへ移した。
+# 予約フォームのサイト。
 #
-# 2026-09-19（オーナーGO）：旧ホストは **301専用** にした。--old はその301を配信する。
-#   それまでは旧ホストにも同じ中身を配信し続けていたが、2ホストに同じページがある形が
-#   片方だけ古くなる事故を生んだ。9/19 07:00 の時点で旧ホストは 9/18 21:45 の空き枠を
-#   出したままで、同日 14:00-17:00 の打合せと重なる時間を「空き」として見せていた。
-#   ホストを1つにすれば、この種類の事故は二度と起きない。
-#   送信済みSMSのリンク先は 301 で新ホストへ引き継がれる（:splat とクエリも残る）。
-SITE_ID = "39408b76-e5d0-46f4-bee8-418ef6cfb36a"
+# ⚠ 2026-09-23 の事故：ここが "one-hitter-booking"（ID 83984fb0-…）だったため、
+#   配信は成功したのに**お客様には1文字も届いていなかった。**
+#   お客様が見る https://yoyaku.onehitter.jp/ を配信しているのは onehitter-yoyaku で、
+#   one-hitter-booking のほうは yoyaku.onehitter.jp へ301するだけの抜け殻。
+#   （経緯は docs/ドメイン設計-onehitter.jp.md「予約フォームのサイトが2つあります」）
+#
+# サイトIDは決め打ちにせず、名前から引く。引いたあとで
+# カスタムドメインが KOKYAKU_HOST であることを必ず確かめる（取り違え防止）。
 SITE_NAME = "onehitter-yoyaku"
+KOKYAKU_HOST = "yoyaku.onehitter.jp"
+KOKYAKU_URL = "https://yoyaku.onehitter.jp/"
+# 旧ホスト（301専用。--old でその301だけを配信する。2026-09-19 オーナーGO）
 OLD_SITE_ID = "83984fb0-5839-421b-bb99-63c8aff47fb9"
 OLD_SITE_NAME = "one-hitter-booking"
 TOKEN_KITEI = os.path.expanduser("~/.config/one-hitter/netlify-token.txt")
@@ -69,6 +71,35 @@ def call(tok, method, path, payload=None, raw=None, ctype="application/json"):
             return json.loads(body) if body else {}
     except urllib.error.HTTPError as e:
         sys.exit(f"Netlify {method} {path} が {e.code}: {e.read().decode()[:400]}")
+
+
+def site_id(tok: str) -> str:
+    """名前からサイトIDを引き、お客様のドメインが付いていることを確かめる。"""
+    s = call(tok, "GET", f"/sites/{SITE_NAME}.netlify.app")
+    domains = [s.get("custom_domain")] + list(s.get("domain_aliases") or [])
+    if KOKYAKU_HOST not in domains:
+        sys.exit(
+            f"{SITE_NAME} に {KOKYAKU_HOST} が付いていません（付いているのは {domains}）。\n"
+            "お客様が見ているサイトが変わった可能性があります。配信を中止します。"
+        )
+    return s["id"]
+
+
+def seiki_sha1(raw: bytes) -> str:
+    """Netlify Forms は配信時に <form ... data-netlify="true"> を <form hidden method='post' name='…'> に
+    書き換える（2026-09-27 実測。違いはこの1行だけ）。form タグを除いてから比べないと、届いていても毎回不一致になる。"""
+    import re
+    return hashlib.sha1(re.sub(rb"<form[^>]*>", b"<form>", raw)).hexdigest()
+
+
+def honban_sha1() -> str:
+    """お客様が実際に受け取っているHTMLのsha1（form タグを正規化）。取れなければ空文字。"""
+    try:
+        with urllib.request.urlopen(KOKYAKU_URL, timeout=30) as r:
+            return seiki_sha1(r.read())
+    except Exception as e:  # 確認に失敗しても配信の成否は変えない
+        print("  （本番の取得に失敗:", e, "）")
+        return ""
 
 
 def atsumeru() -> dict:
@@ -116,7 +147,7 @@ def main() -> None:
         if "/slots.json" not in files:
             sys.exit("slots.json がありません。先に python3 tools/build-slots.py を実行してください。")
 
-    print(f"配信先: {SITE_NAME}（{SITE_ID}）")
+    print(f"配信先: {SITE_NAME} → {'（301専用の旧ホスト）' if a.old else KOKYAKU_URL}")
     for rel, p in files.items():
         print(f"  {rel:<18} {p.stat().st_size:>8,} bytes")
     if a.dry_run:
@@ -124,8 +155,11 @@ def main() -> None:
         return
 
     tok = token()
+    # 旧ホストは301専用で yoyaku.onehitter.jp が付いていないので、名前引き＋ドメイン確認は現行サイトだけ
+    sid = OLD_SITE_ID if a.old else site_id(tok)
+    print(f"サイトID: {sid}")
     digest = {rel: hashlib.sha1(p.read_bytes()).hexdigest() for rel, p in files.items()}
-    dep = call(tok, "POST", f"/sites/{SITE_ID}/deploys", {"files": digest})
+    dep = call(tok, "POST", f"/sites/{sid}/deploys", {"files": digest})
     iru = set(dep.get("required") or [])
     print(f"\nデプロイ {dep['id']}／アップロードが要るファイル {len(iru)}件")
 
@@ -146,9 +180,24 @@ def main() -> None:
         sys.exit("配信に失敗しました: " + str(d.get("error_message")))
     print("URL :", d.get("ssl_url") or d.get("deploy_ssl_url"))
 
+    # ★ 配信できたか、ではなく「お客様に届いたか」を確かめる。
+    #   9/23 はここが無かったので、届いていないのに「配信済み」と報告してしまった。
+    machi = seiki_sha1(files["/index.html"].read_bytes()) if not a.old else None
+    for _ in range(10 if machi else 0):
+        if honban_sha1() == machi:
+            print(f"確認: {KOKYAKU_URL} が手元と同じ内容になりました。")
+            break
+        time.sleep(3)
+    else:
+        if machi:
+          sys.exit(
+            f"配信は ready ですが、{KOKYAKU_URL} の内容が手元と一致しません。\n"
+            "お客様には届いていない可能性があります。配信先を確かめてください。"
+          )
+
     for mail in a.notify:
         call(tok, "POST", f"/hooks", {
-            "site_id": SITE_ID, "type": "email", "event": "submission_created",
+            "site_id": sid, "type": "email", "event": "submission_created",
             "data": {"email": mail},
         })
         print("フォーム通知の宛先を追加:", mail)

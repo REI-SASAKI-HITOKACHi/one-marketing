@@ -140,6 +140,22 @@ TSUIKA_CSS = """
 .hikae .ln:last-of-type{border-bottom:0}
 .hikae .ln .v{text-align:right;font-weight:600;word-break:break-all}
 .hikae-memo{margin:.8rem 0 .9rem;font-size:.85rem}
+
+/* 押す直前の不安に答える2行。中身は4つある。
+     1行目＝押す前の不安（お金を取られるか／決まってしまうか）
+     2行目＝押した後の条件（やめられるか／払えるか）
+   この順番と、4つの中身は減らさないこと。どれが効くかは測るまで分からない。
+   同じ内容が完了画面（#done-first と「ご変更・キャンセル」）にもあるが、
+   重複ではなく意図。押す前の人は完了画面を読めないので、どちらも消さないこと。
+   ⚠️ 読ませたい文なので、詰めたくなっても font-size は下げないこと
+      （小さくすると無いのと同じ。2026-09-17 CMO指示）。 */
+.anshin{margin:0;padding:14px 15px;list-style:none;background:var(--accent-soft);
+  border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;gap:11px;}
+.anshin li{position:relative;padding-left:21px;font-size:13px;line-height:1.85;
+  color:var(--ink-soft);}
+.anshin li::before{content:"✓";position:absolute;left:0;top:0;color:var(--accent);
+  font-weight:700;font-size:13px;line-height:1.85;}
+.anshin b{font-size:13.5px;color:var(--ink);}
 """
 
 
@@ -190,6 +206,13 @@ def build() -> str:
     return html
 
 
+# 満足度の文言について（2026-09-21）
+#   「98.6%（209名中206名／2023年1月〜2025年12月）」は一次データで再現できなかった。
+#   母数が209に届かず（最大192件）、2025年の回答が1件も無い。
+#   詳細は docs/アンケート98.6%の一次集計-2026-09-21.md（CMO作成）。
+#   いまは計算できた値「平均9.45／10点・回答192名・2022年6月〜2024年8月」を書いている。
+#   LP側の出どころは tools/build-site.py の MANZOKU。**ここだけ別ファイルなので、
+#   戻すときは両方を直すこと。**（テンプレート内を 9.45 で検索すれば当たる）
 TEMPLATE = r"""<!doctype html>
 <html lang="ja">
 <head>
@@ -313,6 +336,10 @@ TEMPLATE = r"""<!doctype html>
       </div>
       <dl class="kakunin" id="kakunin"></dl>
       <div class="total" id="total2"></div>
+      <ul class="anshin">
+        <li><b>ご予約の時点では、費用は発生しません。</b>前払いも事前の振込もありません。はじめての方には、お電話で作業内容と料金をご説明してから確定します。</li>
+        <li><b>前日までのご連絡なら、キャンセル料はかかりません。</b>お支払いは作業が終わってからその場で。現金をご用意いただく必要はなく、各種クレジット／デビットカード、交通系IC・iD・QUICPay、PayPay・d払い・楽天ペイ・au PAY・メルペイがお使いいただけます。</li>
+      </ul>
       <p class="err" id="e4"></p>
       <div class="nav">
         <button class="btn ghost" data-back="3">もどる</button>
@@ -366,6 +393,26 @@ TEMPLATE = r"""<!doctype html>
   // SNS（Instagram／Facebook／Googleビジネスプロフィール）から来た初見の方向けに、
   // 「前回ご利用のお客様専用」の文言だけ差し替える。SMS経由の既存客の画面は変えない。
   // （2026-09-11 ネット流入担当の指摘 20260911-01-cmo）
+  /* Google広告のクリックID。成果を広告に結びつけるのに要る。
+     予約は来訪と同じ日とは限らないので、URLから拾って localStorage に持たせ、
+     あとで予約されたときに送信内容へ載せる（Googleの計測可能期間に合わせて90日）。
+     gclid が付かない経路（iOSアプリ内など）では wbraid / gbraid が来るので同じ扱い。
+     ★LP4本にも同じものが入っている。仕様を変えるときは両方直すこと。 */
+  function hiroGclid(){
+    var KAGI = 'oh_gclid', HI = 90 * 24 * 60 * 60 * 1000;
+    var q = new URLSearchParams(location.search);
+    var sooji = function(v){ return (v || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 120); };
+    var g = sooji(q.get('gclid')) || sooji(q.get('wbraid')) || sooji(q.get('gbraid'));
+    try {
+      if (g) { localStorage.setItem(KAGI, JSON.stringify({ v: g, t: Date.now() })); return g; }
+      var nokori = JSON.parse(localStorage.getItem(KAGI) || 'null');
+      if (nokori && nokori.v && (Date.now() - nokori.t) < HI) return nokori.v;
+      if (nokori) localStorage.removeItem(KAGI);
+    } catch (e) { /* プライベートモード等で localStorage が使えないことがある */ }
+    return '';
+  }
+  hiroGclid();   // 到着した時点で保存しておく（予約せずに離脱しても次回に効く）
+
   try {
     var srcSns = (new URLSearchParams(location.search)).get('src') || '';
     if (srcSns === 'ig' || srcSns === 'fb' || srcSns === 'gbp') {
@@ -886,8 +933,8 @@ TEMPLATE = r"""<!doctype html>
       '所要の目安（分）': String(shoyouFun()),
       '概算金額': k ? String(k.gokei) : '',
       'ご要望': $('f-note').value.trim(),
-      '流入元': keiro('src'),
-      '広告のクリックID': keiro('gclid') || keiro('wbraid') || keiro('gbraid'),
+      '流入元': keiro('src') || (new URLSearchParams(location.search)).get('src') || '',
+      '広告のクリックID': keiro('gclid') || keiro('wbraid') || keiro('gbraid') || hiroGclid(),
       '広告のキャンペーンID': keiro('cid'),
       '空き枠の取得時刻': (slotsCache && slotsCache.generated) || '',
     };
