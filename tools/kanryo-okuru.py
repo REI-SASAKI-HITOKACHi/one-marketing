@@ -12,7 +12,7 @@
 
   ★お客様の情報（お名前・メニュー・金額）は、URLの「#」のうしろに入れる。
     # のうしろはサーバへ送られないので、社内ホストにお客様の情報が残らない。
-    材料は data/kanryo-yotei.json（tools/juchu-inbox.py が作る）。**手元にだけ置く。**
+    材料は data/kanryo-yotei.json（tools/juchu-inbox.py が作る）。非公開リポジトリにコミットする（毎時点検はコンテナが作り直されるため。2026-09-27 CMO決定）。リンクの中身はサーバに置かない。
 """
 import argparse
 import base64

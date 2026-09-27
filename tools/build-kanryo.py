@@ -174,12 +174,16 @@ HTML = r"""<!doctype html>
 
 <!-- ============ 画面1：お客様に見せる ============ -->
 <div id="okyaku">
-  <div class="byou">所要 30秒</div>
+  <div class="byou jisha" hidden>所要 30秒</div>
   <h1>本日はありがとう<br>ございました</h1>
-  <p class="rei">よろしければ、仕上がりのご感想をお聞かせください。</p>
+  <p class="rei" id="rei">またのご利用を心よりお待ちしております。</p>
+  <!-- アンケート（ワンヒッターのページ）は自社名義の施工のときだけ出す。本舗・不明は出さない（9/11 の事故と同じ型を防ぐ） -->
+  <div class="jisha" hidden>
   <img class="qr" src="__QR__" alt="アンケートのQRコード">
   <p class="qr-shita">スマートフォンで読み取ってください</p>
   <a class="kono" href="__SURVEY__" target="_blank" rel="noopener">このスマホで回答する</a>
+  <p class="qr-shita">アンケートの最後に、Googleクチコミへの投稿のご案内があります。<br>率直なご感想をいただければ、それがいちばんの励みになります。</p>
+  </div>
   <p class="nanori" id="nanori"></p>
   <div class="tsugi"><button type="button" id="tsugi">次へ（スタッフ用）</button></div>
 </div>
@@ -365,7 +369,11 @@ HTML = r"""<!doctype html>
 
   /* ---- 画面1：名乗りは受注の内容どおり。読めないときは出さない ---- */
   (function(){
-    var na = J && J.s === '本舗' ? 'おそうじ本舗' : (J && J.s ? 'ワンヒッター株式会社' : '');
+    var na = J && J.s === '本舗' ? 'おそうじ本舗' : (J && J.s === 'One Hitter' ? 'ワンヒッター株式会社' : '');
+    if (J && J.s === 'One Hitter') {
+      $('rei').textContent = 'よろしければ、仕上がりのご感想をお聞かせください。';
+      Array.prototype.forEach.call(document.querySelectorAll('#okyaku .jisha'), function(e){ e.hidden = false; });
+    }
     $('nanori').textContent = na;
   })();
   function staff(){
