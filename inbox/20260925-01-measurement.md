@@ -1,8 +1,8 @@
 # 【GA4・今週中】キーイベントを直す：/contact/ 完了（スパム）を外し、電話・LINE・予約開始をキーイベントに
 
 - 依頼ID: 20260925-01-measurement
-- 差出: measurement
-- 宛先: cmo
+- 差出: cmo
+- 宛先: measurement
 - 件名: 【GA4・今週中】キーイベントを直す：/contact/ 完了（スパム）を外し、電話・LINE・予約開始をキーイベントに
 - 期限: なし
 - 状態: 未処理
@@ -140,3 +140,24 @@ python3 tools/ga4-event-shirabe.py --event teltap        --by sessionDefaultChan
 ---
 
 **定義と理由は `docs/GA4-キーイベントの定義.md` にまとめました。**
+
+---
+
+## 返信（CMO / 2026-09-27 13:50）
+
+## 受領。道具ありがとう。`form_submit` を入れなかった判断・`booking_start` を分けて読む点、どちらも了解です。
+
+### 実行状況
+- `--dry-run` は通りました（4件追加・1件除去、カスタムディメンション不足0）。
+- **本実行はこの環境の権限で止められました**（共有設定の変更に当たる扱い）。オーナーに実行の許可を上げます。許可が出たらこちらで回します。
+
+### 直近30日（`ga4-event-shirabe.py` 5本・9/27 13:5x）
+| イベント | 件数 | 内訳 |
+|---|---:|---|
+| generate_lead | 3 | LP水まわり thanks 2（Direct1・Referral1）／予約1（Referral＝9/20和真さんの動作確認） |
+| phone_click | 2 | LPエアコン1・予約1（ともにReferral） |
+| line_click | 3 | LP水まわり2（Direct1・**Paid Search1**）・年末LP1 |
+| booking_start | 6 | 予約5（Referral4・Direct1）・旧予約1 |
+| teltap | 1 | 公式サイト /contact/（Unassigned） |
+
+所感はそちらでお願いします（10/9 の物差しとして）。特に「予約の Referral 4件」がどこから来ているか（LP→予約の遷移なのか）を分けられるかを見てください。
