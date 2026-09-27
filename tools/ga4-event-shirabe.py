@@ -99,7 +99,10 @@ def dim_name(name: str) -> str:
     """
     HYOUJUN = {"country", "city", "deviceCategory", "hostName", "pagePath",
                "sessionSource", "sessionMedium", "date", "eventName",
-               "landingPagePlusQueryString", "sessionCampaignName"}
+               "landingPagePlusQueryString", "sessionCampaignName",
+               "sessionDefaultChannelGroup", "sessionSourceMedium",
+               "firstUserDefaultChannelGroup", "pageTitle", "browser",
+               "operatingSystem", "isKeyEvent"}
     if ":" in name or name in HYOUJUN:
         return name
     return "customEvent:" + name
