@@ -19,3 +19,4 @@ data/backup/*.json
 
 # セーフブラウジング点検の前回時刻（実行時の状態。成果物ではない）
 data/safebrowsing-last.json
+data/kanryo-shashin/   # 作業完了フォームの施工写真（お客様宅）。git に入れない。元は Netlify のフォーム提出に残る（2026-09-27）
