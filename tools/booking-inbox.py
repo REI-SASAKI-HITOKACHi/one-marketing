@@ -238,9 +238,10 @@ def main() -> None:
                     'スプレッドシートの「予約_Web」タブに入っています。\n'
                     'まだ【仮】です。確認のお電話をして、予定のタイトルから【仮】を'
                     '外してください。')
-        subprocess.run(['python3', f'{ROOT}/tools/line_client.py', 'push', honbun],
-                       check=False)
-        print('グループLINEに知らせました')
+        # 申し込みの知らせは急ぐので、未読の返信があっても送る（2026-09-27：未読で止まり、2時間気づかれなかった）
+        r = subprocess.run(['python3', f'{ROOT}/tools/line_client.py', 'push', honbun, '--midoku-ok'],
+                           check=False)
+        print('グループLINEに知らせました' if r.returncode == 0 else '🔴 グループLINEに知らせられませんでした（手で送ること）')
 
 
 if __name__ == '__main__':
