@@ -127,7 +127,8 @@ h1 em {{ font-style:normal; background:linear-gradient(transparent 62%,#FFE566 6
 .price .yen {{ font-family:Barlow,sans-serif; font-weight:700; font-size:17pt; letter-spacing:.01em; line-height:1; }}
 .price .yen .u {{ font-family:"Zen Kaku Gothic New","IPAGothic",sans-serif; font-size:8pt; font-weight:700; margin-left:.4mm; }}
 .price .yen .tax {{ font-family:"Zen Kaku Gothic New","IPAGothic",sans-serif; font-size:6.4pt; font-weight:500; color:#5D7680; margin-left:.6mm; }}
-.price .sub {{ display:flex; justify-content:flex-end; align-items:baseline; gap:1.4mm; font-size:7.4pt; color:#3E5A63; margin-top:-1mm; padding-bottom:1.6mm; border-bottom:.2mm solid #C9D6DB; }}
+.price .row.has-sub {{ border-bottom:0; padding-bottom:.3mm; }}
+.price .sub {{ display:flex; justify-content:flex-end; align-items:baseline; gap:1.4mm; font-size:7.4pt; color:#3E5A63; padding-bottom:1.5mm; border-bottom:.2mm solid #C9D6DB; }}
 .price .sub b {{ font-family:Barlow,sans-serif; font-size:11pt; color:#14323D; }}
 .set {{ margin-top:2.2mm; font-size:7.8pt; line-height:1.55; color:#8A5B12; background:#FFF4E3; border:.25mm solid #E2A845; border-radius:.8mm; padding:1.4mm 2.2mm; }}
 .set b {{ font-family:Barlow,sans-serif; font-size:10pt; color:#A83714; }}
@@ -172,9 +173,9 @@ h1 em {{ font-style:normal; background:linear-gradient(transparent 62%,#FFE566 6
   </div>
 
   <div class="price">
-    <div class="row"><div class="name">エアコンクリーニング<small>壁掛け・1台</small></div>
+    <div class="row has-sub"><div class="name">エアコンクリーニング<small>壁掛け・1台</small></div>
       <div class="yen">{ac}<span class="u">円</span><span class="tax">（税込）</span></div></div>
-    <div class="sub">お掃除機能付き <b>{ac2}</b>円（税込）</div>
+    <div class="sub">お掃除機能付き<span><b>{ac2}</b>円（税込）</span></div>
     <div class="row"><div class="name">浴室クリーニング</div>
       <div class="yen">{bath}<span class="u">円</span><span class="tax">（税込）</span></div></div>
     <div class="row"><div class="name">レンジフードクリーニング</div>
