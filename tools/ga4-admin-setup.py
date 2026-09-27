@@ -56,9 +56,26 @@ PROPERTY = "381320625"
 #    survey_complete も入れない。アンケートの回答は広告の成果ではないので、
 #    入れると自動入札が歪む。
 KEY_EVENTS = [
-    ("generate_lead", "WEBフォームからの申込（本命）"),
+    ("generate_lead", "申込（LPのサンクスページ／予約フォームの完了画面）"),
     ("phone_click", "電話ボタンが押された"),
     ("line_click", "LINEボタンが押された"),
+    # 予約フォームの「入力を始めた」。申込ではなく関心の強さの目安。
+    # CMO判断（2026-09-25 20260925-01-measurement）で足した。
+    # ⚠️ 申込の件数と混ぜて読まないこと。generate_lead と足し算すると水増しになる。
+    ("booking_start", "予約フォームの入力を始めた（関心の目安。申込ではない）"),
+]
+
+# キーイベントから外すもの。**ここに書いたものだけを外す。**
+# 外すのは「設計に無い」からではなく、中身を確かめて理由があるものだけ。
+#
+# ⚠️ 外すのは、KEY_EVENTS を足し終わった**あと**。
+#    先に外すと、その間キーイベントが減った状態でレポートが集計される。
+REMOVE_KEY_EVENTS = [
+    # 公式サイトの問い合わせ完了（/contact/complete.html）。
+    # 2026-09-25 CMO実測：直近30日のキーイベント44件のうち42件がこれで、
+    # PC・直接流入・/contact/ 直行のスパム（オーナーが 9/23「対応不要」と判断）。
+    # 本物の問い合わせも混ざるが、スパムに埋もれて「お客様の行動」として数えられない。
+    ("form_complete", "公式サイトの問い合わせ完了。直近30日の44件中42件がスパム（2026-09-25 CMO実測）"),
 ]
 
 # カスタムディメンション。2026-09-12 にブラウザ担当が画面で登録済みのはずなので、
@@ -137,6 +154,9 @@ def main() -> None:
     ap.add_argument("--dry-run", action="store_true", help="何も変えずに、いまの状態と差分だけ見る")
     ap.add_argument("--create-dimensions", action="store_true",
                     help="足りないカスタムディメンションも作る（既定は見るだけ）")
+    ap.add_argument("--kiroku", default=None,
+                    help="変更前のキーイベント一覧を書き出す先"
+                         "（既定 docs/ga4-キーイベント-変更前-<今日>.md）。下見のときは書かない")
     args = ap.parse_args()
 
     sc = load_sheets_client()
@@ -147,6 +167,31 @@ def main() -> None:
     # ---------------- キーイベント ----------------
     print("\n■ キーイベント")
     have = {k.get("eventName"): k for k in list_all(token, prop, "keyEvents")}
+
+    # 変更前の一覧を控える。**GA4を触る前に**書く。
+    # 何を外したか・元は何だったかを、あとから必ず辿れるようにするため。
+    if not args.dry_run:
+        import datetime as _dt
+        kyou = _dt.date.today().isoformat()
+        kiroku = pathlib.Path(args.kiroku) if args.kiroku else (
+            ROOT / "docs" / f"ga4-キーイベント-変更前-{kyou}.md")
+        kiroku.parent.mkdir(parents=True, exist_ok=True)
+        gyou = ["# GA4 キーイベント：変更前の一覧",
+                "",
+                f"プロパティ {prop} ／ 記録 {kyou} ／ `tools/ga4-admin-setup.py` が変更の直前に書き出したもの。",
+                "**元に戻すときは、ここにある名前を画面でキーイベントに付け直せば戻ります。**",
+                "",
+                "| イベント名 | 数え方 | 作成日時 | name |",
+                "|---|---|---|---|"]
+        for n in sorted(have):
+            k = have[n]
+            gyou.append(f"| `{n}` | {k.get('countingMethod', '')} | "
+                        f"{k.get('createTime', '')} | `{k.get('name', '')}` |")
+        if not have:
+            gyou.append("| （なし） | | | |")
+        kiroku.write_text("\n".join(gyou) + "\n", encoding="utf-8")
+        print(f"  変更前の一覧を控えました → {kiroku.relative_to(ROOT) if kiroku.is_relative_to(ROOT) else kiroku}")
+
     tsuika = 0
     for name, why in KEY_EVENTS:
         if name in have:
@@ -163,6 +208,25 @@ def main() -> None:
              {"eventName": name, "countingMethod": "ONCE_PER_EVENT"})
         print(f"  ✓ {name:<16} 登録した（{why}）")
         tsuika += 1
+
+    # ---- 外す（足し終わったあと） ----
+    hazushita = 0
+    for name, why in REMOVE_KEY_EVENTS:
+        k = have.get(name)
+        if not k:
+            print(f"  ・ {name:<16} もともと無い（{why}）")
+            continue
+        if args.dry_run:
+            print(f"  ✕ {name:<16} これから外す（{why}）")
+            hazushita += 1
+            continue
+        if not k.get("name"):
+            sys.exit(f"{name} の識別子（name）が取れません。画面で外してください。")
+        call(token, f"/{k['name']}", "DELETE")
+        print(f"  ✕ {name:<16} 外した（{why}）")
+        hazushita += 1
+    have = {n: v for n, v in have.items()
+            if n not in {r for r, _ in REMOVE_KEY_EVENTS}}
 
     hoka = [n for n in have if n not in {k for k, _ in KEY_EVENTS}]
     if hoka:
@@ -201,11 +265,11 @@ def main() -> None:
     # ---------------- まとめ ----------------
     print("\n" + "-" * 58)
     if args.dry_run:
-        print(f"下見の結果：キーイベントは {tsuika} 件追加が要ります。"
+        print(f"下見の結果：キーイベントは {tsuika} 件追加・{hazushita} 件除去が要ります。"
               f"カスタムディメンションは {len(tarinai)} 件足りません。")
         print("実際に登録するには --dry-run を外してもう一度実行してください。")
     else:
-        print(f"キーイベント：登録済み {len(KEY_EVENTS)} 件（今回 {tsuika} 件追加）")
+        print(f"キーイベント：登録済み {len(KEY_EVENTS)} 件（今回 {tsuika} 件追加・{hazushita} 件除去）")
         if tarinai:
             print(f"カスタムディメンション：**{len(tarinai)} 件足りません** "
                   f"→ {' / '.join(p for p, _, _ in tarinai)}")

@@ -365,6 +365,11 @@ gtag('config','G-DLJCTKGTDN',{'lp_id':'booking','lp_variant':'A'});
         <label for="f-addr">ご住所</label>
         <input id="f-addr" type="text" autocomplete="street-address" placeholder="例）千葉県船橋市〇〇1-2-3 〇〇マンション101">
       </div>
+      <div class="field" id="shokai-box" hidden>
+        <label for="f-shokai">ご紹介者のお名前（任意）</label>
+        <input id="f-shokai" type="text" autocomplete="off" placeholder="例）山田 花子 様">
+        <span class="hint">紹介カードからお越しの方は、初回1,000円引きになります。</span>
+      </div>
       <div class="field">
         <label for="f-note">ご要望（任意）</label>
         <textarea id="f-note" placeholder="例）駐車場はありません／2階のエアコンです／前回と同じ場所です"></textarea>
@@ -879,6 +884,8 @@ gtag('config','G-DLJCTKGTDN',{'lp_id':'booking','lp_variant':'A'});
     ];
     var note = $('f-note').value.trim();
     if (note) { rows.push(['ご要望', note]); }
+    var shokai = $('f-shokai').value.trim();
+    if (shokai) { rows.push(['ご紹介者', shokai + ' 様']); }
     $('kakunin').innerHTML = rows.map(function(r){
       return '<div class="r"><dt>' + r[0] + '</dt><dd></dd></div>';
     }).join('');
@@ -966,6 +973,8 @@ gtag('config','G-DLJCTKGTDN',{'lp_id':'booking','lp_variant':'A'});
   }
 
   keiroHozon();
+  // 紹介カード（?src=shokai）から来た人にだけ、紹介者の欄を出す（オーナー決定 2026-09-27：紹介された方も初回1,000円引き）
+  if (keiro('src') === 'shokai') { $('shokai-box').hidden = false; }
 
   var okuttechuu = false;
   $('send').addEventListener('click', function(){
@@ -983,6 +992,7 @@ gtag('config','G-DLJCTKGTDN',{'lp_id':'booking','lp_variant':'A'});
       '所要の目安（分）': String(shoyouFun()),
       '概算金額': k ? String(k.gokei) : '',
       'ご要望': $('f-note').value.trim(),
+      '紹介者': $('f-shokai').value.trim(),
       '流入元': keiro('src') || (new URLSearchParams(location.search)).get('src') || '',
       '広告のクリックID': keiro('gclid') || keiro('wbraid') || keiro('gbraid') || hiroGclid(),
       '広告のキャンペーンID': keiro('cid'),
@@ -1040,6 +1050,7 @@ gtag('config','G-DLJCTKGTDN',{'lp_id':'booking','lp_variant':'A'});
   <input type="text" name="所要の目安（分）">
   <input type="text" name="概算金額">
   <textarea name="ご要望"></textarea>
+  <input type="text" name="紹介者">
   <input type="text" name="流入元">
   <input type="text" name="広告のクリックID">
   <input type="text" name="広告のキャンペーンID">

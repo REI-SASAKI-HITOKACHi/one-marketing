@@ -169,6 +169,9 @@ def main() -> None:
                  'ご希望の内容': d.get('menu', ''), '所要の目安（分）': '', '概算金額': '',
                  'ご要望': ('見積番号 ' + d['order_id']) if d.get('order_id') else '',
                  '流入元': ryuunyuu}
+        if d.get('紹介者'):
+            # 紹介カードから（オーナー決定 2026-09-27：紹介した方は次回・紹介された方は初回、それぞれ1,000円引き）
+            d = dict(d, **{'ご要望': ('【紹介者: ' + str(d['紹介者']).strip() + ' 様／初回1,000円引き】' + str(d.get('ご要望', ''))).strip()})
         uke = datetime.datetime.fromisoformat(
             s['created_at'].replace('Z', '+00:00')).astimezone(JST)
         gyou.append([
