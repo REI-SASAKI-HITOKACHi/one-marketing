@@ -213,6 +213,8 @@ a{color:var(--accent-deep);}
 .copy-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
 .copy-row .btn{flex:1 1 160px;}
 .copied{font-size:12.5px;font-weight:700;color:var(--ok);}
+.card .line-note{font-size:11.5px;color:var(--muted);line-height:1.7;}
+#done-line p,#done-line .btn{word-break:auto-phrase;}
 .step-list{margin:0;padding-left:1.2em;font-size:12.5px;color:var(--muted);line-height:1.9;}
 
 footer{background:var(--invert);color:var(--invert-ink);padding:30px 0 26px;margin-top:34px;}
@@ -485,6 +487,16 @@ footer a{color:var(--invert-ink);}
         </div>
       </div>
 
+      <!-- 公式LINEの友だち追加（全員に表示。2026-09-27 依頼 20260926-01-lp）
+           特典は公式LINEで配布中の「防カビコーティング無料チケット」。新しい割引は作らない。
+           金額はチケットの対象（エアコン／浴室）が確認できていないので書かない。 -->
+      <div class="card" id="done-line">
+        <h3>公式LINEの友だち追加で、<br>「防カビコーティング無料チケット」をお送りします</h3>
+        <p>次回のお掃除で使えるチケットです。ご利用の条件はLINEでご案内します。お掃除の時期のお知らせや、空き状況のご案内もLINEでお届けします。</p>
+        <a class="btn lg line" href="https://lin.ee/7kD9WGN" target="_blank" rel="noopener">LINEでチケットを受け取る</a>
+        <p class="line-note">ワンヒッター株式会社の公式アカウントです。配信はいつでも止められます。</p>
+      </div>
+
       <!-- ご紹介（Q7で「紹介したい人がいる」を選んだ方だけ） -->
       <div class="card" id="done-refer" hidden>
         <h3>ご紹介いただくと、次回 1,000円割引です</h3>
@@ -498,12 +510,11 @@ footer a{color:var(--invert-ink);}
         <div class="copy-row">
           <a class="btn sm line" id="refer-line" href="#" target="_blank" rel="noopener">LINEで送る</a>
         </div>
-        <!-- 割引クーポンの配布経路が公式LINEなので、ここで友だち追加まで済ませていただく -->
+        <!-- 割引の配布経路は公式LINE。友だち追加のボタンは上の #done-line に一本化した -->
         <div class="branch" style="margin-top:14px">
           <b>割引は公式LINEでお渡しします</b>
-          <p>友だち追加していただくと、割引のご案内をお送りします。
-             お掃除の時期のお知らせもこちらからです。</p>
-          <a class="btn line" href="https://lin.ee/7kD9WGN" target="_blank" rel="noopener">公式LINEを友だち追加する</a>
+          <p>上の「LINEでチケットを受け取る」からご登録いただくと、
+             紹介割引のご案内も同じLINEでお送りします。</p>
         </div>
       </div>
 
