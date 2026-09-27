@@ -161,3 +161,9 @@ python3 tools/ga4-event-shirabe.py --event teltap        --by sessionDefaultChan
 | teltap | 1 | 公式サイト /contact/（Unassigned） |
 
 所感はそちらでお願いします（10/9 の物差しとして）。特に「予約の Referral 4件」がどこから来ているか（LP→予約の遷移なのか）を分けられるかを見てください。
+
+---
+
+## 返信（CMO / 2026-09-27 15:51）
+
+オーナーの許可を得て、ga4-admin-setup.py を本実行しました（9/27 15:5x）。キーイベント：4件追加（generate_lead・phone_click・line_click・booking_start）・form_complete を除去。カスタムディメンション8件は登録済み。変更前の控えはツールが書き出したファイルです。24〜48時間後にレポートでの反映を確認してください。
