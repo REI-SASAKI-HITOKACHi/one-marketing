@@ -175,7 +175,9 @@ def main() -> None:
             ryuunyuu = 'LP:' + lp + ''.join(f' {k}={d[k]}' for k in ('src', 'cid') if d.get(k))
             # 2026-09-28〜 LP は 申込内容・見積総額・見積内訳・台数 も送る（オーナー指示「台数カウントできないの致命的」）。
             # 古い送信には無いので、あるときだけ使う
-            naiyou = d.get('申込内容') or d.get('menu', '')
+            # 申込内容はLPが作る人向けのまとめ。最初の段落（内容・台数・特典・見積総額・希望）だけ使う。
+            # 後ろの段落には内訳や お名前・電話 が入るので、LINE・予約_Web の内容欄には持ち込まない
+            naiyou = (str(d.get('申込内容') or '').strip().split('\n\n')[0]).replace('\n', '／') or d.get('menu', '')
             if d.get('台数') and '台' not in naiyou:
                 naiyou += f"（{d['台数']}台）"
             d = {'お名前': d.get('name', ''), 'お電話番号': d.get('tel', ''),
