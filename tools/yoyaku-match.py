@@ -100,6 +100,7 @@ DAICHOU_HEAD = 15
 ZOKUSEI = "顧客属性_メモ"
 ZOKUSEI_HEAD = 4
 HABA = 14          # 施工済と見なす日数の幅（ご希望日の ±14日）
+HABA_JUSHIN = 45   # ご希望日が読めないとき、受信日から何日先までを探すか
 
 # ★書くのは --kaku があるときだけ。既定は表示のみ（20260923-01-crm）
 KAKU = ("--kaku" in sys.argv or "--書く" in sys.argv)
@@ -136,6 +137,32 @@ def hiduke(s):
         return None
     try:
         return datetime.date(*(int(x) for x in m.groups()))
+    except ValueError:
+        return None
+
+
+def nozomi_yomu(nozomi, jushin):
+    """ご希望日を日付にする。フォームは自由記述なので、次の順で読む。
+
+    1. 年つきの日付（2026/9/29）
+    2. 月/日だけ（「9/29．9/30」なら最初の 9/29）。年は受信日時から補う。
+       受信より2か月以上前の月なら翌年とみなす（12月に「1/10」と書かれた場合）
+    3. 読めない（「明日からの1週間」）→ None
+
+    ★2026-09-27 の最初の申込2件が、どちらも1にならなかった（「9/29．9/30」「明日からの1週間」）。
+      年つきしか読まないと、売上との照合が**黙って**飛ばされる。
+    """
+    d = hiduke(nozomi)
+    if d:
+        return d
+    j = hiduke(jushin)
+    m = re.search(r"(\d{1,2})\s*[/月]\s*(\d{1,2})", str(nozomi or ""))
+    if not (m and j):
+        return None
+    tsuki, hi_ = int(m.group(1)), int(m.group(2))
+    nen = j.year + (1 if tsuki < j.month - 1 else 0)
+    try:
+        return datetime.date(nen, tsuki, hi_)
     except ValueError:
         return None
 
@@ -208,14 +235,20 @@ def daichou_hiku(daichou, tel, namae):
     return "", "", "該当なし（新規）"
 
 
-def uriage_hiku(uriage, tel, namae, nozomi):
-    """ご希望日の±14日で売上行を探す。**氏名と電話の両方が一致したときだけ**参照を返す。
+def uriage_hiku(uriage, tel, namae, nozomi, jushin=None):
+    """売上行を探す。**氏名と電話の両方が一致したときだけ**参照を返す。
 
+    探す幅は、ご希望日が読めればその ±14日。読めなければ受信日から +HABA_JUSHIN 日。
     返り値 (参照, 売上（税込）, 手がかりに足す一言)。
     """
-    if not nozomi:
+    if nozomi:
+        kaishi, owari = nozomi - datetime.timedelta(days=HABA), nozomi + datetime.timedelta(days=HABA)
+    elif jushin:
+        kaishi, owari = jushin, jushin + datetime.timedelta(days=HABA_JUSHIN)
+        nozomi = jushin
+    else:
         return "", "", ""
-    chikai = [u for u in uriage if abs((u["date"] - nozomi).days) <= HABA]
+    chikai = [u for u in uriage if kaishi <= u["date"] <= owari]
     ryou = [u for u in chikai if tel and namae and u["tel"] == tel and u["name"] == namae]
     if ryou:
         ryou.sort(key=lambda u: abs((u["date"] - nozomi).days))
@@ -241,7 +274,7 @@ def nagare(moto, ima_src, ima_cid, ima_rt):
 def awaseru(rec, daichou, meigi_hyou, uriage, zokusei):
     """予約1行分の★列の値を作る。シートには触らない。
 
-    rec = {"name", "tel", "nozomi"(文字列), "moto", "src", "cid", "rt"}
+    rec = {"name", "tel", "nozomi"(文字列), "jushin"(受信日時), "moto", "src", "cid", "rt"}
     """
     tel = dsk.tel_norm(rec.get("tel"))
     namae = dsk.name_norm(rec.get("name"))
@@ -254,7 +287,9 @@ def awaseru(rec, daichou, meigi_hyou, uriage, zokusei):
         if mi:
             mg = mi[0]
 
-    sanshou, kingaku, u_te = uriage_hiku(uriage, tel, namae, hiduke(rec.get("nozomi")))
+    sanshou, kingaku, u_te = uriage_hiku(uriage, tel, namae,
+                                         nozomi_yomu(rec.get("nozomi"), rec.get("jushin")),
+                                         hiduke(rec.get("jushin")))
     if u_te:
         tegakari = (tegakari + "／" + u_te) if tegakari else u_te
     src, cidv, rt = nagare((rec.get("moto") or "") + " " + (rec.get("youbou") or ""),
@@ -438,6 +473,7 @@ def main():
     for n, r in gyou:
         kaku = awaseru({
             "name": g(r, "お名前"), "tel": g(r, "お電話番号"), "nozomi": g(r, "ご希望日"),
+            "jushin": g(r, "受信日時"),
             "moto": g(r, "流入元"), "youbou": g(r, "ご要望"),
             "src": g(r, "src"), "cid": g(r, "cid"), "rt": g(r, "レントラックス注文番号"),
         }, daichou, meigi_hyou, uriage, zokusei)
