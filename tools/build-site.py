@@ -14,6 +14,9 @@ import re
 import shutil
 import sys
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import moushikomi  # noqa: E402  申込フォームの「申込内容」と見積の項目（依頼 20260928-02-lp）
+
 def strip_comments(html: str) -> str:
     """公開する文書からコメントを落とす。
 
@@ -596,6 +599,11 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict)
     # 登録している掲載先のLPにだけ出る。
     doc = doc.replace("</body>", tracking_body() + order_id_script(meta["dir"])
                    + rentracks_lp(cfg, meta["dir"]) + "\n</body>", 1)
+
+    # 申込内容のまとめと見積の隠し項目。受付番号のスクリプトより後ろに入る。
+    # Netlify のフォームだけ（ほかの出し先は受け口が違う）
+    if target == "netlify":
+        doc = moushikomi.apply(doc, meta["dir"])
 
     (dst / "index.html").write_text(doc, encoding="utf-8")
     build_thanks(cfg, meta, out)
