@@ -81,10 +81,18 @@ def sei(namae: str) -> str:
     return namae.split('　')[0].split(' ')[0] or namae
 
 
+def eria(jusho):
+    """番地を出さずに、市区町村まで（〒だけなら〒）"""
+    jusho = str(jusho or '')
+    m = re.match(r'^(東京都|千葉県|神奈川県|埼玉県)?(.+?[区市町村])', jusho)
+    return (m.group(2) if m else jusho[:9]) or '住所なし'
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument('--dry-run', action='store_true')
     ap.add_argument('--no-line', action='store_true')
+    ap.add_argument('--mou-ichido', nargs='*', default=[], help='（--dry-run と一緒に）取り込み済みの申込IDを、もう一度表示だけする')
     a = ap.parse_args()
 
     forms = []
@@ -147,6 +155,8 @@ def main() -> None:
         rows = call(f'/{SS}/values/{TAB}!A2:N1000').get('values', [])
         sumi = {r[13] for r in rows if len(r) > 13 and r[13]}
 
+    if a.dry_run and a.mou_ichido:      # 取り込み済みの申込で、知らせの見え方を確かめる
+        sumi -= set(a.mou_ichido)
     atarashii = [s for s in subs if s['id'] not in sumi]
     print(f'未取り込み: {len(atarashii)}件')
     if not atarashii:
@@ -163,11 +173,18 @@ def main() -> None:
             # LP のフォーム（name/tel/zip/menu/when/lp/src/cid/order_id）を予約フォームの列名に寄せる
             lp = d.get('lp') or s['_form'].replace('reserve-', '')
             ryuunyuu = 'LP:' + lp + ''.join(f' {k}={d[k]}' for k in ('src', 'cid') if d.get(k))
+            # 2026-09-28〜 LP は 申込内容・見積総額・見積内訳・台数 も送る（オーナー指示「台数カウントできないの致命的」）。
+            # 古い送信には無いので、あるときだけ使う
+            naiyou = d.get('申込内容') or d.get('menu', '')
+            if d.get('台数') and '台' not in naiyou:
+                naiyou += f"（{d['台数']}台）"
             d = {'お名前': d.get('name', ''), 'お電話番号': d.get('tel', ''),
                  'ご住所': ('〒' + d['zip']) if d.get('zip') else '',
                  'ご希望日': d.get('when', ''), 'ご希望時刻': '',
-                 'ご希望の内容': d.get('menu', ''), '所要の目安（分）': '', '概算金額': '',
-                 'ご要望': ('見積番号 ' + d['order_id']) if d.get('order_id') else '',
+                 'ご希望の内容': naiyou, '所要の目安（分）': '',
+                 '概算金額': str(d.get('見積総額') or ''),
+                 'ご要望': ' '.join(x for x in [('見積番号 ' + d['order_id']) if d.get('order_id') else '',
+                                              ('内訳 ' + d['見積内訳']) if d.get('見積内訳') else ''] if x),
                  '流入元': ryuunyuu}
         if d.get('紹介者'):
             # 紹介カードから（オーナー決定 2026-09-27：紹介した方は次回・紹介された方は初回、それぞれ1,000円引き）
@@ -181,10 +198,20 @@ def main() -> None:
             d.get('所要の目安（分）', ''), d.get('概算金額', ''), d.get('ご要望', ''),
             d.get('流入元', ''), '未登録', s['id'],
         ])
-        # LINEには個人情報を出さない
-        shirase.append(f"・{sei(d.get('お名前', ''))}さま／"
-                       f"{d.get('ご希望日', '')} {d.get('ご希望時刻', '')}〜／"
-                       f"{d.get('ご希望の内容', '')}")
+        # LINEには電話番号・番地は出さない（名字・エリア・内容・金額・希望・入口）
+        kin = str(d.get('概算金額') or '').replace(',', '')
+        iriguchi = d.get('流入元', '')
+        if 'gads' in iriguchi:
+            iriguchi = 'Google広告（' + ('エアコン' if 'aircon' in iriguchi else '水まわり' if 'mizumawari' in iriguchi else '') + 'のページ）'
+        elif iriguchi.startswith('LP:'):
+            iriguchi = 'LP（' + iriguchi[3:].split()[0] + '）'
+        shirase.append('\n'.join(x for x in [
+            f"■ {sei(d.get('お名前', ''))}さま（{eria(d.get('ご住所', ''))}）",
+            f"内容：{d.get('ご希望の内容', '')}",
+            f"見積：{int(kin):,}円（税込）" if kin.isdigit() else "見積：記録なし（お電話で確認）",
+            f"希望：{d.get('ご希望日', '')} {d.get('ご希望時刻', '')}".rstrip(),
+            f"入口：{iriguchi}" if iriguchi else '',
+        ] if x))
         # カレンダーに入れる用（この出力を見てClaudeが登録する）
         yotei.append({
             'summary': f"【仮】{sei(d.get('お名前',''))}様 {d.get('ご希望の内容','')}",
@@ -207,6 +234,8 @@ def main() -> None:
             print(' ', g[:8], '注文ID/gclid:', o)
         print('\n--- カレンダーに入れるもの ---')
         print(json.dumps(yotei, ensure_ascii=False, indent=1))
+        print('\n--- LINEの知らせ（1件ぶんずつ） ---')
+        print('\n\n'.join(shirase))
         print('\n--dry-run のため何も書いていません。')
         return
 
@@ -233,7 +262,7 @@ def main() -> None:
 
     if not a.no_line:
         honbun = ('Web予約（予約フォーム／LP）から申し込みが入りました（' + str(len(shirase)) + '件）\n\n'
-                  + '\n'.join(shirase)
+                  + '\n\n'.join(shirase)
                   + '\n\nお名前・ご住所・お電話は、カレンダーの予定の詳細と'
                     'スプレッドシートの「予約_Web」タブに入っています。\n'
                     'まだ【仮】です。確認のお電話をして、予定のタイトルから【仮】を'

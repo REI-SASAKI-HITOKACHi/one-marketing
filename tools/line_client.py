@@ -90,6 +90,77 @@ def call(path: str, method: str = "GET", payload=None):
         sys.exit(f"LINE API エラー {e.code}: {detail}")
 
 
+# ============================== 返信で送る（通数に数えない） ==============================
+# オーナー指示（2026-09-28）「そのカウント方法ならすべて返信として送ってよ」
+# push はグループの人数分が月の無料枠（200通）から引かれる。reply は数えられない。
+# グループの最新の受信の replyToken（LINE_ログ I列の生データ）で返す。
+# 使えないとき（古い・使用済み・受信が無い）だけ push に切り替える。
+_REPLY_USED = os.path.expanduser('~/.config/one-hitter/line-reply-used.json')
+
+
+def _reply_kouho(to):
+    """宛先グループの、まだ使っていない replyToken を新しい順に返す"""
+    try:
+        import importlib.util
+        import urllib.parse
+        here = os.path.dirname(os.path.abspath(__file__))
+        spec = importlib.util.spec_from_file_location('sc', f'{here}/sheets_client.py')
+        sc = importlib.util.module_from_spec(spec)
+        sys.modules['sc'] = sc
+        spec.loader.exec_module(sc)
+        tok = sc.access_token(sc.load_credentials())
+        path = urllib.parse.quote(f'/{SS_LOG}/values/{TAB_LOG}!A1:I', safe='/:?&=,!')
+        rows = sc.call(tok, path).get('values', [])
+    except Exception:
+        return []
+    try:
+        used = set(json.load(open(_REPLY_USED, encoding='utf-8')))
+    except Exception:
+        used = set()
+    out = []
+    for r in reversed(rows[-30:]):
+        if len(r) < 9 or str(r[2]).strip() != to:
+            continue
+        try:
+            rt = json.loads(r[8]).get('replyToken')
+        except Exception:
+            continue
+        if rt and rt not in used:
+            out.append(rt)
+    return out[:3]
+
+
+def _reply_shiyouzumi(rt):
+    try:
+        used = json.load(open(_REPLY_USED, encoding='utf-8'))
+    except Exception:
+        used = []
+    used = (used + [rt])[-200:]
+    try:
+        os.makedirs(os.path.dirname(_REPLY_USED), exist_ok=True)
+        json.dump(used, open(_REPLY_USED, 'w', encoding='utf-8'))
+    except Exception:
+        pass
+
+
+def okuru(to, msgs):
+    """返信で送れれば返信、だめなら push。どちらで送ったかを返す"""
+    for rt in _reply_kouho(to):
+        req = urllib.request.Request(API + "/message/reply", method="POST",
+                                     headers={"Authorization": "Bearer " + token(),
+                                              "Content-Type": "application/json"},
+                                     data=json.dumps({"replyToken": rt, "messages": msgs}).encode())
+        try:
+            urllib.request.urlopen(req, timeout=30).read()
+            _reply_shiyouzumi(rt)
+            return "返信"
+        except urllib.error.HTTPError:
+            _reply_shiyouzumi(rt)      # 失効・使用済み。二度と試さない
+            continue
+    call("/message/push", "POST", {"to": to, "messages": msgs})
+    return "push"
+
+
 def wakeru(text: str):
     """5000字を超える本文を、行の切れ目で分割する"""
     if len(text) <= MOJI_JOUGEN:
@@ -163,8 +234,8 @@ def op_image(a):
         print(f"[確認のみ・送信しません] 宛先 {to}")
         print(json.dumps(msgs, ensure_ascii=False, indent=1))
         return
-    call("/message/push", "POST", {"to": to, "messages": msgs})
-    print(f"送信しました。宛先 {to} ／ 画像 {a.url}")
+    how = okuru(to, msgs)
+    print(f"送信しました（{how}）。宛先 {to} ／ 画像 {a.url}")
 
 
 # ============================== 送信前の未読チェック ==============================
@@ -234,7 +305,7 @@ def midoku_henshin():
         sys.modules['sc'] = sc
         spec.loader.exec_module(sc)
         tok = sc.access_token(sc.load_credentials())
-        path = urllib.parse.quote(f'/{SS_LOG}/values/{TAB_LOG}!A1:H200', safe='/:?&=,!')
+        path = urllib.parse.quote(f'/{SS_LOG}/values/{TAB_LOG}!A1:H', safe='/:?&=,!')
         rows = sc.call(tok, path).get('values', [])
     except Exception:
         return None
@@ -343,11 +414,8 @@ def op_push(a):
             print(p)
         return
 
-    call("/message/push", "POST", {
-        "to": to,
-        "messages": [{"type": "text", "text": p} for p in parts],
-    })
-    print(f"送信しました。宛先 {to} ／ {len(parts)}通 ／ {len(text)}字")
+    how = okuru(to, [{"type": "text", "text": p} for p in parts])
+    print(f"送信しました（{how}）。宛先 {to} ／ {len(parts)}通 ／ {len(text)}字")
 
 
 def main():
