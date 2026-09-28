@@ -69,13 +69,32 @@ COLS = {
     "order_id": ["注文ID", "order_id", "注文番号", "受付番号"],
     "netlify":  ["NetlifyのID", "Netlify ID", "netlify_id", "ID"],
     "gclid":    ["gclid", "広告のクリックID", "Google Click ID", "クリックID"],
+    "click_type": ["click_type", "クリックIDの種類"],
     "moushikomi": ["申込日時", "申込日", "受信日時", "作成日"],
     "sekou":    ["★台帳の最終施工日", "施工日", "施工日付", "作業日", "完了日"],
     "uriage":   ["★売上（税込）", "売上（税込）", "売上", "売上金額", "請求額", "金額"],
 }
 
 # 無くても止めない列。無ければその機能だけ落ちる。
-NAKUTEMOII = {"order_id", "netlify", "moushikomi"}
+NAKUTEMOII = {"order_id", "netlify", "moushikomi", "click_type"}
+
+
+def shurui(value: str, kind: str) -> tuple:
+    """クリックIDの種類を決める。(種類, 推定かどうか) を返す。
+
+    gclid と、iOS で代わりに付く gbraid / wbraid は、**Google広告へ戻すときに別の欄**で渡す。
+    gbraid を「Google Click ID」の欄に入れると、その行は弾かれる。
+
+    2026-09-28 より前の申込には種類の列が無いので、値の形から推定する。
+    gbraid / wbraid は「0AAAA」で始まることが多く、gclid はそうならない。
+    **推定なので、推定したことを必ず表に出す。**
+    """
+    kind = (kind or "").strip().lower()
+    if kind in ("gclid", "gbraid", "wbraid"):
+        return kind, False
+    if value.startswith("0AAAA"):
+        return "braid", True      # gbraid か wbraid かまでは値から分からない
+    return "gclid", True
 
 
 def pick(headers, cands):
@@ -159,9 +178,11 @@ def main() -> None:
     if not yp.exists():
         sys.exit(f"{yp} がありません。")
     rows = read_csv(yp)
-    col = need(rows, yp, "order_id", "netlify", "gclid", "moushikomi", "sekou", "uriage")
+    col = need(rows, yp, "order_id", "netlify", "gclid", "click_type",
+               "moushikomi", "sekou", "uriage")
 
     deta, nashi_gclid, mada, kigengire, kagi_nashi = [], 0, 0, [], 0
+    braid, suitei = [], 0
     for r in rows:
         def v(k):
             return (r.get(col[k]) or "").strip() if col.get(k) else ""
@@ -185,6 +206,13 @@ def main() -> None:
         if keika is not None and keika > KIGEN_NICHI:
             kigengire.append((kagi, keika, uriage))
             continue
+        sh, sui = shurui(gclid, v("click_type"))
+        if sui:
+            suitei += 1
+        if sh != "gclid":
+            # gbraid / wbraid は Google Click ID の欄に入れると弾かれる。分けて出す
+            braid.append((kagi, sh, sui, uriage, sekou))
+            continue
         deta.append({
             header[0]: gclid,
             header[1]: args.name,
@@ -202,6 +230,7 @@ def main() -> None:
     print(f"| 施工前・入金前・キャンセル | {mada:,} |")
     print(f"| 注文IDもNetlifyのIDも無い | {kagi_nashi:,} |")
     print(f"| **クリックから{KIGEN_NICHI}日超（戻せない）** | **{len(kigengire):,}** |")
+    print(f"| **iOSのクリックID（gbraid/wbraid）** | **{len(braid):,}** |")
 
     if not col.get("order_id"):
         print("\n> ⚠️ 『注文ID』の列がありません。**NetlifyのIDを鍵にしています。**")
@@ -216,6 +245,17 @@ def main() -> None:
     else:
         print("\n**戻せる行はありません。** 広告経由の受注がまだ無いか、"
               "施工・入金がこれからか、のどちらかです。**0行のCSVが出ます。**")
+
+    if braid:
+        print(f"\n> ## ⚠️ {len(braid)}件は iOS のクリックID（gbraid / wbraid）です。CSVには入れていません\n>")
+        for kagi, sh, sui, u, dt_ in braid:
+            print(f"> ・`{kagi}` … {sh}{'（値の形からの推定）' if sui else ''}／{u:,}円／施工 {dt_:%Y-%m-%d}")
+        print(">\n> **「Google Click ID」の欄に入れると、その行は弾かれます。**"
+              "\n> gbraid / wbraid は別の欄で渡します。**取り込みの列名は、管理画面のテンプレートで確かめてから**"
+              "\n> 別に作ります（件数が少ないうちは、この一覧を見て手で足すのが確実です）。")
+    if suitei:
+        print(f"\n> ℹ️ {suitei}件は、クリックIDの種類を**値の形から推定**しました"
+              "（2026-09-28 より前の申込には種類の列がありません）。")
 
     if kigengire:
         print(f"\n> ## ⚠️ {len(kigengire)}件が{KIGEN_NICHI}日を過ぎていて戻せません\n>")

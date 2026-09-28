@@ -83,13 +83,19 @@ with sync_playwright() as pw:
         c.route(re.compile(r"^https?://(?!127\.0\.0\.1)"), lambda r: r.abort())
         return c
 
-    # --- 1 / 2. gclid・wbraid・gbraid を拾う ---
+    # --- 1 / 2. gclid・wbraid・gbraid を拾う。**種類も残す** ---
+    #
+    # gbraid / wbraid は iOS で gclid の代わりに付く。Google広告へ戻すときに
+    # **gclid とは別の欄**で渡す必要があるので、値だけでなく種類も残す
+    # （2026-09-27 のエアコンLPの申込が gbraid だった）。
     for param in ("gclid", "wbraid", "gbraid"):
         c = ctx()
         pg = c.new_page()
         pg.goto(f"{BASE}/mizumawari/index.html?{param}=TEST_{param.upper()}&src=gads&cid=123")
         oid, g = submit(pg)
+        k = pg.eval_on_selector("input[name=click_type]", "e => e.value")
         chk(f"?{param}= が隠し欄に入る", g == f"TEST_{param.upper()}", g)
+        chk(f"?{param}= の種類が click_type に残る", k == param, k)
         chk(f"?{param}= のとき注文IDも作られる", bool(oid), oid)
         c.close()
 

@@ -97,5 +97,23 @@ out, rc = run(tmp / "bad.csv")
 chk("鍵が無ければ、見出しを出して止まる",
     rc != 0 and ("・foo" in out or "続けられません" in out), out[:300])
 
+# --- 8. iOS のクリックID（gbraid / wbraid）は Google Click ID の欄に入れない ---
+#
+# 2026-09-27 のエアコンLPの申込が gbraid（0AAAA… で始まる）だった。
+# Google Click ID の欄に入れると、その行は弾かれる。
+(tmp / "braid.csv").write_text(
+    "NetlifyのID,申込日時,注文ID,gclid,click_type,★売上（税込）,★台帳の最終施工日\n"
+    "n1,2026/09/27 19:28,OH-20260927-aircon-Q72T,0AAAABEvDidofga3PfE-50gYkevhbjmLwF,,\"12,100\",2026/10/05\n"
+    "n2,2026/09/28 10:00,OH-20260928-aircon-AAAA,0AAAABxxxx,gbraid,\"20,000\",2026/10/06\n"
+    "n3,2026/09/28 11:00,OH-20260928-mizumawari-BBBB,Cj0KCQjwFAKE,gclid,\"33,660\",2026/10/07\n",
+    encoding="utf-8")
+out, _ = run(tmp / "braid.csv", "--kijun", "2026-10-10", "--out", str(tmp / "b.csv"))
+body = (tmp / "b.csv").read_text(encoding="utf-8")
+chk("gclid の行だけCSVに入る", "Cj0KCQjwFAKE" in body and "0AAAA" not in body, body)
+chk("iOSのクリックIDは2件と数える", "| **iOSのクリックID（gbraid/wbraid）** | **2** |" in out, out[:700])
+chk("種類の列が無い行は、推定と明記する", "値の形からの推定" in out, out[-900:])
+chk("種類の列がある行は、推定と書かない",
+    "OH-20260928-aircon-AAAA` … gbraid／" in out, out[-900:])
+
 print("\n" + ("すべて通りました" if ok else "失敗あり"))
 sys.exit(0 if ok else 1)

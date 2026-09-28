@@ -159,6 +159,7 @@ FORM_NETLIFY = """<form class="form" name="reserve-{dir}" method="post"
       <input type="hidden" name="lp" value="{dir}">
       <input type="hidden" name="order_id" value="">
       <input type="hidden" name="gclid" value="">
+      <input type="hidden" name="click_type" value="">
       <div class="hp" aria-hidden="true">
         <label for="f-x">この欄には入力しないでください</label>
         <input id="f-x" name="x_field" type="text" tabindex="-1" autocomplete="off">
@@ -385,16 +386,21 @@ def order_id_script(dir_name: str) -> str:
             # --- gclid ---
             # 広告から来た「そのとき」にしか取れない。着いた瞬間に保存する。
             "var Q;try{Q=new URLSearchParams(location.search);}catch(e){Q=null;}"
-            "var g=Q&&(Q.get('gclid')||Q.get('wbraid')||Q.get('gbraid'))||'';"
+            # **どの種類のIDかも一緒に残す。** gclid と、iOS で代わりに付く
+            # gbraid / wbraid は、Google広告へ戻すときに**別の欄**で渡す必要がある。
+            # 値だけ残すと、あとで種類が分からず、戻すときに弾かれる
+            # （2026-09-27 のエアコンLPの申込が gbraid だった）。
+            "var k=Q&&(Q.get('gclid')?'gclid':Q.get('wbraid')?'wbraid':Q.get('gbraid')?'gbraid':'')||'';"
+            "var g=k?Q.get(k):'';"
             "try{"
-            "if(g){localStorage.setItem('oh_gclid',JSON.stringify({v:g,t:Date.now()}));}"
+            "if(g){localStorage.setItem('oh_gclid',JSON.stringify({v:g,k:k,t:Date.now()}));}"
             "}catch(e){}\n"
-            "function gclid(){try{"
+            "function clickid(){try{"
             "var o=JSON.parse(localStorage.getItem('oh_gclid')||'null');"
             # 90日 = 90*24*60*60*1000
-            "if(!o||!o.v)return '';"
-            "if(Date.now()-o.t>7776000000){localStorage.removeItem('oh_gclid');return '';}"
-            "return o.v;}catch(e){return '';}}\n"
+            "if(!o||!o.v)return null;"
+            "if(Date.now()-o.t>7776000000){localStorage.removeItem('oh_gclid');return null;}"
+            "return o;}catch(e){return null;}}\n"
             # --- 送信時にフォームへ入れる ---
             "var f=document.querySelector('form.form');if(!f)return;"
             # 注文IDは1ページにつき1つ。**押すたびに作り直さない。**
@@ -409,7 +415,10 @@ def order_id_script(dir_name: str) -> str:
             "f.addEventListener('submit',function(){"
             "if(!id){id=mkid();}"
             "var h=f.querySelector('input[name=\"order_id\"]');if(h){h.value=id;}"
-            "var gh=f.querySelector('input[name=\"gclid\"]');if(gh){gh.value=gclid();}"
+            "var ci=clickid();"
+            "var gh=f.querySelector('input[name=\"gclid\"]');if(gh){gh.value=ci?ci.v:'';}"
+            # 以前の形（種類なし）で保存された値は、種類が分からないので空のままにする
+            "var kh=f.querySelector('input[name=\"click_type\"]');if(kh){kh.value=ci&&ci.k?ci.k:'';}"
             "try{sessionStorage.setItem('oh_order_id',id);}catch(e){}"
             "},true);"
             "})();</script>") % dir_name
