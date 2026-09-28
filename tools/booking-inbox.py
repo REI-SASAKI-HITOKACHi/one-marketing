@@ -48,7 +48,7 @@ ATAMA = ['受信日時', '状態', 'お名前', 'お電話番号', 'ご住所', 
          'ご希望の内容', '所要(分)', '概算金額', 'ご要望', '流入元', 'カレンダー登録',
          'NetlifyのID']
 # 末尾に足した2列（2026-09-22、広告のオフラインCV用。列の位置は見出し行から探す。無ければ書かない）
-OSHIRI = ['注文ID', 'gclid']
+OSHIRI = ['src', 'cid', '注文ID', 'gclid', 'ag', 'click_type']
 
 
 def retsu(i: int) -> str:
@@ -167,8 +167,13 @@ def main() -> None:
         d = s.get('data') or {}
         # 注文ID（LPが採番 OH-…）と gclid（広告のクリックID）。どのフォームでも生の欄名から拾う
         # 予約フォーム（yoyaku）は欄名が日本語（広告のクリックID）、LPのフォームは gclid/order_id
-        oshiri.append([str(d.get('order_id') or ''),
-                       str(d.get('gclid') or d.get('広告のクリックID') or '')])
+        oshiri.append({'注文ID': str(d.get('order_id') or ''),
+                       'gclid': str(d.get('gclid') or d.get('広告のクリックID') or ''),
+                       # 10/9 の広告グループ別の判定に使う（measurement 20260928-01。tools/ad-group-hyou.py が読む）
+                       'src': str(d.get('src') or d.get('流入元') or ''),
+                       'cid': str(d.get('cid') or ''),
+                       'ag': str(d.get('ag') or ''),
+                       'click_type': str(d.get('click_type') or '')})
         if s['_form'] != 'yoyaku':
             # LP のフォーム（name/tel/zip/menu/when/lp/src/cid/order_id）を予約フォームの列名に寄せる
             lp = d.get('lp') or s['_form'].replace('reserve-', '')
@@ -233,7 +238,7 @@ def main() -> None:
     if a.dry_run:
         print('\n--- 追記する行 ---')
         for g, o in zip(gyou, oshiri):
-            print(' ', g[:8], '注文ID/gclid:', o)
+            print(' ', g[:8], '末尾の列:', o)
         print('\n--- カレンダーに入れるもの ---')
         print(json.dumps(yotei, ensure_ascii=False, indent=1))
         print('\n--- LINEの知らせ（1件ぶんずつ） ---')
@@ -244,18 +249,20 @@ def main() -> None:
     res = call(f'/{SS}/values/{TAB}!A1:append', 'POST', {'values': gyou},
                q={'valueInputOption': 'USER_ENTERED', 'insertDataOption': 'INSERT_ROWS'})
     print(f'{TAB} に {len(gyou)}件 追記しました')
-    # 注文ID・gclid は末尾の列へ（見出し行に無ければ書かない。中間の列は他スレッドの持ち物なので触らない）
+    # 注文ID・gclid・src・ag・click_type は末尾の列へ（見出し行にある列だけ書く。中間の列は他スレッドの持ち物なので触らない）
     midashi = call(f'/{SS}/values/{TAB}!1:1').get('values', [[]])[0]
     m = re.search(r'!A(\d+):', res.get('updates', {}).get('updatedRange', ''))
-    if m and all(c in midashi for c in OSHIRI):
+    if m:
         r0 = int(m.group(1))
-        i0, i1 = midashi.index(OSHIRI[0]), midashi.index(OSHIRI[1])
-        if i1 == i0 + 1:
-            a1 = f'{TAB}!{retsu(i0)}{r0}:{retsu(i1)}{r0 + len(oshiri) - 1}'
-            call(f'/{SS}/values/{a1}', 'PUT', {'values': oshiri}, q={'valueInputOption': 'RAW'})
-            print(f'注文ID・gclid を {a1} に書きました')
-    else:
-        print('（注文ID・gclid の列が見出しに無いので書いていません）')
+        kaita = []
+        for k in OSHIRI:
+            if k not in midashi:
+                continue
+            i = midashi.index(k)
+            a1 = f'{TAB}!{retsu(i)}{r0}:{retsu(i)}{r0 + len(oshiri) - 1}'
+            call(f'/{SS}/values/{a1}', 'PUT', {'values': [[o[k]] for o in oshiri]}, q={'valueInputOption': 'RAW'})
+            kaita.append(k)
+        print('末尾の列に書きました: ' + '・'.join(kaita) if kaita else '（注文ID などの列が見出しに無いので書いていません）')
 
     out = f'{ROOT}/data/calendar/booking-todo.json'
     with open(out, 'w', encoding='utf-8') as f:
