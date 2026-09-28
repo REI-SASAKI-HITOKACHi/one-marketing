@@ -50,6 +50,9 @@ def prices() -> dict:
     return {
         "ac": yen(menu[need[0]]["単体"]), "ac2": yen(menu[need[1]]["単体"]),
         "bath": yen(bath["単体"]), "hood": yen(hood["単体"]), "set": yen(bath["同時施工"]),
+        # 同時施工で安くなるのは2箇所目以降だけ。1箇所は単体価格のまま（パンフレットp10・p11、
+        # LPのシミュレーターと同じ決まり）。9/27版は「それぞれ15,180円」と誤っていた
+        "set_goukei": yen(bath["単体"] + hood["同時施工"]),
         "hanbo": yen(hanbo["金額"]),
         # [5, 6, 7, 12] → 「5〜7月・12月」
         "hanbo_tsuki": tsuki_label(tsuki),
@@ -181,7 +184,7 @@ h1 em {{ font-style:normal; background:linear-gradient(transparent 62%,#FFE566 6
     <div class="row"><div class="name">レンジフードクリーニング</div>
       <div class="yen">{hood}<span class="u">円</span><span class="tax">（税込）</span></div></div>
   </div>
-  <p class="set">浴室とレンジフードを同時にご依頼いただくと、それぞれ <b>{set}</b>円（税込）になります。</p>
+  <p class="set">浴室とレンジフードを同時にご依頼で、2箇所目が <b>{set}</b>円。2箇所で <b>{set_goukei}</b>円（税込）です。</p>
 
   <div class="trust">
     <div class="num">98.6%</div>
