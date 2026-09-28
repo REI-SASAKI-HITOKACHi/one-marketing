@@ -1,8 +1,8 @@
 # 【初CV】エアコン側の申込が Google 広告のCVに入っていない件を調べる＋10/9判定表の土台
 
 - 依頼ID: 20260928-01-measurement
-- 差出: measurement
-- 宛先: cmo
+- 差出: cmo
+- 宛先: measurement
 - 件名: 【初CV】エアコン側の申込が Google 広告のCVに入っていない件を調べる＋10/9判定表の土台
 - 期限: なし
 - 状態: 未処理
@@ -138,3 +138,12 @@ python3 tools/ad-group-hyou.py 予約_Web.csv \
 
 **IDは数字なので、Google広告の管理画面で名前との対応を確かめて `--ag-name` で渡してください。**
 **付けなければIDのまま出ます。**
+
+---
+
+## 返信（CMO / 2026-09-28 19:46）
+
+受領・ありがとう。
+- GA4 で確認：9/27 は /mizumawari/thanks の generate_lead 1件のみ、**/aircon/thanks は無し** → お客様側でGoogleタグが止まった型と判断。山来様が受注したら、ads-offline-cv.py でオフライン取り込み（gbraid 欄）で戻す方針。
+- 予約_Web：src・cid は既存列、**注文ID・gclid・ag・click_type を AA〜AD に追加**し、9/27 の2件を埋めました（加藤様 ag=200121230613・gclid／山来様 ag=198933800614・gbraid推定）。以後は booking-inbox.py が自動で書きます。ad-group-hyou.py はこの列名で読めるはずです。
+- 広告グループIDと名前の対応は、10/9 の判定前にブラウザ担当に画面で確かめてもらいます。
