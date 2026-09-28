@@ -143,8 +143,27 @@ def _reply_shiyouzumi(rt):
         pass
 
 
+_KIROKU = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'line-sousin-kiroku.csv')
+
+
+def _kiroku(how, n):
+    """月ごとの push／返信の数を残す（オーナー：返信だけで足りるならダウングレード。2026-09-28）"""
+    import datetime
+    try:
+        with open(_KIROKU, 'a', encoding='utf-8') as f:
+            f.write(f"{datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))):%Y-%m-%d %H:%M},{how},{n}\n")
+    except Exception:
+        pass
+
+
 def okuru(to, msgs):
     """返信で送れれば返信、だめなら push。どちらで送ったかを返す"""
+    how = _okuru(to, msgs)
+    _kiroku(how, len(msgs))
+    return how
+
+
+def _okuru(to, msgs):
     for rt in _reply_kouho(to):
         req = urllib.request.Request(API + "/message/reply", method="POST",
                                      headers={"Authorization": "Bearer " + token(),
