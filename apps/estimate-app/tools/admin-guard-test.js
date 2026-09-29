@@ -24,7 +24,8 @@ const path = require('path');
 const vm = require('vm');
 
 const srcDir = path.join(__dirname, '..', 'src');
-const GS_FILES = ['code.gs', 'Invoice.gs', 'Admin.gs'];
+// 固定のリストにすると、.gs を足したときに丸ごと検査から外れる。src の .gs を全部読む
+const GS_FILES = fs.readdirSync(srcDir).filter(f => f.endsWith('.gs')).sort();
 
 let pass = 0;
 const failures = [];
@@ -36,52 +37,8 @@ function check(name, actual, expected) {
   failures.push(`${name}\n    期待: ${x}\n    実際: ${a}`);
 }
 
-/* ===================== ① 公開関数の棚卸し ===================== */
-
-console.log('\n■ 画面から呼べる関数（名前が _ で終わらない関数）の棚卸し');
-
-/**
- * 画面から呼ばれることを前提にした入口。ここに無い公開関数は admin* でなければならず、
- * admin* は先頭で requireOwner_() を呼ばなければならない。
- *
- * api* は画面の関数。**いまは合言葉なしで呼べる**（個人情報が読める）。
- * 画面側の合言葉は別途（掲示板 20260929-02-cmo の②）。入ったらここで api* も縛る。
- */
-const UI_ENTRY_POINTS = new Set(['doGet', 'doPost', 'include', 'calcEngineTag']);
-const isUiApi = name => /^api[A-Z]/.test(name);
-
-const publicFns = [];
-const guardMissing = [];
-const unexpected = [];
-
-GS_FILES.forEach(file => {
-  const src = fs.readFileSync(path.join(srcDir, file), 'utf8');
-  const re = /^function ([A-Za-z0-9_]+)\([^)]*\)\s*\{\s*\n([^\n]*)/gm;
-  let m;
-  while ((m = re.exec(src))) {
-    const name = m[1];
-    const firstLine = m[2].trim();
-    if (name.endsWith('_')) continue; // 非公開。画面から呼べない
-    publicFns.push(file + ':' + name);
-
-    if (UI_ENTRY_POINTS.has(name) || isUiApi(name)) continue;
-
-    if (/^admin[A-Z]/.test(name)) {
-      if (firstLine !== 'requireOwner_();') guardMissing.push(file + ':' + name);
-      continue;
-    }
-    unexpected.push(file + ':' + name);
-  }
-});
-
-check('admin* はすべて先頭で requireOwner_() を呼んでいる', guardMissing, []);
-check('入口でも admin* でもない公開関数が無い（足すなら末尾に _ を付けるか、ガードを入れる）', unexpected, []);
-check('admin* が1つ以上見つかっている（正規表現が空振りしていない）',
-  publicFns.filter(f => /:admin[A-Z]/.test(f)).length >= 15, true);
-
 /* ===================== ② ガードが本当に止めるか ===================== */
 
-console.log('■ ガードの動作（匿名・別アカウント・所有者）');
 
 const OWNER = 'owner@example.com';
 let activeUser = '';
@@ -119,7 +76,75 @@ const sandbox = {
 };
 
 vm.createContext(sandbox);
+// 読み込む前からある名前（JSON や Session などテスト側が置いたもの）を控えておく
+const injected = new Set(Object.keys(sandbox));
 GS_FILES.forEach(f => vm.runInContext(fs.readFileSync(path.join(srcDir, f), 'utf8'), sandbox, { filename: f }));
+
+/* ===================== ① 公開関数の棚卸し ===================== */
+
+console.log('\n■ 画面から呼べる関数（名前が _ で終わらない関数）の棚卸し');
+
+/**
+ * 画面から呼ばれることを前提にした入口。ここに無い公開関数は admin* でなければならず、
+ * admin* は先頭で requireOwner_() を呼ばなければならない。
+ *
+ * api* は画面の関数。**いまは合言葉なしで呼べる**（個人情報が読める）。
+ * 画面側の合言葉は別途（掲示板 20260929-02-cmo の②）。入ったらここで api* も縛る。
+ *
+ * 数え方：ソースを正規表現で読むのではなく、実際に読み込んだあとの関数一覧から数える。
+ * 1行で書いた関数・名前とかっこの間の空白・字下げ・var 代入など、書き方の違いで
+ * 棚卸しから漏れないようにするため（独立レビュー 2026-09-29 の指摘）。
+ */
+const UI_ENTRY_POINTS = new Set(['doGet', 'doPost', 'include', 'calcEngineTag']);
+const isUiApi = name => /^api[A-Z]/.test(name);
+
+const publicFns = Object.keys(sandbox)
+  .filter(k => !injected.has(k) && typeof sandbox[k] === 'function' && !k.endsWith('_'))
+  .sort();
+
+const adminFns = publicFns.filter(n => /^admin[A-Z]/.test(n));
+const unexpected = publicFns.filter(n => !UI_ENTRY_POINTS.has(n) && !isUiApi(n) && !/^admin[A-Z]/.test(n));
+
+/** 関数本体の最初の文。引数の既定値にかっこや波かっこがあっても、本体の先頭を正しく拾う */
+function firstStatement(fn) {
+  const src = fn.toString();
+  let depth = 0;
+  let i = src.indexOf('(');
+  for (; i < src.length; i++) {
+    if (src[i] === '(') depth++;
+    else if (src[i] === ')') { depth--; if (depth === 0) break; }
+  }
+  const bodyStart = src.indexOf('{', i);
+  return src.slice(bodyStart + 1).replace(/^\s*(\/\/[^\n]*\n\s*|\/\*[\s\S]*?\*\/\s*)*/, '').split(/[;\n]/)[0].trim();
+}
+
+const guardMissing = adminFns.filter(n => firstStatement(sandbox[n]) !== 'requireOwner_()');
+
+check('admin* はすべて本体の先頭で requireOwner_() を呼んでいる', guardMissing, []);
+check('入口でも admin* でもない公開関数が無い（足すなら末尾に _ を付けるか、admin* にしてガードを入れる）', unexpected, []);
+check('admin* が15個以上見つかっている（数え方が空振りしていない）', adminFns.length >= 15, true);
+check('読み込んだ .gs が3つ以上（src の .gs を全部読んでいる）', GS_FILES.length >= 3, true);
+
+// 数え方そのものの自己検査：書き方の違う関数を足した別の環境で、漏れずに拾えるか
+(function selfTest() {
+  const box = {};
+  vm.createContext(box);
+  const before = new Set(Object.keys(box));
+  vm.runInContext([
+    'function adminA() { return 1; }',
+    'function adminB () {\n  return 2;\n}',
+    '  function adminC(){ return 3; }',
+    'var adminD = function () { return 4; };',
+    'function adminE(a = f(1), b = {x: 1}) {\n  requireOwner_();\n}',
+    'function privateOne_() {}'
+  ].join('\n'), box);
+  const found = Object.keys(box).filter(k => !before.has(k) && typeof box[k] === 'function' && !k.endsWith('_')).sort();
+  check('自己検査：書き方が違っても公開関数を全部拾う', found, ['adminA', 'adminB', 'adminC', 'adminD', 'adminE']);
+  check('自己検査：既定値にかっこがあっても本体の先頭を拾う', firstStatement(box.adminE), 'requireOwner_()');
+  check('自己検査：ガードの無い関数は先頭が requireOwner_() にならない', firstStatement(box.adminA), 'return 1');
+})();
+
+console.log('■ ガードの動作（匿名・別アカウント・所有者）');
 
 // シートや Drive に触る処理は、ガードを通り抜けたときだけ呼ばれる。
 // 通り抜けたかどうかを数えるために、中身を空の記録係に差し替える。
@@ -195,16 +220,50 @@ check('大文字違いは別人として止める', tryCall('adminSetApiToken', 
 
 /* ===================== ③ 画面から admin* を呼んでいない ===================== */
 
-console.log('■ 画面（JavaScript.html）から admin* を呼んでいない');
+console.log('■ 画面（src/*.html）から admin* を呼んでいない');
 
-const clientJs = fs.readFileSync(path.join(srcDir, 'JavaScript.html'), 'utf8');
-const clientAdminCalls = (clientJs.match(/\badmin[A-Z][A-Za-z0-9]*\s*\(/g) || []);
-check('画面のコードに admin* の呼び出しが無い', clientAdminCalls, []);
+// JavaScript.html だけでなく、画面に配る .html を全部見る。
+// run['adminX'] のような書き方も拾えるよう、呼び出しの形ではなく名前の出現で見る
+const clientAdminRefs = [];
+fs.readdirSync(srcDir).filter(f => f.endsWith('.html')).forEach(f => {
+  const text = fs.readFileSync(path.join(srcDir, f), 'utf8');
+  (text.match(/\badmin[A-Z][A-Za-z0-9]*/g) || []).forEach(m => clientAdminRefs.push(f + ':' + m));
+});
+check('画面のコード（src/*.html）に admin* の名前が出てこない', clientAdminRefs, []);
+
+/* ===================== ④ リンク先は https:// だけ ===================== */
+
+console.log('■ 画面のリンク先は https:// だけ（javascript: を踏ませない）');
+
+// esc() は href="javascript:…" を防げない。所有者が画面を開いているときに踏まされると、
+// 所有者の権限で admin* まで動いてしまうので、リンク先は safeUrl() を必ず通す。
+const jsHtml = fs.readFileSync(path.join(srcDir, 'JavaScript.html'), 'utf8');
+const rawHref = [];
+fs.readdirSync(srcDir).filter(f => f.endsWith('.html')).forEach(f => {
+  const text = fs.readFileSync(path.join(srcDir, f), 'utf8');
+  (text.match(/href="' \+ (?!safeUrl\()[A-Za-z_]+\(/g) || []).forEach(m => rawHref.push(f + ':' + m));
+});
+check('href に埋め込むのは safeUrl() を通したものだけ', rawHref, []);
+
+const fnSrc = (jsHtml.match(/function safeUrlRaw\([\s\S]*?\n  \}/) || [''])[0];
+check('safeUrlRaw が見つかる', fnSrc.length > 0, true);
+const urlBox = {};
+vm.createContext(urlBox);
+vm.runInContext(fnSrc, urlBox);
+const su = urlBox.safeUrlRaw;
+check('https:// は通す', su('https://drive.google.com/file/d/abc/view'), 'https://drive.google.com/file/d/abc/view');
+check('大文字の HTTPS:// も通す', su('HTTPS://example.com'), 'HTTPS://example.com');
+check('javascript: は止める', su('javascript:google.script.run.adminSetApiToken(1)'), '#');
+check('前に空白を入れた javascript: も止める', su('  javascript:alert(1)'), '#');
+check('大文字混じりの JavaScript: も止める', su('JaVaScRiPt:alert(1)'), '#');
+check('data: は止める', su('data:text/html,<script>1</script>'), '#');
+check('http:// は止める（Drive も Gmail も https）', su('http://example.com'), '#');
+check('空・null は # にする', [su(''), su(null), su(undefined)], ['#', '#', '#']);
 
 /* ===================== 結果 ===================== */
 
 console.log('');
-console.log('  公開関数 ' + publicFns.length + ' 個（うち admin* ' + adminNames.length + ' 個はガード済み）');
+console.log('  公開関数 ' + publicFns.length + ' 個（うち admin* ' + adminFns.length + ' 個はガード済み）／読んだ .gs：' + GS_FILES.join(', '));
 console.log('');
 if (failures.length === 0) {
   console.log(`✅ 全 ${pass} ケース合格`);

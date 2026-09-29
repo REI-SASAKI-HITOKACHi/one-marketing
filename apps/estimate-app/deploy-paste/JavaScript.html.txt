@@ -71,7 +71,7 @@
     setupStaffOptions();
     renderChannelTabs();
 
-    byId('highwayLink').href = state.settings['高速料金検索URL'] || '#';
+    byId('highwayLink').href = safeUrlRaw(state.settings['高速料金検索URL']);
     byId('lineNoticeText').textContent =
       state.settings['LINE一報文言'] || 'メール送信後、LINEで代表者へ一報を入れてください。';
 
@@ -886,11 +886,11 @@
     var parts = ['<strong>見積ID：</strong>' + esc(saved.estimateId) + '<br>'];
 
     if (built.pdfUrl) {
-      parts.push('<strong>PDF：</strong><a href="' + esc(built.pdfUrl) + '" target="_blank" rel="noopener">PDFを開く</a><br>');
+      parts.push('<strong>PDF：</strong><a href="' + safeUrl(built.pdfUrl) + '" target="_blank" rel="noopener">PDFを開く</a><br>');
     }
 
     if (built.draftUrl) {
-      parts.push('<strong>Gmail下書き：</strong><a href="' + esc(built.draftUrl) + '" target="_blank" rel="noopener">下書き一覧を開く</a><br>');
+      parts.push('<strong>Gmail下書き：</strong><a href="' + safeUrl(built.draftUrl) + '" target="_blank" rel="noopener">下書き一覧を開く</a><br>');
     }
 
     if (built.errors && built.errors.length) {
@@ -934,7 +934,7 @@
 
         showToast('代表者確認メール下書きを作成しました。');
         byId('createResult').innerHTML +=
-          '<br><strong>代表者確認メール：</strong><a href="' + esc(res.draftUrl)
+          '<br><strong>代表者確認メール：</strong><a href="' + safeUrl(res.draftUrl)
           + '" target="_blank" rel="noopener">Gmail下書き一覧を開く</a>';
       })
       .withFailureHandler(function (err) { showToast(message(err)); })
@@ -991,7 +991,7 @@
         + '</div>'
         + '<div class="button-row">'
         + '<button type="button" class="secondary" data-action="preview" data-id="' + esc(r.estimate_id) + '">プレビュー</button>'
-        + (r.pdf_url ? '<a class="link-button" href="' + esc(r.pdf_url) + '" target="_blank" rel="noopener">PDF</a>' : '')
+        + (r.pdf_url ? '<a class="link-button" href="' + safeUrl(r.pdf_url) + '" target="_blank" rel="noopener">PDF</a>' : '')
         + '<button type="button" class="secondary" data-action="clone" data-id="' + esc(r.estimate_id) + '">複製して編集</button>'
         + (r.invoice_id
             ? '<button type="button" class="secondary" data-action="view-invoice" data-id="' + esc(r.invoice_id) + '">請求書確認</button>'
@@ -1150,8 +1150,8 @@
     if (h.例外理由) parts.push('<div class="alert warning">' + esc(h.例外理由) + '</div>');
 
     var links = [];
-    if (h.PDF_URL) links.push('<a class="link-button" href="' + esc(h.PDF_URL) + '" target="_blank" rel="noopener">PDFを開く</a>');
-    if (h.メール下書きURL) links.push('<a class="link-button" href="' + esc(h.メール下書きURL) + '" target="_blank" rel="noopener">Gmail下書き</a>');
+    if (h.PDF_URL) links.push('<a class="link-button" href="' + safeUrl(h.PDF_URL) + '" target="_blank" rel="noopener">PDFを開く</a>');
+    if (h.メール下書きURL) links.push('<a class="link-button" href="' + safeUrl(h.メール下書きURL) + '" target="_blank" rel="noopener">Gmail下書き</a>');
     if (links.length) parts.push('<div class="button-row">' + links.join('') + '</div>');
 
     parts.push(renderInvoiceAction(res));
@@ -1440,10 +1440,10 @@
       + '（見積額 ' + esc(fmtYen(saved.estimateTotal)) + '）<br>');
 
     if (built.pdfUrl) {
-      parts.push('<strong>PDF：</strong><a href="' + esc(built.pdfUrl) + '" target="_blank" rel="noopener">請求書PDFを開く</a><br>');
+      parts.push('<strong>PDF：</strong><a href="' + safeUrl(built.pdfUrl) + '" target="_blank" rel="noopener">請求書PDFを開く</a><br>');
     }
     if (built.draftUrl) {
-      parts.push('<strong>Gmail下書き：</strong><a href="' + esc(built.draftUrl) + '" target="_blank" rel="noopener">下書き一覧を開く</a><br>');
+      parts.push('<strong>Gmail下書き：</strong><a href="' + safeUrl(built.draftUrl) + '" target="_blank" rel="noopener">下書き一覧を開く</a><br>');
     }
 
     parts.push('</div>');
@@ -1526,8 +1526,8 @@
     if (h.備考) parts.push('<div class="sub-head">備考</div><div class="note">' + esc(h.備考) + '</div>');
 
     var links = [];
-    if (h.PDF_URL) links.push('<a class="link-button" href="' + esc(h.PDF_URL) + '" target="_blank" rel="noopener">請求書PDF</a>');
-    if (h.メール下書きURL) links.push('<a class="link-button" href="' + esc(h.メール下書きURL) + '" target="_blank" rel="noopener">Gmail下書き</a>');
+    if (h.PDF_URL) links.push('<a class="link-button" href="' + safeUrl(h.PDF_URL) + '" target="_blank" rel="noopener">請求書PDF</a>');
+    if (h.メール下書きURL) links.push('<a class="link-button" href="' + safeUrl(h.メール下書きURL) + '" target="_blank" rel="noopener">Gmail下書き</a>');
     if (links.length) parts.push('<div class="button-row">' + links.join('') + '</div>');
 
     byId('previewBody').innerHTML = parts.join('');
@@ -1584,6 +1584,25 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
+  }
+
+  /**
+   * リンク先に使ってよいのは https:// で始まるものだけ。
+   *
+   * esc() は < > " を無害にするが、href="javascript:…" は防げない。
+   * いまリンク先（PDF・Gmail下書き）はサーバーが作るので実害は無いが、
+   * 保存データ経由で javascript: が入ると、所有者が画面を開いた瞬間に
+   * 所有者の権限で任意の処理が動く（独立レビュー 2026-09-29 の指摘D）。
+   * 条件に合わないものは '#'（どこへも飛ばない）にする。
+   */
+  function safeUrlRaw(u) {
+    var s = String(u === null || u === undefined ? '' : u).trim();
+    return /^https:\/\//i.test(s) ? s : '#';
+  }
+
+  /** HTML の属性に埋め込む版（esc も通す） */
+  function safeUrl(u) {
+    return esc(safeUrlRaw(u));
   }
 
   function showFatal(msg) {
