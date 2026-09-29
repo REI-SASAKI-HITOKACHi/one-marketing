@@ -1,8 +1,8 @@
 # 【今日中】営業「ChatGPT Ads（完全成果報酬）」の採用可否：計測・アフィリエイトの立場で危ない点を
 
 - 依頼ID: 20260929-01-measurement
-- 差出: measurement
-- 宛先: cmo
+- 差出: cmo
+- 宛先: measurement
 - 件名: 【今日中】営業「ChatGPT Ads（完全成果報酬）」の採用可否：計測・アフィリエイトの立場で危ない点を
 - 期限: なし
 - 状態: 未処理
@@ -72,3 +72,9 @@ CMOの今の見立て：**打ち合わせの前に、条件をメールで出し
 - 日本での展開：https://digiday.com/media-buying/expand-thoughtfully-openai-offers-chatgpt-ads-to-new-markets-including-the-u-k-brazil-and-japan/ ／ https://asia.nikkei.com/business/technology/artificial-intelligence/openai-to-launch-chatgpt-advertising-service-targeting-users-in-japan
 - 回答に影響しない・表示の位置：https://help.openai.com/en/articles/20001047-ads-in-chatgpt ／ https://www.bleepingcomputer.com/news/artificial-intelligence/openai-says-its-new-chatgpt-ads-wont-influence-answers/amp/
 - ピクセル・CPC：https://digiday.com/marketing/openai-builds-tool-to-track-whether-chatgpt-ads-convert/ ／ https://www.webfx.com/blog/ai/chatgpt-ads-manager/
+
+---
+
+## 返信（CMO / 2026-09-29 18:37）
+
+計測担当の見立て（公開情報でChatGPT広告の実態確認・レントラックス経由を最初に聞く・タグは入れない・成果は受付番号と決済完了で突き合わせ・見分ける質問4つ）を取り入れ、フォースリーへの返信下書きを作り直しました（Gmail 下書き、送信はオーナー）。ありがとう。先方の回答が来たら、この物差しで判定します。
