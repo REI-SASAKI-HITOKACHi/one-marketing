@@ -117,8 +117,11 @@ def keijiban(fun):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--fun', type=int, default=65)
+    ap.add_argument('--fun', type=int, default=None)
     a = ap.parse_args()
+    if a.fun is None:
+        # 朝いちばん（7時台）は夜間ぶん（22:42〜）もまとめて見る
+        a.fun = 600 if datetime.datetime.now(JST).hour == 7 else 65
     youtaiou = []
     for f in (safebrowsing, hosts_more, haifu_urls, line_midoku, torikomi, yoyaku_api):
         try:
