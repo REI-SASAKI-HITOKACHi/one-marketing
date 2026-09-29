@@ -1,16 +1,16 @@
-<title>水まわり まとめ頼み ONE HITTER（案B）</title>
+<title>年末大掃除 ONE HITTER（学習版 nenmatsu-b）</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Oswald:wght@500;600&family=Shippori+Mincho+B1:wght@600;800&display=swap">
 
 <style>
 /* ===========================================================
-   ONE HITTER ／ 水まわりセット LP 案B（mizumawari-b）
+   ONE HITTER ／ 年末大掃除LP 学習版（nenmatsu-b）
    ------------------------------------------------------------
-   2026-09-29 オーナー指示「学習した内容を全て反映させて水回りLPを1から作成」。
-   学習の中身は docs/学習-freeweb-LP-2026-09-29.md。作りの説明は docs/LP-学習版.md。
-   色・書体・ボタン・計算機・フォーム・追従バーは案A（lp/mizumawari）の部品をそのまま使う
-   （A/Bで「構成と訴求」だけを比べるため。見た目の部品まで変えると、何が効いたか分からない）。
+   2026-09-29 オーナー指示「他の3つも学習を反映したものを作成して」。
+   型は水まわり案B（lp/mizumawari-b）と同じ。年末の核（11月30日までのご予約なら通常価格／
+   12月は1箇所+3,300円）は案A（lp/nenmatsu）から引き継ぐ。料金の計算機は案Aと同じ部品・同じ計算。
+   作りの説明は docs/LP-学習版.md。
    =========================================================== */
 :root{
   /* 広告の受け皿なので、OSのダークモードに追従させない。
@@ -400,6 +400,38 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
 
 /* 下書きの目印。本番に出す前に消す（オーナーの写真判断待ち） */
 .draft-note{font-size:11.5px;color:var(--cta);font-weight:700;}
+
+/* ===== 年末：11月までと12月の比較（案Aの部品） ===== */
+.deadline{
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:stretch;gap:0;
+  border:1px solid var(--rule-2);background:var(--surface);
+  box-shadow:0 12px 30px -22px rgba(13,59,92,.5);
+}
+.dl-col{padding:20px 18px;display:flex;flex-direction:column;gap:6px;}
+.dl-col.up{background:var(--cta-soft);}
+.dl-when{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--steel);}
+.dl-col.up .dl-when{color:var(--cta);}
+.dl-price{font-family:"Oswald",sans-serif;font-weight:500;
+  font-size:clamp(28px,7.6vw,42px);line-height:1;color:var(--text);}
+.dl-price .num{font-size:1em;}
+.dl-col.up .dl-price{color:var(--cta);}
+.dl-note{font-size:11.5px;color:var(--steel);line-height:1.75;}
+.dl-arrow{display:flex;align-items:center;justify-content:center;padding:0 6px;
+  color:var(--steel);font-size:20px;}
+.dl-gap{grid-column:1/-1;border-top:1px solid var(--rule);
+  padding:14px 18px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+.dl-gap-n{font-family:"Oswald",sans-serif;font-weight:500;font-size:23px;color:var(--cta);}
+.dl-gap-t{font-size:12.5px;color:var(--steel);}
+@media(max-width:520px){
+  .deadline{grid-template-columns:1fr;}
+  .dl-arrow{transform:rotate(90deg);padding:2px 0;}
+}
+.dl-lead{font-size:14px;color:var(--text-2);line-height:2.05;margin-bottom:18px;}
+.rei-card .dec{font-size:12.5px;color:var(--steel);}
+.rei-card .dec b{font-family:"Oswald",sans-serif;font-weight:500;font-size:15px;color:var(--text-2);}
+/* レンジフードの写真は横長。正方形に切らない（1画面に収めるためにも） */
+.hero .ba-hero img{aspect-ratio:4/3;}
+#kigen .dl-lead{margin-top:18px;font-size:15px;}
 </style>
 
 <div class="bar">
@@ -417,15 +449,15 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
      12タイプの「損しないよね？」型なので、いちばん多いご依頼の金額を見出しにする。 -->
 <section class="hero">
   <div class="wrap">
-    <p class="hero-area" id="hero-area">✓ 東京・千葉・神奈川／自社の職人が伺います</p>
-    <p class="hero-eyebrow">水まわりの、まとめ頼み</p>
-    <h1>浴室とキッチン、<br><span class="mk">2箇所で<span class="num">33,660</span>円</span>。</h1>
-    <p class="hero-sub" id="hero-sub">2箇所目から、同時施工の価格になります。<b>お見積り以上の追加請求はありません。</b></p>
+    <p class="hero-area" id="hero-area">✓ 東京・千葉・神奈川／年末の予約 受付中</p>
+    <p class="hero-eyebrow">年末の大掃除は、11月までのご予約が安い</p>
+    <h1>レンジフードと浴室、<br><span class="mk">2箇所で<span class="num">33,660</span>円</span>。</h1>
+    <p class="hero-sub" id="hero-sub"><b>11月30日までのご予約なら、この通常価格です。</b>12月は1箇所につき3,300円が加わり、40,260円になります。</p>
 
     <div class="ba-hero">
-      <figure><img src="img/drum-before.jpg" alt="洗濯槽の内側。施工前は黒カビが全体に付着している" width="760" height="760"><span class="lb">BEFORE</span></figure>
-      <figure class="after"><img src="img/drum-after.jpg" alt="同じ洗濯槽の内側。施工後は白い地が見えている" width="760" height="760"><span class="lb">AFTER</span></figure>
-      <p class="ba-hero-cap">洗濯槽の内側｜実際の施工前と施工後（同じ箇所）</p>
+      <figure><img src="img/hood-before.jpg" alt="レンジフードのグリスフィルター。施工前は網目が油で埋まっている" width="800" height="600"><span class="lb">BEFORE</span></figure>
+      <figure class="after"><img src="img/hood-after.jpg" alt="同じグリスフィルター。施工後は網目が抜けている" width="800" height="600"><span class="lb">AFTER</span></figure>
+      <p class="ba-hero-cap">レンジフードのフィルター｜実際の施工前と施工後（同じ箇所）</p>
     </div>
 
     <div class="hero-cta">
@@ -452,6 +484,41 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
       <q>今回は洗濯機と換気扇のクリーニングをお願いしました。まず作業前に現状を見せていただきました。…クリーニング後は、新品同様にピッカピカになり大満足。</q>
       <span class="who">M様／Googleクチコミ（2024年4月）</span>
     </blockquote>
+  </div>
+</section>
+
+<!-- ===== 年末の核：11月までと12月の比較（案Aの欄をそのまま。POD） ===== -->
+<section class="alt" id="kigen">
+  <div class="wrap">
+    <div class="sec-h">
+      <span class="eyebrow">Price</span>
+      <h2>12月から、料金が上がります</h2>
+      <p>隠さずに書きます。年末は依頼が集中するため、当社では<b>12月以降、1箇所につき3,300円の繁忙期料金</b>をいただいています。作業内容も、担当する人間も、仕上がりも変わりません。混み合う時期の受付枠を確保するための料金です。</p>
+    </div>
+
+    <div class="deadline">
+      <div class="dl-col">
+        <span class="dl-when">〜 11月30日</span>
+        <span class="dl-price"><span class="num">33,660</span>円</span>
+        <span class="dl-note">通常価格<br>レンジフード＋浴室の2箇所</span>
+      </div>
+      <div class="dl-arrow" aria-hidden="true">→</div>
+      <div class="dl-col up">
+        <span class="dl-when">12月 1日 〜</span>
+        <span class="dl-price"><span class="num">40,260</span>円</span>
+        <span class="dl-note">繁忙期料金<br>1箇所につき +3,300円</span>
+      </div>
+      <div class="dl-gap">
+        <span class="dl-gap-n">6,600円</span>
+        <span class="dl-gap-t">2箇所での差額</span>
+      </div>
+    </div>
+
+    <p class="dl-lead">それに、12月は枠そのものが埋まります。自社の職人が伺うため、1日にお受けできる件数には限りがあります。<b>例年、12月後半はお断りせざるを得ない日が出ています。</b>年内にとお考えでしたら、11月中のご予約をおすすめします。</p>
+
+    <div class="hero-cta">
+      <a class="btn lg" href="#form">11月中の空き枠を確認する</a>
+    </div>
   </div>
 </section>
 
@@ -495,9 +562,9 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
         <p class="ba-cap"><b>洗濯機｜防水パン</b>洗濯機を動かさないと手が入らない場所です。</p>
       </div>
       <div class="ba">
-        <figure><img src="img/hood-before.jpg" alt="レンジフードのグリスフィルター。施工前は網目が油で埋まっている" width="800" height="600" loading="lazy"><span class="lb">BEFORE</span></figure>
-        <figure class="after"><img src="img/hood-after.jpg" alt="同じグリスフィルター。施工後は網目が抜けている" width="800" height="600" loading="lazy"><span class="lb">AFTER</span></figure>
-        <p class="ba-cap"><b>レンジフード｜グリスフィルター</b>網目が油で埋まると、換気の力そのものが落ちます。分解して、つけ置き洗いで抜きます。</p>
+        <figure><img src="img/drum-before.jpg" alt="洗濯槽の内側。施工前は黒カビが全体に付着している" width="760" height="760" loading="lazy"><span class="lb">BEFORE</span></figure>
+        <figure class="after"><img src="img/drum-after.jpg" alt="同じ洗濯槽の内側。施工後は白い地が見えている" width="760" height="760" loading="lazy"><span class="lb">AFTER</span></figure>
+        <p class="ba-cap"><b>洗濯機｜洗濯槽の内側</b>分解して洗います。市販のクリーナーでは、ここまで届きません。</p>
       </div>
       <div class="ba">
         <figure><img src="img/mirror-before.jpg" alt="浴室の鏡。施工前は水アカで白く曇っている" width="800" height="600" loading="lazy"><span class="lb">BEFORE</span></figure>
@@ -508,6 +575,11 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
         <figure><img src="img/sink-before.jpg" alt="キッチンのシンク。施工前は水アカと油膜で曇っている" width="800" height="600" loading="lazy"><span class="lb">BEFORE</span></figure>
         <figure class="after"><img src="img/sink-after.jpg" alt="同じシンク。施工後はステンレスのつやが戻っている" width="800" height="600" loading="lazy"><span class="lb">AFTER</span></figure>
         <p class="ba-cap"><b>キッチン｜シンクと排水口</b>毎日洗っているのに曇るのは、水アカと油膜が重なっているためです。</p>
+      </div>
+      <div class="ba">
+        <figure><img src="img/ac-vent-before.jpg" alt="エアコンの吹き出し口。ルーバーの奥に黒い汚れが付着している" width="1200" height="900" loading="lazy"><span class="lb">BEFORE</span></figure>
+        <figure class="after"><img src="img/ac-vent-after.jpg" alt="同じ吹き出し口。施工後は汚れが取れている" width="1200" height="900" loading="lazy"><span class="lb">AFTER</span></figure>
+        <p class="ba-cap"><b>エアコン｜吹き出し口</b>風の通り道は、いちばん汚れが溜まる場所です。年末はエアコンのご依頼も承っています。</p>
       </div>
     </div>
     <p class="ba-note">※いずれも実際の施工写真です。施工前と施工後は同じ箇所を撮影しています。汚れや設備の状態により、仕上がりは異なります。</p>
@@ -521,30 +593,33 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
   <div class="wrap">
     <div class="sec-h">
       <span class="eyebrow">Examples</span>
-      <h2>よくある頼み方と、<br>金額（税込）</h2>
+      <h2>年末によくある頼み方と、<br>金額（税込）</h2>
       <p>計算しなくても大丈夫です。近いものを押すと、そのまま下の計算機に入ります。</p>
     </div>
     <div class="rei">
-      <div class="rei-card" data-rei="浴室クリーニング,キッチンクリーニング">
-        <span class="tag top">いちばん多いご依頼</span>
-        <ul><li>浴室クリーニング</li><li>キッチンクリーニング</li></ul>
+      <div class="rei-card" data-rei="浴室クリーニング,レンジフード（換気扇）">
+        <span class="tag top">年末に多いご依頼</span>
+        <ul><li>レンジフード（換気扇）</li><li>浴室クリーニング</li></ul>
         <p class="price"><span class="tot" data-role="tot">33,660<small>円</small></span><span class="from">単体なら <s data-role="single">36,960円</s></span></p>
+        <p class="dec">12月のご予約だと <b data-role="dec">40,260円</b></p>
         <button class="btn ghost" type="button" data-role="apply">この組み合わせで計算する</button>
       </div>
       <div class="rei-card" data-rei="キッチンクリーニング,レンジフード（換気扇）,コンロクリーニング">
         <span class="tag">キッチンまわりをまとめて</span>
         <ul><li>キッチンクリーニング</li><li>レンジフード（換気扇）</li><li>コンロクリーニング</li></ul>
         <p class="price"><span class="tot" data-role="tot">39,710<small>円</small></span><span class="from">単体なら <s data-role="single">47,740円</s></span></p>
+        <p class="dec">12月のご予約だと <b data-role="dec">49,610円</b></p>
         <button class="btn ghost" type="button" data-role="apply">この組み合わせで計算する</button>
       </div>
       <div class="rei-card" data-rei="浴室クリーニング,キッチンクリーニング,レンジフード（換気扇）,洗面台丸洗い">
         <span class="tag">水まわりをひと通り</span>
         <ul><li>浴室クリーニング</li><li>キッチンクリーニング</li><li>レンジフード（換気扇）</li><li>洗面台丸洗い</li></ul>
         <p class="price"><span class="tot" data-role="tot">56,320<small>円</small></span><span class="from">単体なら <s data-role="single">66,220円</s></span></p>
+        <p class="dec">12月のご予約だと <b data-role="dec">69,520円</b></p>
         <button class="btn ghost" type="button" data-role="apply">この組み合わせで計算する</button>
       </div>
     </div>
-    <p class="rei-note">※表示はすべて税込です。5〜7月・12月は各箇所に3,300円が加算されます。駐車スペースが無い場合は、コインパーキング代を実費でいただきます（金額は事前にお伝えします）。</p>
+    <p class="rei-note">※表示はすべて税込です。大きい金額は11月30日までのご予約の通常価格、「12月のご予約だと」は1箇所につき3,300円の繁忙期料金を加えた金額です。駐車スペースが無い場合は、コインパーキング代を実費でいただきます（金額は事前にお伝えします）。</p>
   </div>
 </section>
 
@@ -716,21 +791,22 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
     </div>
     <div class="voices">
       <div class="voice">
+        <div class="head"><span class="menu-tag">Googleクチコミ ★★★★★</span></div>
+        <q>今回3回目の利用です。…クリーニング後は汚れを見せてくれるので、こんなに汚れていたんだと確認できます。</q>
+        <span class="who">Y様（2026年4月）</span>
+      </div>
+      <div class="voice">
+        <div class="head"><span class="menu-tag">Googleクチコミ ★★★★★</span></div>
+        <q>細かい観察に加えて確かな技術なので今回リピートでしたが早速来年の予約を入れました。</q>
+        <span class="who">F様（2026年4月）</span>
+      </div>
+      <div class="voice">
         <div class="head"><span class="menu-tag">洗濯機クリーニング</span></div>
         <q>今まで何度か“洗濯槽用洗剤”で掃除をしてきましたが、黒いゴミが浮かんでくるだけでした。洗濯槽を分解して洗ってもらえたので黒カビは一切出なくなりました。定期的に利用したいです。</q>
-        <span class="who">38歳 女性</span>
-      </div>
-      <div class="voice">
-        <div class="head"><span class="menu-tag">洗濯機クリーニング</span></div>
-        <q>洗濯機を分解して見せていただき、カビの多さに衝撃を受けました…。これまで、こんなにカビにまみれた洗濯機で家族の洋服を洗っていたかと思うと恐ろしいです。</q>
-        <span class="who">42歳 女性</span>
-      </div>
-      <div class="voice">
-        <q>丁寧な説明、対応で安心して任せられました。他の業者と比較しても低価格なところも利用する決め手になりました。</q>
-        <span class="who">27歳 女性</span>
+        <span class="who">38歳 女性（公式サイト「お客様の声」）</span>
       </div>
     </div>
-    <p class="voice-src">※公式サイト「お客様の声」に掲載している、実際にいただいたご感想です。文面は原文のまま、年代・性別もご本人の申告どおり掲載しています。</p>
+    <p class="voice-src">※ Googleクチコミは、Googleビジネスプロフィールに寄せられた投稿から引用しています（2026年9月時点・23件・平均★5.0／文面は原文のまま、投稿者名のみ頭文字に置き換え。「…」は中略です）。公式サイト「お客様の声」のご感想は、文面は原文のまま、年代・性別もご本人の申告どおり掲載しています。</p>
   </div>
 </section>
 
@@ -964,6 +1040,9 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
     var sg  = card.querySelector('[data-role=single]');
     if (tot) tot.innerHTML = k.total.toLocaleString('ja-JP') + '<small>円</small>';
     if (sg)  sg.textContent = fmt(k.single);
+    // 12月のご予約の金額。繁忙期料金は1箇所につき3,300円（案Aの本文・注記どおり）
+    var dec = card.querySelector('[data-role=dec]');
+    if (dec) dec.textContent = fmt(k.total + 3300 * chosen.length);
     var btn = card.querySelector('[data-role=apply]');
     if (btn) btn.addEventListener('click', function(){
       picks.forEach(function(p){
@@ -1009,10 +1088,6 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
     var clean = function(v, n){ return (v || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, n); };
     var src = clean(q.get('src'), 20) || 'direct';
     var cid = clean(q.get('cid'), 20);
-    /* 広告グループID。Google広告が ?ag={adgroupid} で渡す。
-       src と同じく素性が不明な値なので、同じ clean を通す。
-       広告以外（QR・SNS等）から来た人は空文字のままで、何も変わらない。 */
-    var ag = clean(q.get('ag'), 20);
 
     /* Google広告のクリックID。成果を広告に結びつけるのに要る。
        申し込みは来訪と同じ日とは限らないので、URLから拾って localStorage に持たせ、
@@ -1055,35 +1130,14 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
       var u;
       try { u = new URL(a.href, location.href); } catch (e) { return; }
       if (!BESSITE.test(u.hostname)) return;
-      var hikitsugu = { src: src, cid: cid, ag: ag, gclid: gclid };
+      var hikitsugu = { src: src, cid: cid, gclid: gclid };
       Object.keys(hikitsugu).forEach(function (k) {
         // すでにURLに書いてあるものは、書いた人の意図を優先して上書きしない
         if (hikitsugu[k] && !u.searchParams.has(k)) u.searchParams.set(k, hikitsugu[k]);
       });
       a.href = u.toString();
     }, true);
-
-    /* 検索広告・SNS広告から来た方は、当社をはじめて見る方が多い。
-       「前から知っている人向け」の書き方だと伝わらないので、
-       はじめての方に必要な情報（見積り無料・追加請求なし・断れる）に差し替える。
-       電話は1画面目に出す。ハウスクリーニングは電話で決める方が多い。
-       既存客が来る src（sms・qr 等）の画面は変えない。 */
-    // 広告のキャンペーンごとに src を分ける運用があるので、区切りの前だけで見る。
-    // 例）gads / gads_aircon / gads-brand / GADS_AIRCON → どれも 'gads' 扱い。
-    // 入稿は人が手で打つ。大文字やハイフンで来ても文言が切り替わらない、を避ける。
-    // GA4 と別ホストへの引き継ぎには、切り落とす前の src をそのまま渡す（媒体別に見たいため）。
-    var KOUKOKU = ['gads', 'ig', 'fb', 'gbp'];
-    if (KOUKOKU.indexOf(String(src).toLowerCase().split(/[-_]/)[0]) !== -1) {
-      var sashikae = function (id, html) {
-        var el = document.getElementById(id);
-        if (el) el.innerHTML = html;
-      };
-      sashikae('hero-area', '✓ 東京・千葉・神奈川／はじめての方も歓迎');
-      sashikae('hero-sub',  '2箇所目から、同時施工の価格になります。<b>お見積りは無料で、見積り以上の追加請求は一切ありません。</b>どこを頼むか決まっていなくても、下の「よくある頼み方」で目安が分かります。');
-      sashikae('hero-perk', 'はじめての方でも、<b>お見積りは無料</b>です。金額にご納得いただいてから作業に入りますので、その場でお断りいただいても構いません。');
-    }
     var es = document.getElementById('h-src'); if (es) es.value = src;
     var ec = document.getElementById('h-cid'); if (ec) ec.value = cid;
-    var ea = document.getElementById('h-ag');  if (ea) ea.value = ag;
   })();
 </script>

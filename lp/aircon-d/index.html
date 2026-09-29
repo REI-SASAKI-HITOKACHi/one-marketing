@@ -1,16 +1,16 @@
-<title>水まわり まとめ頼み ONE HITTER（案B）</title>
+<title>エアコン分解洗浄 ONE HITTER（学習版 aircon-d）</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Oswald:wght@500;600&family=Shippori+Mincho+B1:wght@600;800&display=swap">
 
 <style>
 /* ===========================================================
-   ONE HITTER ／ 水まわりセット LP 案B（mizumawari-b）
+   ONE HITTER ／ エアコンLP 学習版（aircon-d：料金から入る（案Bの入口））
    ------------------------------------------------------------
-   2026-09-29 オーナー指示「学習した内容を全て反映させて水回りLPを1から作成」。
-   学習の中身は docs/学習-freeweb-LP-2026-09-29.md。作りの説明は docs/LP-学習版.md。
-   色・書体・ボタン・計算機・フォーム・追従バーは案A（lp/mizumawari）の部品をそのまま使う
-   （A/Bで「構成と訴求」だけを比べるため。見た目の部品まで変えると、何が効いたか分からない）。
+   2026-09-29 オーナー指示「他の3つも学習を反映したものを作成して」。
+   型は水まわり案B（lp/mizumawari-b）と同じ。学習の中身は docs/学習-freeweb-LP-2026-09-29.md、
+   作りの説明は docs/LP-学習版.md。料金の計算機は案A（lp/aircon）と同じ部品・同じ計算。
+   入口（見出しと導入文）だけを aircon-c／aircon-d で変えてある（案A／案Bの入口の比較を引き継ぐ）。
    =========================================================== */
 :root{
   /* 広告の受け皿なので、OSのダークモードに追従させない。
@@ -400,6 +400,73 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
 
 /* 下書きの目印。本番に出す前に消す（オーナーの写真判断待ち） */
 .draft-note{font-size:11.5px;color:var(--cta);font-weight:700;}
+/* シミュレーター：ここは持ち上げる */
+.calc{background:var(--surface);border:1px solid var(--rule-2);box-shadow:0 12px 30px -22px rgba(13,59,92,.5);}
+.calc-h{background:var(--ink);color:#fff;padding:15px 20px;display:flex;align-items:baseline;gap:10px;}
+.calc-h b{font-size:15.5px;font-family:"Shippori Mincho B1",serif;font-weight:800;}
+.calc-h span{font-size:11.5px;margin-left:auto;color:var(--on-ink-2);}
+.calc-b{padding:22px 20px;display:flex;flex-direction:column;gap:20px;}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;}
+legend{font-size:12px;font-weight:700;color:var(--steel);letter-spacing:.06em;padding:0;}
+.chips{display:flex;flex-wrap:wrap;gap:7px;}
+.chip{position:relative;}
+.chip input{position:absolute;opacity:0;inset:0;width:100%;height:100%;cursor:pointer;margin:0;}
+.chip span{display:block;padding:10px 15px;border:1px solid var(--rule-2);background:var(--surface);
+  font-size:14px;font-weight:500;transition:.12s;}
+.chip small{display:block;font-size:11px;font-weight:400;color:var(--steel);}
+.chip input:checked + span{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:700;}
+.chip input:checked + span small{color:var(--on-ink-2);}
+.chip input:focus-visible + span{outline:2.5px solid var(--cta);outline-offset:2px;}
+.calc-out{border-top:1px solid var(--rule-2);padding-top:18px;display:flex;align-items:flex-end;
+  justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.calc-out .lab{font-size:12.5px;color:var(--steel);}
+.calc-out .tot{font-family:"Oswald",sans-serif;font-weight:500;font-size:46px;line-height:1;color:var(--cta);}
+.calc-out .tot small{font-size:16px;}
+#breakdown{font-size:12.5px;color:var(--steel);line-height:1.85;}
+
+/* ===== エアコン版だけの部品 ===== */
+.hero-price{display:flex;align-items:baseline;gap:6px 10px;flex-wrap:wrap;border-top:1px solid var(--rule-2);border-bottom:1px solid var(--rule-2);padding:10px 0;}
+.hero-price .k{font-size:13px;font-weight:700;color:var(--text-2);}
+.hero-price .v{font-family:"Oswald",sans-serif;font-weight:500;font-size:34px;line-height:1;color:var(--cta);}
+.hero-price .v small{font-family:"Noto Sans JP",sans-serif;font-size:14px;font-weight:700;margin-left:2px;}
+.hero-price .s{font-size:12.5px;color:var(--steel);line-height:1.7;flex-basis:100%;}
+.peak-line{font-weight:700;}
+.hero h1 .hl{background:linear-gradient(transparent 62%,var(--mark) 62%);padding:0 .08em;}
+
+/* 当てはまるものを押す（診断型）。押しても送信はしない。 */
+.shindan{display:flex;flex-direction:column;gap:8px;}
+.shindan label{position:relative;display:block;}
+.shindan input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer;}
+.shindan span{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--surface);border:1px solid var(--rule-2);
+  font-size:16px;font-weight:700;color:var(--text);line-height:1.5;border-radius:8px;}
+.shindan span::before{content:"";flex:0 0 22px;height:22px;border:1.5px solid var(--rule-2);border-radius:4px;background:var(--surface);}
+.shindan input:checked + span{background:var(--paper-2);border-color:var(--ink);}
+.shindan input:checked + span::before{background:var(--ink);border-color:var(--ink);
+  box-shadow:inset 0 0 0 4px var(--paper-2);}
+.shindan input:focus-visible + span{outline:2.5px solid var(--cta);outline-offset:2px;}
+.shindan-res{margin-top:14px;padding:14px 16px;background:var(--cta-soft);border-left:3px solid var(--cta);font-size:15px;line-height:1.9;color:var(--text);}
+.shindan-res[hidden]{display:none;}
+.shindan-note{font-size:14.5px;line-height:1.9;color:var(--text-2);margin-top:14px;}
+
+/* 汚水 */
+.water{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:30px;}
+.water img{display:block;width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;}
+.water-cap{grid-column:1/-1;font-size:15px;line-height:1.85;color:var(--text-2);margin-top:6px;}
+.water-cap b{display:block;color:var(--text);font-size:15.5px;}
+
+/* 特典（LINE）。計算機の下 */
+.perk{font-size:13px;color:var(--text-2);line-height:1.85;border:1px dashed var(--rule-2);padding:10px 14px;background:var(--surface);}
+.perk b{color:var(--cta);}
+
+/* エアコン版のFVは見出しが3行になるので、1画面に収めるために詰める（実測で調整） */
+.hero h1{font-size:clamp(25px,6.6vw,44px);line-height:1.32;}
+.hero .ba-hero img{aspect-ratio:4/3;}
+.hero-price{padding:7px 0;}
+.hero-price .v{font-size:30px;}
+.hero-sub{font-size:15px;line-height:1.75;}
+.hero-price .s{font-size:12px;line-height:1.6;}
+.hero-price{gap:2px 10px;}
+.hero .wrap{gap:9px;}
 </style>
 
 <div class="bar">
@@ -413,19 +480,21 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
 </div>
 
 <!-- ===== ファーストビュー =====
-     条件（金額）→ 証拠（同じ箇所の施工前・施工後）→ 行動 の順。
-     12タイプの「損しないよね？」型なので、いちばん多いご依頼の金額を見出しにする。 -->
+     入口（見出しと導入文）だけ案ごとに変える：料金から入る（案Bの入口）
+     その下は共通：金額 → 証拠（同じ箇所の施工前・施工後）→ 行動 → 信頼の数字 -->
 <section class="hero">
   <div class="wrap">
     <p class="hero-area" id="hero-area">✓ 東京・千葉・神奈川／自社の職人が伺います</p>
-    <p class="hero-eyebrow">水まわりの、まとめ頼み</p>
-    <h1>浴室とキッチン、<br><span class="mk">2箇所で<span class="num">33,660</span>円</span>。</h1>
-    <p class="hero-sub" id="hero-sub">2箇所目から、同時施工の価格になります。<b>お見積り以上の追加請求はありません。</b></p>
+    <h1>エアコン分解洗浄、<br>1台 <span class="num">10,780</span>円／60分。<br>最短即日でうかがいます。</h1>
+    <p class="hero-sub" id="hero-sub">送風ファンを外して、奥まで洗います。</p>
+    <div class="hero-price">
+      <span class="s">お掃除機能付きは 17,380円／120分（いずれも税込）<br><span class="peak-line" id="peak-line">5〜7月・12月は +3,300円（いまは加算なし）</span></span>
+    </div>
 
     <div class="ba-hero">
-      <figure><img src="img/drum-before.jpg" alt="洗濯槽の内側。施工前は黒カビが全体に付着している" width="760" height="760"><span class="lb">BEFORE</span></figure>
-      <figure class="after"><img src="img/drum-after.jpg" alt="同じ洗濯槽の内側。施工後は白い地が見えている" width="760" height="760"><span class="lb">AFTER</span></figure>
-      <p class="ba-hero-cap">洗濯槽の内側｜実際の施工前と施工後（同じ箇所）</p>
+      <figure><img src="img/fan-before.jpg" alt="エアコンの送風ファン。施工前は羽根がホコリとカビで灰色になっている" width="800" height="600"><span class="lb">BEFORE</span></figure>
+      <figure class="after"><img src="img/fan-after.jpg" alt="同じ送風ファン。施工後は羽根の黒い地が見えている" width="800" height="600"><span class="lb">AFTER</span></figure>
+      <p class="ba-hero-cap">エアコンの送風ファン｜実際の施工前と施工後（同じ箇所）</p>
     </div>
 
     <div class="hero-cta">
@@ -443,22 +512,40 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
   </div>
 </section>
 
-<!-- ===== 証拠の1回目：お客様の言葉（水まわりのクチコミ） =====
-     docs/クチコミ素材.md の M様。本文は改変せず、途中を「…」で省いただけ。 -->
+<!-- ===== 証拠の1回目：大手から乗り換えたお客様の言葉 =====
+     docs/クチコミ素材.md の K様。「大手の半額」とは当社は言わない。お客様の体験として引用するだけ。 -->
 <section class="gq-band">
   <div class="wrap">
     <blockquote class="gq">
       <span class="stars" aria-label="星5つ">★★★★★</span>
-      <q>今回は洗濯機と換気扇のクリーニングをお願いしました。まず作業前に現状を見せていただきました。…クリーニング後は、新品同様にピッカピカになり大満足。</q>
-      <span class="who">M様／Googleクチコミ（2024年4月）</span>
+      <q>結果、大手のエアコン一台分のお値段で2台お掃除していただき、しかも迅速で丁寧に仕上げてくださいます。</q>
+      <span class="who">K様／Googleクチコミ（2026年4月）・他社から乗り換えたお客様</span>
     </blockquote>
   </div>
 </section>
 
-<!-- ===== 頼む前の3つの心配 =====
-     先入観を先に言葉にして、事実で答える（KIRAKIRA型）。
-     「ちゃんとしてる？」型のLPで最初に止める不安はこの3つ。 -->
-<section id="fuan">
+<!-- ===== 当てはまるものを押す（診断型） ===== -->
+<section id="check">
+  <div class="wrap">
+    <div class="sec-h">
+      <span class="eyebrow">Check</span>
+      <h2>当てはまるものを<br>押してみてください</h2>
+    </div>
+    <div class="shindan" id="shindan">
+      <label><input type="checkbox"><span>つけた瞬間、カビ臭い</span></label>
+      <label><input type="checkbox"><span>送風口から黒い点が見える</span></label>
+      <label><input type="checkbox"><span>前より効きが悪くなった</span></label>
+      <label><input type="checkbox"><span>運転中に異音がする</span></label>
+      <label><input type="checkbox"><span>家族にアレルギー体質の人がいる</span></label>
+      <label><input type="checkbox"><span>2年以上クリーニングしていない</span></label>
+    </div>
+    <p class="shindan-res" id="shindan-res" hidden>ひとつでも当てはまったら、内部にカビが出ています。フィルター掃除では届かない、熱交換器とファンの汚れが原因です。<a href="#rei" style="color:var(--cta);font-weight:700">金額を見る</a></p>
+    <p class="shindan-note">これらはすべて、フィルター掃除では届かない熱交換器とファンの汚れが原因です。</p>
+  </div>
+</section>
+
+<!-- ===== 頼む前の3つの心配 ===== -->
+<section class="alt" id="fuan">
   <div class="wrap">
     <div class="sec-h">
       <span class="eyebrow">Before you book</span>
@@ -474,50 +561,44 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
         <p class="a"><b>お見積り以上の追加請求はありません。</b>別にかかる可能性があるのは、駐車スペースが無い場合のコインパーキング代（実費・事前にお伝えします）と、5〜7月・12月の繁忙期加算だけです。</p>
       </div>
       <div>
-        <p class="q">頼んでも、あまり変わらないのでは？</p>
-        <p class="a"><b>作業前に今の汚れを、作業後に仕上がりを、一緒にご確認いただきます。</b>素材や汚れの状態で落としきれない可能性があるときは、始める前にお伝えします。</p>
+        <p class="q">水漏れや故障が心配です</p>
+        <p class="a"><b>床・壁・家財を覆う養生を徹底し、洗浄後は必ず試運転で排水・動作・異音を確認してからお引き渡しします。</b>作業前に設備の状態を拝見し、リスクがある場合は着手前にお伝えします。万一に備え、損害賠償保険にも加入しています。</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ===== 証拠の2回目：施工前と施工後 ===== -->
-<section class="alt" id="ba">
+<!-- ===== 証拠の2回目：施工前と施工後・汚水 ===== -->
+<section id="ba">
   <div class="wrap">
     <div class="sec-h">
       <span class="eyebrow">Before / After</span>
-      <h2>市販の洗剤では届かない所を、<br>分解して洗います</h2>
+      <h2>フィルターの奥を、<br>分解して洗います</h2>
     </div>
     <div class="ba-list">
       <div class="ba">
-        <figure><img src="img/pan-before.jpg" alt="洗濯機の防水パン。施工前は黒い汚れが一面に広がっている" width="800" height="600" loading="lazy"><span class="lb">BEFORE</span></figure>
-        <figure class="after"><img src="img/pan-after.jpg" alt="同じ防水パン。施工後は白い地が見えている" width="800" height="600" loading="lazy"><span class="lb">AFTER</span></figure>
-        <p class="ba-cap"><b>洗濯機｜防水パン</b>洗濯機を動かさないと手が入らない場所です。</p>
+        <figure><img src="img/fin-before.jpg" alt="熱交換器のアルミフィン。施工前はホコリとカビで灰色になっている" width="800" height="600" loading="lazy"><span class="lb">BEFORE</span></figure>
+        <figure class="after"><img src="img/fin-after.jpg" alt="同じ熱交換器。施工後はアルミの地が見えている" width="800" height="600" loading="lazy"><span class="lb">AFTER</span></figure>
+        <p class="ba-cap"><b>熱交換器（アルミフィン）</b>冷房中に結露する場所。年中湿っているため、カビの温床になります。</p>
       </div>
       <div class="ba">
-        <figure><img src="img/hood-before.jpg" alt="レンジフードのグリスフィルター。施工前は網目が油で埋まっている" width="800" height="600" loading="lazy"><span class="lb">BEFORE</span></figure>
-        <figure class="after"><img src="img/hood-after.jpg" alt="同じグリスフィルター。施工後は網目が抜けている" width="800" height="600" loading="lazy"><span class="lb">AFTER</span></figure>
-        <p class="ba-cap"><b>レンジフード｜グリスフィルター</b>網目が油で埋まると、換気の力そのものが落ちます。分解して、つけ置き洗いで抜きます。</p>
-      </div>
-      <div class="ba">
-        <figure><img src="img/mirror-before.jpg" alt="浴室の鏡。施工前は水アカで白く曇っている" width="800" height="600" loading="lazy"><span class="lb">BEFORE</span></figure>
-        <figure class="after"><img src="img/mirror-after.jpg" alt="同じ浴室の鏡。施工後は映り込みがはっきりしている" width="800" height="600" loading="lazy"><span class="lb">AFTER</span></figure>
-        <p class="ba-cap"><b>浴室｜鏡のウロコ</b>市販のウロコ取りでは落ちきらない、焼き付いた水アカ。</p>
-      </div>
-      <div class="ba">
-        <figure><img src="img/sink-before.jpg" alt="キッチンのシンク。施工前は水アカと油膜で曇っている" width="800" height="600" loading="lazy"><span class="lb">BEFORE</span></figure>
-        <figure class="after"><img src="img/sink-after.jpg" alt="同じシンク。施工後はステンレスのつやが戻っている" width="800" height="600" loading="lazy"><span class="lb">AFTER</span></figure>
-        <p class="ba-cap"><b>キッチン｜シンクと排水口</b>毎日洗っているのに曇るのは、水アカと油膜が重なっているためです。</p>
+        <figure><img src="img/outlet-before.jpg" alt="吹出口とルーバー。施工前は奥に黒い汚れが付いている" width="800" height="600" loading="lazy"><span class="lb">BEFORE</span></figure>
+        <figure class="after"><img src="img/outlet-after.jpg" alt="同じ吹出口。施工後は汚れが取れている" width="800" height="600" loading="lazy"><span class="lb">AFTER</span></figure>
+        <p class="ba-cap"><b>吹出口・ルーバー</b>「送風口に黒い点が見える」の正体。ここが見えているときは、奥はもっと汚れています。</p>
       </div>
     </div>
-    <p class="ba-note">※いずれも実際の施工写真です。施工前と施工後は同じ箇所を撮影しています。汚れや設備の状態により、仕上がりは異なります。</p>
+    <div class="water">
+      <img src="img/water-1.jpg" alt="洗浄で回収した汚水。黒く濁っている" width="700" height="700" loading="lazy">
+      <img src="img/water-2.jpg" alt="別の現場で回収した汚水。茶色く濁っている" width="700" height="700" loading="lazy">
+      <p class="water-cap"><b>洗浄で出た汚水</b>専用の洗剤と高圧洗浄機で内部を洗い流したあとの水です。作業後は、この水をお客様にもご覧いただいています。</p>
+    </div>
+    <p class="ba-note">※いずれも実際の施工写真です。施工前と施工後は同じ箇所を撮影しています。汚れや設備の状態により、仕上がりや出てくる汚水の量は異なります。</p>
   </div>
 </section>
 
-<!-- ===== お見積り例（IKUSA運動会型） =====
-     計算機を触らずに申し込む人がいる（2026-09-28 申込データで判明）。
-     金額は下の計算機と同じ関数で出す（手で書かない）。ボタンで計算機に入る。 -->
-<section id="rei">
+<!-- ===== よくある頼み方と金額 =====
+     金額は下の計算機と同じ関数で出す。押すと計算機にそのまま入る。 -->
+<section class="alt" id="rei">
   <div class="wrap">
     <div class="sec-h">
       <span class="eyebrow">Examples</span>
@@ -525,128 +606,89 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
       <p>計算しなくても大丈夫です。近いものを押すと、そのまま下の計算機に入ります。</p>
     </div>
     <div class="rei">
-      <div class="rei-card" data-rei="浴室クリーニング,キッチンクリーニング">
-        <span class="tag top">いちばん多いご依頼</span>
-        <ul><li>浴室クリーニング</li><li>キッチンクリーニング</li></ul>
-        <p class="price"><span class="tot" data-role="tot">33,660<small>円</small></span><span class="from">単体なら <s data-role="single">36,960円</s></span></p>
+      <div class="rei-card" data-type="10780" data-qty="1" data-opts="">
+        <span class="tag">まず1部屋だけ</span>
+        <ul><li>ノーマルエアコン 1台</li></ul>
+        <p class="price"><span class="tot" data-role="tot">10,780<small>円</small></span><span class="from">作業は60分</span></p>
         <button class="btn ghost" type="button" data-role="apply">この組み合わせで計算する</button>
       </div>
-      <div class="rei-card" data-rei="キッチンクリーニング,レンジフード（換気扇）,コンロクリーニング">
-        <span class="tag">キッチンまわりをまとめて</span>
-        <ul><li>キッチンクリーニング</li><li>レンジフード（換気扇）</li><li>コンロクリーニング</li></ul>
-        <p class="price"><span class="tot" data-role="tot">39,710<small>円</small></span><span class="from">単体なら <s data-role="single">47,740円</s></span></p>
+      <div class="rei-card" data-type="10780" data-qty="2" data-opts="">
+        <span class="tag top">リビングと寝室</span>
+        <ul><li>ノーマルエアコン 2台</li></ul>
+        <p class="price"><span class="tot" data-role="tot">19,360<small>円</small></span><span class="from">2台以上はネット申込特典 −2,200円</span></p>
         <button class="btn ghost" type="button" data-role="apply">この組み合わせで計算する</button>
       </div>
-      <div class="rei-card" data-rei="浴室クリーニング,キッチンクリーニング,レンジフード（換気扇）,洗面台丸洗い">
-        <span class="tag">水まわりをひと通り</span>
-        <ul><li>浴室クリーニング</li><li>キッチンクリーニング</li><li>レンジフード（換気扇）</li><li>洗面台丸洗い</li></ul>
-        <p class="price"><span class="tot" data-role="tot">56,320<small>円</small></span><span class="from">単体なら <s data-role="single">66,220円</s></span></p>
+      <div class="rei-card" data-type="17380" data-qty="1" data-opts="">
+        <span class="tag">お掃除機能付き</span>
+        <ul><li>お掃除機能付きエアコン 1台</li></ul>
+        <p class="price"><span class="tot" data-role="tot">17,380<small>円</small></span><span class="from">作業は120分</span></p>
         <button class="btn ghost" type="button" data-role="apply">この組み合わせで計算する</button>
       </div>
     </div>
-    <p class="rei-note">※表示はすべて税込です。5〜7月・12月は各箇所に3,300円が加算されます。駐車スペースが無い場合は、コインパーキング代を実費でいただきます（金額は事前にお伝えします）。</p>
+    <p class="rei-note">※表示はすべて税込です。金額は下の計算機で選んでいる「ご希望の時期」に合わせて変わります（5〜7月・12月は1台あたり3,300円が加算）。駐車スペースが無い場合は、コインパーキング代を実費でいただきます（金額は事前にお伝えします）。</p>
   </div>
 </section>
 
 <!-- ===== 料金の計算機（案Aと同じ部品・同じ計算） ===== -->
-<section class="alt" id="builder">
+<section id="simulator">
   <div class="wrap">
     <div class="sec-h">
-      <span class="eyebrow">Builder</span>
+      <span class="eyebrow">Simulator</span>
       <h2>ほかの組み合わせは、<br>選ぶと金額が出ます</h2>
-      <p>2箇所以上のご依頼で、セット価格が設定されている箇所にはセット価格を適用します。この金額以上の請求は発生しません。</p>
+      <p>入力は3つだけ。この金額以上の請求は発生しません。</p>
     </div>
-    <div class="builder">
-      <div class="builder-h"><b>水まわりセット シミュレーター</b><span>税込・見積確定額</span></div>
-      <div class="builder-b">
-        <div class="picks" id="picks">
-          <label class="pick">
-            <input type="checkbox" data-nm="浴室クリーニング" data-single="18480" data-set="15180" data-dur="120分" checked>
-            <span class="box">
-              <span class="mark">✓</span>
-              <span><span class="nm">浴室クリーニング</span><br><span class="dur">120分／天井・換気扇内部まで</span></span>
-              <span class="pr" data-role="pr"></span>
-            </span>
-          </label>
-          <label class="pick">
-            <input type="checkbox" data-nm="キッチンクリーニング" data-single="18480" data-set="15180" data-dur="120分" checked>
-            <span class="box">
-              <span class="mark">✓</span>
-              <span><span class="nm">キッチンクリーニング</span><br><span class="dur">120分／シンク・天板・壁面・収納扉</span></span>
-              <span class="pr" data-role="pr"></span>
-            </span>
-          </label>
-          <label class="pick">
-            <input type="checkbox" data-nm="レンジフード（換気扇）" data-single="18480" data-set="15180" data-dur="90分">
-            <span class="box">
-              <span class="mark">✓</span>
-              <span><span class="nm">レンジフード（換気扇）</span><br><span class="dur">90分／内部ファンまで分解洗浄</span></span>
-              <span class="pr" data-role="pr"></span>
-            </span>
-          </label>
-          <label class="pick">
-            <input type="checkbox" data-nm="追い焚き配管クリーニング" data-single="19910" data-set="16610" data-dur="90分">
-            <span class="box">
-              <span class="mark">✓</span>
-              <span><span class="nm">追い焚き配管クリーニング</span><br><span class="dur">90分／汚れを数値で測定</span></span>
-              <span class="pr" data-role="pr"></span>
-            </span>
-          </label>
-          <label class="pick">
-            <input type="checkbox" data-nm="洗面台丸洗い" data-single="10780" data-set="7480" data-dur="60分">
-            <span class="box">
-              <span class="mark">✓</span>
-              <span><span class="nm">洗面台丸洗い</span><br><span class="dur">60分</span></span>
-              <span class="pr" data-role="pr"></span>
-            </span>
-          </label>
-          <label class="pick">
-            <input type="checkbox" data-nm="コンロクリーニング" data-single="10780" data-set="6050" data-dur="60分">
-            <span class="box">
-              <span class="mark">✓</span>
-              <span><span class="nm">コンロクリーニング</span><br><span class="dur">60分／五徳まで</span></span>
-              <span class="pr" data-role="pr"></span>
-            </span>
-          </label>
-          <label class="pick">
-            <input type="checkbox" data-nm="洗濯機クリーニング" data-single="17380" data-set="17380" data-dur="120分">
-            <span class="box">
-              <span class="mark">✓</span>
-              <span><span class="nm">洗濯機クリーニング</span><br><span class="dur">120分／分解して槽の裏側まで</span></span>
-              <span class="pr" data-role="pr"></span>
-            </span>
-          </label>
-          <label class="pick">
-            <input type="checkbox" data-nm="トイレクリーニング" data-single="10780" data-set="10780" data-dur="60分">
-            <span class="box">
-              <span class="mark">✓</span>
-              <span><span class="nm">トイレクリーニング</span><br><span class="dur">60分</span></span>
-              <span class="pr" data-role="pr"></span>
-            </span>
-          </label>
-        </div>
-
-        <div class="result">
-          <div class="row"><span>単体で頼んだ場合</span><span class="num" id="single">36,960円</span></div>
-          <div class="row save-row"><span>同時施工の割引</span><span class="num" id="saved">−3,300円</span></div>
-          <div class="row total">
-            <span class="lab">お見積り金額（税込）</span>
-            <span class="tot" id="total">33,660円</span>
+    <div class="calc">
+      <div class="calc-h"><b>料金シミュレーター</b><span>税込・見積確定額</span></div>
+      <div class="calc-b">
+        <fieldset>
+          <legend>1. エアコンの種類</legend>
+          <div class="chips">
+            <label class="chip"><input type="radio" name="type" value="10780" checked><span>ノーマル<small>10,780円／60分</small></span></label>
+            <label class="chip"><input type="radio" name="type" value="17380"><span>お掃除機能付き<small>17,380円／120分</small></span></label>
           </div>
-          <p class="hint" id="hint"></p>
+        </fieldset>
+        <fieldset>
+          <legend>2. 台数</legend>
+          <div class="chips" id="qty">
+            <label class="chip"><input type="radio" name="qty" value="1" checked><span>1台</span></label>
+            <label class="chip"><input type="radio" name="qty" value="2"><span>2台</span></label>
+            <label class="chip"><input type="radio" name="qty" value="3"><span>3台</span></label>
+            <label class="chip"><input type="radio" name="qty" value="4"><span>4台以上</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>3. ご希望の時期</legend>
+          <div class="chips">
+            <label class="chip"><input type="radio" name="peak" value="0" checked><span>4月・8〜11月・1〜3月<small>加算なし</small></span></label>
+            <label class="chip"><input type="radio" name="peak" value="3300"><span>5〜7月・12月<small>+3,300円／台</small></span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>オプション（任意）</legend>
+          <div class="chips">
+            <label class="chip"><input type="checkbox" class="opt" value="6050" data-nm="室外機セット"><span>室外機セット<small>+6,050円</small></span></label>
+            <label class="chip"><input type="checkbox" class="opt" value="3630" data-nm="防カビコート"><span>防カビコート<small>+3,630円</small></span></label>
+            <label class="chip"><input type="checkbox" class="opt" value="1210" data-nm="防虫キャップ"><span>防虫キャップ<small>+1,210円</small></span></label>
+          </div>
+        </fieldset>
+        <div class="calc-out">
+          <div>
+            <div class="lab">お見積り金額（税込）</div>
+            <div class="tot" id="total">10,780円</div>
+          </div>
+          <div id="breakdown">ノーマル 10,780円 × 1台</div>
           <p class="paid-note">※駐車スペースがない場合は、コインパーキング代を実費でいただきます。金額は事前にお伝えします。</p>
         </div>
-
         <a class="btn lg" href="#form">この内容で予約に進む</a>
+        <!-- 特典はFVから移した（§5-2）。金額を見たあとのほうが効く -->
+        <p class="perk" id="hero-perk">LINEご登録の方には、<b>防カビコート（通常 3,630円）を無料</b>でお付けしています。カビの再発を抑えるコーティングです。</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ===== お金のこと（条件を明確にする。12タイプ「損しないよね？」） =====
-     「料金に含まれるもの」は書かない。出張費などの裏付けが記録に無いため。
-     書いてあるのは、すべて案Aに載っている事実だけ。 -->
-<section id="okane">
+<!-- ===== お金のこと（事実だけ。案Aに載っている内容） ===== -->
+<section class="alt" id="okane">
   <div class="wrap">
     <div class="sec-h">
       <span class="eyebrow">Price policy</span>
@@ -655,15 +697,14 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
     <div class="okane">
       <div><span class="ic">税込</span><b>表示の金額は、すべて税込です</b><p>見積り金額に、あとから消費税を足すことはありません。</p></div>
       <div><span class="ic">0円</span><b>お見積り以上の追加請求はありません</b><p>当日その場で金額が変わることはありません。オプションをその場で追加したい場合だけ、金額をご説明し、ご了承いただいてから作業します。</p></div>
-      <div><span class="ic ka">別途</span><b>別にかかる可能性があるのは、この2つだけ</b><p>駐車スペースが無い場合のコインパーキング代（実費・事前にお伝えします）と、5〜7月・12月の繁忙期加算（1箇所あたり3,300円）です。</p></div>
+      <div><span class="ic ka">別途</span><b>別にかかる可能性があるのは、この2つだけ</b><p>駐車スペースが無い場合のコインパーキング代（実費・事前にお伝えします）と、5〜7月・12月の繁忙期加算（1台あたり3,300円）です。お急ぎでなければ、4月・8〜11月のご予約がいちばんお得です。</p></div>
       <div><span class="ic">後払</span><b>予約の時点では、費用は発生しません</b><p>前払い・事前の振込はありません。お支払いは作業が終わってからその場で。クレジット／デビットカード（Visa・Mastercard・JCB・American Express・Diners Club・Discover）、交通系IC・iD・QUICPay、PayPay・d払い・楽天ペイ・au PAY・メルペイがご利用いただけます。</p></div>
     </div>
   </div>
 </section>
 
-<!-- ===== 伺う人（IKUSA・Bee型） =====
-     顔写真は「知らない人を家に上げる」不安にいちばん効く。出すかどうかはオーナー判断なので枠だけ。 -->
-<section class="alt" id="hito">
+<!-- ===== 伺う人 ===== -->
+<section id="hito">
   <div class="wrap">
     <div class="sec-h">
       <span class="eyebrow">Who comes</span>
@@ -672,42 +713,42 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
     </div>
     <figure class="staff-ph"><span>担当者の写真<br><span class="draft-note">（下書き：オーナーの確認後に差し込み）</span></span></figure>
     <div class="own">
-      <div class="own-row"><span class="own-k">担当</span><p>ご予約を受けた私たち自身が伺います。当日になって、知らない会社の作業員が来ることはありません。ご連絡から作業当日まで、担当は変わりません。</p></div>
-      <div class="own-row"><span class="own-k">水まわりを<br>ひと組で</span><p>浴室・キッチン・洗濯機・追い焚き配管を、同じ担当が続けて仕上げます。箇所ごとに業者が変わらないので、家に他人が出入りする回数も一度で済みます。</p></div>
-      <div class="own-row"><span class="own-k">価格</span><p>間に会社が入らないぶん、紹介手数料が乗りません。その差をそのまま価格にしています。品質を落として下げているわけではありません。</p></div>
+      <div class="own-row"><span class="own-k">担当</span><p>ご予約を受けた私たち自身が伺います。当日になって、知らない会社の作業員が来ることはありません。ご連絡から作業まで、担当は変わりません。</p></div>
+      <div class="own-row"><span class="own-k">価格</span><p>間に会社が入らないぶん、紹介手数料が乗りません。訪問営業も電話営業もしていません。その分のコストを、そのまま価格にしています。品質を落として下げているわけではありません。</p></div>
+      <div class="own-row"><span class="own-k">1台から</span><p>不要な箇所まで抱き合わせで売ることをしません。今日いちばん困っている1台だけのご依頼で構いません。</p></div>
       <div class="own-row"><span class="own-k">万一のとき</span><p>作業した本人が責任を負います。「本部に確認します」で止まることがありません。万一に備え、損害賠償保険にも加入しています。</p></div>
     </div>
-    <!-- 乗り換えた理由を、お客様の言葉で。docs/クチコミ素材.md の K様（原文から切り出し） -->
+    <!-- docs/クチコミ素材.md の Y様（原文から切り出し） -->
     <div class="switch">
-      <span class="lab">大手から乗り換えたお客様の声</span>
-      <q>毎年某大手のエアコンクリーニングを頼んでいたのですが、…作業してくださる方の力量も一定ではなく不満に思っていたので、去年からこちらにお願いしました。</q>
-      <span class="who">K様／Googleクチコミ（2026年4月）★★★★★</span>
+      <span class="lab">3回目のご利用のお客様の声</span>
+      <q>毎回丁寧でお客様第１の説明に関心しています。クリーニング後は汚れを見せてくれるので、こんなに汚れていたんだと確認できます。</q>
+      <span class="who">Y様／Googleクチコミ（2026年4月）★★★★★</span>
     </div>
   </div>
 </section>
 
-<!-- ===== 数値で確かめる（自社にしか語れない価値＝POU） ===== -->
-<section class="dark" id="sokutei">
+<!-- ===== 当日の流れ（案Aの8工程） ===== -->
+<section class="alt" id="nagare">
   <div class="wrap">
     <div class="sec-h">
-      <span class="eyebrow">Signature</span>
-      <h2>見えない配管は、<br>数字で確かめます</h2>
-      <p>追い焚き配管の中は、目で確かめることができません。専用の測定器「ルミテスター」（©キッコーマンバイオケミファ株式会社）で、洗浄前と洗浄後の汚れを、お客様の目の前で測ります。</p>
+      <span class="eyebrow">Flow</span>
+      <h2>当日の作業は、<br>この8工程です</h2>
+      <p>ご在宅のまま完了します。ノーマルエアコンで60分、お掃除機能付きは120分が目安です。</p>
     </div>
-    <div class="sokutei">
-      <div><span class="k">洗浄前</span><span class="v">42,194</span></div>
-      <span class="ar">→</span>
-      <div><span class="k">洗浄後</span><span class="v after">409</span></div>
-    </div>
-    <div class="sokutei-ph">
-      <img src="img/atp-before.jpg" alt="測定器の表示。洗浄前は42194" width="800" height="600" loading="lazy">
-      <img src="img/atp-after.jpg" alt="測定器の表示。洗浄後は409" width="800" height="600" loading="lazy">
-    </div>
-    <p style="font-size:13.5px;line-height:1.95">実際の追い焚き配管クリーニングでの測定例です（検体番号 0196／0197、同一現場・同一手順）。別のお宅では 4,515 → 17 でした。数値は測定条件により変動するため、「何倍下がった」といった表現は使わず、実測値をそのまま施工報告としてお渡しします。</p>
+    <ol class="flow">
+      <li><b>養生</b><p>床・壁・家財をシートで完全に覆います。</p></li>
+      <li><b>分解</b><p>カバー・ルーバー・ファンを取り外します。</p></li>
+      <li><b>薬剤塗布</b><p>汚れの質を見て、洗剤を選びます。</p></li>
+      <li><b>高圧洗浄</b><p>熱交換器とファンを専用機材で洗浄します。</p></li>
+      <li><b>すすぎ・乾燥</b><p>洗剤成分が残らないよう、十分に流します。</p></li>
+      <li><b>組み立て</b><p>分解した部品を元通りに戻します。</p></li>
+      <li><b>試運転</b><p>動作・排水・異音を確認します。</p></li>
+      <li><b>清掃・ご確認</b><p>お客様と一緒に、仕上がりと回収した汚水を確認します。</p></li>
+    </ol>
   </div>
 </section>
 
-<!-- ===== 証拠の3回目：お客様の声（公式サイト掲載の原文のまま） ===== -->
+<!-- ===== 証拠の3回目：お客様の声 ===== -->
 <section id="koe">
   <div class="wrap">
     <div class="sec-h">
@@ -716,58 +757,41 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
     </div>
     <div class="voices">
       <div class="voice">
-        <div class="head"><span class="menu-tag">洗濯機クリーニング</span></div>
-        <q>今まで何度か“洗濯槽用洗剤”で掃除をしてきましたが、黒いゴミが浮かんでくるだけでした。洗濯槽を分解して洗ってもらえたので黒カビは一切出なくなりました。定期的に利用したいです。</q>
-        <span class="who">38歳 女性</span>
+        <div class="head"><span class="menu-tag">エアコンクリーニング</span></div>
+        <q>お願いする前と同じ設定温度だと寒く感じるほど効き目が変わりました！　もっと早くお願いすればよかったです。</q>
+        <span class="who">58歳 女性</span>
       </div>
       <div class="voice">
-        <div class="head"><span class="menu-tag">洗濯機クリーニング</span></div>
-        <q>洗濯機を分解して見せていただき、カビの多さに衝撃を受けました…。これまで、こんなにカビにまみれた洗濯機で家族の洋服を洗っていたかと思うと恐ろしいです。</q>
-        <span class="who">42歳 女性</span>
+        <div class="head"><span class="menu-tag">エアコンクリーニング</span></div>
+        <q>エアコン掃除を頼むのが初めてだったので不安が大きかったですが、思ってた以上に丁寧な感じで、掃除する前に段階を踏んでから取り掛かっていたのでよかった。担当してくれた方も気さくな人だったので不安はなくなりました。また利用したいです。</q>
+        <span class="who">62歳 女性</span>
       </div>
       <div class="voice">
-        <q>丁寧な説明、対応で安心して任せられました。他の業者と比較しても低価格なところも利用する決め手になりました。</q>
-        <span class="who">27歳 女性</span>
+        <div class="head"><span class="menu-tag">エアコンクリーニング</span></div>
+        <q>大満足です。買い替えようかと諦めていたエアコンが見事に蘇りました。</q>
+        <span class="who">35歳 女性</span>
       </div>
     </div>
     <p class="voice-src">※公式サイト「お客様の声」に掲載している、実際にいただいたご感想です。文面は原文のまま、年代・性別もご本人の申告どおり掲載しています。</p>
   </div>
 </section>
 
-<!-- ===== 当日の流れ（SANU型：当日を想像できるように時系列で） ===== -->
-<section class="alt" id="nagare">
-  <div class="wrap">
-    <div class="sec-h">
-      <span class="eyebrow">Flow</span>
-      <h2>ご予約から、<br>お支払いまで</h2>
-    </div>
-    <ol class="flow">
-      <li><b>ご予約（WEB・お電話・LINE）</b><p>このページの予約は入力5項目です。ご返信は当日中、遅くとも翌営業日にいたします。</p></li>
-      <li><b>日程と金額のご確認</b><p>お見積りの金額と、おおよその所要時間をお伝えします。予約の時点で費用は発生しません。</p></li>
-      <li><b>作業の前に、一緒に汚れを確認</b><p>今の状態を一緒に見ていただきます。落としきれない可能性があるときは、ここでお伝えし、ご納得いただいてから始めます。</p></li>
-      <li><b>分解して洗浄</b><p>ご在宅をお願いしています。おおよその所要時間は、ご予約のときにお伝えします。</p></li>
-      <li><b>仕上がりを一緒に確認</b><p>作業後の状態を一緒にご確認いただきます。追い焚き配管は、洗浄前と洗浄後の測定値をその場でお見せします。</p></li>
-      <li><b>お支払い（作業後その場で）</b><p>カード・交通系IC・QRコード決済が使えます。お見積り以上の金額になることはありません。</p></li>
-    </ol>
-  </div>
-</section>
-
-<!-- ===== よくあるご質問（上の「3つの心配」「お金のこと」で答えたものは載せない＝POI） ===== -->
-<section id="faq">
+<!-- ===== よくあるご質問（上で答えた「追加料金」「水漏れ・故障」は載せない） ===== -->
+<section class="alt" id="faq">
   <div class="wrap">
     <div class="sec-h">
       <span class="eyebrow">FAQ</span>
       <h2>よくあるご質問</h2>
     </div>
-    <details><summary>2箇所以上頼むと、なぜ安くなるのですか？</summary><p>同じお宅に一度お伺いすれば、移動と機材の準備が1回で済むためです。その分をセット価格としてお返ししています。</p></details>
-    <details><summary>1箇所だけでもお願いできますか？</summary><p>もちろんです。「必要なときに、必要な分だけ」が私たちの考え方です。不要な箇所を抱き合わせでおすすめすることはありません。</p></details>
-    <details><summary>作業中、在宅している必要はありますか？</summary><p>はい、ご在宅をお願いしています。作業前に汚れの状態を、作業後に仕上がりを一緒にご確認いただくためです。</p></details>
-    <details><summary>メニューにない場所も頼めますか？</summary><p>はい。記載のない箇所のお掃除も柔軟に対応しています。お気軽にご相談ください。</p></details>
+    <details><summary>作業中、在宅している必要はありますか？</summary><p>はい、ご在宅をお願いしています。作業前に汚れの状態を、作業後に仕上がりを一緒にご確認いただくためです。ノーマルエアコンで60分ほどですので、その間は別のお部屋でお過ごしいただいて構いません。</p></details>
+    <details><summary>賃貸住宅でも依頼できますか？</summary><p>可能です。分解・洗浄・組み立てまで行い、原状に戻してお引き渡しします。管理会社への事前確認が必要かどうかは、契約内容によりますのでご確認ください。</p></details>
+    <details><summary>何年に一度クリーニングすべきですか？</summary><p>使用頻度によりますが、目安は1〜2年に一度です。毎日長時間つけるお部屋や、ペット・喫煙のあるお部屋は、より短い間隔をおすすめしています。</p></details>
+    <details><summary>メニューにない場所も頼めますか？</summary><p>はい。メニューに記載のない箇所のお掃除も柔軟に対応しています。お気軽にご相談ください。</p></details>
   </div>
 </section>
 
 <!-- ===== 対応エリア ===== -->
-<section class="alt" id="area">
+<section id="area">
   <div class="wrap">
     <div class="sec-h">
       <span class="eyebrow">Area</span>
@@ -788,7 +812,7 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
 </section>
 
 <!-- ===== 予約フォーム（案Aと同じ項目・同じ受け口） ===== -->
-<section id="form">
+<section class="alt" id="form">
   <div class="wrap">
     <div class="sec-h">
       <span class="eyebrow">Reservation</span>
@@ -796,7 +820,6 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
     </div>
     <p class="form-lead">入力は5項目、1分ほどです。<b>予約の時点では費用は発生しません。</b>ご返信は当日中、遅くとも翌営業日にいたします。</p>
     <form class="form" onsubmit="return false;">
-      <!-- どこから来た予約かを記録する（案Aと同じ）。 -->
       <input type="hidden" name="src" id="h-src" value="direct">
       <input type="hidden" name="cid" id="h-cid" value="">
       <input type="hidden" name="ag" id="h-ag" value="">
@@ -813,8 +836,12 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
         <input id="f-zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" required>
       </div>
       <div class="field">
-        <div class="lab"><label for="f-menu">ご希望の箇所</label><span class="req">必須</span></div>
-        <input id="f-menu" name="menu" type="text" readonly>
+        <div class="lab"><label for="f-menu">ご希望のメニュー</label><span class="req">必須</span></div>
+        <select id="f-menu" name="menu">
+          <option>エアコンクリーニング（ノーマル）</option>
+          <option>エアコンクリーニング（お掃除機能付き）</option>
+          <option>まだ決めていない／相談したい</option>
+        </select>
       </div>
       <div class="field">
         <label for="f-when">ご希望の時期</label>
@@ -822,9 +849,8 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
       </div>
       <p class="consent">ご入力いただいた情報は、ご予約・お見積りのご連絡にのみ使用します。送信をもって<a href="https://one-hitter.jp/privacy_policy/" target="_blank" rel="noopener">個人情報の取扱いについて</a>にご同意いただいたものとみなします。</p>
       <button class="btn lg" type="submit">この内容で予約を申し込む</button>
-      <p class="form-note">ご希望の箇所は、上の計算機で選んだものが自動で入ります。<br>お電話でのご予約は <a href="tel:08080438259" style="color:var(--cta)">080-8043-8259</a>（受付：渡辺／8:00–20:00）</p>
+      <p class="form-note">送信後、担当より日程のご連絡をいたします。<br>お電話でのご予約は <a href="tel:08080438259" style="color:var(--cta)">080-8043-8259</a>（受付：渡辺／8:00–20:00）</p>
     </form>
-    <!-- 申込ボタンの真下に信頼の数字（MYTONE・Bee型）。FVと同じ3つ -->
     <ul class="trust form-trust" aria-label="選ばれている理由">
       <li><span class="v"><span class="star">★</span>5.0</span><span class="k">Googleクチコミ<br>23件<sup>※2</sup></span></li>
       <li><span class="v">{{MANZOKU_NUM}}{{MANZOKU_UNIT}}</span><span class="k">「他の人に<br>勧めたい」<sup>※1</sup></span></li>
@@ -847,11 +873,11 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
     <p class="foot-links"><a href="/tokushoho/">特定商取引法に基づく表記</a>　<a href="https://one-hitter.jp/privacy_policy/" target="_blank" rel="noopener">個人情報の取扱いについて</a>　<a href="https://one-hitter.jp/" target="_blank" rel="noopener">公式サイト</a></p>
     <p class="fine">
       表示価格はすべて税込です。5〜7月・12月は各料金に3,300円が加算されます。<br>
+      2台以上のご注文には、ページからのお申し込み特典として2,200円（税込）を差し引きます（1台のみのご注文は対象外です）。<br>
       駐車スペースをご用意いただけない場合は、コインパーキング等の駐車場代を実費でご請求します。<br>
-      セット価格は、2箇所以上のご依頼で、セット価格が設定されている箇所に適用されます。セット価格の設定がない箇所（洗濯機・トイレ）は単品価格です。コンロはキッチンと同時のときにセット価格となります。いずれのセット価格も付かない組み合わせでは、ページからのお申し込み特典として2,200円（税込）を差し引きます（2箇所以上のご依頼が対象）。<br>
       {{MANZOKU_FINE}}<br>
       ※2 Googleクチコミの件数と平均は2026年9月時点のものです（23件・平均★5.0）。<br>
-      汚れの状態により、落としきれない場合があります。設備の状態によっては施工をお受けできない場合があります。
+      効果には個人差があります。設備の状態によっては施工をお受けできない場合があります。
     </p>
   </div>
 </footer>
@@ -860,7 +886,7 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
   <div class="sticky-row">
     <a class="btn call" href="tel:08080438259" aria-label="電話でお問い合わせ 080-8043-8259">電話<small>8-20時 渡辺</small></a>
     <a class="btn line" href="https://lin.ee/7kD9WGN">LINE<small>防カビ無料</small></a>
-    <a class="btn" href="#builder">料金を見る<small>その場で確定</small></a>
+    <a class="btn" href="#form">WEB予約する<small>入力5項目</small></a>
   </div>
   <p class="sticky-note">しつこい営業・訪問はいたしません</p>
 </div>
@@ -868,125 +894,110 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
 <script>
 (function(){
   var fmt = function(n){ return n.toLocaleString('ja-JP') + '円'; };
-  var picks = Array.prototype.slice.call(document.querySelectorAll('#picks input'));
-  var singleEl = document.getElementById('single');
-  var savedEl  = document.getElementById('saved');
-  var totalEl  = document.getElementById('total');
-  var hintEl   = document.getElementById('hint');
-  var menuField = document.getElementById('f-menu');
+  var totalEl = document.getElementById('total');
+  var bdEl = document.getElementById('breakdown');
 
-  /* 金額の計算。案A（lp/mizumawari）の update() の中身を、そのまま関数に切り出したもの。
-     計算機と「よくある頼み方」の両方がこれを使う（計算を二重に持たない）。 */
-  function keisan(chosen){
-    // どの箇所を単品のまま残すか。
-    // 「割引額（単品−セット）がいちばん小さい箇所」を単品に残す。
-    // 出典：パンフレット印字p10・p11／data/prices.json
-    var kitchen = chosen.some(function(p){ return p.dataset.nm === 'キッチンクリーニング'; });
+  /* 金額の計算。案A（lp/aircon）の calc() の中身を、そのまま関数に切り出したもの。
+     計算機と「よくある頼み方」の両方がこれを使う（計算を二重に持たない）。
+     x = { unit, qty, peak, opts:[{nm, v}] } */
+  function keisan(x){
+    var unit = x.unit, qty = x.qty, peak = x.peak;
+    var typeName = unit === 10780 ? 'ノーマル' : 'お掃除機能付き';
+    var total = (unit + peak) * qty;
+    var lines = [typeName + ' ' + fmt(unit) + ' × ' + qty + '台'];
+    if (peak) lines.push('繁忙期加算 ' + fmt(peak) + ' × ' + qty + '台');
 
-    // コンロのセット価格は、原則キッチンと同時のときだけ（パンフレット印字p10・p11）
-    function setKakaku(p){
-      var s = parseInt(p.dataset.single,10), t = parseInt(p.dataset.set,10);
-      return (p.dataset.nm === 'コンロクリーニング' && !kitchen) ? s : t;
+    x.opts.forEach(function(o){
+      total += o.v * qty;
+      lines.push(o.nm + ' ' + fmt(o.v) + ' × ' + qty + '台');
+    });
+
+    // エアコンにはセット価格が無いので、2台以上のときだけ
+    // ページからのお申し込み特典を引く。1台のみは対象外（2026-09-08 オーナー決定）
+    if (qty >= 2){
+      total -= 2200;
+      lines.push('ネット申込特典 −' + fmt(2200));
     }
-
-    var order = chosen.slice().sort(function(a,b){
-      return (parseInt(a.dataset.single,10) - setKakaku(a))
-           - (parseInt(b.dataset.single,10) - setKakaku(b));
-    });
-
-    var single = 0, total = 0, names = [];
-    chosen.forEach(function(p){ single += parseInt(p.dataset.single,10); names.push(p.dataset.nm); });
-    order.forEach(function(p, i){
-      total += (i === 0) ? parseInt(p.dataset.single,10) : setKakaku(p);
-    });
-
-    // どの箇所にもセット価格が付かない組み合わせ（洗濯機＋トイレ など）は、
-    // 2箇所以上のときだけページからのお申し込み特典を引く。
-    // 1箇所だけのご注文は対象外（2026-09-08 オーナー決定）
-    var netto = (chosen.length >= 2 && single - total === 0) ? 2200 : 0;
-    total -= netto;
-    return { single: single, total: total, netto: netto, names: names, order: order, setKakaku: setKakaku };
+    return { total: total, lines: lines };
   }
 
-  function update(){
-    var chosen = picks.filter(function(p){ return p.checked; });
-    var k = keisan(chosen);
-    var single = k.single, total = k.total, netto = k.netto, names = k.names, order = k.order;
-
-    picks.forEach(function(p){
-      var cell = p.parentNode.querySelector('[data-role=pr]');
-      var s = parseInt(p.dataset.single,10);
-      var t = k.setKakaku(p);
-      var isTanpin = order.length && order[0] === p;
-      if (p.checked && !isTanpin && t < s){
-        cell.innerHTML = '<span class="set">' + fmt(t) + '</span><em>セット価格</em>';
-      } else {
-        // 所要時間は行の左側に既に出ている。ここは「セット価格」との対比だけを示す
-        cell.innerHTML = fmt(s) + '<em>単品価格</em>';
-      }
+  function genzai(){
+    var opts = [];
+    document.querySelectorAll('input.opt:checked').forEach(function(o){
+      opts.push({ nm: o.dataset.nm, v: parseInt(o.value, 10) });
     });
-
-    var saved = single - total;
-    singleEl.textContent = fmt(single);
-    savedEl.textContent  = saved > 0
-      ? '−' + fmt(saved) + (netto ? '（ネット申込特典）' : '')
-      : '0円';
-    totalEl.textContent  = fmt(total);
-    menuField.value = names.length ? names.join('、') : '（未選択）';
-
-    if (!chosen.length){
-      singleEl.textContent = '—';
-      savedEl.textContent  = '—';
-      totalEl.textContent  = '—';
-      hintEl.textContent = '気になる場所をひとつ以上お選びください。';
-    } else if (chosen.length === 1){
-      hintEl.textContent = 'もう1箇所追加すると、セット価格が付く箇所にセット価格が適用されます。';
-    } else {
-      hintEl.textContent = '所要時間の目安は約' + (chosen.length <= 2 ? '半日' : '1日') +
-        '。5〜7月・12月は各箇所に3,300円が加算されます。';
-    }
+    return {
+      unit: parseInt(document.querySelector('input[name=type]:checked').value, 10),
+      qty:  parseInt(document.querySelector('input[name=qty]:checked').value, 10),
+      peak: parseInt(document.querySelector('input[name=peak]:checked').value, 10),
+      opts: opts
+    };
   }
 
-  picks.forEach(function(p){ p.addEventListener('change', update); });
-  update();
+  function calc(){
+    var x = genzai(), k = keisan(x);
+    totalEl.textContent = fmt(k.total);
+    bdEl.innerHTML = k.lines.join('<br>') + (x.qty >= 4 ? '<br><b>※4台以上は個別にお見積りします</b>' : '');
+    reiNaoshi();
+  }
 
-  /* よくある頼み方（#rei）。金額は keisan() で出し、HTMLに書いた数字を上書きする。
-     ボタンを押すと計算機のチェックをその組み合わせにして、計算機へ移る。
-     チェックは change を起こして入れる＝お客様が選んだのと同じ扱い
-     （計測の estimate_use と、申込内容の「見積操作＝あり」がこれで立つ）。 */
-  var byName = {};
-  picks.forEach(function(p){ byName[p.dataset.nm] = p; });
-  Array.prototype.forEach.call(document.querySelectorAll('.rei-card'), function(card){
-    var chosen = card.getAttribute('data-rei').split(',').map(function(n){ return byName[n]; });
-    if (chosen.some(function(p){ return !p; })) return;   // 名前が変わったら金額を出さない（静的な数字のまま）
-    var k = keisan(chosen);
-    var tot = card.querySelector('[data-role=tot]');
-    var sg  = card.querySelector('[data-role=single]');
-    if (tot) tot.innerHTML = k.total.toLocaleString('ja-JP') + '<small>円</small>';
-    if (sg)  sg.textContent = fmt(k.single);
-    var btn = card.querySelector('[data-role=apply]');
-    if (btn) btn.addEventListener('click', function(){
-      picks.forEach(function(p){
-        var on = chosen.indexOf(p) !== -1;
-        if (p.checked !== on){ p.checked = on; p.dispatchEvent(new Event('change', { bubbles: true })); }
+  /* よくある頼み方（#rei）。金額は keisan() で出す。
+     「ご希望の時期」は計算機で選んでいるものに合わせる（初期値は加算なし）。
+     押すと計算機をその組み合わせにして移る。change を起こして入れる＝お客様が選んだのと同じ扱い。 */
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.rei-card'));
+  function reiNaoshi(){
+    var peak = parseInt(document.querySelector('input[name=peak]:checked').value, 10);
+    cards.forEach(function(card){
+      var opts = (card.getAttribute('data-opts') || '').split(',').filter(Boolean).map(function(nm){
+        var el = document.querySelector('input.opt[data-nm="' + nm + '"]');
+        return { nm: nm, v: el ? parseInt(el.value, 10) : 0 };
       });
-      var b = document.getElementById('builder');
-      if (b) b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      var k = keisan({ unit: parseInt(card.dataset.type, 10), qty: parseInt(card.dataset.qty, 10), peak: peak, opts: opts });
+      var tot = card.querySelector('[data-role=tot]');
+      if (tot) tot.innerHTML = k.total.toLocaleString('ja-JP') + '<small>円</small>';
+    });
+  }
+  function erabu(el, on){
+    if (el && el.checked !== on){ el.checked = on; el.dispatchEvent(new Event('change', { bubbles: true })); }
+  }
+  cards.forEach(function(card){
+    var btn = card.querySelector('[data-role=apply]');
+    if (!btn) return;
+    btn.addEventListener('click', function(){
+      erabu(document.querySelector('input[name=type][value="' + card.dataset.type + '"]'), true);
+      erabu(document.querySelector('input[name=qty][value="' + card.dataset.qty + '"]'), true);
+      var want = (card.getAttribute('data-opts') || '').split(',').filter(Boolean);
+      document.querySelectorAll('input.opt').forEach(function(o){ erabu(o, want.indexOf(o.dataset.nm) !== -1); });
+      var s = document.getElementById('simulator');
+      if (s) s.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   });
 
-  // Tokyo 100-208 / Kanagawa 210-259 / Chiba 260-299
+  document.querySelectorAll('.calc input').forEach(function(el){
+    el.addEventListener('change', calc);
+  });
+  calc();
+
+  /* 当てはまるものを押す。ひとつでも押したら結果を出す（送信はしない） */
+  var sd = document.getElementById('shindan'), sr = document.getElementById('shindan-res');
+  if (sd && sr) sd.addEventListener('change', function(){
+    sr.hidden = !sd.querySelector('input:checked');
+  });
+
+  // area check by postal code prefix (Tokyo 100-208 / Kanagawa 210-259 / Chiba 260-299)
   var res = document.getElementById('zipres');
+
   function region(zip){
-    var n = parseInt(zip.slice(0,3),10);
+    var n = parseInt(zip.slice(0,3), 10);
     if (isNaN(n)) return null;
     if (n >= 100 && n <= 208) return '東京都';
     if (n >= 210 && n <= 259) return '神奈川県';
     if (n >= 260 && n <= 299) return '千葉県';
     return null;
   }
+
   document.getElementById('zipbtn').addEventListener('click', function(){
-    var raw = (document.getElementById('zipin').value || '').replace(/[^0-9]/g,'');
+    var raw = (document.getElementById('zipin').value || '').replace(/[^0-9]/g, '');
     if (raw.length < 3){
       res.className = 'ng';
       res.textContent = '郵便番号を3桁以上入力してください。';
@@ -1002,6 +1013,21 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
     }
   });
 })();
+
+  /* 価格の3行目。繁忙期（5〜7月・12月）かどうかで文面を変える。
+     HTMLの既定値は「加算なし」なので、JSが動かなくても端境期は正しい。
+     固定文にすると12月にLPが嘘をつくので、月で出し分ける。 */
+  (function(){
+    var el = document.getElementById('peak-line');
+    if (!el) { return; }
+    var m = new Date().getMonth() + 1;
+    var hanbouki = (m >= 5 && m <= 7) || m === 12;
+    el.textContent = hanbouki
+      ? '5〜7月・12月は +3,300円（いまは加算のある時期です）'
+      : '5〜7月・12月は +3,300円（いまは加算なし）';
+    el.style.color = hanbouki ? 'var(--text-2)' : 'var(--cta)';
+  })();
+
   /* 流入元の記録。?src= と ?cid= を hidden に写す。
      値は素性が不明なので、長さと文字種を制限してから入れる。 */
   (function(){
@@ -1078,9 +1104,15 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
         var el = document.getElementById(id);
         if (el) el.innerHTML = html;
       };
-      sashikae('hero-area', '✓ 東京・千葉・神奈川／はじめての方も歓迎');
-      sashikae('hero-sub',  '2箇所目から、同時施工の価格になります。<b>お見積りは無料で、見積り以上の追加請求は一切ありません。</b>どこを頼むか決まっていなくても、下の「よくある頼み方」で目安が分かります。');
+      /* 区名の行（§5-2）は広告でも出し分けない。上書きすると区名が消える */
+      sashikae('hero-sub',  '送風ファンを外して奥まで洗います。<b>お見積りは無料です。</b>');
       sashikae('hero-perk', 'はじめての方でも、<b>お見積りは無料</b>です。金額にご納得いただいてから作業に入りますので、その場でお断りいただいても構いません。');
+      /* 電話は1画面目に入れる。CTAの塊は価格・実績の下にあるので、
+         広告流入のときだけ電話ボタンを本文の直後へ引き上げる。
+         スマホの1画面（およそ700px）に収めるのが狙い。 */
+      /* 2026-09-14 に入れた「広告のときだけ電話を見出しの上へ」は、
+         §5-2 の並び（区名→見出し→価格→信頼3つ→CTA2つ）と矛盾するのでやめた。
+         電話は副CTAとして常に出るようになったので、出し分ける必要がなくなった。 */
     }
     var es = document.getElementById('h-src'); if (es) es.value = src;
     var ec = document.getElementById('h-cid'); if (ec) ec.value = cid;

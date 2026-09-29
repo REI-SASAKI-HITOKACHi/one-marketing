@@ -38,6 +38,9 @@ PAGE = {
     "nenmatsu":   {"kind": "builder", "label": "年末大掃除LP",   "menu": "年末大掃除", "nenmatsu": True},
     # 下書き（build-site.py の DRAFTS）。A/Bテストの案B
     "mizumawari-b": {"kind": "builder", "label": "水まわりセットLP（B）", "menu": "水まわりセット"},
+    "aircon-c":     {"kind": "aircon",  "label": "エアコンLP（学習版C）"},
+    "aircon-d":     {"kind": "aircon",  "label": "エアコンLP（学習版D）"},
+    "nenmatsu-b":   {"kind": "builder", "label": "年末大掃除LP（学習版B）", "menu": "年末大掃除", "nenmatsu": True},
 }
 
 MARK = 'data-oh="moushikomi"'
