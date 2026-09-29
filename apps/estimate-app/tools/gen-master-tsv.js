@@ -15,7 +15,19 @@ const vm = require('vm');
 const srcDir = path.join(__dirname, '..', 'src');
 const outDir = path.join(__dirname, '..', 'master');
 
-const sandbox = { console: { log() {} }, JSON: JSON, Math: Math, Date: Date, String: String, Number: Number, Object: Object, Array: Array, isNaN: isNaN, isFinite: isFinite };
+// Admin.gs の管理関数は先頭で requireOwner_() を呼び、「実行している人＝権限の持ち主」で
+// なければ止まる。ここではマスタの中身を取り出したいだけなので、所有者がエディタから
+// 実行したのと同じ状態（両方が同じメール）にしておく。ガードそのものの検査は
+// tools/admin-guard-test.js が受け持つ。
+const OWNER = 'owner@example.com';
+const sandbox = {
+  console: { log() {} }, JSON: JSON, Math: Math, Date: Date, String: String, Number: Number,
+  Object: Object, Array: Array, isNaN: isNaN, isFinite: isFinite, Error: Error,
+  Session: {
+    getActiveUser: () => ({ getEmail: () => OWNER }),
+    getEffectiveUser: () => ({ getEmail: () => OWNER })
+  }
+};
 vm.createContext(sandbox);
 vm.runInContext(fs.readFileSync(path.join(srcDir, 'code.gs'), 'utf8'), sandbox, { filename: 'code.gs' });
 
@@ -40,11 +52,17 @@ sandbox.replaceSheetWithNormalized_ = (ss, sheetName, headers, rows) => {
 
 function fromAdmin(sheetName, runner) {
   captured[sheetName] = null;
-  try { runner(); } catch (e) { /* シート書き込み以外で落ちたときは下で気づける */ }
+  let cause = null;
+  try { runner(); } catch (e) { cause = e; }
   const got = captured[sheetName];
   if (!got || !got.rows.length) {
+    // 途中で落ちた理由を握りつぶさない。2026-09-29、requireOwner_ を足したときに
+    // 「Session is not defined」で落ちていたのに、このメッセージが見当違いの原因を
+    // 指していて気づくのが遅れた。
     throw new Error('Admin.gs から「' + sheetName + '」の正規化内容を取り出せませんでした。'
-      + 'replaceSheetWithNormalized_ の呼び出し方が変わっていないか確認してください。');
+      + (cause
+        ? '途中で止まった理由：' + (cause && cause.message ? cause.message : String(cause))
+        : 'replaceSheetWithNormalized_ の呼び出し方が変わっていないか確認してください。'));
   }
   return got;
 }

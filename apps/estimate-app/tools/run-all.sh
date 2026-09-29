@@ -91,13 +91,20 @@ fi
 
 step "14. マスタTSVがコードと一致しているか"
 before=$(node tools/hash-files.js master .tsv)
-node tools/gen-master-tsv.js >/dev/null
-after=$(node tools/hash-files.js master .tsv)
-if [ "$before" = "$after" ]; then
-  printf '  ✓ master/*.tsv は最新\n'
-else
-  printf '  ✗ master/*.tsv がコード定義とずれていたため再生成した。差分をコミットすること\n'
+# 生成が途中で落ちると、TSVを1つも書かずに終わる。そのときハッシュは変わらないので、
+# 終了コードを見ないと「最新」と誤判定する（2026-09-29 に実際に起きた）。
+if ! gen_out=$(node tools/gen-master-tsv.js 2>&1); then
+  printf '  ✗ gen-master-tsv.js が失敗した\n'
+  printf '%s\n' "$gen_out" | grep -m1 '^Error' | sed 's/^/    /'
   fail=1
+else
+  after=$(node tools/hash-files.js master .tsv)
+  if [ "$before" = "$after" ]; then
+    printf '  ✓ master/*.tsv は最新\n'
+  else
+    printf '  ✗ master/*.tsv がコード定義とずれていたため再生成した。差分をコミットすること\n'
+    fail=1
+  fi
 fi
 
 printf '\n'
