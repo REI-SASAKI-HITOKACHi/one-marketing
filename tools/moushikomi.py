@@ -36,6 +36,8 @@ PAGE = {
     "aircon-b":   {"kind": "aircon",  "label": "エアコンLP（B）"},
     "mizumawari": {"kind": "builder", "label": "水まわりセット", "menu": "水まわりセット"},
     "nenmatsu":   {"kind": "builder", "label": "年末大掃除LP",   "menu": "年末大掃除", "nenmatsu": True},
+    # 下書き（build-site.py の DRAFTS）。A/Bテストの案B
+    "mizumawari-b": {"kind": "builder", "label": "水まわりセットLP（B）", "menu": "水まわりセット"},
 }
 
 MARK = 'data-oh="moushikomi"'

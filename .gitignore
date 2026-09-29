@@ -17,3 +17,5 @@ scratch-*.json
 
 # 顧客の電話番号を含む控え（リポジトリに置かない。控えは ~/.cache/one-hitter/backup/）
 data/backup/*.json
+# 下書きLPの確認用の書き出し（build-site.py --draft）。配信物ではない
+preview/

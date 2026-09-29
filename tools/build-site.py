@@ -113,6 +113,26 @@ PAGES = {
     },
 }
 
+# 下書き（A/Bテストの候補）。PAGES と同じ形で書くが、ここに置いたものは
+# 通常のビルドでは作らない＝配信物（deploy/）に入らない＝本番に出ない。
+#   python3 tools/build-site.py netlify --draft mizumawari-b   → preview/netlify/mizumawari-b/
+# A/Bテストを始めるときは、オーナーの許可を取ってから PAGES へ移す（1項目の移動で済む）。
+DRAFTS = {
+    "mizumawari-b": {
+        "dir": "mizumawari-b",
+        # 案A（mizumawari）の対抗案。lp_id を揃え lp_variant で分ける（aircon-b と同じ考え方）
+        "lp_id": "mizumawari",
+        "lp_variant": "B",
+        "title": "水まわりクリーニング 浴室＋キッチン2箇所で33,660円｜東京・千葉・神奈川｜ONE HITTER",
+        "desc": "2箇所目から同時施工価格。浴室＋キッチンで33,660円（税込）、お見積り以上の追加請求はありません。"
+                "下請けに出さず、ご予約を受けた自社の職人が伺います。東京・千葉・神奈川。",
+        "label": "水まわりセット（B）",
+        "og": "mizumawari-b/img/og.jpg",
+        "og_line1": "浴室とキッチン、2箇所で33,660円",
+        "og_line2": "追加請求なし・自社の職人・東京 千葉 神奈川",
+    },
+}
+
 HEAD = """<!doctype html>
 <html lang="ja">
 <head>
@@ -702,8 +722,23 @@ if __name__ == "__main__":
     if target not in TARGETS:
         raise SystemExit(f"配信先は {' / '.join(TARGETS)} のいずれかです")
     out = TARGETS[target]["out"]
-    out.mkdir(parents=True, exist_ok=True)
     cfg = load_measurement()
+
+    # 下書きだけを preview/ に作る。deploy/ には一切書かない。
+    if "--draft" in sys.argv:
+        i = sys.argv.index("--draft")
+        name = sys.argv[i + 1] if len(sys.argv) > i + 1 else ""
+        if name not in DRAFTS:
+            raise SystemExit(f"下書きは {' / '.join(DRAFTS)} のいずれかです")
+        if name in PAGES:
+            raise SystemExit(f"{name} は PAGES にもあります。下書きと配信対象を兼ねないでください")
+        prev = ROOT / "preview" / target
+        prev.mkdir(parents=True, exist_ok=True)
+        build_page(name, DRAFTS[name], target, prev, cfg)
+        print(f"下書き → {(prev / name).relative_to(ROOT)}/（本番には出ません）")
+        raise SystemExit(0)
+
+    out.mkdir(parents=True, exist_ok=True)
 
     ga4 = ((cfg.get("ga4") or {}).get("measurement_id") or "").strip() or "未設定"
     ads = ((cfg.get("google_ads") or {}).get("conversion_id") or "").strip() or "未設定"
