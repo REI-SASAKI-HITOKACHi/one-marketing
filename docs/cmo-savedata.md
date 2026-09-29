@@ -2372,3 +2372,11 @@ crm の回答：
 - 2026-09-29 18時台 和真さん「レジェンドさんを入力して送ろうとするもエラー」「写真20枚は少ない。50枚くらいだとすごい助かる」→ 原因：Netlify の1送信あたりの上限（約8MB）。既存4件も20枚で7〜8MB。**作業完了フォームを 50枚・写真を1280px/品質0.72に圧縮・約4MB/20枚ずつ分割送信（2箱目以降は新フォーム kanryo-shashin）に変更し配信**。kanryo-inbox は kanryo-shashin も取り込む（開始番号から連番）。試験：3000×4000の重い写真30枚→3回（各3.7MB）で送信成功。
 - 加藤様の完了フォームは実施／未実施が逆（洗濯機を実施と入力）→ J列を「浴室クリーニング」、備考を訂正（金額 18,480 は正しい）。才木工業（9/28）は人が作った行なので自動では直さず（完了フォームの作業代金 ¥61,520 と台帳 ¥62,420 に差、要確認）。
 - 2026-09-29 19時 レジェンド様（9/26）の作業完了フォーム到着：分割送信で写真48枚（本体16＋続き12＋20）すべて取り込み成功。和真さん「終了時刻午後0時にして」→ 12:00 として記録（フォーム上は18:50）。台帳18行目は人が作った行なので自動では触らない。
+
+### 2026-09-29 21時 担当ごとの原則モデルを決めた（Sonnet 5.5 リリース対応）
+- オーナー依頼「一次情報を確認して、各担当者のモデル設定を検討して報告して。原則のモデルを決めたい。限定的な変更は認める」
+- 一次情報：https://www.anthropic.com/claude-sonnet-5-5 ／ https://platform.claude.com/docs/en/models/sonnet-5-5/overview ／ https://code.claude.com/docs/en/model-config （Claude Code で使うには v2.1.284 以上。`sonnet` エイリアス＝Sonnet 5.5）
+- 原案（lp・crm も Sonnet）を8スレッドに出し、7スレッドが返信。**lp・crm が反対（事故は定型作業の途中で起きている、成果物がほぼ全部お客様に届く）→ 受け入れて Opus 原則に変更**。quotation・web-inflow は Sonnet 賛成で例外を広げる条件付き。browser は PC 不在で未返信のまま Sonnet に決定
+- 決定：Opus 5.5＝cmo・planning・measurement・gift・lp・crm ／ Sonnet 5.5＝quotation・web-inflow・browser。詳細と例外は `docs/org/README.md` 4.15
+- 当時の各スレッドのモデル：全クラウドスレッドが Opus 5.5（作成時 claude-opus-5）。browser は作成時 fable-5-1、実行は opus-5
+- オーナーの操作：quotation と web-inflow のアプリ上のモデルを Sonnet 5.5 に。browser はPCで `claude update` → `/model sonnet`
