@@ -2380,3 +2380,7 @@ crm の回答：
 - 決定：Opus 5.5＝cmo・planning・measurement・gift・lp・crm ／ Sonnet 5.5＝quotation・web-inflow・browser。詳細と例外は `docs/org/README.md` 4.15
 - 当時の各スレッドのモデル：全クラウドスレッドが Opus 5.5（作成時 claude-opus-5）。browser は作成時 fable-5-1、実行は opus-5
 - オーナーの操作：quotation と web-inflow のアプリ上のモデルを Sonnet 5.5 に。browser はPCで `claude update` → `/model sonnet`
+
+### 2026-09-29 21:4x 毎時点検
+- 見積アプリ担当から：画面側の関数に合言葉チェックが無く、`/exec` のURLを知っていれば過去見積の氏名・住所・電話が見られる（9/19 以前から同じ設定。不正利用の形跡なし）。**CMO判断で塞ぐ作業を進めてよいと返した**（条件：予約フォームの doPost と今の /exec を止めない・新デプロイを足す形、和真さんに新URLを渡す前に cmo へ、設計と最終確認は Opus 子エージェント）。**このURLは合言葉と同じ扱い。これ以上ほかの文書に書き写さない。**
+- 他は変化なし（申込・LINE未読・取引先メールなし。安全判定の警告は既知の oh-naibu のみ）。
