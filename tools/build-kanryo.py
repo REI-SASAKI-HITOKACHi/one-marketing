@@ -216,7 +216,7 @@ HTML = r"""<!doctype html>
   </label>
   <p class="sha-joutai" id="sha-joutai"></p>
   <div class="shashin" id="shashin"></div>
-  <p class="chu">あとからもう一度選ぶと、前の写真に足されます。20枚まで入ります。<br>
+  <p class="chu">あとからもう一度選ぶと、前の写真に足されます。50枚まで入ります。<br>
      送る前に小さくするので、枚数が多くても重くなりません。<br>
      SNSに使うので、お宅が分かるもの（表札・窓の外・郵便物）は写さないでください。</p>
   <p class="err" id="e-shashin">写真を1枚以上入れてください</p>
@@ -317,13 +317,25 @@ HTML = r"""<!doctype html>
   <input type="file" name="施工写真9"><input type="file" name="施工写真10"><input type="file" name="施工写真11"><input type="file" name="施工写真12">
   <input type="file" name="施工写真13"><input type="file" name="施工写真14"><input type="file" name="施工写真15"><input type="file" name="施工写真16">
   <input type="file" name="施工写真17"><input type="file" name="施工写真18"><input type="file" name="施工写真19"><input type="file" name="施工写真20">
+  <input type="text" name="写真の枚数">
+</form>
+
+<!-- 写真の続き（1回の送信は Netlify の上限 約8MB。2026-09-29 レジェンド様の分が超えて送れなかった → 分けて送る） -->
+<form hidden method="post" name="kanryo-shashin" data-netlify="true" netlify-honeypot="bot-field"
+      enctype="multipart/form-data">
+  <input type="hidden" name="form-name" value="kanryo-shashin">
+  <input type="text" name="bot-field">
+  <input type="text" name="受注ID"><input type="text" name="台帳"><input type="text" name="氏名">
+  <input type="text" name="施工日付"><input type="text" name="開始番号"><input type="text" name="入力日時">
+  <input type="file" name="施工写真1"><input type="file" name="施工写真2"><input type="file" name="施工写真3"><input type="file" name="施工写真4"><input type="file" name="施工写真5"><input type="file" name="施工写真6"><input type="file" name="施工写真7"><input type="file" name="施工写真8"><input type="file" name="施工写真9"><input type="file" name="施工写真10"><input type="file" name="施工写真11"><input type="file" name="施工写真12"><input type="file" name="施工写真13"><input type="file" name="施工写真14"><input type="file" name="施工写真15"><input type="file" name="施工写真16"><input type="file" name="施工写真17"><input type="file" name="施工写真18"><input type="file" name="施工写真19"><input type="file" name="施工写真20">
 </form>
 
 <script>
 (function(){
   var TSUIKA = __TSUIKA__;
   var $ = function(id){ return document.getElementById(id); };
-  var MAI = 20, MAX = 1600, SHITSU = 0.82;   // 20枚まで。超えたぶんはドライブへ手で
+  var MAI = 50, MAX = 1280, SHITSU = 0.72;   // 50枚まで（和真さん 9/29「50枚くらいだとすごい助かる」）。1回の送信は約4MBずつに分ける
+  var HITOHAKO = 4 * 1024 * 1024, HAKO_MAI = 20;
   var shashin = [];       // {blob, puri}
   var tsuikaHai = [];     // {na, kin, kazu}
   var jotai = { kure:'' };
@@ -668,13 +680,39 @@ HTML = r"""<!doctype html>
       '迷ったこと': $('mayoi').value.trim(),
       '入力日時': new Date().toISOString()
     };
+    atai['写真の枚数'] = String(shashin.length);
     Object.keys(atai).forEach(function(k){ fd.append(k, atai[k]); });
+    // 写真を約4MB・20枚ずつの箱に分ける。1箱目は本体と一緒に、残りは kanryo-shashin で続けて送る
+    var hako = [[]], omosa = 0;
     shashin.forEach(function(s, i){
-      fd.append('施工写真' + (i+1), new File([s.blob], '写真' + (i+1) + '.jpg', {type:'image/jpeg'}));
+      var cur = hako[hako.length - 1];
+      if (cur.length && (omosa + s.blob.size > HITOHAKO || cur.length >= HAKO_MAI)) { hako.push([]); omosa = 0; cur = hako[hako.length - 1]; }
+      cur.push(i); omosa += s.blob.size;
     });
+    hako[0].forEach(function(i, j){
+      fd.append('施工写真' + (j+1), new File([shashin[i].blob], '写真' + (i+1) + '.jpg', {type:'image/jpeg'}));
+    });
+    function tsuzuki(n){
+      if (n >= hako.length) { return Promise.resolve(); }
+      var f2 = new FormData();
+      f2.append('form-name', 'kanryo-shashin');
+      ['受注ID','台帳','氏名','施工日付','入力日時'].forEach(function(k){ f2.append(k, atai[k]); });
+      f2.append('開始番号', String(hako[n][0] + 1));
+      hako[n].forEach(function(i, j){
+        f2.append('施工写真' + (j+1), new File([shashin[i].blob], '写真' + (i+1) + '.jpg', {type:'image/jpeg'}));
+      });
+      b.textContent = '写真を送っています…（' + (n+1) + '/' + hako.length + '）';
+      var okuru = function(){ return fetch('/', { method:'POST', body: f2 }).then(function(r){ if (!r.ok) { throw new Error('http ' + r.status); } }); };
+      return okuru().catch(okuru).then(function(){ return tsuzuki(n + 1); });   // 1回だけやり直す
+    }
     var b = $('send'); b.disabled = true; b.textContent = '送っています…';
     fetch('/', { method:'POST', body: fd })
       .then(function(r){ if (!r.ok) { throw new Error('http ' + r.status); }
+        return tsuzuki(1).catch(function(){
+          alert('内容は届きました。写真の一部が送れませんでした。残りの写真はマーケ部長に知らせてください。');
+        });
+      })
+      .then(function(){
         document.body.className = 'sumi';
         $('head').style.display = 'none';
         $('owari-naka').textContent = atai['氏名'] + ' さま　'

@@ -133,7 +133,7 @@
   </label>
   <p class="sha-joutai" id="sha-joutai"></p>
   <div class="shashin" id="shashin"></div>
-  <p class="chu">あとからもう一度選ぶと、前の写真に足されます。20枚まで入ります。<br>
+  <p class="chu">あとからもう一度選ぶと、前の写真に足されます。50枚まで入ります。<br>
      送る前に小さくするので、枚数が多くても重くなりません。<br>
      SNSに使うので、お宅が分かるもの（表札・窓の外・郵便物）は写さないでください。</p>
   <p class="err" id="e-shashin">写真を1枚以上入れてください</p>
@@ -234,13 +234,25 @@
   <input type="file" name="施工写真9"><input type="file" name="施工写真10"><input type="file" name="施工写真11"><input type="file" name="施工写真12">
   <input type="file" name="施工写真13"><input type="file" name="施工写真14"><input type="file" name="施工写真15"><input type="file" name="施工写真16">
   <input type="file" name="施工写真17"><input type="file" name="施工写真18"><input type="file" name="施工写真19"><input type="file" name="施工写真20">
+  <input type="text" name="写真の枚数">
+</form>
+
+<!-- 写真の続き（1回の送信は Netlify の上限 約8MB。2026-09-29 レジェンド様の分が超えて送れなかった → 分けて送る） -->
+<form hidden method="post" name="kanryo-shashin" data-netlify="true" netlify-honeypot="bot-field"
+      enctype="multipart/form-data">
+  <input type="hidden" name="form-name" value="kanryo-shashin">
+  <input type="text" name="bot-field">
+  <input type="text" name="受注ID"><input type="text" name="台帳"><input type="text" name="氏名">
+  <input type="text" name="施工日付"><input type="text" name="開始番号"><input type="text" name="入力日時">
+  <input type="file" name="施工写真1"><input type="file" name="施工写真2"><input type="file" name="施工写真3"><input type="file" name="施工写真4"><input type="file" name="施工写真5"><input type="file" name="施工写真6"><input type="file" name="施工写真7"><input type="file" name="施工写真8"><input type="file" name="施工写真9"><input type="file" name="施工写真10"><input type="file" name="施工写真11"><input type="file" name="施工写真12"><input type="file" name="施工写真13"><input type="file" name="施工写真14"><input type="file" name="施工写真15"><input type="file" name="施工写真16"><input type="file" name="施工写真17"><input type="file" name="施工写真18"><input type="file" name="施工写真19"><input type="file" name="施工写真20">
 </form>
 
 <script>
 (function(){
   var TSUIKA = {"One Hitter": [{"na": "エアコンクリーニング（ノーマル）", "kin": 10780}, {"na": "エアコンクリーニング（お掃除機能付き）", "kin": 17380}, {"na": "洗濯機クリーニング", "kin": 17380}, {"na": "レンジフードクリーニング", "kin": 18480}, {"na": "レンジフード（プロペラ式）", "kin": 10780}, {"na": "キッチンクリーニング", "kin": 18480}, {"na": "浴室クリーニング", "kin": 18480}, {"na": "追い焚き配管クリーニング", "kin": 19910}, {"na": "コンロクリーニング", "kin": 10780}, {"na": "トイレクリーニング", "kin": 10780}, {"na": "洗面台クリーニング", "kin": 10780}, {"na": "お掃除時短コーティング", "kin": 21780}, {"na": "エアコン 室外機セット", "kin": 6050}, {"na": "エアコン 防カビコート", "kin": 3630}, {"na": "エアコン 防虫キャップ", "kin": 1210}, {"na": "洗濯機 設置枠（防水パン）", "kin": 3630}, {"na": "洗濯機 排水溝クリーニング", "kin": 3630}, {"na": "キッチンセット", "kin": 15180}, {"na": "コンロセット", "kin": 6050}, {"na": "水回り お掃除時短コーティング", "kin": 21780}, {"na": "浴室乾燥機洗浄", "kin": 8580}, {"na": "追い焚き配管クリーニング（同時施工）", "kin": 16610}, {"na": "エプロン内部高圧洗浄", "kin": 8470}, {"na": "浴室換気扇洗浄", "kin": 3630}, {"na": "鏡の水垢除去", "kin": 3630}, {"na": "浴室セット", "kin": 15180}, {"na": "換気扇セット", "kin": 15180}, {"na": "洗面台丸洗い", "kin": 7480}], "本舗": [{"na": "壁掛けエアコン（お掃除機能なし）", "kin": 14300}, {"na": "壁掛けエアコン（お掃除機能付き）", "kin": 24200}, {"na": "天井埋め込みエアコン", "kin": 27500}, {"na": "縦型洗濯機クリーニング", "kin": 11550}, {"na": "ドラム式洗濯機クリーニング", "kin": 18150}, {"na": "ドラム式乾燥機能分解クリーニング", "kin": 27500}, {"na": "レンジフード・換気扇クリーニング", "kin": 18700}, {"na": "キッチンクリーニング", "kin": 18700}, {"na": "風呂・浴室クリーニング", "kin": 18700}, {"na": "追い焚き配管除菌クリーニング", "kin": 25300}, {"na": "トイレクリーニング", "kin": 9900}, {"na": "洗面台クリーニング", "kin": 9350}, {"na": "冷蔵庫クリーニング", "kin": 11000}, {"na": "食器洗い乾燥機クリーニング", "kin": 11000}, {"na": "浴室乾燥機クリーニング", "kin": 11000}, {"na": "エアコン 完全分解洗浄", "kin": 8800}, {"na": "エアコン 防カビチタンコーティング（壁掛け）", "kin": 3300}, {"na": "エアコン 防カビチタンコーティング（埋込）", "kin": 5500}, {"na": "エアコン 室外機（壁掛け）", "kin": 5500}, {"na": "エアコン 室外機（埋込）", "kin": 8800}, {"na": "エアコン 防虫キャップ", "kin": 1100}, {"na": "エアコン エコ洗浄", "kin": 1100}, {"na": "エアコン スチーム除菌", "kin": 1100}, {"na": "天井埋込 お掃除機能付き", "kin": 8800}, {"na": "洗濯機 完全分解洗浄（縦型）", "kin": 9350}, {"na": "洗濯機 完全分解洗浄（ドラム式）", "kin": 18150}, {"na": "洗濯機 日立製 追加", "kin": 5500}, {"na": "洗濯パン", "kin": 2200}, {"na": "洗濯機 かさ上げ台設置", "kin": 9900}, {"na": "浴室 鏡の水アカ除去＆曇り止めフィルム", "kin": 5500}, {"na": "浴室 鏡の水アカ除去＆コーティング", "kin": 3300}, {"na": "浴室乾燥機クリーニング（オプション）", "kin": 7700}, {"na": "浴室 防カビコート", "kin": 3300}, {"na": "浴室 防カビコート（1坪以上・タイル壁）", "kin": 5500}, {"na": "浴室 エプロン内部高圧洗浄＆防カビ仕上げ", "kin": 7700}, {"na": "浴室 エプロン内部洗浄", "kin": 3300}, {"na": "浴室 特殊汚れ／追加範囲 0.5㎡ごと", "kin": 3300}, {"na": "洗面台クリーニングセット（追加）", "kin": 8250}, {"na": "キッチン コンロセット", "kin": 5500}, {"na": "キッチン 食器洗い乾燥機セット", "kin": 8800}, {"na": "キッチンクリーニングセット（追加）", "kin": 15400}, {"na": "換気扇クリーニングセット（追加）", "kin": 15400}, {"na": "キッチン お手入れ簡単コーティング", "kin": 9900}, {"na": "レンジフード 3.5m以上またはL型", "kin": 5500}, {"na": "キッチン お掃除機能付き", "kin": 6600}, {"na": "キッチン アイランド型", "kin": 2200}, {"na": "キッチン 特殊汚れ／追加範囲 0.5㎡ごと", "kin": 3300}, {"na": "シンク研磨＆撥水コート仕上げ", "kin": 4400}, {"na": "冷蔵庫 500ℓ以上", "kin": 5500}, {"na": "給気口クリーニング", "kin": 2200}, {"na": "給気口クリーニング フィルター交換付き", "kin": 2750}, {"na": "空気清浄機クリーニング", "kin": 9900}, {"na": "壁紙染色 10㎡以下", "kin": 13200}]};
   var $ = function(id){ return document.getElementById(id); };
-  var MAI = 20, MAX = 1600, SHITSU = 0.82;   // 20枚まで。超えたぶんはドライブへ手で
+  var MAI = 50, MAX = 1280, SHITSU = 0.72;   // 50枚まで（和真さん 9/29「50枚くらいだとすごい助かる」）。1回の送信は約4MBずつに分ける
+  var HITOHAKO = 4 * 1024 * 1024, HAKO_MAI = 20;
   var shashin = [];       // {blob, puri}
   var tsuikaHai = [];     // {na, kin, kazu}
   var jotai = { kure:'' };
@@ -585,13 +597,39 @@
       '迷ったこと': $('mayoi').value.trim(),
       '入力日時': new Date().toISOString()
     };
+    atai['写真の枚数'] = String(shashin.length);
     Object.keys(atai).forEach(function(k){ fd.append(k, atai[k]); });
+    // 写真を約4MB・20枚ずつの箱に分ける。1箱目は本体と一緒に、残りは kanryo-shashin で続けて送る
+    var hako = [[]], omosa = 0;
     shashin.forEach(function(s, i){
-      fd.append('施工写真' + (i+1), new File([s.blob], '写真' + (i+1) + '.jpg', {type:'image/jpeg'}));
+      var cur = hako[hako.length - 1];
+      if (cur.length && (omosa + s.blob.size > HITOHAKO || cur.length >= HAKO_MAI)) { hako.push([]); omosa = 0; cur = hako[hako.length - 1]; }
+      cur.push(i); omosa += s.blob.size;
     });
+    hako[0].forEach(function(i, j){
+      fd.append('施工写真' + (j+1), new File([shashin[i].blob], '写真' + (i+1) + '.jpg', {type:'image/jpeg'}));
+    });
+    function tsuzuki(n){
+      if (n >= hako.length) { return Promise.resolve(); }
+      var f2 = new FormData();
+      f2.append('form-name', 'kanryo-shashin');
+      ['受注ID','台帳','氏名','施工日付','入力日時'].forEach(function(k){ f2.append(k, atai[k]); });
+      f2.append('開始番号', String(hako[n][0] + 1));
+      hako[n].forEach(function(i, j){
+        f2.append('施工写真' + (j+1), new File([shashin[i].blob], '写真' + (i+1) + '.jpg', {type:'image/jpeg'}));
+      });
+      b.textContent = '写真を送っています…（' + (n+1) + '/' + hako.length + '）';
+      var okuru = function(){ return fetch('/', { method:'POST', body: f2 }).then(function(r){ if (!r.ok) { throw new Error('http ' + r.status); } }); };
+      return okuru().catch(okuru).then(function(){ return tsuzuki(n + 1); });   // 1回だけやり直す
+    }
     var b = $('send'); b.disabled = true; b.textContent = '送っています…';
     fetch('/', { method:'POST', body: fd })
       .then(function(r){ if (!r.ok) { throw new Error('http ' + r.status); }
+        return tsuzuki(1).catch(function(){
+          alert('内容は届きました。写真の一部が送れませんでした。残りの写真はマーケ部長に知らせてください。');
+        });
+      })
+      .then(function(){
         document.body.className = 'sumi';
         $('head').style.display = 'none';
         $('owari-naka').textContent = atai['氏名'] + ' さま　'

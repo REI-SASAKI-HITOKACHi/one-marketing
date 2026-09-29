@@ -63,6 +63,45 @@ def daicho_wake(s):
     return (m.group(1), int(m.group(2))) if m else (None, None)
 
 
+def shashin_mei(d, bangou):
+    na = d.get("氏名", "（名前なし）")
+    return SHASHIN / f"{d.get('施工日付','日付なし')}_{re.sub(r'[^0-9A-Za-zぁ-んァ-ヶ一-龥]', '', na)}_{bangou}.jpg"
+
+
+def tsuzuki_shashin(sumi, dry):
+    """写真の続き（kanryo-shashin）を落とす。1回の送信は約8MBまでなので、21枚目以降や重い写真は分けて届く（2026-09-29〜）。
+    番号は「開始番号」から続ける。取り込んだものは本体と同じ記録ファイルに 'p:<ID>' で残す。"""
+    forms = [f for f in netlify(f"/sites/{SITE_ID}/forms") if f["name"] == "kanryo-shashin"]
+    ireta = []
+    for f in forms:
+        for s in netlify(f"/forms/{f['id']}/submissions"):
+            if "p:" + s["id"] in sumi:
+                continue
+            d = s.get("data") or {}
+            try:
+                hajime = int(str(d.get("開始番号", "1")).strip() or 1)
+            except ValueError:
+                hajime = 1
+            ran = sorted((int(re.sub(r"\D", "", k) or 0), v) for k, v in d.items()
+                         if k.startswith("施工写真") and isinstance(v, dict) and v.get("url"))
+            print(f"\n── 写真の続き：{d.get('氏名','')} さま／{d.get('施工日付','')} {len(ran)}枚（{hajime}枚目から）")
+            for j, (_, v) in enumerate(ran):
+                saki = shashin_mei(d, hajime + j)
+                if dry:
+                    print(f"   [予定] 写真を落とす → {saki.name}")
+                    continue
+                saki.parent.mkdir(parents=True, exist_ok=True)
+                try:
+                    with urllib.request.urlopen(v["url"], timeout=120) as r:
+                        saki.write_bytes(r.read())
+                except Exception as e:
+                    print(f"   ⚠ 写真が落とせませんでした: {e}")
+            ireta.append("p:" + s["id"])
+    if ireta and not dry:
+        sumi |= set(ireta)
+        SUMI.write_text(json.dumps(sorted(sumi), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
@@ -85,6 +124,7 @@ def main():
         print()
 
     sumi = set(json.loads(SUMI.read_text(encoding="utf-8"))) if SUMI.exists() else set()
+    tsuzuki_shashin(sumi, a.dry_run)
     atarashii = [s for s in subs if s["id"] not in sumi]
     print(f"未取り込み: {len(atarashii)}件")
     if not atarashii:
