@@ -25,6 +25,31 @@
  *   adminBenchmark()           … マスタ読み込み速度の実測
  */
 
+/* ===================== 所有者だけが実行できるようにする ===================== */
+
+/**
+ * 管理関数（admin*）の先頭で必ず呼ぶ。
+ *
+ * GAS の google.script.run は、名前が `_` で終わらない関数なら画面から何でも呼べる。
+ * 見積アプリは「全員・ログイン不要」で公開し、デプロイした人の権限で動くので、
+ * **何もしないと、URLを知っている人がブラウザの開発者ツールから
+ * adminSetApiToken('…') を呼んで外部APIの合言葉を書き換えられる。**
+ *
+ * エディタから実行したとき：実行している人 ＝ 権限の持ち主 → 通す
+ * 画面経由で匿名の人が呼んだとき：実行している人が空 → 止める
+ * 画面経由で別の Google アカウントが呼んだとき：空か、権限の持ち主と違う → 止める
+ *
+ * admin* は画面から一切呼ばれていない（tools/admin-guard-test.js で確認）ので、
+ * これを入れても現場の操作は何も変わらない。
+ */
+function requireOwner_() {
+  const active = String(Session.getActiveUser().getEmail() || '');
+  const effective = String(Session.getEffectiveUser().getEmail() || '');
+  if (!active || !effective || active !== effective) {
+    throw new Error('この操作は、スクリプトの所有者が Apps Script エディタから実行するものです。');
+  }
+}
+
 /* ===================== デプロイ後の一括セットアップ ===================== */
 
 /**
@@ -42,6 +67,7 @@
  * 実行後、ログに出た結果をそのまま確認・共有できる。
  */
 function adminDeployAll() {
+  requireOwner_();
   const out = [];
   const step = function (label, fn) {
     out.push('');
@@ -115,6 +141,7 @@ function adminDeployAll() {
  * 生成例（手元の端末で）： openssl rand -base64 32
  */
 function adminSetApiToken(token) {
+  requireOwner_();
   const t = String(token || '').trim();
 
   if (t.length < 32) {
@@ -132,6 +159,7 @@ function adminSetApiToken(token) {
 
 /** 合言葉が設定されているかだけを見る。値そのものは表示しない。 */
 function adminCheckApiToken() {
+  requireOwner_();
   const t = PropertiesService.getScriptProperties().getProperty(APP.API_TOKEN_PROPERTY);
   const message = t
     ? '外部APIの合言葉は設定済みです（' + String(t).length + '文字）。'
@@ -142,6 +170,7 @@ function adminCheckApiToken() {
 
 /** 合言葉を消す。外部APIを止めたいときに使う。 */
 function adminClearApiToken() {
+  requireOwner_();
   PropertiesService.getScriptProperties().deleteProperty(APP.API_TOKEN_PROPERTY);
   const message = '外部APIの合言葉を削除しました。doPost は全リクエストを拒否します。';
   console.log(message);
@@ -151,6 +180,7 @@ function adminClearApiToken() {
 /* ===================== バックアップ ===================== */
 
 function adminBackup() {
+  requireOwner_();
   const stamp = Utilities.formatDate(new Date(), APP.TZ, 'yyyyMMdd_HHmm');
   const out = [];
 
@@ -175,6 +205,7 @@ function adminBackup() {
  * 既存の列位置は動かさない。初期データの投入もしない（増殖の原因になるため）。
  */
 function adminSetup() {
+  requireOwner_();
   const masterSs = getMasterSs_();
   const settings = readSettings_(masterSs);
   const templateSs = getTemplateSs_(settings);
@@ -314,6 +345,7 @@ function seedStaffIfEmpty_(masterSs) {
 }
 
 function adminRefreshCache() {
+  requireOwner_();
   clearContextCache_();
   console.log('マスタキャッシュを破棄しました。次のアクセスで読み直します。');
   return 'ok';
@@ -355,6 +387,7 @@ function replaceSheetWithNormalized_(ss, sheetName, headers, rows) {
  * さらに画面を開くたびに16行が追記され、150行超まで重複していた。
  */
 function adminNormalizeDiscountRules() {
+  requireOwner_();
   const masterSs = getMasterSs_();
 
   const rows = [
@@ -421,6 +454,7 @@ function adminNormalizeDiscountRules() {
  * 初期投入行がA列から書かれていたため新列側が空で、実質コードのfallback文面が使われていた。
  */
 function adminNormalizeMailTemplates() {
+  requireOwner_();
   const masterSs = getMasterSs_();
 
   // 既存シートから拾えた文面を優先して引き継ぐ
@@ -475,6 +509,7 @@ function adminNormalizeMailTemplates() {
 
 /** 差し込みセル定義の列ずれ（項目名が空で値が左に寄っている行）を9列の正規形に直す。 */
 function adminNormalizeCellDefinitions() {
+  requireOwner_();
   const masterSs = getMasterSs_();
   const message = replaceSheetWithNormalized_(
     masterSs, APP.SHEET_CELL_DEF, getCellDefHeaders_(), getDefaultCellDefinitionRows_());
@@ -492,6 +527,7 @@ function adminNormalizeCellDefinitions() {
  * 見積データが増えても複製時間が伸びなくなる。
  */
 function adminCreatePdfTemplate() {
+  requireOwner_();
   const settings = readSettings_(getMasterSs_());
   const sourceSs = getTemplateSs_(settings);
   const stamp = Utilities.formatDate(new Date(), APP.TZ, 'yyyyMMdd_HHmm');
@@ -524,6 +560,7 @@ function adminCreatePdfTemplate() {
 /* ===================== タイムゾーン ===================== */
 
 function adminSetMasterTimezone() {
+  requireOwner_();
   const masterSs = getMasterSs_();
   const before = masterSs.getSpreadsheetTimeZone();
   masterSs.setSpreadsheetTimeZone(APP.TZ);
@@ -537,6 +574,7 @@ function adminSetMasterTimezone() {
 
 /** 読むだけ。何も書き換えない。デプロイ前後の健康診断に使う。 */
 function adminDiagnose() {
+  requireOwner_();
   const out = [];
   const add = function (line) { out.push(line); };
 
@@ -738,6 +776,7 @@ function adminDiagnose() {
  * 請求書を初めて発行する前に必ず一度実行して、payment_due の行を実際の位置に直すこと。
  */
 function adminInspectTemplateLayout() {
+  requireOwner_();
   const settings = readSettings_(getMasterSs_());
   const ss = getTemplateSs_(settings);
   const out = [];
@@ -809,6 +848,7 @@ function columnLetter_(col) {
 
 /** マスタ読み込みにかかる時間を実測する。改善前後の比較用。 */
 function adminBenchmark() {
+  requireOwner_();
   clearContextCache_();
 
   const t0 = Date.now();

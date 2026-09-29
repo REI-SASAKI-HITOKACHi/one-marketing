@@ -55,13 +55,16 @@ if node tools/dopost-test.js | tail -1; then :; else fail=1; fi
 step "8. 採番と二重作成防止"
 if node tools/numbering-dedup-test.js | tail -1; then :; else fail=1; fi
 
-step "9. 予約フォームとの金額一致"
+step "9. 管理関数のガード（画面から呼べる関数の棚卸し）"
+if node tools/admin-guard-test.js | tail -1; then :; else fail=1; fi
+
+step "10. 予約フォームとの金額一致"
 if node tools/booking-form-parity-test.js | tail -2; then :; else fail=1; fi
 
-step "10. シートAPI呼び出し回数（旧コードとの比較）"
+step "11. シートAPI呼び出し回数（旧コードとの比較）"
 if node tools/api-call-benchmark.js | tail -8; then :; else fail=1; fi
 
-step "11. clasp用ビルドが通るか"
+step "12. clasp用ビルドが通るか"
 if bash tools/build-clasp.sh >/dev/null 2>&1; then
   n=$(ls -1 clasp-build 2>/dev/null | wc -l | tr -d ' ')
   if [ "$n" = "8" ]; then
@@ -73,7 +76,7 @@ else
   printf '  ✗ build-clasp.sh が失敗\n'; fail=1
 fi
 
-step "12. 貼り付けバンドルがsrcと一致しているか"
+step "13. 貼り付けバンドルがsrcと一致しているか"
 before=$(node tools/hash-files.js deploy-paste)
 if bash tools/build-paste-bundle.sh >/dev/null 2>&1; then
   after=$(node tools/hash-files.js deploy-paste)
@@ -86,7 +89,7 @@ else
   printf '  ✗ build-paste-bundle.sh が失敗\n'; fail=1
 fi
 
-step "13. マスタTSVがコードと一致しているか"
+step "14. マスタTSVがコードと一致しているか"
 before=$(node tools/hash-files.js master .tsv)
 node tools/gen-master-tsv.js >/dev/null
 after=$(node tools/hash-files.js master .tsv)
