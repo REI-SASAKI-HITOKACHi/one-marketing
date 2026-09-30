@@ -76,6 +76,26 @@
       "url": "https://script.google.com/macros/s/AKfycbxoAYwtgFiSFBhHWVdNlziRUDjb3X_l6NO9NTXeR5RgsUFkpUKi1HJXdpS5XC-Jxj417w/exec",
       "何": "見積アプリ（GAS ウェブアプリ・本番 /exec。デプロイIDを変えない）",
       "渡した先": "和真さん（ホーム画面）・オーナー"
+    },
+    {
+      "url": "https://lp.onehitter.jp/mizumawari-b/",
+      "何": "学習版LP（オーナー指示で9/30配信）",
+      "渡した先": "Google広告（学習版LPのA/Bテスト）"
+    },
+    {
+      "url": "https://lp.onehitter.jp/aircon-c/",
+      "何": "学習版LP（オーナー指示で9/30配信）",
+      "渡した先": "Google広告（学習版LPのA/Bテスト）"
+    },
+    {
+      "url": "https://lp.onehitter.jp/aircon-d/",
+      "何": "学習版LP（オーナー指示で9/30配信）",
+      "渡した先": "Google広告（学習版LPのA/Bテスト）"
+    },
+    {
+      "url": "https://lp.onehitter.jp/nenmatsu-b/",
+      "何": "学習版LP（オーナー指示で9/30配信）",
+      "渡した先": "Google広告（学習版LPのA/Bテスト）"
     }
   ]
 }
