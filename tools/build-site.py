@@ -111,13 +111,7 @@ PAGES = {
         "og_line1": "年末の大掃除は、11月までが安い",
         "og_line2": "レンジフード＋浴室 33,660円（税込）・12月から+3,300円／箇所",
     },
-}
-
-# 下書き（A/Bテストの候補）。PAGES と同じ形で書くが、ここに置いたものは
-# 通常のビルドでは作らない＝配信物（deploy/）に入らない＝本番に出ない。
-#   python3 tools/build-site.py netlify --draft mizumawari-b   → preview/netlify/mizumawari-b/
-# A/Bテストを始めるときは、オーナーの許可を取ってから PAGES へ移す（1項目の移動で済む）。
-DRAFTS = {
+    # ↓ 学習版4本（2026-09-30 オーナー指示「学習後のLPをさっそくテストしたいからすぐ配信して」で DRAFTS から移動）
     "mizumawari-b": {
         "dir": "mizumawari-b",
         # 案A（mizumawari）の対抗案。lp_id を揃え lp_variant で分ける（aircon-b と同じ考え方）
@@ -168,6 +162,13 @@ DRAFTS = {
         "og_line1": "レンジフード＋浴室 33,660円",
         "og_line2": "11月30日のご予約まで通常価格・12月は+3,300円／箇所",
     },
+}
+
+# 下書き（A/Bテストの候補）。PAGES と同じ形で書くが、ここに置いたものは
+# 通常のビルドでは作らない＝配信物（deploy/）に入らない＝本番に出ない。
+#   python3 tools/build-site.py netlify --draft mizumawari-b   → preview/netlify/mizumawari-b/
+# A/Bテストを始めるときは、オーナーの許可を取ってから PAGES へ移す（1項目の移動で済む）。
+DRAFTS = {
 }
 
 HEAD = """<!doctype html>
