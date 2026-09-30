@@ -87,10 +87,16 @@ def yoyaku_api():
     import urllib.request
     src = open(os.path.join(KOKO, 'tools/build-booking.py'), encoding='utf-8').read()
     url = re.search(r'^API_URL = "([^"]+)"', src, re.M).group(1)
-    try:
-        body = urllib.request.urlopen(url + '?action=slots&minutes=120&callback=cb', timeout=60).read().decode()
-    except Exception as e:
-        return [f'予約APIに届かない: {e}']
+    body, err = '', None
+    for _ in range(2):  # Apps Script はまれに一時的な 404 を返す（9/30 15:4x、直後は 200）。1回だけ取り直す
+        try:
+            body = urllib.request.urlopen(url + '?action=slots&minutes=120&callback=cb', timeout=60).read().decode()
+            err = None
+            break
+        except Exception as e:
+            err = e
+    if err:
+        return [f'予約APIに届かない（2回とも）: {err}']
     return [] if '"ok":true' in body else ['予約APIが ok:false（空き枠を旧手順で作り直す。savedata 参照）']
 
 
