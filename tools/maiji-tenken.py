@@ -110,7 +110,8 @@ def keijiban(fun):
         iid = os.path.basename(p)[:-3]
         if ate == 'cmo' and g('状態') == '未処理' and hi and hi[0] >= kijun:
             kekka.append(f'掲示板（新着）: {iid} {sa}→cmo「{kenmei}」')
-        elif sa == 'cmo' and any(t >= kijun and not w.startswith('CMO') for w, t in henshin):
+        elif 'cmo' in (sa, ate) and any(t >= kijun and not w.startswith('CMO') for w, t in henshin):
+            # 完了済みの依頼に後から返信が足されることがある（9/30 crm のお礼SMS本文で見落とした）
             kekka.append(f'掲示板（返信）: {iid}「{kenmei}」')
     return kekka
 
