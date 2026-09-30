@@ -50,11 +50,15 @@
   /** 鍵が決まったら初期表示を読む。鍵が無ければサーバーを呼ばずに案内を出す */
   function onUiKeyResolved(key) {
     currentUiKey = key || '';
-    if (!currentUiKey) { showKeyRequired(); return; }
+    if (!currentUiKey) { showKeyRequired('wrong'); return; }
 
     google.script.run
       .withSuccessHandler(onBootstrap)
-      .withFailureHandler(function (err) { showFatal(message(err)); })
+      .withFailureHandler(function (err) {
+        var text = message(err);
+        // 鍵の案内を出したときは、それを上書きしない
+        if (!keyBlocked) showFatal(text);
+      })
       .apiBootstrap(uiKey());
   }
 
@@ -73,7 +77,9 @@
    */
   var UI_KEY_STORAGE = 'estimateAppUiKey';
   var UI_KEY_MARK = '[UI_KEY] ';
+  var UI_KEY_NONE_MARK = '[UI_KEY_NONE] ';
   var currentUiKey = '';
+  var keyBlocked = false;
 
   function uiKey() {
     return currentUiKey;
@@ -115,10 +121,20 @@
     try { window.localStorage.removeItem(UI_KEY_STORAGE); } catch (e) { /* 何もしない */ }
   }
 
-  function showKeyRequired() {
-    showFatal('このスマホでは、まだ見積アプリを使えません。\n'
-      + 'LINEで届いた専用リンクを開いてください。\n'
-      + '（前は使えていたのに急に出た場合も、同じリンクをもう一度タップすれば戻ります）');
+  /**
+   * 鍵の案内を出して、画面の操作を止める。
+   * kind = 'none'：鍵が1つも発行されていない（所有者側の準備中）。スマホの記憶は消していない
+   * それ以外：このスマホの鍵が合わない
+   */
+  function showKeyRequired(kind) {
+    keyBlocked = true;
+    var app = byId('app');
+    if (app) app.classList.add('hidden');
+    showFatal(kind === 'none'
+      ? 'いま見積アプリは準備中です。少し待ってから開き直してください。\n続くようなら代表へ連絡してください。'
+      : 'このスマホでは、まだ見積アプリを使えません。\n'
+        + 'LINEで届いた専用リンクを開いてください。\n'
+        + '（前は使えていたのに急に出た場合も、同じリンクをもう一度タップすれば戻ります）');
   }
 
   function onBootstrap(res) {
@@ -1646,11 +1662,17 @@
   function message(err) {
     if (!err) return '不明なエラー';
     var text = err.message || String(err);
-    // サーバーが「鍵が合わない」と返したとき。どの操作の途中でも、鍵の案内に切り替える
+    // 鍵が1つも発行されていない：所有者側の準備中。**スマホの記憶は消さない**
+    // （消すと、所有者が鍵を発行し直したあとも全員にリンクを送り直すことになる）
+    if (text.indexOf(UI_KEY_NONE_MARK) >= 0) {
+      showKeyRequired('none');
+      return text.slice(text.indexOf(UI_KEY_NONE_MARK) + UI_KEY_NONE_MARK.length);
+    }
+    // このスマホの鍵が合わない：記憶を消して、リンクを開き直してもらう
     if (text.indexOf(UI_KEY_MARK) >= 0) {
       forgetUiKey();
-      showKeyRequired();
-      return text.replace(UI_KEY_MARK, '');
+      showKeyRequired('wrong');
+      return text.slice(text.indexOf(UI_KEY_MARK) + UI_KEY_MARK.length);
     }
     return text;
   }

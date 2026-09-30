@@ -2,8 +2,9 @@
  * ⚠⚠ この版から、画面を使うには「鍵」が要ります（2026-09-29）⚠⚠
  *
  * エディタに貼っただけでは本番（/exec）は切り替わりません。順番はこうです：
+ *   0. 本人がふだん見積アプリをどう開いているか確かめる（ホーム画面のアイコンなら先に相談）
  *   1. 貼る（この時点では本番はまだ前の版のまま）
- *   2. エディタで adminAddUiKey('和真') などを実行して鍵を発行する
+ *   2. エディタで adminAddUiKey('和真', '和真さんがいつも使う…/exec') を実行して鍵を発行する
  *   3. 「デプロイを管理」で4本すべてを新しいバージョンに差し替える
  *   4. すぐに、出てきた専用リンクを本人へ個別トークで送る
  * 鍵を発行せずに3をすると、**誰も画面を使えません**（外部APIは影響なし）。
@@ -118,7 +119,9 @@ const RUNTIME = {
   calcEngine: null,
   spreadsheets: {},
   headerInfo: {},
-  logs: []
+  logs: [],
+  uiKeyOwner: '',  // 画面の鍵で入った人の名前（requireUiKey_ が入れる）
+  apiCaller: ''    // 外部APIから来たとき '外部API'（doPost が入れる）
 };
 
 /* ===================== エントリポイント ===================== */
@@ -171,11 +174,14 @@ function doPost(e) {
   }
 
   if (!verifyApiToken_(body.token)) {
-    // 合言葉が違うときは、理由を細かく返さない（総当たりの手がかりにしない）
-    queueLog_('外部API', '', '認証に失敗しました', String(body.action || ''), 0);
-    flushLogs_();
+    // 合言葉が違うときは、理由を細かく返さない（総当たりの手がかりにしない）。
+    // シートには書かない（誰でも /exec に POST できるので、書くと際限なく伸ばされ、
+    // 同時に書かれると正規の操作ログを上書きで消される）。実行ログにだけ残す
+    console.warn('外部API：認証に失敗しました（action=' + String(body.action || '').slice(0, 40) + '）');
     return jsonResponse_({ ok: false, error: '認証に失敗しました。' });
   }
+
+  RUNTIME.apiCaller = '外部API';
 
   const action = String(body.action || '').trim();
 
@@ -276,8 +282,9 @@ function requireId_(value, label, fn) {
 
 /**
  * 合言葉の照合。
- * 未設定なら常に false（fail closed）。長さが違っても最後まで比較して、
- * 応答時間から桁数が漏れないようにしている。
+ * 未設定なら常に false（fail closed）。中身の比較は定数時間（constantTimeEquals_）。
+ * 長さが違うときはすぐ false を返すので、応答時間から桁数は分かりうるが、
+ * 合言葉は32文字以上のランダムな値なので桁数が分かっても推測はできない。
  */
 function verifyApiToken_(given) {
   const expected = PropertiesService.getScriptProperties().getProperty(APP.API_TOKEN_PROPERTY);
@@ -385,19 +392,33 @@ function apiGetInvoiceDetail(key, invoiceId) {
  * 鍵が1つも発行されていなければ全部止める（fail closed）。
  */
 function requireUiKey_(key) {
-  const given = String(key == null ? '' : key);
+  // 画面から来るのは文字列のはず。オブジェクト等が来たら（古い画面が payload を送ってきた等）
+  // String() で "[object Object]" にせず、空として扱う
+  const given = typeof key === 'string' ? key : '';
   const keys = readUiKeys_();
-  const names = Object.keys(keys);
+
+  // 照合の対象にするのは「64桁の英数字」の値だけ。プロパティを手で編集して値が
+  // 数値・true・短い文字列・オブジェクトになっていると、推測できる鍵になってしまうため
+  const names = Object.keys(keys).filter(function (name) { return isValidUiKeyValue_(keys[name]); });
+
+  if (names.length === 0) {
+    // 鍵が1つも無い（または全部壊れている）。**利用者のスマホの記憶は消させない**
+    // （所有者が発行し直せば、同じ記憶のままでは使えないが、案内を分けるため目印を変える）
+    console.warn('画面の鍵：有効な鍵が1つも発行されていません。');
+    throw new Error(UI_KEY_NONE_MARK + 'いま見積アプリは準備中です。少し待ってから開き直してください。続くようなら代表へ連絡してください。');
+  }
 
   let matched = '';
   // 全員ぶんを最後まで比べる。見つかった時点で抜けると、応答時間から誰の鍵かが漏れる
   names.forEach(function (name) {
-    if (constantTimeEquals_(given, String(keys[name] || '')) && given) matched = matched || name;
+    if (constantTimeEquals_(given, keys[name])) matched = matched || name;
   });
 
   if (!matched) {
-    queueLog_('画面の鍵', '', '鍵が一致しませんでした', names.length ? '' : '鍵が1件も発行されていません', 0);
-    flushLogs_();
+    // **失敗はシートに書かない。**書くと、鍵なしの誰でも1回の呼び出しでシートに1行足せる。
+    // 際限なく伸ばせるうえ、ロックなしの追記なので同時に書かれると正規の操作ログを
+    // 上書きで消せてしまう（独立レビュー 2026-09-29 の指摘）。実行ログ（console）にだけ残す
+    console.warn('画面の鍵：一致しませんでした。');
     throw new Error(UI_KEY_ERROR_MARK + 'このスマホでは、まだ見積アプリを使えません。LINEで届いた専用リンクをもう一度開いてください。');
   }
 
@@ -405,18 +426,37 @@ function requireUiKey_(key) {
   return matched;
 }
 
+function isValidUiKeyValue_(v) {
+  return typeof v === 'string' && /^[0-9a-f]{64}$/.test(v);
+}
+
 /** 画面に「鍵が要る」ことを伝える目印。画面側はこの文字列で見分ける */
 const UI_KEY_ERROR_MARK = '[UI_KEY] ';
 
+/** 鍵が1つも発行されていないときの目印。画面はスマホの記憶を消さない */
+const UI_KEY_NONE_MARK = '[UI_KEY_NONE] ';
+
+/** 照合用。読めなければ空（＝全部止める） */
 function readUiKeys_() {
-  const raw = PropertiesService.getScriptProperties().getProperty(APP.UI_KEYS_PROPERTY);
-  if (!raw) return {};
   try {
-    const obj = JSON.parse(raw);
-    return obj && typeof obj === 'object' && !Array.isArray(obj) ? obj : {};
+    return readUiKeysStrict_();
   } catch (e) {
     return {};
   }
+}
+
+/**
+ * 管理関数用。読めなければ例外で止める。
+ * 壊れているのを空扱いにして書き戻すと、ほかの人の鍵を黙って消してしまうため。
+ */
+function readUiKeysStrict_() {
+  const raw = PropertiesService.getScriptProperties().getProperty(APP.UI_KEYS_PROPERTY);
+  if (!raw) return {};
+  const obj = JSON.parse(raw);
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
+    throw new Error('スクリプトプロパティ ' + APP.UI_KEYS_PROPERTY + ' の形が壊れています。');
+  }
+  return obj;
 }
 
 /* ===================== 計算エンジンの共有 ===================== */
@@ -2455,6 +2495,7 @@ function getFallbackRepresentativeTemplate_() {
  */
 function getLogUser_() {
   if (RUNTIME.uiKeyOwner) return '鍵:' + RUNTIME.uiKeyOwner;
+  if (RUNTIME.apiCaller) return RUNTIME.apiCaller;
   try {
     const active = Session.getActiveUser().getEmail();
     if (active) return active;

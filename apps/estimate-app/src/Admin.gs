@@ -184,43 +184,55 @@ function adminClearApiToken() {
 /**
  * 画面を使う人に鍵を発行する。**所有者がエディタから実行する。**
  *
- *   adminAddUiKey('和真')
+ *   adminAddUiKey('和真', '和真さんがいつも使っている見積アプリのURL（…/exec）')
  *
  * 実行ログに出る「専用リンク」を、**本人に個別トークで**送る
  * （業務連絡のグループや掲示板には貼らない。リンクそのものが鍵）。
  * 本人がそのリンクをスマホで1回開けば、以後は入力不要。
  * 同じ名前でもう一度実行すると鍵を作り直す（前の鍵は使えなくなる）。
+ *
+ * URL を省略すると、エディタから実行した場合はたいてい /dev しか取れないので、
+ * 鍵だけが出る。そのときは本人のいつものURLに付けて送る（下のログに書き方が出る）。
+ *
+ * リンクには ?openExternalBrowser=1 を付ける。LINE のトークからリンクを開くと、
+ * ふつうは LINE の中のブラウザで開き、鍵はそちらにしか記憶されない。
+ * いつもの Safari から開いたときに「使えません」になってしまうので、外部ブラウザで開かせる。
  */
-function adminAddUiKey(name) {
+function adminAddUiKey(name, execUrl) {
   requireOwner_();
   const who = String(name || '').trim();
-  if (!who) throw new Error('名前を指定してください。例：adminAddUiKey(\'和真\')');
+  if (!who) throw new Error('名前を指定してください。例：adminAddUiKey(\'和真\', \'https://script.google.com/macros/s/…/exec\')');
   if (who.length > 20) throw new Error('名前は20文字以内にしてください。');
+  if (who.indexOf('__') >= 0) throw new Error('名前に「__」は使えません。');
 
-  // UUID 2つぶん（約244ビット）。総当たりは現実的に不可能な長さ
-  const key = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '');
+  // 壊れている設定を空扱いにして書き戻すと、ほかの人の鍵を黙って消すので、ここは厳密に読む
+  const keys = readUiKeysStrict_();
 
-  const props = PropertiesService.getScriptProperties();
-  const keys = readUiKeys_();
+  // URLの確認は、鍵を作り直す**前に**やる。後にすると、URLの形が違って止まったとき
+  // 前の鍵だけが無効になり、新しいリンクも出ない（本人が使えなくなる）
+  const base = pickExecUrl_(execUrl);
+
+  // UUID 2つぶん（約244ビット）。総当たりは現実的に不可能な長さ。
+  // 小文字にそろえる：照合は 64桁の小文字英数字だけを受け付けるので、大文字が混ざると弾かれる
+  const key = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '').toLowerCase();
+
   const reissued = Object.prototype.hasOwnProperty.call(keys, who);
   keys[who] = key;
-  props.setProperty(APP.UI_KEYS_PROPERTY, JSON.stringify(keys));
+  PropertiesService.getScriptProperties().setProperty(APP.UI_KEYS_PROPERTY, JSON.stringify(keys));
 
-  let url = '';
-  try { url = String(ScriptApp.getService().getUrl() || ''); } catch (e) { url = ''; }
+  const suffix = '?openExternalBrowser=1#key=' + key;
 
   const lines = [
     (reissued ? '「' + who + '」の鍵を作り直しました（前の鍵は使えなくなりました）。' : '「' + who + '」の鍵を発行しました。'),
     ''
   ];
-  if (/\/exec$/.test(url)) {
+  if (base) {
     lines.push('専用リンク（本人に個別トークで送る。グループや掲示板には貼らない）：');
-    lines.push(url + '#key=' + key);
-    lines.push('');
-    lines.push('※ 本人がいつも使っているURLと同じか確かめてください。違う場合は、いつものURLの後ろに #key=' + key + ' を付けて送ります。');
+    lines.push(base + suffix);
   } else {
-    lines.push('本人がいつも使っている見積アプリのURL（…/exec）の後ろに、次を付けたものを送ってください：');
-    lines.push('#key=' + key);
+    lines.push('本人がいつも使っている見積アプリのURL（https://script.google.com/macros/s/…/exec）の');
+    lines.push('すぐ後ろに、次をそのまま付けたものを送ってください（間に空白を入れない）：');
+    lines.push(suffix);
   }
   lines.push('');
   lines.push('本人への案内文：');
@@ -232,11 +244,28 @@ function adminAddUiKey(name) {
   return message;
 }
 
+/**
+ * 専用リンクの土台にする /exec のURLを決める。
+ * 渡されたURLが見積アプリの /exec の形ならそれを使う。無ければ実行中のURLが /exec なら使う。
+ * どちらでもなければ空（鍵だけを出して、所有者に組み立ててもらう）。
+ */
+function pickExecUrl_(execUrl) {
+  const pattern = /^https:\/\/script\.google\.com\/(?:a\/[^/]+\/)?macros\/s\/[A-Za-z0-9_-]+\/exec$/;
+  const given = String(execUrl || '').trim();
+  if (given) {
+    if (!pattern.test(given)) throw new Error('URLの形が違います。https://script.google.com/macros/s/…/exec の形で渡してください。');
+    return given;
+  }
+  let url = '';
+  try { url = String(ScriptApp.getService().getUrl() || ''); } catch (e) { url = ''; }
+  return pattern.test(url) ? url : '';
+}
+
 /** 鍵を止める。止めたい人の分だけ消える。全員分を消すと、画面は誰も使えなくなる（fail closed） */
 function adminRevokeUiKey(name) {
   requireOwner_();
   const who = String(name || '').trim();
-  const keys = readUiKeys_();
+  const keys = readUiKeysStrict_();
   if (!Object.prototype.hasOwnProperty.call(keys, who)) {
     const message = '「' + who + '」の鍵はありません。発行済み：' + (Object.keys(keys).join('、') || '（なし）');
     console.log(message);
@@ -251,13 +280,18 @@ function adminRevokeUiKey(name) {
   return message;
 }
 
-/** 鍵を持っている人の名前だけを出す（鍵の値は出さない） */
+/** 鍵を持っている人の名前だけを出す（鍵の値は出さない）。形の壊れた鍵があれば知らせる */
 function adminListUiKeys() {
   requireOwner_();
-  const names = Object.keys(readUiKeys_());
-  const message = names.length
+  const keys = readUiKeysStrict_();
+  const names = Object.keys(keys);
+  const broken = names.filter(function (n) { return !isValidUiKeyValue_(keys[n]); });
+  let message = names.length
     ? '画面の鍵を持っている人（' + names.length + '人）：' + names.join('、')
     : '画面の鍵は1つも発行されていません。いまは誰も画面を使えません。';
+  if (broken.length) {
+    message += '\n※ 形が壊れていて使えない鍵：' + broken.join('、') + '（adminAddUiKey で作り直してください）';
+  }
   console.log(message);
   return message;
 }
