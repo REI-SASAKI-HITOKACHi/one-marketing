@@ -30,6 +30,17 @@
 IDは数字なので、`--ag-name ID=名前` で名前を付けられます（Google広告の管理画面で確かめる）。
 付けなければIDのまま出します。
 
+## 学習版かどうか（2026-09-30 追加）
+
+**9/30 に学習版LP 4本を出し、広告を今のLPと半々に分けて比べます。**
+**`src` は両方とも同じ（例：どちらも `gads_aircon`）なので、`src` では分けられません。**
+分けるのは、フォームの hidden 欄 `lp`（例：`aircon-c`）か、フォーム名（例：`reserve-aircon-c`）です。
+予約_Web にどちらかの列があれば、広告グループごとに「今の版／学習版」の2行に分けて出します。
+**どちらも無ければ分けずに出し、そのことを表の下に書きます。**
+
+費用は、Google広告のテスト画面に「元の広告」と「バリエーション」に分けて出ます。
+`--hiyou A_エアコン:今の版=5000 --hiyou A_エアコン:学習版=5200` のように、版ごとに渡してください。
+
 ## 予約_Web に `ag` の列が無いとき
 
 **止まって、実際の見出しを表示します。** 黙って「全部 ag 無し」にはしません。
@@ -46,7 +57,21 @@ COLS = {
     "ag":     ["ag", "広告グループ", "adgroup"],
     "kagi":   ["注文ID", "order_id", "NetlifyのID"],
     "uriage": ["★売上（税込）", "売上（税込）", "売上"],
+    "lp":     ["lp", "LP", "フォーム名", "form-name", "form_name"],
 }
+
+# 学習版LP（2026-09-30 本番公開）。それ以外の LP は「今の版」
+GAKUSHU = {"aircon-c", "aircon-d", "mizumawari-b", "nenmatsu-b"}
+
+
+def ban(lp_value):
+    """lp 欄またはフォーム名から (版, LP名) を返す。読めなければ ('', '')。"""
+    v = (lp_value or "").strip()
+    if v.startswith("reserve-"):
+        v = v[len("reserve-"):]
+    if not v:
+        return "", ""
+    return ("学習版" if v in GAKUSHU else "今の版"), v
 
 
 def pick(heads, cands):
@@ -121,6 +146,11 @@ def main():
             continue
         ag = (r.get(col["ag"]) or "").strip()
         key = namae.get(ag, ag) or f"（ag なし・{src or 'src なし'}）"
+        b, lpname = ban(r.get(col["lp"])) if col["lp"] else ("", "")
+        if col["lp"]:
+            key = (key, b or "（不明）", lpname or "—")
+        else:
+            key = (key, "—", "—")
         u = yen(r.get(col["uriage"]))
         h = hyou.setdefault(key, {"moushi": 0, "juchu": 0, "gaku": 0})
         h["moushi"] += 1
@@ -132,16 +162,17 @@ def main():
     if not hyou:
         print("**広告経由の申込がありません**（`src` が `gads` で始まる行が0件）。")
         return
-    print("| 広告グループ | 申込 | 受注 | 受注額 | 費用 | 申込CPA | 受注CPA | 費用対受注額 |")
-    print("|---|---:|---:|---:|---:|---:|---:|---:|")
+    print("| 広告グループ | 版 | LP | 申込 | 受注 | 受注額 | 費用 | 申込CPA | 受注CPA | 費用対受注額 |")
+    print("|---|---|---|---:|---:|---:|---:|---:|---:|---:|")
     tot = {"moushi": 0, "juchu": 0, "gaku": 0, "hiyou": 0}
     for key in sorted(hyou):
         h = hyou[key]
-        hy = hiyou.get(key)
+        ag_, b, lpname = key
+        hy = hiyou.get(f"{ag_}:{b}") if col["lp"] else hiyou.get(ag_)
         def cpa(n):
             return f"{hy // n:,}円" if hy and n else "—"
         roas = f"{h['gaku'] / hy:.1f}倍" if hy else "—"
-        print(f"| {key} | {h['moushi']} | {h['juchu']} | {h['gaku']:,}円 | "
+        print(f"| {ag_} | {b} | {lpname} | {h['moushi']} | {h['juchu']} | {h['gaku']:,}円 | "
               f"{f'{hy:,}円' if hy else '—'} | {cpa(h['moushi'])} | {cpa(h['juchu'])} | {roas} |")
         for k in ("moushi", "juchu", "gaku"):
             tot[k] += h[k]
@@ -151,11 +182,19 @@ def main():
     k_mcpa = f"{th // tm:,}円" if th and tm else "—"
     k_jcpa = f"{th // tj:,}円" if th and tj else "—"
     k_roas = f"{tg / th:.1f}倍" if th else "—"
-    print(f"| **合計** | **{tm}** | **{tj}** | **{tg:,}円** | {k_hiyou} | {k_mcpa} | {k_jcpa} | {k_roas} |")
+    print(f"| **合計** | | | **{tm}** | **{tj}** | **{tg:,}円** | {k_hiyou} | {k_mcpa} | {k_jcpa} | {k_roas} |")
 
-    kakuteimae = sum(1 for k in hyou if k.startswith("（ag なし"))
+    kakuteimae = sum(1 for k in hyou if k[0].startswith("（ag なし"))
     print("\n> **受注は「★売上（税込）が入った件数」です。** 施工前・入金前の申込は、まだ受注に数えていません。")
     print("> **件数が少ないうちは、1件の違いでCPAが大きく動きます。** 10/9 の判定では件数と一緒に読んでください。")
+    if not col["lp"]:
+        print("> ⚠️ 予約_Web に `lp` もフォーム名の列も無いため、**今の版と学習版を分けていません。**"
+              "（`src` は両方同じなので、`src` では分けられません）")
+    elif any(k[1] == "（不明）" for k in hyou):
+        print("> ⚠️ 版が「（不明）」の行は、`lp`／フォーム名の欄が空です。")
+    if col["lp"] and args.hiyou and not any(":" in x.split("=")[0] for x in args.hiyou):
+        print("> ⚠️ 費用が広告グループ単位で渡されたため、版ごとのCPAは出していません。"
+              "`--hiyou 名前:今の版=円 --hiyou 名前:学習版=円` で渡してください。")
     if kakuteimae:
         print("> ⚠️ `ag` が空の広告経由の申込があります。**`?ag=` の受け側が入る前（9/28 より前）の申込**の可能性があります。")
 
