@@ -65,10 +65,15 @@ vm.createContext(sandbox);
 vm.runInContext(fs.readFileSync(path.join(srcDir, 'code.gs'), 'utf8'), sandbox, { filename: 'code.gs' });
 vm.runInContext(fs.readFileSync(path.join(srcDir, 'Invoice.gs'), 'utf8'), sandbox, { filename: 'Invoice.gs' });
 
-/* 本物の api* はシートに触るので、呼ばれた事実だけ記録する版に差し替える */
-['apiGetInvoiceDetail', 'apiGetEstimateDetail', 'apiStartInvoice',
- 'apiSaveInvoice', 'apiBuildInvoiceDocuments',
- 'apiSaveEstimate', 'apiBuildDocuments'].forEach(name => {
+/*
+ * 本物の api*_（本体）はシートに触るので、呼ばれた事実だけ記録する版に差し替える。
+ * doPost は画面の入口（鍵が要る api*）ではなく本体（api*_）を直接呼ぶ。
+ * 入口のほうを呼ぶと引数が1つずれて payload が鍵として扱われるので、
+ * 本体だけを差し替えておけば、間違って入口を呼んだときは鍵の検査で落ちて気づける。
+ */
+['apiGetInvoiceDetail_', 'apiGetEstimateDetail_', 'apiStartInvoice_',
+ 'apiSaveInvoice_', 'apiBuildInvoiceDocuments_',
+ 'apiSaveEstimate_', 'apiBuildDocuments_'].forEach(name => {
   sandbox[name] = function () {
     calls.push({ name, args: Array.prototype.slice.call(arguments) });
     return { ok: true, calledWith: Array.prototype.slice.call(arguments) };
@@ -128,37 +133,37 @@ console.log('■ action の振り分け');
 check('getInvoice が apiGetInvoiceDetail を呼ぶ', (() => {
   post({ token: TOKEN, action: 'getInvoice', invoiceId: '20260915-01' });
   return [calls[0].name, calls[0].args[0]];
-})(), ['apiGetInvoiceDetail', '20260915-01']);
+})(), ['apiGetInvoiceDetail_', '20260915-01']);
 
 check('getEstimate が apiGetEstimateDetail を呼ぶ', (() => {
   post({ token: TOKEN, action: 'getEstimate', estimateId: '20260915-01' });
   return calls[0].name;
-})(), 'apiGetEstimateDetail');
+})(), 'apiGetEstimateDetail_');
 
 check('startInvoice が apiStartInvoice を呼ぶ', (() => {
   post({ token: TOKEN, action: 'startInvoice', estimateId: 'E1' });
   return calls[0].name;
-})(), 'apiStartInvoice');
+})(), 'apiStartInvoice_');
 
 check('saveInvoice が payload をそのまま渡す', (() => {
   post({ token: TOKEN, action: 'saveInvoice', payload: { 顧客名: 'テスト', requestId: 'r9' } });
   return [calls[0].name, calls[0].args[0]];
-})(), ['apiSaveInvoice', { 顧客名: 'テスト', requestId: 'r9' }]);
+})(), ['apiSaveInvoice_', { 顧客名: 'テスト', requestId: 'r9' }]);
 
 check('buildInvoice が請求番号と行番号を渡す', (() => {
   post({ token: TOKEN, action: 'buildInvoice', invoiceId: '20260915-01', rowNumber: 5 });
   return [calls[0].name, calls[0].args[0], calls[0].args[1]];
-})(), ['apiBuildInvoiceDocuments', '20260915-01', 5]);
+})(), ['apiBuildInvoiceDocuments_', '20260915-01', 5]);
 
 check('saveEstimate が payload をそのまま渡す', (() => {
   post({ token: TOKEN, action: 'saveEstimate', payload: { 顧客名: 'テスト', requestId: 'r1' } });
   return [calls[0].name, calls[0].args[0]];
-})(), ['apiSaveEstimate', { 顧客名: 'テスト', requestId: 'r1' }]);
+})(), ['apiSaveEstimate_', { 顧客名: 'テスト', requestId: 'r1' }]);
 
 check('buildEstimate が見積番号と行番号を渡す', (() => {
   post({ token: TOKEN, action: 'buildEstimate', estimateId: '20260915-01', rowNumber: 7 });
   return [calls[0].name, calls[0].args[0], calls[0].args[1]];
-})(), ['apiBuildDocuments', '20260915-01', 7]);
+})(), ['apiBuildDocuments_', '20260915-01', 7]);
 
 // 呼ぶ側が番号を決められないこと。採番はアプリの generateDocumentId_ だけが行う
 check('saveEstimate に estimate_id を混ぜても採番を奪えない', (() => {
@@ -166,7 +171,7 @@ check('saveEstimate に estimate_id を混ぜても採番を奪えない', (() =
     payload: { estimate_id: '99999999-99', 顧客名: 'テスト', requestId: 'r8' } });
   // payload はそのまま渡るが、採番するのは apiSaveEstimate 側の generateDocumentId_
   return calls[0].name;
-})(), 'apiSaveEstimate');
+})(), 'apiSaveEstimate_');
 
 console.log('■ 二重作成の防止（requestId 必須）');
 

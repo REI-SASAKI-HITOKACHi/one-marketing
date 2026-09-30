@@ -58,13 +58,16 @@ if node tools/numbering-dedup-test.js | tail -1; then :; else fail=1; fi
 step "9. 管理関数のガード（画面から呼べる関数の棚卸し）"
 if node tools/admin-guard-test.js | tail -1; then :; else fail=1; fi
 
-step "10. 予約フォームとの金額一致"
+step "10. 画面の鍵（人ごと）"
+if node tools/ui-key-test.js | tail -1; then :; else fail=1; fi
+
+step "11. 予約フォームとの金額一致"
 if node tools/booking-form-parity-test.js | tail -2; then :; else fail=1; fi
 
-step "11. シートAPI呼び出し回数（旧コードとの比較）"
+step "12. シートAPI呼び出し回数（旧コードとの比較）"
 if node tools/api-call-benchmark.js | tail -8; then :; else fail=1; fi
 
-step "12. clasp用ビルドが通るか"
+step "13. clasp用ビルドが通るか"
 if bash tools/build-clasp.sh >/dev/null 2>&1; then
   n=$(ls -1 clasp-build 2>/dev/null | wc -l | tr -d ' ')
   if [ "$n" = "8" ]; then
@@ -76,7 +79,7 @@ else
   printf '  ✗ build-clasp.sh が失敗\n'; fail=1
 fi
 
-step "13. 貼り付けバンドルがsrcと一致しているか"
+step "14. 貼り付けバンドルがsrcと一致しているか"
 before=$(node tools/hash-files.js deploy-paste)
 if bash tools/build-paste-bundle.sh >/dev/null 2>&1; then
   after=$(node tools/hash-files.js deploy-paste)
@@ -89,7 +92,7 @@ else
   printf '  ✗ build-paste-bundle.sh が失敗\n'; fail=1
 fi
 
-step "14. マスタTSVがコードと一致しているか"
+step "15. マスタTSVがコードと一致しているか"
 before=$(node tools/hash-files.js master .tsv)
 # 生成が途中で落ちると、TSVを1つも書かずに終わる。そのときハッシュは変わらないので、
 # 終了コードを見ないと「最新」と誤判定する（2026-09-29 に実際に起きた）。

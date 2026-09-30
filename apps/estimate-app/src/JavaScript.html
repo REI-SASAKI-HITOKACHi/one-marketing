@@ -44,10 +44,81 @@
   function init() {
     bindStaticEvents();
 
+    resolveUiKey();
+  }
+
+  /** 鍵が決まったら初期表示を読む。鍵が無ければサーバーを呼ばずに案内を出す */
+  function onUiKeyResolved(key) {
+    currentUiKey = key || '';
+    if (!currentUiKey) { showKeyRequired(); return; }
+
     google.script.run
       .withSuccessHandler(onBootstrap)
       .withFailureHandler(function (err) { showFatal(message(err)); })
-      .apiBootstrap();
+      .apiBootstrap(uiKey());
+  }
+
+  /* ===================== 画面の鍵 ===================== */
+
+  /*
+   * 鍵は「専用リンク（…/exec#key=…）」で1回だけ受け取り、このスマホに記憶させる。
+   * # 以下はサーバーに送られない。受け取ったらすぐアドレス欄から消す
+   * （閲覧履歴やブックマークに鍵を残さないため）。
+   *
+   * GAS の画面は Google の別ドメインの枠の中で動くので、location.hash は直接読めない。
+   * google.script.url.getLocation() で受け取り、google.script.history.replace() で消す。
+   *
+   * iPhone の Safari は、この種の保存をしばらく使わないと消すことがある（ITP）。
+   * 消えたら「LINE に残っている専用リンクをもう一度タップ」で戻る。
+   */
+  var UI_KEY_STORAGE = 'estimateAppUiKey';
+  var UI_KEY_MARK = '[UI_KEY] ';
+  var currentUiKey = '';
+
+  function uiKey() {
+    return currentUiKey;
+  }
+
+  function resolveUiKey() {
+    var stored = readStoredUiKey();
+
+    if (!(google.script.url && google.script.url.getLocation)) { onUiKeyResolved(stored); return; }
+
+    google.script.url.getLocation(function (loc) {
+      var fromLink = parseUiKey(loc && loc.hash);
+      if (fromLink) {
+        storeUiKey(fromLink);
+        try { google.script.history.replace(null, {}, ''); } catch (e) { /* 消せなくても使える */ }
+        onUiKeyResolved(fromLink);
+        return;
+      }
+      onUiKeyResolved(stored);
+    });
+  }
+
+  function parseUiKey(hash) {
+    var m = String(hash || '').replace(/^#/, '').match(/(?:^|&)key=([A-Za-z0-9]+)/);
+    return m ? m[1] : '';
+  }
+
+  // 保存できない環境（プライベートブラウズ等）でも、開いている間は使えるようにする
+  function readStoredUiKey() {
+    try { return window.localStorage.getItem(UI_KEY_STORAGE) || ''; } catch (e) { return ''; }
+  }
+
+  function storeUiKey(key) {
+    try { window.localStorage.setItem(UI_KEY_STORAGE, key); } catch (e) { /* 保存できなくても続ける */ }
+  }
+
+  function forgetUiKey() {
+    currentUiKey = '';
+    try { window.localStorage.removeItem(UI_KEY_STORAGE); } catch (e) { /* 何もしない */ }
+  }
+
+  function showKeyRequired() {
+    showFatal('このスマホでは、まだ見積アプリを使えません。\n'
+      + 'LINEで届いた専用リンクを開いてください。\n'
+      + '（前は使えていたのに急に出た場合も、同じリンクをもう一度タップすれば戻ります）');
   }
 
   function onBootstrap(res) {
@@ -809,7 +880,7 @@
     google.script.run
       .withSuccessHandler(onSaved)
       .withFailureHandler(function (err) { finishCreate(); showResultError(message(err)); })
-      .apiSaveEstimate(buildPayload());
+      .apiSaveEstimate(uiKey(), buildPayload());
   }
 
   /** 保存を止めるのは、見積として成立しないものだけ。宛先未設定などは警告どまりにする。 */
@@ -859,7 +930,7 @@
         finishCreate();
         renderCreateResult(res, { ok: false, errors: ['帳票生成失敗：' + message(err)] });
       })
-      .apiBuildDocuments(res.estimateId, res.rowNumber);
+      .apiBuildDocuments(uiKey(), res.estimateId, res.rowNumber);
   }
 
   function onBuilt(saved, built) {
@@ -938,7 +1009,7 @@
           + '" target="_blank" rel="noopener">Gmail下書き一覧を開く</a>';
       })
       .withFailureHandler(function (err) { showToast(message(err)); })
-      .apiCreateRepresentativeDraft(state.lastEstimateId);
+      .apiCreateRepresentativeDraft(uiKey(), state.lastEstimateId);
   }
 
   /* ===================== 検索・複製 ===================== */
@@ -960,7 +1031,7 @@
         box.innerHTML = '';
         showToast(message(err));
       })
-      .apiSearchEstimates({
+      .apiSearchEstimates(uiKey(), {
         estimateId: val('searchEstimateId'),
         customerName: val('searchCustomerName'),
         projectName: val('searchProjectName'),
@@ -1013,7 +1084,7 @@
         showToast('複製用に読み込みました。保存時に新しい見積IDを発行します。');
       })
       .withFailureHandler(function (err) { showToast(message(err)); })
-      .apiLoadEstimateForClone(estimateId);
+      .apiLoadEstimateForClone(uiKey(), estimateId);
   }
 
   function applyClonePayload(res) {
@@ -1100,7 +1171,7 @@
       .withFailureHandler(function (err) {
         byId('previewBody').innerHTML = '<div class="alert danger">' + esc(message(err)) + '</div>';
       })
-      .apiGetEstimateDetail(estimateId);
+      .apiGetEstimateDetail(uiKey(), estimateId);
   }
 
   function closePreview() {
@@ -1220,7 +1291,7 @@
       .withFailureHandler(function (err) {
         byId('previewBody').innerHTML = '<div class="alert danger">' + esc(message(err)) + '</div>';
       })
-      .apiStartInvoice(estimateId);
+      .apiStartInvoice(uiKey(), estimateId);
   }
 
   function renderInvoiceForm() {
@@ -1343,7 +1414,7 @@
       .withFailureHandler(function (err) {
         box.innerHTML = '<div class="alert danger">' + esc(message(err)) + '</div>';
       })
-      .apiCalculateInvoice(payload);
+      .apiCalculateInvoice(uiKey(), payload);
   }
 
   function renderInvoiceSummary(res) {
@@ -1417,13 +1488,13 @@
             finishInvoiceSave();
             renderInvoiceResult(res, { errors: ['帳票生成失敗：' + message(err)] });
           })
-          .apiBuildInvoiceDocuments(res.invoiceId, res.rowNumber);
+          .apiBuildInvoiceDocuments(uiKey(), res.invoiceId, res.rowNumber);
       })
       .withFailureHandler(function (err) {
         finishInvoiceSave();
         byId('invoiceResult').innerHTML = '<div class="alert danger">' + esc(message(err)) + '</div>';
       })
-      .apiSaveInvoice(payload);
+      .apiSaveInvoice(uiKey(), payload);
   }
 
   function finishInvoiceSave() {
@@ -1481,7 +1552,7 @@
       .withFailureHandler(function (err) {
         byId('previewBody').innerHTML = '<div class="alert danger">' + esc(message(err)) + '</div>';
       })
-      .apiGetInvoiceDetail(invoiceId);
+      .apiGetInvoiceDetail(uiKey(), invoiceId);
   }
 
   function renderInvoiceDetail(res) {
@@ -1574,7 +1645,14 @@
 
   function message(err) {
     if (!err) return '不明なエラー';
-    return err.message || String(err);
+    var text = err.message || String(err);
+    // サーバーが「鍵が合わない」と返したとき。どの操作の途中でも、鍵の案内に切り替える
+    if (text.indexOf(UI_KEY_MARK) >= 0) {
+      forgetUiKey();
+      showKeyRequired();
+      return text.replace(UI_KEY_MARK, '');
+    }
+    return text;
   }
 
   function esc(s) {

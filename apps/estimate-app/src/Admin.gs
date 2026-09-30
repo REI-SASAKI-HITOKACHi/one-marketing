@@ -179,6 +179,89 @@ function adminClearApiToken() {
 
 /* ===================== バックアップ ===================== */
 
+/* ===================== 画面の鍵（人ごと） ===================== */
+
+/**
+ * 画面を使う人に鍵を発行する。**所有者がエディタから実行する。**
+ *
+ *   adminAddUiKey('和真')
+ *
+ * 実行ログに出る「専用リンク」を、**本人に個別トークで**送る
+ * （業務連絡のグループや掲示板には貼らない。リンクそのものが鍵）。
+ * 本人がそのリンクをスマホで1回開けば、以後は入力不要。
+ * 同じ名前でもう一度実行すると鍵を作り直す（前の鍵は使えなくなる）。
+ */
+function adminAddUiKey(name) {
+  requireOwner_();
+  const who = String(name || '').trim();
+  if (!who) throw new Error('名前を指定してください。例：adminAddUiKey(\'和真\')');
+  if (who.length > 20) throw new Error('名前は20文字以内にしてください。');
+
+  // UUID 2つぶん（約244ビット）。総当たりは現実的に不可能な長さ
+  const key = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '');
+
+  const props = PropertiesService.getScriptProperties();
+  const keys = readUiKeys_();
+  const reissued = Object.prototype.hasOwnProperty.call(keys, who);
+  keys[who] = key;
+  props.setProperty(APP.UI_KEYS_PROPERTY, JSON.stringify(keys));
+
+  let url = '';
+  try { url = String(ScriptApp.getService().getUrl() || ''); } catch (e) { url = ''; }
+
+  const lines = [
+    (reissued ? '「' + who + '」の鍵を作り直しました（前の鍵は使えなくなりました）。' : '「' + who + '」の鍵を発行しました。'),
+    ''
+  ];
+  if (/\/exec$/.test(url)) {
+    lines.push('専用リンク（本人に個別トークで送る。グループや掲示板には貼らない）：');
+    lines.push(url + '#key=' + key);
+    lines.push('');
+    lines.push('※ 本人がいつも使っているURLと同じか確かめてください。違う場合は、いつものURLの後ろに #key=' + key + ' を付けて送ります。');
+  } else {
+    lines.push('本人がいつも使っている見積アプリのURL（…/exec）の後ろに、次を付けたものを送ってください：');
+    lines.push('#key=' + key);
+  }
+  lines.push('');
+  lines.push('本人への案内文：');
+  lines.push('「このリンクをスマホで1回開いてください。以後はいつもどおり開くだけで使えます。');
+  lines.push('　使えなくなったら、このリンクをもう一度タップしてください。」');
+
+  const message = lines.join('\n');
+  console.log(message);
+  return message;
+}
+
+/** 鍵を止める。止めたい人の分だけ消える。全員分を消すと、画面は誰も使えなくなる（fail closed） */
+function adminRevokeUiKey(name) {
+  requireOwner_();
+  const who = String(name || '').trim();
+  const keys = readUiKeys_();
+  if (!Object.prototype.hasOwnProperty.call(keys, who)) {
+    const message = '「' + who + '」の鍵はありません。発行済み：' + (Object.keys(keys).join('、') || '（なし）');
+    console.log(message);
+    return message;
+  }
+  delete keys[who];
+  PropertiesService.getScriptProperties().setProperty(APP.UI_KEYS_PROPERTY, JSON.stringify(keys));
+  const rest = Object.keys(keys);
+  const message = '「' + who + '」の鍵を止めました。'
+    + (rest.length ? '残り：' + rest.join('、') : '鍵が1つも無くなったので、画面は誰も使えません。');
+  console.log(message);
+  return message;
+}
+
+/** 鍵を持っている人の名前だけを出す（鍵の値は出さない） */
+function adminListUiKeys() {
+  requireOwner_();
+  const names = Object.keys(readUiKeys_());
+  const message = names.length
+    ? '画面の鍵を持っている人（' + names.length + '人）：' + names.join('、')
+    : '画面の鍵は1つも発行されていません。いまは誰も画面を使えません。';
+  console.log(message);
+  return message;
+}
+
 function adminBackup() {
   requireOwner_();
   const stamp = Utilities.formatDate(new Date(), APP.TZ, 'yyyyMMdd_HHmm');

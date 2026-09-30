@@ -1,4 +1,16 @@
 /**
+ * ⚠⚠ この版から、画面を使うには「鍵」が要ります（2026-09-29）⚠⚠
+ *
+ * エディタに貼っただけでは本番（/exec）は切り替わりません。順番はこうです：
+ *   1. 貼る（この時点では本番はまだ前の版のまま）
+ *   2. エディタで adminAddUiKey('和真') などを実行して鍵を発行する
+ *   3. 「デプロイを管理」で4本すべてを新しいバージョンに差し替える
+ *   4. すぐに、出てきた専用リンクを本人へ個別トークで送る
+ * 鍵を発行せずに3をすると、**誰も画面を使えません**（外部APIは影響なし）。
+ * 手順：apps/estimate-app/docs/README.md「画面の鍵」
+ */
+
+/**
  * 見積作成Webアプリ ── サーバー側
  *
  * 設計方針（2026-09 改修）
@@ -26,6 +38,7 @@ const APP = {
   TZ: 'Asia/Tokyo',
   MAX_DETAIL_ROWS: 16,
   API_TOKEN_PROPERTY: 'API_TOKEN',
+  UI_KEYS_PROPERTY: 'UI_KEYS',
   MAX_ADJUSTMENT_SLOTS: 5,
 
   // マスタキャッシュの世代。マスタ構造を変えたらここを上げる。
@@ -182,38 +195,38 @@ function dispatchApiAction_(action, body) {
     /* --- 読み取り --- */
     case 'getInvoice':
       return requireId_(body.invoiceId, '請求番号', function (id) {
-        return apiGetInvoiceDetail(id);
+        return apiGetInvoiceDetail_(id);
       });
 
     case 'getEstimate':
       return requireId_(body.estimateId, '見積番号', function (id) {
-        return apiGetEstimateDetail(id);
+        return apiGetEstimateDetail_(id);
       });
 
     /* --- 書き込み --- */
     case 'saveEstimate':
       return requirePayloadWithRequestId_(body.payload, function (payload) {
-        return apiSaveEstimate(payload);
+        return apiSaveEstimate_(payload);
       });
 
     case 'buildEstimate':
       return requireId_(body.estimateId, '見積番号', function (id) {
-        return apiBuildDocuments(id, toNumber_(body.rowNumber));
+        return apiBuildDocuments_(id, toNumber_(body.rowNumber));
       });
 
     case 'startInvoice':
       return requireId_(body.estimateId, '見積番号', function (id) {
-        return apiStartInvoice(id);
+        return apiStartInvoice_(id);
       });
 
     case 'saveInvoice':
       return requirePayloadWithRequestId_(body.payload, function (payload) {
-        return apiSaveInvoice(payload);
+        return apiSaveInvoice_(payload);
       });
 
     case 'buildInvoice':
       return requireId_(body.invoiceId, '請求番号', function (id) {
-        return apiBuildInvoiceDocuments(id, toNumber_(body.rowNumber));
+        return apiBuildInvoiceDocuments_(id, toNumber_(body.rowNumber));
       });
 
     default:
@@ -270,10 +283,12 @@ function verifyApiToken_(given) {
   const expected = PropertiesService.getScriptProperties().getProperty(APP.API_TOKEN_PROPERTY);
   if (!expected) return false;
 
-  const a = String(given == null ? '' : given);
-  const b = String(expected);
-  if (a.length !== b.length) return false;
+  return constantTimeEquals_(String(given == null ? '' : given), String(expected));
+}
 
+/** 文字列の一致を、中身に関係なく同じ時間で判定する（合言葉・鍵の照合用） */
+function constantTimeEquals_(a, b) {
+  if (!b || a.length !== b.length) return false;
   let diff = 0;
   for (let i = 0; i < b.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
   return diff === 0;
@@ -283,6 +298,125 @@ function jsonResponse_(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/* ===================== 画面の入口（鍵が要る） ===================== */
+
+/**
+ * 画面（google.script.run）から呼ばれる関数は、ここに並べたものだけ。
+ * どれも先頭で requireUiKey_(key) を呼び、鍵が合わなければ何もせず止まる。
+ * 本体は名前の末尾に _ が付いた関数（画面からは呼べない）。
+ *
+ * なぜ要るか：見積アプリは「全員・ログイン不要」で公開しているので、
+ * 鍵が無いと、URLを知っている人は誰でも過去見積のお客様の氏名・住所・電話番号を読めた。
+ * 鍵は人ごとに発行する（adminAddUiKey）。締め出し（ロックアウト）は付けない。
+ * GAS では相手を区別できず、失敗回数を全員で1つに数えることになるので、
+ * 誰かがわざと間違え続けるだけで正規の利用者まで締め出されてしまうため。
+ * 鍵が十分に長いので、総当たりは現実的に不可能。
+ *
+ * doPost（外部API）は API_TOKEN で認証済みなので、本体（_ 付き）を直接呼ぶ。
+ * 本体を呼ぶときに入口のほうを呼ぶと、引数が1つずれて payload が鍵として扱われる。
+ * tools/ui-key-test.js で、入口と本体の対応と呼び分けを確かめている。
+ */
+function apiBootstrap(key) {
+  requireUiKey_(key);
+  return apiBootstrap_();
+}
+
+function apiSaveEstimate(key, payload) {
+  requireUiKey_(key);
+  return apiSaveEstimate_(payload);
+}
+
+function apiBuildDocuments(key, estimateId, rowNumber) {
+  requireUiKey_(key);
+  return apiBuildDocuments_(estimateId, rowNumber);
+}
+
+function apiCreateRepresentativeDraft(key, estimateId) {
+  requireUiKey_(key);
+  return apiCreateRepresentativeDraft_(estimateId);
+}
+
+function apiSearchEstimates(key, criteria) {
+  requireUiKey_(key);
+  return apiSearchEstimates_(criteria);
+}
+
+function apiGetEstimateDetail(key, estimateId) {
+  requireUiKey_(key);
+  return apiGetEstimateDetail_(estimateId);
+}
+
+function apiLoadEstimateForClone(key, estimateId) {
+  requireUiKey_(key);
+  return apiLoadEstimateForClone_(estimateId);
+}
+
+function apiStartInvoice(key, estimateId) {
+  requireUiKey_(key);
+  return apiStartInvoice_(estimateId);
+}
+
+function apiCalculateInvoice(key, payload) {
+  requireUiKey_(key);
+  return apiCalculateInvoice_(payload);
+}
+
+function apiSaveInvoice(key, payload) {
+  requireUiKey_(key);
+  return apiSaveInvoice_(payload);
+}
+
+function apiBuildInvoiceDocuments(key, invoiceId, rowNumber) {
+  requireUiKey_(key);
+  return apiBuildInvoiceDocuments_(invoiceId, rowNumber);
+}
+
+function apiGetInvoiceDetail(key, invoiceId) {
+  requireUiKey_(key);
+  return apiGetInvoiceDetail_(invoiceId);
+}
+
+/**
+ * 画面の鍵を確かめる。合えば鍵の持ち主の名前を返し、合わなければ例外を投げる。
+ *
+ * 真偽値を返す作りにしないこと。呼び出し側が戻り値を見忘れると素通りになる。
+ * 鍵が1つも発行されていなければ全部止める（fail closed）。
+ */
+function requireUiKey_(key) {
+  const given = String(key == null ? '' : key);
+  const keys = readUiKeys_();
+  const names = Object.keys(keys);
+
+  let matched = '';
+  // 全員ぶんを最後まで比べる。見つかった時点で抜けると、応答時間から誰の鍵かが漏れる
+  names.forEach(function (name) {
+    if (constantTimeEquals_(given, String(keys[name] || '')) && given) matched = matched || name;
+  });
+
+  if (!matched) {
+    queueLog_('画面の鍵', '', '鍵が一致しませんでした', names.length ? '' : '鍵が1件も発行されていません', 0);
+    flushLogs_();
+    throw new Error(UI_KEY_ERROR_MARK + 'このスマホでは、まだ見積アプリを使えません。LINEで届いた専用リンクをもう一度開いてください。');
+  }
+
+  RUNTIME.uiKeyOwner = matched;
+  return matched;
+}
+
+/** 画面に「鍵が要る」ことを伝える目印。画面側はこの文字列で見分ける */
+const UI_KEY_ERROR_MARK = '[UI_KEY] ';
+
+function readUiKeys_() {
+  const raw = PropertiesService.getScriptProperties().getProperty(APP.UI_KEYS_PROPERTY);
+  if (!raw) return {};
+  try {
+    const obj = JSON.parse(raw);
+    return obj && typeof obj === 'object' && !Array.isArray(obj) ? obj : {};
+  } catch (e) {
+    return {};
+  }
 }
 
 /* ===================== 計算エンジンの共有 ===================== */
@@ -350,7 +484,7 @@ function buildClientCalcContext_(ctx) {
  * 画面初期表示。マスタ一式をキャッシュから返す。
  * 旧 apiInit() と違い、セットアップ／マイグレーションは一切走らせない。
  */
-function apiBootstrap() {
+function apiBootstrap_() {
   return withApi_('初期表示', '', function () {
     const ctx = loadContext_();
 
@@ -376,22 +510,11 @@ function apiBootstrap() {
   });
 }
 
-// 旧クライアントがキャッシュされていても動くように名前を残す。
-function apiInit() {
-  return apiBootstrap();
-}
-
-function apiCalculateEstimate(payload) {
-  return withApi_('見積計算', '', function () {
-    return { ok: true, calc: calculateEstimate_(payload, loadContext_()) };
-  });
-}
-
 /**
  * フェーズ1：見積データの保存だけを行う。
  * PDFとメールは apiBuildDocuments() に分けて、現場を待たせない。
  */
-function apiSaveEstimate(payload) {
+function apiSaveEstimate_(payload) {
   return withApi_('見積作成', '', function () {
     const ctx = loadContext_();
     const sheet = getEstimateDataSheet_(ctx);
@@ -524,7 +647,7 @@ function findRowByRequestId_(sheet, requestId, idHeader) {
  * フェーズ2：PDF生成 → Driveへ保存 → Gmail下書き作成 → 見積データへ書き戻し。
  * PDFが失敗しても見積データは残す。メールが失敗してもPDFと本文は返す。
  */
-function apiBuildDocuments(estimateId, rowNumber) {
+function apiBuildDocuments_(estimateId, rowNumber) {
   return withApi_('帳票生成', estimateId, function () {
     const ctx = loadContext_();
     const sheet = getEstimateDataSheet_(ctx);
@@ -597,29 +720,7 @@ function apiBuildDocuments(estimateId, rowNumber) {
   });
 }
 
-/** 旧インターフェース互換。保存と帳票生成を続けて実行する。 */
-function apiCreateEstimate(payload) {
-  const saved = apiSaveEstimate(payload);
-  if (!saved.ok) return saved;
-
-  const built = apiBuildDocuments(saved.estimateId, saved.rowNumber);
-
-  return {
-    ok: true,
-    estimateId: saved.estimateId,
-    rowNumber: saved.rowNumber,
-    calc: saved.calc,
-    pdfUrl: built.pdfUrl || '',
-    pdfFileId: built.pdfFileId || '',
-    draftUrl: built.draftUrl || '',
-    draftId: built.draftId || '',
-    errors: built.ok ? built.errors : [built.error],
-    mailPreview: built.mailPreview || null,
-    representativeDraftAvailable: saved.reviewFlag === true
-  };
-}
-
-function apiCreateRepresentativeDraft(estimateId) {
+function apiCreateRepresentativeDraft_(estimateId) {
   return withApi_('代表者確認メール下書き作成', estimateId, function () {
     const ctx = loadContext_();
     const representativeEmail = String(ctx.settings['代表者メール'] || '').trim();
@@ -662,7 +763,7 @@ function apiCreateRepresentativeDraft(estimateId) {
   });
 }
 
-function apiSearchEstimates(criteria) {
+function apiSearchEstimates_(criteria) {
   return withApi_('過去見積検索', '', function () {
     const ctx = loadContext_();
     const sheet = getEstimateDataSheet_(ctx);
@@ -711,7 +812,7 @@ function apiSearchEstimates(criteria) {
  * 見積プレビュー。PDFを開かずにアプリ内で中身を確認するためのもの。
  * 金額は保存レコードから計算し直すので、PDFと同じ数字になる。
  */
-function apiGetEstimateDetail(estimateId) {
+function apiGetEstimateDetail_(estimateId) {
   return withApi_('見積プレビュー', estimateId, function () {
     const ctx = loadContext_();
     const sheet = getEstimateDataSheet_(ctx);
@@ -760,7 +861,7 @@ function apiGetEstimateDetail(estimateId) {
   });
 }
 
-function apiLoadEstimateForClone(estimateId) {
+function apiLoadEstimateForClone_(estimateId) {
   return withApi_('複製編集', estimateId, function () {
     const ctx = loadContext_();
     const sheet = getEstimateDataSheet_(ctx);
@@ -2055,7 +2156,7 @@ function getDefaultCellDefMap_(docType) {
 function queueLog_(operationType, estimateId, content, errorContent, elapsedMs) {
   RUNTIME.logs.push([
     new Date(),
-    getCurrentUser_(),
+    getLogUser_(),
     operationType || '',
     estimateId || '',
     truncate_(content || '', 3000),
@@ -2339,6 +2440,27 @@ function getFallbackRepresentativeTemplate_() {
 }
 
 /* ===================== 汎用 ===================== */
+
+/**
+ * 操作ログの「ユーザー」欄。**誰が操作したのかを、分かる範囲で正直に書く。**
+ *
+ * 以前は getCurrentUser_() をそのまま使っていたが、あれは実行している人が取れないとき
+ * デプロイした人のメールで埋める。見積アプリは「全員・ログイン不要」で公開していて、
+ * 画面経由だと実行している人はほぼ必ず取れないので、**誰が開いても所有者の名前で
+ * 記録されていた。**ログから「所有者しか使っていない」とは言えない状態だった。
+ *
+ * - 画面の鍵で入った → 「鍵:和真」のように鍵の持ち主
+ * - 実行している人が取れる（エディタからの実行など）→ そのメール
+ * - どちらでもない → 「（画面経由・利用者不明）」。所有者の名前では埋めない
+ */
+function getLogUser_() {
+  if (RUNTIME.uiKeyOwner) return '鍵:' + RUNTIME.uiKeyOwner;
+  try {
+    const active = Session.getActiveUser().getEmail();
+    if (active) return active;
+  } catch (e) { /* 取れなければ下へ */ }
+  return '（画面経由・利用者不明）';
+}
 
 function getCurrentUser_() {
   try {

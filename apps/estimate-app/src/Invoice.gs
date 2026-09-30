@@ -19,7 +19,7 @@
  * 請求書作成の入口。見積を読み、請求フォームの初期値を組み立てて返す。
  * 既に請求済みなら existingInvoiceId を立てて、画面側で「確認」に切り替えさせる。
  */
-function apiStartInvoice(estimateId) {
+function apiStartInvoice_(estimateId) {
   return withApi_('請求書作成準備', estimateId, function () {
     const ctx = loadContext_();
     const estimateSheet = getEstimateDataSheet_(ctx);
@@ -77,7 +77,7 @@ function apiStartInvoice(estimateId) {
 }
 
 /** 請求フォームの内容で金額だけ計算して返す（保存はしない）。 */
-function apiCalculateInvoice(payload) {
+function apiCalculateInvoice_(payload) {
   return withApi_('請求額計算', (payload || {}).estimateId || '', function () {
     const ctx = loadContext_();
     const prepared = prepareInvoiceCalc_(payload, ctx);
@@ -95,7 +95,7 @@ function apiCalculateInvoice(payload) {
  * 請求データを保存する。フェーズ1（見積と同じ2フェーズ構成）。
  * 見積側は invoice_id と project_status だけ更新する。
  */
-function apiSaveInvoice(payload) {
+function apiSaveInvoice_(payload) {
   return withApi_('請求書作成', (payload || {}).estimateId || '', function () {
     const p = payload || {};
     const ctx = loadContext_();
@@ -171,7 +171,7 @@ function apiSaveInvoice(payload) {
 }
 
 /** フェーズ2：請求書PDFとGmail下書きを作る。 */
-function apiBuildInvoiceDocuments(invoiceId, rowNumber) {
+function apiBuildInvoiceDocuments_(invoiceId, rowNumber) {
   return withApi_('請求書帳票生成', invoiceId, function () {
     const ctx = loadContext_();
     const sheet = getInvoiceDataSheet_(ctx);
@@ -243,7 +243,7 @@ function apiBuildInvoiceDocuments(invoiceId, rowNumber) {
 }
 
 /** 作成済み請求書の確認用。 */
-function apiGetInvoiceDetail(invoiceId) {
+function apiGetInvoiceDetail_(invoiceId) {
   return withApi_('請求書確認', invoiceId, function () {
     const ctx = loadContext_();
     const sheet = getInvoiceDataSheet_(ctx);

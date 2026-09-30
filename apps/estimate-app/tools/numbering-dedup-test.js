@@ -252,7 +252,7 @@ function check(name, actual, expected) {
 }
 
 function saveEstimate(requestId, extra) {
-  return sandbox.apiSaveEstimate(Object.assign({
+  return sandbox.apiSaveEstimate_(Object.assign({
     requestId: requestId,
     案件タイプ: '自社案件',
     顧客名: 'テスト顧客',
@@ -265,7 +265,7 @@ function saveEstimate(requestId, extra) {
 }
 
 function saveInvoice(requestId, estimateId, extra) {
-  return sandbox.apiSaveInvoice(Object.assign({
+  return sandbox.apiSaveInvoice_(Object.assign({
     requestId: requestId,
     estimateId: estimateId,
     mainLines: [{ menuId: 'M001', qty: 1 }],
