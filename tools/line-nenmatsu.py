@@ -17,6 +17,11 @@ LINE のユーザーIDと台帳をつなぐ列は無い。手がかりは**表�
 2. その氏名の顧客が**台帳に1人だけ**（同姓同名がいれば外す）
 3. `meigi_hyou()`（台帳の最新の施工の名義・同日ルールつき）で、その氏名が**自社**
 4. **今日より先の施工行（予約）が無い**こと。もう予約がある方に「12月は加算」を送ると戸惑わせる
+5. **直近30日に当社から連絡した人を外す**（オーナー 10/1「最近連絡とってる人に重複して送らないように」）。
+   見るもの：冬季SMS（送信済み・返信あり）／お詫びSMSの一覧／`LINE_ログ` のその人のユーザーIDのやり取り
+   ／`LINE_ログ` の業務連絡に氏名（フルネーム、または「姓＋様・さま」）が出た／`予約_Web` の申込／30日以内の施工
+6. **和真さんが「送らない」と答えた人を外す**：`private/nenmatsu-nozoku.txt`（git の外）に氏名を1行ずつ。
+   氏名は台帳の顧客名と空白を除いて比べる
 
 **本文は全員同じで、名前も前回の施工も入れない。** 表示名の一致は取り違えうるので、
 取り違えても害が無い文面にしてある（`data/line-nenmatsu.txt`）。
@@ -75,6 +80,35 @@ def nn(n):
     return re.sub(r"[\s　]", "", str(n or ""))
 
 
+NOZOKU = os.path.join(ROOT, "private", "nenmatsu-nozoku.txt")
+
+
+def saikin_kiroku(dsk, tok):
+    """直近30日の連絡の記録を読む。読めなければ例外（照合できない＝送らない）。"""
+    import datetime
+    kyou = datetime.date.today()
+    since = kyou - datetime.timedelta(days=30)
+
+    def tab(name, rng):
+        return dsk.sc.call(tok, f"/{SS}/values/{urllib.parse.quote(name + '!' + rng, safe='')}").get("values", [])
+
+    def hi(x):
+        m = re.match(r"(\d{4})/(\d{1,2})/(\d{1,2})", str(x))
+        return datetime.date(*map(int, m.groups())) if m else None
+    fuyu = tab("冬季見込み客_2026", "A5:AA1200")
+    fh = [str(c).strip() for c in fuyu[0]]
+    fuyu_n = {nn(r[fh.index("顧客名")]) for r in fuyu[1:]
+              if len(r) > fh.index("送信済み") and r[fh.index("送信済み")] in ("送信済み", "返信あり")}
+    ow = tab("お詫びSMS_20260912", "A1:Z300")
+    ow_n = {nn(c) for r in ow for c in r[:3]}
+    lg = [r for r in tab("LINE_ログ", "A2:H5000") if r and hi(r[0]) and hi(r[0]) >= since]
+    lg_uid = {r[3] for r in lg if len(r) > 3}
+    lg_txt = re.sub(r"[\s　]", "", " ".join(str(r[5]) for r in lg if len(r) > 5))
+    yw_n = {nn(r[2]) for r in tab("予約_Web", "A2:D500") if len(r) > 2}
+    sekou_n = {j[2] for j in dsk.jobs_yomu() if since <= j[0] <= kyou}
+    return fuyu_n, ow_n, lg_uid, lg_txt, yw_n, sekou_n
+
+
 def atesaki():
     """(送ってよい userId の並び, 内訳の数) を返す。IDは返り値の中だけ。"""
     dsk = MC._load()
@@ -89,6 +123,14 @@ def atesaki():
     for r in v:
         if r and nn(r[0]):
             namae[nn(r[0])] = namae.get(nn(r[0]), 0) + 1
+    fuyu_n, ow_n, lg_uid, lg_txt, yw_n, sekou_n = saikin_kiroku(dsk, tok)
+    nozoku = set()
+    if os.path.exists(NOZOKU):
+        nozoku = {nn(l) for l in open(NOZOKU, encoding="utf-8") if nn(l) and not l.startswith("#")}
+    sei_of = {}
+    for r in v:
+        if r and nn(r[0]):
+            sei_of[nn(r[0])] = re.split(r"[\s　]", str(r[0]).strip())[0]
     ids, start = [], None
     while True:
         st, b = LC.call("GET", "/followers/ids?limit=1000" + (f"&start={start}" if start else ""))
@@ -100,6 +142,7 @@ def atesaki():
             break
     kazu = {"友だち": len(ids), "表示名が台帳の氏名と一致": 0, "同姓同名で外した": 0,
             "名義が本舗": 0, "名義が分からない": 0, "もう予約が入っている": 0,
+            "最近連絡した（30日）": 0, "和真さんが送らないと答えた": 0,
             "プロフィールが取れない": 0, "送ってよい（自社）": 0}
     ok = []
     for uid in ids:
@@ -121,6 +164,11 @@ def atesaki():
             kazu["名義が本舗"] += 1
         elif n in yoyaku_ari:
             kazu["もう予約が入っている"] += 1   # 12月の予約の方に「12月は加算」を送ると戸惑わせる
+        elif n in nozoku:
+            kazu["和真さんが送らないと答えた"] += 1
+        elif (n in fuyu_n or n in ow_n or uid in lg_uid or n in lg_txt or n in yw_n or n in sekou_n
+              or (len(sei_of.get(n, "")) >= 2 and re.search(re.escape(sei_of[n]) + r"(様|さま)", lg_txt))):
+            kazu["最近連絡した（30日）"] += 1
         else:
             ok.append(uid)
             kazu["送ってよい（自社）"] += 1
