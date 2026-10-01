@@ -328,5 +328,25 @@
       "1117189364430747",
       "1117189417764075"
     ]
+  },
+  {
+    "id": "w03-4",
+    "platform": "instagram",
+    "posted_at": "2026-10-01T09:13:29+09:00",
+    "permalink": "https://www.instagram.com/p/Dd7mGYcDQSC/",
+    "post_id": "18113747615594123",
+    "media_ids": [
+      "18113747615594123"
+    ]
+  },
+  {
+    "id": "w03-4",
+    "platform": "facebook",
+    "posted_at": "2026-10-01T09:13:37+09:00",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1118203294329354",
+    "post_id": "103698149101436_1118203294329354",
+    "media_ids": [
+      "1118203270996023"
+    ]
   }
 ]
