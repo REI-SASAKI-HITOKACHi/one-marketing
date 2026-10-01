@@ -91,6 +91,64 @@ function ensureMenuTrigger_(ss) {
   }
 }
 
+/**
+ * 利用者シートの全員を、代理店マスタの全共有フォルダに編集者として招待する。
+ *
+ * ウェブアプリは「アクセスしたユーザーとして実行」なので、帳票を保存するには
+ * その人自身がフォルダの編集権限を持っている必要がある。代理店が 20 社を超えると
+ * 担当者を 1 人足すたびに手で共有して回ることになるので、ここでまとめてやる。
+ *
+ * 既に編集者か所有者の組み合わせは飛ばす。実行者が共有できないフォルダは
+ * 失敗として一覧に出し、他のフォルダは続ける。
+ */
+function inviteUsersToFolders() {
+  clearMasterCache_();
+  var emails = getAllowedEmails_();
+  var agencies = getAgencies_().filter(function (a) { return a.folderId; });
+
+  var added = [];
+  var skipped = 0;
+  var failed = [];
+
+  agencies.forEach(function (a) {
+    var folder;
+    try {
+      folder = DriveApp.getFolderById(a.folderId);
+    } catch (e) {
+      failed.push(a.name + '：フォルダを開けません（' + e.message + '）');
+      return;
+    }
+    var have = {};
+    try { have[String(folder.getOwner().getEmail()).toLowerCase()] = true; } catch (e) { /* 所有者が取れなくても続ける */ }
+    folder.getEditors().forEach(function (u) { have[String(u.getEmail()).toLowerCase()] = true; });
+
+    emails.forEach(function (email) {
+      if (have[email]) { skipped++; return; }
+      try {
+        folder.addEditor(email);
+        added.push(a.name + ' ← ' + email);
+      } catch (e) {
+        failed.push(a.name + ' ← ' + email + '：' + e.message);
+      }
+    });
+  });
+
+  var lines = [
+    '共有フォルダ ' + agencies.length + ' 件 × 利用者 ' + emails.length + ' 人を確認しました。',
+    '',
+    '追加した: ' + added.length + ' 件' + (added.length ? '\n　' + added.join('\n　') : ''),
+    '既に共有済み: ' + skipped + ' 件'
+  ];
+  if (failed.length) {
+    lines.push('', '追加できなかった: ' + failed.length + ' 件\n　' + failed.join('\n　'),
+      '', '追加できなかったフォルダは、所有者のアカウントで Drive から直接共有してください。');
+  }
+  var text = lines.join('\n');
+  Logger.log(text);
+  try { SpreadsheetApp.getUi().alert(text); } catch (e) { /* エディタから実行したときはログだけ */ }
+  return text;
+}
+
 function getOrCreateSheet_(ss, name) {
   return ss.getSheetByName(name) || ss.insertSheet(name);
 }

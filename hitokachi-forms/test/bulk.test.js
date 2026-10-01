@@ -348,6 +348,59 @@ console.log('\n--- 検証実施者は作成者から入る ---');
       .some(e => e.indexOf('作成者') >= 0), true);
 }
 
+console.log('\n--- 利用者を共有フォルダに招待する ---');
+{
+  const ctx = makeContext({
+    '利用者': [
+      ['メールアドレス', '氏名', '有効', '備考'],
+      ['case.foot.kid@gmail.com', 'オーナー', true, ''],
+      ['w.maps.061025@gmail.com', '髙橋', true, ''],
+      ['s-takahashi@hitokachi.com', '髙橋', true, ''],
+      ['yameta@example.com', '退職', false, '']
+    ]
+  });
+  const calls = [];
+  const user = e => ({ getEmail: () => e });
+  const folders = {
+    FOLDER_A: { owner: 'case.foot.kid@gmail.com', editors: ['w.maps.061025@gmail.com'] },
+    FOLDER_B: { owner: 'w.maps.061025@gmail.com', editors: [] },
+    FOLDER_C: { owner: 'case.foot.kid@gmail.com', editors: [], broken: true },
+    FOLDER_D: { owner: 'case.foot.kid@gmail.com', editors: [] }
+  };
+  ctx.DriveApp = {
+    getFolderById(id) {
+      const f = folders[id];
+      if (!f) throw new Error('見つからない');
+      return {
+        getOwner: () => user(f.owner),
+        getEditors: () => f.editors.map(user),
+        addEditor(e) {
+          if (f.broken) throw new Error('共有できません');
+          calls.push(id + ' ← ' + e); f.editors.push(e);
+        }
+      };
+    }
+  };
+  ctx.Logger = { log() {} };
+  ctx.SpreadsheetApp.getUi = () => ({ alert() {} });
+  // Setup.gs は makeContext に含めていないので、ここで読む。
+  ctx.ScriptApp = { getProjectTriggers: () => [] };
+  vm.runInContext(fs.readFileSync(path.join(SRC, 'Setup.gs'), 'utf8'), ctx, { filename: 'Setup.gs' });
+
+  const text = ctx.inviteUsersToFolders();
+  t('足りない人だけ追加する', calls.sort(), [
+    'FOLDER_A ← s-takahashi@hitokachi.com',
+    'FOLDER_B ← case.foot.kid@gmail.com',
+    'FOLDER_B ← s-takahashi@hitokachi.com',
+    'FOLDER_D ← s-takahashi@hitokachi.com',
+    'FOLDER_D ← w.maps.061025@gmail.com'
+  ].sort());
+  t('所有者と既存の編集者は飛ばす', calls.indexOf('FOLDER_A ← case.foot.kid@gmail.com'), -1);
+  t('無効な利用者は招待しない', calls.some(c => c.indexOf('yameta') >= 0), false);
+  t('共有できないフォルダは失敗として続ける', text.indexOf('追加できなかった: 2 件') >= 0, true);
+  t('結果に件数が出る', text.indexOf('追加した: 5 件') >= 0, true);
+}
+
 console.log('\n--- 意向の確認日は3つ ---');
 {
   const ctx = makeContext();

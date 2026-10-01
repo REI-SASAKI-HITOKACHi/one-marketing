@@ -53,6 +53,7 @@ function onOpenMenu() {
     .createMenu('帳票作成')
     .addItem('一括入力シートを準備する', 'prepareBulkSheet')
     .addItem('募集人の選択肢を作り直す', 'refreshAgentChoices')
+    .addItem('利用者を共有フォルダに招待する', 'inviteUsersToFolders')
     .addSeparator()
     .addItem('① 保存先を下見する', 'dryRunBulk')
     .addItem('② 未作成の行をすべて作成する', 'runBulkAll')
