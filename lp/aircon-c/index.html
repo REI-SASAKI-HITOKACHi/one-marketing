@@ -112,6 +112,17 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--rule-2);
   --btn-shadow:var(--rule-2);}
 .btn.ghost:hover{background:var(--paper-2);}
+/* 予約カレンダーへの直行（10/1 CMO）。広告のLPで「料金を出した12人→予約に進む7人→入力を始めた1人」。
+   電話番号を渡す前に空いている日を見たい人へ、フォームと並べて2択にする */
+.btn small.sub{display:block;font-size:12px;font-weight:500;letter-spacing:0;opacity:.88;}
+.btn.lg.stack{flex-direction:column;gap:2px;}
+.go2{display:grid;gap:10px;}
+.cal-first{margin:0 0 22px;padding:16px 18px;background:var(--surface);border:1px solid var(--rule);border-radius:12px;display:grid;gap:12px;}
+.cal-first p{margin:0;font-size:14px;line-height:1.8;color:var(--text-2);}
+.cal-first p b{display:block;font-size:15px;color:var(--ink);}
+.cal-first p.alt{font-size:13px;text-align:center;}
+section.alt .cal-first{background:var(--paper);}
+.cal-first p.alt a{color:var(--ink);font-weight:700;white-space:nowrap;}
 .btn.lg{
   /* 主CTAだけピル。8/28調査 B-14：おそうじ本舗 9999px・カジタク 200px */
   width:100%;min-height:64px;font-size:17px;padding:18px 22px;border-radius:9999px;
@@ -684,7 +695,10 @@ legend{font-size:12px;font-weight:700;color:var(--steel);letter-spacing:.06em;pa
           <div id="breakdown">ノーマル 10,780円 × 1台</div>
           <p class="paid-note">※駐車スペースがない場合は、コインパーキング代を実費でいただきます。金額は事前にお伝えします。</p>
         </div>
-        <a class="btn lg" href="#form">この内容で予約に進む</a>
+        <div class="go2">
+          <a class="btn lg stack" href="https://yoyaku.onehitter.jp/" data-yoyaku data-place="estimate">空いている日を見て予約する<small class="sub">カレンダーで日にちを選べます</small></a>
+          <a class="btn lg ghost stack" href="#form">この内容で予約に進む<small class="sub">お名前とお電話番号を送り、日程はご連絡で</small></a>
+        </div>
         <!-- 特典はFVから移した（§5-2）。金額を見たあとのほうが効く -->
         <p class="perk" id="hero-perk">LINEご登録の方には、<b>防カビコート（通常 3,630円）を無料</b>でお付けしています。カビの再発を抑えるコーティングです。</p>
       </div>
@@ -824,6 +838,11 @@ legend{font-size:12px;font-weight:700;color:var(--steel);letter-spacing:.06em;pa
       <h2>WEB予約・お見積り</h2>
     </div>
     <p class="form-lead">入力は5項目、1分ほどです。<b>予約の時点では費用は発生しません。</b>ご返信は当日中、遅くとも翌営業日にいたします。</p>
+    <div class="cal-first">
+      <p><b>先に、空いている日を見たい方へ</b>お名前やお電話番号を入れる前に、予約カレンダーで空き状況を確認して、そのまま予約できます。</p>
+      <a class="btn lg" href="https://yoyaku.onehitter.jp/" data-yoyaku data-place="form">空いている日を見て予約する</a>
+      <p class="alt">お電話 <a href="tel:08080438259"><span class="num">080-8043-8259</span></a>（8:00〜20:00）／<a href="https://lin.ee/7kD9WGN">LINEで相談</a></p>
+    </div>
     <form class="form" onsubmit="return false;">
       <input type="hidden" name="src" id="h-src" value="direct">
       <input type="hidden" name="cid" id="h-cid" value="">
@@ -1123,4 +1142,23 @@ legend{font-size:12px;font-weight:700;color:var(--steel);letter-spacing:.06em;pa
     var ec = document.getElementById('h-cid'); if (ec) ec.value = cid;
     var ea = document.getElementById('h-ag');  if (ea) ea.value = ag;
   })();
+</script>
+<script>
+  /* 予約カレンダーへの直行ボタン（a[data-yoyaku]）のクリックを計測する。
+     tracking/events.js の cta_click はページ内リンク（#form 等）しか拾わないので、
+     別ホストへ出るこのボタンはここで送る。パラメータは events.js の send() と同じ形にそろえる
+     （link_position は data-place、link_target は yoyaku）。
+     流入元（src/cid/ag/gclid）の引き継ぎは、上の「別ホストへの導線」の処理が押した瞬間にURLへ載せる。 */
+  document.addEventListener('click', function (ev) {
+    var a = ev.target && ev.target.closest ? ev.target.closest('a[data-yoyaku]') : null;
+    if (!a) return;
+    var M = window.OH_M || {}, P = M.page || {}, q;
+    try { q = new URLSearchParams(location.search); } catch (e) { q = null; }
+    var p = { link_position: a.getAttribute('data-place') || 'other', link_target: 'yoyaku',
+              lp_id: P.lp_id, lp_variant: P.lp_variant, page_kind: P.kind,
+              traffic_src: (q && q.get('src')) || 'direct', transport_type: 'beacon' };
+    var cid = q && q.get('cid'); if (cid) p.traffic_cid = cid;
+    if (typeof window.gtag === 'function') window.gtag('event', 'cta_click', p);
+    if (typeof window.fbq === 'function') window.fbq('trackCustom', 'cta_click', p);
+  }, true);
 </script>
