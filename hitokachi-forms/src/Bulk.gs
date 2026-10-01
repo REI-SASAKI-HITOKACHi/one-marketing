@@ -180,8 +180,13 @@ function refreshAgentValidation_(sh, from, count) {
     cell.setDataValidation(SpreadsheetApp.newDataValidation()
       .requireValueInList(list, true).setAllowInvalid(false).build());
     // 代理店を選び直したときに、前の代理店の人が残ると帳票に他社の名前が出る。
+    // ただし空白の違い（「矢野 克臣」と「矢野　克臣」）だけならその人のことなので、
+    // 消さずにマスタの表記に直す。消すと取り込んだ行から募集人が黙って消える。
     var v = String(current[i][0] || '').trim();
-    if (v !== '' && list.indexOf(v) < 0) cell.clearContent();
+    if (v !== '' && list.indexOf(v) < 0) {
+      var canon = canonicalAgentName_(agency, v);
+      if (canon) cell.setValue(canon); else cell.clearContent();
+    }
   }
 }
 
@@ -422,6 +427,12 @@ function dryRunBulk() {
   var rows = readBulkRows_(sh);
   if (!rows.length) return toast_('一括入力シートに行がありません。');
 
+  // 全行が作成済なら、何もせずそう言う。「作成できる 0 件」だけでは
+  // 失敗したように見えて、何度も実行し直すことになる。
+  if (rows.every(function (r) { return r.status === STATUS_DONE; })) {
+    return toast_(ALL_DONE_MESSAGE);
+  }
+
   var conf = getFieldConfig_();
   var counts = { ready: 0, existing: 0, check: 0, error: 0, done: 0 };
 
@@ -462,6 +473,11 @@ function dryRunBulk() {
           + '同姓同名の別人でないか確かめてから作成してください。'
         : ''));
 }
+
+/** 下見・作成で、対象の行がすべて作成済だったときの案内。 */
+var ALL_DONE_MESSAGE = '一括入力シートの行はすべて「作成済」です。作るものはありません。'
+  + '同じ行を作り直すときは、その行の「状態」列を空にしてから、もう一度実行してください'
+  + '（既存の顧客フォルダに同じ帳票がもう1組できます）。';
 
 function judgeSummary_(j, advice) {
   var base = j.suitable ? '適合' : '不適合（' + j.message + '）';
@@ -557,9 +573,16 @@ function processBulk_(onlyRows) {
   try {
     var started = Date.now();
     var sh = bulkSheetOrThrow_();
-    var conf = getFieldConfig_();
     var rows = readBulkRows_(sh);
     var made = 0, failed = 0, skipped = 0, remaining = 0;
+
+    if (!rows.length) return toast_('一括入力シートに行がありません。');
+    if (countPending_(rows, 0, onlyRows) === 0) {
+      return toast_(onlyRows
+        ? '選択した行はすべて「作成済」です。作るものはありません。'
+        : ALL_DONE_MESSAGE);
+    }
+    var conf = getFieldConfig_();
 
     for (var i = 0; i < rows.length; i++) {
       var r = rows[i];

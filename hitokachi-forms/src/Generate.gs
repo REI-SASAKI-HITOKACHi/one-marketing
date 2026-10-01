@@ -212,9 +212,40 @@ function applyFieldConfig_(data, fieldConfig) {
     out.verifyResult = coerceFixed_(fieldByKey_('verifyResult'), fieldConfig.verifyResult.fixedValue);
   }
 
+  // 作成者・取扱代理店・募集人は、空白の違いだけならマスタの表記に寄せる。
+  // 検証や帳票の印字より前にやること。
+  canonicalizeNames_(out);
+
   // 保険種類から「ご意向」を補うのは、hidden の項目を空にしたあと。
   // 推定のご意向は入力欄を出していないので、ここで入れないと空欄のまま印字される。
   return applyAutoIntent_(out, autoEstimatedIntent_());
+}
+
+/**
+ * 作成者・取扱代理店・募集人の表記を、マスタの表記に寄せる（その場で書き換える）。
+ *
+ * マスタの氏名は「熊澤　善弘」のように全角空白入り。成約一覧からの貼り付けや
+ * 手入力では「熊澤 善弘」になり、そのままだと validate_ が「登録されていません」と
+ * 弾き、generateAndSave_ は「募集人マスタにありません」で落ちる。空白の違いだけなら
+ * 同じ人とみなし、帳票にはマスタの表記で印字する。
+ *
+ * マスタに無い名前はそのまま残す（validate_ が理由を付けて弾く）。
+ * マスタが読めない場面（テストなど）では何もしない。
+ */
+function canonicalizeNames_(data) {
+  try {
+    var ag = data.agency ? getAgencyByName_(data.agency) : null;
+    if (ag) data.agency = ag.name;
+
+    var au = data.author ? getAgentByName_(data.author) : null;
+    if (au) data.author = au.name;
+
+    if (data.agency && data.agent) {
+      var canon = canonicalAgentName_(data.agency, data.agent);
+      if (canon) data.agent = canon;
+    }
+  } catch (e) { /* マスタが読めないときは触らない */ }
+  return data;
 }
 
 /** 推定のご意向を自動で入れるか。設定が読めない場面（テストなど）では入れる。 */

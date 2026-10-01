@@ -697,5 +697,121 @@ console.log('\n--- 状態と行の色 ---');
   t('実行時間の余裕は6分未満', ctx.BULK_BUDGET_MS < 6 * 60 * 1000, true);
 }
 
+
+console.log('\n--- 氏名・代理店名の空白の違いはマスタの表記に寄せる ---');
+{
+  const ctx = makeContext();
+  t('全角空白の作成者でも募集人マスタを引ける',
+    ctx.getAgentByName_('佐々木　嶺') && ctx.getAgentByName_('佐々木　嶺').name, '佐々木 嶺');
+  t('空白なしでも引ける', ctx.getAgentByName_('髙橋知史') && ctx.getAgentByName_('髙橋知史').name, '髙橋 知史');
+  t('マスタに無い人は null', ctx.getAgentByName_('存在 しない'), null);
+  t('前後の空白付きの代理店名でも引ける',
+    ctx.getAgencyByName_(' 提携代理店B ') && ctx.getAgencyByName_(' 提携代理店B ').name, '提携代理店B');
+  t('提携先の募集人も全角空白で一致', ctx.canonicalAgentName_('提携代理店B', '熊澤　善弘'), '熊澤 善弘');
+  t('マスタ通りならそのまま',          ctx.canonicalAgentName_('提携代理店B', '熊澤 善弘'), '熊澤 善弘');
+  t('その代理店にいない人は空',        ctx.canonicalAgentName_('提携代理店B', '髙橋 知史'), '');
+  t('無効の人は空',                    ctx.canonicalAgentName_('提携代理店B', '退職　済'), '');
+
+  const conf = ctx.getFieldConfig_();
+  const base = {
+    author: '佐々木　嶺', agency: '提携代理店B', agent: '熊澤　善弘',
+    contractType: '個人', customerName: '種田 裕貴',
+    confirmDate: '2026-08-01', productType: ['終身'],
+    age: 40, occupation: '会社員', income: 500, assets: 100,
+    experience: ['株式'], premiumSource: ['預貯金・給与'], riskTolerance: ctx.RISK_YES
+  };
+  const applied = ctx.applyFieldConfig_(base, conf);
+  t('作成者はマスタの表記になる', applied.author, '佐々木 嶺');
+  t('募集人もマスタの表記になる', applied.agent, '熊澤 善弘');
+  t('検証を通る',                 ctx.validate_(applied, conf), []);
+  const model = ctx.buildModel_(applied, ctx.defaultAnswers_(applied), ctx.getAgentByName_(applied.author), applied.agency);
+  t('帳票にはマスタの表記で出る', model.agencyRows.map(r => r.person), ['熊澤 善弘', '佐々木 嶺']);
+
+  // 空白の違い以上に違う名前は、これまで通り理由を付けて弾く。
+  const other = ctx.applyFieldConfig_(Object.assign({}, base, { agent: '髙橋 知史' }), conf);
+  t('登録外の人は変えずに残す', other.agent, '髙橋 知史');
+  t('登録外の人は弾く',
+    ctx.validate_(other, conf).some(e => e.indexOf('登録されていません') >= 0), true);
+  const ghost = ctx.applyFieldConfig_(Object.assign({}, base, { author: '幽霊 太郎' }), conf);
+  t('マスタに無い作成者は変えずに残す', ghost.author, '幽霊 太郎');
+}
+
+console.log('\n--- 一括入力シートの募集人列は、消さずにマスタの表記に直す ---');
+{
+  const ctx = makeContext();
+  // 1行目=キー、2行目=見出し、3行目から データ。列は 状態, メッセージ, 契約者氏名, 作成者, 取扱代理店, 募集人。
+  const grid = [
+    ['__status', '__message', 'customerName', 'author', 'agency', 'agent'],
+    ['状態', 'メッセージ', '契約者氏名', '作成者', '取扱代理店', '募集人'],
+    ['', '', 'A', '佐々木 嶺', '提携代理店C', '矢野　克臣'],   // 全角空白 → マスタの表記に直す
+    ['', '', 'B', '佐々木 嶺', '提携代理店C', '熊澤 善弘'],    // 別の代理店の人 → 消す
+    ['', '', 'C', '佐々木 嶺', '',             '矢野 克臣'],   // 代理店未選択 → 触らない
+    ['', '', 'D', '佐々木 嶺', 'ヒトカチ株式会社', '佐々木　嶺'] // 自社も同じ
+  ];
+  const validations = {};
+  const sheet = {
+    getLastColumn: () => 6,
+    getMaxRows: () => grid.length,
+    getRange(row, col, numRows = 1, numCols = 1) {
+      return {
+        getValues: () => grid.slice(row - 1, row - 1 + numRows).map(r => r.slice(col - 1, col - 1 + numCols)),
+        setValue(v) { grid[row - 1][col - 1] = v; return this; },
+        clearContent() { grid[row - 1][col - 1] = ''; return this; },
+        setDataValidation(v) { validations[row] = v; return this; }
+      };
+    }
+  };
+  ctx.SpreadsheetApp.newDataValidation = () => {
+    const b = { requireValueInList: (l) => { b.list = l; return b; }, setAllowInvalid: () => b, build: () => ({ list: b.list }) };
+    return b;
+  };
+  ctx.refreshAgentValidation_(sheet);
+  t('空白の違いだけならマスタの表記に直す', grid[2][5], '矢野 克臣');
+  t('別の代理店の人は消す',               grid[3][5], '');
+  t('代理店未選択の行は触らない',          grid[4][5], '矢野 克臣');
+  t('自社の人も直す',                      grid[5][5], '佐々木 嶺');
+  t('その代理店の人だけが選択肢',          validations[3] && validations[3].list, ['矢野 克臣']);
+  t('代理店未選択ならプルダウンを外す',     validations[5], null);
+}
+
+console.log('\n--- 全行が作成済なら、そう言って終わる ---');
+{
+  const ctx = makeContext();
+  const grid = [
+    ['__status', '__message', 'customerName', 'author', 'agency', 'agent'],
+    ['状態', 'メッセージ', '契約者氏名', '作成者', '取扱代理店', '募集人'],
+    ['作成済', '適合／A（新規作成）', 'A', '佐々木 嶺', 'ヒトカチ株式会社', '佐々木 嶺'],
+    ['作成済', '適合／B（新規作成）', 'B', '佐々木 嶺', 'ヒトカチ株式会社', '佐々木 嶺']
+  ];
+  let written = 0;
+  const sheet = {
+    getLastRow: () => grid.length,
+    getLastColumn: () => 6,
+    getRange(row, col, numRows = 1, numCols = 1) {
+      return {
+        getValues: () => grid.slice(row - 1, row - 1 + numRows).map(r => r.slice(col - 1, col - 1 + numCols)),
+        setValues() { written++; return this; }
+      };
+    }
+  };
+  const toasts = [];
+  ctx.SpreadsheetApp.openById = () => ({ getSheetByName: (n) => n === '一括入力' ? sheet : { getDataRange: () => ({ getValues: () => [['キー', '値']] }) } });
+  ctx.SpreadsheetApp.getActive = () => ({ toast: (m) => toasts.push(m) });
+  ctx.getFieldConfig_ = () => { throw new Error('ここまで来ない'); };
+  ctx.dryRunBulk();
+  t('下見は何も書かない',           written, 0);
+  t('作成済だと案内する',           toasts.length === 1 && toasts[0].indexOf('すべて「作成済」') >= 0, true);
+  t('作り直し方を添える',           toasts[0].indexOf('「状態」列を空に') >= 0, true);
+
+  // 作成も同じ。ロックは取れる前提。
+  ctx.LockService = { getScriptLock: () => ({ tryLock: () => true, releaseLock() {} }) };
+  ctx.PropertiesService = { getScriptProperties: () => ({ deleteProperty() {}, getProperty: () => 'dummy' }) };
+  ctx.runBulkAll();
+  t('作成も何も書かない',           written, 0);
+  t('作成も同じ案内',               toasts.length === 2 && toasts[1].indexOf('すべて「作成済」') >= 0, true);
+  ctx.processBulk_({ 3: true });
+  t('選択した行が作成済ならそう言う', toasts[2].indexOf('選択した行はすべて') >= 0, true);
+}
+
 console.log(`\n合計 ${pass + fail} 件 / 成功 ${pass} / 失敗 ${fail}`);
 process.exit(fail ? 1 : 0);

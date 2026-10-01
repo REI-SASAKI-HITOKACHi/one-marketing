@@ -140,6 +140,19 @@ function folderIdFromInput_(v) {
  * 募集人が黙って選択肢から消えるのを防ぐ。
  */
 function agencyKey_(name) {
+  return nameKey_(name);
+}
+
+/**
+ * 氏名・代理店名を突き合わせるためのキー。NFKC で全角英数を揃え、
+ * 半角・全角の空白をすべて落とす。
+ *
+ * マスタの氏名は「熊澤　善弘」のように全角空白入りで、成約一覧からの貼り付けや
+ * 手入力は「熊澤 善弘」「熊澤善弘」になりがち。空白の違いだけで
+ * 「登録されていません」と弾いたり、募集人の列を黙って消したりしないため。
+ * 帳票に印字するのはマスタ側の表記（canonicalAgentName_ などで寄せる）。
+ */
+function nameKey_(name) {
   var t = String(name == null ? '' : name);
   if (String.prototype.normalize) t = t.normalize('NFKC');
   return t.replace(/[\s　]+/g, '');
@@ -226,9 +239,16 @@ function orphanCoAgents_() {
   return out;
 }
 
+/**
+ * 代理店名でマスタを引く。完全一致を優先し、無ければ空白の違いを無視して引く。
+ * 戻り値の name はマスタの表記なので、入力の表記ゆれはここで吸収できる。
+ */
 function getAgencyByName_(name) {
   var list = getAgencies_();
   for (var i = 0; i < list.length; i++) if (list[i].name === name) return list[i];
+  var key = nameKey_(name);
+  if (key === '') return null;
+  for (var j = 0; j < list.length; j++) if (nameKey_(list[j].name) === key) return list[j];
   return null;
 }
 
@@ -252,10 +272,36 @@ function getAgents_() {
   return MASTER_CACHE_.agents;
 }
 
+/**
+ * 氏名で募集人マスタを引く。完全一致を優先し、無ければ空白の違いを無視して引く。
+ * 「佐々木　嶺」（全角空白）で来てもマスタの「佐々木 嶺」の行が返る。
+ */
 function getAgentByName_(name) {
   var list = getAgents_();
   for (var i = 0; i < list.length; i++) if (list[i].name === name) return list[i];
+  var key = nameKey_(name);
+  if (key === '') return null;
+  for (var j = 0; j < list.length; j++) if (nameKey_(list[j].name) === key) return list[j];
   return null;
+}
+
+/**
+ * その代理店で選べる募集人のうち、入力と同じ人のマスタ上の表記。
+ * 空白の違いだけなら一致とみなす。見つからなければ空文字。
+ *
+ * マスタの「矢野　克臣」に対して「矢野 克臣」と入れた行を弾かず、
+ * 帳票にはマスタの表記で印字するために使う。
+ */
+function canonicalAgentName_(agencyName, agentName) {
+  var raw = String(agentName == null ? '' : agentName).trim();
+  if (raw === '') return '';
+  var choices = agentNamesForAgency_(agencyName);
+  if (choices.indexOf(raw) >= 0) return raw;
+  var key = nameKey_(raw);
+  for (var i = 0; i < choices.length; i++) {
+    if (nameKey_(choices[i]) === key) return choices[i];
+  }
+  return '';
 }
 
 /**
