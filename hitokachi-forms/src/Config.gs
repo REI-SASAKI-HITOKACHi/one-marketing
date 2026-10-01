@@ -258,14 +258,19 @@ function getAgentByName_(name) {
   return null;
 }
 
-/** ログイン中のアドレスに一致する募集人。作成者の初期値に使う。 */
+/**
+ * ログイン中のアドレスに一致する募集人。作成者の初期値に使う。
+ * 「ログイン用アドレス」は読点・カンマ・空白区切りで複数書ける。
+ * 1 人が Gmail と会社のアドレスの両方で使うため。
+ */
 function getAgentByEmail_(email) {
   var e = String(email || '').trim().toLowerCase();
   if (e === '') return null;
   var list = getAgents_();
   for (var i = 0; i < list.length; i++) {
-    if (String(list[i].loginEmail).toLowerCase() === e) return list[i];
-    if (String(list[i].email).toLowerCase() === e) return list[i];
+    var mine = String(list[i].loginEmail + ',' + list[i].email).toLowerCase()
+      .split(/[,、\s]+/).filter(function (x) { return x !== ''; });
+    if (mine.indexOf(e) >= 0) return list[i];
   }
   return null;
 }

@@ -180,7 +180,8 @@ console.log('\n--- 検証実施者は作成者から決まる ---');
       AGENTS_HEADER,
       ['佐々木 嶺', 'info@hitokachi.com', '', '', '', '', 'ヒトカチ株式会社', '', '', true],
       // 既定の検証実施者その人。自分を検証できないので、行に検証者を持たせる。
-      ['髙橋 知史', 's-takahashi@hitokachi.com', '', '', '', '', 'ヒトカチ株式会社', '', '佐々木 嶺', true],
+      ['髙橋 知史', 's-takahashi@hitokachi.com', '', '', '', '', 'ヒトカチ株式会社',
+       'w.maps.061025@gmail.com, s-takahashi@hitokachi.com', '佐々木 嶺', true],
       ['青木 典子', '', '', '', '', '', 'ヒトカチ株式会社', '', '', true],
       // あとから足した募集人。設定は要らず、自動で既定の人が検証者になる。
       ['新人 太郎', 'shinjin@hitokachi.com', '', '', '', '', 'ヒトカチ株式会社', '', '', true],
@@ -199,6 +200,8 @@ console.log('\n--- 検証実施者は作成者から決まる ---');
 
   t('ログイン中の人を作成者に',
     (ctx.getAgentByEmail_('s-takahashi@hitokachi.com') || {}).name, '髙橋 知史');
+  t('ログイン用アドレスは複数書ける',
+    (ctx.getAgentByEmail_('w.maps.061025@gmail.com') || {}).name, '髙橋 知史');
   t('大文字小文字は無視',
     (ctx.getAgentByEmail_('INFO@Hitokachi.com') || {}).name, '佐々木 嶺');
   t('知らないアドレスは null', ctx.getAgentByEmail_('nobody@example.com'), null);

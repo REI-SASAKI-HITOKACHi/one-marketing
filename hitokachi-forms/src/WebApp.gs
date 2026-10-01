@@ -78,11 +78,22 @@ function checkAccess_() {
 
   var email = String(currentUserEmail_()).toLowerCase();
   var allowed = getAllowedEmails_();
-  if (email && allowed.indexOf(email) >= 0) return { allowed: true };
+  if (email && email !== UNKNOWN_USER && allowed.indexOf(email) >= 0) return { allowed: true };
+
+  // アドレスそのものが取れていないときは、利用者シートを直しても解決しない。
+  // 複数の Google アカウントに同時ログインしていると起きやすい。
+  if (!email || email === UNKNOWN_USER) {
+    return {
+      allowed: false,
+      message: 'ログイン中の Google アカウントを確認できませんでした。'
+        + 'ブラウザで複数の Google アカウントにログインしていると起きます。'
+        + 'シークレットウィンドウで、このシステムに登録したアカウントだけでログインして開き直してください。'
+    };
+  }
   return {
     allowed: false,
-    message: 'このシステムを使う権限がありません（' + (email || 'アカウント不明') + '）。'
-      + '設定スプレッドシートの「利用者」シートにアドレスを追加してください。'
+    message: 'このシステムを使う権限がありません（' + email + '）。'
+      + '設定スプレッドシートの「利用者」シートにこのアドレスを追加してください。'
   };
 }
 

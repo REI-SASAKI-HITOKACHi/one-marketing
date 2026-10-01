@@ -59,10 +59,22 @@ function appendLog_(data, summary, advice, result) {
   ]);
 }
 
+/**
+ * アクセスしている人のメールアドレス。
+ *
+ * ウェブアプリは「アクセスしたユーザーとして実行」なので、getEffectiveUser() が
+ * その本人になる。getActiveUser() はスクリプトの所有者と別の Google アカウントの
+ * 人が開くと空を返すことがあり（Google の制限）、それだけに頼ると利用者シートに
+ * 載っている人まで「(不明)」で弾いてしまう。両方を見て、取れたほうを使う。
+ */
 function currentUserEmail_() {
-  try {
-    return Session.getActiveUser().getEmail() || '(不明)';
-  } catch (e) {
-    return '(不明)';
+  var email = '';
+  try { email = String(Session.getEffectiveUser().getEmail() || '').trim(); } catch (e) { /* 次へ */ }
+  if (!email) {
+    try { email = String(Session.getActiveUser().getEmail() || '').trim(); } catch (e) { /* 次へ */ }
   }
+  return email || UNKNOWN_USER;
 }
+
+/** アドレスが取れなかったときの表示。利用者シートと一致しないよう記号を含める。 */
+var UNKNOWN_USER = '(不明)';
