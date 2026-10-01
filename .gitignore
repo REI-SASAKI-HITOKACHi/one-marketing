@@ -21,3 +21,7 @@ assets/fonts/
 # 施工写真の原本（Drive から落としたもの。大きいのでコミットしない）
 assets/photos-raw/
 *gmail-oauth*.json
+
+# GBP API の資格情報（~/.config 側に置く。万一リポジトリ内に作っても入れない）
+gbp.json
+gbp-token*.json
