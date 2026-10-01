@@ -56,6 +56,8 @@ def hosts_more():
 
 def haifu_urls():
     rc, out = jikkou('tools/check-haifu-urls.py', '--quiet')
+    if out.strip():  # 一時的な接続失敗（状態 0）がある（9/30 22:4x）。1回だけ取り直す
+        rc, out = jikkou('tools/check-haifu-urls.py', '--quiet')
     out = out.strip()
     return [f'配ったURLの異常: {out}'] if out else []
 
