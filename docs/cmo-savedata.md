@@ -2468,3 +2468,4 @@ crm の回答：
 - web-inflow（20時締切）：GBP API スクリプト3本の準備／クチコミ23→40の段取り／`?src=gbp` 抜け
 - 3スレッドは 13:48 に起こした（trig_0181…／trig_015i…／trig_01LT…）。返信は毎時点検で拾う
 - 14:0x browser 報告（20260930-02-browser）：①B_浴室に [風呂釜 掃除 業者] 追加／②B_レンジフード 一時停止／④予算による制限は出ていない。③「学習版LP_エアコン_C」有効（10/1〜31・50%）。水まわりのテストは Google が「既存の広告パターンと競合」で拒否 → **CMO判断：B_浴室内に同文言・最終URLだけ /mizumawari-b/ の広告を追加**（trig_01Murwuk… で指示）。7日値：A 579表示/49クリック/¥14,460/CV0、B_浴室 265/35/¥10,085/**CV1.00**
+- 14:2x browser：水まわり学習版＝B_浴室 の複製広告 ID 826637135990（審査中）。最終URLを /mizumawari-b/ にする保存が画面で通らず、2回目の入力は browser 側の自動モードの判定（Production Deploy 扱い）で止められた → **オーナーが手で貼り替え中**（迂回はさせない）。GBP：Business Information／Account Management API 有効・各300 req/分。旧v4 は画面に出ない。refresh_token は shisetsu-mail にシークレット追加＋同意クリック（オーナー操作）待ち。D_年末大掃除はオーナーのOK待ち
