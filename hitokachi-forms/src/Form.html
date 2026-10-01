@@ -578,7 +578,8 @@ function renderDone(r) {
   var app = $('app');
   app.innerHTML = '';
   window.scrollTo(0, 0);
-  app.appendChild(el('div', { class: 'verdict ok', text: '2件のPDFを保存しました。' }));
+  // 変額以外は意向把握シートだけなので、件数は実際に作った数を出す。
+  app.appendChild(el('div', { class: 'verdict ok', text: r.files.length + '件のPDFを保存しました。' }));
 
   var files = el('div', { class: 'files' });
   r.files.forEach(function (f) {

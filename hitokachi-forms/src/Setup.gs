@@ -27,6 +27,7 @@ function setup() {
   ensureUsersSheet_(ss);
   ensureFieldsSheet_(ss);
   ensureLogSheet_(ss);
+  ensureManualSheet_(ss);
   ensureMenuTrigger_(ss);
 
   clearMasterCache_();
