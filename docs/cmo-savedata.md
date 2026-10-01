@@ -2488,3 +2488,4 @@ crm の回答：
 - 17:1x browser：OAuth同意画面は既に「本番環境」（refresh_token 7日失効なし）。スコープ一覧は空のまま（登録すると検証申請）。shisetsu-mail はウェブアプリ型・Playground のリダイレクト登録済み → **CMO決定：クライアントはそのまま、refresh_token はオーナーが Playground で取得**（browser 環境では Playground が開けない）。web-inflow には gbp.json から読むだけの形にするよう依頼
 - 広告の対象地域（9/24〜30）：江戸川 30クリック/¥8,367/CV0、**葛飾 21/¥6,610/CV1**、市川 17/¥4,977、江東 14/¥4,024（CTR 6.5%）、墨田 9、浦安 6。6地域のみ配信。10/9 判定で地域別の入札調整を検討
 - 水まわり学習版（広告ID 826637135990）の最終URLは 17時台時点でまだ /mizumawari/（オーナー操作待ち、14時台から）
+- 17:1x GBP クチコミ短縮URL取得：https://g.page/r/CTGNhqEwEml7EAI/review（39字）。web-inflow に反映依頼、crm に「年末案内と重ならない一覧」を依頼（期限 10/2 10:00）。所在地オプションは browser の画面が最小化で描画されず未取得
