@@ -1,16 +1,15 @@
 # LP・サイト担当 の現況
 
-更新: 2026-10-01 12:11
+更新: 2026-10-01 14:20
 
-【10/1 lp 現況】
+【10/1 15時 lp 現況】
 済
-- 学習版4本の本番を確認：200・v2・申込内容あり。既存4本は旧見た目＋申込内容。本番と deploy/netlify の違いは Netlify のフォームタグ書き換えだけ（9ページともそれ以外0行）
-- nenmatsu-b の ?ag= が空で届く件を修正（4e46031）。配信は次回の配信に乗せる（11月初めまでに）
-- 担当者イラストの枠を学習版4本に用意（98dc242）。lp/_staff/staff.svg を置けば出る、無ければ自動で外れる
-- tools/make-staff-illust.py（写真→イラストの手元変換＋本人確認ページ）。自動変換の品質はポスター加工どまり
+- 予約カレンダー直行ボタン（20261001-03-lp）：学習版3本（mizumawari-b / aircon-c / nenmatsu-b）に実装（8a1875f）。料金の下を2択に＋フォーム直前にカレンダー・電話・LINE。src/cid/ag/gclid を予約ページへ引き継ぎ。cta_click に link_position（estimate/form/deadline）と link_target=yoyaku。CMOへ「配信してよい」と返信済み
+- nenmatsu-b の ?ag= 修正（4e46031）、担当者イラストの枠（98dc242）
 待ち
-- イラストの作り方（Canva無料枠 / ココナラ外注 5千〜1.5万円）→ CMO経由でオーナー判断（20260930-01-lp で返信済み）
-- 和真さんの写真（届いたら場所を教えてもらう）
-- 既存4本の v2 切替は 10/9 判定後。それまで既存4本の配信物は v2 にしない
-- チラシ・紹介カードの印刷（オーナー）、ca3a991 click_type は次の配信で
-ブランチ：claude/lp-outline-presentation-8fahl3（98dc242）
+- CMOの配信 → 配信後に本番を確認する
+- GA4 のカスタムディメンション link_position の登録（measurement/オーナー）
+- aircon-d にもボタンを入れるか（CMO判断）
+- イラストの作り方（Canva無料枠 / ココナラ外注）→ オーナー判断、和真さんの写真
+- 既存4本の v2 切替は 10/9 判定後
+ブランチ：claude/lp-outline-presentation-8fahl3（8a1875f）
