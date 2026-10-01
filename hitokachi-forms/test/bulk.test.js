@@ -382,7 +382,12 @@ console.log('\n--- 利用者を共有フォルダに招待する ---');
     }
   };
   ctx.Logger = { log() {} };
-  ctx.SpreadsheetApp.getUi = () => ({ alert() {} });
+  // 確認ダイアログは「はい」と答えたことにする。
+  const asked = [];
+  ctx.SpreadsheetApp.getUi = () => ({
+    ButtonSet: { YES_NO: 'YES_NO' }, Button: { YES: 'YES' },
+    alert(title, text, buttons) { if (buttons) { asked.push(text); return 'YES'; } }
+  });
   // Setup.gs は makeContext に含めていないので、ここで読む。
   ctx.ScriptApp = { getProjectTriggers: () => [] };
   vm.runInContext(fs.readFileSync(path.join(SRC, 'Setup.gs'), 'utf8'), ctx, { filename: 'Setup.gs' });
@@ -399,6 +404,19 @@ console.log('\n--- 利用者を共有フォルダに招待する ---');
   t('無効な利用者は招待しない', calls.some(c => c.indexOf('yameta') >= 0), false);
   t('共有できないフォルダは失敗として続ける', text.indexOf('追加できなかった: 2 件') >= 0, true);
   t('結果に件数が出る', text.indexOf('追加した: 5 件') >= 0, true);
+  t('実行前に一覧を見せて確認する', asked.length, 1);
+  t('確認文に追加先が全部載る',
+    asked[0].indexOf('FOLDER_D ← w.maps.061025@gmail.com') < 0 && asked[0].indexOf('提携代理店D ← w.maps.061025@gmail.com') >= 0, true);
+
+  // 「いいえ」なら何も足さない。
+  calls.length = 0;
+  ctx.SpreadsheetApp.getUi = () => ({
+    ButtonSet: { YES_NO: 'YES_NO' }, Button: { YES: 'YES' },
+    alert(title, text, buttons) { return buttons ? 'NO' : undefined; }
+  });
+  const cancelled = ctx.inviteUsersToFolders();
+  t('いいえなら共有を変えない', calls.length, 0);
+  t('取り消したと伝える', cancelled.indexOf('取り消しました') >= 0, true);
 }
 
 console.log('\n--- 意向の確認日は3つ ---');

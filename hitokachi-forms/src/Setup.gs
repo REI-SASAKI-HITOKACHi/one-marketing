@@ -106,7 +106,9 @@ function inviteUsersToFolders() {
   var emails = getAllowedEmails_();
   var agencies = getAgencies_().filter(function (a) { return a.folderId; });
 
-  var added = [];
+  // まず「誰をどこに足すか」を全部決めてから、確認を取り、それから足す。
+  // 共有は取り消しが面倒なので、黙って走らせない。
+  var plan = [];
   var skipped = 0;
   var failed = [];
 
@@ -124,13 +126,25 @@ function inviteUsersToFolders() {
 
     emails.forEach(function (email) {
       if (have[email]) { skipped++; return; }
-      try {
-        folder.addEditor(email);
-        added.push(a.name + ' ← ' + email);
-      } catch (e) {
-        failed.push(a.name + ' ← ' + email + '：' + e.message);
-      }
+      plan.push({ agency: a.name, folder: folder, email: email });
     });
+  });
+
+  if (plan.length && !confirmInvite_(plan)) {
+    var cancelled = '取り消しました。共有は変えていません。';
+    Logger.log(cancelled);
+    try { SpreadsheetApp.getUi().alert(cancelled); } catch (e) { /* エディタから実行 */ }
+    return cancelled;
+  }
+
+  var added = [];
+  plan.forEach(function (p) {
+    try {
+      p.folder.addEditor(p.email);
+      added.push(p.agency + ' ← ' + p.email);
+    } catch (e) {
+      failed.push(p.agency + ' ← ' + p.email + '：' + e.message);
+    }
   });
 
   var lines = [
@@ -147,6 +161,24 @@ function inviteUsersToFolders() {
   Logger.log(text);
   try { SpreadsheetApp.getUi().alert(text); } catch (e) { /* エディタから実行したときはログだけ */ }
   return text;
+}
+
+/**
+ * 追加する組み合わせを一覧で見せて、はい／いいえを聞く。
+ * ダイアログが出せない場面（エディタから実行）では、確認なしで進めない＝取り消し扱い。
+ */
+function confirmInvite_(plan) {
+  var text = '次の ' + plan.length + ' 件を、編集者として共有フォルダに追加します。\n'
+    + '（利用者シートの人だけが対象です。提携先の人は追加しません）\n\n'
+    + plan.map(function (p) { return '　' + p.agency + ' ← ' + p.email; }).join('\n')
+    + '\n\n追加された人には Google から通知メールが届きます。実行しますか？';
+  try {
+    var ui = SpreadsheetApp.getUi();
+    return ui.alert('共有フォルダへの招待', text, ui.ButtonSet.YES_NO) === ui.Button.YES;
+  } catch (e) {
+    Logger.log('確認ダイアログを出せないので実行しません。スプレッドシートのメニューから実行してください。\n' + text);
+    return false;
+  }
 }
 
 function getOrCreateSheet_(ss, name) {
