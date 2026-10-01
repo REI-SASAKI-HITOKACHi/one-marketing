@@ -611,6 +611,11 @@ def make_og(src: pathlib.Path, dst: pathlib.Path, line1: str, line2: str) -> Non
     out.save(dst, quality=82, optimize=True, progressive=True)
 
 
+# 担当者のイラスト（和真さん本人の確認が済んだものだけをここに置く）。
+# 作り方は tools/make-staff-illust.py の冒頭を参照。写真そのものは置かない。
+STAFF_IL = ROOT / "lp" / "_staff" / "staff.svg"
+
+
 def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict) -> None:
     src = (ROOT / "lp" / name / "index.html").read_text(encoding="utf-8")
     src = manzoku(src)   # 満足度の差し込み（MANZOKU が唯一の出どころ）
@@ -663,6 +668,11 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict)
     if target == "netlify":
         doc = moushikomi.apply(doc, meta["dir"])
 
+    # 担当者のイラスト。lp/_staff/staff.svg が置かれるまでは枠ごと外す
+    # （空の枠や壊れた画像を本番に出さないため。置けば次の配信から4本に出る）
+    if not STAFF_IL.exists():
+        doc = re.sub(r'\s*<figure class="staff-il".*?</figure>', "", doc, flags=re.S)
+
     (dst / "index.html").write_text(doc, encoding="utf-8")
     build_thanks(cfg, meta, out)
 
@@ -671,6 +681,8 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict)
     if img_dst.exists():
         shutil.rmtree(img_dst)
     shutil.copytree(img_src, img_dst)
+    if STAFF_IL.exists() and 'class="staff-il"' in doc:
+        shutil.copy(STAFF_IL, img_dst / "staff.svg")
 
     make_og(img_dst / "hero-bg.jpg", img_dst / "og.jpg", meta["og_line1"], meta["og_line2"])
 

@@ -366,8 +366,12 @@ section.gq-band{padding:8px 0;background:var(--surface);border-top:1px solid var
 .okane p{font-size:15px;line-height:1.95;color:var(--text-2);}
 
 /* ===== 伺う人 ===== */
-.staff-ph{margin:0 0 22px;border:1.5px dashed var(--rule-2);background:var(--paper-2);aspect-ratio:4/3;
-  display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;color:var(--steel);line-height:1.8;padding:16px;}
+/* 担当者のイラスト（オーナー決定 2026-09-30：写真ではなくイラスト）。
+   原画は 1200×1200 の正方形。lp/_staff/staff.svg が無いあいだは build-site.py がこの枠ごと外す */
+.staff-il{margin:0 0 22px;display:flex;gap:16px;align-items:center;}
+.staff-il img{width:132px;height:132px;aspect-ratio:1/1;border-radius:50%;background:var(--paper-2);flex:none;}
+.staff-il figcaption{font-size:14px;line-height:1.75;color:var(--text-2);}
+.staff-il figcaption b{display:block;font-size:16px;color:var(--ink);}
 .switch{margin-top:26px;background:var(--surface);border-left:3px solid var(--aqua);padding:16px 18px;display:flex;flex-direction:column;gap:8px;}
 .switch .lab{font-size:12px;font-weight:700;color:var(--aqua-fill);letter-spacing:.04em;}
 .switch q{font-family:"Shippori Mincho B1",serif;font-weight:600;font-size:16px;line-height:2;quotes:"「" "」";}
@@ -711,6 +715,7 @@ legend{font-size:12px;font-weight:700;color:var(--steel);letter-spacing:.06em;pa
       <h2>伺うのは、<br>ご予約を受けた私たちです</h2>
       <p>この業界はフランチャイズと下請けが主流です。ONE HITTER は違います。</p>
     </div>
+    <figure class="staff-il"><img src="img/staff.svg" width="132" height="132" alt="当日伺う担当者のイラスト" loading="lazy"><figcaption><b>当日伺う担当です</b>ご連絡から作業当日まで、担当は変わりません。</figcaption></figure>
     <div class="own">
       <div class="own-row"><span class="own-k">担当</span><p>ご予約を受けた私たち自身が伺います。当日になって、知らない会社の作業員が来ることはありません。ご連絡から作業まで、担当は変わりません。</p></div>
       <div class="own-row"><span class="own-k">価格</span><p>間に会社が入らないぶん、紹介手数料が乗りません。訪問営業も電話営業もしていません。その分のコストを、そのまま価格にしています。品質を落として下げているわけではありません。</p></div>
