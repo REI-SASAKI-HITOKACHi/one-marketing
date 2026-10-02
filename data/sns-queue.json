@@ -1,755 +1,845 @@
 [
-  {
-    "id": "w01-1",
-    "week": 1,
-    "scheduled_at": "2026-09-12T09:00:00+09:00",
-    "platforms": [
-      "instagram",
-      "facebook"
-    ],
-    "type": "image",
-    "media": [
-      "dist/cards/w01-1-kuchikomi.jpg"
-    ],
-    "caption": "「結果、大手のエアコン一台分のお値段で2台お掃除していただき、しかも迅速で丁寧に仕上げてくださいます。」\n— K様　★★★★★　Googleクチコミより（2026年4月）\n\n江戸川区で、エアコン・レンジフード・浴室・洗濯機を分解して内部から洗っています。\n載せている写真は、すべて実際の現場のものです。\nご予約はプロフィールのリンクから。\n\n※掲載内容はお客様個人の感想です。Googleクチコミ24件・平均★5.0（2026年9月時点）\n#江戸川区 #西葛西 #ハウスクリーニング #エアコンクリーニング #お客様の声",
-    "link": "https://lp.onehitter.jp/mizumawari/?src=fb",
-    "status": "posted",
-    "memo": "型E クチコミ引用カード（K様）",
-    "results": {
-      "instagram": {
-        "container_id": "18075586946709070",
-        "media_id": "18132893641643330",
-        "permalink": "https://www.instagram.com/p/DdKsEdllUbV/",
-        "published": true
-      },
-      "facebook": {
-        "post_id": "103698149101436_1100803849402632",
-        "permalink": "https://www.facebook.com/1100803886069295/posts/1100803849402632",
-        "media_ids": [
-          "1100803822735968"
-        ]
-      }
-    },
-    "posted_at": "2026-09-12T09:22:58+09:00",
-    "permalinks": {
-      "instagram": "https://www.instagram.com/p/DdKsEdllUbV/",
-      "facebook": "https://www.facebook.com/1100803886069295/posts/1100803849402632"
-    }
+ {
+  "id": "w01-1",
+  "week": 1,
+  "scheduled_at": "2026-09-12T09:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "image",
+  "media": [
+   "dist/cards/w01-1-kuchikomi.jpg"
+  ],
+  "caption": "「結果、大手のエアコン一台分のお値段で2台お掃除していただき、しかも迅速で丁寧に仕上げてくださいます。」\n— K様　★★★★★　Googleクチコミより（2026年4月）\n\n江戸川区で、エアコン・レンジフード・浴室・洗濯機を分解して内部から洗っています。\n載せている写真は、すべて実際の現場のものです。\nご予約はプロフィールのリンクから。\n\n※掲載内容はお客様個人の感想です。Googleクチコミ24件・平均★5.0（2026年9月時点）\n#江戸川区 #西葛西 #ハウスクリーニング #エアコンクリーニング #お客様の声",
+  "link": "https://lp.onehitter.jp/mizumawari/?src=fb",
+  "status": "posted",
+  "memo": "型E クチコミ引用カード（K様）",
+  "results": {
+   "instagram": {
+    "container_id": "18075586946709070",
+    "media_id": "18132893641643330",
+    "permalink": "https://www.instagram.com/p/DdKsEdllUbV/",
+    "published": true
+   },
+   "facebook": {
+    "post_id": "103698149101436_1100803849402632",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1100803849402632",
+    "media_ids": [
+     "1100803822735968"
+    ]
+   }
   },
-  {
-    "id": "w01-2",
-    "week": 1,
-    "scheduled_at": "2026-09-15T09:00:00+09:00",
-    "platforms": [
-      "instagram",
-      "facebook"
-    ],
-    "type": "image",
-    "media": [
-      "dist/cards/w01-2-filter.jpg"
-    ],
-    "caption": "江戸川区のハウスクリーニング店から、自分でできる範囲のお話です。\n\nエアコンのフィルター、2週間に1度の水洗いで、風量とニオイはかなり変わります。\n1. 電源を切って、フィルターを外す\n2. ぬるま湯で水洗い（洗剤は不要）\n3. 陰干しして戻す\n\nここから先（熱交換器・送風ファン）は分解が要るので、ご自分では触らないでください。\n吹き出し口に黒い点が見えたら、中はもっと汚れています。\n\n#江戸川区 #エアコン掃除 #自分でできる掃除 #ハウスクリーニング",
-    "link": "https://lp.onehitter.jp/aircon/?src=fb",
-    "status": "posted",
-    "memo": "型D コツ：エアコンのフィルター",
-    "results": {
-      "instagram": {
-        "container_id": "18076029743709070",
-        "media_id": "18106252214232305",
-        "permalink": "https://www.instagram.com/p/DdSYjIPlTMq/",
-        "published": true
-      },
-      "facebook": {
-        "post_id": "103698149101436_1103395149143502",
-        "permalink": "https://www.facebook.com/1100803886069295/posts/1103395149143502",
-        "media_ids": [
-          "1103395125810171"
-        ]
-      }
-    },
-    "posted_at": "2026-09-15T09:06:14+09:00",
-    "permalinks": {
-      "instagram": "https://www.instagram.com/p/DdSYjIPlTMq/",
-      "facebook": "https://www.facebook.com/1100803886069295/posts/1103395149143502"
-    }
-  },
-  {
-    "id": "w01-3",
-    "week": 1,
-    "scheduled_at": "2026-09-16T09:00:00+09:00",
-    "platforms": [
-      "instagram",
-      "facebook"
-    ],
-    "type": "carousel",
-    "media": [
-      "assets/photos/IMG_7963.jpg",
-      "assets/photos/IMG_7969.jpg",
-      "assets/photos/IMG_7976.jpg",
-      "assets/photos/IMG_7965.jpg"
-    ],
-    "caption": "江戸川区で、エアコン。\n\n・吹き出し口の羽根（ルーバー）に黒い点。内部の送風ファンに付いたカビが飛んできたもの\n・熱交換器（アルミのフィン）に黒カビ。フィルターの内側なので、フィルター掃除では届かない\n・洗浄後の汚水は茶色。1台分\n\n「フィルターは掃除している」というお宅でも、内部はこうなっていることがあります。黒い点が吹き出し口に見えたら、中はもっと汚れています。\n\nエアコンの内部洗浄のご予約は、プロフィールの「エアコン」のリンクから。\n\n#江戸川区 #ハウスクリーニング #エアコンクリーニング #エアコン掃除 #西葛西",
-    "link": "https://lp.onehitter.jp/aircon/?src=fb",
-    "status": "posted",
-    "memo": "型A+B 江戸川区・エアコン（組写真 7963→7969 確認済み）",
-    "results": {
-      "instagram": {
-        "container_id": "18076183256709070",
-        "media_id": "18088655597208122",
-        "permalink": "https://www.instagram.com/p/DdVRjEsFg2h/",
-        "published": true
-      },
-      "facebook": {
-        "post_id": "103698149101436_1104394075710276",
-        "permalink": "https://www.facebook.com/1100803886069295/posts/1104394075710276",
-        "media_ids": [
-          "1104393912376959",
-          "1104393945710289",
-          "1104393985710285",
-          "1104394035710280"
-        ]
-      }
-    },
-    "posted_at": "2026-09-16T12:02:51+09:00",
-    "permalinks": {
-      "instagram": "https://www.instagram.com/p/DdVRjEsFg2h/",
-      "facebook": "https://www.facebook.com/1100803886069295/posts/1104394075710276"
-    }
-  },
-  {
-    "id": "w01-3r",
-    "week": 1,
-    "scheduled_at": "2026-09-16T12:00:00+09:00",
-    "platforms": [
-      "instagram",
-      "facebook"
-    ],
-    "type": "reel",
-    "media": [
-      "dist/shorts/2026-09-04-aircon.mp4"
-    ],
-    "caption": "江戸川区で、エアコン。\n\n・吹き出し口の羽根（ルーバー）に黒い点。内部の送風ファンに付いたカビが飛んできたもの\n・熱交換器（アルミのフィン）に黒カビ。フィルターの内側なので、フィルター掃除では届かない\n・洗浄後の汚水は茶色。1台分\n\n「フィルターは掃除している」というお宅でも、内部はこうなっていることがあります。黒い点が吹き出し口に見えたら、中はもっと汚れています。\n\nエアコンの内部洗浄のご予約は、プロフィールの「エアコン」のリンクから。\n\n#江戸川区 #ハウスクリーニング #エアコンクリーニング #エアコン掃除 #西葛西",
-    "link": "https://lp.onehitter.jp/aircon/?src=fb",
-    "status": "posted",
-    "memo": "③のリール。動画の最終確認後に approved にする",
-    "note": "（2026-09-12 締めのCTAをLP誘導に作り直して確認済み）",
-    "results": {
-      "instagram": {
-        "container_id": "18076183388709070",
-        "media_id": "17941463802350763",
-        "permalink": "https://www.instagram.com/reel/DdVRm8GlUUy/",
-        "published": true
-      },
-      "facebook": {
-        "video_id": "28610301858657874",
-        "post_id": "28610301858657874",
-        "permalink": "https://www.facebook.com/103698149101436/videos/28610301858657874",
-        "media_ids": [
-          "28610301858657874"
-        ]
-      }
-    },
-    "posted_at": "2026-09-16T12:03:40+09:00",
-    "permalinks": {
-      "instagram": "https://www.instagram.com/reel/DdVRm8GlUUy/",
-      "facebook": "https://www.facebook.com/103698149101436/videos/28610301858657874"
-    }
-  },
-  {
-    "id": "w01-4",
-    "week": 1,
-    "scheduled_at": "2026-09-17T09:00:00+09:00",
-    "platforms": [
-      "instagram",
-      "facebook"
-    ],
-    "type": "image",
-    "media": [
-      "dist/cards/w01-4-sentakusou.jpg"
-    ],
-    "caption": "洗濯物に黒いカスが付く、洗濯機がにおう。\nそれは洗濯槽の裏側のカビが剥がれて出てきたものです。\n\nまずは市販の洗濯槽クリーナー（酸素系より塩素系のほうが効きます）を、高水位で1回。\n使ったあとはフタを開けて乾かす。糸くずフィルターは毎回捨てる。\n\nそれでも黒いカスが続くなら、槽の裏の汚れが厚くなっています。\n市販のクリーナーでは届かない場所なので、分解して槽の裏を直接洗う時期です。\n\n#江戸川区 #洗濯槽 #洗濯機掃除 #自分でできる掃除 #ハウスクリーニング",
-    "link": "https://lp.onehitter.jp/mizumawari/?src=fb",
-    "status": "posted",
-    "memo": "型D コツ：洗濯槽",
-    "results": {
-      "instagram": {
-        "container_id": "18076306025709070",
-        "media_id": "18087527408450686",
-        "permalink": "https://www.instagram.com/p/DdXh8u3lDRo/",
-        "published": true
-      },
-      "facebook": {
-        "post_id": "103698149101436_1105191458963871",
-        "permalink": "https://www.facebook.com/1100803886069295/posts/1105191458963871",
-        "media_ids": [
-          "1105191442297206"
-        ]
-      }
-    },
-    "posted_at": "2026-09-17T09:04:36+09:00",
-    "permalinks": {
-      "instagram": "https://www.instagram.com/p/DdXh8u3lDRo/",
-      "facebook": "https://www.facebook.com/1100803886069295/posts/1105191458963871"
-    }
-  },
-  {
-    "id": "w01-5",
-    "week": 1,
-    "scheduled_at": "2026-09-18T09:00:00+09:00",
-    "platforms": [
-      "instagram",
-      "facebook"
-    ],
-    "type": "carousel",
-    "media": [
-      "assets/photos/IMG_7877.jpg",
-      "assets/photos/IMG_7880.jpg"
-    ],
-    "caption": "江戸川区で、レンジフード。\n\n・シロッコファン（羽根車）の羽根の1枚1枚に、油が層になって付いている\n・羽根の間が油で埋まりかけている。この状態では回しても煙を吸わない\n\nフィルターを洗っても直らない「吸わない・音が大きい」は、このファンが原因のことがほとんどです。ここは分解しないと洗えません。\n\nレンジフードの分解洗浄のご予約は、プロフィールの「水まわり」のリンクから。\n\n#江戸川区 #ハウスクリーニング #レンジフードクリーニング #換気扇掃除 #西葛西",
-    "link": "https://lp.onehitter.jp/mizumawari/?src=fb",
-    "status": "posted",
-    "memo": "型B 江戸川区・レンジフード（作業前2枚。組写真ではない）",
-    "results": {
-      "instagram": {
-        "container_id": "18076448501709070",
-        "media_id": "17970833172156698",
-        "permalink": "https://www.instagram.com/p/DdaGVqtlyyR/",
-        "published": true
-      },
-      "facebook": {
-        "post_id": "103698149101436_1106070965542587",
-        "permalink": "https://www.facebook.com/1100803886069295/posts/1106070965542587",
-        "media_ids": [
-          "1106070865542597",
-          "1106070912209259"
-        ]
-      }
-    },
-    "posted_at": "2026-09-18T09:01:07+09:00",
-    "permalinks": {
-      "instagram": "https://www.instagram.com/p/DdaGVqtlyyR/",
-      "facebook": "https://www.facebook.com/1100803886069295/posts/1106070965542587"
-    }
-  },
-  {
-    "id": "w01-5r",
-    "week": 1,
-    "scheduled_at": "2026-09-18T12:00:00+09:00",
-    "platforms": [
-      "instagram",
-      "facebook"
-    ],
-    "type": "reel",
-    "media": [
-      "dist/shorts/2026-08-31-hood.mp4"
-    ],
-    "caption": "江戸川区で、レンジフード。\n\n・シロッコファン（羽根車）の羽根の1枚1枚に、油が層になって付いている\n・羽根の間が油で埋まりかけている。この状態では回しても煙を吸わない\n\nフィルターを洗っても直らない「吸わない・音が大きい」は、このファンが原因のことがほとんどです。ここは分解しないと洗えません。\n\nレンジフードの分解洗浄のご予約は、プロフィールの「水まわり」のリンクから。\n\n#江戸川区 #ハウスクリーニング #レンジフードクリーニング #換気扇掃除 #西葛西",
-    "link": "https://lp.onehitter.jp/mizumawari/?src=fb",
-    "status": "posted",
-    "memo": "⑤のリール。動画の最終確認後に approved にする",
-    "note": "（2026-09-12 締めのCTAをLP誘導に作り直して確認済み）",
-    "results": {
-      "instagram": {
-        "container_id": "18076461875709070",
-        "media_id": "18476568919117691",
-        "permalink": "https://www.instagram.com/reel/DdabTLSkQxd/",
-        "published": true
-      },
-      "facebook": {
-        "video_id": "4649362321968581",
-        "post_id": "4649362321968581",
-        "permalink": "https://www.facebook.com/103698149101436/videos/4649362321968581",
-        "media_ids": [
-          "4649362321968581"
-        ]
-      }
-    },
-    "posted_at": "2026-09-18T12:04:38+09:00",
-    "permalinks": {
-      "instagram": "https://www.instagram.com/reel/DdabTLSkQxd/",
-      "facebook": "https://www.facebook.com/103698149101436/videos/4649362321968581"
-    }
-  },
-  {
-    "id": "w02-1",
-    "week": 2,
-    "scheduled_at": "2026-09-21T09:00:00+09:00",
-    "platforms": [
-      "instagram",
-      "facebook"
-    ],
-    "type": "image",
-    "media": [
-      "dist/cards/w02-1-kuchikomi.jpg"
-    ],
-    "caption": "「洗濯機は60度の水温設定でハイターを使って曹洗浄を定期的にやっているにも関わらずカビがはびこっていてびっくり。」\n— M様　★★★★★　Googleクチコミより（2024年4月）\n\n江戸川区で、洗濯機を分解して槽の裏側から洗っています。\n市販のクリーナーを定期的に使っているお宅でも、槽の裏は別、ということがよくあります。\n黒いカスが洗濯物に付くようになったら、槽の裏の話です。\n\n洗濯機・浴室・キッチンのご予約は、プロフィールの「水まわり」のリンクから。\n\n※掲載内容はお客様個人の感想です。「ハイター」は花王株式会社の登録商標です。\n#江戸川区 #西葛西 #洗濯機掃除 #洗濯槽 #ハウスクリーニング #お客様の声",
-    "link": "https://lp.onehitter.jp/mizumawari/?src=fb",
-    "status": "posted",
-    "note": "①差し替え版（クチコミ→水回りLP）。点検ページ公開＋内視鏡到着が9/19までに揃えば w02-1t に切替",
-    "results": {
-      "instagram": {
-        "container_id": "18077008151709070",
-        "media_id": "18030580154850554",
-        "permalink": "https://www.instagram.com/p/Ddkari8kssB/",
-        "published": true
-      },
-      "facebook": {
-        "post_id": "103698149101436_1109605371855813",
-        "permalink": "https://www.facebook.com/1100803886069295/posts/1109605371855813",
-        "media_ids": [
-          "1109605355189148"
-        ]
-      }
-    },
-    "posted_at": "2026-09-22T09:11:11+09:00",
-    "permalinks": {
-      "instagram": "https://www.instagram.com/p/Ddkari8kssB/",
-      "facebook": "https://www.facebook.com/1100803886069295/posts/1109605371855813"
-    }
-  },
-  {
-    "id": "w02-1t",
-    "week": 2,
-    "scheduled_at": "2026-09-21T09:00:00+09:00",
-    "platforms": [
-      "instagram",
-      "facebook"
-    ],
-    "type": "image",
-    "media": [
-      "dist/cards/w02-1-kuchikomi.jpg"
-    ],
-    "caption": "「洗濯機は60度の水温設定でハイターを使って曹洗浄を定期的にやっているにも関わらずカビがはびこっていてびっくり。」\n— M様　★★★★★　Googleクチコミより（2024年4月）\n\n江戸川区で、洗濯機を分解して槽の裏側から洗っています。\n市販のクリーナーを定期的に使っているお宅でも、槽の裏は別、ということがよくあります。\n\n見るだけなら無料です。内視鏡カメラで槽の裏側を、その場で一緒に見ます（10分ほど・閑散期限定）。\n汚れていなければ「今回は不要」とお伝えします。\nお申込みはプロフィールの「無料点検」のリンクから。\n\n※掲載内容はお客様個人の感想です。「ハイター」は花王株式会社の登録商標です。\n#江戸川区 #西葛西 #洗濯機掃除 #洗濯槽 #ハウスクリーニング #お客様の声",
-    "link": "https://tenken.onehitter.jp/?src=fb",
-    "status": "draft",
-    "note": "①点検推奨版。条件が揃ったら approved にして w02-1 を draft に"
-  },
-  {
-    "id": "w02-2",
-    "week": 2,
-    "scheduled_at": "2026-09-22T09:00:00+09:00",
-    "platforms": [
-      "instagram",
-      "facebook"
-    ],
-    "type": "image",
-    "media": [
-      "dist/cards/w02-2-oidaki.jpg"
-    ],
-    "caption": "江戸川区のハウスクリーニング店から、自分でできる範囲のお話です。\n\nお湯張りのときに黒い粒や膜が浮く。それは追い焚き配管の内側に付いたものが剥がれて出てきています。\n1. 循環口（浴槽の穴）の上まで水を張る\n2. 市販の風呂釜用洗浄剤を入れて、取扱説明書どおりに追い焚き\n3. 排水して、水だけでもう一度追い焚きしてすすぐ\n\n保健所の資料にも「取扱説明書に従って、定期的に洗浄する」とあります（愛知県 江南保健所「家庭内におけるレジオネラ対策について」）。\nそれでも粒が出るなら、配管の内側に層になっています。専用の機械で配管を洗う出番です。\n\n追い焚き配管・浴室のご予約は、プロフィールの「水まわり」のリンクから。\n\n#江戸川区 #追い焚き配管 #風呂釜掃除 #自分でできる掃除 #ハウスクリーニング",
-    "link": "https://lp.onehitter.jp/mizumawari/?src=fb",
-    "status": "posted",
-    "note": "②差し替え版（コツ→水回りLP）",
-    "results": {
-      "instagram": {
-        "container_id": "18077008178709070",
-        "media_id": "17999090873816329",
-        "permalink": "https://www.instagram.com/p/DdkauTilVW7/",
-        "published": true
-      },
-      "facebook": {
-        "post_id": "103698149101436_1109605585189125",
-        "permalink": "https://www.facebook.com/1100803886069295/posts/1109605585189125",
-        "media_ids": [
-          "1109605555189128"
-        ]
-      }
-    },
-    "posted_at": "2026-09-22T09:11:39+09:00",
-    "permalinks": {
-      "instagram": "https://www.instagram.com/p/DdkauTilVW7/",
-      "facebook": "https://www.facebook.com/1100803886069295/posts/1109605585189125"
-    }
-  },
-  {
-    "id": "w02-2t",
-    "week": 2,
-    "scheduled_at": "2026-09-22T09:00:00+09:00",
-    "platforms": [
-      "instagram",
-      "facebook"
-    ],
-    "type": "image",
-    "media": [
-      "dist/cards/w02-2-oidaki.jpg"
-    ],
-    "caption": "江戸川区のハウスクリーニング店から、自分でできる範囲のお話です。\n\nお湯張りのときに黒い粒や膜が浮く。それは追い焚き配管の内側に付いたものが剥がれて出てきています。\n1. 循環口（浴槽の穴）の上まで水を張る\n2. 市販の風呂釜用洗浄剤を入れて、取扱説明書どおりに追い焚き\n3. 排水して、水だけでもう一度追い焚きしてすすぐ\n\n保健所の資料にも「取扱説明書に従って、定期的に洗浄する」とあります（愛知県 江南保健所「家庭内におけるレジオネラ対策について」）。\n\nそれでも粒が出る、配管の中がどうなっているか分からない、という方へ。\n配管から出てくる水の汚れを数値で測る点検を、無料でやっています（10分ほど・閑散期限定）。\n数値はその場でお見せして、必要なければ「今回は不要」とお伝えします。\nお申込みはプロフィールの「無料点検」のリンクから。\n\n#江戸川区 #追い焚き配管 #風呂釜掃除 #自分でできる掃除 #ハウスクリーニング",
-    "link": "https://tenken.onehitter.jp/?src=fb",
-    "status": "draft",
-    "note": "②点検推奨版"
-  },
-  {
-    "id": "w02-3",
-    "week": 2,
-    "scheduled_at": "2026-09-23T14:00:00+09:00",
-    "platforms": [
-      "instagram",
-      "facebook"
-    ],
-    "type": "carousel",
-    "media": [
-      "assets/photos/IMG_8041-bucket.jpg",
-      "assets/photos/IMG_8033.jpg",
-      "assets/photos/IMG_8038.jpg"
-    ],
-    "caption": "江戸川区のお宅で、エアコン1台。\n洗浄後に出てきた水です。\n\nフィルターの奥の熱交換器と送風ファンは、分解しないと洗えません。\n吹き出し口に黒い点が見えたら、中も同じことが多いです。\n\nエアコンの内部洗浄のご予約は、プロフィールの「エアコン」のリンクから。\n\n#江戸川区 #エアコンクリーニング #エアコン掃除 #ハウスクリーニング #西葛西",
-    "link": "https://lp.onehitter.jp/aircon/?src=fb",
-    "status": "posted",
-    "note": "③汚水＋確認済み組写真（9/9の現場）",
-    "現場日": "2026-09-09",
-    "ロゴ確認": "2026-09-23 web-inflow が全カットを目視。本舗のロゴ・制服・社名入りの道具や車・書類・080-1344-3137 いずれも写っていない。写っているのは室内機の内部・吹き出し口・白いバケツ・緑の養生テープ・ブルーシートのみ（リールは492フレームから9枚を抽出して確認。テロップに出る社名はワンヒッターのみ）",
-    "名義": "台帳は本舗名義。2026-09-23 オーナー判断「本舗名義でもロゴが映っていなければ問題ない」により出す",
-    "ロゴ確認済": true,
-    "確認者": "web-inflow（2026-09-23）",
-    "results": {
-      "instagram": {
-        "container_id": "18077282783709070",
-        "media_id": "17892815121674279",
-        "permalink": "https://www.instagram.com/p/DdpksgFjKQu/",
-        "published": true
-      },
-      "facebook": {
-        "post_id": "103698149101436_1111352511681099",
-        "permalink": "https://www.facebook.com/1100803886069295/posts/1111352511681099",
-        "media_ids": [
-          "1111352398347777",
-          "1111352435014440",
-          "1111352481681102"
-        ]
-      }
-    },
-    "posted_at": "2026-09-24T09:14:57+09:00",
-    "permalinks": {
-      "instagram": "https://www.instagram.com/p/DdpksgFjKQu/",
-      "facebook": "https://www.facebook.com/1100803886069295/posts/1111352511681099"
-    }
-  },
-  {
-    "id": "w02-3r",
-    "week": 2,
-    "scheduled_at": "2026-09-24T12:00:00+09:00",
-    "platforms": [
-      "instagram",
-      "facebook"
-    ],
-    "type": "reel",
-    "media": [
-      "dist/shorts/2026-09-09-aircon.mp4"
-    ],
-    "caption": "江戸川区のお宅で、エアコン1台。\n洗浄後に出てきた水です。\n\nフィルターの奥の熱交換器と送風ファンは、分解しないと洗えません。\n吹き出し口に黒い点が見えたら、中も同じことが多いです。\n\nエアコンの内部洗浄のご予約は、プロフィールの「エアコン」のリンクから。\n\n#江戸川区 #エアコンクリーニング #エアコン掃除 #ハウスクリーニング #西葛西",
-    "link": "https://lp.onehitter.jp/aircon/?src=fb",
-    "status": "posted",
-    "note": "③のリール（締めはLP誘導。確認済み）",
-    "現場日": "2026-09-09",
-    "ロゴ確認": "2026-09-23 web-inflow が全カットを目視。本舗のロゴ・制服・社名入りの道具や車・書類・080-1344-3137 いずれも写っていない。写っているのは室内機の内部・吹き出し口・白いバケツ・緑の養生テープ・ブルーシートのみ（リールは492フレームから9枚を抽出して確認。テロップに出る社名はワンヒッターのみ）",
-    "名義": "同上",
-    "ロゴ確認済": true,
-    "確認者": "web-inflow（2026-09-23）",
-    "results": {
-      "instagram": {
-        "container_id": "18077299046709070",
-        "media_id": "17871211818601800",
-        "permalink": "https://www.instagram.com/reel/Ddp4fRKDGNW/",
-        "published": true
-      },
-      "facebook": {
-        "video_id": "1105014032214005",
-        "post_id": "1105014032214005",
-        "permalink": "https://www.facebook.com/103698149101436/videos/1105014032214005",
-        "media_ids": [
-          "1105014032214005"
-        ]
-      }
-    },
-    "posted_at": "2026-09-24T12:08:10+09:00",
-    "permalinks": {
-      "instagram": "https://www.instagram.com/reel/Ddp4fRKDGNW/",
-      "facebook": "https://www.facebook.com/103698149101436/videos/1105014032214005"
-    }
-  },
-  {
-    "id": "w02-4",
-    "week": 2,
-    "scheduled_at": "2026-09-24T09:00:00+09:00",
-    "platforms": [
-      "instagram",
-      "facebook"
-    ],
-    "type": "image",
-    "media": [
-      "dist/cards/w02-4-yokushitsu.jpg"
-    ],
-    "caption": "カビが生えた世帯の79.7%は、浴室。\n（東京都の調査。過去3年間にカビが生えたことがある世帯は33.7%。東京都「健康・快適居住環境の指針」No.9）\n\n江戸川区のハウスクリーニング店から、自分でできる範囲のお話です。\n1. 入浴後は壁と床に冷水をかけて温度を下げ、水気を切る\n2. 換気扇は回しっぱなし。ドアは閉めて、換気の通り道を作る\n3. ドアのパッキンと、エプロン（浴槽の側面のカバー）の内側を、月1回、懐中電灯で覗く\n\nエプロンの内側と、天井の点検口の奥は、外して洗う場所です。\nそこまで黒くなっていたら、分解の出番です。\n\n#江戸川区 #浴室掃除 #お風呂掃除 #カビ対策 #自分でできる掃除 #ハウスクリーニング",
-    "link": "https://lp.onehitter.jp/mizumawari/?src=fb",
-    "status": "posted",
-    "note": "④浴室のカビ（本文は79.7%から。33.7%は括弧内）",
-    "results": {
-      "instagram": {
-        "container_id": "18077282798709070",
-        "media_id": "18105893597623039",
-        "permalink": "https://www.instagram.com/p/DdpkvOBDKBT/",
-        "published": true
-      },
-      "facebook": {
-        "post_id": "103698149101436_1111352738347743",
-        "permalink": "https://www.facebook.com/1100803886069295/posts/1111352738347743",
-        "media_ids": [
-          "1111352721681078"
-        ]
-      }
-    },
-    "posted_at": "2026-09-24T09:15:14+09:00",
-    "permalinks": {
-      "instagram": "https://www.instagram.com/p/DdpkvOBDKBT/",
-      "facebook": "https://www.facebook.com/1100803886069295/posts/1111352738347743"
-    }
-  },
-  {
-    "id": "w02-5",
-    "week": 2,
-    "scheduled_at": "2026-09-25T09:00:00+09:00",
-    "platforms": [
-      "instagram",
-      "facebook"
-    ],
-    "type": "carousel",
-    "media": [
-      "assets/photos/IMG_7987.jpg",
-      "assets/photos/IMG_7985.jpg"
-    ],
-    "caption": "江戸川区のお宅で、水まわりをまとめて。\n浴室とキッチンの、作業後です。\n\n浴室は天井・壁・床・ドア・エプロンの内側まで。\nキッチンはシンクと排水口、コンロまわり。\n同じ日にまとめると、2か所目からの料金が下がります（浴室 18,480円→同時施工 15,180円）。\n\n水まわりのご予約は、プロフィールの「水まわり」のリンクから。\n\n#江戸川区 #浴室クリーニング #キッチンクリーニング #ハウスクリーニング #西葛西",
-    "link": "https://lp.onehitter.jp/mizumawari/?src=fb",
-    "status": "posted",
-    "note": "⑤仕上がり（作業後の単独写真。組写真ではない）",
-    "現場日": "2026-09-05",
-    "名義": "One Hitter（おそうじ定期便 ¥9,800。check-meigi.py 2026-09-05 で確認）",
-    "ロゴ確認": "2026-09-23 web-inflow が目視。浴室とキッチンの作業後の寄り。ロゴ等なし",
-    "results": {
-      "instagram": {
-        "container_id": "18077418998709070",
-        "media_id": "18087995081257612",
-        "permalink": "https://www.instagram.com/p/DdsJbjfjHEC/",
-        "published": true
-      },
-      "facebook": {
-        "post_id": "103698149101436_1112333758249641",
-        "permalink": "https://www.facebook.com/1100803886069295/posts/1112333758249641",
-        "media_ids": [
-          "1112333694916314",
-          "1112333728249644"
-        ]
-      }
-    },
-    "posted_at": "2026-09-25T09:14:21+09:00",
-    "permalinks": {
-      "instagram": "https://www.instagram.com/p/DdsJbjfjHEC/",
-      "facebook": "https://www.facebook.com/1100803886069295/posts/1112333758249641"
-    }
-  },
-  {
-    "id": "w03-1",
-    "week": 3,
-    "scheduled_at": "2026-09-28T09:00:00+09:00",
-    "platforms": [
-      "instagram",
-      "facebook"
-    ],
-    "type": "image",
-    "media": [
-      "dist/cards/w03-1-kuchikomi.jpg"
-    ],
-    "caption": "「今回3回目の利用です。…クリーニング後は汚れを見せてくれるので、こんなに汚れていたんだと確認できます。」\n— Y様　★★★★★　Googleクチコミより（2026年4月）\n\n江戸川区で、作業前の状態と、洗い出した汚れをその場でお見せしています。\n洗う前に見せて、洗ったあとの水も見せる。毎回そうしています。\n\n見るだけなら無料です。内視鏡カメラで洗濯槽の裏側を、その場で一緒に見ます（10分ほど・閑散期限定）。\n汚れていなければ、「今回は不要」で終わりです。\nお申込みはプロフィールの「無料点検」のリンクから。\n\n※掲載内容はお客様個人の感想です。\n#江戸川区 #西葛西 #洗濯機掃除 #洗濯槽 #ハウスクリーニング #お客様の声",
-    "link": "https://tenken.onehitter.jp/?src=ig",
-    "status": "posted",
-    "note": "①クチコミ→洗濯槽の無料点検。承認シート week-03.md。内視鏡カメラは 2026-09-22 に到着確認済み",
-    "承認": "2026-09-28 既定承認。承認シート week-03.md の決まり「9/25 までに査読を返してもらう。差し戻しが無ければそのまま自動投稿」により、差し戻しが無かったため（依頼 20260925-01-cmo に返信なし）",
-    "results": {
-      "instagram": {
-        "container_id": "18077844524709070",
-        "media_id": "18125153626854574",
-        "permalink": "https://www.instagram.com/p/Ddz3332j765/",
-        "published": true
-      },
-      "facebook": {
-        "post_id": "103698149101436_1115242724625411",
-        "permalink": "https://www.facebook.com/1100803886069295/posts/1115242724625411",
-        "media_ids": [
-          "1115242704625413"
-        ]
-      }
-    },
-    "posted_at": "2026-09-28T09:14:50+09:00",
-    "permalinks": {
-      "instagram": "https://www.instagram.com/p/Ddz3332j765/",
-      "facebook": "https://www.facebook.com/1100803886069295/posts/1115242724625411"
-    }
-  },
-  {
-    "id": "w03-2",
-    "week": 3,
-    "scheduled_at": "2026-09-29T09:00:00+09:00",
-    "platforms": [
-      "instagram",
-      "facebook"
-    ],
-    "type": "image",
-    "media": [
-      "dist/cards/w03-2-sou-sensou.jpg"
-    ],
-    "caption": "江戸川区のハウスクリーニング店から、自分でできる範囲のお話です。\n\n洗濯機の「槽洗浄」、どのくらいの間隔でやっていますか。\nパナソニックの「よくあるご質問」のページには「月に1回程度、衣類用塩素系漂白剤や次亜錠剤を使った「槽洗浄」コースでお手入れをしてください。」とあります。\n1. 塩素系の洗濯槽クリーナーを入れ、高水位で「槽洗浄」コースか、標準コースを回す\n2. 使用後はフタを開けて乾かす。洗濯物を入れっぱなしにしない\n3. 糸くずフィルターは毎回捨てる\n\n月1回やっていても、黒いカスが続く。においが戻る。\nそういうお宅は、槽の裏の汚れが厚くなっています。市販のクリーナーでは届きにくい場所です。\n槽の裏を内視鏡カメラで見る点検を、無料でやっています（10分ほど・閑散期限定）。\n画面はその場で一緒に見て、汚れていなければ「今回は不要」で終わりです。\nお申込みはプロフィールの「無料点検」のリンクから。\n\n#江戸川区 #洗濯槽 #槽洗浄 #洗濯機掃除 #自分でできる掃除 #ハウスクリーニング",
-    "link": "https://tenken.onehitter.jp/?src=ig",
-    "status": "posted",
-    "note": "②槽洗浄→無料点検。出典はパナソニックFAQ（読本-出典.md #13）",
-    "承認": "2026-09-28 既定承認。承認シート week-03.md の決まり「9/25 までに査読を返してもらう。差し戻しが無ければそのまま自動投稿」により、差し戻しが無かったため（依頼 20260925-01-cmo に返信なし）",
-    "results": {
-      "instagram": {
-        "container_id": "18077974532709070",
-        "media_id": "18070919111767675",
-        "permalink": "https://www.instagram.com/p/Dd2cmV9l9Vs/",
-        "published": true
-      },
-      "facebook": {
-        "post_id": "103698149101436_1116223941193956",
-        "permalink": "https://www.facebook.com/1100803886069295/posts/1116223941193956",
-        "media_ids": [
-          "1116223914527292"
-        ]
-      }
-    },
-    "posted_at": "2026-09-29T09:14:13+09:00",
-    "permalinks": {
-      "instagram": "https://www.instagram.com/p/Dd2cmV9l9Vs/",
-      "facebook": "https://www.facebook.com/1100803886069295/posts/1116223941193956"
-    }
-  },
-  {
-    "id": "w03-3",
-    "week": 3,
-    "scheduled_at": "2026-09-30T09:00:00+09:00",
-    "platforms": [
-      "instagram",
-      "facebook"
-    ],
-    "type": "carousel",
-    "media": [
-      "assets/photos/IMG_8007.jpg",
-      "assets/photos/IMG_8009.jpg",
-      "assets/photos/IMG_8016.jpg",
-      "assets/photos/IMG_8023-bucket.jpg"
-    ],
-    "caption": "江戸川区のお宅で、壁掛けエアコン。\n1枚目が前面パネルを外した中、2枚目が熱交換器の洗う前、3枚目が同じ場所の洗浄直後です。\n4枚目が、この日の作業で出た水。\n\n熱交換器に出ていた黒い帯と白い筋は、フィルターの目を抜けた細かい埃です。\nフィルターを洗っても、ここには届きません。分解して、部品ごとに洗います。\n\nエアコンの内部洗浄のご予約は、プロフィールの「エアコン」のリンクから。\n\n#江戸川区 #エアコンクリーニング #エアコン掃除 #ハウスクリーニング #西葛西",
-    "link": "https://lp.onehitter.jp/aircon/?src=ig",
-    "status": "posted",
-    "現場日": "2026-09-08",
-    "ロゴ確認": "2026-09-25 web-inflow が4枚とも目視。本舗のロゴ・制服・社名入りの道具や車・書類・080-1344-3137 いずれも無し。室内機の内部・緑の養生テープ・ビニール・白いバケツのみ",
-    "ロゴ確認済": true,
-    "確認者": "web-inflow（2026-09-25）",
-    "note": "③ 9/8の現場に差し替え（元案の8033/8038/8041は w02-3 で投稿済みだったため）。リールは付けない",
-    "承認": "2026-09-28 既定承認。承認シート week-03.md の決まり「9/25 までに査読を返してもらう。差し戻しが無ければそのまま自動投稿」により、差し戻しが無かったため（依頼 20260925-01-cmo に返信なし）",
-    "results": {
-      "instagram": {
-        "container_id": "18078105950709070",
-        "media_id": "17870312562647367",
-        "permalink": "https://www.instagram.com/p/Dd5BeaXDd4J/",
-        "published": true
-      },
-      "facebook": {
-        "post_id": "103698149101436_1117189447764072",
-        "permalink": "https://www.facebook.com/1100803886069295/posts/1117189447764072",
-        "media_ids": [
-          "1117189277764089",
-          "1117189317764085",
-          "1117189364430747",
-          "1117189417764075"
-        ]
-      }
-    },
-    "posted_at": "2026-09-30T09:15:04+09:00",
-    "permalinks": {
-      "instagram": "https://www.instagram.com/p/Dd5BeaXDd4J/",
-      "facebook": "https://www.facebook.com/1100803886069295/posts/1117189447764072"
-    }
-  },
-  {
-    "id": "w03-4",
-    "week": 3,
-    "scheduled_at": "2026-10-01T09:00:00+09:00",
-    "platforms": [
-      "instagram",
-      "facebook"
-    ],
-    "type": "image",
-    "media": [
-      "dist/cards/w03-4-hood-filter.jpg"
-    ],
-    "caption": "江戸川区のハウスクリーニング店から、自分でできる範囲のお話です。\n\nレンジフードのフィルター、油でベタつく前なら、つけ置きで落ちます。\n1. フィルターを外し、40℃のお湯に台所用洗剤を溶かして30分つけ置き\n2. 古い歯ブラシで目に沿ってこする。ステンレスたわしは傷になるので使わない\n3. フードの外側は、水で薄めた台所用洗剤で拭く\n\nファン本体（シロッコファン）の取り外しは、メーカーの手順が要ります。無理に外すと戻せなくなるので、そこからは分解洗浄の出番です。\nフィルターを洗っても吸いが弱い、油が垂れる。それはファンの羽根に油が層になっているサインです。\n\n年末の大掃除、レンジフードは早めの枠がおすすめです。\nご予約はプロフィールの「年末の大掃除」のリンクから。\n\n#江戸川区 #レンジフード掃除 #換気扇掃除 #自分でできる掃除 #年末大掃除 #ハウスクリーニング",
-    "link": "https://lp.onehitter.jp/nenmatsu/?src=ig",
-    "status": "posted",
-    "note": "④レンジフードのフィルター→年末LP。10/1からプロフィールのリンク1本目を年末LPに差し替える",
-    "承認": "2026-09-28 既定承認。承認シート week-03.md の決まり「9/25 までに査読を返してもらう。差し戻しが無ければそのまま自動投稿」により、差し戻しが無かったため（依頼 20260925-01-cmo に返信なし）",
-    "results": {
-      "instagram": {
-        "container_id": "18078247349709070",
-        "media_id": "18113747615594123",
-        "permalink": "https://www.instagram.com/p/Dd7mGYcDQSC/",
-        "published": true
-      },
-      "facebook": {
-        "post_id": "103698149101436_1118203294329354",
-        "permalink": "https://www.facebook.com/1100803886069295/posts/1118203294329354",
-        "media_ids": [
-          "1118203270996023"
-        ]
-      }
-    },
-    "posted_at": "2026-10-01T09:13:37+09:00",
-    "permalinks": {
-      "instagram": "https://www.instagram.com/p/Dd7mGYcDQSC/",
-      "facebook": "https://www.facebook.com/1100803886069295/posts/1118203294329354"
-    }
-  },
-  {
-    "id": "w03-5",
-    "week": 3,
-    "scheduled_at": "2026-10-02T09:00:00+09:00",
-    "platforms": [
-      "instagram",
-      "facebook"
-    ],
-    "type": "carousel",
-    "media": [
-      "assets/photos/IMG_8031.jpg",
-      "assets/photos/IMG_8039.jpg"
-    ],
-    "caption": "江戸川区のお宅で、壁掛けエアコン。\nフィルターを外した奥にある熱交換器（アルミのフィン）の、洗う前と、洗ったあとです。\n\n灰色に見えていたのは、フィンのあいだに詰まったほこりとカビ。\nここは分解しないと洗えません。洗って、乾かして、元に戻します。\n\n年末の大掃除、エアコンのご予約も受け付けています。10月のうちなら、日程の希望が通りやすいです。\nご予約はプロフィールの「年末の大掃除」のリンクから。\n\n#江戸川区 #エアコンクリーニング #エアコン掃除 #年末大掃除 #ハウスクリーニング #西葛西",
-    "link": "https://lp.onehitter.jp/nenmatsu/?src=ig",
-    "status": "posted",
-    "現場日": "2026-09-09",
-    "ロゴ確認": "2026-09-25 web-inflow が2枚とも目視。本舗のロゴ・制服・社名入りの道具や車・書類・080-1344-3137 いずれも無し。熱交換器の寄りのみ",
-    "ロゴ確認済": true,
-    "確認者": "web-inflow（2026-09-25）",
-    "note": "⑤熱交換器の前後（組4・確認済み）→年末LP。8039 の右上の黄色いタオルは切らない（作業用でロゴ無し。切ると 8031 と画角がずれて前後を見比べにくくなるため）",
-    "承認": "2026-09-28 既定承認。承認シート week-03.md の決まり「9/25 までに査読を返してもらう。差し戻しが無ければそのまま自動投稿」により、差し戻しが無かったため（依頼 20260925-01-cmo に返信なし）",
-    "results": {
-      "instagram": {
-        "container_id": "18078381929709070",
-        "media_id": "17872745145649981",
-        "permalink": "https://www.instagram.com/p/Dd-K52tibbH/",
-        "published": true
-      },
-      "facebook": {
-        "post_id": "103698149101436_1119246987558318",
-        "permalink": "https://www.facebook.com/1100803886069295/posts/1119246987558318",
-        "media_ids": [
-          "1119246907558326",
-          "1119246950891655"
-        ]
-      }
-    },
-    "posted_at": "2026-10-02T09:13:34+09:00",
-    "permalinks": {
-      "instagram": "https://www.instagram.com/p/Dd-K52tibbH/",
-      "facebook": "https://www.facebook.com/1100803886069295/posts/1119246987558318"
-    }
+  "posted_at": "2026-09-12T09:22:58+09:00",
+  "permalinks": {
+   "instagram": "https://www.instagram.com/p/DdKsEdllUbV/",
+   "facebook": "https://www.facebook.com/1100803886069295/posts/1100803849402632"
   }
+ },
+ {
+  "id": "w01-2",
+  "week": 1,
+  "scheduled_at": "2026-09-15T09:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "image",
+  "media": [
+   "dist/cards/w01-2-filter.jpg"
+  ],
+  "caption": "江戸川区のハウスクリーニング店から、自分でできる範囲のお話です。\n\nエアコンのフィルター、2週間に1度の水洗いで、風量とニオイはかなり変わります。\n1. 電源を切って、フィルターを外す\n2. ぬるま湯で水洗い（洗剤は不要）\n3. 陰干しして戻す\n\nここから先（熱交換器・送風ファン）は分解が要るので、ご自分では触らないでください。\n吹き出し口に黒い点が見えたら、中はもっと汚れています。\n\n#江戸川区 #エアコン掃除 #自分でできる掃除 #ハウスクリーニング",
+  "link": "https://lp.onehitter.jp/aircon/?src=fb",
+  "status": "posted",
+  "memo": "型D コツ：エアコンのフィルター",
+  "results": {
+   "instagram": {
+    "container_id": "18076029743709070",
+    "media_id": "18106252214232305",
+    "permalink": "https://www.instagram.com/p/DdSYjIPlTMq/",
+    "published": true
+   },
+   "facebook": {
+    "post_id": "103698149101436_1103395149143502",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1103395149143502",
+    "media_ids": [
+     "1103395125810171"
+    ]
+   }
+  },
+  "posted_at": "2026-09-15T09:06:14+09:00",
+  "permalinks": {
+   "instagram": "https://www.instagram.com/p/DdSYjIPlTMq/",
+   "facebook": "https://www.facebook.com/1100803886069295/posts/1103395149143502"
+  }
+ },
+ {
+  "id": "w01-3",
+  "week": 1,
+  "scheduled_at": "2026-09-16T09:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "carousel",
+  "media": [
+   "assets/photos/IMG_7963.jpg",
+   "assets/photos/IMG_7969.jpg",
+   "assets/photos/IMG_7976.jpg",
+   "assets/photos/IMG_7965.jpg"
+  ],
+  "caption": "江戸川区で、エアコン。\n\n・吹き出し口の羽根（ルーバー）に黒い点。内部の送風ファンに付いたカビが飛んできたもの\n・熱交換器（アルミのフィン）に黒カビ。フィルターの内側なので、フィルター掃除では届かない\n・洗浄後の汚水は茶色。1台分\n\n「フィルターは掃除している」というお宅でも、内部はこうなっていることがあります。黒い点が吹き出し口に見えたら、中はもっと汚れています。\n\nエアコンの内部洗浄のご予約は、プロフィールの「エアコン」のリンクから。\n\n#江戸川区 #ハウスクリーニング #エアコンクリーニング #エアコン掃除 #西葛西",
+  "link": "https://lp.onehitter.jp/aircon/?src=fb",
+  "status": "posted",
+  "memo": "型A+B 江戸川区・エアコン（組写真 7963→7969 確認済み）",
+  "results": {
+   "instagram": {
+    "container_id": "18076183256709070",
+    "media_id": "18088655597208122",
+    "permalink": "https://www.instagram.com/p/DdVRjEsFg2h/",
+    "published": true
+   },
+   "facebook": {
+    "post_id": "103698149101436_1104394075710276",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1104394075710276",
+    "media_ids": [
+     "1104393912376959",
+     "1104393945710289",
+     "1104393985710285",
+     "1104394035710280"
+    ]
+   }
+  },
+  "posted_at": "2026-09-16T12:02:51+09:00",
+  "permalinks": {
+   "instagram": "https://www.instagram.com/p/DdVRjEsFg2h/",
+   "facebook": "https://www.facebook.com/1100803886069295/posts/1104394075710276"
+  }
+ },
+ {
+  "id": "w01-3r",
+  "week": 1,
+  "scheduled_at": "2026-09-16T12:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "reel",
+  "media": [
+   "dist/shorts/2026-09-04-aircon.mp4"
+  ],
+  "caption": "江戸川区で、エアコン。\n\n・吹き出し口の羽根（ルーバー）に黒い点。内部の送風ファンに付いたカビが飛んできたもの\n・熱交換器（アルミのフィン）に黒カビ。フィルターの内側なので、フィルター掃除では届かない\n・洗浄後の汚水は茶色。1台分\n\n「フィルターは掃除している」というお宅でも、内部はこうなっていることがあります。黒い点が吹き出し口に見えたら、中はもっと汚れています。\n\nエアコンの内部洗浄のご予約は、プロフィールの「エアコン」のリンクから。\n\n#江戸川区 #ハウスクリーニング #エアコンクリーニング #エアコン掃除 #西葛西",
+  "link": "https://lp.onehitter.jp/aircon/?src=fb",
+  "status": "posted",
+  "memo": "③のリール。動画の最終確認後に approved にする",
+  "note": "（2026-09-12 締めのCTAをLP誘導に作り直して確認済み）",
+  "results": {
+   "instagram": {
+    "container_id": "18076183388709070",
+    "media_id": "17941463802350763",
+    "permalink": "https://www.instagram.com/reel/DdVRm8GlUUy/",
+    "published": true
+   },
+   "facebook": {
+    "video_id": "28610301858657874",
+    "post_id": "28610301858657874",
+    "permalink": "https://www.facebook.com/103698149101436/videos/28610301858657874",
+    "media_ids": [
+     "28610301858657874"
+    ]
+   }
+  },
+  "posted_at": "2026-09-16T12:03:40+09:00",
+  "permalinks": {
+   "instagram": "https://www.instagram.com/reel/DdVRm8GlUUy/",
+   "facebook": "https://www.facebook.com/103698149101436/videos/28610301858657874"
+  }
+ },
+ {
+  "id": "w01-4",
+  "week": 1,
+  "scheduled_at": "2026-09-17T09:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "image",
+  "media": [
+   "dist/cards/w01-4-sentakusou.jpg"
+  ],
+  "caption": "洗濯物に黒いカスが付く、洗濯機がにおう。\nそれは洗濯槽の裏側のカビが剥がれて出てきたものです。\n\nまずは市販の洗濯槽クリーナー（酸素系より塩素系のほうが効きます）を、高水位で1回。\n使ったあとはフタを開けて乾かす。糸くずフィルターは毎回捨てる。\n\nそれでも黒いカスが続くなら、槽の裏の汚れが厚くなっています。\n市販のクリーナーでは届かない場所なので、分解して槽の裏を直接洗う時期です。\n\n#江戸川区 #洗濯槽 #洗濯機掃除 #自分でできる掃除 #ハウスクリーニング",
+  "link": "https://lp.onehitter.jp/mizumawari/?src=fb",
+  "status": "posted",
+  "memo": "型D コツ：洗濯槽",
+  "results": {
+   "instagram": {
+    "container_id": "18076306025709070",
+    "media_id": "18087527408450686",
+    "permalink": "https://www.instagram.com/p/DdXh8u3lDRo/",
+    "published": true
+   },
+   "facebook": {
+    "post_id": "103698149101436_1105191458963871",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1105191458963871",
+    "media_ids": [
+     "1105191442297206"
+    ]
+   }
+  },
+  "posted_at": "2026-09-17T09:04:36+09:00",
+  "permalinks": {
+   "instagram": "https://www.instagram.com/p/DdXh8u3lDRo/",
+   "facebook": "https://www.facebook.com/1100803886069295/posts/1105191458963871"
+  }
+ },
+ {
+  "id": "w01-5",
+  "week": 1,
+  "scheduled_at": "2026-09-18T09:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "carousel",
+  "media": [
+   "assets/photos/IMG_7877.jpg",
+   "assets/photos/IMG_7880.jpg"
+  ],
+  "caption": "江戸川区で、レンジフード。\n\n・シロッコファン（羽根車）の羽根の1枚1枚に、油が層になって付いている\n・羽根の間が油で埋まりかけている。この状態では回しても煙を吸わない\n\nフィルターを洗っても直らない「吸わない・音が大きい」は、このファンが原因のことがほとんどです。ここは分解しないと洗えません。\n\nレンジフードの分解洗浄のご予約は、プロフィールの「水まわり」のリンクから。\n\n#江戸川区 #ハウスクリーニング #レンジフードクリーニング #換気扇掃除 #西葛西",
+  "link": "https://lp.onehitter.jp/mizumawari/?src=fb",
+  "status": "posted",
+  "memo": "型B 江戸川区・レンジフード（作業前2枚。組写真ではない）",
+  "results": {
+   "instagram": {
+    "container_id": "18076448501709070",
+    "media_id": "17970833172156698",
+    "permalink": "https://www.instagram.com/p/DdaGVqtlyyR/",
+    "published": true
+   },
+   "facebook": {
+    "post_id": "103698149101436_1106070965542587",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1106070965542587",
+    "media_ids": [
+     "1106070865542597",
+     "1106070912209259"
+    ]
+   }
+  },
+  "posted_at": "2026-09-18T09:01:07+09:00",
+  "permalinks": {
+   "instagram": "https://www.instagram.com/p/DdaGVqtlyyR/",
+   "facebook": "https://www.facebook.com/1100803886069295/posts/1106070965542587"
+  }
+ },
+ {
+  "id": "w01-5r",
+  "week": 1,
+  "scheduled_at": "2026-09-18T12:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "reel",
+  "media": [
+   "dist/shorts/2026-08-31-hood.mp4"
+  ],
+  "caption": "江戸川区で、レンジフード。\n\n・シロッコファン（羽根車）の羽根の1枚1枚に、油が層になって付いている\n・羽根の間が油で埋まりかけている。この状態では回しても煙を吸わない\n\nフィルターを洗っても直らない「吸わない・音が大きい」は、このファンが原因のことがほとんどです。ここは分解しないと洗えません。\n\nレンジフードの分解洗浄のご予約は、プロフィールの「水まわり」のリンクから。\n\n#江戸川区 #ハウスクリーニング #レンジフードクリーニング #換気扇掃除 #西葛西",
+  "link": "https://lp.onehitter.jp/mizumawari/?src=fb",
+  "status": "posted",
+  "memo": "⑤のリール。動画の最終確認後に approved にする",
+  "note": "（2026-09-12 締めのCTAをLP誘導に作り直して確認済み）",
+  "results": {
+   "instagram": {
+    "container_id": "18076461875709070",
+    "media_id": "18476568919117691",
+    "permalink": "https://www.instagram.com/reel/DdabTLSkQxd/",
+    "published": true
+   },
+   "facebook": {
+    "video_id": "4649362321968581",
+    "post_id": "4649362321968581",
+    "permalink": "https://www.facebook.com/103698149101436/videos/4649362321968581",
+    "media_ids": [
+     "4649362321968581"
+    ]
+   }
+  },
+  "posted_at": "2026-09-18T12:04:38+09:00",
+  "permalinks": {
+   "instagram": "https://www.instagram.com/reel/DdabTLSkQxd/",
+   "facebook": "https://www.facebook.com/103698149101436/videos/4649362321968581"
+  }
+ },
+ {
+  "id": "w02-1",
+  "week": 2,
+  "scheduled_at": "2026-09-21T09:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "image",
+  "media": [
+   "dist/cards/w02-1-kuchikomi.jpg"
+  ],
+  "caption": "「洗濯機は60度の水温設定でハイターを使って曹洗浄を定期的にやっているにも関わらずカビがはびこっていてびっくり。」\n— M様　★★★★★　Googleクチコミより（2024年4月）\n\n江戸川区で、洗濯機を分解して槽の裏側から洗っています。\n市販のクリーナーを定期的に使っているお宅でも、槽の裏は別、ということがよくあります。\n黒いカスが洗濯物に付くようになったら、槽の裏の話です。\n\n洗濯機・浴室・キッチンのご予約は、プロフィールの「水まわり」のリンクから。\n\n※掲載内容はお客様個人の感想です。「ハイター」は花王株式会社の登録商標です。\n#江戸川区 #西葛西 #洗濯機掃除 #洗濯槽 #ハウスクリーニング #お客様の声",
+  "link": "https://lp.onehitter.jp/mizumawari/?src=fb",
+  "status": "posted",
+  "note": "①差し替え版（クチコミ→水回りLP）。点検ページ公開＋内視鏡到着が9/19までに揃えば w02-1t に切替",
+  "results": {
+   "instagram": {
+    "container_id": "18077008151709070",
+    "media_id": "18030580154850554",
+    "permalink": "https://www.instagram.com/p/Ddkari8kssB/",
+    "published": true
+   },
+   "facebook": {
+    "post_id": "103698149101436_1109605371855813",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1109605371855813",
+    "media_ids": [
+     "1109605355189148"
+    ]
+   }
+  },
+  "posted_at": "2026-09-22T09:11:11+09:00",
+  "permalinks": {
+   "instagram": "https://www.instagram.com/p/Ddkari8kssB/",
+   "facebook": "https://www.facebook.com/1100803886069295/posts/1109605371855813"
+  }
+ },
+ {
+  "id": "w02-1t",
+  "week": 2,
+  "scheduled_at": "2026-09-21T09:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "image",
+  "media": [
+   "dist/cards/w02-1-kuchikomi.jpg"
+  ],
+  "caption": "「洗濯機は60度の水温設定でハイターを使って曹洗浄を定期的にやっているにも関わらずカビがはびこっていてびっくり。」\n— M様　★★★★★　Googleクチコミより（2024年4月）\n\n江戸川区で、洗濯機を分解して槽の裏側から洗っています。\n市販のクリーナーを定期的に使っているお宅でも、槽の裏は別、ということがよくあります。\n\n見るだけなら無料です。内視鏡カメラで槽の裏側を、その場で一緒に見ます（10分ほど・閑散期限定）。\n汚れていなければ「今回は不要」とお伝えします。\nお申込みはプロフィールの「無料点検」のリンクから。\n\n※掲載内容はお客様個人の感想です。「ハイター」は花王株式会社の登録商標です。\n#江戸川区 #西葛西 #洗濯機掃除 #洗濯槽 #ハウスクリーニング #お客様の声",
+  "link": "https://tenken.onehitter.jp/?src=fb",
+  "status": "draft",
+  "note": "①点検推奨版。条件が揃ったら approved にして w02-1 を draft に"
+ },
+ {
+  "id": "w02-2",
+  "week": 2,
+  "scheduled_at": "2026-09-22T09:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "image",
+  "media": [
+   "dist/cards/w02-2-oidaki.jpg"
+  ],
+  "caption": "江戸川区のハウスクリーニング店から、自分でできる範囲のお話です。\n\nお湯張りのときに黒い粒や膜が浮く。それは追い焚き配管の内側に付いたものが剥がれて出てきています。\n1. 循環口（浴槽の穴）の上まで水を張る\n2. 市販の風呂釜用洗浄剤を入れて、取扱説明書どおりに追い焚き\n3. 排水して、水だけでもう一度追い焚きしてすすぐ\n\n保健所の資料にも「取扱説明書に従って、定期的に洗浄する」とあります（愛知県 江南保健所「家庭内におけるレジオネラ対策について」）。\nそれでも粒が出るなら、配管の内側に層になっています。専用の機械で配管を洗う出番です。\n\n追い焚き配管・浴室のご予約は、プロフィールの「水まわり」のリンクから。\n\n#江戸川区 #追い焚き配管 #風呂釜掃除 #自分でできる掃除 #ハウスクリーニング",
+  "link": "https://lp.onehitter.jp/mizumawari/?src=fb",
+  "status": "posted",
+  "note": "②差し替え版（コツ→水回りLP）",
+  "results": {
+   "instagram": {
+    "container_id": "18077008178709070",
+    "media_id": "17999090873816329",
+    "permalink": "https://www.instagram.com/p/DdkauTilVW7/",
+    "published": true
+   },
+   "facebook": {
+    "post_id": "103698149101436_1109605585189125",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1109605585189125",
+    "media_ids": [
+     "1109605555189128"
+    ]
+   }
+  },
+  "posted_at": "2026-09-22T09:11:39+09:00",
+  "permalinks": {
+   "instagram": "https://www.instagram.com/p/DdkauTilVW7/",
+   "facebook": "https://www.facebook.com/1100803886069295/posts/1109605585189125"
+  }
+ },
+ {
+  "id": "w02-2t",
+  "week": 2,
+  "scheduled_at": "2026-09-22T09:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "image",
+  "media": [
+   "dist/cards/w02-2-oidaki.jpg"
+  ],
+  "caption": "江戸川区のハウスクリーニング店から、自分でできる範囲のお話です。\n\nお湯張りのときに黒い粒や膜が浮く。それは追い焚き配管の内側に付いたものが剥がれて出てきています。\n1. 循環口（浴槽の穴）の上まで水を張る\n2. 市販の風呂釜用洗浄剤を入れて、取扱説明書どおりに追い焚き\n3. 排水して、水だけでもう一度追い焚きしてすすぐ\n\n保健所の資料にも「取扱説明書に従って、定期的に洗浄する」とあります（愛知県 江南保健所「家庭内におけるレジオネラ対策について」）。\n\nそれでも粒が出る、配管の中がどうなっているか分からない、という方へ。\n配管から出てくる水の汚れを数値で測る点検を、無料でやっています（10分ほど・閑散期限定）。\n数値はその場でお見せして、必要なければ「今回は不要」とお伝えします。\nお申込みはプロフィールの「無料点検」のリンクから。\n\n#江戸川区 #追い焚き配管 #風呂釜掃除 #自分でできる掃除 #ハウスクリーニング",
+  "link": "https://tenken.onehitter.jp/?src=fb",
+  "status": "draft",
+  "note": "②点検推奨版"
+ },
+ {
+  "id": "w02-3",
+  "week": 2,
+  "scheduled_at": "2026-09-23T14:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "carousel",
+  "media": [
+   "assets/photos/IMG_8041-bucket.jpg",
+   "assets/photos/IMG_8033.jpg",
+   "assets/photos/IMG_8038.jpg"
+  ],
+  "caption": "江戸川区のお宅で、エアコン1台。\n洗浄後に出てきた水です。\n\nフィルターの奥の熱交換器と送風ファンは、分解しないと洗えません。\n吹き出し口に黒い点が見えたら、中も同じことが多いです。\n\nエアコンの内部洗浄のご予約は、プロフィールの「エアコン」のリンクから。\n\n#江戸川区 #エアコンクリーニング #エアコン掃除 #ハウスクリーニング #西葛西",
+  "link": "https://lp.onehitter.jp/aircon/?src=fb",
+  "status": "posted",
+  "note": "③汚水＋確認済み組写真（9/9の現場）",
+  "現場日": "2026-09-09",
+  "ロゴ確認": "2026-09-23 web-inflow が全カットを目視。本舗のロゴ・制服・社名入りの道具や車・書類・080-1344-3137 いずれも写っていない。写っているのは室内機の内部・吹き出し口・白いバケツ・緑の養生テープ・ブルーシートのみ（リールは492フレームから9枚を抽出して確認。テロップに出る社名はワンヒッターのみ）",
+  "名義": "台帳は本舗名義。2026-09-23 オーナー判断「本舗名義でもロゴが映っていなければ問題ない」により出す",
+  "ロゴ確認済": true,
+  "確認者": "web-inflow（2026-09-23）",
+  "results": {
+   "instagram": {
+    "container_id": "18077282783709070",
+    "media_id": "17892815121674279",
+    "permalink": "https://www.instagram.com/p/DdpksgFjKQu/",
+    "published": true
+   },
+   "facebook": {
+    "post_id": "103698149101436_1111352511681099",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1111352511681099",
+    "media_ids": [
+     "1111352398347777",
+     "1111352435014440",
+     "1111352481681102"
+    ]
+   }
+  },
+  "posted_at": "2026-09-24T09:14:57+09:00",
+  "permalinks": {
+   "instagram": "https://www.instagram.com/p/DdpksgFjKQu/",
+   "facebook": "https://www.facebook.com/1100803886069295/posts/1111352511681099"
+  }
+ },
+ {
+  "id": "w02-3r",
+  "week": 2,
+  "scheduled_at": "2026-09-24T12:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "reel",
+  "media": [
+   "dist/shorts/2026-09-09-aircon.mp4"
+  ],
+  "caption": "江戸川区のお宅で、エアコン1台。\n洗浄後に出てきた水です。\n\nフィルターの奥の熱交換器と送風ファンは、分解しないと洗えません。\n吹き出し口に黒い点が見えたら、中も同じことが多いです。\n\nエアコンの内部洗浄のご予約は、プロフィールの「エアコン」のリンクから。\n\n#江戸川区 #エアコンクリーニング #エアコン掃除 #ハウスクリーニング #西葛西",
+  "link": "https://lp.onehitter.jp/aircon/?src=fb",
+  "status": "posted",
+  "note": "③のリール（締めはLP誘導。確認済み）",
+  "現場日": "2026-09-09",
+  "ロゴ確認": "2026-09-23 web-inflow が全カットを目視。本舗のロゴ・制服・社名入りの道具や車・書類・080-1344-3137 いずれも写っていない。写っているのは室内機の内部・吹き出し口・白いバケツ・緑の養生テープ・ブルーシートのみ（リールは492フレームから9枚を抽出して確認。テロップに出る社名はワンヒッターのみ）",
+  "名義": "同上",
+  "ロゴ確認済": true,
+  "確認者": "web-inflow（2026-09-23）",
+  "results": {
+   "instagram": {
+    "container_id": "18077299046709070",
+    "media_id": "17871211818601800",
+    "permalink": "https://www.instagram.com/reel/Ddp4fRKDGNW/",
+    "published": true
+   },
+   "facebook": {
+    "video_id": "1105014032214005",
+    "post_id": "1105014032214005",
+    "permalink": "https://www.facebook.com/103698149101436/videos/1105014032214005",
+    "media_ids": [
+     "1105014032214005"
+    ]
+   }
+  },
+  "posted_at": "2026-09-24T12:08:10+09:00",
+  "permalinks": {
+   "instagram": "https://www.instagram.com/reel/Ddp4fRKDGNW/",
+   "facebook": "https://www.facebook.com/103698149101436/videos/1105014032214005"
+  }
+ },
+ {
+  "id": "w02-4",
+  "week": 2,
+  "scheduled_at": "2026-09-24T09:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "image",
+  "media": [
+   "dist/cards/w02-4-yokushitsu.jpg"
+  ],
+  "caption": "カビが生えた世帯の79.7%は、浴室。\n（東京都の調査。過去3年間にカビが生えたことがある世帯は33.7%。東京都「健康・快適居住環境の指針」No.9）\n\n江戸川区のハウスクリーニング店から、自分でできる範囲のお話です。\n1. 入浴後は壁と床に冷水をかけて温度を下げ、水気を切る\n2. 換気扇は回しっぱなし。ドアは閉めて、換気の通り道を作る\n3. ドアのパッキンと、エプロン（浴槽の側面のカバー）の内側を、月1回、懐中電灯で覗く\n\nエプロンの内側と、天井の点検口の奥は、外して洗う場所です。\nそこまで黒くなっていたら、分解の出番です。\n\n#江戸川区 #浴室掃除 #お風呂掃除 #カビ対策 #自分でできる掃除 #ハウスクリーニング",
+  "link": "https://lp.onehitter.jp/mizumawari/?src=fb",
+  "status": "posted",
+  "note": "④浴室のカビ（本文は79.7%から。33.7%は括弧内）",
+  "results": {
+   "instagram": {
+    "container_id": "18077282798709070",
+    "media_id": "18105893597623039",
+    "permalink": "https://www.instagram.com/p/DdpkvOBDKBT/",
+    "published": true
+   },
+   "facebook": {
+    "post_id": "103698149101436_1111352738347743",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1111352738347743",
+    "media_ids": [
+     "1111352721681078"
+    ]
+   }
+  },
+  "posted_at": "2026-09-24T09:15:14+09:00",
+  "permalinks": {
+   "instagram": "https://www.instagram.com/p/DdpkvOBDKBT/",
+   "facebook": "https://www.facebook.com/1100803886069295/posts/1111352738347743"
+  }
+ },
+ {
+  "id": "w02-5",
+  "week": 2,
+  "scheduled_at": "2026-09-25T09:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "carousel",
+  "media": [
+   "assets/photos/IMG_7987.jpg",
+   "assets/photos/IMG_7985.jpg"
+  ],
+  "caption": "江戸川区のお宅で、水まわりをまとめて。\n浴室とキッチンの、作業後です。\n\n浴室は天井・壁・床・ドア・エプロンの内側まで。\nキッチンはシンクと排水口、コンロまわり。\n同じ日にまとめると、2か所目からの料金が下がります（浴室 18,480円→同時施工 15,180円）。\n\n水まわりのご予約は、プロフィールの「水まわり」のリンクから。\n\n#江戸川区 #浴室クリーニング #キッチンクリーニング #ハウスクリーニング #西葛西",
+  "link": "https://lp.onehitter.jp/mizumawari/?src=fb",
+  "status": "posted",
+  "note": "⑤仕上がり（作業後の単独写真。組写真ではない）",
+  "現場日": "2026-09-05",
+  "名義": "One Hitter（おそうじ定期便 ¥9,800。check-meigi.py 2026-09-05 で確認）",
+  "ロゴ確認": "2026-09-23 web-inflow が目視。浴室とキッチンの作業後の寄り。ロゴ等なし",
+  "results": {
+   "instagram": {
+    "container_id": "18077418998709070",
+    "media_id": "18087995081257612",
+    "permalink": "https://www.instagram.com/p/DdsJbjfjHEC/",
+    "published": true
+   },
+   "facebook": {
+    "post_id": "103698149101436_1112333758249641",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1112333758249641",
+    "media_ids": [
+     "1112333694916314",
+     "1112333728249644"
+    ]
+   }
+  },
+  "posted_at": "2026-09-25T09:14:21+09:00",
+  "permalinks": {
+   "instagram": "https://www.instagram.com/p/DdsJbjfjHEC/",
+   "facebook": "https://www.facebook.com/1100803886069295/posts/1112333758249641"
+  }
+ },
+ {
+  "id": "w03-1",
+  "week": 3,
+  "scheduled_at": "2026-09-28T09:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "image",
+  "media": [
+   "dist/cards/w03-1-kuchikomi.jpg"
+  ],
+  "caption": "「今回3回目の利用です。…クリーニング後は汚れを見せてくれるので、こんなに汚れていたんだと確認できます。」\n— Y様　★★★★★　Googleクチコミより（2026年4月）\n\n江戸川区で、作業前の状態と、洗い出した汚れをその場でお見せしています。\n洗う前に見せて、洗ったあとの水も見せる。毎回そうしています。\n\n見るだけなら無料です。内視鏡カメラで洗濯槽の裏側を、その場で一緒に見ます（10分ほど・閑散期限定）。\n汚れていなければ、「今回は不要」で終わりです。\nお申込みはプロフィールの「無料点検」のリンクから。\n\n※掲載内容はお客様個人の感想です。\n#江戸川区 #西葛西 #洗濯機掃除 #洗濯槽 #ハウスクリーニング #お客様の声",
+  "link": "https://tenken.onehitter.jp/?src=ig",
+  "status": "posted",
+  "note": "①クチコミ→洗濯槽の無料点検。承認シート week-03.md。内視鏡カメラは 2026-09-22 に到着確認済み",
+  "承認": "2026-09-28 既定承認。承認シート week-03.md の決まり「9/25 までに査読を返してもらう。差し戻しが無ければそのまま自動投稿」により、差し戻しが無かったため（依頼 20260925-01-cmo に返信なし）",
+  "results": {
+   "instagram": {
+    "container_id": "18077844524709070",
+    "media_id": "18125153626854574",
+    "permalink": "https://www.instagram.com/p/Ddz3332j765/",
+    "published": true
+   },
+   "facebook": {
+    "post_id": "103698149101436_1115242724625411",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1115242724625411",
+    "media_ids": [
+     "1115242704625413"
+    ]
+   }
+  },
+  "posted_at": "2026-09-28T09:14:50+09:00",
+  "permalinks": {
+   "instagram": "https://www.instagram.com/p/Ddz3332j765/",
+   "facebook": "https://www.facebook.com/1100803886069295/posts/1115242724625411"
+  }
+ },
+ {
+  "id": "w03-2",
+  "week": 3,
+  "scheduled_at": "2026-09-29T09:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "image",
+  "media": [
+   "dist/cards/w03-2-sou-sensou.jpg"
+  ],
+  "caption": "江戸川区のハウスクリーニング店から、自分でできる範囲のお話です。\n\n洗濯機の「槽洗浄」、どのくらいの間隔でやっていますか。\nパナソニックの「よくあるご質問」のページには「月に1回程度、衣類用塩素系漂白剤や次亜錠剤を使った「槽洗浄」コースでお手入れをしてください。」とあります。\n1. 塩素系の洗濯槽クリーナーを入れ、高水位で「槽洗浄」コースか、標準コースを回す\n2. 使用後はフタを開けて乾かす。洗濯物を入れっぱなしにしない\n3. 糸くずフィルターは毎回捨てる\n\n月1回やっていても、黒いカスが続く。においが戻る。\nそういうお宅は、槽の裏の汚れが厚くなっています。市販のクリーナーでは届きにくい場所です。\n槽の裏を内視鏡カメラで見る点検を、無料でやっています（10分ほど・閑散期限定）。\n画面はその場で一緒に見て、汚れていなければ「今回は不要」で終わりです。\nお申込みはプロフィールの「無料点検」のリンクから。\n\n#江戸川区 #洗濯槽 #槽洗浄 #洗濯機掃除 #自分でできる掃除 #ハウスクリーニング",
+  "link": "https://tenken.onehitter.jp/?src=ig",
+  "status": "posted",
+  "note": "②槽洗浄→無料点検。出典はパナソニックFAQ（読本-出典.md #13）",
+  "承認": "2026-09-28 既定承認。承認シート week-03.md の決まり「9/25 までに査読を返してもらう。差し戻しが無ければそのまま自動投稿」により、差し戻しが無かったため（依頼 20260925-01-cmo に返信なし）",
+  "results": {
+   "instagram": {
+    "container_id": "18077974532709070",
+    "media_id": "18070919111767675",
+    "permalink": "https://www.instagram.com/p/Dd2cmV9l9Vs/",
+    "published": true
+   },
+   "facebook": {
+    "post_id": "103698149101436_1116223941193956",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1116223941193956",
+    "media_ids": [
+     "1116223914527292"
+    ]
+   }
+  },
+  "posted_at": "2026-09-29T09:14:13+09:00",
+  "permalinks": {
+   "instagram": "https://www.instagram.com/p/Dd2cmV9l9Vs/",
+   "facebook": "https://www.facebook.com/1100803886069295/posts/1116223941193956"
+  }
+ },
+ {
+  "id": "w03-3",
+  "week": 3,
+  "scheduled_at": "2026-09-30T09:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "carousel",
+  "media": [
+   "assets/photos/IMG_8007.jpg",
+   "assets/photos/IMG_8009.jpg",
+   "assets/photos/IMG_8016.jpg",
+   "assets/photos/IMG_8023-bucket.jpg"
+  ],
+  "caption": "江戸川区のお宅で、壁掛けエアコン。\n1枚目が前面パネルを外した中、2枚目が熱交換器の洗う前、3枚目が同じ場所の洗浄直後です。\n4枚目が、この日の作業で出た水。\n\n熱交換器に出ていた黒い帯と白い筋は、フィルターの目を抜けた細かい埃です。\nフィルターを洗っても、ここには届きません。分解して、部品ごとに洗います。\n\nエアコンの内部洗浄のご予約は、プロフィールの「エアコン」のリンクから。\n\n#江戸川区 #エアコンクリーニング #エアコン掃除 #ハウスクリーニング #西葛西",
+  "link": "https://lp.onehitter.jp/aircon/?src=ig",
+  "status": "posted",
+  "現場日": "2026-09-08",
+  "ロゴ確認": "2026-09-25 web-inflow が4枚とも目視。本舗のロゴ・制服・社名入りの道具や車・書類・080-1344-3137 いずれも無し。室内機の内部・緑の養生テープ・ビニール・白いバケツのみ",
+  "ロゴ確認済": true,
+  "確認者": "web-inflow（2026-09-25）",
+  "note": "③ 9/8の現場に差し替え（元案の8033/8038/8041は w02-3 で投稿済みだったため）。リールは付けない",
+  "承認": "2026-09-28 既定承認。承認シート week-03.md の決まり「9/25 までに査読を返してもらう。差し戻しが無ければそのまま自動投稿」により、差し戻しが無かったため（依頼 20260925-01-cmo に返信なし）",
+  "results": {
+   "instagram": {
+    "container_id": "18078105950709070",
+    "media_id": "17870312562647367",
+    "permalink": "https://www.instagram.com/p/Dd5BeaXDd4J/",
+    "published": true
+   },
+   "facebook": {
+    "post_id": "103698149101436_1117189447764072",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1117189447764072",
+    "media_ids": [
+     "1117189277764089",
+     "1117189317764085",
+     "1117189364430747",
+     "1117189417764075"
+    ]
+   }
+  },
+  "posted_at": "2026-09-30T09:15:04+09:00",
+  "permalinks": {
+   "instagram": "https://www.instagram.com/p/Dd5BeaXDd4J/",
+   "facebook": "https://www.facebook.com/1100803886069295/posts/1117189447764072"
+  }
+ },
+ {
+  "id": "w03-4",
+  "week": 3,
+  "scheduled_at": "2026-10-01T09:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "image",
+  "media": [
+   "dist/cards/w03-4-hood-filter.jpg"
+  ],
+  "caption": "江戸川区のハウスクリーニング店から、自分でできる範囲のお話です。\n\nレンジフードのフィルター、油でベタつく前なら、つけ置きで落ちます。\n1. フィルターを外し、40℃のお湯に台所用洗剤を溶かして30分つけ置き\n2. 古い歯ブラシで目に沿ってこする。ステンレスたわしは傷になるので使わない\n3. フードの外側は、水で薄めた台所用洗剤で拭く\n\nファン本体（シロッコファン）の取り外しは、メーカーの手順が要ります。無理に外すと戻せなくなるので、そこからは分解洗浄の出番です。\nフィルターを洗っても吸いが弱い、油が垂れる。それはファンの羽根に油が層になっているサインです。\n\n年末の大掃除、レンジフードは早めの枠がおすすめです。\nご予約はプロフィールの「年末の大掃除」のリンクから。\n\n#江戸川区 #レンジフード掃除 #換気扇掃除 #自分でできる掃除 #年末大掃除 #ハウスクリーニング",
+  "link": "https://lp.onehitter.jp/nenmatsu/?src=ig",
+  "status": "posted",
+  "note": "④レンジフードのフィルター→年末LP。10/1からプロフィールのリンク1本目を年末LPに差し替える",
+  "承認": "2026-09-28 既定承認。承認シート week-03.md の決まり「9/25 までに査読を返してもらう。差し戻しが無ければそのまま自動投稿」により、差し戻しが無かったため（依頼 20260925-01-cmo に返信なし）",
+  "results": {
+   "instagram": {
+    "container_id": "18078247349709070",
+    "media_id": "18113747615594123",
+    "permalink": "https://www.instagram.com/p/Dd7mGYcDQSC/",
+    "published": true
+   },
+   "facebook": {
+    "post_id": "103698149101436_1118203294329354",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1118203294329354",
+    "media_ids": [
+     "1118203270996023"
+    ]
+   }
+  },
+  "posted_at": "2026-10-01T09:13:37+09:00",
+  "permalinks": {
+   "instagram": "https://www.instagram.com/p/Dd7mGYcDQSC/",
+   "facebook": "https://www.facebook.com/1100803886069295/posts/1118203294329354"
+  }
+ },
+ {
+  "id": "w03-5",
+  "week": 3,
+  "scheduled_at": "2026-10-02T09:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "carousel",
+  "media": [
+   "assets/photos/IMG_8031.jpg",
+   "assets/photos/IMG_8039.jpg"
+  ],
+  "caption": "江戸川区のお宅で、壁掛けエアコン。\nフィルターを外した奥にある熱交換器（アルミのフィン）の、洗う前と、洗ったあとです。\n\n灰色に見えていたのは、フィンのあいだに詰まったほこりとカビ。\nここは分解しないと洗えません。洗って、乾かして、元に戻します。\n\n年末の大掃除、エアコンのご予約も受け付けています。10月のうちなら、日程の希望が通りやすいです。\nご予約はプロフィールの「年末の大掃除」のリンクから。\n\n#江戸川区 #エアコンクリーニング #エアコン掃除 #年末大掃除 #ハウスクリーニング #西葛西",
+  "link": "https://lp.onehitter.jp/nenmatsu/?src=ig",
+  "status": "posted",
+  "現場日": "2026-09-09",
+  "ロゴ確認": "2026-09-25 web-inflow が2枚とも目視。本舗のロゴ・制服・社名入りの道具や車・書類・080-1344-3137 いずれも無し。熱交換器の寄りのみ",
+  "ロゴ確認済": true,
+  "確認者": "web-inflow（2026-09-25）",
+  "note": "⑤熱交換器の前後（組4・確認済み）→年末LP。8039 の右上の黄色いタオルは切らない（作業用でロゴ無し。切ると 8031 と画角がずれて前後を見比べにくくなるため）",
+  "承認": "2026-09-28 既定承認。承認シート week-03.md の決まり「9/25 までに査読を返してもらう。差し戻しが無ければそのまま自動投稿」により、差し戻しが無かったため（依頼 20260925-01-cmo に返信なし）",
+  "results": {
+   "instagram": {
+    "container_id": "18078381929709070",
+    "media_id": "17872745145649981",
+    "permalink": "https://www.instagram.com/p/Dd-K52tibbH/",
+    "published": true
+   },
+   "facebook": {
+    "post_id": "103698149101436_1119246987558318",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1119246987558318",
+    "media_ids": [
+     "1119246907558326",
+     "1119246950891655"
+    ]
+   }
+  },
+  "posted_at": "2026-10-02T09:13:34+09:00",
+  "permalinks": {
+   "instagram": "https://www.instagram.com/p/Dd-K52tibbH/",
+   "facebook": "https://www.facebook.com/1100803886069295/posts/1119246987558318"
+  }
+ },
+ {
+  "id": "w04-1",
+  "week": 4,
+  "scheduled_at": "2026-10-05T09:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "image",
+  "media": [
+   "dist/cards/w04-1-kuchikomi.jpg"
+  ],
+  "caption": "「細かい観察に加えて確かな技術なので今回リピートでしたが早速来年の予約を入れました。」\n— F様　★★★★★　Googleクチコミより（2026年4月）\n\n江戸川区で、作業前の状態と、洗い出した汚れをその場でお見せしています。\n洗う前に見せて、洗ったあとの水も見せる。毎回そうしています。\n\n見るだけなら無料です。内視鏡カメラで洗濯槽の裏側を、その場で一緒に見ます（10分ほど・閑散期限定）。\n汚れていなければ、「今回は不要」で終わりです。\nお申込みはプロフィールの「無料点検」のリンクから。\n\n※掲載内容はお客様個人の感想です。\n#江戸川区 #西葛西 #洗濯機掃除 #洗濯槽 #ハウスクリーニング #お客様の声",
+  "link": "https://tenken.onehitter.jp/?src=ig",
+  "status": "draft",
+  "note": "①クチコミ（F様・短縮版3・原文どおり）→洗濯槽の無料点検。月曜の点検推奨型。docs/クチコミ素材.md"
+ },
+ {
+  "id": "w04-2",
+  "week": 4,
+  "scheduled_at": "2026-10-06T09:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "carousel",
+  "media": [
+   "assets/photos/IMG_8029.jpg",
+   "assets/photos/IMG_8034.jpg"
+  ],
+  "caption": "江戸川区のお宅で、壁掛けエアコンの吹き出し口。洗う前と、洗ったあとです。\n\n洗う前は、吹き出し口の上の縁に黒い汚れ（カビ）が出ていました。風はここを通って部屋に出ます。\nルーバーのまわりは、フィルターを外しても手が届きません。分解して洗って、乾かして、元に戻します。\n\n年末の大掃除、エアコンのご予約も受け付けています。10月のうちなら、日程の希望が通りやすいです。\nご予約はプロフィールの「年末の大掃除」のリンクから。\n\n#江戸川区 #エアコンクリーニング #エアコン掃除 #年末大掃除 #ハウスクリーニング #西葛西",
+  "link": "https://lp.onehitter.jp/nenmatsu/?src=ig",
+  "status": "draft",
+  "note": "②吹き出し口の前後（組2・同一箇所確認済み）→年末LP。9/9の現場",
+  "現場日": "2026-09-09",
+  "ロゴ確認": "2026-10-02 web-inflow が2枚とも目視。本舗のロゴ・制服・社名入りの道具や車・書類・080-1344-3137 いずれも無し。吹き出し口の寄りと緑の養生テープ・ビニールのみ",
+  "ロゴ確認済": true,
+  "確認者": "web-inflow（2026-10-02）"
+ },
+ {
+  "id": "w04-3",
+  "week": 4,
+  "scheduled_at": "2026-10-07T09:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "image",
+  "media": [
+   "dist/cards/w04-3-toilet-fuchi.jpg"
+  ],
+  "caption": "江戸川区のハウスクリーニング店から、自分でできる範囲のお話です。\n\n便器のふちの裏は、見えないので後回しになります。LIXILの「便器の日常のお手入れ」では、日常の手入れは毎日〜1週間、ふちの裏側の汚れ落としは週1回とされています。\n1. トイレットペーパーをふちの裏に貼り付け、その上からトイレ用中性洗剤をかける\n2. しばらく置いて、ブラシでこすってから水で流す\n3. 手鏡で裏をのぞくと、落ちたかどうかが分かる\n\n塩素系の洗剤と混ぜないでください。扉を開けて、換気扇を回したまま作業します。\n便器の奥や、床との接続部は手が入りません。そこからは、トイレクリーニングの出番です。\n\n年末の大掃除、水まわりは早めの枠がおすすめです。\nご予約はプロフィールの「年末の大掃除」のリンクから。\n\n#江戸川区 #トイレ掃除 #便器 #自分でできる掃除 #年末大掃除 #ハウスクリーニング",
+  "link": "https://lp.onehitter.jp/nenmatsu/?src=ig",
+  "status": "draft",
+  "note": "③便器のふちの裏→年末LP。出典 LIXIL（読本-出典.md #60）。ブログ 10/29 と同じ内容を先出し"
+ },
+ {
+  "id": "w04-4",
+  "week": 4,
+  "scheduled_at": "2026-10-08T09:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "image",
+  "media": [
+   "dist/cards/w04-4-sentakusou-senzai.jpg"
+  ],
+  "caption": "江戸川区のハウスクリーニング店から、自分でできる範囲のお話です。\n\n洗濯物に黒いカスが付く。それはほこりではなく、洗濯槽の裏側から剥がれてきたものと見ています。\nパナソニックは、洗剤の入れ過ぎが黒カビの栄養分になると案内しています。\n1. 洗剤は計量スプーンで量る。ボトルの口から直接入れない\n2. 使ったあとはフタを開けて乾かす。脱いだ衣類を槽に入れっぱなしにしない\n3. 月に1回、槽洗浄をする\n\nそれでも黒いカスが続く。においが戻る。\nそういうお宅は、槽の裏の汚れが厚くなっています。市販のクリーナーでは届きにくい場所です。\n槽の裏を内視鏡カメラで見る点検を、無料でやっています（10分ほど・閑散期限定）。\n画面はその場で一緒に見て、汚れていなければ「今回は不要」で終わりです。\nお申込みはプロフィールの「無料点検」のリンクから。\n\n#江戸川区 #洗濯槽 #洗濯機掃除 #黒カビ #自分でできる掃除 #ハウスクリーニング",
+  "link": "https://tenken.onehitter.jp/?src=ig",
+  "status": "draft",
+  "note": "④洗濯槽の黒いカス→洗剤の量→無料点検。木曜の点検推奨型。出典 パナソニック（読本-出典.md #39 #40）。ブログ 10/16 と同じ内容を先出し"
+ },
+ {
+  "id": "w04-5",
+  "week": 4,
+  "scheduled_at": "2026-10-09T09:00:00+09:00",
+  "platforms": [
+   "instagram",
+   "facebook"
+  ],
+  "type": "image",
+  "media": [
+   "dist/cards/w04-5-bath-kabi.jpg"
+  ],
+  "caption": "江戸川区のハウスクリーニング店から、自分でできる範囲のお話です。\n\n浴室のカビは、最後に入る人が2分でできることで、防ぎやすくなります。\n1. 壁と床を、水のシャワーで流す（温度を下げて、石けんカスも流す）\n2. スクイジーで、壁と鏡の水気を落とす\n3. 扉とフタを閉めて、換気扇を回す。東京都の指針では入浴後は30分から1時間が目安\n\nカビが育つ条件は、温度20〜35℃前後、湿度70%以上、手アカや石けんカスなどの栄養源です（東京都「健康・快適居住環境の指針」No.9）。\n毎日やっても黒い点が戻るなら、見えていない場所に元があります。そこは、分解して洗う浴室クリーニングの出番です。\n\n年末の大掃除、水まわりは早めの枠がおすすめです。\nご予約はプロフィールの「年末の大掃除」のリンクから。\n\n#江戸川区 #浴室掃除 #お風呂掃除 #カビ対策 #年末大掃除 #ハウスクリーニング",
+  "link": "https://lp.onehitter.jp/nenmatsu/?src=ig",
+  "status": "draft",
+  "note": "⑤浴室のカビ予防→年末LP。出典 東京都 指針No.8/9/26・TOTO・LIXIL（読本-出典.md #28 #30 #42 #43）。ブログ 10/26 と同じ内容を先出し"
+ }
 ]
