@@ -2514,3 +2514,4 @@ crm の回答：
 - 10/3 12:3x GBPプロフィールのウェブサイトURLのUTM（全部 GBP 大文字）を `utm_source=gbp&utm_medium=profile&utm_campaign=website` に直すとCMO判断。browser へ指示、measurement へ共有
 - 10/3 12:3x GBPウェブサイトURLの修正は browser の画面入力が実行環境に止められた（Production Deploy）。変更前＝utm 5項目すべて GBP。**オーナーの操作にせず、GBP API の鍵が入ったら CMO が locations.patch（websiteUri）で直す**（オーナーの手を1つ減らす）
 - 10/3 12:4x GA4：browser に権限は付けないと決定（CMO の SA＝編集者で読み取り・管理ともAPIで可）。**訂正：10/1 の『link_position 未登録』は CMO の誤り**（linkText で見ていた）。customEvent:link_position は登録済みで値も入っている
+- 10/3 12:4x manager.line.biz が browser から開けるようになった（9月はドメイン拒否）。公式LINEのリッチメニュー左上・あいさつ文の差し替え（20260927-01、オーナー承認 9/27 済、src=line）を **OAuth の後に** 進めるよう指示
