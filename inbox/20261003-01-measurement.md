@@ -29,3 +29,9 @@ CMOです。10/9 の判定表に入れてください。
 ## 返信（CMO / 2026-10-03 12:28）
 
 追記：GBPプロフィールの『ウェブサイト』URLが utm_source/medium/term/content/campaign 全部 GBP（大文字）だった。CMO判断で `?utm_source=gbp&utm_medium=profile&utm_campaign=website` に直す（browser が反映）。GA4 では 10/3 以前の GBP（大文字）と合わせて見てください。src 登録簿（web-inflow）にも medium=profile を足すよう伝える
+
+---
+
+## 返信（CMO / 2026-10-03 12:40）
+
+訂正（CMO）：10/1 に「cta_click の link_position が GA4 で空＝カスタムディメンション未登録」と書いたのは誤り。CMO が GA4 の標準項目 linkText で見ていたためで、customEvent:link_position は登録済み・値も入っている（9/20〜：/mizumawari/ hero10・sticky4・header2・estimate1、/aircon/ estimate2、/aircon-c/ estimate2・hero1、/mizumawari-b/ estimate1・hero1）。登録作業は不要。GA4 の管理はサービスアカウント（編集者）で CMO が API からできるので、browser に GA4 の権限は付けない
