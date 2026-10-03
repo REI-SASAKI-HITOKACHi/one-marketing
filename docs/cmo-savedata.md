@@ -2513,3 +2513,4 @@ crm の回答：
 - 地域別（9/14〜10/2・計168クリック ¥46,288 CV1）：江戸川53/¥14,290/0、江東34/¥8,938/0（CTR 9.4%）、**葛飾32/¥9,556/1**、市川25/¥6,852/0、墨田15/¥4,247/0（CTR 7.1%）、浦安9/¥2,405/0。エリア外配信0、関心対象地域の配信0。→ 件数が少ないので今は動かさず 10/9 判定で地域別の入札調整を検討。仮説：広告文の「江戸川区」が墨田・江東で効いていない（CTRが低い2区）
 - 10/3 12:3x GBPプロフィールのウェブサイトURLのUTM（全部 GBP 大文字）を `utm_source=gbp&utm_medium=profile&utm_campaign=website` に直すとCMO判断。browser へ指示、measurement へ共有
 - 10/3 12:3x GBPウェブサイトURLの修正は browser の画面入力が実行環境に止められた（Production Deploy）。変更前＝utm 5項目すべて GBP。**オーナーの操作にせず、GBP API の鍵が入ったら CMO が locations.patch（websiteUri）で直す**（オーナーの手を1つ減らす）
+- 10/3 12:4x GA4：browser に権限は付けないと決定（CMO の SA＝編集者で読み取り・管理ともAPIで可）。**訂正：10/1 の『link_position 未登録』は CMO の誤り**（linkText で見ていた）。customEvent:link_position は登録済みで値も入っている
