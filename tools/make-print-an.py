@@ -869,6 +869,57 @@ def ichiran(all_outs):
     print((OUT / "一覧.png").relative_to(ROOT))
 
 
+NYUKO = {   # 入稿用（10/3 オーナー合格）。チラシとカードは別ファイル、サイズはファイル名と仕様書に書く
+    "chirashi-d": ("ONE_HITTER_近隣チラシ_A5両面_154x216mm_入稿用.pdf", 148, 210),
+    "card-d": ("ONE_HITTER_紹介カード_名刺両面_97x61mm_入稿用.pdf", 91, 55),
+}
+
+
+def seisun(path, tw, th):
+    """Chromium は用紙を 0.01インチ単位に丸める（154mm→154.18mm）。ちょうどの寸法に切り、
+    仕上がり（TrimBox）と塗り足し（BleedBox）を書き込む。描画は左上基準なので上端に合わせて切る。"""
+    from pypdf import PdfReader, PdfWriter
+    from pypdf.generic import RectangleObject
+    pt = 72 / 25.4
+    W, H, b = (tw + BLEED * 2) * pt, (th + BLEED * 2) * pt, BLEED * pt
+    r = PdfReader(str(path))
+    w = PdfWriter()
+    for p in r.pages:
+        top = float(p.mediabox.top)
+        box = RectangleObject([0, top - H, W, top])
+        p.mediabox = box
+        p.cropbox = box
+        p.bleedbox = box
+        p.trimbox = RectangleObject([b, top - H + b, W - b, top - b])
+        w.add_page(p)
+    w.write(str(path))
+
+
+def nyuko():
+    """入稿用PDF。仕上がり＋塗り足し3mm。1ページ目＝表、2ページ目＝裏。文字はベクター（フォント埋め込み）。"""
+    from playwright.sync_api import sync_playwright
+    d = OUT / "入稿用"
+    d.mkdir(exist_ok=True)
+    proxy = os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy")
+    with sync_playwright() as pw:
+        b = pw.chromium.launch(executable_path="/opt/pw-browsers/chromium", headless=True,
+                               args=["--no-sandbox", "--disable-dev-shm-usage", "--ssl-version-max=tls1.2", "--disable-quic"],
+                               proxy={"server": proxy} if proxy else None)
+        for name, (fn, tw, th) in NYUKO.items():
+            pg = b.new_page()
+            pg.goto((OUT / f"{name}.html").as_uri(), wait_until="networkidle")
+            pg.evaluate("document.fonts.ready")
+            # 最後の面の改ページで白紙が増えないように
+            pg.add_style_tag(content=".page:last-child{page-break-after:auto}")
+            # 用紙は CSS の @page（塗り足し込みの寸法）に合わせる。width/height を渡すと中身が縮んで出る（10/3 確認）
+            pg.pdf(path=str(d / fn), prefer_css_page_size=True, print_background=True,
+                   margin={"top": "0", "right": "0", "bottom": "0", "left": "0"})
+            pg.close()
+            seisun(d / fn, tw, th)
+            print((d / fn).relative_to(ROOT))
+        b.close()
+
+
 def kakunin():
     """CMO・オーナーへ渡す確認用（変更できない形）。実寸のPDF1つと、面ごとのJPG。
     入稿用ではない（塗り足し・トンボなし、RGB）。入稿用PDFは採用のあと別に作る。"""
@@ -902,6 +953,7 @@ def main():
         # 10/3 オーナー：チラシは両面1本（D）に絞る、紹介カードはDを候補に。一覧は候補だけ（旧案のPNGは残す）
         ichiran([x for x in all_outs if x[0] in KOHO])
         kakunin()
+        nyuko()
 
 
 if __name__ == "__main__":
