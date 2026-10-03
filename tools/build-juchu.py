@@ -245,6 +245,11 @@ HTML = r"""<!doctype html>
       <p class="chu">台帳にも足しておきます。会社名は正式名称でお願いします。</p>
     </div>
   </div>
+  <div id="shokai-box" hidden>
+    <label>ご紹介くださったお客様<span style="font-weight:400">（お名前か顧客ID。分かる範囲で）</span></label>
+    <input type="text" id="shokaisha" placeholder="例）山田 花子 さま／C0123">
+    <p class="chu">紹介割引（紹介した方・された方とも1,000円引き）の記録に使います。台帳のお客様と自動で突き合わせます。</p>
+  </div>
 </section>
 
 <section>
@@ -339,7 +344,7 @@ HTML = r"""<!doctype html>
   <input type="text" name="氏名"><input type="text" name="TEL">
   <input type="text" name="住所">
   <input type="text" name="売上（税込）"><input type="text" name="実施メニュー">
-  <input type="text" name="所要の目安（分）"><input type="text" name="法人名">
+  <input type="text" name="所要の目安（分）"><input type="text" name="法人名"><input type="text" name="紹介者">
   <input type="text" name="ヒアリング"><input type="text" name="備考">
   <input type="text" name="見込み金額"><input type="text" name="入力日時">
 </form>
@@ -400,6 +405,7 @@ HTML = r"""<!doctype html>
   botan('shurui','shurui', function(){ hyouKirikae(); });
   botan('keiro','keiro', function(){
     $('houjin-box').hidden = HOUJIN.indexOf(jotai.keiro) === -1;
+    $('shokai-box').hidden = jotai.keiro !== '紹介';
     keisan();
   });
   $('sonota-na').addEventListener('input', function(){ keisan(); kakusu('e-menu'); });
@@ -680,6 +686,7 @@ HTML = r"""<!doctype html>
       '実施メニュー': menuMoji(),
       '所要の目安（分）': String(jotai.fun),
       '法人名': houjinMoji(),
+      '紹介者': $('shokai-box').hidden ? '' : $('shokaisha').value.trim(),
       'ヒアリング': kikuMoji(),
       '備考': [jotai.toku ? 'チラシ特典 −500円（自動・他の割引と併用不可）' : '', $('memo').value.trim()].filter(Boolean).join('　'),
       '入力日時': new Date().toISOString()
@@ -743,6 +750,7 @@ HTML = r"""<!doctype html>
     ireru('hi', p.d, 'change');
     ireru('jikoku', p.j, 'input');
     ireru('name', p.n); ireru('tel', p.t); ireru('addr', p.a); ireru('jissai', p.x); ireru('memo', p.b);
+    if (p.sh) { osu('keiro', '紹介'); ireru('shokaisha', p.sh); }   // 紹介カード経由は流入経路「紹介」
     if (p.m) {
       var kiri = function(s){ return s.replace(/クリーニング|\s/g, ''); };
       p.m.split(/[／\/]/).forEach(function(koumoku){

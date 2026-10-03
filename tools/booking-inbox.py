@@ -254,6 +254,7 @@ def main() -> None:
             'x': kin if kin.isdigit() else '',
             'm': d.get('ご希望の内容', ''),
             'b': ('Web予約より。' + re.sub(r'\s+', ' ', str(d.get('ご要望', ''))))[:150],
+            'sh': str(d.get('紹介者') or '').strip(),
         })
         if 'gads' in iriguchi:
             iriguchi = 'Google広告（' + ('エアコン' if 'aircon' in iriguchi else '水まわり' if 'mizumawari' in iriguchi else '') + 'のページ）'

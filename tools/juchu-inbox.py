@@ -96,6 +96,23 @@ def taitoru(d):
     return " / ".join(x for x in (ku, menu) if x) or "施工"
 
 
+def shokaisha_id(moji, daicho):
+    """紹介者の記入（お名前か顧客ID）を、顧客管理台帳の顧客IDにする。1人に決まらなければ ''。
+    V列「紹介者（顧客ID）」は crm の紹介割引の残高タブが読む（2026-10-03 crm 依頼）。"""
+    moji = (moji or "").strip()
+    if not moji:
+        return ""
+    m = re.search(r"C\d{4}", moji.upper())
+    if m and any(r and r[0].strip() == m.group(0) for r in daicho):
+        return m.group(0)
+    mei = lambda x: re.sub(r"[\s\u3000]|さま|様", "", x or "")
+    na = mei(moji)
+    hit = {r[0].strip() for r in daicho
+           if r and r[0].strip() and na and (mei(r[1] if len(r) > 1 else "") == na
+                                             or na in [mei(x) for x in (r[31] if len(r) > 31 else "").split("／")])}
+    return hit.pop() if len(hit) == 1 else ""
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
@@ -147,6 +164,7 @@ def main():
     shiranai = []   # 一覧に無い提携先（台帳に足す必要がある）
     teikei = set(json.loads(TEIKEI.read_text(encoding="utf-8"))["選択肢"]) if TEIKEI.exists() else set()
     ireta = []
+    daicho = None   # 紹介者がいるときだけ読む
     for s in atarashii:
         d = s.get("data") or {}
         hi = str(d.get("施工日付", "")).strip()
@@ -181,7 +199,15 @@ def main():
             d.get("氏名", ""), d.get("TEL", ""), yubin_ban,
             d.get("住所", ""), d.get("売上（税込）", ""), d.get("実施メニュー", ""),
         ]]
-        biko = ("★受注フォームから自動で入りました（" + str(d.get("入力日時", ""))[:16] + "）。"
+        sho_moji = str(d.get("紹介者", "")).strip()
+        sho_id = ""
+        if sho_moji:
+            if daicho is None:
+                daicho = call(han("'顧客管理台帳'!A16:AF3000")).get("values", [])
+            sho_id = shokaisha_id(sho_moji, daicho)
+            if not sho_id:
+                print(f"  ⚠ 紹介者「{sho_moji}」を台帳で1人に決められませんでした。V列は空けて備考に残します")
+        biko = (("【紹介者: " + sho_moji + (f"（{sho_id}）" if sho_id else "・台帳で特定できず要確認") + "】") if sho_moji else "") + ("★受注フォームから自動で入りました（" + str(d.get("入力日時", ""))[:16] + "）。"
                 + ("見込み " + str(d.get("見込み金額", "")) + "円。" if d.get("見込み金額") else "")
                 + ("郵便番号は" + yubin_moto + "。" if yubin_moto else "")
                 + ("【ヒアリング】" + str(d["ヒアリング"]) + "　" if d.get("ヒアリング") else "")
@@ -196,6 +222,9 @@ def main():
             if d.get("法人名"):
                 call(han(f"'{tab}'!U{gyo}"), "PUT", {"values": [[d["法人名"]]]},
                      q={"valueInputOption": "USER_ENTERED"})
+            if sho_id:
+                call(han(f"'{tab}'!V{gyo}"), "PUT", {"values": [[sho_id]]},
+                     q={"valueInputOption": "RAW"})
         if d.get("法人名") and teikei and d["法人名"] not in teikei:
             shiranai.append((d["法人名"], f"{tab} {gyo}行目"))
             print(f"  入れました: {tab} {gyo}行目 ← {d.get('氏名')}")
