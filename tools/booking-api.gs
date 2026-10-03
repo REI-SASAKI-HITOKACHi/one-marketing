@@ -452,3 +452,5 @@ function kakunin() {
     Logger.log('★ 書き込めません。共有が「予定の表示」止まりの可能性があります: ' + err);
   }
 }
+
+// 2026-10-03 clasp で反映（doGet はこのファイルのものが有効になるよう、filePushOrder でコード.js より後に置く）
