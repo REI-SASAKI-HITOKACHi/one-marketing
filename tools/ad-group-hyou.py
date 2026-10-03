@@ -41,6 +41,18 @@ IDは数字なので、`--ag-name ID=名前` で名前を付けられます（Go
 費用は、Google広告のテスト画面に「元の広告」と「バリエーション」に分けて出ます。
 `--hiyou A_エアコン:今の版=5000 --hiyou A_エアコン:学習版=5200` のように、版ごとに渡してください。
 
+## 増額の条件（2026-10-03 オーナー承認の条件。実行は嶺さんに確認してから）
+
+**版ごとに「クリック100回で申込5件」**。`--click A_エアコン:学習版=120` のように版ごとのクリック数を渡すと、
+「増額条件」の列に ○／×／クリック不足 を出す。
+100回を超えたら、同じ確からしさ（送信率の片側80%下限が 2.73% 以上）で必要件数を数え直す（150回なら7件）。
+
+## 予約ページ（予約カレンダー）経由の申込
+
+`src=gads_*` で予約ページに着いた申込も数える（`src` で広告と分かるため）。
+**ただし 10/3 時点の予約ページは、`ag` と「どのLPから来たか」を受け取っていない。** その行は
+広告グループが「（ag なし）」、版が「（予約ページ・版不明）」で出る。直るまでは、版の比較に入れられない。
+
 ## 予約_Web に `ag` の列が無いとき
 
 **止まって、実際の見出しを表示します。** 黙って「全部 ag 無し」にはしません。
@@ -64,6 +76,36 @@ COLS = {
 GAKUSHU = {"aircon-c", "aircon-d", "mizumawari-b", "nenmatsu-b"}
 
 
+HIKKAKU_CPA = 9600      # 増額の許容CPA（planning）
+HIKKAKU_CPC = 262       # 9/20〜27 の平均クリック単価
+SAITEI_CLICK = 100
+
+
+def kagen(k, n, conf=0.8):
+    """送信率の片側 conf 下限（Clopper-Pearson）。"""
+    from math import comb
+    if k == 0:
+        return 0.0
+    lo, hi = 0.0, 1.0
+    for _ in range(60):
+        m = (lo + hi) / 2
+        ue = sum(comb(n, i) * m ** i * (1 - m) ** (n - i) for i in range(k, n + 1))
+        if ue > 1 - conf:
+            hi = m
+        else:
+            lo = m
+    return lo
+
+
+def zouka_hantei(moushi, click):
+    """増額条件（版ごとにクリック100で申込5件）の当否。"""
+    if click is None:
+        return "—"
+    if click < SAITEI_CLICK:
+        return f"クリック不足（{click}/{SAITEI_CLICK}）"
+    return "○ 満たす" if kagen(moushi, click) >= HIKKAKU_CPC / HIKKAKU_CPA else "× 満たさない"
+
+
 def ban(lp_value):
     """lp 欄またはフォーム名から (版, LP名) を返す。読めなければ ('', '')。"""
     v = (lp_value or "").strip()
@@ -71,6 +113,8 @@ def ban(lp_value):
         v = v[len("reserve-"):]
     if not v:
         return "", ""
+    if v == "yoyaku":
+        return "（予約ページ・版不明）", "yoyaku"
     return ("学習版" if v in GAKUSHU else "今の版"), v
 
 
@@ -107,6 +151,12 @@ def main():
                     help="広告グループIDに名前を付ける（何度でも）")
     ap.add_argument("--hiyou", action="append", default=[], metavar="名前=円",
                     help="広告グループごとの費用（Google広告の管理画面から）。付けるとCPAも出す")
+    ap.add_argument("--click", action="append", default=[], metavar="名前:版=回",
+                    help="版ごとのクリック数（Google広告のテスト画面から）。付けると増額条件の当否を出す")
+    ap.add_argument("--kotei", action="append", default=[], metavar="注文ID=名前:版:LP",
+                    help="経路を人が判断した申込を、指定の広告グループ・版に入れる（例：LINE経由で予約した広告客）")
+    ap.add_argument("--chuki", action="append", default=[], metavar="文",
+                    help="表の下に足す注記（何度でも）")
     ap.add_argument("--kouko-dake", action="store_true",
                     help="src が gads で始まる行だけを数える（既定。付けなくても同じ）")
     ap.add_argument("--zenbu", action="store_true", help="広告以外の申込も並べる")
@@ -134,14 +184,34 @@ def main():
     for x in args.ag_name:
         i, _, n = x.partition("=")
         namae[i.strip()] = n.strip()
+    click = {}
+    for x in args.click:
+        n, _, e = x.partition("=")
+        click[n.strip()] = yen(e)
     hiyou = {}
     for x in args.hiyou:
         n, _, e = x.partition("=")
         hiyou[n.strip()] = yen(e)
 
+    kotei = {}
+    for x in args.kotei:
+        i, _, rest = x.partition("=")
+        kotei[i.strip()] = tuple((rest.split(":") + ["", "", ""])[:3])
+
     hyou = {}
     for r in rows:
         src = (r.get(col["src"]) or "").strip()
+        kid = (r.get(col["kagi"]) or "").strip() if col["kagi"] else ""
+        if kid in kotei:
+            n, b, lpname = kotei[kid]
+            key = (n, b or "—", (lpname or "—") + "＊")
+            u = yen(r.get(col["uriage"]))
+            h = hyou.setdefault(key, {"moushi": 0, "juchu": 0, "gaku": 0})
+            h["moushi"] += 1
+            if u > 0:
+                h["juchu"] += 1
+                h["gaku"] += u
+            continue
         if not args.zenbu and not src.startswith("gads"):
             continue
         ag = (r.get(col["ag"]) or "").strip()
@@ -162,8 +232,8 @@ def main():
     if not hyou:
         print("**広告経由の申込がありません**（`src` が `gads` で始まる行が0件）。")
         return
-    print("| 広告グループ | 版 | LP | 申込 | 受注 | 受注額 | 費用 | 申込CPA | 受注CPA | 費用対受注額 |")
-    print("|---|---|---|---:|---:|---:|---:|---:|---:|---:|")
+    print("| 広告グループ | 版 | LP | 申込 | 受注 | 受注額 | 費用 | 申込CPA | 受注CPA | 費用対受注額 | 増額条件 |")
+    print("|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|")
     tot = {"moushi": 0, "juchu": 0, "gaku": 0, "hiyou": 0}
     for key in sorted(hyou):
         h = hyou[key]
@@ -173,7 +243,8 @@ def main():
             return f"{hy // n:,}円" if hy and n else "—"
         roas = f"{h['gaku'] / hy:.1f}倍" if hy else "—"
         print(f"| {ag_} | {b} | {lpname} | {h['moushi']} | {h['juchu']} | {h['gaku']:,}円 | "
-              f"{f'{hy:,}円' if hy else '—'} | {cpa(h['moushi'])} | {cpa(h['juchu'])} | {roas} |")
+              f"{f'{hy:,}円' if hy else '—'} | {cpa(h['moushi'])} | {cpa(h['juchu'])} | {roas} | "
+              f"{zouka_hantei(h['moushi'], click.get(f'{ag_}:{b}'))} |")
         for k in ("moushi", "juchu", "gaku"):
             tot[k] += h[k]
         tot["hiyou"] += hy or 0
@@ -182,8 +253,17 @@ def main():
     k_mcpa = f"{th // tm:,}円" if th and tm else "—"
     k_jcpa = f"{th // tj:,}円" if th and tj else "—"
     k_roas = f"{tg / th:.1f}倍" if th else "—"
-    print(f"| **合計** | | | **{tm}** | **{tj}** | **{tg:,}円** | {k_hiyou} | {k_mcpa} | {k_jcpa} | {k_roas} |")
+    print(f"| **合計** | | | **{tm}** | **{tj}** | **{tg:,}円** | {k_hiyou} | {k_mcpa} | {k_jcpa} | {k_roas} | |")
 
+    if click:
+        print("> **増額条件**：版ごとにクリック100回で申込5件（10/3 オーナー承認の条件）。"
+              "**満たしても、増額の前に嶺さんに確認する**（10/3 第5回MTGの決定）。")
+    if any(k[1] == "（予約ページ・版不明）" for k in hyou):
+        print("> ⚠️ 予約ページ経由の申込は、どの版のLPから来たかが分からないため、版の比較に入れていない。")
+    if kotei:
+        print("> ＊ の行は、経路を人が判断して入れた申込（`--kotei`）。広告のクリックIDが無いので、オフラインCVの取り込みには入らない。")
+    for c in args.chuki:
+        print("> " + c)
     kakuteimae = sum(1 for k in hyou if k[0].startswith("（ag なし"))
     print("\n> **受注は「★売上（税込）が入った件数」です。** 施工前・入金前の申込は、まだ受注に数えていません。")
     print("> **件数が少ないうちは、1件の違いでCPAが大きく動きます。** 10/9 の判定では件数と一緒に読んでください。")

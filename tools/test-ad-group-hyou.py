@@ -68,4 +68,33 @@ chk("lp が空の行は（不明）で出して注意する", "| B_浴室 | （�
 r = subprocess.run([sys.executable, str(TOOL), str(tmp / "ab.csv"), "--hiyou", "222=5000"], capture_output=True, text=True)
 chk("費用が版に分かれていなければ、CPAを出さずにそう書く", "版ごとのCPAは出していません" in r.stdout, r.stdout[-400:])
 
+# 増額条件（10/3）と予約ページ経由の行
+(tmp / "z.csv").write_text(
+    "注文ID,src,ag,lp,★売上（税込）\n"
+    + "".join(f"OH-a{i},gads_aircon,222,aircon-c,\n" for i in range(5))
+    + "".join(f"OH-b{i},gads_aircon,222,aircon,\n" for i in range(3))
+    + "OH-y1,gads_mizumawari,,yoyaku,\n",
+    encoding="utf-8")
+r = subprocess.run([sys.executable, str(TOOL), str(tmp / "z.csv"), "--ag-name", "222=A_エアコン",
+                    "--click", "A_エアコン:学習版=100", "--click", "A_エアコン:今の版=60",
+                    "--chuki", "長田さまはgclidなし"], capture_output=True, text=True)
+out = r.stdout
+chk("クリック100で申込5 → 満たす", "| A_エアコン | 学習版 | aircon-c | 5 |" in out and "○ 満たす" in out, out)
+chk("クリック60 → クリック不足", "クリック不足（60/100）" in out)
+chk("増額は嶺さんに確認と書く", "嶺さんに確認" in out)
+chk("予約ページ経由は版不明として出し、注意する", "（予約ページ・版不明）" in out and "版の比較に入れていない" in out)
+chk("注記が出る", "> 長田さまはgclidなし" in out)
+(tmp / "z2.csv").write_text("注文ID,src,ag,lp,★売上（税込）\n" + "".join(f"OH-a{i},gads_aircon,222,aircon-c,\n" for i in range(4)), encoding="utf-8")
+r = subprocess.run([sys.executable, str(TOOL), str(tmp / "z2.csv"), "--ag-name", "222=A_エアコン",
+                    "--click", "A_エアコン:学習版=100"], capture_output=True, text=True)
+chk("クリック100で申込4 → 満たさない", "× 満たさない" in r.stdout, r.stdout)
+r = subprocess.run([sys.executable, str(TOOL), str(tmp / "z2.csv"), "--ag-name", "222=A_エアコン",
+                    "--click", "A_エアコン:学習版=150"], capture_output=True, text=True)
+chk("クリック150で申込4 → 満たさない（7件要る）", "× 満たさない" in r.stdout)
+
+(tmp / "k.csv").write_text("注文ID,src,ag,lp,★売上（税込）\nOH-n1,line,,,\"9,702\"\nOH-x,line,,,100\n", encoding="utf-8")
+r = subprocess.run([sys.executable, str(TOOL), str(tmp / "k.csv"), "--kotei", "OH-n1=B_浴室:今の版:mizumawari"], capture_output=True, text=True)
+chk("--kotei でLINE経由の広告客を指定の版に入れる", "| B_浴室 | 今の版 | mizumawari＊ | 1 | 1 | 9,702円 |" in r.stdout and "取り込みには入らない" in r.stdout, r.stdout)
+chk("--kotei に無い line の行は数えない", "| **合計** | | | **1** |" in r.stdout)
+
 print("\n" + ("すべて通りました" if ok else "失敗あり")); sys.exit(0 if ok else 1)
