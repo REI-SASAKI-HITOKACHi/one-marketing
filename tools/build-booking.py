@@ -182,7 +182,8 @@ def build() -> str:
             3: souki["3-4月"], 4: souki["3-4月"],
             5: souki["5-7月"], 6: souki["5-7月"], 7: souki["5-7月"],
             8: souki["8-10月"], 9: souki["8-10月"], 10: souki["8-10月"],
-            11: souki["11-12月"], 12: souki["11-12月"],
+            # 2026-10-03 第5回MTG オーナー決定「11月も10%引きにする」→ 11月は 8〜10月と同じ率。12月だけ無し
+            11: souki.get("11月", souki["8-10月"]), 12: souki.get("12月", souki["11-12月"]),
         },
         "netTokuten": NET_TOKUTEN,
         "api": API_URL,
