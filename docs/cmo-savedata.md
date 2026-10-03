@@ -2534,3 +2534,8 @@ crm の回答：
 ### 2026-10-03 14時台 【オーナーの直接決定】カード回答（第5回MTG前）
 - **原文（選択肢）**：台帳3件「私に許可する」／タカラ「修正点を伝える→私が直す」（新しい期限の案 10/7・送るのはオーナー）／広告「¥10,000/日まで増額OK」（10/9 判定で条件＝学習版ごとにクリック100で申込5件を満たした方へ。満たさなければ据え置き）／今日のMTGの時間・形式「自分で調整する」（CMO はカレンダーを触らない）
 - 対応：①台帳3件を直した（変更55・T060 完了） ②10/9 判定トリガー `trig_01S1yGDTZzkrw7ySaBDvYhDf` の本文を、承認済みの範囲（¥10,000/日まで・実行してから報告）に差し替え ③MTGシート 5-4 の論点欄に回答を記入（決定・決定内容の列はオーナーの列なので空のまま）
+
+### 2026-10-03 14時台 GBP の「予約」リンクを予約ページへ（Place Actions API）
+- browser が Place Actions API を有効化（GCP は `&authuser=1` で case.foot.kid として開ける）。**My Business API v4 はコンソールのライブラリに出ず有効化できない**（予約投稿20本の一覧・修正は API では不可。画面か Google への申請）。
+- 予約リンク（APPOINTMENT）は3本・どれも優先なしだった：公式LINE `page.line.me/366ysqyc`／`one-hitter.jp/contact/`／**古いGoogleフォーム**。→ CMO が古いフォームの1本（`placeActionLinks/92e1b549e9c2f343`）を **`https://yoyaku.onehitter.jp/?src=gbp_book`・isPreferred=true** に変更（10/3 13:41 JST 反映を確認）。**戻すときの元URL**：`https://docs.google.com/forms/d/e/1FAIpQLSdL3xuWv4j9kF7hW0kcJCQFhXsYBhaWNZnjWH9ljaav52BJmQ/viewform`（isPreferred=false）。LINE と /contact/ は残した。
+- 公式LINE（20260927-01）完了：リッチメニュー A・B とも `yoyaku.onehitter.jp/?src=line`、メニューバー「ご予約はこちら」、あいさつ文 293字（表示名の差し込み保持）。保存の1押しはオーナー。スマホでの押下確認は未（GA4 の `src=line` の着地で代わりに確かめる）。
