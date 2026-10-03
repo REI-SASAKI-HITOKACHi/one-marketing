@@ -538,6 +538,62 @@
 
   $('tsugi').addEventListener('click', function(){ location.reload(); });
 
+  /* ---- LINEの知らせのリンクから開いたとき、# のあとの値を入れておく ----
+     2026-10-03 オーナー指示「次のアクションへの導線もどうせなら加えてほしい。電話確認が必要なら電話番号＋受注フォームURLとか。
+     一番人間の手間を減らせるように」。値は # のあと（ブラウザの外＝サーバーには送られない）。読んだらアドレス欄から消す。
+     s=売上種類 k=流入経路 d=施工日 j=開始時刻 n=お名前 t=電話 a=住所 x=金額 m=メニュー（「名前 ×数」を／区切り） b=備考 */
+  (function(){
+    if (!location.hash || location.hash.length < 2) { return; }
+    var p = {};
+    var h = location.hash.slice(1);
+    if (h.indexOf('p=') === 0) {
+      /* 短く詰めた形（tools/booking-inbox.py の tsumeru：JSON → UTF-8 → base64url） */
+      try {
+        var b64 = h.slice(2).replace(/-/g, '+').replace(/_/g, '/');
+        while (b64.length % 4) { b64 += '='; }
+        var bin = atob(b64), u8 = new Uint8Array(bin.length);
+        for (var q = 0; q < bin.length; q++) { u8[q] = bin.charCodeAt(q); }
+        p = JSON.parse(new TextDecoder('utf-8').decode(u8));
+      } catch (e) { p = {}; }
+    } else {
+      h.split('&').forEach(function(kv){
+        var i = kv.indexOf('=');
+        if (i > 0) { p[decodeURIComponent(kv.slice(0, i))] = decodeURIComponent(kv.slice(i + 1).replace(/\+/g, ' ')); }
+      });
+    }
+    function osu(oyaId, v){
+      if (!v) { return; }
+      var bs = document.querySelectorAll('#' + oyaId + ' button');
+      for (var i = 0; i < bs.length; i++) { if (bs[i].dataset.v === v) { bs[i].click(); return; } }
+    }
+    function ireru(id, v, ev){
+      if (!v) { return; }
+      $(id).value = v;
+      $(id).dispatchEvent(new Event(ev || 'input'));
+    }
+    osu('shurui', p.s || 'One Hitter');
+    osu('keiro', p.k);
+    ireru('hi', p.d, 'change');
+    ireru('jikoku', p.j, 'input');
+    ireru('name', p.n); ireru('tel', p.t); ireru('addr', p.a); ireru('jissai', p.x); ireru('memo', p.b);
+    if (p.m) {
+      var kiri = function(s){ return s.replace(/クリーニング|\s/g, ''); };
+      p.m.split(/[／\/]/).forEach(function(koumoku){
+        var mm = koumoku.trim().match(/^(.*?)(?:\s*[×xX]\s*(\d+))?$/);
+        if (!mm || !mm[1]) { return; }
+        var na = kiri(mm[1]), kazu = parseInt(mm[2] || '1', 10);
+        var gs = document.querySelectorAll('#menu .menu-gyo, #opt .menu-gyo');
+        for (var i = 0; i < gs.length; i++) {
+          if (kiri(gs[i].querySelector('.na span').textContent) === na) {
+            for (var k = 0; k < kazu; k++) { gs[i].querySelector('.pls').click(); }
+            return;
+          }
+        }
+      });
+    }
+    history.replaceState(null, '', location.pathname);
+  })();
+
   /* 予定は最後に読む（初期表示を待たせない） */
   fetch('yotei.json', {cache:'no-store'})
     .then(function(r){ return r.json(); })
