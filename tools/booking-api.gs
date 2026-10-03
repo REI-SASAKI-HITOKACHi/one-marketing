@@ -76,6 +76,15 @@ var SETTEI = {
   yakinAkeSaihayaku: 13,  // 夜勤明けの日は13:00以降から
   yakinMaeShuuryou: 18,   // 夜勤がある日は18:00までに施工完了
 
+  /**
+   * 休みの見分け方（2026-10-03 追加）。
+   * 終日予定は TODO として読み飛ばすが、タイトルがこれに当たる終日予定だけは
+   * その日を丸ごと塞ぐ。「予定なし（空き時間として表示）」になっていても塞ぐ。
+   * 和真さんの休み・旅行は、ご家族が作った終日・予定なしの予定に招待される形で
+   * 入っていて、10/7・10/12 が空き枠として出ていた（第4回MTG 4-3【B】8・4-4 No.8）。
+   */
+  kyujitsuMoji: /【休日】|休み|休日|旅行|有給|帰省/,
+
   /** 何日先まで出すか。当日は出さない。翌日から出す（2026-09-15 オーナー決定「最短翌日で」。build-slots.py と同じ） */
   saitanNichi: 1,
   saichouNichi: 21,
@@ -163,7 +172,12 @@ function akiWaku_(shoyouFun) {
   var fusagi = [];
   var yakin = [];   // 夜勤（日をまたぐ勤務）の {s, e}
   yotei.forEach(function (ev) {
-    // 終日予定は塞がりとして扱わない。
+    // 休みの終日予定は、その日を丸ごと塞ぐ（SETTEI.kyujitsuMoji）
+    if (ev.isAllDayEvent() && SETTEI.kyujitsuMoji.test(ev.getTitle() || '')) {
+      fusagi.push({ s: ev.getAllDayStartDate().getTime(), e: ev.getAllDayEndDate().getTime() });
+      return;
+    }
+    // それ以外の終日予定は塞がりとして扱わない。
     // このカレンダーの終日予定はTODO（tools/todo-calendar.gs が入れるもの）で、
     // 実際の施工・バイト・通院はすべて時刻の入った予定になっている。
     // 終日予定で丸一日を塞ぐと、TODOが1件あるだけでその日が予約できなくなる。

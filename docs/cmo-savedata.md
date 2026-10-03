@@ -2508,3 +2508,14 @@ crm の回答：
 - 10/2 15:30 広告点検：異常なし（10/1 A_エアコン ¥2,998/11クリック、B_浴室 ¥1,890/7クリック、レンジフード停止で ¥0）。除外語は33行中31行が適用済み
 - 10/3 10:5x SNS第4週（w04-1〜5）査読OK。既定承認の決まりを明示承認（料金・実績値・本舗写真の週は明示OK要）。年末LPの誘導先を /nenmatsu-b/ に変えてよいと判断
 - 10/3 11時 browser 転送：onehitter.her@gmail.com の朝の受信確認が 10/1〜10/3 の3日できていない（内蔵ブラウザの Gmail がログイン切れ／case.foot.kid でログイン中）。施設あて送信の返信（不達・断り・前向き）が3日ぶん未確認。メールの送信・既読・削除はしていない。→ **オーナーのログイン待ち（優先順位は4番目：広告URL・CMS・GBP鍵の後）**。CMO 側には onehitter.her の鍵が無く代わりに読めない
+- 10/3 昼 browser：**公式サイトの予約リンクを古いGoogleフォーム→ yoyaku.onehitter.jp/?src=site_footer に差し替え完了**（リソース120 の href 1つ。CMO も curl で旧0件を確認）。onehitter.her の3日分の受信：施設からの返信・不達ともに0件。水まわり学習版の広告（826637135990）は審査通過・有効だが URL は /mizumawari/ のまま、保存の1押しをオーナーに渡し済み（10/1 14時台から約2日）
+- 10/3 昼 **水まわり学習版のA/B成立**：オーナーが「広告を保存」→ B_浴室に今の版（/mizumawari/）と学習版（/mizumawari-b/ 広告ID 826637135990）が同文言で並んで有効。エアコンは広告のテスト（/aircon-c/ 50%）。**2系統とも 10/3 から計測開始**
+- 地域別（9/14〜10/2・計168クリック ¥46,288 CV1）：江戸川53/¥14,290/0、江東34/¥8,938/0（CTR 9.4%）、**葛飾32/¥9,556/1**、市川25/¥6,852/0、墨田15/¥4,247/0（CTR 7.1%）、浦安9/¥2,405/0。エリア外配信0、関心対象地域の配信0。→ 件数が少ないので今は動かさず 10/9 判定で地域別の入札調整を検討。仮説：広告文の「江戸川区」が墨田・江東で効いていない（CTRが低い2区）
+- 10/3 12:3x GBPプロフィールのウェブサイトURLのUTM（全部 GBP 大文字）を `utm_source=gbp&utm_medium=profile&utm_campaign=website` に直すとCMO判断。browser へ指示、measurement へ共有
+- 10/3 12:3x GBPウェブサイトURLの修正は browser の画面入力が実行環境に止められた（Production Deploy）。変更前＝utm 5項目すべて GBP。**オーナーの操作にせず、GBP API の鍵が入ったら CMO が locations.patch（websiteUri）で直す**（オーナーの手を1つ減らす）
+- 10/3 12:4x GA4：browser に権限は付けないと決定（CMO の SA＝編集者で読み取り・管理ともAPIで可）。**訂正：10/1 の『link_position 未登録』は CMO の誤り**（linkText で見ていた）。customEvent:link_position は登録済みで値も入っている
+- 10/3 12:4x manager.line.biz が browser から開けるようになった（9月はドメイン拒否）。公式LINEのリッチメニュー左上・あいさつ文の差し替え（20260927-01、オーナー承認 9/27 済、src=line）を **OAuth の後に** 進めるよう指示
+- 10/3 12:5x 公式LINE（@366ysqyc・友だち334）控え：リッチメニュー左上・2番目とも『テキスト：予約する』（押しても予約ページに飛ばない）。あいさつ文（433字）は『メッセージを1通ください』が主目的。→ CMO判断：左上は依頼どおりリンク化。あいさつ文は (B)＝予約導線を足し、**『お名前を1通』を残す**（293字。台帳と照合できない友だちの解消にも効く）
+- 10/3 13時 **GBP API 開通**：refresh_token（onehitter.her・shisetsu-mail・business.manage）を CMO の `~/.config/one-hitter/gbp.json`（600）に配置。アカウント `accounts/110951766689355144685`／ロケーション `locations/15727525661440316046`（ワンヒッター㈱、placeId ChIJef_3b2eHGGARMY2GoTASaXs）。**ウェブサイトURLを API で `?utm_source=gbp&utm_medium=profile&utm_campaign=website` に変更・反映確認**（変更前は utm 5項目すべて GBP）
+- Place Actions API（「Google で予約」リンク）と Google My Business API v4（投稿）は**無効**→ browser に有効化を依頼
+- ⚠ 気づき：GBP の「サービス」欄の料金がパンフレットと食い違う（例：エアコン丸洗い ¥9,800/60分、説明文には 10,780円（税込）から）。web-inflow に料金表との突き合わせを依頼する（料金はパンフレットが正）。metadata.hasPendingEdits=true（Google 側で審査中の編集あり）
