@@ -170,6 +170,17 @@
   </div>
   <label>実際にいただいた金額が違うときは、ここに入れてください（税込）</label>
   <input type="number" id="jissai" inputmode="numeric" placeholder="空のままなら上の最終金額を使います">
+  <!-- 2026-10-03 第5回MTG：作業完了フォームの支払い方法から、売上シートの入金経路と出納帳へ自動で入れる（T063）。日付欄は不要（送信日を使う） -->
+  <label>お支払い方法<span class="hitsu">必須</span></label>
+  <div class="erabu" id="shiharai">
+    <button type="button" data-v="現金">現金</button>
+    <button type="button" data-v="クレカ">クレジットカード</button>
+    <button type="button" data-v="QR決済">QR・交通系IC</button>
+    <button type="button" data-v="請求書(翌月)">請求書（翌月）</button>
+    <button type="button" data-v="請求書(2か月後)">請求書（2か月後）</button>
+  </div>
+  <p class="err" id="e-shiharai">選んでください</p>
+  <p class="chu">売上シートの「入金経路」に自動で入ります。現金は出納帳にも入ります。</p>
 </section>
 
 <section>
@@ -224,6 +235,7 @@
   <input type="text" name="実施した内容"><input type="text" name="やらなかった内容">
   <input type="text" name="追加受注"><input type="text" name="追加受注（手入力）">
   <input type="text" name="受注時の金額"><input type="text" name="追加金額"><input type="text" name="最終金額">
+  <input type="text" name="お支払い方法">
   <input type="text" name="クレーム"><input type="text" name="クレーム内容">
   <input type="text" name="アンケート依頼済み"><input type="text" name="次回予約提案済み">
   <input type="text" name="BeforeAfter確認済み">
@@ -522,6 +534,16 @@
   }
   kingaku();
 
+  /* ---- お支払い方法 ---- */
+  $('shiharai').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if (!b) { return; }
+    Array.prototype.forEach.call($('shiharai').querySelectorAll('button'), function(x){
+      x.setAttribute('aria-pressed', String(x === b));
+    });
+    jotai.shiharai = b.dataset.v;
+    kakusu('e-shiharai');
+  });
+
   /* ---- 4 クレーム ---- */
   $('kure').addEventListener('click', function(e){
     var b = e.target.closest('button'); if (!b) { return; }
@@ -559,6 +581,7 @@
     var yatta = [], yaranai = [];
     ((J && J.m) || []).forEach(function(na, i){ (naiyoIre[i] ? yatta : yaranai).push(na); });
     if ((J && J.m || []).length && !yatta.length && !tsuikaHai.length) { dasu('e-naiyo'); ng = 1; }
+    if (!jotai.shiharai) { dasu('e-shiharai'); ng = 1; }
     if (!jotai.kure) { dasu('e-kure'); ng = 1; }
     if (jotai.kure === 'あり' && !$('kure-naka').value.trim()) { dasu('e-kure-naka'); ng = 1; }
     if ((!J || !J.n) && P && P.length && !(J && J.x)) { dasu('e-erabi'); ng = 1; }
@@ -588,6 +611,7 @@
       '受注時の金額': String(moto || ''),
       '追加金額': String(ts),
       '最終金額': String(jissai || (moto + ts)),
+      'お支払い方法': jotai.shiharai || '',
       'クレーム': jotai.kure,
       'クレーム内容': $('kure-naka').value.trim(),
       'アンケート依頼済み': kakuIre['アンケート依頼済み'] ? 'はい' : 'いいえ',
