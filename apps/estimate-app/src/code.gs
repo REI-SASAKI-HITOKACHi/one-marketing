@@ -43,7 +43,7 @@ const APP = {
   MAX_ADJUSTMENT_SLOTS: 5,
 
   // マスタキャッシュの世代。マスタ構造を変えたらここを上げる。
-  CACHE_VERSION: 'v3',
+  CACHE_VERSION: 'v4',
   CACHE_TTL_SEC: 21600, // 6時間
   // CacheServiceの1値あたり上限は100KB。日本語は1文字3バイトになり得るので
   // 文字数ベースで3万文字（最悪90KB）に抑える。
@@ -506,6 +506,7 @@ function buildCalcContext_(ctx) {
     setPricingEnabled: ctx.setPricingEnabled,
     largeDiscountRatio: ctx.largeDiscountRatio,
     netBenefit: ctx.netBenefit,
+    flyerBenefit: ctx.flyerBenefit,
     menuMap: ctx.menuMap,
     discountRules: ctx.discountRules
   };
@@ -931,6 +932,10 @@ function apiLoadEstimateForClone_(estimateId) {
       });
     }
 
+    const droppedBenefits = [];
+    if (parseBooleanLoose_(r['チラシ特典_手動設定'])) droppedBenefits.push('チラシ特典');
+    if (toNumber_(r['紹介割引_入力額']) > 0) droppedBenefits.push('紹介割引');
+
     queueLog_('複製編集', estimateId, '見積複製用データを読み込みました。', '');
 
     return {
@@ -952,7 +957,14 @@ function apiLoadEstimateForClone_(estimateId) {
         adjustments: parseAdjustmentsJson_(r['調整_JSON']),
         targetTotal: 0,
         details: details
-      }, calcFlagsFromRecord_(r))
+      }, calcFlagsFromRecord_(r), {
+        // チラシ特典（1世帯1回）と紹介割引（残高から引く）は、複製しない。
+        // 複製すると、同じ権利・同じ残高が2件の見積に載り、二重に使われる。
+        flyerManual: false,
+        referralAmount: 0,
+        referralBalance: ''
+      }),
+      droppedBenefits: droppedBenefits
     };
   });
 }
@@ -1032,6 +1044,14 @@ function buildEstimateRecord_(payload, ctx, calc, estimateId) {
     ネット特典_自動判定: boolText_(calc.netBenefitAuto),
     ネット特典_手動設定: boolText_(calc.netBenefitOn),
     ネット特典額: calc.netBenefitApplied,
+    // チラシ特典・紹介割引。使っていないときは空欄（「使っていない」と「0円」を区別するため）
+    チラシ特典_手動設定: calc.flyerRequested ? 'TRUE' : '',
+    チラシ特典額: calc.flyerRequested ? calc.flyerApplied : '',
+    チラシ特典_税込額: calc.flyerRequested ? calc.flyerGross : '',
+    紹介割引_入力額: calc.referralRequested ? calc.referralGross : '',
+    紹介割引額: calc.referralRequested ? calc.referralApplied : '',
+    紹介割引_適用額: calc.referralRequested ? calc.referralAppliedGross : '',
+    紹介割引_残り確認: (calc.referralRequested && calc.referralHasBalance) ? calc.referralBalance : '',
     フォーム提示額: calc.formQuotedTotal || '',
     フォーム差額: calc.formQuotedTotal > 0 ? calc.formQuoteDiff : '',
     明細値引き合計: calc.lineDiscountTotal,
@@ -1098,7 +1118,7 @@ function rebuildCalcFromRecord_(record, ctx) {
     adjustments: parseAdjustmentsJson_(record['調整_JSON']),
     targetTotal: 0, // 保存済みの調整行をそのまま使うので再逆算しない
     details: details
-  }, calcFlagsFromRecord_(record)), ctx);
+  }, calcFlagsFromRecord_(record)), ctxForRecord_(ctx, record));
 }
 
 /**
@@ -1114,7 +1134,13 @@ function calcFlagsFromRecord_(record) {
     busyManual: parseBooleanLoose_(record['繁忙期_手動設定']),
     discountManual: parseBooleanLoose_(record['割引_手動設定']),
     setPricingManual: parseBooleanLoose_(record['同時施工_手動設定']),
-    netBenefitManual: parseBooleanLoose_(record['ネット特典_手動設定'])
+    netBenefitManual: parseBooleanLoose_(record['ネット特典_手動設定']),
+    // チラシ特典・紹介割引。列が無い古いレコードでは false／0／空欄になり、何も起きない
+    flyerManual: parseBooleanLoose_(record['チラシ特典_手動設定']),
+    referralAmount: toNumber_(record['紹介割引_入力額']),
+    // 「残り」の空欄は「未入力」であって0円ではない。toNumber_ を通すと0になり、
+    // 使う額が必ず「残りを超えている」扱いになる
+    referralBalance: isBlank_(record['紹介割引_残り確認']) ? '' : toNumber_(record['紹介割引_残り確認'])
   };
 }
 
@@ -1411,6 +1437,7 @@ function buildContextFromSheets_() {
     setPricingEnabled: parseBooleanLoose_(settings['同時施工価格有効']),
     largeDiscountRatio: normalizeRate_(settings['大幅値引き警告率'] || 0.30) || 0.30,
     netBenefit: buildNetBenefit_(discountRules),
+    flyerBenefit: buildFlyerBenefit_(discountRules),
     menus: menus,
     menuMap: menuMap,
     submitTargets: readSubmitTargets_(masterSs, settings),
@@ -1707,10 +1734,10 @@ function readMailTemplates_(masterSs, warnings) {
 }
 
 const DISCOUNT_RULE_TYPES = ['繁忙期', '早期予約割引', '複数台割引', '紹介料',
-  '同時施工価格', 'ネット申込特典'];
+  '同時施工価格', 'ネット申込特典', 'チラシ特典'];
 
 // 月の指定を必要としないルール種別。同時施工価格とネット申込特典は通年。
-const MONTHLESS_RULE_TYPES = ['複数台割引', '同時施工価格', 'ネット申込特典'];
+const MONTHLESS_RULE_TYPES = ['複数台割引', '同時施工価格', 'ネット申込特典', 'チラシ特典'];
 
 /**
  * 割引繁忙期マスタ。
@@ -1736,6 +1763,43 @@ function buildNetBenefit_(discountRules) {
     amount: toNumber_(rule.value),
     note: String(rule.note || '').trim() || 'このページからのお申し込み特典'
   };
+}
+
+/**
+ * チラシ特典（近隣チラシ）。−500円（税込）・1世帯1回・他の割引と併用しない。
+ * 既定ではどの見積にも付かない（画面で担当者がチェックを入れたときだけ）。
+ * 金額は常に税込として扱う（マスタの値種別の表記には頼らない）。
+ */
+function buildFlyerBenefit_(discountRules) {
+  const rule = (discountRules || []).filter(function (r) {
+    return r.ruleType === 'チラシ特典' && toNumber_(r.value) > 0;
+  })[0];
+
+  if (!rule) return null;
+
+  return {
+    name: String(rule.target || '').trim() || 'チラシ特典',
+    amount: toNumber_(rule.value),
+    note: String(rule.note || '').trim() || '近隣チラシ特典（1世帯1回・他の割引と併用不可）'
+  };
+}
+
+/**
+ * 保存済みの見積・請求を作り直すときの ctx。
+ *
+ * チラシ特典の額は、保存時の税込額で作り直す。マスタの額をあとで変えても
+ * （例：500円→1,000円）、過去の見積・請求の金額が動かないようにするため。
+ * 額を上書きできるのは、保存済みの記録から作り直すこの経路だけ。
+ * 画面・外部APIから来る payload には、額を指定する入口を作らない（任意の額を引けてしまう）。
+ */
+function ctxForRecord_(ctx, record) {
+  const stored = toNumber_(record['チラシ特典_税込額']);
+  if (!(stored > 0) || !parseBooleanLoose_(record['チラシ特典_手動設定'])) return ctx;
+
+  const base = ctx.flyerBenefit || { name: 'チラシ特典', note: '' };
+  return Object.assign({}, ctx, {
+    flyerBenefit: Object.assign({}, base, { amount: stored })
+  });
 }
 
 /**
@@ -2329,6 +2393,10 @@ function getEstimateHeaders_() {
     '同時施工_自動判定', '同時施工_手動設定', '同時施工割引額',
     '受注経路', 'ネット特典_自動判定', 'ネット特典_手動設定', 'ネット特典額',
     'フォーム提示額', 'フォーム差額');
+
+  // チラシ特典・紹介割引（2026-10）。既存列の位置は動かさず右端に足す。
+  headers.push('チラシ特典_手動設定', 'チラシ特典額', 'チラシ特典_税込額',
+    '紹介割引_入力額', '紹介割引額', '紹介割引_適用額', '紹介割引_残り確認');
 
   for (let i = 1; i <= APP.MAX_ADJUSTMENT_SLOTS; i++) {
     headers.push('調整' + pad2_(i) + '_名称', '調整' + pad2_(i) + '_金額');

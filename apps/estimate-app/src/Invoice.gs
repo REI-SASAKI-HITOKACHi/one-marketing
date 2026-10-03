@@ -471,7 +471,7 @@ function prepareInvoiceCalc_(payload, ctx) {
     estimateRowNumber: found.rowNumber,
     estimateTotal: estimateCalc.grandTotal,
     calcPayload: calcPayload,
-    calc: calculateEstimate_(calcPayload, ctx)
+    calc: calculateEstimate_(calcPayload, ctxForRecord_(ctx, r))
   };
 }
 
@@ -542,7 +542,7 @@ function rebuildInvoiceCalc_(record, ctx) {
     adjustments: parseAdjustmentsJson_(record['調整_JSON']),
     targetTotal: 0,
     details: extractDetailsFromRecord_(record)
-  }, calcFlagsFromRecord_(record)), ctx);
+  }, calcFlagsFromRecord_(record)), ctxForRecord_(ctx, record));
 }
 
 /* ===================== 保存レコード ===================== */
@@ -615,6 +615,13 @@ function buildInvoiceRecord_(payload, ctx, prepared, invoiceId, previousInvoiceI
     同時施工割引額: calc.setDiscountApplied,
     ネット特典_手動設定: boolText_(calc.netBenefitOn),
     ネット特典額: calc.netBenefitApplied,
+    チラシ特典_手動設定: calc.flyerRequested ? 'TRUE' : '',
+    チラシ特典額: calc.flyerRequested ? calc.flyerApplied : '',
+    チラシ特典_税込額: calc.flyerRequested ? calc.flyerGross : '',
+    紹介割引_入力額: calc.referralRequested ? calc.referralGross : '',
+    紹介割引額: calc.referralRequested ? calc.referralApplied : '',
+    紹介割引_適用額: calc.referralRequested ? calc.referralAppliedGross : '',
+    紹介割引_残り確認: (calc.referralRequested && calc.referralHasBalance) ? calc.referralBalance : '',
     調整合計額: calc.adjustmentTotal,
     調整_JSON: JSON.stringify((calc.appliedAdjustments || []).map(function (a) {
       return {
@@ -839,7 +846,9 @@ function getInvoiceHeaders_() {
   headers.push('request_id', '見積時合計金額', '見積差額',
     '繁忙期_手動設定', '割引_手動設定', '調整合計額', '調整_JSON',
     '同時施工_手動設定', '同時施工割引額',
-    '受注経路', 'ネット特典_手動設定', 'ネット特典額');
+    '受注経路', 'ネット特典_手動設定', 'ネット特典額',
+    'チラシ特典_手動設定', 'チラシ特典額', 'チラシ特典_税込額',
+    '紹介割引_入力額', '紹介割引額', '紹介割引_適用額', '紹介割引_残り確認');
 
   for (let i = 1; i <= APP.MAX_DETAIL_ROWS; i++) {
     headers.push('明細' + pad2_(i) + '_値引き額');

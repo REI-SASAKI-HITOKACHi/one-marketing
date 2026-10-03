@@ -129,6 +129,28 @@
         </label>
         <div id="autoDiscountHint" class="mini-info"></div>
 
+        <!-- チラシ特典と紹介割引は、自動判定を持たない（手でチェック／入力したときだけ付く）。
+             どちらも1行ずつで、使わない限り何も増えない。 -->
+        <label class="check-row" id="flyerRow" hidden>
+          <input id="flyerManual" type="checkbox">
+          <span>チラシ特典を適用</span>
+        </label>
+        <div id="flyerHint" class="mini-info" hidden></div>
+
+        <label class="check-row">
+          <input id="referralOn" type="checkbox">
+          <span>紹介割引を使う</span>
+        </label>
+        <div id="referralBlock" class="hidden">
+          <label for="referralAmount">使う金額（税込・円）</label>
+          <input id="referralAmount" type="number" min="0" step="1" inputmode="numeric" placeholder="例：1000">
+
+          <label for="referralBalance">この方の紹介割引の残り（確認用・任意）</label>
+          <input id="referralBalance" type="number" min="0" step="1" inputmode="numeric" placeholder="分かれば入力（税込・円）">
+
+          <div id="referralHint" class="mini-info"></div>
+        </div>
+
         <hr class="divider">
 
         <div class="sub-head">変則割引・調整</div>

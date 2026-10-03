@@ -267,6 +267,18 @@
       recalc();
     });
 
+    // チラシ特典・紹介割引は「自動判定の上書き」ではなく、入力された事実。
+    // 作業日や経路タブを変えても解除しない（ネット特典の写しで書くと、日付を直しただけで黙って消える）
+    byId('flyerManual').addEventListener('change', recalc);
+
+    byId('referralOn').addEventListener('change', function () {
+      byId('referralBlock').classList.toggle('hidden', !byId('referralOn').checked);
+      recalc();
+    });
+    ['referralAmount', 'referralBalance'].forEach(function (id) {
+      byId(id).addEventListener('input', recalc);
+    });
+
     document.addEventListener('click', function (e) {
       var el = e.target.closest('[data-action]');
       if (!el) return;
@@ -670,6 +682,10 @@
       formQuotedTotal: val('formQuotedTotal'),
       setPricingManual: state.setPricingTouched ? byId('setPricingManual').checked : null,
       netBenefitManual: state.netBenefitTouched ? byId('netBenefitManual').checked : null,
+      // チラシ特典・紹介割引：チェック／入力したときだけ送る。既定は何も送らない
+      flyerManual: byId('flyerManual').checked,
+      referralAmount: byId('referralOn').checked ? val('referralAmount') : '',
+      referralBalance: byId('referralOn').checked ? val('referralBalance') : '',
       channel: state.channel,
       details: state.lines
         .filter(function (l) { return l.menuId; })
@@ -721,6 +737,8 @@
     byId('setPricingHint').innerHTML = buildSetPricingHint(calc);
     byId('autoDiscountHint').innerHTML = buildAutoDiscountHint(calc);
     renderNetBenefitRow(calc);
+    renderFlyerRow(calc);
+    renderReferralHint(calc);
     byId('targetTotalHint').textContent = buildTargetHint(calc);
 
     var s = calc.summaryDisplay;
@@ -733,6 +751,8 @@
     if (calc.setDiscountApplied > 0) rows.push(['同時施工割引', '-' + s.setDiscountApplied]);
     if (calc.netBenefitApplied > 0) rows.push([calc.netBenefitName || 'ネット申込特典', '-' + s.netBenefitApplied]);
     if (calc.autoDiscountApplied > 0) rows.push([calc.autoDiscountType || '自動割引', '-' + s.autoDiscountApplied]);
+    if (calc.flyerApplied > 0) rows.push([calc.flyerRowName || 'チラシ特典', '-' + s.flyerApplied]);
+    if (calc.referralApplied > 0) rows.push([calc.referralRowName || '紹介割引', '-' + s.referralApplied]);
 
     calc.appliedAdjustments.forEach(function (a) {
       rows.push([a.name, (a.kind === 'surcharge' ? '' : '-') + fmtYen(a.amount)]);
@@ -829,6 +849,62 @@
     hint.hidden = false;
     hint.innerHTML = (calc.netBenefitAvailable ? '自動判定：適用します。' : '自動判定：適用しません。')
       + '<br><span class="mini">' + esc(calc.netBenefitDetail) + '</span>';
+  }
+
+  /**
+   * チラシ特典。マスタに行があるときだけ出す。自動判定はしない（チェックを入れたときだけ付く）。
+   * 他の割引と併用せず、大きいほう1つだけを当てる。当たらなかったときは、その理由を見せる。
+   */
+  function renderFlyerRow(calc) {
+    var row = byId('flyerRow');
+    var hint = byId('flyerHint');
+
+    if (!calc.flyerExists) {
+      row.hidden = true;
+      hint.hidden = true;
+      return;
+    }
+
+    row.hidden = false;
+    hint.hidden = false;
+
+    var base = '−' + esc(fmtYen(calc.flyerGross)) + '（税込）・1世帯1回・他の割引と併用不可（大きいほう1つだけ）。';
+    var status = '';
+
+    if (calc.flyerRequested && calc.flyerApplied > 0) {
+      status = '<br><span class="mini">適用しました。'
+        + (calc.flyerSuppressed.set + calc.flyerSuppressed.net + calc.flyerSuppressed.auto + calc.flyerSuppressed.referral > 0
+          ? '併用できない他の割引は適用していません。' : '')
+        + '</span>';
+    } else if (calc.flyerRequested && calc.flyerLost) {
+      status = '<br><span class="warn-inline">他の割引（税込約' + esc(calc.summaryDisplay.flyerOthersGross)
+        + '）のほうが大きいので、チラシ特典は使っていません（1世帯1回の権利は残ります）。</span>';
+    }
+
+    hint.innerHTML = base + status;
+  }
+
+  /** 紹介割引。使う金額が残りを超えたとき・課税対象を超えて引けないときに知らせる。 */
+  function renderReferralHint(calc) {
+    var box = byId('referralHint');
+
+    if (!byId('referralOn').checked) { box.innerHTML = ''; return; }
+
+    var lines = ['紹介した方が、紹介先の施工完了1人ごとに1,000円ためた残りから使えます。'
+      + '残りは繰り越し、分けて使えます（残高は台帳で確認）。'];
+
+    if (calc.referralBlockedByFlyer) {
+      lines.push('<span class="warn-inline">チラシ特典と併用できないため、紹介割引は適用していません。</span>');
+    } else if (calc.referralRequested) {
+      if (calc.referralOverBalance) {
+        lines.push('<span class="warn-inline">使う金額が、入力した残り（' + esc(fmtYen(calc.referralBalance)) + '）を超えています。</span>');
+      }
+      if (calc.referralCapped) {
+        lines.push('<span class="warn-inline">課税対象を超えるため、税込' + esc(fmtYen(calc.referralAppliedGross)) + 'までしか引けません。</span>');
+      }
+    }
+
+    box.innerHTML = lines.join('<br>');
   }
 
   /* ===================== 受注経路タブ ===================== */
@@ -1141,7 +1217,9 @@
         }
 
         applyClonePayload(res);
-        showToast('複製用に読み込みました。保存時に新しい見積IDを発行します。');
+        var dropped = (res.droppedBenefits || []);
+        showToast('複製用に読み込みました。保存時に新しい見積IDを発行します。'
+          + (dropped.length ? '（' + dropped.join('・') + 'は複製しません。必要ならもう一度入れてください）' : ''));
       })
       .withFailureHandler(function (err) { showToast(message(err)); })
       .apiLoadEstimateForClone(uiKey(), estimateId);
@@ -1186,7 +1264,9 @@
         return {
           name: a.name || '',
           kind: a.kind === 'surcharge' ? 'surcharge' : 'discount',
-          mode: a.mode === 'rate' ? 'rate' : 'amount',
+          // 税込の調整行（amountIncTax）を落とすと、複製で「税込1,000円」が「税抜1,000円」
+          // （税込1,100円）に化けて金額が変わる。
+          mode: a.mode === 'rate' ? 'rate' : (a.mode === 'amountIncTax' ? 'amountIncTax' : 'amount'),
           value: a.value,
           base: a.base === 'lineSubtotal' ? 'lineSubtotal' : 'taxable',
           taxType: a.taxType === '非課税' ? '非課税' : '課税'
@@ -1204,6 +1284,15 @@
     byId('discountManual').checked = !!p.discountManual;
     byId('setPricingManual').checked = !!p.setPricingManual;
     byId('netBenefitManual').checked = !!p.netBenefitManual;
+
+    // チラシ特典（1世帯1回）と紹介割引（残高から引く）は複製しない。
+    // 持ち込むと、同じ権利・同じ残高が2件の見積に載って二重に使われる。
+    byId('flyerManual').checked = false;
+    byId('referralOn').checked = false;
+    byId('referralBlock').classList.add('hidden');
+    setVal('referralAmount', '');
+    setVal('referralBalance', '');
+
     byId('formQuotedTotal').value = p.formQuotedTotal || '';
     state.channel = CalcEngine.normalizeChannel(p.channel);
     renderChannelTabs();

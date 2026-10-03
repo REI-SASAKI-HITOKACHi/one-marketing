@@ -150,6 +150,7 @@ const rules = [
   { ruleType: '早期予約割引', target: '全体', startMonth: 1, endMonth: 2, value: 0.15, priority: 20 },
   { ruleType: '早期予約割引', target: '全体', startMonth: 3, endMonth: 4, value: 0.10, priority: 20 },
   { ruleType: '早期予約割引', target: '全体', startMonth: 8, endMonth: 10, value: 0.10, priority: 20 },
+  { ruleType: '早期予約割引', target: '全体', startMonth: 11, endMonth: 11, value: 0.10, priority: 20 }, // 2026-10-03 オーナー決定
 
   { ruleType: '同時施工価格', target: 'M004', condition: '', value: 13800, priority: 40 },
   { ruleType: '同時施工価格', target: 'M006', condition: '', value: 13800, priority: 40 },
@@ -242,7 +243,12 @@ const CASES = [
   { label: 'エアコン2（6月・繁忙期）', month: 6, basket: [{ name: 'エアコンクリーニング（ノーマル）', qty: 2 }] },
   { label: '浴室1＋トイレ1（11月）', month: 11, basket: [{ name: '浴室クリーニング', qty: 1 }, { name: 'トイレクリーニング', qty: 1 }] },
   { label: 'キッチン1＋コンロ1（11月）', month: 11, basket: [{ name: 'キッチンクリーニング', qty: 1 }, { name: 'コンロクリーニング', qty: 1 }] },
-  { label: '洗濯機1＋トイレ1（11月）', month: 11, basket: [{ name: '洗濯機クリーニング', qty: 1 }, { name: 'トイレクリーニング', qty: 1 }] }
+  { label: '洗濯機1＋トイレ1（11月）', month: 11, basket: [{ name: '洗濯機クリーニング', qty: 1 }, { name: 'トイレクリーニング', qty: 1 }] },
+
+  // 11月も10%にする（オーナー決定 2026-10-03）。公開中の予約フォームは souki["11"]=0 のまま。
+  // フォーム側を souki["11"]=0.1 に直したら、pending を外す（下の「待ち」判定がそれを知らせる）
+  { label: 'エアコン1（11月・単品）', month: 11, basket: [{ name: 'エアコンクリーニング（ノーマル）', qty: 1 }],
+    pending: '予約フォームの11月がまだ0%（souki["11"]）' }
 ];
 
 const yen = n => '¥' + Math.round(n).toLocaleString('en-US');
@@ -253,6 +259,11 @@ const adminSrc = fs.readFileSync(path.join(srcDir, 'Admin.gs'), 'utf8');
 const adminSet = {};
 adminSrc.replace(/\['TRUE', 'SET_(\w+)', '同時施工価格', '(\w+)', '', '', '(\w*)', (\d+)/g,
   (_, id, target, cond, value) => { adminSet[target] = { cond, value: Number(value) }; });
+
+// 早期予約割引：Admin.gs の初期値と、このテストの rules が同じか
+const adminEarly = [];
+adminSrc.replace(/\['TRUE', '(EARLY_\w+)', '早期予約割引', '全体', (\d+), (\d+), '', ([\d.]+)/g,
+  (_, id, from, to, value) => { adminEarly.push([Number(from), Number(to), Number(value)].join('-')); });
 
 const adminNet = /'ネット申込特典', 'ネット申込特典', '', '', '', (\d+)/.exec(adminSrc);
 
@@ -265,6 +276,11 @@ rules.filter(r => r.ruleType === '同時施工価格').forEach(r => {
 });
 if (Object.keys(adminSet).length !== rules.filter(r => r.ruleType === '同時施工価格').length) {
   mismatches.push('同時施工価格ルールの件数が Admin.gs と違う（Admin.gs ' + Object.keys(adminSet).length + '件）');
+}
+const testEarly = rules.filter(r => r.ruleType === '早期予約割引')
+  .map(r => [r.startMonth, r.endMonth, r.value].join('-')).sort();
+if (JSON.stringify(adminEarly.slice().sort()) !== JSON.stringify(testEarly)) {
+  mismatches.push('早期予約割引ルールが Admin.gs と違う（Admin.gs ' + adminEarly.join(' / ') + '、このテスト ' + testEarly.join(' / ') + '）');
 }
 if (!adminNet || Number(adminNet[1]) !== NET_BENEFIT.amount) {
   mismatches.push('ネット申込特典の金額が Admin.gs と違う');
@@ -279,6 +295,7 @@ console.log('  ' + 'ケース'.padEnd(26) + 'フォーム'.padStart(11) + 'WEB�
 console.log('  ' + '-'.repeat(104));
 
 const gaps = [];
+const pendingGaps = [];
 
 CASES.forEach(c => {
   const basket = c.basket.map(b => Object.assign({}, b, { appMenu: NAME_MAP[b.name] }));
@@ -306,8 +323,21 @@ CASES.forEach(c => {
     + yen(normal.grandTotal).padStart(12)
     + '  ' + why.join(' / '));
 
+  if (c.pending) {
+    // 予約フォーム側の更新待ちの既知の差。差があるうちは失敗にしない。
+    // 揃ってしまったら、pending を外し忘れているので失敗にして知らせる
+    if (diff !== 0) pendingGaps.push({ label: c.label, diff, why: c.pending });
+    else gaps.push({ label: c.label + '（pending が不要になっています。外してください）', diff: NaN });
+    return;
+  }
+
   if (diff !== 0) gaps.push({ label: c.label, diff, form: f, app: same });
 });
+
+if (pendingGaps.length) {
+  console.log('\n■ 予約フォーム側の更新待ち（失敗にはしない）');
+  pendingGaps.forEach(g => console.log('  △ ' + g.label + '：' + (g.diff > 0 ? '+' : '') + yen(g.diff) + '　' + g.why));
+}
 
 console.log('\n' + '='.repeat(104));
 
@@ -333,10 +363,10 @@ if (gaps.length === 0 && mismatches.length === 0) {
 
   ■ 納品時の設定
   auto_discount_enabled = FALSE（通常見積）／auto_discount_enabled_web = TRUE（WEB経由）。
-  この表は納品時の設定そのもので計算しているので、**デプロイした瞬間から9通り揃う**。
+  この表は納品時の設定そのもので計算しているので、**デプロイした瞬間から揃う**（11月1箇所だけは予約フォームの更新待ち）。
   通常見積に自動割引が載らない点は変わらないので、電話・紹介のお客様の金額は動かない。
 `);
-  console.log(`✅ 全 ${CASES.length} 通り一致\n`);
+  console.log(`✅ ${CASES.length - pendingGaps.length} 通り一致` + (pendingGaps.length ? `（フォーム更新待ち ${pendingGaps.length} 通りを除く）` : '') + '\n');
   process.exit(0);
 }
 

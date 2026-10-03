@@ -97,7 +97,7 @@ function adminDeployAll() {
   out.push('■ 完了。次にやること');
   out.push('══════════════════════════════════════');
   out.push('1. 上の「再診断」に ⚠ が残っていないか確認する');
-  out.push('2. 「有効ルール」が 繁忙期2 / 早期予約割引3 / 複数台割引9 / 同時施工価格6 / ネット申込特典1 になっているか確認する');
+  out.push('2. 「有効ルール」が 繁忙期2 / 早期予約割引4 / 複数台割引9 / 同時施工価格6 / ネット申込特典1 / チラシ特典1 になっているか確認する');
   out.push('3. Webアプリを開いて動作確認する（受入テスト）');
   out.push('4. 問題なければ デプロイを管理 → 編集 → バージョン「新バージョン」→ デプロイ');
   out.push('');
@@ -496,24 +496,19 @@ function replaceSheetWithNormalized_(ss, sheetName, headers, rows) {
 }
 
 /**
- * 割引繁忙期マスタの正規化。
- *
- * 現状の問題：旧ヘッダー（A:ルールID, B:有効…）のまま、初期投入行が
- * 新スキーマ順（A:有効, B:ルールID…）で書かれていたため開始月・終了月・値が全てずれ、
- * 繁忙期／早期予約割引／複数台割引の自動判定が常に不成立になっていた。
- * さらに画面を開くたびに16行が追記され、150行超まで重複していた。
+ * 割引繁忙期マスタの既定の行。adminNormalizeDiscountRules（作り直し）と
+ * adminEnsureDiscountRules（足りない行だけ追記）の両方がここを使う。
+ * 行を二重に持つと、片方だけ直したときにずれる。
  */
-function adminNormalizeDiscountRules() {
-  requireOwner_();
-  const masterSs = getMasterSs_();
-
-  const rows = [
+function getDefaultDiscountRuleRows_() {
+  return [
     ['TRUE', 'BUSY_05_07', '繁忙期', '全体', 5, 7, '', 3300, '金額', 10, '5月〜7月。メインメニューの数量ごとに加算'],
     ['TRUE', 'BUSY_12', '繁忙期', '全体', 12, 12, '', 3300, '金額', 10, '12月。メインメニューの数量ごとに加算'],
 
     ['TRUE', 'EARLY_01_02', '早期予約割引', '全体', 1, 2, '', 0.15, '率', 20, '1月〜2月：15%'],
     ['TRUE', 'EARLY_03_04', '早期予約割引', '全体', 3, 4, '', 0.10, '率', 20, '3月〜4月：10%'],
     ['TRUE', 'EARLY_08_10', '早期予約割引', '全体', 8, 10, '', 0.10, '率', 20, '8月〜10月：10%'],
+    ['TRUE', 'EARLY_11', '早期予約割引', '全体', 11, 11, '', 0.10, '率', 20, '11月：10%（2026-10-03 オーナー決定「11月も10%引きにする」）。12月はなし'],
 
     ['TRUE', 'MULTI_NORMAL_05_10', '複数台割引', 'ノーマルエアコン', '', '', 'totalQty:5-10', 500, '金額/台', 30, '総台数で判定'],
     ['TRUE', 'MULTI_NORMAL_11_20', '複数台割引', 'ノーマルエアコン', '', '', 'totalQty:11-20', 1000, '金額/台', 30, '総台数で判定'],
@@ -545,9 +540,36 @@ function adminNormalizeDiscountRules() {
     ['TRUE', 'NET_BENEFIT', 'ネット申込特典', 'ネット申込特典', '', '', '', 2200, '金額(税込)', 50,
       'このページからのお申し込み特典'],
 
+    /* --- チラシ特典（金額は税込） ---
+     * 近隣チラシの特典。1世帯1回・期限なし。他の割引と併用しない
+     * （大きいほう1つだけを当てる。他の割引のほうが大きいときは、特典を使わずに権利を残す）。
+     * 見積では既定でどの見積にも付けない。画面で担当者がチェックを入れたときだけ付く。
+     * 金額は常に税込として扱う（値種別の表記には頼らない）。
+     */
+    ['TRUE', 'FLYER_BENEFIT', 'チラシ特典', 'チラシ特典', '', '', '', 500, '金額(税込)', 55,
+      '近隣チラシ特典。1世帯1回・期限なし・他の割引と併用不可（大きいほう1つだけ適用）'],
+
     ['FALSE', 'INTRO_01_02', '紹介料', '全体', 1, 2, '', 0.05, '率', 90, '顧客割引か紹介元支払か未確定のため計算対象外'],
     ['FALSE', 'INTRO_OTHER', '紹介料', '全体', 3, 12, '', 0.10, '率', 90, '顧客割引か紹介元支払か未確定のため計算対象外']
   ];
+}
+
+/** adminEnsureDiscountRules が足してよいルールID。ここに無い行は、たとえ既定にあっても足さない */
+const ENSURE_DISCOUNT_RULE_IDS = ['EARLY_11', 'FLYER_BENEFIT'];
+
+/**
+ * 割引繁忙期マスタの正規化。
+ *
+ * 現状の問題：旧ヘッダー（A:ルールID, B:有効…）のまま、初期投入行が
+ * 新スキーマ順（A:有効, B:ルールID…）で書かれていたため開始月・終了月・値が全てずれ、
+ * 繁忙期／早期予約割引／複数台割引の自動判定が常に不成立になっていた。
+ * さらに画面を開くたびに16行が追記され、150行超まで重複していた。
+ */
+function adminNormalizeDiscountRules() {
+  requireOwner_();
+  const masterSs = getMasterSs_();
+
+  const rows = getDefaultDiscountRuleRows_();
 
   const message = replaceSheetWithNormalized_(masterSs, APP.SHEET_DISCOUNT, getDiscountHeaders_(), rows);
   clearContextCache_();
@@ -555,6 +577,7 @@ function adminNormalizeDiscountRules() {
   const note = message + '\n'
     + '※ 空室清掃の繁忙期30%はメニューマスタ M015 の「繁忙期加算額」欄（30%）で管理しています。\n'
     + '※ 早期予約割引は1箇所のみのご依頼に限ります。2箇所以上は同時施工価格を適用します（予約フォームと同条件）。\n'
+    + '※ チラシ特典は税込500円。1世帯1回。他の割引と併用せず、大きいほう1つだけを当てます。\n'
     + '※ 早期予約割引と複数台割引は併用しません（早期予約が優先）。この併用ルールはコード側に実装済みです。\n'
     + '※ 繁忙期加算 ¥3,300 は税込です。設定マスタ busy_surcharge_tax_included で切り替えられます。\n'
     + '※ 自動割引を実際に効かせるには、設定マスタの auto_discount_enabled を TRUE にしてください。\n'
@@ -562,6 +585,91 @@ function adminNormalizeDiscountRules() {
 
   console.log(note);
   return note;
+}
+
+/**
+ * 割引繁忙期マスタに、足りないルールだけを**追記する**（既存の行は一切触らない）。
+ *
+ *   adminEnsureDiscountRules()
+ *
+ * adminNormalizeDiscountRules() はシートを置き換えて旧シートを退避する作りで、
+ * 運用中に手で直した行まで既定に戻る。新しい割引を1行足したいだけのときは、こちらを使う。
+ *
+ * 足すのは ENSURE_DISCOUNT_RULE_IDS のルールだけ（2026-10：EARLY_11＝11月の早期予約10%、
+ * FLYER_BENEFIT＝チラシ特典）。**何度実行しても同じ結果**になる（すでにある行は足さない）。
+ *
+ * 注意：オーナーがこの行を**消したあとに再実行すると、行が復活する**。
+ * 消したままにしたいときは、消さずに「有効」を FALSE にする。
+ */
+function adminEnsureDiscountRules() {
+  requireOwner_();
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+
+  try {
+    const masterSs = getMasterSs_();
+    const sheet = masterSs.getSheetByName(APP.SHEET_DISCOUNT);
+    if (!sheet) {
+      throw new Error('「' + APP.SHEET_DISCOUNT + '」がありません。先に adminNormalizeDiscountRules() を実行してください。');
+    }
+
+    // ヘッダーが想定どおり（1行目・11列）のときだけ書く。getHeaderInfo_ は必要なヘッダーが
+    // 見つからなくても、いちばん近い行を返す。そのまま書くと列がずれて書かれてしまう。
+    const headers = getDiscountHeaders_();
+    const actual = sheet.getRange(1, 1, 1, headers.length).getDisplayValues()[0]
+      .map(function (v) { return String(v || '').trim(); });
+    const diff = headers.filter(function (h, i) { return actual[i] !== h; });
+    if (diff.length > 0) {
+      throw new Error('「' + APP.SHEET_DISCOUNT + '」の列の並びが想定と違います（旧形式の可能性）。'
+        + '先に adminNormalizeDiscountRules() で整理してください。違う列：' + diff.join('、'));
+    }
+
+    const lastRow = sheet.getLastRow();
+    const existing = lastRow >= 2
+      ? sheet.getRange(2, 1, lastRow - 1, headers.length).getValues()
+      : [];
+
+    // 同じものがあるかは、ルールIDと、読み込み側（readDiscountRules_）と同じ
+    // 「種別|対象|開始月|終了月|条件」の両方で見る。IDが違っても中身が同じなら二重に足さない
+    const norm = function (v) { return String(v == null ? '' : v).trim(); };
+    const ids = {};
+    const keys = {};
+    existing.forEach(function (r) {
+      ids[norm(r[1])] = true;
+      keys[[norm(r[2]), norm(r[3]), norm(r[4]), norm(r[5]), norm(r[6])].join('|')] = true;
+    });
+
+    const added = [];
+    const skipped = [];
+    const toAppend = [];
+
+    getDefaultDiscountRuleRows_().forEach(function (row) {
+      const id = norm(row[1]);
+      if (ENSURE_DISCOUNT_RULE_IDS.indexOf(id) < 0) return;
+
+      const key = [norm(row[2]), norm(row[3]), norm(row[4]), norm(row[5]), norm(row[6])].join('|');
+      if (ids[id] || keys[key]) { skipped.push(id); return; }
+
+      toAppend.push(row);
+      added.push(id);
+    });
+
+    if (toAppend.length > 0) {
+      sheet.getRange(lastRow + 1, 1, toAppend.length, headers.length).setValues(toAppend);
+    }
+    forgetHeaderInfo_(sheet);
+    clearContextCache_();
+
+    const message = '割引繁忙期マスタへの追記：'
+      + (added.length ? '追加 ' + added.join('、') : '追加なし')
+      + (skipped.length ? '／すでにあるので足さなかった ' + skipped.join('、') : '')
+      + '。既存の行は変更していません。';
+    console.log(message);
+    return message;
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 /**
@@ -773,7 +881,9 @@ function adminDiagnose() {
   }
 
   const net = buildNetBenefit_(rules);
+  const flyer = buildFlyerBenefit_(rules);
   add('  ネット申込特典　　　： ' + (net ? net.amount + '円（税込・既定では付けません）' : '未登録'));
+  add('  チラシ特典　　　　　： ' + (flyer ? flyer.amount + '円（税込・画面でチェックしたときだけ付く・他の割引と併用せず大きいほう1つ）' : '未登録（adminEnsureDiscountRules() で足せます）'));
 
   if (!parseBooleanLoose_(settings['自動割引有効_WEB経由'])) {
     add('  ⚠ WEB経由見積の1箇所のみのご依頼で、予約フォームより高い見積が出ます。');

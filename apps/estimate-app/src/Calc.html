@@ -44,6 +44,11 @@ var CalcEngine = (function () {
 
   function isBlank(v) { return v === null || v === undefined || String(v).trim() === ''; }
 
+  // 3桁区切りの数字（円マークなし）。帳票の行名に「税込500円引き」と書くのに使う
+  function fmtNum(n) {
+    return String(Math.abs(yen(n))).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
   function parseBool(v) {
     if (v === true) return true;
     if (v === false) return false;
@@ -434,6 +439,66 @@ var CalcEngine = (function () {
     };
   }
 
+  /**
+   * チラシ特典（近隣チラシ）。−500円（税込）。1世帯1回・期限なし。他の割引と併用しない。
+   *
+   * ■ 自動判定はしない。**ONになるのは、担当者が手でチェックを入れたときだけ。**
+   *   チラシ経由かどうかをアプリは知らない。ネット申込特典のように「未指定なら自動判定」と
+   *   書くと、古い画面・外部API・古い保存レコード（列が無い）から来た見積の全部から
+   *   −500円が引かれる。既定は必ずOFF。
+   *
+   * ■ 金額は常に税込（お客様の見る合計が500円下がる）。マスタの値種別の文字には頼らない
+   *   （全角の「金額（税込）」などの表記ゆれで、黙って50円違うことを避けるため）。
+   *
+   * ■ 金額は ctx.flyerBenefit（マスタ）からだけ読み、payload からは受け取らない。
+   *   payload は画面・外部APIから来るので、そこから金額を指定できると任意の額を引ける。
+   *   保存済みの見積を作り直すときに、保存時の額を使いたい場合は、呼び出し側（サーバー）が
+   *   ctx.flyerBenefit を保存時の額に差し替える（code.gs の ctxForRecord_）。
+   *   マスタの額をあとで変えても、過去の見積・請求が動かないようにするため。
+   */
+  function calcFlyerBenefit(ctx, p, taxRate) {
+    var master = (ctx && ctx.flyerBenefit) || null;
+    var gross = master ? toNum(master.amount) : 0;
+
+    if (!(gross > 0)) {
+      return { exists: false, gross: 0, candidate: 0, name: '', rowName: '' };
+    }
+
+    var name = (master && String(master.name || '').trim()) || 'チラシ特典';
+    return {
+      exists: true,
+      gross: gross,
+      candidate: taxExclusive(gross, taxRate),
+      name: name,
+      rowName: name + '（税込' + fmtNum(gross) + '円引き）'
+    };
+  }
+
+  /**
+   * 紹介割引。紹介した方が、紹介先の施工完了1人ごとに1,000円ぶんためた残りから使う。
+   * 上限なし・期限なし・分けて使える（金額は担当者が入れる）。
+   *
+   * 残高の表は別の担当が台帳側に作る。ここでは「使う金額（税込）」と、
+   * 確認用の「この方の残り（任意）」を受け取るだけ。連携はしない。
+   * 「残り」が空欄のときは「未入力」であり、0円ではない（0円だと使う額が必ず超過になる）。
+   */
+  function calcReferral(p, taxRate) {
+    var gross = Math.max(0, yen(p && p.referralAmount));
+    var rawBalance = p && p.referralBalance;
+    var hasBalance = !isBlank(rawBalance);
+    var balance = hasBalance ? Math.max(0, yen(rawBalance)) : 0;
+
+    return {
+      requested: gross > 0,
+      gross: gross,
+      candidate: gross > 0 ? taxExclusive(gross, taxRate) : 0,
+      hasBalance: hasBalance,
+      balance: balance,
+      overBalance: gross > 0 && hasBalance && gross > balance,
+      rowName: '紹介割引（税込' + fmtNum(gross) + '円引き）'
+    };
+  }
+
   /* ===================== 自動割引（早期予約 / 複数台） ===================== */
 
   function calcAutoDiscount(month, lines, ctx, unitCount, web) {
@@ -588,18 +653,44 @@ var CalcEngine = (function () {
       });
     }
 
-    if (collapseAdjustments && calc.appliedAdjustments.length > 1) {
-      var net = calc.appliedAdjustments.reduce(function (s, a) {
-        return s + (a.kind === 'surcharge' ? a.amount : -a.amount);
-      }, 0);
-      if (net !== 0) {
-        rows.push({ name: '各種割引・調整', qty: 1, unitPrice: net, amount: net, taxType: '課税' });
+    // チラシ特典・紹介割引。帳票は税抜表示なので、行の金額は税抜（例：−455）になる。
+    // お客様がチラシで見た「500円引き」と食い違って見えないよう、行名に税込額を書く。
+    var fixedCuts = [];
+    if (calc.flyerApplied > 0) {
+      fixedCuts.push({ name: calc.flyerRowName || 'チラシ特典', amount: calc.flyerApplied });
+    }
+    if (calc.referralApplied > 0) {
+      fixedCuts.push({ name: calc.referralRowName || '紹介割引', amount: calc.referralApplied });
+    }
+
+    // collapseAdjustments: false/0＝まとめない、true/1＝調整行だけまとめる、2＝割引行ぜんぶをまとめる
+    var level = collapseAdjustments === 2 ? 2 : (collapseAdjustments ? 1 : 0);
+
+    var adjustmentNet = calc.appliedAdjustments.reduce(function (sum, a) {
+      return sum + (a.kind === 'surcharge' ? a.amount : -a.amount);
+    }, 0);
+
+    if (level === 2) {
+      // 固定の割引（チラシ特典・紹介割引）と調整行を1行にまとめる。差し引きは変えない
+      var netAll = adjustmentNet - fixedCuts.reduce(function (sum, c) { return sum + c.amount; }, 0);
+      if (netAll !== 0) {
+        rows.push({ name: '各種割引・調整', qty: 1, unitPrice: netAll, amount: netAll, taxType: '課税' });
       }
     } else {
-      calc.appliedAdjustments.forEach(function (a) {
-        var signed = a.kind === 'surcharge' ? a.amount : -a.amount;
-        rows.push({ name: a.name, qty: 1, unitPrice: signed, amount: signed, taxType: a.taxType });
+      fixedCuts.forEach(function (c) {
+        rows.push({ name: c.name, qty: 1, unitPrice: -c.amount, amount: -c.amount, taxType: '課税' });
       });
+
+      if (level === 1 && calc.appliedAdjustments.length > 1) {
+        if (adjustmentNet !== 0) {
+          rows.push({ name: '各種割引・調整', qty: 1, unitPrice: adjustmentNet, amount: adjustmentNet, taxType: '課税' });
+        }
+      } else {
+        calc.appliedAdjustments.forEach(function (a) {
+          var signed = a.kind === 'surcharge' ? a.amount : -a.amount;
+          rows.push({ name: a.name, qty: 1, unitPrice: signed, amount: signed, taxType: a.taxType });
+        });
+      }
     }
 
     if (calc.highwayFee > 0) {
@@ -668,8 +759,62 @@ var CalcEngine = (function () {
     var nonTaxableBase = nonTaxLines + highwayFee;
     var bases = { taxableBase: taxableBase, lineSubtotal: lineSubtotal, taxRate: taxRate };
 
-    // 同時施工割引・ネット申込特典・自動割引は常に課税対象から引く
-    var taxableCut = Math.min(setDiscountApplied + netBenefitApplied + autoDiscountApplied, taxableBase);
+    /* --- チラシ特典・紹介割引 ---
+     * チラシ特典は他の割引と併用しない。「併用しない」は **大きいほう1つだけを当てる** と読む。
+     *   ・チラシ特典を優先して他を止めると、早期予約（最低でも約1,000円）より小さい500円で
+     *     置き換えることになり、お客様が数百円〜数千円高く払う。1世帯1回の権利も使い切ってしまう。
+     *   ・他の割引のほうが大きい（または同額）なら、チラシ特典は当てずに権利を残す。
+     * 計算順の注意：ネット申込特典の自動判定は「同時施工割引が0円」を条件にしている。
+     * 他の割引を先に0にしてからネット特典を判定すると、勝手にONへ切り替わる。
+     * だから止める処理は、全部の候補を出し終えたあと、最後に Applied を0にする形で行う。
+     */
+    var flyerInfo = calcFlyerBenefit(ctx, p, taxRate);
+    var flyerRequested = flyerInfo.exists && parseBool(p.flyerManual);   // 既定OFF。自動判定は持たない
+    var referralInfo = calcReferral(p, taxRate);
+
+    var othersCandidate = setDiscountApplied + netBenefitApplied + autoDiscountApplied
+      + (referralInfo.requested ? referralInfo.candidate : 0);
+
+    var flyerApplied = 0;
+    var flyerSuppressed = { set: 0, net: 0, auto: 0, referral: 0 };
+    var flyerLost = false;   // 要求されたが、他の割引のほうが大きくて当てなかった
+
+    if (flyerRequested) {
+      if (flyerInfo.candidate > othersCandidate) {
+        flyerApplied = flyerInfo.candidate;
+        flyerSuppressed = {
+          set: setDiscountApplied, net: netBenefitApplied, auto: autoDiscountApplied,
+          referral: referralInfo.requested ? referralInfo.candidate : 0
+        };
+        setDiscountApplied = 0;
+        netBenefitApplied = 0;
+        autoDiscountApplied = 0;
+      } else {
+        flyerLost = true;
+      }
+    }
+
+    // 紹介割引は上限なし（残りが大きいことがある）なので、課税対象を超えて引かない。
+    // 超える分を黙って削ると、保存される額と実際に引いた額がずれて、台帳の差し引きを誤らせる。
+    // だから紹介割引だけ個別に上限を切り、実際に引いた額を持つ。
+    var referralApplied = 0;
+    var referralAppliedGross = 0;
+    var referralCapped = false;
+
+    if (referralInfo.requested && !(flyerApplied > 0)) {
+      var room = Math.max(0, taxableBase - Math.min(
+        setDiscountApplied + netBenefitApplied + autoDiscountApplied + flyerApplied, taxableBase));
+      referralApplied = Math.min(referralInfo.candidate, room);
+      referralCapped = referralApplied < referralInfo.candidate;
+      // 切られなかったときは、入力された税込額そのものを「使った額」とする（税抜に戻して掛け直すと1円ずれうる）
+      referralAppliedGross = referralCapped
+        ? yen(referralApplied * (1 + taxRate))
+        : referralInfo.gross;
+    }
+
+    // 同時施工割引・ネット申込特典・自動割引・チラシ特典・紹介割引は常に課税対象から引く
+    var taxableCut = Math.min(
+      setDiscountApplied + netBenefitApplied + autoDiscountApplied + flyerApplied + referralApplied, taxableBase);
     var appliedAdjustments = [];
 
     adjustments.forEach(function (adj) {
@@ -768,7 +913,35 @@ var CalcEngine = (function () {
       appliedAdjustments: appliedAdjustments,
       adjustmentTotal: adjustmentTotal,
 
+      flyerExists: flyerInfo.exists,
+      flyerRequested: flyerRequested,
+      // 指定はされたが、マスタに額が無い。保存はしない（あとでマスタに額を足したとき、過去の見積に黙って付いてしまう）
+      flyerAsked: parseBool(p.flyerManual),
+      flyerApplied: flyerApplied,
+      flyerGross: flyerInfo.gross,
+      flyerCandidate: flyerInfo.candidate,
+      flyerName: flyerInfo.name,
+      flyerRowName: flyerInfo.rowName,
+      flyerLost: flyerLost,
+      flyerOthersCandidate: othersCandidate,
+      // 画面・警告文には、お客様の見る税込で出す（税抜のまま出すと、500円と比べて見えにくい）
+      flyerOthersGross: yen(othersCandidate * (1 + taxRate)),
+      flyerSuppressed: flyerSuppressed,
+
+      referralRequested: referralInfo.requested,
+      referralGross: referralInfo.gross,
+      referralCandidate: referralInfo.candidate,
+      referralApplied: referralApplied,
+      referralAppliedGross: referralAppliedGross,
+      referralHasBalance: referralInfo.hasBalance,
+      referralBalance: referralInfo.balance,
+      referralOverBalance: referralInfo.overBalance,
+      referralCapped: referralCapped,
+      referralBlockedByFlyer: referralInfo.requested && flyerApplied > 0,
+      referralRowName: referralInfo.rowName,
+
       discountTotal: lineDiscountTotal + setDiscountApplied + netBenefitApplied + autoDiscountApplied
+        + flyerApplied + referralApplied
         + appliedAdjustments.reduce(function (s, a) { return s + (a.kind === 'discount' ? a.amount : 0); }, 0),
 
       taxableSubtotal: taxableSubtotal,
@@ -849,6 +1022,48 @@ var CalcEngine = (function () {
       review('ネット申込特典の手動設定が自動判定と異なります。');
     }
 
+    /* --- チラシ特典・紹介割引 ---
+     * 自動判定との食い違い（手動設定が自動判定と異なる）の例外は作らない。
+     * チラシ特典・紹介割引には自動判定が無い。ネット特典の写しで作ると、これらを使った見積が
+     * 全部「要代表者確認」になる。
+     * 手入力の値引きとの重なりは、止めずに警告だけ（端数調整や交渉値引きが入ることがあり、
+     * 例外案件でもPDF・メール下書き作成をロックしない方針）。 */
+    if (calc.flyerAsked && !calc.flyerExists) {
+      alert_('チラシ特典が指定されていますが、マスタに金額がありません（適用していません）。');
+    }
+
+    if (calc.flyerRequested && calc.flyerLost) {
+      alert_('チラシ特典は他の割引と併用できません。いまの他の割引（税込約' + fmtYen(calc.flyerOthersGross)
+        + '）のほうが大きいので、チラシ特典は使っていません（1世帯1回の権利は残ります）。');
+    }
+
+    if (calc.flyerApplied > 0) {
+      var stopped = [];
+      if (calc.flyerSuppressed.set > 0) stopped.push('同時施工割引');
+      if (calc.flyerSuppressed.net > 0) stopped.push(calc.netBenefitName || 'ネット申込特典');
+      if (calc.flyerSuppressed.auto > 0) stopped.push(calc.autoDiscountType || '自動割引');
+      if (calc.flyerSuppressed.referral > 0) stopped.push('紹介割引');
+      if (stopped.length > 0) {
+        alert_('チラシ特典を適用しました。併用できないため、' + stopped.join('・') + 'は適用していません。');
+      }
+
+      var manualCuts = calc.lineDiscountTotal
+        + calc.appliedAdjustments.reduce(function (s, a) { return s + (a.kind === 'discount' ? a.amount : 0); }, 0);
+      if (manualCuts > 0) {
+        alert_('チラシ特典は他の割引と併用できません。手入力の値引き・明細ごとの値引きが入っています。確認してください。');
+      }
+    }
+
+    if (calc.referralRequested && calc.referralOverBalance) {
+      review('紹介割引の使用額（税込' + fmtYen(calc.referralGross) + '）が、確認用の残り（'
+        + fmtYen(calc.referralBalance) + '）を超えています。');
+    }
+
+    if (calc.referralRequested && calc.referralCapped) {
+      review('紹介割引が課税対象を超えるため、税込' + fmtYen(calc.referralAppliedGross)
+        + 'までしか引けません（入力は税込' + fmtYen(calc.referralGross) + '）。');
+    }
+
     // 同時施工割引と複数台割引はマスタ上は対象メニューが重なっていないが、
     // 重なったときは二重に引くことになるので必ず人の目を通す。
     if (calc.setDiscountApplied > 0 && calc.autoDiscountApplied > 0) {
@@ -919,7 +1134,14 @@ var CalcEngine = (function () {
     var pdfRows = buildPdfRows(calc, false);
     var collapsed = false;
     if (pdfRows.length > MAX_DETAIL_ROWS && calc.appliedAdjustments.length > 1) {
-      pdfRows = buildPdfRows(calc, true);
+      pdfRows = buildPdfRows(calc, 1);
+      collapsed = true;
+    }
+    // 調整行をまとめても16行を超えるとき、固定の割引（チラシ特典・紹介割引）もまとめる。
+    // 超えたまま出すと、PDFは16行目以降を黙って切り捨てる（高速代など最後の行が消えて、合計と合わなくなる）。
+    var fixedCutCount = (calc.flyerApplied > 0 ? 1 : 0) + (calc.referralApplied > 0 ? 1 : 0);
+    if (pdfRows.length > MAX_DETAIL_ROWS && fixedCutCount + calc.appliedAdjustments.length > 1) {
+      pdfRows = buildPdfRows(calc, 2);
       collapsed = true;
     }
 
@@ -944,6 +1166,12 @@ var CalcEngine = (function () {
       netBenefitApplied: fmtYen(calc.netBenefitApplied),
       netBenefitCandidate: fmtYen(calc.netBenefitCandidate),
       netBenefitGross: fmtYen(calc.netBenefitGross),
+      flyerApplied: fmtYen(calc.flyerApplied),
+      flyerCandidate: fmtYen(calc.flyerCandidate),
+      flyerOthersCandidate: fmtYen(calc.flyerOthersCandidate),
+      flyerOthersGross: fmtYen(calc.flyerOthersGross),
+      referralApplied: fmtYen(calc.referralApplied),
+      referralCandidate: fmtYen(calc.referralCandidate),
       autoDiscountApplied: fmtYen(calc.autoDiscountApplied),
       autoDiscountCandidate: fmtYen(calc.autoDiscountCandidate),
       adjustmentTotal: fmtYen(calc.adjustmentTotal),

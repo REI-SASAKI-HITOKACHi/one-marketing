@@ -44,6 +44,7 @@ const RULES = [
   { ruleType: '早期予約割引', target: '全体', startMonth: 1, endMonth: 2, condition: '', value: 0.15, valueType: '率', priority: 20 },
   { ruleType: '早期予約割引', target: '全体', startMonth: 3, endMonth: 4, condition: '', value: 0.10, valueType: '率', priority: 20 },
   { ruleType: '早期予約割引', target: '全体', startMonth: 8, endMonth: 10, condition: '', value: 0.10, valueType: '率', priority: 20 },
+  { ruleType: '早期予約割引', target: '全体', startMonth: 11, endMonth: 11, condition: '', value: 0.10, valueType: '率', priority: 20 }, // 2026-10-03 オーナー決定：11月も10%
   { ruleType: '複数台割引', target: 'ノーマルエアコン', startMonth: '', endMonth: '', condition: 'totalQty:5-10', value: 500, valueType: '金額/台', priority: 30 },
   { ruleType: '複数台割引', target: 'ノーマルエアコン', startMonth: '', endMonth: '', condition: 'totalQty:11-20', value: 1000, valueType: '金額/台', priority: 30 },
   { ruleType: '複数台割引', target: 'ノーマルエアコン', startMonth: '', endMonth: '', condition: 'totalQty:21-50', value: 1500, valueType: '金額/台', priority: 30 },
@@ -177,23 +178,29 @@ check('D-2 3月 早期予約10%',
 check('D-3 9月 早期予約10%',
   run({ workDate: '2026-09-20', details: [{ menuId: 'M001', qty: 1 }] }, AUTO).autoDiscountApplied, 980);
 
-check('D-4 11月 早期予約なし・台数2未満 → 0',
-  run({ workDate: '2026-11-20', details: [{ menuId: 'M001', qty: 1 }] }, AUTO).autoDiscountApplied, 0);
+check('D-4 11月 早期予約10%（2026-10-03 オーナー決定）→ 9,800×10%',
+  run({ workDate: '2026-11-20', details: [{ menuId: 'M001', qty: 1 }] }, AUTO).autoDiscountApplied, 980);
 
-check('D-5 11月 ノーマル5台 → 500×5',
-  run({ workDate: '2026-11-20', details: [{ menuId: 'M001', qty: 5 }] }, AUTO).autoDiscountApplied, 2500);
+check('D-4b 12月 早期予約なし・台数2未満 → 0',
+  run({ workDate: '2026-12-20', details: [{ menuId: 'M001', qty: 1 }] }, AUTO).autoDiscountApplied, 0);
 
-check('D-6 11月 ノーマル11台 → 1,000×11',
-  run({ workDate: '2026-11-20', details: [{ menuId: 'M001', qty: 11 }] }, AUTO).autoDiscountApplied, 11000);
+check('D-4c 11月は複数台より早期予約が優先（通常見積）',
+  run({ workDate: '2026-11-20', details: [{ menuId: 'M001', qty: 5 }] }, AUTO).autoDiscountType, '早期予約割引');
 
-check('D-7 11月 ロボ5台 → 1,000×5',
-  run({ workDate: '2026-11-20', details: [{ menuId: 'M002', qty: 5 }] }, AUTO).autoDiscountApplied, 5000);
+check('D-5 12月（早期予約なし） ノーマル5台 → 500×5',
+  run({ workDate: '2026-12-20', details: [{ menuId: 'M001', qty: 5 }] }, AUTO).autoDiscountApplied, 2500);
 
-check('D-8 11月 業務用2台 → 5,000×2',
-  run({ workDate: '2026-11-20', details: [{ menuId: 'M014', qty: 2 }] }, AUTO).autoDiscountApplied, 10000);
+check('D-6 12月（早期予約なし） ノーマル11台 → 1,000×11',
+  run({ workDate: '2026-12-20', details: [{ menuId: 'M001', qty: 11 }] }, AUTO).autoDiscountApplied, 11000);
+
+check('D-7 12月（早期予約なし） ロボ5台 → 1,000×5',
+  run({ workDate: '2026-12-20', details: [{ menuId: 'M002', qty: 5 }] }, AUTO).autoDiscountApplied, 5000);
+
+check('D-8 12月（早期予約なし） 業務用2台 → 5,000×2',
+  run({ workDate: '2026-12-20', details: [{ menuId: 'M014', qty: 2 }] }, AUTO).autoDiscountApplied, 10000);
 
 check('D-9 混在6台は総台数で判定しメニューごとの単価を適用（ノーマル3+ロボ3 → 500×3+1,000×3）',
-  run({ workDate: '2026-11-20', details: [{ menuId: 'M001', qty: 3 }, { menuId: 'M002', qty: 3 }] }, AUTO).autoDiscountApplied, 4500);
+  run({ workDate: '2026-12-20', details: [{ menuId: 'M001', qty: 3 }, { menuId: 'M002', qty: 3 }] }, AUTO).autoDiscountApplied, 4500);
 
 // 通常見積は改修前のまま。箇所数を問わず早期予約割引が優先される。
 check('D-10 早期予約と複数台の併用時は早期予約のみ',
