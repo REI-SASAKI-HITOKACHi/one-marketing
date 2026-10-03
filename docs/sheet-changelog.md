@@ -2035,3 +2035,13 @@ GBP 量産の素材（オーナー指示 9/21「過去の現場写真やアン�
 ## 変更51（2026-10-01）広告_除外語_指示 に23語を追記（CMO判断）
 - A12:B34 に追記（足すだけ・既存行は触らない）。web-inflow の案24語（`data/ads/段0v2-除外キーワード追加案.txt`＠claude/web-inflow）のうち未登録の22語＋検索語句に出た競合名「acs」。一致タイプはすべてフレーズ
 - 適用は広告スクリプトが1回20語ずつ（10/2・10/3 の14〜15時）。C・D列は機械が書く
+
+## 変更52（2026-10-03）公式サイトの『予約』リンクを古いGoogleフォームから予約ページへ（browser、CMO依頼 20261001-05）
+- リソース120「フッターナビ追従」の `fieldset,1741,0[href]` を1つだけ変更
+  - 変更前 `https://docs.google.com/forms/d/e/1FAIpQLSdL3…/viewform`（2022年の仮予約フォーム）
+  - 変更後 `https://yoyaku.onehitter.jp/?src=site_footer`
+- このhrefはテンプレートが2か所（追従バーのアイコン／「ご予約はこちら」ボタン）に展開しているため、**1か所直すと全ページの2件が同時に変わる**。ページ側の直書きは無い
+- 控え：`docs/site-backup/2026-10-01/public-{top,menu,contact}.html`（変更前の公開HTML。旧フォームのリンクが2件ずつ入った状態）。編集画面の控えは `docs/site-backup/2026-09-25/resource-120-フッターナビ追従-編集画面.html` に変更前の値が残っている
+- 保存のみで公開ページに即反映（別途の「編集内容を公開」は不要だった）
+- 検証（curl、2026-10-03）：`/`・`/menu/`・`/contact/`・`/Other-businesses` で **旧フォーム0件・`src=site_footer` 2件**。`/access` は追従パーツ自体が無く0件。`https://yoyaku.onehitter.jp/?src=site_footer` は 200
+- `target="_blank"` はそのまま。**Googleフォーム自体は消していない**（過去に渡したURLを壊さないため）
