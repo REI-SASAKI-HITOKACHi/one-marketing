@@ -16,35 +16,39 @@ mark { background:linear-gradient(transparent 58%,#FFE566 58%); color:inherit; p
 
 .safe { position:absolute; inset:3.6mm 4mm 3.6mm 4mm; display:flex; flex-direction:column; }
 .bgc { position:absolute; inset:0; background:#fff; }
-.top { display:flex; justify-content:space-between; align-items:center; color:#0D3B5C; font-size:6.6pt; font-weight:700; white-space:nowrap; }
+.top { display:flex; justify-content:space-between; align-items:center; color:#0D3B5C; font-size:7pt; font-weight:700; white-space:nowrap; }
 .top b { font-family:"Barlow Semi Condensed",sans-serif; font-size:9.6pt; letter-spacing:.12em; }
 .icons { display:flex; gap:2.6mm; }
 .icons .ic { display:flex; flex-direction:column; align-items:center; gap:.5mm; }
 .icons svg { width:6.6mm; height:6.6mm; display:block; }
-.icons span { font-size:6.4pt; font-weight:700; color:#13232E; white-space:nowrap; }
+.icons span { font-size:7pt; font-weight:700; color:#13232E; white-space:nowrap; }
 
 /* 案C：チケット。券の縁（左右の切り欠き＋点線）で「券」と分かる形に。主役は 1,000円引き */
 .t-omote .bgc { background:#FAF7F2; }
 .t-omote .edge { position:absolute; inset:0mm; border:.35mm dashed #B4C5D0; border-radius:1.2mm; }
 .t-omote .notch { position:absolute; top:50%; width:5mm; height:5mm; margin-top:-2.5mm; border-radius:50%; background:#E6E2DA; }
-.t-omote .kind { font-size:6.6pt; font-weight:700; color:#fff; background:#0C6B7F; padding:.5mm 1.8mm; border-radius:.5mm; letter-spacing:.06em; }
+.t-omote .kind { font-size:7pt; font-weight:700; color:#fff; background:#0C6B7F; padding:.5mm 1.8mm; border-radius:.5mm; letter-spacing:.06em; }
 .t-omote .mid { display:flex; justify-content:space-between; align-items:center; margin:auto 0; }
-.t-omote .sub { font-size:6.8pt; color:#3C5262; margin-top:1.6mm; }
+.t-omote .sub { line-height:1.4; font-size:7.2pt; color:#3C5262; margin-top:1.6mm; }
+.t-omote .star { font-size:7pt; color:#3C5262; margin-top:1.4mm; white-space:nowrap; }
+.t-omote .star b { font-size:9pt; color:#0D3B5C; margin:0 .3mm; }
 .t-omote .lead { font-size:8.4pt; font-weight:700; color:#13232E; }
 .t-omote .off { font-size:31pt; color:#C0300C; line-height:.95; margin-top:.4mm; letter-spacing:-.005em; white-space:nowrap; }
 .t-omote .off .yen-u { font-size:12pt; margin-left:.4mm; }
 .t-omote .off .hiki { font-family:"Zen Maru Gothic",sans-serif; font-weight:900; font-size:15pt; margin-left:.4mm; }
 .t-omote .icons { display:grid; grid-template-columns:repeat(2,auto); gap:1.6mm 3.2mm; padding-right:1mm; }
-.t-omote .from { margin-top:auto; display:flex; align-items:flex-end; gap:1.4mm; font-size:7.6pt; font-weight:700; color:#13232E; }
-.t-omote .from i { flex:0 0 34mm; border-bottom:.3mm solid #13232E; height:5mm; }
+.t-omote .from { margin-top:auto; display:flex; align-items:flex-end; gap:1.4mm; font-size:9pt; font-weight:700; color:#13232E; }
+.t-omote .from i { flex:0 0 36mm; border-bottom:.3mm solid #13232E; height:5mm; }
 
 /* 案D：ご紹介です。主役は「誰からの紹介か」。手渡しの物として、名前の欄をいちばん大きく */
 .m-omote .band { position:absolute; left:0; right:0; bottom:0; height:15.4mm; background:#B72C0A; }
 .m-omote .from { display:flex; align-items:flex-end; gap:1.6mm; margin-top:4.6mm; }
 .m-omote .from i { flex:0 0 33mm; border-bottom:.35mm solid #0D3B5C; height:8mm; }
 .m-omote .from span { font-size:11.4pt; font-weight:900; color:#0D3B5C; white-space:nowrap; }
-.m-omote .what { font-size:6.8pt; line-height:1.5; color:#3C5262; margin-top:2.6mm; }
-.m-omote .icons { margin-top:2mm; }
+.m-omote .hint { font-size:7pt; color:#536A78; margin-top:.8mm; }
+.m-omote .row2 { display:flex; justify-content:space-between; align-items:center; margin-top:2mm; }
+.m-omote .star { font-size:7pt; line-height:1.35; color:#3C5262; text-align:right; }
+.m-omote .star b { font-size:10pt; color:#0D3B5C; }
 .m-omote .offer { margin-top:auto; line-height:1; padding-bottom:.6mm; color:#fff; display:flex; align-items:baseline; gap:1.6mm; white-space:nowrap; }
 .m-omote .offer span { font-size:7.6pt; font-weight:700; }
 .m-omote .offer b { font-size:20pt; line-height:1; }
@@ -53,38 +57,39 @@ mark { background:linear-gradient(transparent 58%,#FFE566 58%); color:inherit; p
 
 /* 裏（C・D共通）：QR と電話を左右に並べる。料金は4つの枠 */
 .k-ura h2 { font-size:8.6pt; font-weight:900; color:#0D3B5C; }
-.k-ura .two { display:grid; grid-template-columns:1fr 1fr; gap:2.4mm; margin-top:1.8mm; }
-.k-ura .way { border:.3mm solid #B4C5D0; border-radius:1mm; padding:1.3mm 1.8mm 1.4mm; }
+.k-ura .two { display:grid; grid-template-columns:1fr 1fr; gap:2.4mm; margin-top:1.2mm; }
+.k-ura .way { border:.3mm solid #B4C5D0; border-radius:1mm; padding:1.1mm 1.8mm 1.1mm; }
 .k-ura .way h3 { font-size:7pt; font-weight:700; color:#fff; background:#0D3B5C; display:inline-block; padding:.3mm 1.6mm; border-radius:.5mm; }
-.k-ura .web { display:grid; grid-template-columns:15mm 1fr; gap:1.8mm; align-items:start; margin-top:1mm; }
-.k-ura .web img { width:15mm; height:15mm; }
-.k-ura .way p { font-size:6.6pt; line-height:1.42; color:#13232E; }
+.k-ura .web { display:grid; grid-template-columns:17mm 1fr; gap:1.8mm; align-items:start; margin-top:1mm; }
+.k-ura .web img { width:17mm; height:17mm; }
+.k-ura .way p { font-size:7pt; line-height:1.35; color:#13232E; }
 .k-ura .way p b { color:#C0300C; }
 .k-ura .way p.tel { font-size:13.4pt; color:#0D3B5C; line-height:1; margin-top:1.2mm; white-space:nowrap; }
-.k-ura .way p.hours { font-size:6.4pt; color:#536A78; margin-top:.6mm; }
-.k-ura .price { display:grid; grid-template-columns:repeat(4,1fr); margin-top:1.6mm; border-top:.3mm solid #0D3B5C; border-bottom:.3mm solid #0D3B5C; }
-.k-ura .price div { text-align:center; padding:1.6mm 0 1.4mm; border-left:.2mm solid #D7E1E7; }
+.k-ura .way p.hours { font-size:7.2pt; color:#3C5262; margin-top:.6mm; }
+.k-ura .price { display:grid; grid-template-columns:repeat(4,1fr); margin-top:auto; border-top:.3mm solid #0D3B5C; border-bottom:.3mm solid #0D3B5C; }
+.k-ura .price div { text-align:center; padding:1.1mm 0 1mm; border-left:.2mm solid #D7E1E7; }
 .k-ura .price div:first-child { border-left:0; }
-.k-ura .price div > span { display:block; font-size:6.4pt; font-weight:700; color:#13232E; }
+.k-ura .price div > span { display:block; font-size:7.2pt; font-weight:700; color:#13232E; }
 .k-ura .price b { font-size:10.4pt; color:#C0300C; line-height:1.1; }
-.k-ura .price b .yen-u { font-size:6.4pt; }
-.k-ura .foot { margin-top:auto; display:flex; justify-content:space-between; align-items:baseline; gap:2mm; white-space:nowrap; }
-.k-ura .foot p { font-size:6.4pt; color:#3C5262; }
+.k-ura .price b .yen-u { font-size:7pt; }
+.k-ura .foot { margin-top:.4mm; display:flex; justify-content:space-between; align-items:baseline; gap:2mm; white-space:nowrap; }
+.k-ura .note { margin-top:.9mm; line-height:1.35; font-size:7pt; color:#3C5262; white-space:nowrap; }
+.k-ura .foot p { line-height:1.35; font-size:7pt; color:#3C5262; }
 .k-ura .foot p b { color:#C0300C; }
 </style></head><body><section class="page m-omote"><div class="bgc"></div><div class="band"></div><div class="trim"><div class="safe">
 <div class="top"><b>ONE HITTER</b><span>ハウスクリーニング・東京／千葉／神奈川</span></div>
 <div class="from"><i></i><span>さんからの、ご紹介です。</span></div>
-<p class="what">エアコン・お風呂・キッチン・洗濯機のお掃除をしています。</p>
-<div class="icons"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#0D3B5C" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="9" rx="2"/><path d="M5.5 11h13"/><path d="M8 17v2.5M12 17v3.5M16 17v2.5"/></svg><span>エアコン</span></div><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#0D3B5C" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18v1.5A5.5 5.5 0 0 1 15.5 19h-7A5.5 5.5 0 0 1 3 13.5z"/><path d="M6 12V6.5a2.2 2.2 0 0 1 4.4 0"/><path d="M7.5 19l-1 2M16.5 19l1 2"/></svg><span>お風呂</span></div><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#0D3B5C" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h18"/><path d="M5 13v2.5A3.5 3.5 0 0 0 8.5 19h7a3.5 3.5 0 0 0 3.5-3.5V13"/><path d="M12 13V7.5a3 3 0 0 1 6 0V9"/></svg><span>キッチン</span></div><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#0D3B5C" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2.5" width="16" height="19" rx="2"/><circle cx="12" cy="13.5" r="4.6"/><path d="M7 6h2.5M15 6h2"/></svg><span>洗濯機</span></div></div>
+<p class="hint">↑ お渡しくださる方のお名前をお書きください</p>
+<div class="row2"><div class="icons"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#0D3B5C" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="9" rx="2"/><path d="M5.5 11h13"/><path d="M8 17v2.5M12 17v3.5M16 17v2.5"/></svg><span>エアコン</span></div><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#0D3B5C" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18v1.5A5.5 5.5 0 0 1 15.5 19h-7A5.5 5.5 0 0 1 3 13.5z"/><path d="M6 12V6.5a2.2 2.2 0 0 1 4.4 0"/><path d="M7.5 19l-1 2M16.5 19l1 2"/></svg><span>お風呂</span></div><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#0D3B5C" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h18"/><path d="M5 13v2.5A3.5 3.5 0 0 0 8.5 19h7a3.5 3.5 0 0 0 3.5-3.5V13"/><path d="M12 13V7.5a3 3 0 0 1 6 0V9"/></svg><span>キッチン</span></div><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#0D3B5C" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2.5" width="16" height="19" rx="2"/><circle cx="12" cy="13.5" r="4.6"/><path d="M7 6h2.5M15 6h2"/></svg><span>洗濯機</span></div></div><p class="star">Googleクチコミ<br><b>★5.0</b>（23件）<br>2026年9月時点</p></div>
 <p class="offer"><span>このカードで、初回のお掃除が</span><b class="num">1,000<span class="yen-u">円</span><span class="hiki">引き</span></b></p>
 </div></div></section><section class="page k-ura"><div class="bgc"></div><div class="trim"><div class="safe">
 <h2 class="maru">ご予約は、QR か お電話で</h2>
 <div class="two">
   <div class="way"><h3>QRで予約</h3>
     <div class="web"><div class="qr"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAApQAAAKUAQMAAACAATp/AAAABlBMVEUNO1z///9ObbWOAAACq0lEQVR42u3dTU7DMBAG0IgL5P63zA2MREGxZ8ZCOO4GPS9K26RvgRefJv47jtjO1r7+tle7vr++P/Yv7fvmoX0c+xuTyWQy/7f5CqC73R/rZLqv3uEVAH3EZDKZzMU8CukSQukuiKqrCdBHTCaTydyVR3fhdPW39E/pch0lj5hMJpO5NY/6UaNh/Kh/NjckkzxiMplM5oY8CuNHfRSFB3T5gvEjJpPJZL6tXPrTi/8nk8lkMh+3VrSUTMPN/buz+PWlj5hMJpO5kEfDkqJUKQ0f+1tCUHXzHvQRk8lkMreEUljnmqqio77lJ630EZPJZDIf5NFkNVEqiIZnc+NV9RGTyWQyl1uewh3m0k0DKBRTPwWWPmIymUzmWh5VGzLctVB6Vz3Su+QRk8lkMh+0fl+6ahDpTGuS0oU46VsfMZlMJnM1lFraG6haGRs2+VYfMZlMJvNNlVIaP2qz4yeu+qo8YjKZTOZyaTTNnmonu75VT/PkEZPJZDKXq6I8dBTepb3qpsNO8ojJZDKZi3lU10xnMZ+hzY5IatYfMZlMJvNRy+tc63lzeT5DOs3c/t5MJpPJfFIfpcWuR72xXX1SbFwyq4+YTCaTuZZHf9qkoTqvfMgtfcRkMpnM1Xb+9qguxU7+aPyIyWQymRvqo+oY2GoPof631fQGfcRkMpnMxdIovAsbqFb7qYb964ZySR8xmUwmc6E+qs6HDeuKWnEs+aSi0kdMJpPJ3FcunbPt7CYrkfp8Ux8xmUwmczGA0tKj4cJd/KTndXlRrDxiMplM5oOCqCqNpt+Fnx1jRukjJpPJZO7Jo1QaVa064fzwvI7JZDKZ76iPqgMm0r6rcYNwfcRkMpnMtTyabl3XT62rFsCGC8aPmEwmk7k/nvIgUsiePrKsP2IymUzmg/YJhVML6iAGKAYAAAAASUVORK5CYII=" alt=""></div>
-      <p>空き日を選んで、<br>「ご要望」の欄に<br><b>ご紹介者のお名前</b></p></div></div>
+      <p>「ご要望」欄に<br><b>ご紹介者の<br>お名前</b>を<br>書いてください</p></div></div>
   <div class="way"><h3>お電話で予約</h3>
-    <p style="margin-top:1mm">「<b>紹介カードを見た</b>」と<br>ご紹介者のお名前を</p>
+    <p style="margin-top:1mm"><b>ご紹介者のお名前</b>を<br>お伝えください</p>
     <p class="tel num">080-8043-8259</p><p class="hours">受付 8:00〜20:00</p></div>
 </div>
 <div class="price">
@@ -93,5 +98,6 @@ mark { background:linear-gradient(transparent 58%,#FFE566 58%); color:inherit; p
   <div><span>キッチン</span><b class="num">18,480<span class="yen-u">円</span></b></div>
   <div><span>洗濯機</span><b class="num">17,380<span class="yen-u">円</span></b></div>
 </div>
-<div class="foot"><p>税込・割引前の価格</p><p>Googleクチコミ★5.0（23件・2026年9月時点）</p></div>
+<p class="note">税込・割引前の価格。5〜7月・12月は1箇所3,300円を加算します</p>
+<div class="foot"><p>ご紹介くださった方も、次回<b>1,000円引き</b>になります</p></div>
 </div></div></section></body></html>
