@@ -2516,3 +2516,6 @@ crm の回答：
 - 10/3 12:4x GA4：browser に権限は付けないと決定（CMO の SA＝編集者で読み取り・管理ともAPIで可）。**訂正：10/1 の『link_position 未登録』は CMO の誤り**（linkText で見ていた）。customEvent:link_position は登録済みで値も入っている
 - 10/3 12:4x manager.line.biz が browser から開けるようになった（9月はドメイン拒否）。公式LINEのリッチメニュー左上・あいさつ文の差し替え（20260927-01、オーナー承認 9/27 済、src=line）を **OAuth の後に** 進めるよう指示
 - 10/3 12:5x 公式LINE（@366ysqyc・友だち334）控え：リッチメニュー左上・2番目とも『テキスト：予約する』（押しても予約ページに飛ばない）。あいさつ文（433字）は『メッセージを1通ください』が主目的。→ CMO判断：左上は依頼どおりリンク化。あいさつ文は (B)＝予約導線を足し、**『お名前を1通』を残す**（293字。台帳と照合できない友だちの解消にも効く）
+- 10/3 13時 **GBP API 開通**：refresh_token（onehitter.her・shisetsu-mail・business.manage）を CMO の `~/.config/one-hitter/gbp.json`（600）に配置。アカウント `accounts/110951766689355144685`／ロケーション `locations/15727525661440316046`（ワンヒッター㈱、placeId ChIJef_3b2eHGGARMY2GoTASaXs）。**ウェブサイトURLを API で `?utm_source=gbp&utm_medium=profile&utm_campaign=website` に変更・反映確認**（変更前は utm 5項目すべて GBP）
+- Place Actions API（「Google で予約」リンク）と Google My Business API v4（投稿）は**無効**→ browser に有効化を依頼
+- ⚠ 気づき：GBP の「サービス」欄の料金がパンフレットと食い違う（例：エアコン丸洗い ¥9,800/60分、説明文には 10,780円（税込）から）。web-inflow に料金表との突き合わせを依頼する（料金はパンフレットが正）。metadata.hasPendingEdits=true（Google 側で審査中の編集あり）
