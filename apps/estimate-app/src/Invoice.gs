@@ -456,20 +456,15 @@ function prepareInvoiceCalc_(payload, ctx) {
   const r = found.record;
   const estimateCalc = rebuildCalcFromRecord_(r, ctx);
 
-  const calcPayload = {
+  const calcPayload = Object.assign({
     projectType: r['案件タイプ'] || '',
     remarks: p.remarks || '',
     workDate: toDateInputValue_(r['作業予定日']),
     highwayFee: toNumber_(r['高速代']),
-    channel: r['受注経路'] || '',
-    busyManual: parseBooleanLoose_(r['繁忙期_手動設定']),
-    discountManual: parseBooleanLoose_(r['割引_手動設定']),
-    setPricingManual: parseBooleanLoose_(r['同時施工_手動設定']),
-    netBenefitManual: parseBooleanLoose_(r['ネット特典_手動設定']),
     adjustments: buildInvoiceAdjustments_(r, p),
     targetTotal: 0,
     details: extractDetailsFromRecord_(r)
-  };
+  }, calcFlagsFromRecord_(r));
 
   return {
     estimateRecord: r,
@@ -539,20 +534,15 @@ function buildInvoiceAdjustments_(estimateRecord, form) {
 
 /** 保存済み請求レコードから計算し直す（PDF・メール本文用）。 */
 function rebuildInvoiceCalc_(record, ctx) {
-  return calculateEstimate_({
+  return calculateEstimate_(Object.assign({
     projectType: record['案件タイプ'] || '',
     remarks: record['備考'] || '',
     workDate: toDateInputValue_(record['施工日']),
     highwayFee: toNumber_(record['高速代']),
-    channel: record['受注経路'] || '',
-    busyManual: parseBooleanLoose_(record['繁忙期_手動設定']),
-    discountManual: parseBooleanLoose_(record['割引_手動設定']),
-    setPricingManual: parseBooleanLoose_(record['同時施工_手動設定']),
-    netBenefitManual: parseBooleanLoose_(record['ネット特典_手動設定']),
     adjustments: parseAdjustmentsJson_(record['調整_JSON']),
     targetTotal: 0,
     details: extractDetailsFromRecord_(record)
-  }, ctx);
+  }, calcFlagsFromRecord_(record)), ctx);
 }
 
 /* ===================== 保存レコード ===================== */
