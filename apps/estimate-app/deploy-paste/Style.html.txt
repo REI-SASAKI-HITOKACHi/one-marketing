@@ -202,6 +202,8 @@
   }
 
   .check-row input { width: 24px; height: 24px; }
+  /* display:flex が hidden 属性に勝ってしまうので、隠す指定を明示する */
+  .check-row[hidden] { display: none; }
 
   .result {
     margin-top: 14px;

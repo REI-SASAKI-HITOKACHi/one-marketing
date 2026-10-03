@@ -510,6 +510,95 @@ console.log('割引繁忙期マスタへの追記');
   check('FLYER_BENEFIT の中身（チラシ特典・500円）', [fb[2], fb[7], fb[8]], ['チラシ特典', 500, '金額(税込)']);
 })();
 
+/* ===================== 11. 独立レビュー（2026-10-03）で指摘された点 ===================== */
+
+console.log('レビュー指摘の固定（文言・上限・請求の通り道）');
+
+(function () {
+  const texts = c => exTexts(c).join(' / ');
+
+  // 行名の額は、実際に引いた額（入力額ではない）
+  const ok = calc({ referralAmount: 1000 });
+  check('行名：上限に当たらないときは入力額', names(ok).filter(n => n.indexOf('紹介割引') >= 0), ['紹介割引（税込1,000円引き）']);
+  check('紹介割引の適用額（税込）が保存される', calc({ referralAmount: 1000 }).referralAppliedGross, 1000);
+
+  const capped = calc({ discountManual: true, referralAmount: 20000 });
+  check('上限：他の割引（980円）を引いたあとの残りまでしか引かない', capped.referralApplied, 8820);
+  check('上限：合計0円', capped.grandTotal, 0);
+  check('上限：行名は実際に引いた額（入力の20,000円ではない）',
+    names(capped).filter(n => n.indexOf('紹介割引') >= 0), ['紹介割引（税込' + (9702).toLocaleString('en-US') + '円引き）']);
+  check('上限：確認事項の文言', texts(capped).indexOf('課税対象を超える') >= 0, true);
+  check('上限：保存される適用額は実額', (() => {
+    const pay = pl({ discountManual: true, referralAmount: 20000 });
+    const rec = sandbox.buildEstimateRecord_(pay, CTX, sandbox.calculateEstimate_(pay, CTX), 'EST-20260910-0010');
+    return [rec['紹介割引_入力額'], rec['紹介割引額'], rec['紹介割引_適用額']];
+  })(), [20000, 8820, 9702]);
+
+  // 上限超過の確認事項は「合計0円」の確認事項とは別に出る
+  const over = calc({ referralAmount: 1000, referralBalance: 500 });
+  check('残り超過：確認事項の文言', over.exceptions.some(e => e.level === 'review' && e.text.indexOf('残り') >= 0), true);
+
+  // 警告（止めない）
+  const noBal = calc({ referralAmount: 1000 });
+  check('残り未入力：警告が出る', texts(noBal).indexOf('「残り」が未入力') >= 0, true);
+  check('残り未入力：止めない（review ではない）', noBal.exceptions.filter(e => e.level === 'review').length, 0);
+  check('残りを入れれば未入力の警告は出ない', texts(calc({ referralAmount: 1000, referralBalance: 3000 })).indexOf('未入力') >= 0, false);
+  check('1,000円単位でない額：警告が出る', texts(calc({ referralAmount: 1234, referralBalance: 5000 })).indexOf('1,000円単位ではありません') >= 0, true);
+  check('1,000円単位なら出ない', texts(calc({ referralAmount: 3000, referralBalance: 5000 })).indexOf('1,000円単位') >= 0, false);
+  check('大きな紹介割引（明細小計の30%以上）：警告が出る', texts(calc({ referralAmount: 9000, referralBalance: 9000 })).indexOf('30%以上') >= 0, true);
+  check('小さい紹介割引では出ない', texts(calc({ referralAmount: 1000, referralBalance: 9000 })).indexOf('30%以上') >= 0, false);
+
+  // チラシ特典の警告の文言
+  const withManual = calc({ flyerManual: true, adjustments: [{ name: 'お詫び', kind: 'discount', mode: 'amount', value: 300, taxType: '課税' }] });
+  check('チラシ＋手入力値引き：併用の警告の文言', texts(withManual).indexOf('チラシ特典は他の割引と併用できません。手入力の値引き') >= 0, true);
+  const suppress = calc({ flyerManual: true, referralAmount: 300, referralBalance: 300 });
+  check('チラシが勝つと、止めた割引を知らせる', texts(suppress).indexOf('併用できないため、紹介割引は適用していません') >= 0, true);
+  check('チラシが勝っても紹介割引の保存は0', suppress.referralApplied || 0, 0);
+
+  // 大きな数・非数
+  ['Infinity', '1e400', 'NaN', '-5', '１０００'].forEach(function (v) {
+    const c = calc({ referralAmount: v });
+    check('異常な入力 ' + v + '：金額は変わらない（9,780または10,780）', [10780, 9780].indexOf(c.grandTotal) >= 0, true);
+    check('異常な入力 ' + v + '：適用額が有限の数', isFinite(c.referralApplied) && isFinite(c.referralGross), true);
+  });
+  check('Infinity は0円扱い（引かない）', calc({ referralAmount: 'Infinity' }).grandTotal, 10780);
+  check('残りが Infinity なら未入力扱い', calc({ referralAmount: 1000, referralBalance: 'Infinity' }).referralHasBalance, false);
+
+  // 請求：prepareInvoiceCalc_ / buildInvoiceRecord_ を通す
+  const origSheet = sandbox.getEstimateDataSheet_;
+  const origFind = sandbox.findEstimateRecord_;
+  try {
+    const flyerRecord = (() => {
+      const pay = pl({ flyerManual: true });
+      return sandbox.buildEstimateRecord_(pay, CTX, sandbox.calculateEstimate_(pay, CTX), 'EST-20260910-0011');
+    })();
+    const refRecord = (() => {
+      const pay = pl({ referralAmount: 1000, referralBalance: 2000 });
+      return sandbox.buildEstimateRecord_(pay, CTX, sandbox.calculateEstimate_(pay, CTX), 'EST-20260910-0012');
+    })();
+
+    [['チラシ特典', flyerRecord, 10280, 1000], ['紹介割引', refRecord, 9780, 1000]].forEach(function (t) {
+      sandbox.getEstimateDataSheet_ = function () { return {}; };
+      sandbox.findEstimateRecord_ = function () { return { record: t[1], rowNumber: 2 }; };
+      // マスタのチラシ特典を1,000円に変えたあとでも、請求は保存時の額で作る
+      const changed = Object.assign({}, CTX, { flyerBenefit: { name: 'チラシ特典', amount: t[3], note: '' } });
+      const prepared = sandbox.prepareInvoiceCalc_({ estimateId: 'x' }, changed);
+      check('請求（prepareInvoiceCalc_）' + t[0] + '：見積と同じ合計', prepared.calc.grandTotal, t[2]);
+      const rec = sandbox.buildInvoiceRecord_({ estimateId: 'x', staff: '和真' }, changed, prepared, 'INV-20260930-0009', '');
+      check('請求レコード' + t[0] + '：合計', rec['合計金額'], t[2]);
+      check('請求の作り直し' + t[0] + '：合計', sandbox.rebuildInvoiceCalc_(rec, changed).grandTotal, t[2]);
+    });
+    sandbox.findEstimateRecord_ = function () { return { record: refRecord, rowNumber: 2 }; };
+    const pr = sandbox.prepareInvoiceCalc_({ estimateId: 'x' }, CTX);
+    const refInv = sandbox.buildInvoiceRecord_({ estimateId: 'x', staff: '和真' }, CTX, pr, 'INV-20260930-0010', '');
+    check('請求レコード：紹介割引_入力額・適用額・残り確認',
+      [refInv['紹介割引_入力額'], refInv['紹介割引_適用額'], refInv['紹介割引_残り確認']], [1000, 1000, 2000]);
+  } finally {
+    sandbox.getEstimateDataSheet_ = origSheet;
+    sandbox.findEstimateRecord_ = origFind;
+  }
+})();
+
 /* ===================== 結果 ===================== */
 
 console.log('');

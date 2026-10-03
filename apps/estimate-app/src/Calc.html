@@ -484,9 +484,11 @@ var CalcEngine = (function () {
    */
   function calcReferral(p, taxRate) {
     var gross = Math.max(0, yen(p && p.referralAmount));
+    if (!isFinite(gross)) gross = 0;    // 文字列の「Infinity」「1e400」は0円として扱う
     var rawBalance = p && p.referralBalance;
-    var hasBalance = !isBlank(rawBalance);
-    var balance = hasBalance ? Math.max(0, yen(rawBalance)) : 0;
+    var balance = isBlank(rawBalance) ? 0 : Math.max(0, yen(rawBalance));
+    var hasBalance = !isBlank(rawBalance) && isFinite(balance);
+    if (!hasBalance) balance = 0;
 
     return {
       requested: gross > 0,
@@ -938,7 +940,8 @@ var CalcEngine = (function () {
       referralOverBalance: referralInfo.overBalance,
       referralCapped: referralCapped,
       referralBlockedByFlyer: referralInfo.requested && flyerApplied > 0,
-      referralRowName: referralInfo.rowName,
+      // 上限で削られたときは、入力額ではなく実際に引いた税込額を行名に書く（お客様に渡る書類）
+      referralRowName: referralApplied > 0 ? '紹介割引（税込' + fmtNum(referralAppliedGross) + '円引き）' : referralInfo.rowName,
 
       discountTotal: lineDiscountTotal + setDiscountApplied + netBenefitApplied + autoDiscountApplied
         + flyerApplied + referralApplied
@@ -1062,6 +1065,19 @@ var CalcEngine = (function () {
     if (calc.referralRequested && calc.referralCapped) {
       review('紹介割引が課税対象を超えるため、税込' + fmtYen(calc.referralAppliedGross)
         + 'までしか引けません（入力は税込' + fmtYen(calc.referralGross) + '）。');
+    }
+
+    // 紹介割引は上限が無いので、残高の確認が抜けたときに気づけるよう警告を出す（止めはしない）
+    if (calc.referralRequested) {
+      if (!calc.referralHasBalance) {
+        alert_('紹介割引：この方の「残り」が未入力です。残高を確認してから使ってください。');
+      }
+      if (calc.referralGross % 1000 !== 0) {
+        alert_('紹介割引：1,000円単位ではありません（税込' + fmtYen(calc.referralGross) + '）。分割利用でなければ確認してください。');
+      }
+      if (calc.lineGrossSubtotal > 0 && calc.referralApplied / calc.lineGrossSubtotal >= (toRate(ctx.largeDiscountRatio) || 0.30)) {
+        alert_('紹介割引が明細小計の' + Math.round((toRate(ctx.largeDiscountRatio) || 0.30) * 100) + '%以上です。金額を確認してください。');
+      }
     }
 
     // 同時施工割引と複数台割引はマスタ上は対象メニューが重なっていないが、

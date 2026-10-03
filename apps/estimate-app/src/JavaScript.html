@@ -866,6 +866,11 @@
     }
 
     row.hidden = false;
+    // 案内の欄は、チェックを入れたときだけ出す（普段の画面の邪魔にならないように）
+    if (!calc.flyerRequested) {
+      hint.hidden = true;
+      return;
+    }
     hint.hidden = false;
 
     var base = '−' + esc(fmtYen(calc.flyerGross)) + '（税込）・1世帯1回・他の割引と併用不可（大きいほう1つだけ）。';

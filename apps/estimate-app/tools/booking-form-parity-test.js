@@ -248,7 +248,7 @@ const CASES = [
   // 11月も10%にする（オーナー決定 2026-10-03）。公開中の予約フォームは souki["11"]=0 のまま。
   // フォーム側を souki["11"]=0.1 に直したら、pending を外す（下の「待ち」判定がそれを知らせる）
   { label: 'エアコン1（11月・単品）', month: 11, basket: [{ name: 'エアコンクリーニング（ノーマル）', qty: 1 }],
-    pending: '予約フォームの11月がまだ0%（souki["11"]）' }
+    pending: '予約フォームの11月がまだ0%（souki["11"]）', pendingDiff: -1078 }
 ];
 
 const yen = n => '¥' + Math.round(n).toLocaleString('en-US');
@@ -326,7 +326,9 @@ CASES.forEach(c => {
   if (c.pending) {
     // 予約フォーム側の更新待ちの既知の差。差があるうちは失敗にしない。
     // 揃ってしまったら、pending を外し忘れているので失敗にして知らせる
-    if (diff !== 0) pendingGaps.push({ label: c.label, diff, why: c.pending });
+    // 差の額も固定する。別の理由でずれても「更新待ち」で通ってしまわないように
+    if (diff !== 0 && diff === c.pendingDiff) pendingGaps.push({ label: c.label, diff, why: c.pending });
+    else if (diff !== 0) gaps.push({ label: c.label + '（更新待ちの差 ' + yen(c.pendingDiff) + ' と違う差です）', diff });
     else gaps.push({ label: c.label + '（pending が不要になっています。外してください）', diff: NaN });
     return;
   }
