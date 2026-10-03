@@ -225,6 +225,15 @@ def main():
             if sho_id:
                 call(han(f"'{tab}'!V{gyo}"), "PUT", {"values": [[sho_id]]},
                      q={"valueInputOption": "RAW"})
+            # 予約ページ／LPの申込（予約_Web）から来た受注なら、その行の状態も「受注済」にする（10/3 3件とも未確認のまま残っていた）
+            tel = re.sub(r"\D", "", str(d.get("TEL", "")))
+            if len(tel) >= 10:
+                for i, r in enumerate(call(han("'予約_Web'!B2:D500")).get("values", []), 2):
+                    if len(r) >= 3 and re.sub(r"\D", "", r[2]) == tel and str(r[0]).startswith("未確認"):
+                        call(han(f"'予約_Web'!B{i}"), "PUT",
+                             {"values": [[f"受注済（{hi[5:].replace('-', '/')}施工・{tab} {gyo}行）"]]},
+                             q={"valueInputOption": "RAW"})
+                        print(f"  予約_Web {i}行目を受注済にしました")
         if d.get("法人名") and teikei and d["法人名"] not in teikei:
             shiranai.append((d["法人名"], f"{tab} {gyo}行目"))
             print(f"  入れました: {tab} {gyo}行目 ← {d.get('氏名')}")
