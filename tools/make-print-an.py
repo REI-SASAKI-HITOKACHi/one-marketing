@@ -64,6 +64,7 @@ def prices():
         "hanbo": d["繁忙期加算"]["金額"],
         "shokai": d["紹介"]["紹介された方"]["金額"],
         "shokai_moto": d["紹介"]["消費者から消費者"]["金額"],
+        "tokuten": d["チラシ特典"]["金額"],
     }
     # 「2箇所目から○円」と書くので、浴室・キッチン・レンジフードの同時施工価格がそろっているか確かめる
     sets = {m[k]["同時施工"] for k in ("浴室クリーニング", "キッチンクリーニング", "レンジフードクリーニング")}
@@ -326,11 +327,13 @@ sup.n {{ font-size:.55em; vertical-align:.5em; margin-left:.2mm; font-family:"BI
 .d-omote .hello b {{ font-family:"Barlow Semi Condensed",sans-serif; letter-spacing:.1em; font-size:10pt; margin-right:1.4mm; }}
 .d-omote .hello small {{ display:block; font-size:7.2pt; font-weight:400; color:{text2}; }}
 .d-omote .hook {{ margin-top:auto; color:#fff; height:auto; }}
+.d-omote .hook p b {{ color:#fff; }}
 .d-omote .hook-wrap {{ height:{hookh}mm; display:flex; flex-direction:column; }}
-.d-omote .hook h1 {{ font-size:23pt; font-weight:900; line-height:1.3; }}
+.d-omote .safe > *, .d-ura .safe > * {{ flex-shrink:0; }}   /* 縮めて詰め込まない。あふれたら検査で止まる */
+.d-omote .hook h1 {{ font-size:22pt; font-weight:900; line-height:1.3; }}
 .d-omote .hook h1 em {{ font-style:normal; color:{mark}; }}
 .d-omote .hook p {{ font-size:9pt; color:#E3EDF3; margin-top:1.8mm; line-height:1.6; }}
-.d-omote .prices {{ display:grid; grid-template-columns:repeat(4,1fr); margin-top:5mm; border-top:.45mm solid {ink}; border-bottom:.45mm solid {ink}; }}
+.d-omote .prices {{ display:grid; grid-template-columns:repeat(4,1fr); margin-top:6.4mm; border-top:.45mm solid {ink}; border-bottom:.45mm solid {ink}; }}
 .d-omote .prices div {{ text-align:center; padding:2mm .6mm 1.8mm; border-left:.2mm solid {rule}; }}
 .d-omote .prices div:first-child {{ border-left:0; }}
 .d-omote .prices .k {{ font-size:9pt; font-weight:700; }}
@@ -338,8 +341,15 @@ sup.n {{ font-size:.55em; vertical-align:.5em; margin-left:.2mm; font-family:"BI
 .d-omote .prices .v {{ font-size:19pt; color:{cta}; line-height:1.05; margin-top:.8mm; }}
 .d-omote .pnote {{ font-size:7.4pt; color:{text2}; margin-top:1.4mm; line-height:1.55; }}
 .d-omote .pnote b {{ color:{text}; }}
-.d-omote .why {{ display:grid; grid-template-columns:repeat(3,1fr); gap:2mm; margin-top:3.4mm; }}
-.d-omote .why div {{ background:{paper}; border-radius:1.2mm; padding:2.2mm 2.4mm; }}
+.d-omote .coupon {{ margin-top:2.4mm; display:grid; grid-template-columns:auto auto 1fr; align-items:center; gap:3mm;
+                    border:.5mm dashed {cta}; border-radius:1.4mm; padding:1.3mm 3mm; background:{ctasoft}; }}
+.d-omote .coupon .tag {{ background:{cta}; color:#fff; font-size:8pt; font-weight:900; line-height:1.2; text-align:center; padding:1.2mm 1.8mm; border-radius:.8mm; }}
+.d-omote .coupon .big {{ font-size:10pt; font-weight:700; color:{text}; white-space:nowrap; }}
+.d-omote .coupon .big b {{ font-size:22pt; color:{cta}; line-height:1; margin-left:1mm; }}
+.d-omote .coupon .big .yen-u {{ font-size:10pt; color:{cta}; }}
+.d-omote .coupon .how {{ font-size:7pt; color:{text2}; line-height:1.45; }}
+.d-omote .why {{ display:grid; grid-template-columns:repeat(3,1fr); gap:2mm; margin-top:2.2mm; margin-bottom:2.4mm; }}
+.d-omote .why div {{ background:{paper}; border-radius:1.2mm; padding:1.6mm 2.4mm; }}
 .d-omote .why b {{ display:block; font-size:9.4pt; color:{ink}; line-height:1.3; }}
 .d-omote .why b.num {{ font-size:15pt; line-height:1; }}
 .d-omote .why span {{ display:block; font-size:7pt; color:{text2}; line-height:1.45; margin-top:.8mm; }}
@@ -367,7 +377,7 @@ sup.n {{ font-size:.55em; vertical-align:.5em; margin-left:.2mm; font-family:"BI
 .d-ura .sign li small {{ color:{steel}; font-size:7pt; margin-right:1mm; }}
 .d-ura .sign p {{ font-size:7.2pt; color:{text2}; margin-top:1.6mm; }}
 .d-ura table {{ width:100%; border-collapse:collapse; margin-top:2mm; }}
-.d-ura td {{ padding:1.25mm 0; border-bottom:.2mm solid {rule}; font-size:9.6pt; font-weight:700; vertical-align:baseline; }}
+.d-ura td {{ padding:1.1mm 0; border-bottom:.2mm solid {rule}; font-size:9.6pt; font-weight:700; vertical-align:baseline; }}
 .d-ura td small {{ font-size:7pt; font-weight:400; color:{steel}; margin-left:1mm; }}
 .d-ura td.v {{ text-align:right; font-size:15pt; color:{cta}; white-space:nowrap; }}
 .d-ura td.s {{ text-align:right; font-size:7.2pt; font-weight:400; color:{text2}; width:31mm; white-space:nowrap; padding-left:2mm; }}
@@ -380,12 +390,12 @@ sup.n {{ font-size:.55em; vertical-align:.5em; margin-left:.2mm; font-family:"BI
 .d-ura .hanbo {{ font-size:7.2pt; color:{text2}; margin-top:1.2mm; }}
 .d-ura .ba {{ display:grid; grid-template-columns:repeat(3,1fr); gap:2.4mm; margin-top:2.4mm; }}
 .d-ura .ba .ph {{ display:grid; grid-template-columns:1fr 1fr; gap:.5mm; position:relative; }}
-.d-ura .ba img {{ width:100%; height:14mm; object-fit:cover; display:block; }}
+.d-ura .ba img {{ width:100%; height:12.4mm; object-fit:cover; display:block; }}
 .d-ura .ba .ph::before, .d-ura .ba .ph::after {{ position:absolute; bottom:.8mm; font-size:6.8pt; font-weight:700; color:#fff; padding:.1mm 1.2mm; border-radius:.5mm; }}
 .d-ura .ba .ph::before {{ content:"前"; left:.8mm; background:rgba(60,82,98,.92); }}
 .d-ura .ba .ph::after {{ content:"後"; left:calc(50% + 1mm); background:rgba(12,107,127,.94); }}
 .d-ura .ba p {{ font-size:7.2pt; font-weight:700; margin-top:.8mm; }}
-.d-ura .lower {{ display:grid; grid-template-columns:1fr 1.05fr; gap:3.4mm; margin-top:2.4mm; margin-bottom:2.4mm; }}
+.d-ura .lower {{ display:grid; grid-template-columns:1fr 1.05fr; gap:3.4mm; margin-top:2mm; margin-bottom:1.8mm; }}
 .d-ura .lower h3 {{ font-size:9pt; font-weight:900; color:{ink}; margin-bottom:1.2mm; }}
 .d-ura .flow ol {{ list-style:none; display:grid; gap:1.1mm; }}
 .d-ura .flow li {{ font-size:7.6pt; line-height:1.4; display:grid; grid-template-columns:4.4mm 1fr; }}
@@ -410,8 +420,8 @@ def chirashi_d(p):
 <div class="hook-wrap">
   <p class="hello"><b>ONE HITTER</b>ご近所のお宅で、お掃除をさせていただきました。<small>作業中は、車の出入りなどでお騒がせいたしました。</small></p>
   <div class="hook">
-    <h1 class="maru">この<em>黒い水</em>、<br>お掃除のあとに<br>回収した水です。</h1>
-    <p>ふだんのお掃除では届かない、奥の汚れです。<br>作業のあと、この水をお客様にもご覧いただいています。</p>
+    <h1 class="maru">この<em>黒い水</em>、<br>エアコンの中から<br>出てきた水です。</h1>
+    <p><b>エアコンクリーニングで、実際に排出された水です。</b><br>フィルター掃除では届かない、奥の汚れです。作業のあと、お客様にもご覧いただいています。</p>
   </div>
 </div>
 <div class="prices">
@@ -422,6 +432,9 @@ def chirashi_d(p):
 </div>
 <p class="pnote">すべて税込。<b>1台・1箇所からお受けします。</b><br>同じ日のご依頼なら、お風呂・キッチン・レンジフードは2箇所目から{p['set2']}円。<br>
 ※{hanbo}料金の一覧は裏面に。</p>
+<div class="coupon"><span class="tag maru">チラシ<br>特典</span>
+  <p class="big">「チラシを見た」で<b class="num">{p['tokuten']}</b><span class="yen-u">円引き</span></p>
+  <p class="how">申込フォームの「ご要望」欄か、<br>お電話でお伝えください<br>（他の割引との併用はできません）</p></div>
 <div class="why">
   <div><b class="num">★5.0</b><span>Googleクチコミ 23件<br>（2026年9月時点）</span></div>
   <div><b class="maru">追加請求なし</b><span>お見積り以上は<br>いただきません<sup class="n">※1</sup></span></div>
@@ -480,12 +493,12 @@ def chirashi_d(p):
 <div class="cta">
   <div class="qr"><img src="{qr('chirashi', 'd')}" alt=""></div>
   <div><h3 class="maru">まずは<em>空いている日</em>を<br>見るだけでも</h3>
-    <p>訪問営業も電話営業もしていません。QRから日にちを選ぶだけです。</p>
+    <p>「ご要望」欄に<b style="color:#FFE566">「チラシを見た」で{p['tokuten']}円引き</b>（併用不可）。<br>訪問営業も電話営業もしていません。</p>
     <p class="tel num">{TEL}<small>お電話 8:00〜20:00</small></p></div>
 </div>
 <p class="foot">ワンヒッター株式会社　東京都江戸川区北葛西5-14-11 5F　対応エリア：東京都・千葉県・神奈川県</p>
 """
-    css = CSS_D.replace("{photoh}", str(BLEED + 6 + 96)).replace("{hookh}", "96")
+    css = CSS_D.replace("{photoh}", str(BLEED + 6 + 83)).replace("{hookh}", "79.6")   # 写真の下端は文字の3.4mm下
     return doc("近隣チラシ 案D（両面）", css, [page("d-omote", omote, bg), page("d-ura", ura)], 148, 210)
 
 
@@ -672,6 +685,7 @@ CSS_CARD = """
 .m-omote .offer {{ margin-top:auto; line-height:1; padding-bottom:.6mm; color:#fff; display:flex; align-items:baseline; gap:1.6mm; white-space:nowrap; }}
 .m-omote .offer span {{ font-size:7.6pt; font-weight:700; }}
 .m-omote .offer b {{ font-size:20pt; line-height:1; }}
+.m-omote .offer .kigen {{ font-style:normal; margin-left:auto; font-size:7pt; font-weight:700; line-height:1.2; text-align:center; border:.3mm solid rgba(255,255,255,.8); border-radius:.6mm; padding:.6mm 1.2mm; align-self:center; }}
 .m-omote .offer b .yen-u {{ font-size:9pt; margin-left:.3mm; }}
 .m-omote .offer b .hiki {{ font-family:"Zen Maru Gothic",sans-serif; font-weight:900; font-size:11pt; line-height:1; }}
 
@@ -717,7 +731,7 @@ def card_ura(p, cid):
   <div><span>洗濯機</span><b class="num">{p['wash']}<span class="yen-u">円</span></b></div>
 </div>
 <p class="note">税込・割引前の価格。5〜7月・12月は1箇所{p['hanbo']}円を加算します</p>
-<div class="foot"><p>ご紹介くださった方も、次回<b>{p['shokai_moto']}円引き</b>になります</p></div>
+<div class="foot"><p>ご紹介くださった方も、次回<b>{p['shokai_moto']}円引き</b>（ご紹介先のお掃除が完了したら）</p></div>
 """
 
 
@@ -744,7 +758,7 @@ def card_d(p):
 <div class="from"><i></i><span>さんからの、ご紹介です。</span></div>
 <p class="hint">↑ お渡しくださる方のお名前をお書きください</p>
 <div class="row2"><div class="icons">{icons(C['ink'])}</div><p class="star">Googleクチコミ<br><b>★5.0</b>（23件）<br>2026年9月時点</p></div>
-<p class="offer"><span>このカードで、初回のお掃除が</span><b class="num">{p['shokai']}<span class="yen-u">円</span><span class="hiki">引き</span></b></p>
+<p class="offer"><span>このカードで、初回のお掃除が</span><b class="num">{p['shokai']}<span class="yen-u">円</span><span class="hiki">引き</span></b><em class="kigen">有効期限<br>なし</em></p>
 """
     css = CSS_CARD.replace("{edge}", "0").replace("{bandh}", str(bandh))
     return doc("紹介カード 案D", css, [page("m-omote", omote, '<div class="bgc"></div><div class="band"></div>'),
