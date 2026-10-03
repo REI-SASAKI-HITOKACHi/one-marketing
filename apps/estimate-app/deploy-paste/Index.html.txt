@@ -24,6 +24,21 @@
 
     <div id="fatalError" class="alert danger hidden"></div>
 
+    <!-- 鍵が合わないときだけ出す。LINEで届いたリンクを丸ごと貼り付ければ、このスマホに鍵を入れ直せる。
+         ホーム画面に追加したアイコンから開いた画面は、Safari とは記憶の置き場所が別なので、
+         リンクを開き直しても鍵が届かない。そのときの手当て。 -->
+    <section id="keyPaste" class="card hidden">
+      <h2>鍵を入れ直す</h2>
+      <div class="note">
+        LINEに届いた専用リンクを、長押しして「コピー」→ 下の欄に「貼り付け」→「保存して開く」。
+        リンクの全部をコピーしてください（途中までだと入りません）。
+      </div>
+      <label for="keyPasteInput">専用リンク</label>
+      <input id="keyPasteInput" type="text" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="ここに貼り付け">
+      <div id="keyPasteError" class="mini-info"></div>
+      <button type="button" class="primary full" data-action="save-key">保存して開く</button>
+    </section>
+
     <div id="app" class="hidden">
       <div id="masterWarnings" class="alert warning hidden"></div>
 

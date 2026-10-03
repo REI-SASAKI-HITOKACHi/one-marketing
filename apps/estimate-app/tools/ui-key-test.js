@@ -408,6 +408,51 @@ check('案内を出したら画面の中身を隠す（そのまま操作させ�
 check('鍵を受け取ったらアドレス欄から消す（履歴に残さない）',
   /storeUiKey\(fromLink\);[\s\S]{0,120}google\.script\.history\.replace/.test(clientJs), true);
 
+/* ===================== ⑧ 鍵の貼り付け欄（ホーム画面アイコン向けの手当て） ===================== */
+
+console.log('■ 鍵の貼り付け欄：リンクの丸ごと／鍵だけ、どちらでも取り込める');
+
+// ホーム画面に追加したアイコンから開く画面は Safari と記憶の置き場所が別なので、
+// リンクを開き直しても鍵が届かないことがある。そのとき、LINEのリンクを丸ごと貼り付けて入れ直せる。
+const textSrc = (clientJs.match(/function parseUiKeyFromText\([\s\S]*?\n  \}/) || [''])[0];
+check('parseUiKeyFromText が見つかる', textSrc.length > 0, true);
+const tbox = {};
+vm.createContext(tbox);
+vm.runInContext(textSrc, tbox);
+const fromText = tbox.parseUiKeyFromText;
+const K64 = 'abcdef0123456789'.repeat(4);
+check('専用リンクの丸ごと', fromText('https://script.google.com/macros/s/AKfy/exec?openExternalBrowser=1#key=' + K64), K64);
+check('鍵だけ', fromText(K64), K64);
+check('前後の空白・改行つき', fromText('  \n' + K64 + '\n '), K64);
+check('LINE が途中で折り返して改行・空白を入れても取れる',
+  fromText('https://script.google.com/macros/s/AKfy/exec?openExternalBrowser=1#key=' + K64.slice(0, 30) + '\n' + K64.slice(30)), K64);
+check('大文字で貼られても小文字にそろえる（サーバーは小文字だけ受け付ける）', fromText('#key=' + K64.toUpperCase()), K64);
+check('途中までしか無い → 取れない', fromText('https://x/exec#key=' + K64.slice(0, 60)), '');
+check('65桁以上（余計な文字が続く）→ 取れない', fromText('https://x/exec#key=' + K64 + 'a'), '');
+check('key= が無いURLだけ → 取れない', fromText('https://script.google.com/macros/s/AKfy/exec'), '');
+check('16進以外の文字が混じる → 取れない', fromText('#key=' + 'g'.repeat(64)), '');
+check('空・null・undefined → 取れない', [fromText(''), fromText(null), fromText(undefined)], ['', '', '']);
+check('64桁の別の値を鍵と取り違えない（monkey=…）', fromText('https://x/exec#monkey=' + K64), '');
+
+const indexHtml = fs.readFileSync(path.join(srcDir, 'Index.html'), 'utf8');
+check('貼り付け欄の部品が Index.html にある',
+  ['keyPaste', 'keyPasteInput', 'keyPasteError'].filter(id => indexHtml.indexOf('id="' + id + '"') < 0), []);
+check('「保存して開く」ボタンが save-key を呼ぶ', /data-action="save-key"/.test(indexHtml), true);
+check('save-key のハンドラがある', /action === 'save-key'\) saveKeyFromPaste\(\)/.test(clientJs), true);
+check('貼り付け欄は最初は隠れている',
+  /<section id="keyPaste" class="card hidden"/.test(indexHtml), true);
+check('貼り付け欄は #app の外にある（#app を隠しても見える）',
+  indexHtml.indexOf('id="keyPaste"') < indexHtml.indexOf('id="app"'), true);
+
+const showSrc = (clientJs.match(/function showKeyRequired\([^)]*\) \{[\s\S]*?\n  \}/) || [''])[0];
+check('鍵が合わないときは貼り付け欄を出し、未発行のときは出さない',
+  /kind === 'none'\) hideKeyPaste\(\); else showKeyPaste\(\)/.test(showSrc), true);
+
+const saveSrc = (clientJs.match(/function saveKeyFromPaste\([\s\S]*?\n  \}/) || [''])[0];
+check('貼り付けから読み取れなければ、保存せずに案内を出す',
+  /if \(!key\)[\s\S]*?return;[\s\S]*?storeUiKey\(key\)/.test(saveSrc), true);
+check('保存したら初期表示を読み直す', /onUiKeyResolved\(key\)/.test(saveSrc), true);
+
 /* ===================== 結果 ===================== */
 
 console.log('');
