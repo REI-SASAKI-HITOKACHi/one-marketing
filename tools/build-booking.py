@@ -903,7 +903,8 @@ TEMPLATE = r"""<!doctype html>
   function keiroHozon(){
     var q = new URLSearchParams(location.search);
     var mitsuketa = {};
-    ['src', 'cid', 'gclid', 'wbraid', 'gbraid'].forEach(function(k){
+    // ag（広告グループ）と lp（どのLPから来たか）も残す。10/9 の版別の判定に要る（measurement 20261003-04-cmo）
+    ['src', 'cid', 'gclid', 'wbraid', 'gbraid', 'ag', 'lp'].forEach(function(k){
       var v = q.get(k);
       if (v) { mitsuketa[k] = v; }
     });
@@ -946,6 +947,9 @@ TEMPLATE = r"""<!doctype html>
       '流入元': keiro('src') || (new URLSearchParams(location.search)).get('src') || '',
       '広告のクリックID': keiro('gclid') || keiro('wbraid') || keiro('gbraid') || hiroGclid(),
       '広告のキャンペーンID': keiro('cid'),
+      '広告グループ': keiro('ag'),
+      'LP': keiro('lp'),
+      'クリックIDの種類': keiro('gclid') ? 'gclid' : keiro('wbraid') ? 'wbraid' : keiro('gbraid') ? 'gbraid' : '',
       '空き枠の取得時刻': (slotsCache && slotsCache.generated) || '',
     };
     var body = Object.keys(atai).map(function(kk){
@@ -1004,6 +1008,9 @@ TEMPLATE = r"""<!doctype html>
   <input type="text" name="流入元">
   <input type="text" name="広告のクリックID">
   <input type="text" name="広告のキャンペーンID">
+  <input type="text" name="広告グループ">
+  <input type="text" name="LP">
+  <input type="text" name="クリックIDの種類">
   <input type="text" name="空き枠の取得時刻">
 </form>
 

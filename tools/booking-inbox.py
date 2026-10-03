@@ -48,7 +48,7 @@ ATAMA = ['受信日時', '状態', 'お名前', 'お電話番号', 'ご住所', 
          'ご希望の内容', '所要(分)', '概算金額', 'ご要望', '流入元', 'カレンダー登録',
          'NetlifyのID']
 # 末尾に足した2列（2026-09-22、広告のオフラインCV用。列の位置は見出し行から探す。無ければ書かない）
-OSHIRI = ['src', 'cid', '注文ID', 'gclid', 'ag', 'click_type']
+OSHIRI = ['src', 'cid', '注文ID', 'gclid', 'ag', 'click_type', 'lp']
 
 
 def retsu(i: int) -> str:
@@ -204,9 +204,10 @@ def main() -> None:
                        'gclid': str(d.get('gclid') or d.get('広告のクリックID') or ''),
                        # 10/9 の広告グループ別の判定に使う（measurement 20260928-01。tools/ad-group-hyou.py が読む）
                        'src': str(d.get('src') or d.get('流入元') or ''),
-                       'cid': str(d.get('cid') or ''),
-                       'ag': str(d.get('ag') or ''),
-                       'click_type': str(d.get('click_type') or '')})
+                       'cid': str(d.get('cid') or d.get('広告のキャンペーンID') or ''),
+                       'ag': str(d.get('ag') or d.get('広告グループ') or ''),
+                       'click_type': str(d.get('click_type') or d.get('クリックIDの種類') or ''),
+                       'lp': str(d.get('lp') or d.get('LP') or '')})
         if s['_form'] != 'yoyaku':
             # LP のフォーム（name/tel/zip/menu/when/lp/src/cid/order_id）を予約フォームの列名に寄せる
             lp = d.get('lp') or s['_form'].replace('reserve-', '')
