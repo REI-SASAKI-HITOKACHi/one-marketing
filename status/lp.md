@@ -1,15 +1,16 @@
 # LP・サイト担当 の現況
 
-更新: 2026-10-01 14:20
+更新: 2026-10-03 14:29
 
-【10/1 15時 lp 現況】
+【10/3 lp 現況】
 済
-- 予約カレンダー直行ボタン（20261001-03-lp）：学習版3本（mizumawari-b / aircon-c / nenmatsu-b）に実装（8a1875f）。料金の下を2択に＋フォーム直前にカレンダー・電話・LINE。src/cid/ag/gclid を予約ページへ引き継ぎ。cta_click に link_position（estimate/form/deadline）と link_target=yoyaku。CMOへ「配信してよい」と返信済み
-- nenmatsu-b の ?ag= 修正（4e46031）、担当者イラストの枠（98dc242）
+- 近隣チラシ・紹介カードの作り直し（20261003-04-lp）：チラシ3案（A お知らせ型／B 料金表型／C 写真1枚＋両面）・カード2案を print/an/ に。講評と狙いは docs/チラシ・紹介カード作り直し.md。CMOへ返信済み（b1d8991）
+- プラグイン：canva・Design・Marketing をカードで推薦（ListPlugins は0件＝未導入）
+- 01〜03（入稿用PDF・予算・停止）は 04 に統合して完了
+- 10/1：予約カレンダー直行ボタン（8a1875f）、nenmatsu-b の ag 修正、イラスト枠
 待ち
-- CMOの配信 → 配信後に本番を確認する
-- GA4 のカスタムディメンション link_position の登録（measurement/オーナー）
-- aircon-d にもボタンを入れるか（CMO判断）
-- イラストの作り方（Canva無料枠 / ココナラ外注）→ オーナー判断、和真さんの写真
-- 既存4本の v2 切替は 10/9 判定後
-ブランチ：claude/lp-outline-presentation-8fahl3（8a1875f）
+- CMO講評 → オーナー合否。合格した案だけ入稿用PDFに（発注は browser）
+- 早期予約の割引率（MTG結果）
+- 学習版3本の配信後の本番確認、aircon-d へのボタン追加の判断、GA4 link_position の登録
+- 和真さんのイラスト（作り方の判断・写真）
+ブランチ：claude/lp-outline-presentation-8fahl3（b1d8991）
