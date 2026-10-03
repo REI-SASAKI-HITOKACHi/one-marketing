@@ -33,7 +33,7 @@ mark { background:linear-gradient(transparent 58%,#FFE566 58%); color:inherit; p
 .hero img { width:58mm; height:58mm; object-fit:cover; border-radius:1.2mm; display:block; }
 .hero .cap { display:flex; flex-direction:column; justify-content:center; }
 .hero .cap h2 { font-size:14pt; font-weight:900; line-height:1.38; color:#13232E; }
-.hero .cap p { font-size:8pt; line-height:1.7; color:#3C5262; margin-top:2mm; }
+.hero .cap p { font-size:8pt; line-height:1.7; color:#3C5262; margin-top:1.4mm; }
 .hero .cap .proof { margin-top:2.6mm; display:grid; gap:1.4mm; }
 .hero .cap .proof div { display:flex; align-items:baseline; gap:1.6mm; font-size:7.6pt; color:#3C5262; }
 .hero .cap .proof b { font-size:15pt; color:#0D3B5C; line-height:1; }
@@ -46,6 +46,7 @@ mark { background:linear-gradient(transparent 58%,#FFE566 58%); color:inherit; p
 .menu .v .yen-u { font-size:7.6pt; margin-left:.3mm; }
 .menu-note { font-size:7pt; color:#3C5262; margin-top:1.6mm; line-height:1.6; }
 .menu-note b { color:#13232E; }
+.dec { font-size:8.4pt; font-weight:700; color:#13232E; margin-top:2.2mm; }
 .cta { margin-top:auto; display:grid; grid-template-columns:27mm 1fr; gap:4mm; align-items:center;
         background:#FAF7F2; border-radius:1.6mm; padding:3.4mm 4mm; }
 .cta .qr img { width:27mm; height:27mm; }
@@ -71,8 +72,8 @@ mark { background:linear-gradient(transparent 58%,#FFE566 58%); color:inherit; p
     <h2 class="maru">エアコンを洗ったあとの<br>水です</h2>
     <p>部品を外して、ご自宅では届かない奥の送風ファンまで洗い流します。作業のあと、この水をお客様にもご覧いただいています。</p>
     <div class="proof">
-      <div><b class="num">98.6%</b>が「人に勧めたい」<br>（ご利用者209名中206名）</div>
-      <div><b class="num">★5.0</b>Googleクチコミ（23件）</div>
+      <div><b class="num">98.6%</b><span>のお客様が「人に勧めたい」<br>（ご利用者209名中206名・自社調べ）</span></div>
+      <div><b class="num">★5.0</b><span>Googleクチコミ 23件<br>（2026年9月時点）</span></div>
     </div>
   </div>
 </div>
@@ -84,7 +85,8 @@ mark { background:linear-gradient(transparent 58%,#FFE566 58%); color:inherit; p
   <div><p class="k">洗濯機<small>分解して槽の裏まで</small></p><p class="v num">17,380<span class="yen-u">円</span></p></div>
 </div>
 <p class="menu-note">すべて税込。お掃除機能付きエアコンは17,380円。お風呂・キッチン・レンジフードは<b>2箇所目から15,180円</b>。<br>
-<b>お見積り以上の追加請求はありません。</b>12月は1箇所3,300円の加算があるため、年内は11月中のご予約がおすすめです。</p>
+<b>お見積り以上の追加請求はありません。</b></p>
+<p class="dec"><mark>12月は1箇所3,300円の加算があります。</mark>年内のお掃除は、11月中のご予約がおすすめです。</p>
 
 <div class="cta">
   <div class="qr"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAApQAAAKUAQMAAACAATp/AAAABlBMVEUNO1z///9ObbWOAAACr0lEQVR42u3dTW7CMBAGUKsX8P1vmRukUhVIPDOBNg6b6nmBoIS3qBefxr+txdbXdX+3tWX7y/MP6/4xAe2r3d+YTCaT+b/NIXZ+0qVvAbS9hABanpHVx18cntNHTCaTybyWR8d3fSyIhlA6FkRDHg2UPmIymUzmLXkUouiYUfsj8ojJZDKZH8+jflYLDb+QR0wmk8m8NY/C/FEKmz5OLK3mj5hMJpP56dZTCr178f9kMplM5nRbi5YmjMLDS73Q4fGtPmIymUzmtYIoTQRV37ZnCi3Pld852vQRk8lkMudCKc0QhQCqdictx5rp8Qt9xGQymcw/t3TawpA41fbYPajCEQ6PF33EZDKZzInS6FgQnWRUVR/lUNJHTCaTybxQH1Vjbnk6qd5rVK520EdMJpPJnAil+l0/O9huOZ1d0kdMJpPJvBpFvT7G+/Wi76pSkkdMJpPJvJxHp/uPqtG8PYVCKBmvYzKZTOZEHr0ug9Z6oUN1UoP1DEwmk8mcaMOBddUhdvWBDEs9riePmEwmkzlXH9Wno+arJtLUUQvjevqIyWQymVfro14cYtfSAF1dLsUpJn3EZDKZzIkiKWRUfd9EtfCuj2c26CMmk8lkTudR2nXUio+t3n9kPQOTyWQyZ6PoF9teq9Xg5cHf+ojJZDKZ1/LoxVGqa7FR9vRkVeN1TCaTyZwLpeoe8pY2IR1br2ec1EdMJpPJnKuPUvbkxEk1Uy92LMkjJpPJZN7QeiqSQniF59ImJHnEZDKZzIsBlCaRqgoo1Ey9WAbhvnImk8lkzhVEoeRp9Y7XkGCperKegclkMpk35lF9SWw7u/VozyjjdUwmk8n8XB6lwimfu2p9HZPJZDJvyKP6ANWYM8fbY1OCrfKIyWQymbeXSz1cIfHu/qPhW33EZDKZzL+2b9pZbztXhrhtAAAAAElFTkSuQmCC" alt=""></div>
