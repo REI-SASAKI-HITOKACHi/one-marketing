@@ -21,3 +21,4 @@ data/backup/*.json
 data/safebrowsing-last.json
 # 作業完了フォームの施工写真（お客様宅）。git に入れない。元は Netlify のフォーム提出に残る（2026-09-27）
 data/kanryo-shashin/
+private/
