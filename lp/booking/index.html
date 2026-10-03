@@ -183,6 +183,8 @@ a{color:var(--accent-deep);}
 .copy-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
 .copy-row .btn{flex:1 1 160px;}
 .copied{font-size:12.5px;font-weight:700;color:var(--ok);}
+.card .line-note{font-size:11.5px;color:var(--muted);line-height:1.7;}
+#done-line p,#done-line .btn{word-break:auto-phrase;}
 .step-list{margin:0;padding-left:1.2em;font-size:12.5px;color:var(--muted);line-height:1.9;}
 
 footer{background:var(--invert);color:var(--invert-ink);padding:30px 0 26px;margin-top:34px;}
@@ -281,8 +283,9 @@ footer a{color:var(--invert-ink);}
 window.dataLayer=window.dataLayer||[];
 function gtag(){dataLayer.push(arguments);}
 gtag('js',new Date());
-var oh_src=new URLSearchParams(location.search).get('src')||'direct';
-var oh_cid=new URLSearchParams(location.search).get('cid')||'';
+var ohClean=function(v,n){return (v||'').replace(/[^A-Za-z0-9_-]/g,'').slice(0,n);};
+var oh_src=ohClean(new URLSearchParams(location.search).get('src'),20)||'direct';
+var oh_cid=ohClean(new URLSearchParams(location.search).get('cid'),20);
 gtag('config','G-DLJCTKGTDN',{'lp_id':'booking','lp_variant':'A','traffic_src':oh_src,'traffic_cid':oh_cid});
 gtag('config','AW-18450975194');
 </script>
@@ -444,7 +447,7 @@ gtag('config','AW-18450975194');
 <script>
 (function(){
   'use strict';
-  var S = {"menus": [{"n": "エアコンクリーニング（ノーマル）","t": 10780,"d": 10780,"m": 60},{"n": "エアコンクリーニング（お掃除機能付き）","t": 17380,"d": 17380,"m": 120},{"n": "洗濯機クリーニング","t": 17380,"d": 17380,"m": 120},{"n": "レンジフードクリーニング","t": 18480,"d": 15180,"m": 90},{"n": "レンジフード（プロペラ式）","t": 10780,"d": 10780,"m": 60},{"n": "キッチンクリーニング","t": 18480,"d": 15180,"m": 120},{"n": "浴室クリーニング","t": 18480,"d": 15180,"m": 120},{"n": "追い焚き配管クリーニング","t": 19910,"d": 16610,"m": 90},{"n": "コンロクリーニング","t": 10780,"d": 6050,"m": 60},{"n": "トイレクリーニング","t": 10780,"d": 10780,"m": 60},{"n": "洗面台クリーニング","t": 10780,"d": 7480,"m": 60},{"n": "お掃除時短コーティング","t": 21780,"d": 21780,"m": 60}],"hanbouki": {"tsuki": [5,6,7,12],"gaku": 3300},"souki": {"1": 0.15,"2": 0.15,"3": 0.1,"4": 0.1,"5": 0.0,"6": 0.0,"7": 0.0,"8": 0.1,"9": 0.1,"10": 0.1,"11": 0.0,"12": 0.0},"netTokuten": 2200,"api": "","slots": "./slots.json","form": "yoyaku","tel": "080-8043-8259"};
+  var S = {"menus": [{"n": "エアコンクリーニング（ノーマル）","t": 10780,"d": 10780,"m": 60},{"n": "エアコンクリーニング（お掃除機能付き）","t": 17380,"d": 17380,"m": 120},{"n": "洗濯機クリーニング","t": 17380,"d": 17380,"m": 120},{"n": "レンジフードクリーニング","t": 18480,"d": 15180,"m": 90},{"n": "レンジフード（プロペラ式）","t": 10780,"d": 10780,"m": 60},{"n": "キッチンクリーニング","t": 18480,"d": 15180,"m": 120},{"n": "浴室クリーニング","t": 18480,"d": 15180,"m": 120},{"n": "追い焚き配管クリーニング","t": 19910,"d": 16610,"m": 90},{"n": "コンロクリーニング","t": 10780,"d": 6050,"m": 60},{"n": "トイレクリーニング","t": 10780,"d": 10780,"m": 60},{"n": "洗面台クリーニング","t": 10780,"d": 7480,"m": 60},{"n": "お掃除時短コーティング","t": 21780,"d": 21780,"m": 60}],"hanbouki": {"tsuki": [5,6,7,12],"gaku": 3300},"souki": {"1": 0.15,"2": 0.15,"3": 0.1,"4": 0.1,"5": 0.0,"6": 0.0,"7": 0.0,"8": 0.1,"9": 0.1,"10": 0.1,"11": 0.1,"12": 0.0},"netTokuten": 2200,"api": "","slots": "./slots.json","form": "yoyaku","tel": "080-8043-8259"};
   // SNS（Instagram／Facebook／Googleビジネスプロフィール）から来た初見の方向けに、
   // 「前回ご利用のお客様専用」の文言だけ差し替える。SMS経由の既存客の画面は変えない。
   // （2026-09-11 ネット流入担当の指摘 20260911-01-cmo）
