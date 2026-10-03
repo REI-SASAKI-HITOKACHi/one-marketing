@@ -333,17 +333,17 @@ sup.n {{ font-size:.55em; vertical-align:.5em; margin-left:.2mm; font-family:"BI
 .d-omote .hook h1 {{ font-size:22pt; font-weight:900; line-height:1.3; }}
 .d-omote .hook h1 em {{ font-style:normal; color:{mark}; }}
 .d-omote .hook p {{ font-size:9pt; color:#E3EDF3; margin-top:1.8mm; line-height:1.6; }}
-.d-omote .prices {{ display:grid; grid-template-columns:repeat(4,1fr); margin-top:6.4mm; border-top:.45mm solid {ink}; border-bottom:.45mm solid {ink}; }}
+.d-omote .prices {{ display:grid; grid-template-columns:repeat(4,1fr); margin-top:5.6mm; border-top:.45mm solid {ink}; border-bottom:.45mm solid {ink}; }}
 .d-omote .prices div {{ text-align:center; padding:2mm .6mm 1.8mm; border-left:.2mm solid {rule}; }}
 .d-omote .prices div:first-child {{ border-left:0; }}
-.d-omote .prices .k {{ font-size:9pt; font-weight:700; }}
-.d-omote .prices .k small {{ display:block; font-size:6.8pt; font-weight:400; color:{steel}; margin-top:.2mm; }}
-.d-omote .prices .v {{ font-size:19pt; color:{cta}; line-height:1.05; margin-top:.8mm; }}
+.d-omote .prices .k {{ font-size:9pt; font-weight:700; line-height:1.3; }}
+.d-omote .prices .k small {{ display:block; font-size:6.8pt; font-weight:400; color:{steel}; margin-top:.5mm; line-height:1.3; }}
+.d-omote .prices .v {{ font-size:19pt; color:{cta}; line-height:1.05; margin-top:.4mm; }}
 .d-omote .pnote {{ font-size:7.4pt; color:{text2}; margin-top:1.4mm; line-height:1.55; }}
 .d-omote .pnote b {{ color:{text}; }}
 .d-omote .coupon {{ margin-top:2.4mm; display:grid; grid-template-columns:auto auto 1fr; align-items:center; gap:3mm;
                     border:.5mm dashed {cta}; border-radius:1.4mm; padding:1.3mm 3mm; background:{ctasoft}; }}
-.d-omote .coupon .tag {{ background:{cta}; color:#fff; font-size:8pt; font-weight:900; line-height:1.2; text-align:center; padding:1.2mm 1.8mm; border-radius:.8mm; }}
+.d-omote .coupon .tag {{ background:{cta}; color:#fff; font-size:8pt; font-weight:900; line-height:1.25; text-align:center; padding:1.2mm 1.8mm; border-radius:.8mm; }}
 .d-omote .coupon .big {{ font-size:10pt; font-weight:700; color:{text}; white-space:nowrap; }}
 .d-omote .coupon .big b {{ font-size:22pt; color:{cta}; line-height:1; margin-left:1mm; }}
 .d-omote .coupon .big .yen-u {{ font-size:10pt; color:{cta}; }}
@@ -368,7 +368,7 @@ sup.n {{ font-size:.55em; vertical-align:.5em; margin-left:.2mm; font-family:"BI
 .d-ura .head {{ display:flex; justify-content:space-between; align-items:flex-end; border-bottom:.45mm solid {ink}; padding-bottom:1.2mm; }}
 .d-ura .head h2 {{ font-size:15pt; font-weight:900; color:{ink}; line-height:1.2; }}
 .d-ura .head h2 span {{ display:inline-block; font-size:7.6pt; color:#fff; background:{cta}; border-radius:.6mm; padding:.4mm 1.6mm; margin-right:2mm; vertical-align:.6mm; }}
-.d-ura .head p {{ font-size:7.2pt; color:{steel}; text-align:right; }}
+.d-ura .head p {{ font-size:7.2pt; line-height:1.45; color:{steel}; text-align:right; }}
 .d-ura .sign {{ margin-top:2.4mm; background:{paper}; border-radius:1.2mm; padding:2.4mm 3.4mm 2.6mm; }}
 .d-ura .sign h3 {{ font-size:9.6pt; font-weight:900; color:{ink}; }}
 .d-ura .sign ul {{ list-style:none; display:grid; grid-template-columns:1fr 1fr; gap:1.2mm 4mm; margin-top:1.6mm; }}
@@ -706,11 +706,11 @@ CSS_CARD = """
 .k-ura .price div {{ text-align:center; padding:.7mm 0 .6mm; border-left:.2mm solid {rule}; }}
 .k-ura .price div:first-child {{ border-left:0; }}
 .k-ura .price div > span {{ display:block; font-size:7.2pt; font-weight:700; color:{text}; }}
-.k-ura .price b {{ font-size:10.4pt; color:{cta}; line-height:1.1; }}
+.k-ura .price b {{ font-size:10pt; color:{cta}; line-height:1.1; }}
 .k-ura .price b .yen-u {{ font-size:7pt; }}
-.k-ura .foot {{ margin-top:.6mm; border-top:.25mm solid {rule}; padding-top:.8mm; }}
+.k-ura .foot {{ margin-top:auto; border-top:.25mm solid {rule}; padding-top:.9mm; }}
 .k-ura .note {{ margin-top:.6mm; line-height:1.35; font-size:7pt; color:{text2}; white-space:nowrap; }}
-.k-ura .foot p {{ line-height:1.35; font-size:7pt; color:{text2}; }}
+.k-ura .foot p {{ line-height:1.35; font-size:7pt; white-space:nowrap; color:{text2}; }}
 .k-ura .foot p b {{ color:{cta}; }}
 """
 
@@ -732,7 +732,8 @@ def card_ura(p, cid):
   <div><span>洗濯機</span><b class="num">{p['wash']}<span class="yen-u">円</span></b></div>
 </div>
 <p class="note">税込・割引前の価格。5〜7月・12月は1箇所{p['hanbo']}円を加算します</p>
-<div class="foot"><p>ご紹介くださった方へ：<b>1人ご紹介ごとに次回{p['shokai_moto']}円引き</b>。<br>何人分でも重ねて使えます（10人なら<b>{yen(int(p['shokai_moto'].replace(',',''))*10)}円引き</b>）<br>※ご紹介先のお掃除が完了した分が対象です</p></div>
+<div class="foot"><p>ご紹介した方も、<b>ご紹介先のお掃除完了ごとに次回{p['shokai_moto']}円引き</b></p>
+<p>何人分でも重ねて使えます（10人なら<b>{yen(int(p['shokai_moto'].replace(',',''))*10)}円引き</b>）</p></div>
 """
 
 
@@ -805,9 +806,26 @@ def render(name, html, tw, th, min_mm):
               const rg=document.createRange(); rg.selectNodeContents(e); const r=rg.getBoundingClientRect(); if(!r.width) return;  // 文字の実際の範囲（nowrap ではみ出した分も拾う）
               const d=Math.min((r.left-t.left)/mm,(t.right-r.right)/mm,(r.top-t.top)/mm,(t.bottom-r.bottom)/mm);
               if(d<w){w=d;who=e.textContent.trim().slice(0,16);}});
-            const s=pgEl.querySelector('.safe'); out.push({i,w,who,over:s.scrollHeight-s.clientHeight});});
+            const s=pgEl.querySelector('.safe');
+            let tight='';
+            pgEl.querySelectorAll('.safe *').forEach(e=>{if(tight) return;
+              const hasText=[...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()); if(!hasText) return;
+              const cs=getComputedStyle(e); if(cs.display==='inline') return; const fs=parseFloat(cs.fontSize), lh=parseFloat(cs.lineHeight);
+              const rg=document.createRange(); rg.selectNodeContents(e); const bs=[...rg.getClientRects()].map(r=>r.bottom).sort((x,y)=>x-y); let lines=bs.length?1:0;
+              for(let k=1;k<bs.length;k++) if(bs[k]-bs[k-1]>fs*0.8) lines++;   // 大きさの違う字が混ざっても1行と数える
+              if(lines>1 && lh && lh/fs<1.195) tight=e.textContent.trim().slice(0,16)+` の行間 ${(lh/fs).toFixed(2)}`;});
+            // 並んだ要素どうしが接していないか（枠や線が隣の線に重なる見落としを止める。10/3 オーナー指摘）
+            let touch='';
+            const kids=[...s.children].filter(e=>e.getBoundingClientRect().height>0);
+            for(let k=1;k<kids.length;k++){const g=(kids[k].getBoundingClientRect().top-kids[k-1].getBoundingClientRect().bottom)/mm;
+              if(g<0.5){touch=(kids[k-1].className||kids[k-1].tagName)+' と '+(kids[k].className||kids[k].tagName)+` の間が ${g.toFixed(2)}mm`;break;}}
+            out.push({i,w,who,over:s.scrollHeight-s.clientHeight,touch,tight});});
           return out;}""", min_mm)
         for r in res:
+            if r["tight"]:
+                raise SystemExit(f"{name} {r['i'] + 1}面: 「{r['tight']}」（2行以上の文字は1.2倍以上）")
+            if r["touch"]:
+                raise SystemExit(f"{name} {r['i'] + 1}面: {r['touch']}（0.5mm以上あける）")
             if r["over"] > 1:
                 raise SystemExit(f"{name} {r['i'] + 1}面: 中身が {r['over']}px あふれています。詰めてください。")
             if r["w"] < min_mm:
@@ -851,6 +869,22 @@ def ichiran(all_outs):
     print((OUT / "一覧.png").relative_to(ROOT))
 
 
+def kakunin():
+    """CMO・オーナーへ渡す確認用（変更できない形）。実寸のPDF1つと、面ごとのJPG。
+    入稿用ではない（塗り足し・トンボなし、RGB）。入稿用PDFは採用のあと別に作る。"""
+    d = OUT / "確認用"
+    d.mkdir(exist_ok=True)
+    men = [("chirashi-d-omote", "チラシD_表"), ("chirashi-d-ura", "チラシD_裏"),
+           ("card-d-omote", "紹介カードD_表"), ("card-d-ura", "紹介カードD_裏")]
+    ims = []
+    for src, name in men:
+        im = Image.open(OUT / f"{src}.png").convert("RGB")
+        im.save(d / f"{name}.jpg", quality=92, dpi=(288, 288))   # 3倍で書き出しているので 288dpi＝実寸
+        ims.append(im)
+    ims[0].save(d / "第一弾_チラシD・紹介カードD_確認用.pdf", save_all=True, append_images=ims[1:], resolution=288)
+    print((d / "第一弾_チラシD・紹介カードD_確認用.pdf").relative_to(ROOT))
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     p = prices()
@@ -858,10 +892,16 @@ def main():
     all_outs = []
     for n in names:
         fn, tw, th, mn = AN[n]
-        all_outs.append((n, render(n, fn(p), tw, th, mn)))
+        try:
+            all_outs.append((n, render(n, fn(p), tw, th, mn)))
+        except SystemExit as e:
+            if n in KOHO or sys.argv[1:]:
+                raise
+            print(f"（旧案のため続行）{e}")   # 候補でない旧案は、検査に落ちても一覧には載らない
     if not sys.argv[1:]:
         # 10/3 オーナー：チラシは両面1本（D）に絞る、紹介カードはDを候補に。一覧は候補だけ（旧案のPNGは残す）
         ichiran([x for x in all_outs if x[0] in KOHO])
+        kakunin()
 
 
 if __name__ == "__main__":
