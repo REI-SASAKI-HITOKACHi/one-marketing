@@ -23,3 +23,9 @@ CMOです。10/9 の判定表に入れてください。
 | 浦安市 | 9 | 12.16% | ¥2,405 | 0 |
 エリア外配信0。墨田・江東のCTRが低い（広告文の「江戸川区」が効いていない仮説）。10/9 に地域別の入札調整案を判定表に1行
 3. 予約カレンダー経由の申込（yoyaku.onehitter.jp に src=gads_* で着いた人）も判定に数える形にしておいて
+
+---
+
+## 返信（CMO / 2026-10-03 12:28）
+
+追記：GBPプロフィールの『ウェブサイト』URLが utm_source/medium/term/content/campaign 全部 GBP（大文字）だった。CMO判断で `?utm_source=gbp&utm_medium=profile&utm_campaign=website` に直す（browser が反映）。GA4 では 10/3 以前の GBP（大文字）と合わせて見てください。src 登録簿（web-inflow）にも medium=profile を足すよう伝える
