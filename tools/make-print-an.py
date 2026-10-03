@@ -648,6 +648,7 @@ def icons(color):
 
 CSS_CARD = """
 .safe {{ position:absolute; inset:3.6mm 4mm 3.6mm 4mm; display:flex; flex-direction:column; }}
+.safe > * {{ flex-shrink:0; }}
 .bgc {{ position:absolute; inset:0; background:#fff; }}
 .top {{ display:flex; justify-content:space-between; align-items:center; color:{ink}; font-size:7pt; font-weight:700; white-space:nowrap; }}
 .top b {{ font-family:"Barlow Semi Condensed",sans-serif; font-size:9.6pt; letter-spacing:.12em; }}
@@ -682,7 +683,8 @@ CSS_CARD = """
 .m-omote .row2 {{ display:flex; justify-content:space-between; align-items:flex-end; margin-top:auto; margin-bottom:auto; }}
 .m-omote .star {{ font-size:7pt; line-height:1.35; color:{text2}; text-align:right; }}
 .m-omote .star b {{ font-size:10pt; color:{ink}; }}
-.m-omote .offer {{ margin-top:auto; line-height:1; padding-bottom:.6mm; color:#fff; display:flex; align-items:baseline; gap:1.6mm; white-space:nowrap; }}
+.m-omote .safe {{ bottom:3.1mm; }}   /* 赤帯の中で文字を上下中央に（10/3 オーナー「上に寄ってる」） */
+.m-omote .offer {{ margin-top:auto; line-height:1; padding-bottom:0; color:#fff; display:flex; align-items:baseline; gap:1.6mm; white-space:nowrap; }}
 .m-omote .offer span {{ font-size:7.6pt; font-weight:700; }}
 .m-omote .offer b {{ font-size:20pt; line-height:1; }}
 .m-omote .offer .kigen {{ font-style:normal; margin-left:auto; font-size:7pt; font-weight:700; line-height:1.2; text-align:center; border:.3mm solid rgba(255,255,255,.8); border-radius:.6mm; padding:.6mm 1.2mm; align-self:center; }}
@@ -691,23 +693,23 @@ CSS_CARD = """
 
 /* 裏（C・D共通）：QR と電話を左右に並べる。料金は4つの枠 */
 .k-ura h2 {{ font-size:8.6pt; font-weight:900; color:{ink}; }}
-.k-ura .two {{ display:grid; grid-template-columns:1fr 1fr; gap:2.4mm; margin-top:auto; }}
-.k-ura .way {{ border:.3mm solid {rule2}; border-radius:1mm; padding:1.1mm 1.8mm 1.1mm; }}
+.k-ura .two {{ display:grid; grid-template-columns:1fr 1fr; gap:2.4mm; }}
+.k-ura .way {{ border:.3mm solid {rule2}; border-radius:1mm; padding:.8mm 1.8mm .8mm; }}
 .k-ura .way h3 {{ font-size:7pt; font-weight:700; color:#fff; background:{ink}; display:inline-block; padding:.3mm 1.6mm; border-radius:.5mm; }}
-.k-ura .web {{ display:grid; grid-template-columns:17mm 1fr; gap:1.8mm; align-items:start; margin-top:1mm; }}
-.k-ura .web img {{ width:17mm; height:17mm; }}
-.k-ura .way p {{ font-size:7pt; line-height:1.35; color:{text}; }}
+.k-ura .web {{ display:grid; grid-template-columns:15.6mm 1fr; gap:1.8mm; align-items:start; margin-top:1mm; }}
+.k-ura .web img {{ width:15.6mm; height:15.6mm; }}
+.k-ura .way p {{ font-size:7pt; line-height:1.3; color:{text}; }}
 .k-ura .way p b {{ color:{cta}; }}
 .k-ura .way p.tel {{ font-size:13.4pt; color:{ink}; line-height:1; margin-top:1.2mm; white-space:nowrap; }}
 .k-ura .way p.hours {{ font-size:7.2pt; color:{text2}; margin-top:.6mm; }}
 .k-ura .price {{ display:grid; grid-template-columns:repeat(4,1fr); margin-top:auto; border-top:.3mm solid {ink}; border-bottom:.3mm solid {ink}; }}
-.k-ura .price div {{ text-align:center; padding:1.1mm 0 1mm; border-left:.2mm solid {rule}; }}
+.k-ura .price div {{ text-align:center; padding:.7mm 0 .6mm; border-left:.2mm solid {rule}; }}
 .k-ura .price div:first-child {{ border-left:0; }}
 .k-ura .price div > span {{ display:block; font-size:7.2pt; font-weight:700; color:{text}; }}
 .k-ura .price b {{ font-size:10.4pt; color:{cta}; line-height:1.1; }}
 .k-ura .price b .yen-u {{ font-size:7pt; }}
-.k-ura .foot {{ margin-top:.4mm; display:flex; justify-content:space-between; align-items:baseline; gap:2mm; white-space:nowrap; }}
-.k-ura .note {{ margin-top:.9mm; line-height:1.35; font-size:7pt; color:{text2}; white-space:nowrap; }}
+.k-ura .foot {{ margin-top:.6mm; border-top:.25mm solid {rule}; padding-top:.8mm; }}
+.k-ura .note {{ margin-top:.6mm; line-height:1.35; font-size:7pt; color:{text2}; white-space:nowrap; }}
 .k-ura .foot p {{ line-height:1.35; font-size:7pt; color:{text2}; }}
 .k-ura .foot p b {{ color:{cta}; }}
 """
@@ -715,7 +717,6 @@ CSS_CARD = """
 
 def card_ura(p, cid):
     return f"""
-<h2 class="maru">ご予約は、QR か お電話で</h2>
 <div class="two">
   <div class="way"><h3>QRで予約</h3>
     <div class="web"><div class="qr"><img src="{qr('shokai', cid)}" alt=""></div>
@@ -731,7 +732,7 @@ def card_ura(p, cid):
   <div><span>洗濯機</span><b class="num">{p['wash']}<span class="yen-u">円</span></b></div>
 </div>
 <p class="note">税込・割引前の価格。5〜7月・12月は1箇所{p['hanbo']}円を加算します</p>
-<div class="foot"><p>ご紹介くださった方も、次回<b>{p['shokai_moto']}円引き</b>（ご紹介先のお掃除が完了したら）</p></div>
+<div class="foot"><p>ご紹介くださった方へ：<b>1人ご紹介ごとに次回{p['shokai_moto']}円引き</b>。<br>何人分でも重ねて使えます（10人なら<b>{yen(int(p['shokai_moto'].replace(',',''))*10)}円引き</b>）<br>※ご紹介先のお掃除が完了した分が対象です</p></div>
 """
 
 
@@ -752,7 +753,7 @@ def card_c(p):
 
 
 def card_d(p):
-    bandh = 12.4 + BLEED
+    bandh = 14 + BLEED
     omote = f"""
 <div class="top"><b>ONE HITTER</b><span>ハウスクリーニング・東京／千葉／神奈川</span></div>
 <div class="from"><i></i><span>さんからの、ご紹介です。</span></div>
