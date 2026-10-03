@@ -1,0 +1,96 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><title>紹介カード 案D</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700;900&family=BIZ+UDPGothic:wght@400;700&family=Barlow+Semi+Condensed:wght@600;700&display=swap"><style>
+@page { size:97mm 61mm; margin:0; }
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { background:#fff; }
+body { font-family:"BIZ UDPGothic","IPAGothic",sans-serif; color:#13232E;
+        -webkit-print-color-adjust:exact; print-color-adjust:exact; font-feature-settings:"palt" 1; }
+.page { width:97mm; height:61mm; position:relative; overflow:hidden; background:#fff; page-break-after:always; }
+.trim { position:absolute; left:3mm; top:3mm; width:91mm; height:55mm; }
+.maru { font-family:"Zen Maru Gothic","BIZ UDPGothic",sans-serif; }
+.num { font-family:"Barlow Semi Condensed","BIZ UDPGothic",sans-serif; font-weight:700; letter-spacing:.005em;
+        font-variant-numeric:tabular-nums; }
+.yen-u { font-family:"BIZ UDPGothic",sans-serif; font-weight:700; }
+.tax { font-family:"BIZ UDPGothic",sans-serif; font-weight:400; }
+mark { background:linear-gradient(transparent 58%,#FFE566 58%); color:inherit; padding:0 .4mm; }
+.qr img { display:block; image-rendering:pixelated; }
+
+.safe { position:absolute; inset:3.6mm 4mm 3.6mm 4mm; display:flex; flex-direction:column; }
+
+/* 案C：チケット。左が券面、右が控え（ご紹介者の名前を書く欄） */
+.t-omote .bgc { position:absolute; inset:0; background:#FAF7F2; }
+.t-omote .stub { position:absolute; top:0; bottom:0; right:0; width:0mm; background:#0D3B5C; }
+.t-omote .perf { position:absolute; top:0; bottom:0; right:0mm; border-left:.45mm dashed #B4C5D0; }
+.t-omote .safe { right:4mm; }
+.t-omote .kind { align-self:flex-start; font-size:6.4pt; font-weight:700; color:#fff; background:#0C6B7F; padding:.5mm 1.8mm; border-radius:.5mm; letter-spacing:.06em; }
+.t-omote .lead { font-size:8pt; font-weight:700; margin-top:2.4mm; color:#13232E; }
+.t-omote .off { font-size:30pt; color:#C0300C; line-height:.95; margin-top:.6mm; letter-spacing:-.005em; white-space:nowrap; }
+.t-omote .off .yen-u { font-size:12pt; margin-left:.4mm; }
+.t-omote .off .hiki { font-family:"Zen Maru Gothic",sans-serif; font-weight:900; font-size:15pt; margin-left:.4mm; }
+.t-omote .menu { font-size:6.6pt; color:#3C5262; margin-top:2mm; }
+.t-omote .brand { margin-top:auto; display:flex; align-items:baseline; gap:1.6mm; color:#0D3B5C; font-size:6.4pt; }
+.t-omote .brand { white-space:nowrap; }
+.t-omote .brand b { font-family:"Barlow Semi Condensed",sans-serif; font-size:9.6pt; letter-spacing:.12em; }
+.t-omote .stub-in { position:absolute; top:0mm; bottom:0mm; right:0mm; width:0mm; color:#fff;
+                     display:flex; flex-direction:column; align-items:center; text-align:center; }
+.t-omote .stub-in .k { font-size:6.4pt; font-weight:700; letter-spacing:.08em; }
+.t-omote .stub-in .box { width:100%; flex:1; background:#fff; border-radius:.8mm; margin:1.6mm 0 1.2mm; }
+.t-omote .stub-in .sama { font-size:7pt; font-weight:700; }
+
+/* 案D：ひと言。紹介する人の言葉を表の主役に */
+.m-omote .bgc { position:absolute; inset:0; background:#fff; }
+.m-omote .band { position:absolute; left:0; right:0; bottom:0; height:17mm; background:#B72C0A; }
+.m-omote .top { display:flex; justify-content:space-between; align-items:baseline; color:#0D3B5C; font-size:6.4pt; }
+.m-omote .top b { font-family:"Barlow Semi Condensed",sans-serif; font-size:9.6pt; letter-spacing:.12em; }
+.m-omote .what { font-size:6.4pt; color:#3C5262; margin-top:2.4mm; }
+.m-omote .quote { font-size:12.6pt; font-weight:900; line-height:1.42; color:#0D3B5C; margin-top:2.6mm; }
+.m-omote .quote em { font-style:normal; background:linear-gradient(transparent 60%,#FFE566 60%); }
+.m-omote .from { display:flex; align-items:flex-end; gap:1.4mm; font-size:7.4pt; font-weight:700; color:#13232E; margin-top:2mm; }
+.m-omote .from i { width:30mm; border-bottom:.3mm solid #13232E; height:5mm; }
+.m-omote .offer { margin-top:auto; color:#fff; display:flex; align-items:baseline; gap:1.6mm; }
+.m-omote .offer span { font-size:7.4pt; font-weight:700; }
+.m-omote .offer b { font-size:19pt; line-height:1; }
+.m-omote .offer b .yen-u { font-size:9pt; margin-left:.3mm; }
+.m-omote .offer b .hiki { font-family:"Zen Maru Gothic",sans-serif; font-weight:900; font-size:11pt; }
+
+/* 裏（C・D共通） */
+.k-ura .bgc { position:absolute; inset:0; background:#fff; }
+.k-ura h2 { font-size:8.4pt; font-weight:900; color:#0D3B5C; }
+.k-ura .body { display:grid; grid-template-columns:20mm 1fr; gap:3.2mm; margin-top:1.8mm; align-items:start; }
+.k-ura .qr img { width:20mm; height:20mm; }
+.k-ura .qr p { font-size:6.4pt; font-weight:700; color:#0D3B5C; text-align:center; margin-top:.6mm; }
+.k-ura ol { list-style:none; display:grid; gap:1.1mm; }
+.k-ura ol li { font-size:6.8pt; line-height:1.45; color:#13232E; display:grid; grid-template-columns:3.8mm 1fr; }
+.k-ura ol li::before { content:attr(data-n); width:3.2mm; height:3.2mm; border-radius:50%; background:#0D3B5C; color:#fff;
+                         font-size:5.6pt; font-weight:700; display:flex; align-items:center; justify-content:center; margin-top:.25mm; }
+.k-ura .tel { font-size:14pt; color:#0D3B5C; line-height:1; margin-top:1mm; }
+.k-ura .tel small { font-family:"BIZ UDPGothic",sans-serif; font-size:6.4pt; font-weight:400; color:#536A78; margin-left:.8mm; }
+.k-ura .price { margin-top:auto; font-size:6.4pt; color:#3C5262; padding-bottom:1.2mm; }
+.k-ura .foot { border-top:.25mm solid #D7E1E7; padding-top:1.3mm; display:flex; justify-content:space-between; align-items:baseline; }
+.k-ura .foot p { font-size:6.4pt; color:#3C5262; }
+.k-ura .foot p b { color:#C0300C; }
+.k-ura .foot .trust { font-size:6.4pt; color:#0D3B5C; font-weight:700; white-space:nowrap; }
+</style></head><body><section class="page m-omote"><div class="bgc"></div><div class="band"></div><div class="trim"><div class="safe">
+<div class="top"><b>ONE HITTER</b><span>ハウスクリーニング</span></div>
+<p class="quote maru">わたしが頼んで、<br><em>よかったお掃除屋さん</em>です。</p>
+<div class="from"><i></i><span>より</span></div>
+<p class="what">エアコン・お風呂・キッチン・洗濯機の分解洗浄／東京・千葉・神奈川</p>
+<p class="offer"><span>このカードで、初回のお掃除が</span><b class="num">1,000<span class="yen-u">円</span><span class="hiki">引き</span></b></p>
+</div></div></section><section class="page k-ura"><div class="bgc"></div><div class="trim"><div class="safe">
+<h2 class="maru">ご予約は、この2つのどちらかで</h2>
+<div class="body">
+  <div class="qr"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAApQAAAKUAQMAAACAATp/AAAABlBMVEUNO1z///9ObbWOAAACq0lEQVR42u3dTU7DMBAG0IgL5P63zA2MREGxZ8ZCOO4GPS9K26RvgRefJv47jtjO1r7+tle7vr++P/Yv7fvmoX0c+xuTyWQy/7f5CqC73R/rZLqv3uEVAH3EZDKZzMU8CukSQukuiKqrCdBHTCaTydyVR3fhdPW39E/pch0lj5hMJpO5NY/6UaNh/Kh/NjckkzxiMplM5oY8CuNHfRSFB3T5gvEjJpPJZL6tXPrTi/8nk8lkMh+3VrSUTMPN/buz+PWlj5hMJpO5kEfDkqJUKQ0f+1tCUHXzHvQRk8lkMreEUljnmqqio77lJ630EZPJZDIf5NFkNVEqiIZnc+NV9RGTyWQyl1uewh3m0k0DKBRTPwWWPmIymUzmWh5VGzLctVB6Vz3Su+QRk8lkMh+0fl+6ahDpTGuS0oU46VsfMZlMJnM1lFraG6haGRs2+VYfMZlMJvNNlVIaP2qz4yeu+qo8YjKZTOZyaTTNnmonu75VT/PkEZPJZDKXq6I8dBTepb3qpsNO8ojJZDKZi3lU10xnMZ+hzY5IatYfMZlMJvNRy+tc63lzeT5DOs3c/t5MJpPJfFIfpcWuR72xXX1SbFwyq4+YTCaTuZZHf9qkoTqvfMgtfcRkMpnM1Xb+9qguxU7+aPyIyWQymRvqo+oY2GoPof631fQGfcRkMpnMxdIovAsbqFb7qYb964ZySR8xmUwmc6E+qs6HDeuKWnEs+aSi0kdMJpPJ3FcunbPt7CYrkfp8Ux8xmUwmczGA0tKj4cJd/KTndXlRrDxiMplM5oOCqCqNpt+Fnx1jRukjJpPJZO7Jo1QaVa064fzwvI7JZDKZ76iPqgMm0r6rcYNwfcRkMpnMtTyabl3XT62rFsCGC8aPmEwmk7k/nvIgUsiePrKsP2IymUzmg/YJhVML6iAGKAYAAAAASUVORK5CYII=" alt=""><p>空き日を見る</p></div>
+  <div>
+    <ol>
+      <li data-n="1">QRを読み取り、空いている日を選ぶ</li>
+      <li data-n="2">「ご要望」の欄に、ご紹介者のお名前を書く</li>
+    </ol>
+    <p style="font-size:6.6pt;color:#3C5262;margin-top:1.6mm">お電話なら「紹介カードを見た」とお伝えください</p>
+    <p class="tel num">080-8043-8259<small>8:00〜20:00</small></p>
+  </div>
+</div>
+<p class="price">エアコン 10,780円〜／お風呂・キッチン 各18,480円／洗濯機 17,380円（税込）</p>
+<div class="foot">
+  <p>ご紹介くださった方も、次回<b>1,000円引き</b></p>
+  <span class="trust">★5.0 Googleクチコミ</span>
+</div>
+</div></div></section></body></html>
