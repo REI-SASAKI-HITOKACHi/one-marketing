@@ -245,6 +245,8 @@ footer a{color:var(--invert-ink);}
 .small-btns{display:flex;gap:8px;flex-wrap:wrap;}
 
 </style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DLJCTKGTDN"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());var oh_src=new URLSearchParams(location.search).get('src')||'direct';gtag('config','G-DLJCTKGTDN',{'lp_id':'tenken','traffic_src':oh_src});</script>
 </head>
 <body>
 <header class="bar">
@@ -388,6 +390,7 @@ var MENUS = [{"id": "A", "表示": "洗濯槽の裏側", "短": "洗濯槽", "�
       '気になること': $('f-note').value.trim(), '同意': '勧誘あり了解・個人情報の利用目的確認', '流入元': Q.get('src') || '', '送信時刻': new Date().toISOString() };
     sending = true; $('send').disabled = true; $('send').textContent = '送信しています…';
     postForm('tenken-moushikomi', atai, [], function(){
+      if (window.gtag) gtag('event','form_submit',{form_name:'tenken_moushikomi',traffic_src:Q.get('src')||'direct'});
       $('d-id').textContent = id; $('d-when').textContent = jpDate(state.slot.slice(0,10)) + ' ' + state.slot.slice(11);
       $('hikae').textContent = '点検：'+atai['点検メニュー']+'\n日時：'+atai['希望日時']+'\nご住所：'+addr;
       document.querySelectorAll('#f > .q:not(#done)').forEach(function(el){ el.hidden = true; }); document.querySelector('.intro').hidden = true;

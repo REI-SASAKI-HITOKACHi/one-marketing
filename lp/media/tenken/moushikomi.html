@@ -245,6 +245,8 @@ footer a{color:var(--invert-ink);}
 .small-btns{display:flex;gap:8px;flex-wrap:wrap;}
 
 </style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DLJCTKGTDN"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());var oh_src=new URLSearchParams(location.search).get('src')||'direct';gtag('config','G-DLJCTKGTDN',{'lp_id':'tenken','traffic_src':oh_src});</script>
 </head>
 <body>
 <header class="bar">
@@ -408,6 +410,7 @@ var WARIBIKI = {"1-2月": 0.15, "3-4月": 0.1, "8-10月": 0.1, "5-7月": 0.0, "1
       '書面': JSON.stringify(v), '送信時刻': new Date().toISOString(), '流入元': Q.get('src') || '点検' };
     sending = true; $('send').disabled = true; $('send').textContent = '送信しています…';
     postForm('tenken-keiyaku', atai, [], function(){
+      if (window.gtag) gtag('event','form_submit',{form_name:'tenken_keiyaku',traffic_src:Q.get('src')||'direct'});
       $('d-to').textContent = mail ? mail : 'LINE／SMS'; $('shomen').innerHTML = shomenHtml(v);
       document.querySelectorAll('#f > .q:not(#done)').forEach(function(el){ el.hidden = true; }); document.querySelector('.intro').hidden = true;
       $('done').hidden = false; window.scrollTo({top:0,behavior:'smooth'});

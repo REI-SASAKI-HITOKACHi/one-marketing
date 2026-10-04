@@ -45,6 +45,21 @@ OPTIONS = {"A": ["洗濯機 設置枠（防水パン）", "洗濯機 排水溝�
 SHOKEN = [("要洗浄", "洗浄をおすすめします"), ("様子見", "今回は様子見でよいと思います"), ("不要", "今回は不要です")]
 
 
+GA4_ID = "G-DLJCTKGTDN"   # LPと同じ測定ID（公式サイトとLPは同一プロパティ 381320625 の別ストリーム）。traffic_src は LP の予約ページと同じ書き方
+GA_TAG = (
+    '<script async src="https://www.googletagmanager.com/gtag/js?id=' + GA4_ID + '"></script>\n'
+    "<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());"
+    "var oh_src=new URLSearchParams(location.search).get('src')||'direct';"
+    "gtag('config','" + GA4_ID + "',{'lp_id':'tenken','traffic_src':oh_src});</script>\n"
+)
+
+
+def with_ga(html: str) -> str:
+    """<head> の終わりに GA4 タグを足す（2026-10-04 cmo 20261004-02：tenken に計測が無かった）。"""
+    assert html.count("</head>") == 1
+    return html.replace("</head>", GA_TAG + "</head>", 1)
+
+
 def css():
     return """
 .hero{display:flex;flex-direction:column;gap:10px;}
@@ -224,6 +239,7 @@ var MENUS = {json.dumps(MENUS, ensure_ascii=False)};
       '気になること': $('f-note').value.trim(), '同意': '勧誘あり了解・個人情報の利用目的確認', '流入元': Q.get('src') || '', '送信時刻': new Date().toISOString() }};
     sending = true; $('send').disabled = true; $('send').textContent = '送信しています…';
     postForm('{FORM_MOUSHIKOMI}', atai, [], function(){{
+      if (window.gtag) gtag('event','form_submit',{{form_name:'tenken_moushikomi',traffic_src:Q.get('src')||'direct'}});
       $('d-id').textContent = id; $('d-when').textContent = jpDate(state.slot.slice(0,10)) + ' ' + state.slot.slice(11);
       $('hikae').textContent = '点検：'+atai['点検メニュー']+'\\n日時：'+atai['希望日時']+'\\nご住所：'+addr;
       document.querySelectorAll('#f > .q:not(#done)').forEach(function(el){{ el.hidden = true; }}); document.querySelector('.intro').hidden = true;
@@ -233,7 +249,7 @@ var MENUS = {json.dumps(MENUS, ensure_ascii=False)};
 }})();
 </script>
 """ + hidden_form(FORM_MOUSHIKOMI, ["受付番号", "点検メニュー", "洗濯機の種類", "希望日時", "お名前", "お電話番号", "ご住所", "メール", "気になること", "同意", "流入元", "送信時刻"])
-    return C.head("頼む前に、無料で中を見ます｜ワンヒッターの無料点検", "洗濯槽の裏側と追い焚き配管の中を、内視鏡カメラとATP測定器でその場でお見せします。点検だけなら無料。汚れていなければ「今回は不要」とお伝えします。", BRAND, BRAND_SUB, css()) + body + C.foot(BRAND, "点検は本人のお申込みがあったお宅にだけ伺います。飛び込み・電話勧誘はしません。")
+    return with_ga(C.head("頼む前に、無料で中を見ます｜ワンヒッターの無料点検", "洗濯槽の裏側と追い焚き配管の中を、内視鏡カメラとATP測定器でその場でお見せします。点検だけなら無料。汚れていなければ「今回は不要」とお伝えします。", BRAND, BRAND_SUB, css()) + body + C.foot(BRAND, "点検は本人のお申込みがあったお宅にだけ伺います。飛び込み・電話勧誘はしません。"))
 
 
 # ---------------------------------------------------------------- 現場フォーム
@@ -348,7 +364,7 @@ var MENUS = {json.dumps(MENUS, ensure_ascii=False)};
 }})();
 </script>
 """ + hidden_form(FORM_GENBA, ["受付番号", "お名前", "見た場所", "メニューID", "きっかけ", "機種年数", "ATP", "所見", "一言", "その場の案内", "送信時刻"], files=5, videos=1)
-    return C.head("現場フォーム｜無料点検", "スタッフ用", BRAND, BRAND_SUB, css()) + body + C.foot(BRAND, "スタッフ用ページ")
+    return with_ga(C.head("現場フォーム｜無料点検", "スタッフ用", BRAND, BRAND_SUB, css()) + body + C.foot(BRAND, "スタッフ用ページ"))
 
 
 # ---------------------------------------------------------------- 契約書面の共通部品
@@ -499,6 +515,7 @@ var WARIBIKI = {json.dumps({k: v for k, v in waribiki.items() if not k.startswit
       '書面': JSON.stringify(v), '送信時刻': new Date().toISOString(), '流入元': Q.get('src') || '点検' }};
     sending = true; $('send').disabled = true; $('send').textContent = '送信しています…';
     postForm('{FORM_KEIYAKU}', atai, [], function(){{
+      if (window.gtag) gtag('event','form_submit',{{form_name:'tenken_keiyaku',traffic_src:Q.get('src')||'direct'}});
       $('d-to').textContent = mail ? mail : 'LINE／SMS'; $('shomen').innerHTML = shomenHtml(v);
       document.querySelectorAll('#f > .q:not(#done)').forEach(function(el){{ el.hidden = true; }}); document.querySelector('.intro').hidden = true;
       $('done').hidden = false; window.scrollTo({{top:0,behavior:'smooth'}});
@@ -507,7 +524,7 @@ var WARIBIKI = {json.dumps({k: v for k, v in waribiki.items() if not k.startswit
 }})();
 </script>
 """ + hidden_form(FORM_KEIYAKU, ["申込番号", "受付番号", "お名前", "お電話番号", "ご住所", "メール", "役務", "点検メニュー", "オプション", "希望日", "時間帯", "合計", "割引率", "電磁的交付の承諾", "クーリングオフ説明", "書面", "送信時刻", "流入元"])
-    return C.head("クリーニングのお申込み｜ワンヒッター 無料点検", "無料点検の場でのお申込み", BRAND, BRAND_SUB, css()) + body + C.foot(BRAND, "お申込み後8日間は無条件でキャンセルできます。")
+    return with_ga(C.head("クリーニングのお申込み｜ワンヒッター 無料点検", "無料点検の場でのお申込み", BRAND, BRAND_SUB, css()) + body + C.foot(BRAND, "お申込み後8日間は無条件でキャンセルできます。"))
 
 
 # ---------------------------------------------------------------- 契約書面（印刷用）
@@ -533,7 +550,7 @@ def build_shomen() -> str:
 }})();
 </script>
 """
-    return C.head("申込書面｜ワンヒッター", "契約書面", BRAND, BRAND_SUB, css()) + body + C.foot(BRAND, "")
+    return with_ga(C.head("申込書面｜ワンヒッター", "契約書面", BRAND, BRAND_SUB, css()) + body + C.foot(BRAND, ""))
 
 
 def build_unei() -> str:
