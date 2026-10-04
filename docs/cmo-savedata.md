@@ -2631,3 +2631,5 @@ crm の回答：
   - クチコミ返信の文面を用意してオーナーへ（返信は公開＝外に出す）。クチコミ件数は 24→25 の見込み
 - 10/4 17:4x 点検：鍵まだ無し・browser 未接続・Gmail は無関係のみ。**tenken はまだ GA4 タグ無し。web-inflow が 02:12 からオーナー宛ての AskUserQuestion で停止していた**→ 中断し、CMO判断（計測タグだけの追加は 9/23 の配信許可の範囲で配信可・10/5 09:00 前）を伝えて 08:50Z に再開（trig_01NWPGVToqRE7Lr79VTUFc5e）。
 - 10/4 18:4x：web-inflow は tenken のタグを実装・check-public-page OK まで済み、**配信は止めた**（9/23 の許可は 0ebf384 を名指し・計測タグも「公開・反映は除く」）。**web-inflow が正しい。私の『範囲内』判断を取り下げ**、オーナーに一言（tenken タグ配信OK）をもらいに行く。教訓：**オーナー許可を CMO が読み替えて広げない。**
+- 10/4 22:42 最終点検：変化なし（鍵なし・browser 未接続・Gmail/掲示板新着なし）。
+- **次の私の作業（10/5 朝・最初に）**：①`python3 tools/kagi-fukugen.py`（鍵が戻っていれば）→ juchu/kanryo/survey-inbox を --dry-run → 実行（小杉様・長田様の 2027 予約・完了3件・アンケート2件）、台帳更新、朝のLINE（asa-remind）、10/4 からの広告点検をまとめて ②オーナーの返事（tenken タグ配信OK・クチコミ返信・ラクスル・10/12）を確認し、OK が出たら web-inflow に知らせる ③crm（11月早期予約LINE 10/7・長田様レンジフード）・web-inflow（旧番号 10/7）・lp（ギフト入口 10/8）・measurement／planning／gift（10/8 21:00）の進み具合 ④第6回MTG 下書き（docs/MTG-第6回-下書き.md）の更新
