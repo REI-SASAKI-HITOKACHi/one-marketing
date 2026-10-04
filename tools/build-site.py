@@ -611,6 +611,9 @@ def make_og(src: pathlib.Path, dst: pathlib.Path, line1: str, line2: str) -> Non
     out.save(dst, quality=82, optimize=True, progressive=True)
 
 
+# ギフトの入口を入れるページ（承認が出るまで空。build_page の中の説明を参照）
+GIFT_PAGES: set = set()
+
 # 担当者のイラスト（和真さん本人の確認が済んだものだけをここに置く）。
 # 作り方は tools/make-staff-illust.py の冒頭を参照。写真そのものは置かない。
 STAFF_IL = ROOT / "lp" / "_staff" / "staff.svg"
@@ -662,6 +665,15 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict)
     # 登録している掲載先のLPにだけ出る。
     doc = doc.replace("</body>", tracking_body() + order_id_script(meta["dir"])
                    + rentracks_lp(cfg, meta["dir"]) + "\n</body>", 1)
+
+    # ギフトの「お知らせを受け取る」入口（lp/_parts/gift-oshirase.html）。
+    # 掲出はオーナー承認事項（依頼 20261004-02-lp）。承認が出たら GIFT_PAGES に "nenmatsu" を足す。
+    # 空のあいだはどのページにも入らない（別の用事の配信で一緒に公開されないように）。
+    if meta["dir"] in GIFT_PAGES:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("insert_gift", ROOT / "tools" / "insert-gift.py")
+        mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+        doc = mod.insert(doc)
 
     # 予約ページ（別ホスト）への引き継ぎに、どのLPから来たか（lp）を足す。
     # src・cid・ag・gclid は今の版と学習版で同じ値になり、A/B を区別できないため
