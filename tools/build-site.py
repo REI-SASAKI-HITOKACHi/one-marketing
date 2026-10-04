@@ -663,6 +663,13 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict)
     doc = doc.replace("</body>", tracking_body() + order_id_script(meta["dir"])
                    + rentracks_lp(cfg, meta["dir"]) + "\n</body>", 1)
 
+    # 予約ページ（別ホスト）への引き継ぎに、どのLPから来たか（lp）を足す。
+    # src・cid・ag・gclid は今の版と学習版で同じ値になり、A/B を区別できないため
+    # （measurement 依頼 20261003-08-lp）。値はフォームの隠し欄 lp と同じ meta["dir"]。
+    HIKITSUGU = "var hikitsugu = { src: src,"
+    if HIKITSUGU in doc:
+        doc = doc.replace(HIKITSUGU, "var hikitsugu = { lp: '" + meta["dir"] + "', src: src,", 1)
+
     # 申込内容のまとめと見積の隠し項目。受付番号のスクリプトより後ろに入る。
     # Netlify のフォームだけ（ほかの出し先は受け口が違う）
     if target == "netlify":

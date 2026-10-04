@@ -1065,7 +1065,7 @@ legend{font-size:12px;font-weight:700;color:var(--steel);letter-spacing:.06em;pa
       var u;
       try { u = new URL(a.href, location.href); } catch (e) { return; }
       if (!BESSITE.test(u.hostname)) return;
-      var hikitsugu = { src: src, cid: cid, ag: ag, gclid: gclid };
+      var hikitsugu = { lp: 'aircon-d', src: src, cid: cid, ag: ag, gclid: gclid };
       Object.keys(hikitsugu).forEach(function (k) {
         // すでにURLに書いてあるものは、書いた人の意図を優先して上書きしない
         if (hikitsugu[k] && !u.searchParams.has(k)) u.searchParams.set(k, hikitsugu[k]);
