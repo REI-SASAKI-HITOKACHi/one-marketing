@@ -2620,3 +2620,4 @@ crm の回答：
   - 対策：**`tools/kagi-fukugen.py`**（クラウド環境の環境変数 → 鍵ファイル）。**セッションの最初に必ず `python3 tools/kagi-fukugen.py`**。起動時に自動で走らせるフック（.claude/settings.json）は自動判定で拒否されたので、オーナー判断
   - **要オーナー：クラウド環境の設定（タイトルバーの環境メニュー → 編集）で環境変数を登録**：GOOGLE_SHEETS_SA_KEY・NETLIFY_TOKEN・LINE_CHANNEL_TOKEN・LINE_GROUP_ID（＋あれば LINE_OFFICIAL_TOKEN・LINE_MEMBERS_JSON・GBP_JSON・CMS_JSON）。鍵をチャットに貼ってもらわない
   - 鍵が戻るまでの間に届いたもの（Gmail で確認）：受注フォーム 小杉様 2027-04-25 早期予約（エアコン ¥9,702）／アンケート回答（洗濯機・NPS10・次はエアコン3〜4月）。鍵が戻れば juchu-inbox・survey-inbox が拾う（未取り込みのまま残る）
+- 10/4 13:4x 毎時点検：鍵はまだ無い（環境変数の登録待ち）・Gmail新着なし・browser 未接続（10/4 01:52 以降オーナーPCが閉じた。ラクスル・IG・GBP 10/12 は未了のまま）。**第6回MTGの下書き docs/MTG-第6回-下書き.md**（N-1〜N-9。スプシへは鍵が戻ってから転記）。
