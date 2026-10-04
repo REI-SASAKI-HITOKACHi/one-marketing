@@ -2614,3 +2614,9 @@ crm の回答：
   - gift：**年末LPのギフト入口の lp への実装依頼が抜けていた（私の落ち）→ 10/8 21:00 までに実装のみで依頼**。掲出①はオーナー承認事項。CMO決定：商品の形は予約代行型／連結型、年末はワンヒッター名義で試す。②③は10月末の①の結果次第。受け側の郵便番号再判定は私が作る
 - 🔴 **8回目（10/4 10時台）**：savedata をプッシュして黙って終え、「Continue」に空返事。**ターン末の報告文を書かなかった。**
 - 10/4 11時前 browser から：ラクスル未入稿（オーナーに再依頼）・IG は instagram.com が拒否されオーナー操作に渡した・GBP 10/12 はオーナーの答え待ち。**第三者のまとめサイト（kumo-citylist.com 等）に旧番号 080-1755-7275・「不定休、24時間営業」**→ 直すと決定、洗い出しは web-inflow（10/7 21:00・送信しない）。browser への返事は掲示板（cloud セッションからの直接メッセージは不可）。
+- 🔴 **9回目（10/4 11時台）**：「Continue」に空返事。
+- 🔴🔴 **10/4 昼、CMO のコンテナが作り直され `~/.config/one-hitter/` が丸ごと消えた**（LINE・Netlify・SA・GBP・CMS の鍵すべて）。あわせて手元の作業ブランチが lp の履歴（origin/claude/lp-outline-presentation-8fahl3）に入れ替わっていた → `git checkout -B claude/one-hitter-cmo-strategy-5qk4ux origin/...` で戻した（リモートは無事・手元だけのコミット無し）。
+  - 影響：取り込み（予約・受注・完了・アンケート・アルバイト）、朝のLINE、台帳更新、毎時点検が止まる。点検の「LINE未読あり」は鍵が無いことによる誤検知
+  - 対策：**`tools/kagi-fukugen.py`**（クラウド環境の環境変数 → 鍵ファイル）。**セッションの最初に必ず `python3 tools/kagi-fukugen.py`**。起動時に自動で走らせるフック（.claude/settings.json）は自動判定で拒否されたので、オーナー判断
+  - **要オーナー：クラウド環境の設定（タイトルバーの環境メニュー → 編集）で環境変数を登録**：GOOGLE_SHEETS_SA_KEY・NETLIFY_TOKEN・LINE_CHANNEL_TOKEN・LINE_GROUP_ID（＋あれば LINE_OFFICIAL_TOKEN・LINE_MEMBERS_JSON・GBP_JSON・CMS_JSON）。鍵をチャットに貼ってもらわない
+  - 鍵が戻るまでの間に届いたもの（Gmail で確認）：受注フォーム 小杉様 2027-04-25 早期予約（エアコン ¥9,702）／アンケート回答（洗濯機・NPS10・次はエアコン3〜4月）。鍵が戻れば juchu-inbox・survey-inbox が拾う（未取り込みのまま残る）
