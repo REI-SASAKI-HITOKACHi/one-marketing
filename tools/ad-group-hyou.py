@@ -47,6 +47,24 @@ IDは数字なので、`--ag-name ID=名前` で名前を付けられます（Go
 「増額条件」の列に ○／×／クリック不足 を出す。
 100回を超えたら、同じ確からしさ（送信率の片側80%下限が 2.73% 以上）で必要件数を数え直す（150回なら7件）。
 
+## 10/9 判定：LP別の落ち方と結論（`--kazu`）
+
+Google広告とGA4の数字（このリポジトリからは読めない）を JSON で渡すと、
+LP別の「費用・クリック・LP到達・予約ページ到達・申込・受注・CPA」と、結論（据え置き／増額を提案／止める）を出す。
+
+```json
+{"A_エアコン:今の版": {"hiyou": 5000, "click": 40, "lp": 38, "yoyaku": 3},
+ "A_エアコン:学習版": {"hiyou": 5200, "click": 42, "lp": 40, "yoyaku": 6}}
+```
+- `hiyou` `click`：Google広告（テスト画面の元の広告／バリエーション、または広告ごと）
+- `lp`：GA4 の LP の page_view（`src=gads_*`）
+- `yoyaku`：GA4 の yoyaku.onehitter.jp の page_view（`src=gads_*`）
+
+結論の決め方（機械で決める。人が上書きするなら理由を書く）：
+- **増額を提案**：増額条件（クリック100で申込5件）を満たし、受注が1件以上ある版がある。**実行は嶺さんに確認してから**
+- **止める**：広告全体でクリック200以上・申込0件（LPか計測が壊れている疑い。直すまで止める）
+- **据え置き**：それ以外
+
 ## 予約ページ（予約カレンダー）経由の申込
 
 `src=gads_*` で予約ページに着いた申込も数える（`src` で広告と分かるため）。
@@ -155,6 +173,8 @@ def main():
                     help="版ごとのクリック数（Google広告のテスト画面から）。付けると増額条件の当否を出す")
     ap.add_argument("--kotei", action="append", default=[], metavar="注文ID=名前:版:LP",
                     help="経路を人が判断した申込を、指定の広告グループ・版に入れる（例：LINE経由で予約した広告客）")
+    ap.add_argument("--kazu", metavar="JSON",
+                    help="版ごとの広告・GA4の数字（費用・クリック・LP到達・予約ページ到達）。付けると判定と結論を出す")
     ap.add_argument("--chuki", action="append", default=[], metavar="文",
                     help="表の下に足す注記（何度でも）")
     ap.add_argument("--kouko-dake", action="store_true",
@@ -231,6 +251,8 @@ def main():
     print("# 広告グループ別の申込・受注・受注額\n")
     if not hyou:
         print("**広告経由の申込がありません**（`src` が `gads` で始まる行が0件）。")
+        if args.kazu:
+            hantei(hyou, args.kazu)
         return
     print("| 広告グループ | 版 | LP | 申込 | 受注 | 受注額 | 費用 | 申込CPA | 受注CPA | 費用対受注額 | 増額条件 |")
     print("|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|")
@@ -264,6 +286,8 @@ def main():
         print("> ＊ の行は、経路を人が判断して入れた申込（`--kotei`）。広告のクリックIDが無いので、オフラインCVの取り込みには入らない。")
     for c in args.chuki:
         print("> " + c)
+    if args.kazu:
+        hantei(hyou, args.kazu)
     kakuteimae = sum(1 for k in hyou if k[0].startswith("（ag なし"))
     print("\n> **受注は「★売上（税込）が入った件数」です。** 施工前・入金前の申込は、まだ受注に数えていません。")
     print("> **件数が少ないうちは、1件の違いでCPAが大きく動きます。** 10/9 の判定では件数と一緒に読んでください。")
@@ -277,6 +301,67 @@ def main():
               "`--hiyou 名前:今の版=円 --hiyou 名前:学習版=円` で渡してください。")
     if kakuteimae:
         print("> ⚠️ `ag` が空の広告経由の申込があります。**`?ag=` の受け側が入る前（9/28 より前）の申込**の可能性があります。")
+
+
+def hantei(hyou, kazu_path):
+    import json
+    kazu = json.loads(pathlib.Path(kazu_path).read_text(encoding="utf-8"))
+    matome = {}
+    for (ag, b, _lp), h in hyou.items():
+        m = matome.setdefault(f"{ag}:{b}", {"moushi": 0, "juchu": 0, "gaku": 0})
+        for k in m:
+            m[k] += h[k]
+
+    def wari(a, b):
+        return f"{a / b * 100:.0f}%" if b else "—"
+
+    print("\n## LP別の落ち方（10/9 判定）\n")
+    print("| LP（広告グループ:版） | 費用 | クリック | LP到達 | 予約ページ到達 | 申込 | 受注 | 受注額 | 申込CPA | 受注CPA | 増額条件 |")
+    print("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|")
+    zen_click = zen_moushi = 0
+    teian = []
+    ochi = []
+    for name in sorted(set(kazu) | set(matome)):
+        k = kazu.get(name, {})
+        m = matome.get(name, {"moushi": 0, "juchu": 0, "gaku": 0})
+        hy, cl = k.get("hiyou"), k.get("click")
+        lp, yy = k.get("lp"), k.get("yoyaku")
+        z = zouka_hantei(m["moushi"], cl)
+        if cl:
+            zen_click += cl
+        zen_moushi += m["moushi"]
+        if z.startswith("○") and m["juchu"] >= 1:
+            teian.append(name)
+        if cl and lp is not None:
+            ochi.append((name, cl, lp, yy, m["moushi"]))
+        cpa = lambda n: f"{hy // n:,}円" if hy and n else "—"
+        print(f"| {name} | {f'{hy:,}円' if hy else '—'} | {cl if cl is not None else '—'} | "
+              f"{lp if lp is not None else '—'}（{wari(lp or 0, cl)}） | "
+              f"{yy if yy is not None else '—'}（{wari(yy or 0, lp)}） | {m['moushi']} | {m['juchu']} | "
+              f"{m['gaku']:,}円 | {cpa(m['moushi'])} | {cpa(m['juchu'])} | {z} |")
+    print("\n（ ）内は、ひとつ前の段からの通過率。LP到達はクリックに対して、予約ページ到達はLP到達に対して）")
+
+    print("\n## どこで落ちているか\n")
+    for name, cl, lp, yy, mo in ochi:
+        dan = [("クリック→LP到達", lp / cl if cl else None)]
+        if yy is not None and lp:
+            dan.append(("LP→予約ページ", yy / lp))
+            dan.append(("予約ページ→申込", mo / yy if yy else None))
+        elif lp:
+            dan.append(("LP→申込", mo / lp))
+        dan = [d for d in dan if d[1] is not None]
+        if dan:
+            warui = min(dan, key=lambda d: d[1])
+            print(f"- {name}：いちばん落ちている段は **{warui[0]}（{warui[1] * 100:.0f}%）**")
+
+    print("\n## 結論\n")
+    if teian:
+        print(f"**増額を提案**：{'、'.join(teian)} が増額条件（クリック100で申込5件）を満たし、受注もある。"
+              "**実行の前に嶺さんに確認する**（MTG 5-4）。")
+    elif zen_click >= 200 and zen_moushi == 0:
+        print(f"**止める**：広告全体でクリック {zen_click} 回・申込0件。LPか計測が壊れている疑いがあるので、直すまで止める。")
+    else:
+        print(f"**据え置き**：増額条件を満たした版が無い（広告全体でクリック {zen_click} 回・申込 {zen_moushi} 件）。日予算はそのまま。")
 
 
 if __name__ == "__main__":

@@ -97,4 +97,22 @@ r = subprocess.run([sys.executable, str(TOOL), str(tmp / "k.csv"), "--kotei", "O
 chk("--kotei でLINE経由の広告客を指定の版に入れる", "| B_浴室 | 今の版 | mizumawari＊ | 1 | 1 | 9,702円 |" in r.stdout and "取り込みには入らない" in r.stdout, r.stdout)
 chk("--kotei に無い line の行は数えない", "| **合計** | | | **1** |" in r.stdout)
 
+# 10/9 判定（--kazu）
+import json
+(tmp / "kz.json").write_text(json.dumps({"A_エアコン:学習版": {"hiyou": 26200, "click": 100, "lp": 90, "yoyaku": 9},
+                                         "A_エアコン:今の版": {"hiyou": 15000, "click": 60, "lp": 55, "yoyaku": 2}}), encoding="utf-8")
+(tmp / "kz.csv").write_text("注文ID,src,ag,lp,★売上（税込）\n" + "".join(f"OH-a{i},gads_aircon,222,aircon-c,{'10780' if i == 0 else ''}\n" for i in range(5)), encoding="utf-8")
+r = subprocess.run([sys.executable, str(TOOL), str(tmp / "kz.csv"), "--ag-name", "222=A_エアコン", "--kazu", str(tmp / "kz.json")], capture_output=True, text=True)
+out = r.stdout
+chk("判定表：学習版の行（到達率つき）", "| A_エアコン:学習版 | 26,200円 | 100 | 90（90%） | 9（10%） | 5 | 1 |" in out, out[-1500:])
+chk("結論：増額を提案（嶺さんに確認）", "**増額を提案**" in out and "嶺さんに確認" in out)
+chk("どこで落ちているか", "いちばん落ちている段" in out)
+(tmp / "kz2.json").write_text(json.dumps({"A_エアコン:今の版": {"click": 120, "lp": 110}, "A_エアコン:学習版": {"click": 110, "lp": 100}}), encoding="utf-8")
+(tmp / "kz2.csv").write_text("注文ID,src,ag,lp,★売上（税込）\nOH-1,gbp,,,\n", encoding="utf-8")
+r = subprocess.run([sys.executable, str(TOOL), str(tmp / "kz2.csv"), "--kazu", str(tmp / "kz2.json")], capture_output=True, text=True)
+chk("結論：クリック200以上・申込0なら止める", "**止める**" in r.stdout, r.stdout[-800:])
+(tmp / "kz3.json").write_text(json.dumps({"A_エアコン:今の版": {"click": 50, "lp": 45}}), encoding="utf-8")
+r = subprocess.run([sys.executable, str(TOOL), str(tmp / "kz2.csv"), "--kazu", str(tmp / "kz3.json")], capture_output=True, text=True)
+chk("結論：それ以外は据え置き", "**据え置き**" in r.stdout, r.stdout[-800:])
+
 print("\n" + ("すべて通りました" if ok else "失敗あり")); sys.exit(0 if ok else 1)
