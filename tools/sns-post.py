@@ -235,9 +235,11 @@ def ig_post(entry: dict, urls: list[str], only_container: bool) -> dict:
 
 def fb_message(entry: dict) -> str:
     """Facebook用の本文。ハッシュタグの行は外す（Facebookでは効かず、宣伝臭くなる）。末尾にLPのリンク（?src=fb）"""
-    lines = [ln for ln in entry["caption"].splitlines() if not ln.strip().startswith("#")]
+    # fb_caption / fb_link があればそちらを使う（IGは「プロフィールのリンクから」と書くが、Facebookの本文にはURLをそのまま置けるため）
+    lines = [ln for ln in entry.get("fb_caption", entry["caption"]).splitlines() if not ln.strip().startswith("#")]
     body = "\n".join(lines).rstrip()
-    return body + ("\n\n" + entry["link"] if entry.get("link") else "")
+    link = entry.get("fb_link", entry.get("link"))
+    return body + ("\n\n" + link if link else "")
 
 
 def fb_post(entry: dict, urls: list[str]) -> dict:
