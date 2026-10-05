@@ -182,7 +182,8 @@ def build() -> str:
             3: souki["3-4月"], 4: souki["3-4月"],
             5: souki["5-7月"], 6: souki["5-7月"], 7: souki["5-7月"],
             8: souki["8-10月"], 9: souki["8-10月"], 10: souki["8-10月"],
-            11: souki["11-12月"], 12: souki["11-12月"],
+            # 2026-10-03 第5回MTG オーナー決定「11月も10%引きにする」→ 11月は 8〜10月と同じ率。12月だけ無し
+            11: souki["11月"], 12: souki["12月"],
         },
         "netTokuten": NET_TOKUTEN,
         "api": API_URL,
@@ -903,7 +904,8 @@ TEMPLATE = r"""<!doctype html>
   function keiroHozon(){
     var q = new URLSearchParams(location.search);
     var mitsuketa = {};
-    ['src', 'cid', 'gclid', 'wbraid', 'gbraid'].forEach(function(k){
+    // ag（広告グループ）と lp（どのLPから来たか）も残す。10/9 の版別の判定に要る（measurement 20261003-04-cmo）
+    ['src', 'cid', 'gclid', 'wbraid', 'gbraid', 'ag', 'lp'].forEach(function(k){
       var v = q.get(k);
       if (v) { mitsuketa[k] = v; }
     });
@@ -946,6 +948,9 @@ TEMPLATE = r"""<!doctype html>
       '流入元': keiro('src') || (new URLSearchParams(location.search)).get('src') || '',
       '広告のクリックID': keiro('gclid') || keiro('wbraid') || keiro('gbraid') || hiroGclid(),
       '広告のキャンペーンID': keiro('cid'),
+      '広告グループ': keiro('ag'),
+      'LP': keiro('lp'),
+      'クリックIDの種類': keiro('gclid') ? 'gclid' : keiro('wbraid') ? 'wbraid' : keiro('gbraid') ? 'gbraid' : '',
       '空き枠の取得時刻': (slotsCache && slotsCache.generated) || '',
     };
     var body = Object.keys(atai).map(function(kk){
@@ -1004,6 +1009,9 @@ TEMPLATE = r"""<!doctype html>
   <input type="text" name="流入元">
   <input type="text" name="広告のクリックID">
   <input type="text" name="広告のキャンペーンID">
+  <input type="text" name="広告グループ">
+  <input type="text" name="LP">
+  <input type="text" name="クリックIDの種類">
   <input type="text" name="空き枠の取得時刻">
 </form>
 

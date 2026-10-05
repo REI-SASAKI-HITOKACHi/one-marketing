@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>作業完了｜社内用</title>
+<title>業務報告（アルバイト）｜社内用</title>
 <style>
  :root{--ao:#1565c0;--fuchi:#d5dce3;--usu:#f6f8fa;--moji:#1a2330;--gure:#5b6876;--aka:#c62828;--midori:#2e7d32}
  *{box-sizing:border-box}
@@ -87,10 +87,11 @@
  body.sumi #honbun,body.sumi .soku,body.sumi #okyaku{display:none}
  .owari .maru{font-size:48px}
  .hp{position:absolute;left:-9999px}
-</style></head><body>
+ .bk{display:none!important}
+</style></head><body onload="var t=document.getElementById('tsugi');if(t){t.click();}">
 
 <!-- ============ 画面1：お客様に見せる ============ -->
-<div id="okyaku">
+<div id="okyaku" class="bk">
   <div class="byou jisha" hidden>所要 30秒</div>
   <h1>本日はありがとう<br>ございました</h1>
   <p class="rei" id="rei">またのご利用を心よりお待ちしております。</p>
@@ -106,7 +107,7 @@
 </div>
 
 <!-- ============ 画面2：作業完了フォーム本編 ============ -->
-<header style="display:none" id="head"><b>作業完了フォーム</b><span>社内用。お客様には出しません</span></header>
+<header style="display:none" id="head"><b>業務報告（アルバイト）</b><span>社内用。1日の終わりに、現場ごとに送ってください</span></header>
 
 <div class="w" id="honbun">
 
@@ -120,9 +121,9 @@
   </div>
   <div class="juchu" id="juchu">受注の内容が読み込めませんでした。手で入れてください。</div>
   <div id="te-name-box" hidden>
-    <label>お客様のお名前<span class="hitsu">必須</span></label>
-    <input type="text" id="te-name" placeholder="例）山本　美佑紀">
-    <p class="err" id="e-name">お名前を入れてください</p>
+    <label>現場（地域・やったメニュー）<span class="hitsu">必須</span></label>
+    <input type="text" id="te-name" placeholder="例）江戸川区　エアコン2台・浴室">
+    <p class="err" id="e-name">現場を入れてください（お客様のお名前は書かなくて大丈夫です）</p>
   </div>
 </section>
 
@@ -145,7 +146,7 @@
   <p class="chu" id="jitsu-chu"></p>
 </section>
 
-<section>
+<section class="bk">
   <h2>3　施工内容<span class="hitsu">やったものにチェック</span></h2>
   <div id="naiyo"></div>
   <p class="err" id="e-naiyo">1つ以上チェックしてください</p>
@@ -198,17 +199,17 @@
   </div>
 </section>
 
-<section>
+<section class="bk">
   <h2>5　現場での確認</h2>
   <div id="kaku"></div>
 </section>
 
 <section>
-  <h2>6　お客様のこと（任意）</h2>
+  <h2>6　今日の報告</h2>
   <label>覚えておきたいこと</label>
   <textarea id="shuhen" placeholder="例）犬を飼っている／小さいお子さんがいる／来客が多い／エアコンの下に仏壇"></textarea>
   <p class="chu">顧客台帳に移します。次にうかがうときの案内が変わります。</p>
-  <label>現場で判断に迷ったこと（任意）</label>
+  <label>今日の気付き・改善点・判断に迷ったこと・連絡事項</label>
   <textarea id="mayoi" placeholder="例）追加を勧めてよいか分からなかった／料金の聞かれ方に困った"></textarea>
 </section>
 
@@ -224,9 +225,9 @@
   <p class="chu">写真と内容はマーケ部長に届きました。<br>売上シートへは1時間以内に入ります。</p>
 </div>
 
-<form hidden method="post" name="kanryo" data-netlify="true" netlify-honeypot="bot-field"
+<form hidden method="post" name="baito" data-netlify="true" netlify-honeypot="bot-field"
       enctype="multipart/form-data">
-  <input type="hidden" name="form-name" value="kanryo">
+  <input type="hidden" name="form-name" value="baito">
   <input type="text" name="bot-field">
   <input type="text" name="受注ID"><input type="text" name="台帳"><input type="text" name="氏名">
   <input type="text" name="売上種類"><input type="text" name="施工日付">
@@ -250,9 +251,9 @@
 </form>
 
 <!-- 写真の続き（1回の送信は Netlify の上限 約8MB。2026-09-29 レジェンド様の分が超えて送れなかった → 分けて送る） -->
-<form hidden method="post" name="kanryo-shashin" data-netlify="true" netlify-honeypot="bot-field"
+<form hidden method="post" name="baito-shashin" data-netlify="true" netlify-honeypot="bot-field"
       enctype="multipart/form-data">
-  <input type="hidden" name="form-name" value="kanryo-shashin">
+  <input type="hidden" name="form-name" value="baito-shashin">
   <input type="text" name="bot-field">
   <input type="text" name="受注ID"><input type="text" name="台帳"><input type="text" name="氏名">
   <input type="text" name="施工日付"><input type="text" name="開始番号"><input type="text" name="入力日時">
@@ -267,7 +268,8 @@
   var HITOHAKO = 4 * 1024 * 1024, HAKO_MAI = 20;
   var shashin = [];       // {blob, puri}
   var tsuikaHai = [];     // {na, kin, kazu}
-  var jotai = { kure:'' };
+  var jotai = { kure:'', shiharai:'（アルバイト報告）' };
+  document.body.classList.add('sumi-baito');
   var J = null;           // 受注の内容（URLの # から）
 
   var KAKUNIN = [
@@ -595,7 +597,7 @@
     var jissai = parseInt($('jissai').value || '0', 10) || 0;
     var fd = new FormData();
     var atai = {
-      'form-name': 'kanryo',
+      'form-name': 'baito',
       '受注ID': (J && J.i) || '',
       '台帳': (J && J.r) || '',
       '氏名': (J && J.n) || $('te-name').value.trim(),
@@ -636,7 +638,7 @@
     function tsuzuki(n){
       if (n >= hako.length) { return Promise.resolve(); }
       var f2 = new FormData();
-      f2.append('form-name', 'kanryo-shashin');
+      f2.append('form-name', 'baito-shashin');
       ['受注ID','台帳','氏名','施工日付','入力日時'].forEach(function(k){ f2.append(k, atai[k]); });
       f2.append('開始番号', String(hako[n][0] + 1));
       hako[n].forEach(function(i, j){

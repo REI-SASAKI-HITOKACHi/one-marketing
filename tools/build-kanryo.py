@@ -60,6 +60,43 @@ def qr_data_uri(url):
     return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
 
 
+OUT_BAITO = ROOT / "lp" / "baito" / "index.html"
+
+
+def baito_dasu(html: str) -> None:
+    """アルバイト用の業務報告フォーム（T062）。作業完了フォームを元に、金額・お支払い・現場での確認を隠し、
+    お客様のお名前の代わりに「現場（地域・メニュー）」を書いてもらう。送信先は Netlify の baito / baito-shashin。
+    2026-10-03 第5回MTG オーナー「アルバイト用の業務報告フォームが欲しい。これも二人へ通知が必要」、
+    和真さん「お客様名と値段が見えちゃうから、それをなくす。写真もそれで投げれるように」「現場での確認はいらない」。"""
+    def rep(a, b, n=1):
+        nonlocal html
+        assert html.count(a) >= 1, a[:40]
+        html = html.replace(a, b) if n == 0 else html.replace(a, b, n)
+    rep("<title>作業完了｜社内用</title>", "<title>業務報告（アルバイト）｜社内用</title>")
+    rep("</style></head>", " .bk{display:none!important}\n</style></head>")
+    rep('<div id="okyaku">', '<div id="okyaku" class="bk">')
+    rep('<b>作業完了フォーム</b><span>社内用。お客様には出しません</span>', '<b>業務報告（アルバイト）</b><span>社内用。1日の終わりに、現場ごとに送ってください</span>')
+    rep('<section>\n  <h2>3　施工内容', '<section class="bk">\n  <h2>3　施工内容')
+    rep('<section>\n  <h2>5　現場での確認', '<section class="bk">\n  <h2>5　現場での確認')
+    rep('<label>お客様のお名前<span class="hitsu">必須</span></label>', '<label>現場（地域・やったメニュー）<span class="hitsu">必須</span></label>')
+    rep('placeholder="例）山本　美佑紀"', 'placeholder="例）江戸川区　エアコン2台・浴室"')
+    rep('<p class="err" id="e-name">お名前を入れてください</p>', '<p class="err" id="e-name">現場を入れてください（お客様のお名前は書かなくて大丈夫です）</p>')
+    rep('<h2>6　お客様のこと（任意）</h2>', '<h2>6　今日の報告</h2>')
+    rep('<label>現場で判断に迷ったこと（任意）</label>', '<label>今日の気付き・改善点・判断に迷ったこと・連絡事項</label>')
+    rep('name="kanryo-shashin"', 'name="baito-shashin"', 0)
+    rep('value="kanryo-shashin"', 'value="baito-shashin"', 0)
+    rep("'kanryo-shashin'", "'baito-shashin'", 0)
+    rep('name="kanryo"', 'name="baito"', 0)
+    rep('value="kanryo"', 'value="baito"', 0)
+    rep("'form-name': 'kanryo',", "'form-name': 'baito',")
+    # 金額・お支払いは聞かない（必須の検査を通す）。最初から本編を出す
+    rep("  var jotai = { kure:'' };", "  var jotai = { kure:'', shiharai:'（アルバイト報告）' };\n  document.body.classList.add('sumi-baito');")
+    rep("<body>", "<body onload=\"var t=document.getElementById('tsugi');if(t){t.click();}\">")
+    OUT_BAITO.parent.mkdir(parents=True, exist_ok=True)
+    OUT_BAITO.write_text(html, encoding="utf-8")
+    print(f"書き出しました: {OUT_BAITO}  {OUT_BAITO.stat().st_size:,} bytes（アルバイト用）")
+
+
 def main():
     oh = json.loads((ROOT / "data" / "prices.json").read_text(encoding="utf-8"))
     honpo = json.loads((ROOT / "data" / "prices-honpo.json").read_text(encoding="utf-8"))
@@ -77,6 +114,7 @@ def main():
                    .replace("__TSUIKA__", json.dumps(tsuika, ensure_ascii=False)),
                    encoding="utf-8")
     print(f"書き出しました: {OUT}  {OUT.stat().st_size:,} bytes")
+    baito_dasu(OUT.read_text(encoding="utf-8"))
     print(f"  アンケート: {SURVEY}")
     print(f"  追加受注の選択肢: ワンヒッター {len(tsuika['One Hitter'])}件／本舗 {len(tsuika['本舗'])}件")
 
@@ -253,6 +291,17 @@ HTML = r"""<!doctype html>
   </div>
   <label>実際にいただいた金額が違うときは、ここに入れてください（税込）</label>
   <input type="number" id="jissai" inputmode="numeric" placeholder="空のままなら上の最終金額を使います">
+  <!-- 2026-10-03 第5回MTG：作業完了フォームの支払い方法から、売上シートの入金経路と出納帳へ自動で入れる（T063）。日付欄は不要（送信日を使う） -->
+  <label>お支払い方法<span class="hitsu">必須</span></label>
+  <div class="erabu" id="shiharai">
+    <button type="button" data-v="現金">現金</button>
+    <button type="button" data-v="クレカ">クレジットカード</button>
+    <button type="button" data-v="QR決済">QR・交通系IC</button>
+    <button type="button" data-v="請求書(翌月)">請求書（翌月）</button>
+    <button type="button" data-v="請求書(2か月後)">請求書（2か月後）</button>
+  </div>
+  <p class="err" id="e-shiharai">選んでください</p>
+  <p class="chu">売上シートの「入金経路」に自動で入ります。現金は出納帳にも入ります。</p>
 </section>
 
 <section>
@@ -307,6 +356,7 @@ HTML = r"""<!doctype html>
   <input type="text" name="実施した内容"><input type="text" name="やらなかった内容">
   <input type="text" name="追加受注"><input type="text" name="追加受注（手入力）">
   <input type="text" name="受注時の金額"><input type="text" name="追加金額"><input type="text" name="最終金額">
+  <input type="text" name="お支払い方法">
   <input type="text" name="クレーム"><input type="text" name="クレーム内容">
   <input type="text" name="アンケート依頼済み"><input type="text" name="次回予約提案済み">
   <input type="text" name="BeforeAfter確認済み">
@@ -605,6 +655,16 @@ HTML = r"""<!doctype html>
   }
   kingaku();
 
+  /* ---- お支払い方法 ---- */
+  $('shiharai').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if (!b) { return; }
+    Array.prototype.forEach.call($('shiharai').querySelectorAll('button'), function(x){
+      x.setAttribute('aria-pressed', String(x === b));
+    });
+    jotai.shiharai = b.dataset.v;
+    kakusu('e-shiharai');
+  });
+
   /* ---- 4 クレーム ---- */
   $('kure').addEventListener('click', function(e){
     var b = e.target.closest('button'); if (!b) { return; }
@@ -642,6 +702,7 @@ HTML = r"""<!doctype html>
     var yatta = [], yaranai = [];
     ((J && J.m) || []).forEach(function(na, i){ (naiyoIre[i] ? yatta : yaranai).push(na); });
     if ((J && J.m || []).length && !yatta.length && !tsuikaHai.length) { dasu('e-naiyo'); ng = 1; }
+    if (!jotai.shiharai) { dasu('e-shiharai'); ng = 1; }
     if (!jotai.kure) { dasu('e-kure'); ng = 1; }
     if (jotai.kure === 'あり' && !$('kure-naka').value.trim()) { dasu('e-kure-naka'); ng = 1; }
     if ((!J || !J.n) && P && P.length && !(J && J.x)) { dasu('e-erabi'); ng = 1; }
@@ -671,6 +732,7 @@ HTML = r"""<!doctype html>
       '受注時の金額': String(moto || ''),
       '追加金額': String(ts),
       '最終金額': String(jissai || (moto + ts)),
+      'お支払い方法': jotai.shiharai || '',
       'クレーム': jotai.kure,
       'クレーム内容': $('kure-naka').value.trim(),
       'アンケート依頼済み': kakuIre['アンケート依頼済み'] ? 'はい' : 'いいえ',

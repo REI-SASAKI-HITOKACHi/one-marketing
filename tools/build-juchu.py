@@ -114,6 +114,11 @@ def yotei_dasu():
 
 def main():
     oh = hyou(json.loads((ROOT / "data" / "prices.json").read_text(encoding="utf-8")), "oh")
+    # 2026-10-03 第5回MTG オーナー「受注フォームのメニューに天カセとその他（イレギュラー対応として手入力欄がほしい）がないのですぐに追加しておいてほしい」
+    # 天カセ（業務用エアコン）は docs/price-master.md：定価1台 ¥32,780／2〜10台は1台 ¥27,280
+    if not any("天カセ" in m["na"] or "業務用" in m["na"] for m in oh["menu"]):
+        oh["menu"].append({"na": "業務用エアコン（天カセ）", "tan": 32780, "dou": 27280, "fun": 120,
+                           "kaden": True, "eakon": False})
     honpo_moto = json.loads((ROOT / "data" / "prices-honpo.json").read_text(encoding="utf-8"))
     honpo_toku = honpo_moto.get("取得日", "（不明）")
     honpo = hyou(honpo_moto, "honpo")
@@ -240,6 +245,11 @@ HTML = r"""<!doctype html>
       <p class="chu">台帳にも足しておきます。会社名は正式名称でお願いします。</p>
     </div>
   </div>
+  <div id="shokai-box" hidden>
+    <label>ご紹介くださったお客様<span style="font-weight:400">（お名前か顧客ID。分かる範囲で）</span></label>
+    <input type="text" id="shokaisha" placeholder="例）山田 花子 さま／C0123">
+    <p class="chu">紹介割引（紹介した方・された方とも1,000円引き）の記録に使います。台帳のお客様と自動で突き合わせます。</p>
+  </div>
 </section>
 
 <section>
@@ -265,6 +275,11 @@ HTML = r"""<!doctype html>
     </label>
   </div>
   <div id="menu"></div>
+  <div id="sonota-box" style="margin-top:10px">
+    <label for="sonota-na">その他（メニューに無いもの・手入力）</label>
+    <input type="text" id="sonota-na" placeholder="例）冷蔵庫の裏の清掃">
+    <input type="number" id="sonota-kin" inputmode="numeric" placeholder="金額（税込）" style="margin-top:6px">
+  </div>
   <details style="margin-top:10px">
     <summary>オプションを足す</summary>
     <div id="opt" style="margin-top:8px"></div>
@@ -272,6 +287,7 @@ HTML = r"""<!doctype html>
   <div class="gk">
     <div><span>小計</span><b id="g-sho">0円</b></div>
     <div id="g-hanki-gyo" hidden><span>繁忙期加算</span><b id="g-hanki">0円</b></div>
+    <div id="g-toku-gyo" hidden><span>チラシ特典（自動）</span><b id="g-toku">0円</b></div>
     <div><span>所要の目安</span><b id="g-fun">—</b></div>
     <div class="go"><span>見込み金額</span><b id="g-go">0円</b></div>
   </div>
@@ -328,7 +344,7 @@ HTML = r"""<!doctype html>
   <input type="text" name="氏名"><input type="text" name="TEL">
   <input type="text" name="住所">
   <input type="text" name="売上（税込）"><input type="text" name="実施メニュー">
-  <input type="text" name="所要の目安（分）"><input type="text" name="法人名">
+  <input type="text" name="所要の目安（分）"><input type="text" name="法人名"><input type="text" name="紹介者">
   <input type="text" name="ヒアリング"><input type="text" name="備考">
   <input type="text" name="見込み金額"><input type="text" name="入力日時">
 </form>
@@ -389,7 +405,11 @@ HTML = r"""<!doctype html>
   botan('shurui','shurui', function(){ hyouKirikae(); });
   botan('keiro','keiro', function(){
     $('houjin-box').hidden = HOUJIN.indexOf(jotai.keiro) === -1;
+    $('shokai-box').hidden = jotai.keiro !== '紹介';
+    keisan();
   });
+  $('sonota-na').addEventListener('input', function(){ keisan(); kakusu('e-menu'); });
+  $('sonota-kin').addEventListener('input', function(){ keisan(); kakusu('e-menu'); });
 
   /* ---- メニューの行（＋ − ボタン付き） ---- */
   function gyoTsukuru(oya, hai, kazuIre, tanka){
@@ -484,13 +504,20 @@ HTML = r"""<!doctype html>
     h.opt.forEach(function(o, i){
       var n = jotai.optKazu[i] || 0; if (n) { sho += o.kin * n; }
     });
+    var sonotaKin = parseInt($('sonota-kin').value || '0', 10) || 0;
+    if ($('sonota-na').value.trim() && sonotaKin) { sho += sonotaKin; shurui += 1; fun += 60; }
     if (shurui >= 2) { fun -= Math.min(60, (shurui - 1) * 30); }
     var tsuki = $('hi').value ? Number($('hi').value.slice(5,7)) : 0;
     var kasan = (sho && h.hanki && h.hanki['対象月'].indexOf(tsuki) !== -1) ? h.hanki['金額'] : 0;
     $('g-hanki-gyo').hidden = !kasan;
     $('g-hanki').textContent = en(kasan);
+    /* チラシ特典：流入経路「チラシ(OH)」はすべて自動で500円引き（2026-10-03 第5回 5-4 No.5「①1回 ②期限なし ③チラシ（OH）はすべて割引を自動適用」。他の割引と併用不可） */
+    var toku = (sho && h.kata === 'oh' && jotai.keiro === 'チラシ(OH)') ? 500 : 0;
+    $('g-toku-gyo').hidden = !toku;
+    $('g-toku').textContent = toku ? '−' + en(toku) : en(0);
     $('g-sho').textContent = en(sho);
-    $('g-go').textContent = en(sho + kasan);
+    $('g-go').textContent = en(sho + kasan - toku);
+    jotai.toku = toku;
     $('g-fun').textContent = fun ? (fun >= 60 ? Math.floor(fun/60) + '時間' + (fun%60 ? (fun%60)+'分' : '') : fun + '分') : '—';
     jotai.sho = sho; jotai.kasan = kasan; jotai.fun = fun || 60;
     // 表示している単価も、同時施工かどうかで入れ替える
@@ -623,6 +650,8 @@ HTML = r"""<!doctype html>
     if (!h) { return ''; }
     h.menu.forEach(function(m, i){ var n = jotai.kazu[i] || 0; if (n) { a.push(m.na + (n > 1 ? ' ×' + n : '')); } });
     h.opt.forEach(function(o, i){ var n = jotai.optKazu[i] || 0; if (n) { a.push(o.na + (n > 1 ? ' ×' + n : '')); } });
+    var sn = $('sonota-na').value.trim(), sk = parseInt($('sonota-kin').value || '0', 10) || 0;
+    if (sn && sk) { a.push(sn + '（手入力 ' + en(sk) + '）'); }
     return a.join('／');
   }
 
@@ -632,14 +661,15 @@ HTML = r"""<!doctype html>
     if (!jotai.shurui) { dasu('e-shurui'); ng = ng || 'shurui'; }
     if (!jotai.keiro)  { dasu('e-keiro');  ng = ng || 'keiro'; }
     if (!$('hi').value){ dasu('e-hi');     ng = ng || 'hi'; }
-    if (!kosuGokei())  { dasu('e-menu');   ng = ng || 'menu'; }
+    var sonotaAri = $('sonota-na').value.trim() && (parseInt($('sonota-kin').value || '0', 10) || 0);
+    if (!kosuGokei() && !sonotaAri)  { dasu('e-menu');   ng = ng || 'menu'; }
     if (!$('name').value.trim()) { dasu('e-name'); ng = ng || 'name'; }
     if (ng) {
       var e = document.querySelector('.err.deru');
       if (e) { e.scrollIntoView({behavior:'smooth', block:'center'}); }
       return;
     }
-    var mikomi = jotai.sho + jotai.kasan;
+    var mikomi = jotai.sho + jotai.kasan - (jotai.toku || 0);
     var jissai = parseInt($('jissai').value || '0', 10) || 0;
     var atai = {
       'form-name': 'juchu',
@@ -656,8 +686,9 @@ HTML = r"""<!doctype html>
       '実施メニュー': menuMoji(),
       '所要の目安（分）': String(jotai.fun),
       '法人名': houjinMoji(),
+      '紹介者': $('shokai-box').hidden ? '' : $('shokaisha').value.trim(),
       'ヒアリング': kikuMoji(),
-      '備考': $('memo').value.trim(),
+      '備考': [jotai.toku ? 'チラシ特典 −500円（自動・他の割引と併用不可）' : '', $('memo').value.trim()].filter(Boolean).join('　'),
       '入力日時': new Date().toISOString()
     };
     var body = Object.keys(atai).map(function(k){
@@ -680,6 +711,63 @@ HTML = r"""<!doctype html>
   });
 
   $('tsugi').addEventListener('click', function(){ location.reload(); });
+
+  /* ---- LINEの知らせのリンクから開いたとき、# のあとの値を入れておく ----
+     2026-10-03 オーナー指示「次のアクションへの導線もどうせなら加えてほしい。電話確認が必要なら電話番号＋受注フォームURLとか。
+     一番人間の手間を減らせるように」。値は # のあと（ブラウザの外＝サーバーには送られない）。読んだらアドレス欄から消す。
+     s=売上種類 k=流入経路 d=施工日 j=開始時刻 n=お名前 t=電話 a=住所 x=金額 m=メニュー（「名前 ×数」を／区切り） b=備考 */
+  (function(){
+    if (!location.hash || location.hash.length < 2) { return; }
+    var p = {};
+    var h = location.hash.slice(1);
+    if (h.indexOf('p=') === 0) {
+      /* 短く詰めた形（tools/booking-inbox.py の tsumeru：JSON → UTF-8 → base64url） */
+      try {
+        var b64 = h.slice(2).replace(/-/g, '+').replace(/_/g, '/');
+        while (b64.length % 4) { b64 += '='; }
+        var bin = atob(b64), u8 = new Uint8Array(bin.length);
+        for (var q = 0; q < bin.length; q++) { u8[q] = bin.charCodeAt(q); }
+        p = JSON.parse(new TextDecoder('utf-8').decode(u8));
+      } catch (e) { p = {}; }
+    } else {
+      h.split('&').forEach(function(kv){
+        var i = kv.indexOf('=');
+        if (i > 0) { p[decodeURIComponent(kv.slice(0, i))] = decodeURIComponent(kv.slice(i + 1).replace(/\+/g, ' ')); }
+      });
+    }
+    function osu(oyaId, v){
+      if (!v) { return; }
+      var bs = document.querySelectorAll('#' + oyaId + ' button');
+      for (var i = 0; i < bs.length; i++) { if (bs[i].dataset.v === v) { bs[i].click(); return; } }
+    }
+    function ireru(id, v, ev){
+      if (!v) { return; }
+      $(id).value = v;
+      $(id).dispatchEvent(new Event(ev || 'input'));
+    }
+    osu('shurui', p.s || 'One Hitter');
+    osu('keiro', p.k);
+    ireru('hi', p.d, 'change');
+    ireru('jikoku', p.j, 'input');
+    ireru('name', p.n); ireru('tel', p.t); ireru('addr', p.a); ireru('jissai', p.x); ireru('memo', p.b);
+    if (p.sh) { osu('keiro', '紹介'); ireru('shokaisha', p.sh); }   // 紹介カード経由は流入経路「紹介」
+    if (p.m) {
+      var kiri = function(s){ return s.replace(/クリーニング|\s/g, ''); };
+      p.m.split(/[／\/]/).forEach(function(koumoku){
+        var mm = koumoku.trim().match(/^(.*?)(?:\s*[×xX]\s*(\d+))?$/);
+        if (!mm || !mm[1]) { return; }
+        var na = kiri(mm[1]), kazu = parseInt(mm[2] || '1', 10);
+        var gs = document.querySelectorAll('#menu .menu-gyo, #opt .menu-gyo');
+        for (var i = 0; i < gs.length; i++) {
+          if (kiri(gs[i].querySelector('.na span').textContent) === na) {
+            for (var k = 0; k < kazu; k++) { gs[i].querySelector('.pls').click(); }
+            return;
+          }
+        }
+      });
+    }
+    history.replaceState(null, '', location.pathname);
+  })();
 
   /* 予定は最後に読む（初期表示を待たせない） */
   fetch('yotei.json', {cache:'no-store'})

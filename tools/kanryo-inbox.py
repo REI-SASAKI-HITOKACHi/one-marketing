@@ -102,6 +102,41 @@ def tsuzuki_shashin(sumi, dry):
         SUMI.write_text(json.dumps(sorted(sumi), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
+SUITOU = "出納帳"   # 2026-10-03 第5回MTG：今の24シートの出納帳をやめ、このスプシに1タブ（上にダッシュボード・下に履歴）
+
+
+def nyukin_keiro(shiharai: str, shurui: str) -> str:
+    """作業完了フォームのお支払い方法を、売上シート O列「入金経路」の値（これまでの書き方）に合わせる"""
+    hon = "本舗" in (shurui or "")
+    if shiharai in ("クレカ", "QR決済"):
+        return ("(本舗)" if hon else "(OH)") + shiharai
+    return shiharai   # 現金／請求書(翌月)／請求書(2か月後)
+
+
+def suitou_ireru(call, han, dry: bool, sub: dict, d: dict, na: str, kin: int) -> None:
+    """現金を出納帳タブの履歴に1行足す。同じ送信（ID）は二度入れない。出金（和真さんの振込）は LINE の報告を CMO が入れる"""
+    if not kin:
+        print("   ⚠ 現金だが金額が無いので出納帳には入れません")
+        return
+    try:
+        ids = call(han(f"'{SUITOU}'!H10:H5000")).get("values", [])
+    except SystemExit:
+        print(f"   ⚠ 『{SUITOU}』タブが読めません（まだ作っていない？）。出納帳には入れていません")
+        return
+    if any(r and r[0] == sub["id"] for r in ids):
+        print("   出納帳には入れ済み")
+        return
+    hi = (sub.get("created_at") or "")[:10]   # 日付は送信日（オーナー「日付の欄はなくていい」）
+    gyo = [[hi, "本舗" if "本舗" in (d.get("売上種類") or "") else "ワンヒッター",
+            f"{na} さま　{d.get('実施した内容', '')}"[:80], kin, "", "", "作業完了フォーム", sub["id"]]]
+    if dry:
+        print(f"   [予定] 出納帳に現金 {kin:,}円（{hi}）")
+        return
+    call(han(f"'{SUITOU}'!A10:H10") + ":append", "POST", {"values": gyo},
+         q={"valueInputOption": "USER_ENTERED", "insertDataOption": "INSERT_ROWS"})
+    print(f"   出納帳: 現金 {kin:,}円 を記録")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
@@ -220,6 +255,23 @@ def main():
                     call(han(f"'{tab}'!N{gyo}"), "PUT", {"values": [[biko + "　" + tsuika_biko]]},
                          q={"valueInputOption": "USER_ENTERED"})
                     print(f"   直しました: {tab} {gyo}行目（I {moto} → {saishu}）")
+
+        # --- お支払い方法 → 入金経路（O列）と出納帳（2026-10-03 第5回MTG・T063） ---
+        shiharai = (d.get("お支払い方法") or "").strip()
+        if tab and shiharai:
+            keiro = nyukin_keiro(shiharai, d.get("売上種類", ""))
+            o = call(han(f"'{tab}'!O{gyo}")).get("values", [[""]])
+            o = str(o[0][0]) if o and o[0] else ""
+            if o:
+                print(f"   入金経路は入力済み（{o}）なので触りません")
+            elif a.dry_run:
+                print(f"   [予定] {tab} {gyo}行目 O列 入金経路 ← {keiro}")
+            else:
+                call(han(f"'{tab}'!O{gyo}"), "PUT", {"values": [[keiro]]}, q={"valueInputOption": "USER_ENTERED"})
+                print(f"   入金経路: {tab} {gyo}行目 ← {keiro}")
+            if shiharai == "現金":
+                kin = re.sub(r"\D", "", str(d.get("最終金額", "")))
+                suitou_ireru(call, han, a.dry_run, s, d, na, int(kin) if kin else 0)
 
         if d.get("クレーム") == "あり":
             kureemu.append((na, d.get("施工日付", ""), d.get("クレーム内容", "")))

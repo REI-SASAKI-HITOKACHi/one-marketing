@@ -48,7 +48,7 @@ ATAMA = ['受信日時', '状態', 'お名前', 'お電話番号', 'ご住所', 
          'ご希望の内容', '所要(分)', '概算金額', 'ご要望', '流入元', 'カレンダー登録',
          'NetlifyのID']
 # 末尾に足した2列（2026-09-22、広告のオフラインCV用。列の位置は見出し行から探す。無ければ書かない）
-OSHIRI = ['src', 'cid', '注文ID', 'gclid', 'ag', 'click_type']
+OSHIRI = ['src', 'cid', '注文ID', 'gclid', 'ag', 'click_type', 'lp']
 
 
 def retsu(i: int) -> str:
@@ -86,6 +86,39 @@ def eria(jusho):
     jusho = str(jusho or '')
     m = re.match(r'^(東京都|千葉県|神奈川県|埼玉県)?(.+?[区市町村])', jusho)
     return (m.group(2) if m else jusho[:9]) or '住所なし'
+
+
+# 受注フォーム（社内ホスト。data/haifu-urls.json の現行）
+JUCHU_URL = 'https://oh-naibu-sms-k7q3x.netlify.app/juchu/'
+
+
+def tsumeru(atai: dict) -> str:
+    """受注フォームに渡す値を短く詰める（JSON → UTF-8 → base64url。空の値は落とす）。受け側は build-juchu.py"""
+    import base64
+    j = json.dumps({k: v for k, v in atai.items() if v}, ensure_ascii=False, separators=(',', ':'))
+    return base64.urlsafe_b64encode(j.encode('utf-8')).decode('ascii').rstrip('=')
+
+
+def keiro_dasu(src):
+    """予約の流入元（src）を、受注フォームの「流入経路」の選択肢（data/ryunyu-keiro.json）に寄せる"""
+    s = (src or '').lower()
+    if 'gads' in s or 'gclid' in s or s.startswith('広告'):
+        return '広告'
+    if s.startswith('line'):
+        return 'LINE'
+    if 'gbp' in s:
+        return '地図検索'
+    if s.startswith('sms'):
+        return 'SMS'
+    if 'shokai' in s:
+        return '紹介'
+    if 'chirashi' in s:
+        return 'チラシ(OH)'
+    if 'rentrax' in s or 'aff' in s:
+        return 'LP(アフィリエイト)'
+    if s.startswith('site') or s.startswith('hp') or 'blog' in s:
+        return 'HP'
+    return '予約ページ'
 
 
 def main() -> None:
@@ -171,9 +204,10 @@ def main() -> None:
                        'gclid': str(d.get('gclid') or d.get('広告のクリックID') or ''),
                        # 10/9 の広告グループ別の判定に使う（measurement 20260928-01。tools/ad-group-hyou.py が読む）
                        'src': str(d.get('src') or d.get('流入元') or ''),
-                       'cid': str(d.get('cid') or ''),
-                       'ag': str(d.get('ag') or ''),
-                       'click_type': str(d.get('click_type') or '')})
+                       'cid': str(d.get('cid') or d.get('広告のキャンペーンID') or ''),
+                       'ag': str(d.get('ag') or d.get('広告グループ') or ''),
+                       'click_type': str(d.get('click_type') or d.get('クリックIDの種類') or ''),
+                       'lp': str(d.get('lp') or d.get('LP') or '')})
         if s['_form'] != 'yoyaku':
             # LP のフォーム（name/tel/zip/menu/when/lp/src/cid/order_id）を予約フォームの列名に寄せる
             lp = d.get('lp') or s['_form'].replace('reserve-', '')
@@ -205,9 +239,23 @@ def main() -> None:
             d.get('所要の目安（分）', ''), d.get('概算金額', ''), d.get('ご要望', ''),
             d.get('流入元', ''), '未登録', s['id'],
         ])
-        # LINEには電話番号・番地は出さない（名字・エリア・内容・金額・希望・入口）
+        # 2026-10-03 オーナー指示「次のアクションへの導線もどうせなら加えてほしい。電話確認が必要なら電話番号＋受注フォームURLとか。
+        # 一番人間の手間を減らせるように」→ 電話番号（押せばかかる形）と、入力済みの受注フォームへのリンクを載せる。
+        # 番地は本文に出さない（リンクの # のあとにだけ入れる。# 以降はサーバーに送られない）。業務連絡グループは嶺・和真の2名
         kin = str(d.get('概算金額') or '').replace(',', '')
         iriguchi = d.get('流入元', '')
+        tel = re.sub(r'\D', '', str(d.get('お電話番号', '')))
+        tel_h = (f'{tel[:3]}-{tel[3:7]}-{tel[7:]}' if len(tel) == 11 else
+                 f'{tel[:2]}-{tel[2:6]}-{tel[6:]}' if len(tel) == 10 else tel)
+        juchu = JUCHU_URL + '#p=' + tsumeru({
+            's': 'One Hitter', 'k': keiro_dasu(iriguchi),
+            'd': d.get('ご希望日', ''), 'j': d.get('ご希望時刻', ''),
+            'n': d.get('お名前', ''), 't': tel, 'a': d.get('ご住所', ''),
+            'x': kin if kin.isdigit() else '',
+            'm': d.get('ご希望の内容', ''),
+            'b': ('Web予約より。' + re.sub(r'\s+', ' ', str(d.get('ご要望', ''))))[:150],
+            'sh': str(d.get('紹介者') or '').strip(),
+        })
         if 'gads' in iriguchi:
             iriguchi = 'Google広告（' + ('エアコン' if 'aircon' in iriguchi else '水まわり' if 'mizumawari' in iriguchi else '') + 'のページ）'
         elif iriguchi.startswith('LP:'):
@@ -218,7 +266,11 @@ def main() -> None:
             f"見積：{int(kin):,}円（税込）" if kin.isdigit() else "見積：記録なし（お電話で確認）",
             f"希望：{d.get('ご希望日', '')} {d.get('ご希望時刻', '')}".rstrip(),
             f"入口：{iriguchi}" if iriguchi else '',
-        ] if x))
+        ] if x) + '\n\n' + '\n'.join([
+            f"① お電話で日時を確定：{tel_h}" if tel else '① お電話番号の記入なし（予約_Webタブを確認）',
+            '② 確定したら受注フォームで記録（入力済み・送るだけ）：',
+            juchu,
+        ]))
         # カレンダーに入れる用（この出力を見てClaudeが登録する）
         yotei.append({
             'summary': f"【仮】{sei(d.get('お名前',''))}様 {d.get('ご希望の内容','')}",
@@ -272,10 +324,9 @@ def main() -> None:
     if not a.no_line:
         honbun = ('Web予約（予約フォーム／LP）から申し込みが入りました（' + str(len(shirase)) + '件）\n\n'
                   + '\n\n'.join(shirase)
-                  + '\n\nお名前・ご住所・お電話は、カレンダーの予定の詳細と'
-                    'スプレッドシートの「予約_Web」タブに入っています。\n'
-                    'まだ【仮】です。確認のお電話をして、予定のタイトルから【仮】を'
-                    '外してください。')
+                  + '\n\nカレンダーには【仮】で入っています。受注フォームで記録すると、'
+                    '台帳に入り、【仮】の予定はマーケ部長が本予定に置き換えます。\n'
+                    'ご住所はカレンダーの予定と「予約_Web」タブにあります。')
         # 申し込みの知らせは急ぐので、未読の返信があっても送る（2026-09-27：未読で止まり、2時間気づかれなかった）
         r = subprocess.run(['python3', f'{ROOT}/tools/line_client.py', 'push', honbun, '--midoku-ok'],
                            check=False)

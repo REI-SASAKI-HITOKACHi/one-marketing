@@ -18,7 +18,8 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 #   Netlify の配信は「送ったファイルが全部」なので、同居しているものを必ず一緒に送ること。
 SRC_TACHI = [(ROOT / "lp" / "naibu-sms", ""),      # ルートに置く（既存のSMSツール）
              (ROOT / "lp" / "juchu", "/juchu"),     # /juchu/ に置く（受注フォーム）
-             (ROOT / "lp" / "kanryo", "/kanryo")]   # /kanryo/ に置く（作業完了フォーム）
+             (ROOT / "lp" / "kanryo", "/kanryo"),   # /kanryo/ に置く（作業完了フォーム）
+             (ROOT / "lp" / "baito", "/baito")]     # /baito/ に置く（アルバイト用の業務報告。2026-10-03）
 API = "https://api.netlify.com/api/v1"
 SITE_ID = "f1b64c82-173e-4b1a-9e7f-bf24026fed0e"   # oh-naibu-sms-k7q3x（社内用）
 SITE_NAME = "oh-naibu-sms-k7q3x"

@@ -444,7 +444,7 @@ gtag('config','G-DLJCTKGTDN',{'lp_id':'booking','lp_variant':'A'});
 <script>
 (function(){
   'use strict';
-  var S = {"menus": [{"n": "エアコンクリーニング（ノーマル）","t": 10780,"d": 10780,"m": 60},{"n": "エアコンクリーニング（お掃除機能付き）","t": 17380,"d": 17380,"m": 120},{"n": "洗濯機クリーニング","t": 17380,"d": 17380,"m": 120},{"n": "レンジフードクリーニング","t": 18480,"d": 15180,"m": 90},{"n": "レンジフード（プロペラ式）","t": 10780,"d": 10780,"m": 60},{"n": "キッチンクリーニング","t": 18480,"d": 15180,"m": 150},{"n": "浴室クリーニング","t": 18480,"d": 15180,"m": 180},{"n": "追い焚き配管クリーニング","t": 19910,"d": 16610,"m": 60},{"n": "コンロクリーニング","t": 10780,"d": 6050,"m": 30},{"n": "トイレクリーニング","t": 10780,"d": 10780,"m": 60},{"n": "洗面台クリーニング","t": 10780,"d": 7480,"m": 60},{"n": "お掃除時短コーティング","t": 21780,"d": 21780,"m": 60}],"hanbouki": {"tsuki": [5,6,7,12],"gaku": 3300},"souki": {"1": 0.15,"2": 0.15,"3": 0.1,"4": 0.1,"5": 0.0,"6": 0.0,"7": 0.0,"8": 0.1,"9": 0.1,"10": 0.1,"11": 0.0,"12": 0.0},"netTokuten": 2200,"api": "https://script.google.com/macros/s/AKfycbzuuMGVICQPoLlUrFBarb1zAgi_kVdc1vDrRJoyhAJ_tvOG-eHnmTHDGWhuvix3E3_odQ/exec","slots": "./slots.json","form": "yoyaku","tel": "080-8043-8259"};
+  var S = {"menus": [{"n": "エアコンクリーニング（ノーマル）","t": 10780,"d": 10780,"m": 60},{"n": "エアコンクリーニング（お掃除機能付き）","t": 17380,"d": 17380,"m": 120},{"n": "洗濯機クリーニング","t": 17380,"d": 17380,"m": 120},{"n": "レンジフードクリーニング","t": 18480,"d": 15180,"m": 90},{"n": "レンジフード（プロペラ式）","t": 10780,"d": 10780,"m": 60},{"n": "キッチンクリーニング","t": 18480,"d": 15180,"m": 150},{"n": "浴室クリーニング","t": 18480,"d": 15180,"m": 180},{"n": "追い焚き配管クリーニング","t": 19910,"d": 16610,"m": 60},{"n": "コンロクリーニング","t": 10780,"d": 6050,"m": 30},{"n": "トイレクリーニング","t": 10780,"d": 10780,"m": 60},{"n": "洗面台クリーニング","t": 10780,"d": 7480,"m": 60},{"n": "お掃除時短コーティング","t": 21780,"d": 21780,"m": 60}],"hanbouki": {"tsuki": [5,6,7,12],"gaku": 3300},"souki": {"1": 0.15,"2": 0.15,"3": 0.1,"4": 0.1,"5": 0.0,"6": 0.0,"7": 0.0,"8": 0.1,"9": 0.1,"10": 0.1,"11": 0.1,"12": 0.0},"netTokuten": 2200,"api": "https://script.google.com/macros/s/AKfycbzuuMGVICQPoLlUrFBarb1zAgi_kVdc1vDrRJoyhAJ_tvOG-eHnmTHDGWhuvix3E3_odQ/exec","slots": "./slots.json","form": "yoyaku","tel": "080-8043-8259"};
   // SNS（Instagram／Facebook／Googleビジネスプロフィール）から来た初見の方向けに、
   // 「前回ご利用のお客様専用」の文言だけ差し替える。SMS経由の既存客の画面は変えない。
   // （2026-09-11 ネット流入担当の指摘 20260911-01-cmo）
@@ -953,7 +953,8 @@ gtag('config','G-DLJCTKGTDN',{'lp_id':'booking','lp_variant':'A'});
   function keiroHozon(){
     var q = new URLSearchParams(location.search);
     var mitsuketa = {};
-    ['src', 'cid', 'gclid', 'wbraid', 'gbraid'].forEach(function(k){
+    // ag（広告グループ）と lp（どのLPから来たか）も残す。10/9 の版別の判定に要る（measurement 20261003-04-cmo）
+    ['src', 'cid', 'gclid', 'wbraid', 'gbraid', 'ag', 'lp'].forEach(function(k){
       var v = q.get(k);
       if (v) { mitsuketa[k] = v; }
     });
@@ -996,6 +997,9 @@ gtag('config','G-DLJCTKGTDN',{'lp_id':'booking','lp_variant':'A'});
       '流入元': keiro('src') || (new URLSearchParams(location.search)).get('src') || '',
       '広告のクリックID': keiro('gclid') || keiro('wbraid') || keiro('gbraid') || hiroGclid(),
       '広告のキャンペーンID': keiro('cid'),
+      '広告グループ': keiro('ag'),
+      'LP': keiro('lp'),
+      'クリックIDの種類': keiro('gclid') ? 'gclid' : keiro('wbraid') ? 'wbraid' : keiro('gbraid') ? 'gbraid' : '',
       '空き枠の取得時刻': (slotsCache && slotsCache.generated) || '',
     };
     var body = Object.keys(atai).map(function(kk){
@@ -1054,6 +1058,9 @@ gtag('config','G-DLJCTKGTDN',{'lp_id':'booking','lp_variant':'A'});
   <input type="text" name="流入元">
   <input type="text" name="広告のクリックID">
   <input type="text" name="広告のキャンペーンID">
+  <input type="text" name="広告グループ">
+  <input type="text" name="LP">
+  <input type="text" name="クリックIDの種類">
   <input type="text" name="空き枠の取得時刻">
 </form>
 
