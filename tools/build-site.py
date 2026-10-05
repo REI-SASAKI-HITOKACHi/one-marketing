@@ -611,6 +611,9 @@ def make_og(src: pathlib.Path, dst: pathlib.Path, line1: str, line2: str) -> Non
     out.save(dst, quality=82, optimize=True, progressive=True)
 
 
+# 「11月の早期予約は10%お得」の帯を入れるページ＝広告の着地LP（2026-10-05 オーナー決定）
+BAND_PAGES = {"aircon", "aircon-c", "mizumawari", "mizumawari-b"}
+
 # ギフトの入口を入れるページ（承認が出るまで空。build_page の中の説明を参照）
 GIFT_PAGES: set = set()
 
@@ -674,6 +677,13 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict)
         spec = importlib.util.spec_from_file_location("insert_gift", ROOT / "tools" / "insert-gift.py")
         mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
         doc = mod.insert(doc)
+
+    # 広告の着地LPの「11月の早期予約は10%お得」の帯（依頼 20261005-01-lp）。12月1日からは帯の側で自動で隠れる
+    if meta["dir"] in BAND_PAGES:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("insert_band", ROOT / "tools" / "insert-band.py")
+        mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+        doc = mod.insert(doc, meta["dir"])
 
     # 予約ページ（別ホスト）への引き継ぎに、どのLPから来たか（lp）を足す。
     # src・cid・ag・gclid は今の版と学習版で同じ値になり、A/B を区別できないため

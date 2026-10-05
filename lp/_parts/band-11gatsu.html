@@ -1,0 +1,37 @@
+<!-- ===== 11月の早期予約の帯（依頼 20261005-01-lp・オーナー決定 10/5・docs/広告-11月早期予約-案.md ③） =====
+     tools/insert-band.py が、ヘッダーのすぐ下（ファーストビューの前）に差し込む。{joken} はページごとの条件。
+     条件は予約ページの計算と同じ：施工月が11月・ご依頼の合計が1つ（1台／1箇所）のときに10%（data/prices.json 早期予約割引）。
+     12月1日（日本時間）からは自動で隠す（11月が過ぎたら事実でなくなるため）。
+     色は旧の見た目・v2 の両方にある変数（--cta / --ink）と固定色だけ。クラスは nov- で始める。 -->
+<style>
+.nov-band{background:#FCEAE4;color:#8F2408;border-bottom:1px solid rgba(143,36,8,.18);}
+.nov-band .nov-in{max-width:1080px;margin:0 auto;padding:7px 12px;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:0 8px;
+  font-size:14px;line-height:1.55;text-align:center;}
+.nov-band b{font-weight:800;flex-basis:100%;}
+.nov-band .nov-sub{color:#5a2a1c;font-size:12px;}
+.nov-band a{color:#8F2408;font-size:12.5px;font-weight:700;text-decoration:underline;text-underline-offset:3px;white-space:nowrap;}
+.nov-band a:focus-visible{outline:3px solid var(--ink);outline-offset:2px;}
+</style>
+<div class="nov-band" id="nov-band">
+  <p class="nov-in"><b>11月のお掃除は、今のご予約で10%お得</b><span class="nov-sub">{joken}・12月は割引なし</span><a href="https://yoyaku.onehitter.jp/" id="nov-link">空いている日を見る</a></p>
+</div>
+<script>
+(function(){
+  var band = document.getElementById('nov-band');
+  if (!band) return;
+  /* 12月1日 0:00（日本時間）を過ぎたら出さない */
+  if (Date.now() >= Date.UTC(2026, 10, 30, 15, 0, 0)) { band.hidden = true; return; }
+  /* 予約ページへのクリック。events.js はページ内リンクしか拾わないので、ここで送る
+     （流入元の引き継ぎは、ページ下の「別ホストへの導線」の処理が押した瞬間に URL へ載せる） */
+  document.getElementById('nov-link').addEventListener('click', function(){
+    var M = window.OH_M || {}, P = M.page || {}, q;
+    try { q = new URLSearchParams(location.search); } catch (e) { q = null; }
+    var p = { link_position: 'nov_band', link_target: 'yoyaku', lp_id: P.lp_id, lp_variant: P.lp_variant,
+              page_kind: P.kind, traffic_src: (q && q.get('src')) || 'direct', transport_type: 'beacon' };
+    var cid = q && q.get('cid'); if (cid) p.traffic_cid = cid;
+    if (typeof window.gtag === 'function') window.gtag('event', 'cta_click', p);
+    if (typeof window.fbq === 'function') window.fbq('trackCustom', 'cta_click', p);
+  });
+})();
+</script>
+<!-- ===== /11月の早期予約の帯 ===== -->
