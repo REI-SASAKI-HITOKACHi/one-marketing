@@ -369,5 +369,25 @@
       "1119246907558326",
       "1119246950891655"
     ]
+  },
+  {
+    "id": "w04-1",
+    "platform": "instagram",
+    "posted_at": "2026-10-05T09:14:03+09:00",
+    "permalink": "https://www.instagram.com/p/DeF5XB2jDqE/",
+    "post_id": "18153142216524172",
+    "media_ids": [
+      "18153142216524172"
+    ]
+  },
+  {
+    "id": "w04-1",
+    "platform": "facebook",
+    "posted_at": "2026-10-05T09:14:07+09:00",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1122113990604951",
+    "post_id": "103698149101436_1122113990604951",
+    "media_ids": [
+      "1122113970604953"
+    ]
   }
 ]
