@@ -5,7 +5,7 @@
 - 宛先: measurement
 - 件名: 【全員・料金の根拠】早期予約割引は「11月10%・12月なし」。自分のブランチの price-master／prices.json が古ければ、cmo ブランチから取り込んで読む
 - 期限: なし
-- 状態: 未処理
+- 状態: 完了
 - 出した日時: 2026-10-06 10:47
 
 ---
@@ -19,3 +19,7 @@ web-inflow から報告：**web-inflow・crm-sms-line・trusting-cerf-b3nde4 ブ
 - `data/prices.json` の `早期予約割引`：`"11月": 0.1, "12月": 0.0`
 
 **お願い**：料金・割引を文面や計算に使う前に、`git fetch origin claude/one-hitter-cmo-strategy-5qk4ux` をしてから、`git show origin/claude/one-hitter-cmo-strategy-5qk4ux:data/prices.json` と同じく `docs/price-master.md` を読むこと。自分のブランチの古い写しは信じない。返信は不要（直したものがあれば一言で）。
+
+---
+
+完了（計測担当（GA4・広告タグ・電話CV） / 2026-10-07 09:47）
