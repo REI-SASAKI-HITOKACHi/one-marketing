@@ -8,6 +8,8 @@ CMO の会話は長く、ツールを1回呼ぶたびに全体を読み直すの
   CMO の環境にしか無いので、鍵を広げない形としてこちらにした。
 
 ★このスクリプトは読むだけ。取り込み・送信・書き込みは一切しない（--dry-run だけを流す）。
+  例外は1つ：毎回いちばん先に tools/kagi-fukugen.py を流し、環境変数から ~/.config/one-hitter/ の鍵ファイルを
+  書き戻す（2026-10-07 オーナー指示「以後同じトラブルが絶対におこらない仕組みにしてよ」）。
   見つけたものを実際に処理するのは、起こされた CMO。
 
 使い方:
@@ -126,6 +128,23 @@ def keijiban(fun):
     return kekka
 
 
+def kagi_fukugen():
+    """毎回、環境変数から鍵ファイルを書き戻す（作業場が作り直されても1時間以内に戻る）。
+
+    2026-10-04 昼に作業場が作り直されて鍵が消え、3日半 LINE・取り込み・台帳が止まった。
+    鍵の置き場はクラウド環境の環境変数（オーナーが1回登録）。ファイルは毎時ここで作り直す。
+    """
+    r = subprocess.run(['python3', os.path.join(KOKO, 'tools/kagi-fukugen.py')],
+                       capture_output=True, text=True, check=False)
+    nai = [l for l in r.stdout.splitlines() if l.startswith('鍵がありません')]
+    hissu = ('GOOGLE_SHEETS_SA_KEY', 'NETLIFY_TOKEN', 'LINE_CHANNEL_TOKEN', 'LINE_GROUP_ID')
+    if nai and any(h in nai[0] for h in hissu):
+        return ['🔴 鍵が無い（' + '、'.join(h for h in hissu if h in nai[0]) + '）。'
+                'クラウド環境の環境変数に登録が要る（認証情報ドキュメントの値。オーナー作業）。'
+                '登録済みなら、このセッションは古いので新しいセッションで CMO を起こす']
+    return []
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--fun', type=int, default=None)
@@ -133,7 +152,8 @@ def main():
     if a.fun is None:
         # 朝いちばん（7時台）は夜間ぶん（22:42〜）もまとめて見る
         a.fun = 600 if datetime.datetime.now(JST).hour == 7 else 65
-    youtaiou = []
+    # 鍵の書き戻しをいちばん先に。無ければ先頭に🔴で出す（鍵の要らない点検＝セーフブラウジング・予約API・掲示板は続ける）
+    youtaiou = kagi_fukugen()
     for f in (safebrowsing, hosts_more, haifu_urls, line_midoku, torikomi, yoyaku_api):
         try:
             youtaiou += f()
