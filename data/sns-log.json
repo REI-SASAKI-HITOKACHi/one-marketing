@@ -410,5 +410,25 @@
       "1123062130510137",
       "1123062160510134"
     ]
+  },
+  {
+    "id": "w04-3",
+    "platform": "instagram",
+    "posted_at": "2026-10-07T09:14:35+09:00",
+    "permalink": "https://www.instagram.com/p/DeLDADaDIiE/",
+    "post_id": "18144973810576706",
+    "media_ids": [
+      "18144973810576706"
+    ]
+  },
+  {
+    "id": "w04-3",
+    "platform": "facebook",
+    "posted_at": "2026-10-07T09:14:41+09:00",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1123999153749768",
+    "post_id": "103698149101436_1123999153749768",
+    "media_ids": [
+      "1123999133749770"
+    ]
   }
 ]
