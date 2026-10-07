@@ -488,6 +488,26 @@ console.log('割引繁忙期マスタへの追記');
   sandbox.adminEnsureDiscountRules();
   check('中身が同じ行が別IDであれば、二重に足さない', sheet2.grid.slice(b2).map(r => r[1]), ['FLYER_BENEFIT']);
 
+  // オーナーが EARLY_08_10 を 8〜11月に直した本番の形（2026-10-07）。EARLY_11 を重ねて足さない
+  const widened = existing.map(r => r.slice());
+  widened.forEach(r => { if (r[1] === 'EARLY_08_10') { r[5] = 11; r[10] = '8月〜11月：10%'; } });
+  const sheet3 = makeSheet(widened);
+  sandbox.getMasterSs_ = function () { return { getSheetByName: function () { return sheet3; } }; };
+  const b3 = sheet3.grid.length;
+  const msg3 = sandbox.adminEnsureDiscountRules();
+  check('11月を含む早期予約が既にある：EARLY_11 は足さない（チラシ特典だけ足す）', sheet3.grid.slice(b3).map(r => r[1]), ['FLYER_BENEFIT']);
+  check('11月を含む早期予約が既にある：理由がメッセージに出る', msg3.indexOf('11月を含む') >= 0, true);
+  const early11 = sheet3.grid.filter(r => r[2] === '早期予約割引' && Number(r[4]) <= 11 && 11 <= Number(r[5]));
+  check('11月に効く早期予約の行は1本だけ', early11.length, 1);
+  // 無効（FALSE）の行は数えない
+  const disabled = existing.map(r => r.slice());
+  disabled.forEach(r => { if (r[1] === 'EARLY_08_10') { r[0] = 'FALSE'; r[5] = 11; } });
+  const sheet4 = makeSheet(disabled);
+  sandbox.getMasterSs_ = function () { return { getSheetByName: function () { return sheet4; } }; };
+  const b4 = sheet4.grid.length;
+  sandbox.adminEnsureDiscountRules();
+  check('11月を含む行が無効なら EARLY_11 を足す', sheet4.grid.slice(b4).map(r => r[1]).sort(), ['EARLY_11', 'FLYER_BENEFIT']);
+
   // 見出しが想定と違うシートには書かない
   const bad = makeSheet(existing);
   bad.grid[0][3] = '対象外';
