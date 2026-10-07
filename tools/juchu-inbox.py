@@ -39,6 +39,7 @@ import sheets_client as sc
 import yubin
 
 SS = "1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64"
+NEN = "2026"   # このスプレッドシート（2026_売上/顧客情報管理）の年
 SITE_ID = "f1b64c82-173e-4b1a-9e7f-bf24026fed0e"     # oh-naibu-sms-k7q3x（社内用）
 FORM = "juchu"
 SUMI = ROOT / "data" / "juchu-torikomi.json"          # 取り込み済みのID（タブを増やさない）
@@ -113,6 +114,39 @@ def shokaisha_id(moji, daicho):
     return hit.pop() if len(hit) == 1 else ""
 
 
+def _yotei(s, d, hi, daicho_ba):
+    """カレンダーに作る予定（data/calendar/juchu-todo.json の1件）"""
+    fun = int(str(d.get("所要の目安（分）", "60")) or 60)
+    jikoku = str(d.get("開始時刻", "09:00"))[:5] or "09:00"
+    h, mi = (int(x) for x in jikoku.split(":"))
+    # 終了時刻はフォームで直せる（2026-09-19 オーナー指示）。入っていればそれを使う。
+    owari_ire = str(d.get("終了時刻", "")).strip()[:5]
+    if re.fullmatch(r"\d{1,2}:\d{2}", owari_ire):
+        oh, omi = (int(x) for x in owari_ire.split(":"))
+        owari_fun = oh * 60 + omi
+        if owari_fun <= h * 60 + mi:
+            owari_fun += 24 * 60
+    else:
+        owari_fun = h * 60 + mi + fun
+    return {
+        "id": s["id"],
+        "タイトル": taitoru(d),
+        "開始": f"{hi}T{jikoku}:00+09:00",
+        "終了": _owari_moji(hi, owari_fun),
+        "場所": d.get("住所", ""),
+        "説明": "\n".join(x for x in [
+            f"{d.get('売上種類','')} {d.get('氏名','')}さま",
+            f"{d.get('実施メニュー','')}",
+            f"¥{d.get('売上（税込）','')}",
+            f"TEL {d.get('TEL','')}" if d.get("TEL") else "",
+            f"【ヒアリング】{d.get('ヒアリング','')}" if d.get("ヒアリング") else "",
+            str(d.get("備考", "")),
+            "※受注フォームから自動で作りました",
+        ] if x),
+        "台帳": daicho_ba,
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
@@ -173,6 +207,15 @@ def main():
             continue
         tsuki = int(hi[5:7])
         tab = f"{tsuki}月_売上/顧客"
+        # 来年の施工（現場で決めた次回予約。2027-10-02 など）は、今年の月タブに入れない（10/7 長田様・小杉様で判明）。
+        # カレンダーにだけ入れる。来年のスプレッドシートへは、その年の運用が始まってから移す
+        rainen = hi[:4] != NEN
+        if rainen:
+            tab, gyo = f"{hi[:4]}年の予約（今年の売上タブには入れない）", 0
+            print(f"  [来年] {hi} {d.get('氏名')} / {d.get('実施メニュー')} / {d.get('売上（税込）')}円 → カレンダーだけ")
+            todo.append(_yotei(s, d, hi, tab))
+            ireta.append(s["id"])
+            continue
 
         # 空いている最初の行を探す（B列が空＝未使用）
         b = call(han(f"'{tab}'!B4:B60")).get("values", [])
@@ -238,35 +281,8 @@ def main():
             shiranai.append((d["法人名"], f"{tab} {gyo}行目"))
             print(f"  入れました: {tab} {gyo}行目 ← {d.get('氏名')}")
 
-        fun = int(str(d.get("所要の目安（分）", "60")) or 60)
+        todo.append(_yotei(s, d, hi, f"{tab} {gyo}行目"))
         jikoku = str(d.get("開始時刻", "09:00"))[:5] or "09:00"
-        h, mi = (int(x) for x in jikoku.split(":"))
-        # 終了時刻はフォームで直せる（2026-09-19 オーナー指示）。入っていればそれを使う。
-        owari_ire = str(d.get("終了時刻", "")).strip()[:5]
-        if re.fullmatch(r"\d{1,2}:\d{2}", owari_ire):
-            oh, omi = (int(x) for x in owari_ire.split(":"))
-            owari_fun = oh * 60 + omi
-            if owari_fun <= h * 60 + mi:
-                owari_fun += 24 * 60
-        else:
-            owari_fun = h * 60 + mi + fun
-        todo.append({
-            "id": s["id"],
-            "タイトル": taitoru(d),
-            "開始": f"{hi}T{jikoku}:00+09:00",
-            "終了": _owari_moji(hi, owari_fun),
-            "場所": d.get("住所", ""),
-            "説明": "\n".join(x for x in [
-                f"{d.get('売上種類','')} {d.get('氏名','')}さま",
-                f"{d.get('実施メニュー','')}",
-                f"¥{d.get('売上（税込）','')}",
-                f"TEL {d.get('TEL','')}" if d.get("TEL") else "",
-                f"【ヒアリング】{d.get('ヒアリング','')}" if d.get("ヒアリング") else "",
-                str(d.get("備考", "")),
-                "※受注フォームから自動で作りました",
-            ] if x),
-            "台帳": f"{tab} {gyo}行目",
-        })
         # 作業完了フォームを送るための材料。**お客様の情報はここ（手元）にだけ置く。**
         #   URLの # に入れて送るので、社内ホストには置かない（tools/build-kanryo.py の説明）
         kanryo.append({

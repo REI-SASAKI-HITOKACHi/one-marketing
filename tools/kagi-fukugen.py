@@ -56,6 +56,24 @@ def main() -> None:
             continue
         if f.exists() and not uwagaki:
             continue
+        # 貼り方のゆれを吸収する（2026-10-07：オーナーが環境変数の欄に貼る形がまだ分からないため）
+        # ・前後の引用符 '…' "…" を外す ・末尾の★（認証情報ドキュメントの印）を外す
+        if len(v) >= 2 and v[0] == v[-1] and v[0] in "'\"":
+            v = v[1:-1].strip()
+        v = v.rstrip("★").strip()
+        if na.endswith(".json"):
+            import json
+            try:
+                json.loads(v)
+            except ValueError:
+                # Googleドキュメントからのコピーで \_ のような余計な \ が入ることがある
+                v2 = v.replace("\\_", "_")
+                try:
+                    json.loads(v2)
+                    v = v2
+                except ValueError:
+                    print(f"⚠ {env} が JSON として読めません（書き出さずに飛ばします）。値の貼り方を確認してください")
+                    continue
         f.write_text(v + ("" if na.endswith(".json") else "\n"), encoding="utf-8")
         os.chmod(f, 0o600)
         kaita.append(na)
