@@ -614,6 +614,9 @@ def make_og(src: pathlib.Path, dst: pathlib.Path, line1: str, line2: str) -> Non
 # 「11月の早期予約は10%お得」の帯を入れるページ＝広告の着地LP（2026-10-05 オーナー決定）
 BAND_PAGES = {"aircon", "aircon-c", "mizumawari", "mizumawari-b"}
 
+# クチコミの件数を外す・98.6%の脚注を直すページ（承認が出るまで空。tools/bunmen-1010.py）
+BUNMEN_PAGES: set = set()
+
 # 申込の入口を予約ページに寄せるページ（承認が出るまで空。tools/iriguchi.py）
 IRIGUCHI_PAGES: set = set()
 
@@ -704,6 +707,13 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict)
         spec = importlib.util.spec_from_file_location("iriguchi", ROOT / "tools" / "iriguchi.py")
         mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
         doc = mod.apply(doc, meta["dir"])
+
+    # クチコミの件数を外す・98.6%の脚注（依頼 20261008-04-lp）。承認が出たら BUNMEN_PAGES に足す
+    if meta["dir"] in BUNMEN_PAGES:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("bunmen_1010", ROOT / "tools" / "bunmen-1010.py")
+        mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+        doc, _ = mod.apply(doc, meta["dir"])
 
     # 送信元の確認の隠し欄（ブラウザで送ったときだけ埋まる。依頼 20261008-01-lp）
     if target == "netlify":
