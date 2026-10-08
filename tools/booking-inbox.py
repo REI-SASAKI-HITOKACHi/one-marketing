@@ -77,6 +77,13 @@ def netlify(path: str):
         return json.loads(res.read())
 
 
+def mojinomama(v):
+    """フォームから来た文字を、シートで数式として解釈させない"""
+    if isinstance(v, str) and v[:1] in ('=', '+', '-', '@'):
+        return "'" + v
+    return v
+
+
 def sei(namae: str) -> str:
     return namae.split('　')[0].split(' ')[0] or namae
 
@@ -232,13 +239,19 @@ def main() -> None:
             d = dict(d, **{'ご要望': ('【紹介者: ' + str(d['紹介者']).strip() + ' 様／初回1,000円引き】' + str(d.get('ご要望', ''))).strip()})
         uke = datetime.datetime.fromisoformat(
             s['created_at'].replace('Z', '+00:00')).astimezone(JST)
+        # お名前も電話も無い送信は、お客様の申込ではない（2026-10-08 04:24 プログラムからの空送信）。
+        # 行には残すが、LINE・カレンダーには出さない
+        kara = not str(d.get('お名前', '')).strip() and not re.sub(r'\D', '', str(d.get('お電話番号', '')))
         gyou.append([
-            uke.strftime('%Y-%m-%d %H:%M'), '未確認',
+            uke.strftime('%Y-%m-%d %H:%M'), '空送信（お名前・電話なし。お客様ではない）' if kara else '未確認',
             d.get('お名前', ''), "'" + str(d.get('お電話番号', '')), d.get('ご住所', ''),
             d.get('ご希望日', ''), d.get('ご希望時刻', ''), d.get('ご希望の内容', ''),
             d.get('所要の目安（分）', ''), d.get('概算金額', ''), d.get('ご要望', ''),
             d.get('流入元', ''), '未登録', s['id'],
         ])
+        if kara:
+            print(f"  空送信を検出（{uke:%m/%d %H:%M}・{s['id']}）：行は残し、LINE・カレンダーには出さない")
+            continue
         # 2026-10-03 オーナー指示「次のアクションへの導線もどうせなら加えてほしい。電話確認が必要なら電話番号＋受注フォームURLとか。
         # 一番人間の手間を減らせるように」→ 電話番号（押せばかかる形）と、入力済みの受注フォームへのリンクを載せる。
         # 番地は本文に出さない（リンクの # のあとにだけ入れる。# 以降はサーバーに送られない）。業務連絡グループは嶺・和真の2名
@@ -298,6 +311,9 @@ def main() -> None:
         print('\n--dry-run のため何も書いていません。')
         return
 
+    # お客様が打った文字は、= + - @ で始まると USER_ENTERED で数式として動く（式の注入。IMPORTXML で外へ送る等）。
+    # 先頭に ' を付けて文字のまま入れる（2026-10-08 プログラムからの空送信を受けて点検・修正）
+    gyou = [[mojinomama(v) for v in g] for g in gyou]
     res = call(f'/{SS}/values/{TAB}!A1:append', 'POST', {'values': gyou},
                q={'valueInputOption': 'USER_ENTERED', 'insertDataOption': 'INSERT_ROWS'})
     print(f'{TAB} に {len(gyou)}件 追記しました')
@@ -321,7 +337,7 @@ def main() -> None:
         json.dump(yotei, f, ensure_ascii=False, indent=1)
     print(f'カレンダーに入れる内容を書き出しました: {out}')
 
-    if not a.no_line:
+    if not a.no_line and shirase:   # 空送信だけのときは送らない
         honbun = ('Web予約（予約フォーム／LP）から申し込みが入りました（' + str(len(shirase)) + '件）\n\n'
                   + '\n\n'.join(shirase)
                   + '\n\nカレンダーには【仮】で入っています。受注フォームで記録すると、'

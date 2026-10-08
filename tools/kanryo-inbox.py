@@ -35,6 +35,13 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 import sheets_client as sc
 
+
+def mojinomama(v):
+    """フォームから来た文字を、シートで数式として解釈させない（= + - @ 始まりに ' を付ける。2026-10-08）"""
+    if isinstance(v, str) and v[:1] in ("=", "+", "-", "@"):
+        return "'" + v
+    return v
+
 SS = "1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64"
 SITE_ID = "f1b64c82-173e-4b1a-9e7f-bf24026fed0e"     # oh-naibu-sms-k7q3x（社内用）
 FORM = "kanryo"
@@ -132,6 +139,7 @@ def suitou_ireru(call, han, dry: bool, sub: dict, d: dict, na: str, kin: int) ->
     if dry:
         print(f"   [予定] 出納帳に現金 {kin:,}円（{hi}）")
         return
+    gyo = [[mojinomama(v) for v in gyo[0]]]
     call(han(f"'{SUITOU}'!A10:H10") + ":append", "POST", {"values": gyo},
          q={"valueInputOption": "USER_ENTERED", "insertDataOption": "INSERT_ROWS"})
     print(f"   出納帳: 現金 {kin:,}円 を記録")
@@ -250,9 +258,9 @@ def main():
                         call(han(f"'{tab}'!I{gyo}"), "PUT", {"values": [[saishu]]},
                              q={"valueInputOption": "USER_ENTERED"})
                     if jissai:
-                        call(han(f"'{tab}'!J{gyo}"), "PUT", {"values": [[jissai]]},
+                        call(han(f"'{tab}'!J{gyo}"), "PUT", {"values": [[mojinomama(jissai)]]},
                              q={"valueInputOption": "USER_ENTERED"})
-                    call(han(f"'{tab}'!N{gyo}"), "PUT", {"values": [[biko + "　" + tsuika_biko]]},
+                    call(han(f"'{tab}'!N{gyo}"), "PUT", {"values": [[mojinomama(biko + "　" + tsuika_biko)]]},
                          q={"valueInputOption": "USER_ENTERED"})
                     print(f"   直しました: {tab} {gyo}行目（I {moto} → {saishu}）")
 

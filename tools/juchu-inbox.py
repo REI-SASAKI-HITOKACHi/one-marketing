@@ -255,6 +255,10 @@ def main():
                 + ("郵便番号は" + yubin_moto + "。" if yubin_moto else "")
                 + ("【ヒアリング】" + str(d["ヒアリング"]) + "　" if d.get("ヒアリング") else "")
                 + str(d.get("備考", "")))
+        # 社内フォームでもホストは公開されている。= + - @ で始まる文字は数式として動かさない（2026-10-08）
+        hondate = [[("'" + v) if isinstance(v, str) and v[:1] in ("=", "+", "-", "@") else v for v in hondate[0]]]
+        if biko[:1] in ("=", "+", "-", "@"):
+            biko = "'" + biko
         if a.dry_run:
             print(f"  [予定] {tab} {gyo}行目 ← {d.get('氏名')} / {d.get('実施メニュー')} / {d.get('売上（税込）')}円")
         else:
