@@ -1,0 +1,50 @@
+/* --- 2026-10-08 ブログ一覧の崩れの修正（依頼 20261008-03-lp）--------------------------
+   原因：テーマ（data-lib 29505）はカードを「左に画像50%・右に本文」の横並びで作っている
+   （article が display:flex の横向き、題名は position:absolute、a に padding 4rem）。
+   上のブロックで一覧を3列のグリッドにしたが、カードの向きを縦に直していなかったため、
+   幅 200px ほどの列に画像と本文が横並びになり、画像が細い帯に、題名がはみ出して MORE と重なった。
+   ここでカードを縦（画像が上・文字が下）に組み直し、題名を3行で切る。
+   対象は一覧の本体（.-w-blog_main）だけ。右の「NEW」の小さい一覧は触らない。
+------------------------------------------------------------------------------------ */
+body section[data-lib="29505"] .-w-blog_main .-w-blog-list > li { margin: 0 !important; width: auto !important; }
+body section[data-lib="29505"] .-w-blog_main .-w-blog-list > li > a {
+  display: block; height: 100%; padding: 0 !important; background: none !important;
+}
+body section[data-lib="29505"] .-w-blog_main .-w-blog-list article {
+  display: flex !important; flex-direction: column !important;
+}
+body section[data-lib="29505"] .-w-blog_main .-w-blog-list .-w-image {
+  width: 100% !important; margin: 0 !important; flex: none;
+}
+body section[data-lib="29505"] .-w-blog_main .-w-blog-list .-w-image > div {
+  width: 100% !important; height: auto !important; padding-top: 0 !important;
+}
+/* 読み込み時に画像の上を赤い帯が横切る演出。3列だと赤い四角が並んで見えるので出さない */
+body section[data-lib="29505"] .-w-blog_main .-w-blog-list .-w-image::after { display: none !important; }
+body section[data-lib="29505"] .-w-blog_main .-w-blog-list .-w-contents {
+  width: 100% !important; min-height: 0 !important; margin: 0 !important;
+  display: flex !important; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px 10px;
+  padding: 14px 18px 46px !important; position: relative; flex: 1;
+}
+body section[data-lib="29505"] .-w-blog_main .-w-blog-list .-w-directory { margin-top: 0 !important; }
+body section[data-lib="29505"] .-w-blog_main .-w-blog-text.-w-pc {
+  position: static !important; padding: 0 !important; width: 100%;
+  font-size: 0 !important; line-height: 0 !important;   /* 抜粋の文は出さない（題名だけを見せる） */
+}
+body section[data-lib="29505"] .-w-blog_main .-w-blog-text.-w-pc .-w-blog-text-ttl {
+  margin-top: 4px !important; padding: 0 !important;
+  font-size: 17px !important; line-height: 1.55 !important;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
+}
+body section[data-lib="29505"] .-w-blog_main .-w-blog-list p.-w-more { right: 18px !important; bottom: 16px !important; }
+@media (max-width: 1100px) {
+  body section[data-lib="29505"] .-w-blog_main .-w-blog-list { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 768px) {
+  body section[data-lib="29505"] .-w-blog_main .-w-blog-list { grid-template-columns: 1fr !important; }
+  body section[data-lib="29505"] .-w-blog_main .-w-blog-text.-w-sp h4 {
+    font-size: 16px !important; line-height: 1.5 !important;
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
+  }
+}
+/* --- /ブログ一覧の崩れの修正 --- */
