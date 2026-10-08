@@ -128,6 +128,17 @@ def keijiban(fun):
     return kekka
 
 
+def blog_tenken():
+    """公開中のブログの画像・題名（tools/check-blog-public.py）。9時台と15時台だけ（1回40秒ほどかかる）。
+    2026-10-08 オーナー指摘「写真はすべて使いまわし・ピンボケ」：16本が同じ 64×48px のまま2週間気づかなかった反省"""
+    if datetime.datetime.now(JST).hour not in (9, 15):
+        return []
+    rc, out = jikkou('tools/check-blog-public.py', '--quiet', timeout=300)
+    if rc == 0:
+        return []
+    return ['ブログの点検: ' + (out.strip().splitlines()[-1] if out.strip() else '失敗')]
+
+
 def kagi_fukugen():
     """毎回、環境変数から鍵ファイルを書き戻す（作業場が作り直されても1時間以内に戻る）。
 
@@ -154,7 +165,7 @@ def main():
         a.fun = 600 if datetime.datetime.now(JST).hour == 7 else 65
     # 鍵の書き戻しをいちばん先に。無ければ先頭に🔴で出す（鍵の要らない点検＝セーフブラウジング・予約API・掲示板は続ける）
     youtaiou = kagi_fukugen()
-    for f in (safebrowsing, hosts_more, haifu_urls, line_midoku, torikomi, yoyaku_api):
+    for f in (safebrowsing, hosts_more, haifu_urls, line_midoku, torikomi, yoyaku_api, blog_tenken):
         try:
             youtaiou += f()
         except Exception as e:  # 点検の失敗は、それ自体を要対応として CMO に渡す
