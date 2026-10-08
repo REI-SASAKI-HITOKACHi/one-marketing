@@ -51,7 +51,11 @@ def teishutsu_zumi():
                 continue
             if d.get("台帳"):
                 rows.add(str(d["台帳"]).strip())
-            pairs.add((seiki(d.get("氏名")), str(d.get("施工日付", "")).replace("/", "-")))
+            hi = str(d.get("施工日付", "")).replace("/", "-")
+            if not hi and s.get("created_at"):
+                # 一覧から選ばずに出すと施工日付が空になる（10/5 濵田様・10/6 山本様）。送った日（日本時間）を施工日とみなす
+                hi = (datetime.datetime.fromisoformat(s["created_at"].replace("Z", "+00:00")).astimezone(JST).date().isoformat())
+            pairs.add((seiki(d.get("氏名")), hi))
     return rows, pairs
 
 
