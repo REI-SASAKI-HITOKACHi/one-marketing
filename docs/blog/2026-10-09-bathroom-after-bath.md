@@ -2,12 +2,14 @@
 title: "入浴のあと、最後の人がやる2つのこと｜TOTOとLIXILの案内から"
 date: 2026-10-09
 category: 水まわり
-eyecatch: 2026-10-09.jpg
+eyecatch: ph-309.jpg
 description: "浴室の汚れを減らすために、入浴後にできること。TOTO・LIXIL・東京都の資料に書かれている手順を、順番に並べました。"
 tags: [ハウスクリーニング]
 source: docs/読本-出典.md #42 #43 #30 #28
 status: draft
 ---
+
+![浴槽と手すり](ph-745.jpg)
 
 ## 浴室の汚れは、毎日少しずつ足されます
 

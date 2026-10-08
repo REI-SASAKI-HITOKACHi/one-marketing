@@ -9,6 +9,8 @@ source: docs/price-master.md
 status: draft
 ---
 
+![洗ったあとの吹き出し口とドレンホース](ph-054.jpg)
+
 ## 対応エリア
 
 東京都、千葉県、神奈川県で作業しています。

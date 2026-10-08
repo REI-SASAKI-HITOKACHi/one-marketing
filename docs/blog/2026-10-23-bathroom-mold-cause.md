@@ -2,7 +2,7 @@
 title: "浴室に黒カビが出る3つの原因　東京都の調査では79.7%"
 date: 2026-10-23
 category: 水まわり
-eyecatch: 2026-10-23.jpg
+eyecatch: ph-072.jpg
 description: "カビが生えた世帯のうち、発生場所の1位は浴室で79.7%でした。温度・湿度・栄養源の3つがそろう場所だからです。"
 tags: [水まわり, 江戸川区, ハウスクリーニング, 船堀, 浴室]
 source: docs/読本-出典.md #1 #2 #16 #29（東京都 指針No.9）
@@ -18,6 +18,8 @@ status: draft
 https://www.hokeniryo.metro.tokyo.lg.jp/documents/d/hokeniryo/web_bunya3
 
 「カビが生えた世帯のうち79.7%」です。全世帯のうちではありません。ここは分けて読んでください。
+
+![水栓まわりの壁のカビ](ph-064.jpg)
 
 ## 原因1　温度が20〜35℃になる
 

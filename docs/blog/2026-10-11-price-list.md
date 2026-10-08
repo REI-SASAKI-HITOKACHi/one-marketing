@@ -9,6 +9,8 @@ source: docs/price-master.md
 status: draft
 ---
 
+![洗う前の熱交換器](ph-167.jpg)
+
 ## メニューと料金
 
 すべて税込の価格です。
