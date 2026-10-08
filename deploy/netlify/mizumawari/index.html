@@ -981,6 +981,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
       action="/mizumawari/thanks.html" data-netlify="true" netlify-honeypot="x_field">
       <input type="hidden" name="form-name" value="reserve-mizumawari">
       <input type="hidden" name="subject" value="【LP予約】水まわりセット">
+      <input type="hidden" name="送信元の確認" value="">
       <input type="hidden" name="申込内容" value="">
       <input type="hidden" name="見積総額" value="">
       <input type="hidden" name="見積内訳" value="">
@@ -1761,6 +1762,17 @@ var f=document.querySelector('form.form');if(!f)return;var id='';f.addEventListe
       /* まとめが作れなくても、申し込みそのものは止めない */
       put('申込内容', '（申込内容のまとめを作れませんでした。各項目をご確認ください）');
     }
+  });
+})();
+</script>
+<script>
+/* 送信元の確認（tools/sousin-kakunin.py）。ブラウザで送ったときだけ埋まる。空なら機械的な直接送信 */
+(function(){
+  var f = document.querySelector('form.form'); if (!f) return;
+  var t0 = Date.now();
+  f.addEventListener('submit', function(){
+    var e = f.querySelector('input[name="送信元の確認"]');
+    if (e) e.value = 'ブラウザ（入力 ' + Math.round((Date.now() - t0) / 1000) + '秒）';
   });
 })();
 </script>

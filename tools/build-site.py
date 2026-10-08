@@ -685,6 +685,13 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict)
         mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
         doc = mod.insert(doc, meta["dir"])
 
+    # 送信元の確認の隠し欄（ブラウザで送ったときだけ埋まる。依頼 20261008-01-lp）
+    if target == "netlify":
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("sousin_kakunin", ROOT / "tools" / "sousin-kakunin.py")
+        mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+        doc = mod.apply(doc)
+
     # 予約ページ（別ホスト）への引き継ぎに、どのLPから来たか（lp）を足す。
     # src・cid・ag・gclid は今の版と学習版で同じ値になり、A/B を区別できないため
     # （measurement 依頼 20261003-08-lp）。値はフォームの隠し欄 lp と同じ meta["dir"]。
