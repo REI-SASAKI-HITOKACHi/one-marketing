@@ -131,7 +131,7 @@ def ban(lp_value):
         v = v[len("reserve-"):]
     if not v:
         return "", ""
-    if v == "yoyaku":
+    if v in ("yoyaku", "booking"):
         return "（予約ページ・版不明）", "yoyaku"
     return ("学習版" if v in GAKUSHU else "今の版"), v
 

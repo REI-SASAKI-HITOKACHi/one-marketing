@@ -73,7 +73,8 @@ chk("費用が版に分かれていなければ、CPAを出さずにそう書く
     "注文ID,src,ag,lp,★売上（税込）\n"
     + "".join(f"OH-a{i},gads_aircon,222,aircon-c,\n" for i in range(5))
     + "".join(f"OH-b{i},gads_aircon,222,aircon,\n" for i in range(3))
-    + "OH-y1,gads_mizumawari,,yoyaku,\n",
+    + "OH-y1,gads_mizumawari,,yoyaku,\n"
+    + "OH-y2,gads_aircon,222,booking,\n",
     encoding="utf-8")
 r = subprocess.run([sys.executable, str(TOOL), str(tmp / "z.csv"), "--ag-name", "222=A_エアコン",
                     "--click", "A_エアコン:学習版=100", "--click", "A_エアコン:今の版=60",
@@ -83,6 +84,7 @@ chk("クリック100で申込5 → 満たす", "| A_エアコン | 学習版 | a
 chk("クリック60 → クリック不足", "クリック不足（60/100）" in out)
 chk("増額は嶺さんに確認と書く", "嶺さんに確認" in out)
 chk("予約ページ経由は版不明として出し、注意する", "（予約ページ・版不明）" in out and "版の比較に入れていない" in out)
+chk("lp=booking（予約ページ直）も版不明として出す", "| A_エアコン | （予約ページ・版不明） | yoyaku | 1 |" in out, out)
 chk("注記が出る", "> 長田さまはgclidなし" in out)
 (tmp / "z2.csv").write_text("注文ID,src,ag,lp,★売上（税込）\n" + "".join(f"OH-a{i},gads_aircon,222,aircon-c,\n" for i in range(4)), encoding="utf-8")
 r = subprocess.run([sys.executable, str(TOOL), str(tmp / "z2.csv"), "--ag-name", "222=A_エアコン",
