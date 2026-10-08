@@ -205,6 +205,7 @@ def main() -> None:
     gyou, shirase, yotei, oshiri = [], [], [], []
     for s in sorted(atarashii, key=lambda x: x['created_at']):
         d = s.get('data') or {}
+        moto_d = d   # 送信そのままの値（LP の隠し欄を見るため。下で d は表示用に組み替える）
         # 注文ID（LPが採番 OH-…）と gclid（広告のクリックID）。どのフォームでも生の欄名から拾う
         # 予約フォーム（yoyaku）は欄名が日本語（広告のクリックID）、LPのフォームは gclid/order_id
         oshiri.append({'注文ID': str(d.get('order_id') or ''),
@@ -242,8 +243,13 @@ def main() -> None:
         # お名前も電話も無い送信は、お客様の申込ではない（2026-10-08 04:24 プログラムからの空送信）。
         # 行には残すが、LINE・カレンダーには出さない
         kara = not str(d.get('お名前', '')).strip() and not re.sub(r'\D', '', str(d.get('お電話番号', '')))
+        # LP の隠し欄「送信元の確認」（2026-10-08 配信）。ブラウザで押すと「ブラウザ（入力 N秒）」が入る。
+        # 欄があって空なら機械送信の疑い。お名前・電話が入っていれば本物の可能性もあるので、通知はして印だけ付ける
+        kikai = moto_d is not None and '送信元の確認' in moto_d and not str(moto_d.get('送信元の確認') or '').strip()
         gyou.append([
-            uke.strftime('%Y-%m-%d %H:%M'), '空送信（お名前・電話なし。お客様ではない）' if kara else '未確認',
+            uke.strftime('%Y-%m-%d %H:%M'),
+            '空送信（お名前・電話なし。お客様ではない）' if kara
+            else ('未確認（送信元の確認が空＝機械送信の疑い。電話で確かめる）' if kikai else '未確認'),
             d.get('お名前', ''), "'" + str(d.get('お電話番号', '')), d.get('ご住所', ''),
             d.get('ご希望日', ''), d.get('ご希望時刻', ''), d.get('ご希望の内容', ''),
             d.get('所要の目安（分）', ''), d.get('概算金額', ''), d.get('ご要望', ''),
