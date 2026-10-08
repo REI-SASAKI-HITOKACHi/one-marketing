@@ -226,7 +226,7 @@ def main() -> int:
     ap.add_argument("--strict", action="store_true", help="注意も失敗として扱う")
     a = ap.parse_args()
     files = [pathlib.Path(f) for f in (a.files or sorted(glob.glob(str(ROOT / "docs/blog/*.md"))))]
-    files = [f for f in files if f.name not in ("README.md", "既存記事一覧.md")]
+    files = [f for f in files if f.name not in ("README.md", "既存記事一覧.md", "写真割り当て表.md")]
     if not files:
         print("原稿が見つかりません")
         return 1

@@ -2,7 +2,7 @@
 title: "ハウスクリーニング当日の流れ　用意するものと、お願いすること"
 date: 2026-11-01
 category: お知らせ
-eyecatch: IMG_8015.jpg
+eyecatch: IMG_8012.jpg
 description: "養生から試運転までの6工程、お借りする電源と水道、駐車場が無い場合のご負担まで、先に書いておきます。"
 tags: [江戸川区, ハウスクリーニング, 船堀, 西葛西]
 source: docs/price-master.md ／ docs/sheet-changelog.md（駐車場の実費の文言）
@@ -12,7 +12,7 @@ status: draft
 
 初めてご依頼いただく方から、当日のことをよく聞かれます。先に全部書いておきます。
 
-![洗浄直後の熱交換器](IMG_8015.jpg)
+![洗浄中の内部](IMG_8013.jpg)
 
 ## 当日の流れ　6つ
 
