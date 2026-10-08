@@ -89,7 +89,10 @@ def kyou_ripi(kyou):
             if tel and len(tel) >= 10 and num(d[3]) == tel:
                 hit = d
                 break
-        if hit is None:
+        # 電話番号があるのに台帳の電話と合わない＝別人（新規）。名前では当てない。
+        # 名字だけ（2字以下）も当てない。2026-10-09 新規の鈴木様を、別の鈴木様（3回目）と取り違えた。
+        nadake = not (tel and len(tel) >= 10) and len(na) >= 3
+        if hit is None and nadake:
             for d in daicho:
                 d = d + [""] * 33
                 if na and (mei(d[1]) == na or na in [mei(x) for x in d[31].split("／")]):
@@ -98,7 +101,7 @@ def kyou_ripi(kyou):
         if hit is None:
             continue
         onaji = [z[2].strip() for z in zenbu
-                 if (tel and len(tel) >= 10 and num(z[5]) == tel) or (na and mei(z[4]) == na)]
+                 if (tel and len(tel) >= 10 and num(z[5]) == tel) or (nadake and mei(z[4]) == na)]
         mae = sorted(x for x in onaji if re.fullmatch(r"\d{4}/\d{2}/\d{2}", x) and x < kyou_s)
         saki = sum(1 for x in onaji if re.fullmatch(r"\d{4}/\d{2}/\d{2}", x) and x > kyou_s)
         kai = int(num(hit[6]) or 0)
