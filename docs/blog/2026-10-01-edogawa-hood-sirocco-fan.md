@@ -7,7 +7,7 @@ description: "2026年8月、江戸川区のレンジフード。中のシロッ�
 tags: [江戸川区, ハウスクリーニング]
 source: data/zukan/2026-08-31-hood.json ／ docs/読本-出典.md #50 #15
 notes: "名義は One Hitter（2026年8月台帳・換気扇 ¥15,708）。作業後のファン写真は無いため、組写真にしない。"
-status: draft
+status: published
 ---
 
 ## 何が起きていたか

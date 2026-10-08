@@ -6,7 +6,7 @@ eyecatch: IMG_7987.jpg
 description: "お湯を張ったときに浮く黒い粒や膜の出どころと、市販の風呂釜洗浄剤の使い方。愛知県江南保健所の資料の記載をもとに書きました。"
 tags: [ハウスクリーニング]
 source: docs/読本-出典.md #7 #37 #42
-status: draft
+status: published
 ---
 
 ## 黒い粒は、配管の内側から出ています

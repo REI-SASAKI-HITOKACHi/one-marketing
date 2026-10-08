@@ -7,7 +7,7 @@ description: "2026年9月、江戸川区の現場から。エアコンの分解�
 tags: [江戸川区, ハウスクリーニング]
 source: data/zukan/2026-09-08-aircon.json
 notes: "名義は One Hitter。IMG_8011 は内部を上から見た引き。IMG_8014 は洗浄中で水が滴っている1枚。"
-status: draft
+status: published
 ---
 
 ## 何が起きていたか

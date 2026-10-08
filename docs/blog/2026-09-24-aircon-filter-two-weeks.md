@@ -6,7 +6,7 @@ eyecatch: IMG_8021.jpg
 description: "エアコンのフィルター掃除の頻度を、ダイキンと東京都の資料から確かめました。洗い方の手順と、フィルターでは届かない場所の話。"
 tags: [ハウスクリーニング]
 source: docs/読本-出典.md #53 #3 #4
-status: draft
+status: published
 ---
 
 ## 頻度の目安は「2週間に1度」

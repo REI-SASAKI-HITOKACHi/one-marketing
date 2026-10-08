@@ -7,7 +7,7 @@ description: "2026年9月、江戸川区で壁掛けエアコン2台。1台目�
 tags: [江戸川区, ハウスクリーニング]
 source: data/zukan/2026-09-08-aircon.json ／ docs/読本-出典.md #53 #3
 notes: "名義は One Hitter（2026年9月台帳・エアコン(ノーマル) ¥10,780）。組写真は 8009→8016 の1組のみ（docs/photo-inventory-2026-09.md で同一機・同一角度を確認済み）。"
-status: draft
+status: published
 ---
 
 ## 何が起きていたか

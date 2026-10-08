@@ -7,7 +7,7 @@ description: "2026年9月、江戸川区の2台目のエアコン。フィルタ
 tags: [江戸川区, ハウスクリーニング]
 source: data/zukan/2026-09-08-aircon.json
 notes: "名義は One Hitter。2台目（IMG_8019 外観・8021/8022 フィルター）。2台目の作業後写真は無いため『どこまで落ちたか』の章は写真なしで書いた。"
-status: draft
+status: published
 ---
 
 ## 何が起きていたか

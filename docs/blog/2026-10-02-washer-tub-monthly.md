@@ -6,7 +6,7 @@ eyecatch: IMG_7985.jpg
 description: "洗濯物に付く黒いカスの正体と、槽洗浄の頻度。パナソニック・東芝ライフスタイルの案内をもとに、手順と、やってはいけないことを並べました。"
 tags: [ハウスクリーニング]
 source: docs/読本-出典.md #13 #39 #40 #41 #37
-status: draft
+status: published
 ---
 
 ## 黒いカスは、槽の裏から出てきています

@@ -7,7 +7,7 @@ description: "2026年9月、江戸川区の壁掛けエアコン。前面パネ�
 tags: [江戸川区, ハウスクリーニング]
 source: data/zukan/2026-09-08-aircon.json
 notes: "名義は One Hitter。8007/8008/8011 は同じ場面の別角度。組写真ではないので単独で使う。"
-status: draft
+status: published
 ---
 
 ## 何が起きていたか

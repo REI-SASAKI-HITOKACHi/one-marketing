@@ -6,7 +6,7 @@ eyecatch: IMG_7987.jpg
 description: "東京都の指針に書かれているカビの生育条件と、湿度60%を超えさせないための具体策。加湿器の手入れの頻度まで、一次資料の記載で並べました。"
 tags: [ハウスクリーニング]
 source: docs/読本-出典.md #2 #16 #26 #27 #28 #35
-status: draft
+status: published
 ---
 
 ## 条件は3つです

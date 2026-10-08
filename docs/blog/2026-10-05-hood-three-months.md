@@ -6,7 +6,7 @@ eyecatch: IMG_7880.jpg
 description: "レンジフードのフィルターとファンの手入れの頻度を、パナソニックの案内から確かめました。つけ置きの温度と時間、使わないほうがよいものまで。"
 tags: [ハウスクリーニング]
 source: docs/読本-出典.md #50 #15
-status: draft
+status: published
 ---
 
 ## 目安は3か月に1度

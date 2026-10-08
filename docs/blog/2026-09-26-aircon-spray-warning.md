@@ -6,7 +6,7 @@ eyecatch: IMG_8010.jpg
 description: "市販のエアコン洗浄スプレーについて、ダイキン・三菱電機・製品評価技術基盤機構が出している案内を、原文のまま並べました。何が起きるのかも。"
 tags: [ハウスクリーニング]
 source: docs/読本-出典.md #4 #5 #6
-status: draft
+status: published
 ---
 
 ## メーカーは「使用しないでください」と書いています

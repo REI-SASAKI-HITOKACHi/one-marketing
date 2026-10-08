@@ -6,7 +6,7 @@ eyecatch: IMG_7987.jpg
 description: "浴室や洗濯槽で使う塩素系洗浄剤について、国民生活センターと東京都の資料に書かれている注意を並べました。換気の目安と、混ぜてはいけないものまで。"
 tags: [ハウスクリーニング]
 source: docs/読本-出典.md #37 #29 #13
-status: draft
+status: published
 ---
 
 ## 容器の赤い注意書きの中身

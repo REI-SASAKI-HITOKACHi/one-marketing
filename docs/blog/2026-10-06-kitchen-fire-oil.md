@@ -6,7 +6,7 @@ eyecatch: IMG_7877.jpg
 description: "東京消防庁がキッチンの火災について出している注意のうち、レンジフードの油脂に関する部分をまとめました。ふだんできる手当ても並べています。"
 tags: [ハウスクリーニング]
 source: docs/読本-出典.md #15 #50
-status: draft
+status: published
 ---
 
 ## 油はどこにたまるか
