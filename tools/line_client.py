@@ -30,6 +30,7 @@ LINE Messaging API クライアント（内部用グループへの送信）
 import argparse
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.request
@@ -68,7 +69,15 @@ def token() -> str:
 
 
 def group_id() -> str:
-    return _yomu(GROUP_ENV, "", GROUP_KITEI, "送信先のグループID")
+    g = _yomu(GROUP_ENV, "", GROUP_KITEI, "送信先のグループID")
+    # 環境変数・鍵ファイルにボットのID（@…）が入っている（2026-10-07 判明。オーナーは直せない）。
+    # グループIDは C で始まる33文字。形が違うときは、業務連絡グループ（savedata「LINE_ログ」の項。秘密ではない）へ送る
+    if not re.fullmatch(r"[CR][0-9a-f]{32}", g):
+        return GYOUMU_GROUP
+    return g
+
+
+GYOUMU_GROUP = "Cdaad037f60f5bc8b2c8138ce0afffc78"   # 【業務連絡】OneHitter（嶺・和真の2名。10/7 summary で確認）
 
 
 def call(path: str, method: str = "GET", payload=None):
