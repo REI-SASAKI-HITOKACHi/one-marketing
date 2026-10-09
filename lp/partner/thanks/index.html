@@ -4,61 +4,60 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>送信ありがとうございました｜ワンヒッター株式会社</title>
-<meta name="description" content="ワンヒッター株式会社の提携先さま（設置・管理・リフォーム会社さま）専用の、洗浄のご依頼・ご相談フォームです。">
-<!--
-  【このページは何か】提携先（タカラサービス様・青山リアルティ様など）が、当社に洗浄の依頼・相談を送るための専用フォーム。
-  オーナー 2026-10-09「相談フォーム的なの作ってよ」。タカラ様・青山様あての送付物から案内する。
-  お客様（一般の方）向けではない。一般の方は予約ページ（yoyaku.onehitter.jp）。
-  【受け取り】Netlify のフォーム "partner"。届いたら通知メール（formresponses@netlify.com）→ 毎時点検で拾う。
-  【配信】lp.onehitter.jp/partner/。配信はオーナー承認。配信前に python3 tools/check-public-page.py を通す。
--->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>仮押さえを受け付けました｜ワンヒッター株式会社</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --ink:#0D3B5C; --paper:#F3F7F9; --surface:#FFFFFF;
-  --text:#13232E; --text-2:#3C5262; --rule:#D7E1E7;
-  --cta:#B72C0A; --cta-h:#8F2408; --aqua:#0C6B7F; --aqua-soft:#DDEDF1;
-  color-scheme: light;
-}
+:root{--ink:#0D3B5C;--paper:#F3F7F9;--surface:#fff;--text:#13232E;--text-2:#3C5262;--rule:#D7E1E7;
+  --cta:#B72C0A;--cta-h:#8F2408;--aqua:#0C6B7F;--aqua-soft:#DDEDF1;color-scheme:light}
 *{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--text);
-  font-family:"Noto Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
-  font-size:16px;line-height:1.8;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--text);font-family:"Noto Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  font-size:16px;line-height:1.75;-webkit-text-size-adjust:100%}
 .wrap{width:min(680px,100% - 32px);margin-inline:auto}
-header{background:var(--ink);color:#EDF4F8;padding:28px 0 24px}
-header .tag{font-size:13px;letter-spacing:.08em;color:#A8C2D2;margin:0 0 6px}
-header h1{font-size:22px;line-height:1.5;margin:0 0 8px}
+header{background:var(--ink);color:#EDF4F8;padding:24px 0 20px}
+header .tag{font-size:13px;color:#A8C2D2;margin:0 0 4px}
+header h1{font-size:21px;line-height:1.5;margin:0 0 6px}
 header p{margin:0;font-size:14px;color:#D5E3EC}
-main{padding:24px 0 8px}
-.card{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:20px 18px;margin:0 0 18px}
+main{padding:20px 0 4px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:18px 16px;margin:0 0 16px}
 .card h2{font-size:17px;margin:0 0 10px;color:var(--ink)}
-ul.points{margin:0;padding-left:1.2em}
-ul.points li{margin:0 0 4px}
-label{display:block;font-weight:500;margin:14px 0 6px}
-label .req{display:inline-block;font-size:11px;color:#fff;background:var(--cta);border-radius:3px;padding:0 6px;margin-left:6px;vertical-align:2px}
-label .opt{font-size:12px;color:var(--text-2);margin-left:6px;font-weight:400}
-input[type=text],input[type=tel],input[type=email],input[type=number],select,textarea{
-  width:100%;font:inherit;padding:10px 12px;border:1px solid #B4C5D0;border-radius:6px;background:#fff}
-textarea{min-height:110px}
-.checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:6px 12px;margin:4px 0 0}
-.checks label{font-weight:400;margin:0;display:flex;gap:8px;align-items:center}
-.hint{font-size:13px;color:var(--text-2);margin:4px 0 0}
-button{display:block;width:100%;margin:22px 0 8px;padding:14px;font:inherit;font-weight:700;font-size:17px;
-  color:#fff;background:var(--cta);border:0;border-radius:8px;cursor:pointer}
-button:hover{background:var(--cta-h)}
+.step{display:inline-block;background:var(--ink);color:#fff;border-radius:50%;width:24px;height:24px;text-align:center;
+  line-height:24px;font-size:13px;margin-right:6px}
+label.f{display:block;font-weight:500;margin:12px 0 6px}
+.req{font-size:11px;color:#fff;background:var(--cta);border-radius:3px;padding:0 6px;margin-left:6px;vertical-align:2px}
+.opt{font-size:12px;color:var(--text-2);margin-left:6px;font-weight:400}
+input[type=text],input[type=tel],textarea,select{width:100%;font:inherit;padding:10px 12px;border:1px solid #B4C5D0;border-radius:6px;background:#fff}
+textarea{min-height:80px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--rule)}
+.row:last-child{border-bottom:0}
+.row .nm{flex:1;font-size:15px}
+.row .pr{display:block;font-size:12px;color:var(--text-2)}
+.qty{display:flex;align-items:center;gap:6px}
+.qty button{width:36px;height:36px;border-radius:50%;border:1px solid #B4C5D0;background:#fff;font-size:20px;line-height:1;cursor:pointer;color:var(--ink)}
+.qty output{min-width:2.4em;text-align:center;font-weight:700}
+.sum{background:var(--aqua-soft);border-radius:8px;padding:12px 14px;margin-top:12px}
+.sum .big{font-size:24px;font-weight:700;color:var(--ink)}
+.sum ul{margin:6px 0 0;padding-left:1.1em;font-size:14px}
 .note{font-size:13px;color:var(--text-2)}
+.days{display:grid;gap:10px}
+.day .dl{font-weight:700;font-size:14px;margin:0 0 4px}
+.day .we{color:#B72C0A}
+.times{display:flex;flex-wrap:wrap;gap:6px}
+.times button{border:1px solid #B4C5D0;background:#fff;border-radius:6px;padding:6px 10px;font:inherit;font-size:14px;cursor:pointer}
+.times button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.more{margin-top:8px;background:none;border:0;color:var(--aqua);font:inherit;cursor:pointer;padding:0}
+.pick{margin-top:8px;font-weight:700;color:var(--ink)}
+button.send{display:block;width:100%;margin:16px 0 6px;padding:14px;font:inherit;font-weight:700;font-size:17px;color:#fff;background:var(--cta);border:0;border-radius:8px;cursor:pointer}
+button.send:hover{background:var(--cta-h)}
+.err{color:#B72C0A;font-size:14px;min-height:1em}
 .hp{position:absolute;left:-9999px}
-footer{border-top:1px solid var(--rule);padding:20px 0 32px;font-size:13px;color:var(--text-2)}
+footer{border-top:1px solid var(--rule);padding:18px 0 28px;font-size:13px;color:var(--text-2)}
 footer a{color:var(--aqua)}
 </style>
 </head>
 <body>
-<header><div class="wrap"><p class="tag">提携先さま専用</p><h1>送信ありがとうございました</h1>
-<p>担当の渡辺から、1営業日以内に日程と概算をご連絡します。お急ぎの場合はお電話（080-8043-8259）でお知らせください。</p></div></header>
-<main class="wrap"><div class="card"><p>続けて別の現場をご依頼の場合は、<a href="/partner/">フォームに戻る</a>からお送りください。</p></div></main>
+<header><div class="wrap"><p class="tag">提携先さま専用</p><h1>仮押さえを受け付けました</h1>
+<p>担当の渡辺から、1営業日以内に確定のご連絡をします。お急ぎの場合はお電話（080-8043-8259）でお知らせください。</p></div></header>
+<main class="wrap"><div class="card"><p>続けて別の現場をご依頼の場合は、ブラウザの「戻る」で前のページに戻ってお送りください。</p></div></main>
 <footer>
   <div class="wrap">
     <p><b>ワンヒッター株式会社</b>（代表取締役 佐々木 沙樹）<br>
