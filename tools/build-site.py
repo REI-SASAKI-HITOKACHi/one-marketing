@@ -802,7 +802,8 @@ def copy_kanseihin(out: pathlib.Path, target: str) -> None:
     # tokushoho（特定商取引法に基づく表記）も同じ形の完成品。
     # PAGES に足すと lp_id や og の欄が要るが、これは商品ページではないので
     # こちら側で写す。ここに名前を足さないと、配信しても本番に出ない。
-    for name in ("survey", "tokushoho"):
+    # privacy（個人情報の取扱い）も同じ。公式サイトの 403 障害（2026-10-09）から、LP 等のリンク先はこちらが正。
+    for name in ("survey", "tokushoho", "privacy"):
         src = ROOT / "lp" / name / "index.html"
         if not src.exists():
             continue
