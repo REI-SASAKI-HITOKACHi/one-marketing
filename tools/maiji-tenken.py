@@ -103,7 +103,30 @@ def yoyaku_api():
             err = e
     if err:
         return [f'予約APIに届かない（2回とも）: {err}']
-    return [] if '"ok":true' in body else ['予約APIが ok:false（空き枠を旧手順で作り直す。savedata 参照）']
+    if '"ok":true' not in body:
+        return ['予約APIが ok:false（空き枠を旧手順で作り直す。savedata 参照）']
+    return hikae_furui()
+
+
+def hikae_furui():
+    """予約ページの控え（yoyaku.onehitter.jp/slots.json）が古くないか。読むだけ。
+
+    API が落ちたときにページが戻る先。■1 を飛ばすようにした 9/24 22時から誰も作らず、
+    10/9 まで 9/24 09:44 のままだった（API が落ちた瞬間に過去の日付が出る状態）。
+    古ければ CMO が python3 tools/slots-from-api.py --deploy を流す（APIの答えをそのまま控えにし、slots.json だけ差し替える）。
+    """
+    import json
+    import urllib.request
+    try:
+        d = json.loads(urllib.request.urlopen(
+            'https://yoyaku.onehitter.jp/slots.json?t=' + str(int(datetime.datetime.now().timestamp())), timeout=30).read())
+        gen = datetime.datetime.fromisoformat(d['generated'])
+    except Exception as e:
+        return [f'予約ページの控え（slots.json）が読めない: {e}']
+    keika = (datetime.datetime.now(JST) - gen).total_seconds() / 3600
+    if keika > 24:
+        return [f'予約ページの控え（slots.json）が {d.get("generatedLabel")} のまま（{keika:.0f}時間前）→ python3 tools/slots-from-api.py --deploy']
+    return []
 
 
 def keijiban(fun):
