@@ -41,7 +41,7 @@ COMPANIES = {
         "seikyu": "御社（これまでどおり）",
     },
     "aoyama-k4x9": {
-        "kaisha": "青山リアルティ・アドバイザーズ株式会社", "tantou": "荒木",
+        "kaisha": "青山リアルティー・アドバイザーズ株式会社", "tantou": "荒木",
         "menus": ["gyomu", "normal", "robo", "shitsugaiki", "drain"],
         "waribiki": 0,
         "seikyu": "御社（これまでどおり）",
