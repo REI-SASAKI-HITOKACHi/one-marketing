@@ -2748,3 +2748,7 @@ crm の回答：
 - 10/9 18時台 **予約ページの空き枠の控え slots.json**：9/24 09:44 のまま止まっていた（API 正常の間は ■1 を飛ばす決めで、作り直す工程が消えていた）。**オーナー回答「一旦はそれでいいけど根本的に直さなきゃだめだよ」** → `tools/slots-from-api.py --deploy` で slots.json だけ差し替え（デプロイ 6ac8b19f、10/9 18:19）。毎時点検に古さの点検（24時間超で要対応）。**毎時の自動配信は分類器が [Unauthorized Persistence] で拒否 → 入れていない（迂回しない）。** 根本対応の案をオーナーへ：A 自動配信を許可ルールで認めてもらう／B 予約ページ側で「控えが24時間より古ければ使わず電話・LINEの案内を出す」（index.html を1回配信）。
 - 10/9 18時台 T052 提携先へ月1回の空き枠案内：`tools/teikei-akiwaku.py`・下書き `data/teikei-akiwaku/2026-10.md`（11社、送信なし）。宛先メールは全社空欄（data/teikei-renrakusaki.json）。毎月25日に生成→オーナーに「送ってよいか」。
 - 10/9 18:39 **オーナー「どっちもダメ。常時自動更新されるようにリンクさせて」** → 予約ページの `/slots.json` を **Apps Script 直結の Netlify Function**（`lp/booking-functions/slots.js`、`lp/booking/_redirects` の `/slots.json → /.netlify/functions/slots 200!`）に。CDN に10分置いて裏で取り直す。取れないときは最後の写し `/slots-hikae.json`。デプロイ 6ac8b63c（index.html は本番と同一を確認）。本番で source=apps-script-live を確認。**もう配信は要らない。** `deploy-booking.py --slots-only` は関数が外れるので止めた（全体配信は関数込みで送る）。毎時点検は「generated が24時間より古い＝直結が切れた」を知らせる。
+- 10/9 19時台 **【オーナーの直接決定】MTGシート第6回 6-2 の更新情報（原文）**：
+  - F635（No.6 紹介割引）「決定済み事項。担当スレッドにすぐに実行させて」→ crm に T066（20261009-05-crm）、quotation に T067（20261009-01-quotation）を依頼し、両セッションを起こした
+  - F636（No.7 宿題）「決定済み事項。すぐに実行して。写真置き場は既にある https://drive.google.com/drive/folders/16eTKjJbTeaNWFJnHO46OprI07iNycK4t?usp=drive_link から拾ってリンクを送信。写真の仕分けが止まってるからすぐに再開して。担当エージェントを割り振って実行させて」→ 子エージェント（施工写真担当）に、前回写真のリンク拾い（data/shashin-drive.json）・10/10〜11 のリピーター分のLINE送信・仕分けの再開を割り振った
+  - 「写真の置き場が無い」として T064・T056 を止めていたのは私の誤り（置き場は既にあった）
