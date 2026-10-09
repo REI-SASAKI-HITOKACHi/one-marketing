@@ -25,6 +25,8 @@ import urllib.request
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / "lp" / "booking"
 SRC_301 = ROOT / "lp" / "booking-redirect"   # 旧ホストへ送る301だけの中身
+# /slots.json を Apps Script に直結する Netlify Function（2026-10-09 オーナー「常時自動更新されるようにリンクさせて」）
+FUNC_DIR = ROOT / "lp" / "booking-functions"
 API = "https://api.netlify.com/api/v1"
 
 # 予約フォームのサイト。
@@ -103,6 +105,21 @@ def honban_sha1() -> str:
         return ""
 
 
+def kansuu_zip() -> dict:
+    """lp/booking-functions/*.js を1本ずつ zip にする（Netlify の API 配信は zip を受け取る）"""
+    import io
+    import zipfile
+    out = {}
+    for js in sorted(FUNC_DIR.glob("*.js")):
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
+            info = zipfile.ZipInfo(js.name, date_time=(2026, 1, 1, 0, 0, 0))
+            info.external_attr = 0o644 << 16
+            z.writestr(info, js.read_bytes())
+        out[js.stem] = buf.getvalue()
+    return out
+
+
 def atsumeru() -> dict:
     files = {}
     for p in sorted(SRC.rglob("*")):
@@ -120,6 +137,10 @@ def slots_only() -> None:
     手元の index.html は使わない（未配信の変更が手元にあっても、それを一緒に出さないため）。
     本番の各ファイルは Netlify にある sha をそのまま指定するので、送るのは slots.json の1件だけ。
     """
+    if (FUNC_DIR / "slots.js").exists():
+        # 2026-10-09 から /slots.json は Apps Script 直結の関数が返す。ファイルの差し替えは要らない。
+        # ここで files だけの配信をすると、関数が外れて直結が切れるので止める。
+        sys.exit("/slots.json は Apps Script 直結（lp/booking-functions/slots.js）です。--slots-only は使いません。")
     p = SRC / "slots.json"
     if not p.exists():
         sys.exit("lp/booking/slots.json がありません。")
@@ -219,9 +240,19 @@ def main() -> None:
     sid = OLD_SITE_ID if a.old else site_id(tok)
     print(f"サイトID: {sid}")
     digest = {rel: hashlib.sha1(p.read_bytes()).hexdigest() for rel, p in files.items()}
-    dep = call(tok, "POST", f"/sites/{sid}/deploys", {"files": digest})
+    kansuu = {} if a.old else kansuu_zip()
+    body = {"files": digest}
+    if kansuu:
+        body["functions"] = {n: hashlib.sha256(z).hexdigest() for n, z in kansuu.items()}
+    dep = call(tok, "POST", f"/sites/{sid}/deploys", body)
     iru = set(dep.get("required") or [])
-    print(f"\nデプロイ {dep['id']}／アップロードが要るファイル {len(iru)}件")
+    iru_f = set(dep.get("required_functions") or [])
+    print(f"\nデプロイ {dep['id']}／アップロードが要るファイル {len(iru)}件・関数 {len(iru_f)}件")
+    for n, z in kansuu.items():
+        if body["functions"][n] in iru_f:
+            call(tok, "PUT", f"/deploys/{dep['id']}/functions/{n}?runtime=js", raw=z,
+                 ctype="application/octet-stream")
+            print(f"  送信: 関数 {n}")
 
     for rel, p in files.items():
         if digest[rel] not in iru:

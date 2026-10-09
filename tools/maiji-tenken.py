@@ -113,7 +113,8 @@ def hikae_furui():
 
     API が落ちたときにページが戻る先。■1 を飛ばすようにした 9/24 22時から誰も作らず、
     10/9 まで 9/24 09:44 のままだった（API が落ちた瞬間に過去の日付が出る状態）。
-    古ければ CMO が python3 tools/slots-from-api.py --deploy を流す（APIの答えをそのまま控えにし、slots.json だけ差し替える）。
+    2026-10-09 から /slots.json は Apps Script 直結の Netlify Function（lp/booking-functions/slots.js）が返す。
+    古い＝直結が切れて最後の写し（slots-hikae.json）に落ちている。関数のログと Apps Script を見る。
     """
     import json
     import urllib.request
@@ -125,7 +126,7 @@ def hikae_furui():
         return [f'予約ページの控え（slots.json）が読めない: {e}']
     keika = (datetime.datetime.now(JST) - gen).total_seconds() / 3600
     if keika > 24:
-        return [f'予約ページの控え（slots.json）が {d.get("generatedLabel")} のまま（{keika:.0f}時間前）→ python3 tools/slots-from-api.py --deploy']
+        return [f'予約ページの控え（slots.json）が {d.get("generatedLabel")} のまま（{keika:.0f}時間前）→ Apps Script 直結が切れている（source={d.get("source")}）。lp/booking-functions/slots.js と Apps Script を確認']
     return []
 
 

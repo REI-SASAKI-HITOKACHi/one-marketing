@@ -1,0 +1,2 @@
+# /slots.json は Apps Script に直結（lp/booking-functions/slots.js）。2026-10-09 オーナー「常時自動更新されるようにリンクさせて」
+/slots.json  /.netlify/functions/slots  200!

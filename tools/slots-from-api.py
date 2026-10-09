@@ -21,7 +21,7 @@
 
 使い方:
   python3 tools/slots-from-api.py            # 手元の lp/booking/slots.json を作り直すだけ
-  python3 tools/slots-from-api.py --deploy   # 必要なら本番の控えも差し替える
+  python3 tools/slots-from-api.py --deploy   # （2026-10-09 から不要：/slots.json は Apps Script 直結の関数が返す）
 """
 import argparse
 import datetime as dt
