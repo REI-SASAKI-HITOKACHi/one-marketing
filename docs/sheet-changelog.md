@@ -2215,3 +2215,5 @@ if (!v.includes('blog-photos') && v.split(ANCHOR).length - 1 === 1) {
 - 6-7 に計測担当・ネット流入担当の現状報告と改善方針（掲示板 20261009-02-measurement／-web-inflow の返信）を反映
 - 書式は決まりの順（format-mtg-sheet → format-mtg-numbers → link-mtg-sanshou）。リンク 253本（減っていない）。数値書式の突き合わせで値の変化0
 - `TODO` T034 を 完了 に（H列に 10/9 の経過を追記。オーナーが電話で打診し了承）。控え `data/sheets/backup/TODO-20261009-pre-dai6.json.gz`
+- 18時台（MTG中・オーナー「僕らが編集していない箇所は編集していい」）：6-4 に No.13〜17 を行の挿入で追加（共有ドライブ／ギフト入口／旧電話番号の修正依頼／公式LINE一斉配信は送らない／休眠先の残り3社）。挿入前にオーナーの記入が無いことを確認。控え `data/sheets/backup/MTGシート-20261009-pre-tsuika.json.gz`。書式は決まりの順で当て直し、リンク 257本
+- `TODO` T049 を 完了 に（GA4 管理APIで実測。form_complete は無く、電話・LINE・予約開始がキーイベント。booking_submit を追加）
