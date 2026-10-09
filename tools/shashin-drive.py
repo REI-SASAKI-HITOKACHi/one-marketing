@@ -63,22 +63,6 @@ bi = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(bi)
 
 
-KAGI = pathlib.Path.home() / ".config" / "one-hitter" / "drive.json"
-
-
-def token() -> str:
-    """写真を置くのはオーナーのドライブ。サービスアカウントは容量を持てない（403 storageQuota）ため、
-    オーナーのアカウントで許可した鍵（~/.config/one-hitter/drive.json：client_id / client_secret / refresh_token、
-    範囲 drive.file か drive）を使う。リポジトリには置かない。"""
-    if not KAGI.exists():
-        sys.exit(f"🔴 {KAGI} がありません。オーナーのアカウントでドライブの鍵を取ってください（docs の手順・GBP と同じ Playground）")
-    k = json.loads(KAGI.read_text(encoding="utf-8"))
-    d = urllib.parse.urlencode({"client_id": k["client_id"], "client_secret": k["client_secret"],
-                                "refresh_token": k["refresh_token"], "grant_type": "refresh_token"}).encode()
-    with urllib.request.urlopen("https://oauth2.googleapis.com/token", d, timeout=30) as r:
-        return json.loads(r.read())["access_token"]
-
-
 def mei(na: str) -> str:
     return re.sub(r"[\s　]", "", na or "") or "名前なし"
 
@@ -105,17 +89,6 @@ def folder(tok, oya, na, cache):
                     q={"fields": "id", "supportsAllDrives": "true"})["id"]
     cache[key] = fid
     return fid
-
-
-def upload(tok, oya, na, data: bytes):
-    b = "oh-shashin-boundary"
-    meta = json.dumps({"name": na, "parents": [oya]}).encode()
-    body = (f"--{b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n".encode() + meta
-            + f"\r\n--{b}\r\nContent-Type: image/jpeg\r\n\r\n".encode() + data + f"\r\n--{b}--".encode())
-    req = urllib.request.Request(UP, data=body, method="POST",
-                                 headers={"Authorization": "Bearer " + tok, "Content-Type": f"multipart/related; boundary={b}"})
-    with urllib.request.urlopen(req, timeout=120) as r:
-        return json.loads(r.read())["id"]
 
 
 SHIWAKE = ROOT / "data" / "shashin-shiwake.json"
