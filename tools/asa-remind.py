@@ -58,6 +58,15 @@ def nyukin_mikinyu(kinou):
     return sorted(out, key=lambda x: x["d"])
 
 
+def shashin_url(o, kokyaku_id):
+    """写真フォルダの URL。顧客ID が記録されていれば、台帳で当たったお客様と同じときだけ出す（同名の別人に出さない）。"""
+    if not o or not o.get("url"):
+        return ""
+    if o.get("id") and o["id"] != kokyaku_id:
+        return ""
+    return o["url"]
+
+
 def kyou_ripi(kyou):
     """今日の施工で、台帳上2回目以降のお客様。"""
     import json
@@ -113,7 +122,7 @@ def kyou_ripi(kyou):
         out.append({"n": r[4].strip(), "menu": r[9].strip() or r[3].strip(), "kai": konkai,
                     "shokai": hit[10].strip(), "saigo": zenkai,
                     "uchiwake": hit[30].strip(), "claim": hit[32].strip(),
-                    "url": (shashin.get(na) or {}).get("url", "")})
+                    "url": shashin_url(shashin.get(na), hit[0].strip())})
     return out
 
 
