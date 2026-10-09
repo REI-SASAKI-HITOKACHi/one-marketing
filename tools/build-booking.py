@@ -388,7 +388,7 @@ TEMPLATE = r"""<!doctype html>
     <p>〒134-0081 東京都江戸川区北葛西5-14-11　代表取締役 佐々木 沙樹<br>対応エリア：東京都・千葉県・神奈川県<br>受付 8:00–20:00　<a href="tel:{{TEL}}">{{TEL}}</a></p>
     <p>表示価格はすべて税込です。お見積り以上の追加請求はいたしません。</p>
     <p>このページはワンヒッター株式会社が運営する予約受付ページです。ご入力いただいた内容は、ご予約の確認と施工のご連絡にのみ使います。<br>
-    <a href="https://one-hitter.jp/" rel="noopener">公式サイト</a>　／　<a href="https://one-hitter.jp/privacy_policy/" rel="noopener">個人情報の取扱い</a>　／　<a href="https://one-hitter.jp/greeting/" rel="noopener">代表あいさつ</a></p>
+    <a href="https://one-hitter.jp/" rel="noopener">公式サイト</a>　／　<a href="https://lp.onehitter.jp/privacy/" rel="noopener">個人情報の取扱い</a>　／　<a href="https://one-hitter.jp/greeting/" rel="noopener">代表あいさつ</a></p>
   </div>
 </footer>
 
@@ -1023,6 +1023,12 @@ TEMPLATE = r"""<!doctype html>
 def main():
     OUT.parent.mkdir(parents=True, exist_ok=True)
     html = build()
+    # 遠方の交通費の一文と浴室の「含まれるもの／別料金のオプション」（オーナー決定 10/6・和真さん確認 10/8、
+    # 第6回MTG 10/9 で配信の決定）。LP担当の tools/chuuki-1008.py を、LP 8本と同じ文言で当てる
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("chuuki_1008", ROOT / "tools" / "chuuki-1008.py")
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    html, _ = mod.apply(html, "booking")
     OUT.write_text(html, encoding="utf-8")
     print(f"書き出しました: {OUT.relative_to(ROOT)}  {len(html.encode()):,} bytes")
     if not API_URL:

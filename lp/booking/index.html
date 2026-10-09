@@ -374,8 +374,17 @@ gtag('config','AW-18450975194');
       <div class="field">
         <label for="f-note">ご要望（任意）</label>
         <textarea id="f-note" placeholder="例）駐車場はありません／2階のエアコンです／前回と同じ場所です"></textarea>
-        <span class="hint">お車を停められる場所が無い場合は、近くのコインパーキング代を実費でご請求いたします。あらかじめご了承ください。</span>
+        <span class="hint">お車を停められる場所が無い場合は、近くのコインパーキング代を実費でご請求いたします。あらかじめご了承ください。遠方（目安：高速道路を使う地域）は、交通費をいただく場合があります。お見積りのお電話でご案内します。</span>
       </div>
+<style>
+.yk-box{border:1px solid rgba(13,59,92,.22);border-radius:10px;background:#fff;padding:14px 16px;margin:0 0 16px;font-size:14px;line-height:1.75;text-align:left;}
+.yk-box .yk-h{font-weight:800;color:var(--ink,#0D3B5C);margin:0;}
+.yk-box .yk-in{margin:2px 0 10px;}
+.yk-box ul{list-style:none;margin:2px 0 8px;padding:0;display:grid;gap:2px;}
+.yk-box li{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dashed rgba(13,59,92,.15);padding:3px 0;}
+.yk-box li b{white-space:nowrap;font-variant-numeric:tabular-nums;}
+.yk-box .yk-n{font-size:12.5px;color:#536A78;margin:6px 0 0;}
+</style><div class="yk-box" id="yk-box"><p class="yk-h">浴室クリーニング（18,480円）に含まれるもの</p><p class="yk-in">床・壁・天井・鏡・ドアの、ふだんの汚れ</p><p class="yk-h">別料金のオプション（ご希望の方のみ・税込）</p><ul><li><span>浴室乾燥機の洗浄</span><b>8,580円</b></li><li><span>エプロン内部（浴槽の側面カバーの中）の高圧洗浄</span><b>8,470円</b></li><li><span>鏡の水アカ（ウロコ）除去</span><b>3,630円</b></li><li><span>浴室換気扇の洗浄</span><b>3,630円</b></li></ul><p class="yk-n">どこまでご希望かは、お見積りのお電話で確認してからお伺いします。</p></div>
       <div class="hp"><label>この欄は入力しないでください<input type="text" id="f-hp" tabindex="-1" autocomplete="off"></label></div>
       <p class="err" id="e3"></p>
       <div class="nav">
@@ -438,7 +447,7 @@ gtag('config','AW-18450975194');
     <p>〒134-0081 東京都江戸川区北葛西5-14-11　代表取締役 佐々木 沙樹<br>対応エリア：東京都・千葉県・神奈川県<br>受付 8:00–20:00　<a href="tel:080-8043-8259">080-8043-8259</a></p>
     <p>表示価格はすべて税込です。お見積り以上の追加請求はいたしません。</p>
     <p>このページはワンヒッター株式会社が運営する予約受付ページです。ご入力いただいた内容は、ご予約の確認と施工のご連絡にのみ使います。<br>
-    <a href="https://one-hitter.jp/" rel="noopener">公式サイト</a>　／　<a href="https://one-hitter.jp/privacy_policy/" rel="noopener">個人情報の取扱い</a>　／　<a href="https://one-hitter.jp/greeting/" rel="noopener">代表あいさつ</a></p>
+    <a href="https://one-hitter.jp/" rel="noopener">公式サイト</a>　／　<a href="https://lp.onehitter.jp/privacy/" rel="noopener">個人情報の取扱い</a>　／　<a href="https://one-hitter.jp/greeting/" rel="noopener">代表あいさつ</a></p>
   </div>
 </footer>
 
@@ -646,7 +655,7 @@ gtag('config','AW-18450975194');
     }
     h.push(ln('概算合計（税込）', yen(k.gokei), 'sum'));
     h.push('<p class="note">現地の状況により変わることがあります。確定金額は担当からのお電話でお伝えします。' +
-           'お車を停められる場所が無い場合は、コインパーキング代が実費で加わります。' +
+           'お車を停められる場所が無い場合は、コインパーキング代が実費で加わります。遠方（目安：高速道路を使う地域）は、交通費をいただく場合があります。お見積りのお電話でご案内します。' +
            (state.date ? '' : '日時をお選びいただくと、割引と加算を反映した金額になります。') + '</p>');
     return h.join('');
   }
@@ -908,7 +917,7 @@ gtag('config','AW-18450975194');
       ['ご希望の内容', atai['ご希望の内容']],
       ['所要の目安', funHyouji(Number(atai['所要の目安（分）']))],
       ['概算金額（税込）', (atai['概算金額'] ? '¥' + Number(atai['概算金額']).toLocaleString() : '—')
-        + '<br><small>お車を停められる場所が無い場合は、コインパーキング代が実費で加わります。</small>'],
+        + '<br><small>お車を停められる場所が無い場合は、コインパーキング代が実費で加わります。遠方（目安：高速道路を使う地域）は、交通費をいただく場合があります。お見積りのお電話でご案内します。</small>'],
       ['お名前', atai['お名前'] + ' 様'],
       ['ご住所', atai['ご住所']],
       ['お電話', atai['お電話番号']],
