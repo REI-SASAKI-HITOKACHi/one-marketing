@@ -615,13 +615,13 @@ def make_og(src: pathlib.Path, dst: pathlib.Path, line1: str, line2: str) -> Non
 BAND_PAGES = {"aircon", "aircon-c", "mizumawari", "mizumawari-b"}
 
 # クチコミの件数を外す・98.6%の脚注を直すページ（承認が出るまで空。tools/bunmen-1010.py）
-BUNMEN_PAGES: set = set()
+BUNMEN_PAGES = {"aircon-c", "aircon-d", "mizumawari-b", "nenmatsu-b"}  # 2026-10-09 配信（第6回MTG 6-4 No.3）。今の版は deploy/netlify に直接当てた
 
 # 申込の入口を予約ページに寄せるページ（承認が出るまで空。tools/iriguchi.py）
-IRIGUCHI_PAGES: set = set()
+IRIGUCHI_PAGES = {"aircon-c", "mizumawari-b"}  # 2026-10-09 配信（同上）。aircon・mizumawari の今の版は deploy/netlify に直接当てた
 
 # 交通費の一文・浴室の内訳を入れるページ（公開の承認が出るまで空。tools/chuuki-1008.py）
-CHUUKI_PAGES: set = set()
+CHUUKI_PAGES = {"aircon-c", "aircon-d", "mizumawari-b", "nenmatsu-b"}  # 2026-10-09 配信（同上）
 
 # ギフトの入口を入れるページ（承認が出るまで空。build_page の中の説明を参照）
 GIFT_PAGES: set = set()
@@ -701,13 +701,6 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict)
         mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
         doc, _ = mod.apply(doc, meta["dir"])
 
-    # 申込の入口を予約ページに寄せる（依頼 20261008-05-lp）。承認が出たら IRIGUCHI_PAGES に足す
-    if meta["dir"] in IRIGUCHI_PAGES:
-        import importlib.util
-        spec = importlib.util.spec_from_file_location("iriguchi", ROOT / "tools" / "iriguchi.py")
-        mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
-        doc = mod.apply(doc, meta["dir"])
-
     # クチコミの件数を外す・98.6%の脚注（依頼 20261008-04-lp）。承認が出たら BUNMEN_PAGES に足す
     if meta["dir"] in BUNMEN_PAGES:
         import importlib.util
@@ -728,6 +721,14 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict)
     HIKITSUGU = "var hikitsugu = { src: src,"
     if HIKITSUGU in doc:
         doc = doc.replace(HIKITSUGU, "var hikitsugu = { lp: '" + meta["dir"] + "', src: src,", 1)
+
+    # 申込の入口を予約ページに寄せる（依頼 20261008-05-lp）。iriguchi.py は引き継ぎの lp= を前提に確かめるので、
+    # lp= を足した後に当てる（前に置くと学習版のビルドが「lp= が見当たりません」で止まる。2026-10-09 配信時に判明）
+    if meta["dir"] in IRIGUCHI_PAGES:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("iriguchi", ROOT / "tools" / "iriguchi.py")
+        mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+        doc = mod.apply(doc, meta["dir"])
 
     # 申込内容のまとめと見積の隠し項目。受付番号のスクリプトより後ろに入る。
     # Netlify のフォームだけ（ほかの出し先は受け口が違う）

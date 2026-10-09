@@ -35,6 +35,11 @@ var oh_cid=ohClean(new URLSearchParams(location.search).get('cid'),20);
 gtag('config','G-DLJCTKGTDN',{'lp_id':'mizumawari','lp_variant':'A','traffic_src':oh_src,'traffic_cid':oh_cid});
 gtag('config','AW-18450975194');
 </script>
+<style data-oh="iriguchi">
+.iri-sub{display:block;text-align:center;margin-top:10px;font-size:14px;font-weight:700;color:var(--ink);text-decoration:underline;text-underline-offset:3px;}
+.iri-go2{display:grid;gap:10px;width:100%;}
+.iri-go2 .btn{width:100%;}
+</style>
 </head>
 <body>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -454,7 +459,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     <span class="logo"><b>ONE HITTER</b><small>あなたに寄り添うハウスクリーニング</small></span>
     <span class="bar-cta">
       <a class="tel" href="tel:08080438259"><span class="n">080-8043-8259</span><small>受付 渡辺／8:00–20:00</small></a>
-      <a class="btn" href="#form">WEB予約</a>
+      <a class="btn" href="https://yoyaku.onehitter.jp/" data-yoyaku data-place="header">WEB予約</a>
     </span>
   </div>
 </div>
@@ -521,7 +526,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
 
     <div class="hero-cta">
       <a class="btn lg tel-cta" id="hero-tel" href="tel:08080438259" hidden>電話で相談する<span class="tel-no">080-8043-8259</span><span class="tel-time">8:00〜20:00／担当 渡辺</span></a>
-      <a class="btn lg" href="#builder">箇所を選んで、料金を見る</a>
+      <a class="btn lg" href="https://yoyaku.onehitter.jp/" data-yoyaku data-place="hero">空いている日と料金を見る</a>
       <a class="btn lg line" href="https://lin.ee/7kD9WGN">LINEで相談・予約する</a>
     </div>
     <p class="hero-note">※1 「他の人に勧めたい」と回答した割合：集計期間 2023年1月〜2025年12月、回答209名中206名、自社調べ</p>
@@ -737,7 +742,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
             <span class="tot" id="total">33,660円</span>
           </div>
           <p class="hint" id="hint"></p>
-          <p class="paid-note">※駐車スペースがない場合は、コインパーキング代を実費でいただきます。金額は事前にお伝えします。</p>
+          <p class="paid-note">※駐車スペースがない場合は、コインパーキング代を実費でいただきます。金額は事前にお伝えします。遠方（目安：高速道路を使う地域）は、交通費をいただく場合があります。お見積りのお電話でご案内します。</p>
         </div>
 
         <div class="pay">
@@ -745,7 +750,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
           <p><b>お支払いは、作業が終わってからその場で。</b>現金をご用意いただく必要はありません。クレジット／デビットカード（Visa・Mastercard・JCB・American Express・Diners Club・Discover）、交通系IC・iD・QUICPay、PayPay・d払い・楽天ペイ・au PAY・メルペイがご利用いただけます。</p>
         </div>
 
-        <a class="btn lg" href="#form">この内容で予約に進む</a>
+        <div class="iri-go2"><a class="btn lg" href="https://yoyaku.onehitter.jp/" data-yoyaku data-place="estimate">空いている日を見て予約する</a><a class="btn lg ghost" href="#form">この内容でフォームから申し込む</a></div>
       </div>
     </div>
   </div>
@@ -757,7 +762,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
       <span class="eyebrow">Menu</span>
       <h2>それぞれ、何をするのか</h2>
       <p>表示は単体でご依頼いただいた場合の価格です。</p>
-      <p class="paid-note">※駐車スペースがない場合は、コインパーキング代を実費でいただきます。金額は事前にお伝えします。</p>
+      <p class="paid-note">※駐車スペースがない場合は、コインパーキング代を実費でいただきます。金額は事前にお伝えします。遠方（目安：高速道路を使う地域）は、交通費をいただく場合があります。お見積りのお電話でご案内します。</p>
     </div>
     <div class="menus">
       <div class="menu">
@@ -1020,6 +1025,15 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
         <input id="f-when" name="when" type="text" placeholder="例：来週の土日、今月中など">
       </div>
       <p class="consent">ご入力いただいた情報は、ご予約・お見積りのご連絡にのみ使用します。送信をもって<a href="https://lp.onehitter.jp/privacy/" target="_blank" rel="noopener">個人情報の取扱いについて</a>にご同意いただいたものとみなします。</p>
+<style>
+.yk-box{border:1px solid rgba(13,59,92,.22);border-radius:10px;background:#fff;padding:14px 16px;margin:0 0 16px;font-size:14px;line-height:1.75;text-align:left;}
+.yk-box .yk-h{font-weight:800;color:var(--ink,#0D3B5C);margin:0;}
+.yk-box .yk-in{margin:2px 0 10px;}
+.yk-box ul{list-style:none;margin:2px 0 8px;padding:0;display:grid;gap:2px;}
+.yk-box li{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dashed rgba(13,59,92,.15);padding:3px 0;}
+.yk-box li b{white-space:nowrap;font-variant-numeric:tabular-nums;}
+.yk-box .yk-n{font-size:12.5px;color:#536A78;margin:6px 0 0;}
+</style><div class="yk-box" id="yk-box"><p class="yk-h">浴室クリーニング（18,480円）に含まれるもの</p><p class="yk-in">床・壁・天井・鏡・ドアの、ふだんの汚れ</p><p class="yk-h">別料金のオプション（ご希望の方のみ・税込）</p><ul><li><span>浴室乾燥機の洗浄</span><b>8,580円</b></li><li><span>エプロン内部（浴槽の側面カバーの中）の高圧洗浄</span><b>8,470円</b></li><li><span>鏡の水アカ（ウロコ）除去</span><b>3,630円</b></li><li><span>浴室換気扇の洗浄</span><b>3,630円</b></li></ul><p class="yk-n">どこまでご希望かは、お見積りのお電話で確認してからお伺いします。</p></div>
       <button class="btn lg" type="submit">この内容で予約を申し込む</button>
       <p class="form-note">シミュレーターで選んだ箇所が自動で入ります。<br>お電話でのご予約は <a href="tel:08080438259" style="color:var(--cta)">080-8043-8259</a>（受付：渡辺／8:00–20:00）<br>時間外でも対応しておりますので、お気軽にご相談ください。</p>
     </form>
@@ -1041,7 +1055,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     <p class="foot-links"><a href="/tokushoho/">特定商取引法に基づく表記</a>　<a href="https://lp.onehitter.jp/privacy/" target="_blank" rel="noopener">個人情報の取扱いについて</a>　<a href="https://one-hitter.jp/" target="_blank" rel="noopener">公式サイト</a></p>
     <p class="fine">
       表示価格はすべて税込です。5〜7月・12月は各料金に3,300円が加算されます。<br>
-      駐車スペースをご用意いただけない場合は、コインパーキング等の駐車場代を実費でご請求します。<br>
+      駐車スペースをご用意いただけない場合は、コインパーキング等の駐車場代を実費でご請求します。遠方（目安：高速道路を使う地域）は、交通費をいただく場合があります（お見積りのお電話でご案内します）。<br>
       セット価格は、2箇所以上のご依頼で、セット価格が設定されている箇所に適用されます。セット価格の設定がない箇所（洗濯機・トイレ）は単品価格です。コンロはキッチンと同時のときにセット価格となります。いずれのセット価格も付かない組み合わせでは、ページからのお申し込み特典として2,200円（税込）を差し引きます（2箇所以上のご依頼が対象）。<br>
       「98.6%が勧めたい」は自社実施のご利用者アンケートに基づく結果です（実施期間：2023年1月〜2025年12月／回答209名中206名）。<br>
       汚れの状態により、落としきれない場合があります。設備の状態によっては施工をお受けできない場合があります。
@@ -1053,7 +1067,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
   <div class="sticky-row">
     <a class="btn call" href="tel:08080438259" aria-label="電話でお問い合わせ 080-8043-8259">電話<small>8-20時 渡辺</small></a>
     <a class="btn line" href="https://lin.ee/7kD9WGN">LINE<small>防カビ無料</small></a>
-    <a class="btn" href="#builder">料金を見る<small>その場で確定</small></a>
+    <a class="btn" href="https://yoyaku.onehitter.jp/" data-yoyaku data-place="sticky">空き日を見る<small>料金もその場で</small></a>
   </div>
   <p class="sticky-note">しつこい営業・訪問はいたしません</p>
 </div>
@@ -1775,6 +1789,22 @@ var f=document.querySelector('form.form');if(!f)return;var id='';f.addEventListe
     if (e) e.value = 'ブラウザ（入力 ' + Math.round((Date.now() - t0) / 1000) + '秒）';
   });
 })();
+</script>
+<script>
+  /* 予約カレンダーへの直行ボタン（a[data-yoyaku]）のクリックを計測する（tools/iriguchi.py）。
+     events.js の cta_click はページ内リンクしか拾わないので、別ホストへ出るボタンはここで送る */
+  document.addEventListener('click', function (ev) {
+    var a = ev.target && ev.target.closest ? ev.target.closest('a[data-yoyaku]') : null;
+    if (!a) return;
+    var M = window.OH_M || {}, P = M.page || {}, q;
+    try { q = new URLSearchParams(location.search); } catch (e) { q = null; }
+    var p = { link_position: a.getAttribute('data-place') || 'other', link_target: 'yoyaku',
+              lp_id: P.lp_id, lp_variant: P.lp_variant, page_kind: P.kind,
+              traffic_src: (q && q.get('src')) || 'direct', transport_type: 'beacon' };
+    var cid = q && q.get('cid'); if (cid) p.traffic_cid = cid;
+    if (typeof window.gtag === 'function') window.gtag('event', 'cta_click', p);
+    if (typeof window.fbq === 'function') window.fbq('trackCustom', 'cta_click', p);
+  }, true);
 </script>
 </body>
 </html>
