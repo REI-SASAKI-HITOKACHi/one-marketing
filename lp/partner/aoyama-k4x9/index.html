@@ -53,6 +53,8 @@ button.send{display:block;width:100%;margin:16px 0 6px;padding:14px;font:inherit
 button.send:hover{background:var(--cta-h)}
 .err{color:#B72C0A;font-size:14px;min-height:1em}
 .hp{position:absolute;left:-9999px}
+.chk{display:flex;align-items:center;gap:8px;margin:14px 0 0;font-size:15px;cursor:pointer}
+.chk input{width:20px;height:20px;margin:0;accent-color:var(--ink)}
 footer{border-top:1px solid var(--rule);padding:18px 0 28px;font-size:13px;color:var(--text-2)}
 footer a{color:var(--aqua)}
 </style>
@@ -84,6 +86,7 @@ footer a{color:var(--aqua)}
     <input id="f-genba" name="現場の住所" type="text" placeholder="例：大田区大森本町（区・町名まででも結構です）">
     <label class="f" for="f-genbamei">現場のお名前<span class="opt">任意・店舗名や物件名</span></label>
     <input id="f-genbamei" name="現場のお名前" type="text">
+    <label class="chk"><input type="checkbox" name="きっかけ" value="ご紹介カード">ご紹介カードを見たお客様<span class="opt">任意</span></label>
   </section>
 
   <section class="card">

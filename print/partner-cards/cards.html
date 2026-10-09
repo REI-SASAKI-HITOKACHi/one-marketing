@@ -1,317 +1,416 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><title>提携先さま ご紹介カード案（タカラサービス様・青山リアルティー様）</title>
+<html lang="ja"><head><meta charset="utf-8"><title>提携先ご紹介カード</title>
 <!--
-  オーナー 2026-10-09「ご紹介カードのデザイン案を3つ作って予めメールでお送りする…HPを調査して会社の雰囲気に合うように…
-  青山リアルティ様は超高級物件のみを扱う会社だから洗練されたデザインに」。
-  規格：名刺 91×55mm＋塗り足し各3mm＝97×61mm（前回ラクスル入稿と同じ）。文字は7pt以上・仕上がり線から4mm内側。
-  連絡先（電話・窓口名）は各社のご指定に差し替える前提の仮。相談の窓口は提携先（当社が直接受けない：オーナー 9/22）。
-  色の出どころ：タカラ＝takara-co.jp の CSS（#36376A・#122F60・#FF6600）／青山＝ara.jp の CSS とロゴ（#2D2A8D・#FBF7E4・斜体セリフ）。
-  出力：python3 tools/build-partner-cards.py（PNG と提案PDF）
+  提携先さま ご紹介カード（名刺サイズ）デザイン案。2社×3案×表裏＝12面。
+  オーナー 2026-10-09「HPを調査して会社の雰囲気に合うように…珠玉の3つに。青山リアルティ様は超高級物件のみを扱う会社だから洗練されたデザインに」
+  ／同日「デザインの練度をとにかく上げてくれ。導線設計もちゃんと設計して」。
+
+  規格：名刺 91×55mm＋塗り足し各3mm＝97×61mm。文字は7pt以上・仕上がり線から4mm内側（＝紙の端から7mm。.safe）。
+        金の線・文字（青山様）は箔押しを想定（名刺印刷の加工。特色指定で入稿）。
+  色の出どころ：タカラ＝takara-co.jp の CSS（紺 #122F60・#36376A、オレンジ #FF6600）
+               青山＝ara.jp のロゴ（藍 #2D2A8D・斜体セリフ）とサイトの生成り #FBF7E4。
+
+  【導線】相談の窓口は提携先（当社が直接受けない：オーナー 9/22）。
+    タカラ様：受け手 → 裏面QR（lp.onehitter.jp/takara/?src=card-t1〜t3＝案ごとの印）でご案内ページ
+              または電話（タカラ様の番号・「洗浄のカードを見た」）→ タカラ様が受ける
+              → タカラ様の担当者が専用ページ（/partner/takara-7q2m/）で当社へ依頼・仮押さえ → 当社が施工 → ご報告はタカラ様経由
+    青山様  ：了承はカードのみ。QRは付けない。受け手 → 電話（ARAの窓口・「お手入れのご案内を見た」）
+              → ARAの担当者が専用ページ（/partner/aoyama-k4x9/）で当社へ → 当社が伺う
+    数え方  ：QRは src=card-t* を GA4 で。電話は一言を提携先が聞き、専用ページの「ご紹介カード」にチェック → フォーム "partner" の「きっかけ」で数える。
+  ★QRの行き先 lp.onehitter.jp/takara/ は未公開（2026-10-09 時点で404）。カードを刷る前に公開（オーナー承認）＋ GA4 を入れること。
+
+  連絡先（電話・窓口名）は各社のご指定に差し替える前提の仮（各社サイトの番号）。
+  出力：python3 tools/build-partner-cards.py（各面PNG・入稿見本PDF・提案書PDF。QRの読み取りと安全域・文字サイズの検査つき）
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Barlow:wght@600;700&family=Shippori+Mincho+B1:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Zen+Old+Mincho:wght@500;700&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Barlow:wght@500;600;700&family=Shippori+Mincho+B1:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&display=block" rel="stylesheet">
 <style>
 @page { size:97mm 61mm; margin:0; }
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{background:#fff}
-body{-webkit-print-color-adjust:exact;print-color-adjust:exact;font-feature-settings:"palt" 1}
-.page{width:97mm;height:61mm;position:relative;overflow:hidden;page-break-after:always}
-.safe{position:absolute;inset:7mm 7mm 7mm 7mm;display:flex;flex-direction:column}  /* 3mm塗り足し＋4mm安全域 */
-.sans{font-family:"Noto Sans JP","IPAGothic",sans-serif}
-.num{font-family:"Barlow","Noto Sans JP",sans-serif;font-weight:700;letter-spacing:.01em}
-.min{font-family:"Shippori Mincho B1","Zen Old Mincho",serif}
-.gar{font-family:"Cormorant Garamond",serif}
-p{line-height:1.45}
+body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{width:97mm;height:61mm;position:relative;overflow:hidden;break-after:page}
+@media screen{.page{margin-bottom:4px}}  /* 画面での書き出し時に隣の面の色が1pxかからないように */
+.safe{position:absolute;inset:7mm;display:flex;flex-direction:column}  /* 塗り足し3mm＋安全域4mm */
+.num{font-family:"Barlow","Noto Sans JP",sans-serif;font-feature-settings:"tnum" 1,"lnum" 1}
+.qr svg{display:block;width:100%;height:100%}
+figure{margin:0}
 
-/* ===================== タカラサービス様 ===================== */
-.tk{font-family:"Noto Sans JP","IPAGothic",sans-serif;color:#1C2440}
-/* T1 紺の帯＋オレンジ：サイトの配色そのまま。実務的で信頼 */
-.t1o{background:#fff}
-.t1o .band{position:absolute;left:0;right:0;top:0;height:32mm;background:#122F60}
-.t1o .band::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1.2mm;background:#FF6600}
-.t1o .ey{font-size:7pt;font-weight:700;color:#FFB27A;letter-spacing:.12em}
-.t1o h1{font-size:13.6pt;font-weight:900;color:#fff;line-height:1.3;margin-top:1.2mm}
-.t1o h1 em{font-style:normal;color:#FFB27A}
-.t1o .sub{font-size:7.2pt;color:#D6DEEE;margin-top:1mm}
-.t1o .pts{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm;margin-top:auto}
-.t1o .pt{border-top:.5mm solid #122F60;padding-top:1mm}
-.t1o .pt b{display:block;font-size:8.2pt;font-weight:900;color:#122F60;line-height:1.25}
-.t1o .pt span{display:block;font-size:7pt;color:#4A5470;line-height:1.35;margin-top:.4mm}
+/* ============================================================
+   タカラサービス様：ゴシック（Noto Sans JP）＋数字は Barlow。紺が主、オレンジは線と印だけ
+   ============================================================ */
+.tk{font-family:"Noto Sans JP",sans-serif;font-feature-settings:"palt" 1;color:#1A2140;line-height:1.4}
+.tk .num{font-feature-settings:"tnum" 1,"lnum" 1}
+.tk .qrbox{display:flex;flex-direction:column;align-items:center}
+.tk .qrbox figcaption{font-size:7pt;line-height:1.3;text-align:center;color:#4A5470;margin-top:.8mm;letter-spacing:.02em}
+
+/* ---- 案1 コーポレート：紺一色の表、白の裏。御社サイトの配色そのまま ---- */
+.t1o{background:#122F60}
+.t1o .louver{position:absolute;right:-4mm;top:0;bottom:0;width:44mm;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.055) 0 .35mm,transparent .35mm 2.6mm)}
+.t1o .louver::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#122F60 0%,rgba(18,47,96,0) 70%)}
+.t1o .ey{font-family:"Barlow",sans-serif;font-weight:600;font-size:7pt;letter-spacing:.24em;color:#FF8A3D}
+.t1o h1{font-size:15.6pt;font-weight:900;color:#fff;line-height:1.36;letter-spacing:.02em;margin-top:2.6mm}
+.t1o .bar{display:block;width:9mm;height:.8mm;background:#FF6600;margin-top:3.2mm}
+.t1o .sub{font-size:7.4pt;font-weight:500;color:#C9D4E8;margin-top:2.4mm;letter-spacing:.03em}
+.t1o .kinds{margin-top:auto;font-size:7pt;color:#93A6CA;letter-spacing:.06em}
+.t1o .kinds b{font-weight:500;color:#fff;margin-right:2mm}
+
 .t1u{background:#fff}
-.t1u .lab{align-self:flex-start;font-size:7pt;font-weight:700;color:#fff;background:#FF6600;display:inline-block;padding:.4mm 2mm;letter-spacing:.06em}
-.t1u .co{font-size:12pt;font-weight:900;color:#122F60;margin-top:1.6mm}
-.t1u .tel{display:flex;align-items:baseline;gap:1.4mm;margin-top:.6mm;color:#122F60}
-.t1u .tel small{font-size:7pt;font-weight:700}
-.t1u .tel b{font-size:17pt;line-height:1}
-.t1u .say{font-size:7.2pt;color:#1C2440;margin-top:1mm}
-.t1u .say b{color:#E05200}
-.t1u .menu{margin-top:auto;border-top:.3mm solid #C9D2E3;padding-top:1mm;font-size:7pt;color:#4A5470;line-height:1.45}
-.t1u .menu b{color:#122F60}
-.t1u .by{font-size:7pt;color:#6A7390}
+.t1u .main{display:grid;grid-template-columns:1fr 17mm;column-gap:4mm;align-items:center;margin:auto 0}
+.t1u .lab{font-size:7pt;font-weight:700;color:#122F60;letter-spacing:.12em;display:flex;align-items:center;gap:1.4mm}
+.t1u .lab::before{content:"";width:1.6mm;height:1.6mm;background:#FF6600}
+.t1u .co{font-size:9.6pt;font-weight:700;color:#122F60;margin-top:2.6mm;letter-spacing:.02em}
+.t1u .tel{display:flex;align-items:baseline;gap:1.6mm;color:#122F60;margin-top:.6mm}
+.t1u .tel small{font-size:7pt;font-weight:700;letter-spacing:.06em}
+.t1u .tel b{font-family:"Barlow",sans-serif;font-weight:700;font-size:20.5pt;line-height:1;letter-spacing:.01em}
+.t1u .say{font-size:7.4pt;margin-top:2mm;color:#1A2140}
+.t1u .say b{color:#D04A00;font-weight:700}
+.t1u .qr{width:17mm;height:17mm}
+.t1u .foot{margin-top:auto;border-top:.25mm solid #C9D2E3;padding-top:1.6mm;display:flex;justify-content:space-between;font-size:7pt;color:#5A6480;letter-spacing:.02em}
 
-/* T2 写真で見せる：洗浄前の汚れ→洗浄後。一目で用途が分かる */
-.t2o{background:#0E1A33}
-.t2o .ph{position:absolute;top:0;bottom:0;width:50%;background-size:cover;background-position:center}
-.t2o .ph.l{left:0;filter:saturate(.9)}
-.t2o .ph.r{right:0}
-.t2o .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,20,45,.15) 0%,rgba(10,20,45,.05) 40%,rgba(10,20,45,.86) 72%,rgba(10,20,45,.95) 100%)}
-.t2o .tag{position:absolute;top:6.4mm;font-size:7pt;font-weight:700;color:#fff;padding:.3mm 1.6mm;letter-spacing:.06em}
-.t2o .tag.l{left:6.4mm;background:rgba(30,30,30,.72)}
-.t2o .tag.r{left:calc(50% + 2mm);background:#FF6600}
-.t2o .bot{position:absolute;left:7mm;right:7mm;bottom:6.6mm;color:#fff}
-.t2o h1{font-size:12.4pt;font-weight:900;line-height:1.3}
-.t2o p{font-size:7.2pt;color:#D9E0EE;margin-top:.6mm}
-.t2u{background:#F4F6FA}
-.t2u h2{font-size:9.4pt;font-weight:900;color:#122F60}
-.t2u .row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.6mm;margin-top:1.6mm}
-.t2u .row div{background:#fff;border-radius:1mm;padding:1mm 1.2mm;text-align:center}
-.t2u .row b{display:block;font-size:7.6pt;color:#122F60;font-weight:900}
-.t2u .row span{display:block;font-size:7pt;color:#4A5470;line-height:1.3}
-.t2u .ct{margin-top:auto;background:#122F60;color:#fff;border-radius:1mm;padding:1.4mm 2.2mm;display:flex;justify-content:space-between;align-items:center}
-.t2u .ct .co{font-size:8.4pt;font-weight:900}
-.t2u .ct .co small{display:block;font-size:7pt;font-weight:500;color:#C9D4EA}
-.t2u .ct .tel{font-size:14.6pt;line-height:1}
-.t2u .by{font-size:7pt;color:#6A7390;margin-top:.9mm}
+/* ---- 案2 写真：洗浄前／洗浄後の熱交換器。用途が一瞬で分かる ---- */
+.t2o{background:#0D1A33}
+.t2o .ph{position:absolute;top:0;bottom:0;width:48.5mm;background-repeat:no-repeat;filter:saturate(.78) contrast(1.06)}
+.t2o .ph.b{left:0;background-image:url('../../lp/aircon/img/fin-before.jpg');background-size:250% auto;background-position:80% 52%}
+.t2o .ph.a{right:0;background-image:url('../../lp/aircon/img/fin-after.jpg');background-size:235% auto;background-position:62% 50%}
+.t2o .div{position:absolute;top:0;bottom:0;left:48.3mm;width:.4mm;background:rgba(255,255,255,.92)}
+.t2o .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(9,19,42,.42) 0%,rgba(9,19,42,0) 24%,rgba(9,19,42,0) 34%,rgba(9,19,42,.8) 64%,rgba(9,19,42,.95) 100%)}
+.t2o .tags{display:grid;grid-template-columns:1fr 1fr;column-gap:8mm}
+.t2o .tags span{justify-self:start;font-size:7pt;font-weight:700;letter-spacing:.14em;color:#fff;padding:.5mm 1.8mm .5mm 2mm}
+.t2o .tags .b{background:rgba(10,14,26,.7)}
+.t2o .tags .a{background:#FF6600}
+.t2o h1{margin-top:auto;font-size:12.8pt;font-weight:900;color:#fff;line-height:1.36;letter-spacing:.02em}
+.t2o p{font-size:7.4pt;font-weight:500;color:#D3DBEA;margin-top:1.4mm;letter-spacing:.03em}
 
-/* T3 白の余白と大きな文字：製品カタログのような整い。名刺入れに残る */
+.t2u{background:#F2F4F8}
+.t2u .band{position:absolute;left:0;right:0;bottom:0;height:26.5mm;background:#122F60}
+.t2u h2{font-size:9pt;font-weight:900;color:#122F60;letter-spacing:.03em}
+.t2u ol{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);column-gap:1.6mm;margin-top:2mm}
+.t2u li{background:#fff;padding:1.3mm 1.6mm 1.5mm;font-size:7pt;line-height:1.36;color:#4A5470}
+.t2u li .num{display:block;font-size:7pt;font-weight:600;color:#E05200;letter-spacing:.08em}
+.t2u li b{display:block;font-size:8.2pt;font-weight:900;color:#122F60;margin:.2mm 0 .5mm}
+.t2u .ct{margin-top:auto;display:grid;grid-template-columns:1fr 15.6mm;column-gap:4mm;align-items:end;color:#fff}
+.t2u .co{font-size:7.4pt;font-weight:700;letter-spacing:.04em}
+.t2u .co span{font-weight:500;color:#AFC0DE;margin-right:1.6mm}
+.t2u .tel{font-family:"Barlow",sans-serif;font-weight:700;font-size:16pt;line-height:1;margin-top:.8mm;letter-spacing:.01em}
+.t2u .say{font-size:7pt;color:#DCE4F2;margin-top:1.2mm}
+.t2u .by{font-size:7pt;color:#93A6CA;margin-top:.5mm}
+.t2u .qr{width:15.6mm;height:15.6mm}
+
+/* ---- 案3 記録カード：白地の表。裏は「設置／前回／次回」を書けるカード。リモコンのそばに残る ---- */
 .t3o{background:#fff}
-.t3o .rule{position:absolute;left:7mm;top:7mm;bottom:7mm;width:.8mm;background:#36376A}
-.t3o .safe{left:10.6mm}
-.t3o .ey{font-size:7pt;font-weight:700;color:#36376A;letter-spacing:.2em}
-.t3o h1{font-size:15.2pt;font-weight:900;color:#1C2440;line-height:1.28;margin-top:1.4mm;letter-spacing:.01em}
-.t3o h1 span{color:#E05200}
-.t3o .kinds{margin-top:auto;display:flex;flex-wrap:wrap;gap:1mm}
-.t3o .kinds span{font-size:7pt;font-weight:700;color:#36376A;border:.3mm solid #36376A;border-radius:.6mm;padding:.2mm 1.4mm}
-.t3o .sub{font-size:7.2pt;color:#4A5470;margin-top:1.2mm}
-.t3u{background:#36376A;color:#fff}
-.t3u .ey{font-size:7pt;letter-spacing:.2em;color:#B9BCE6;font-weight:700}
-.t3u .co{font-size:11.6pt;font-weight:900;margin-top:1.4mm}
-.t3u .tel{font-size:18pt;line-height:1;margin-top:1mm}
-.t3u .tel small{font-family:"Noto Sans JP",sans-serif;font-size:7pt;font-weight:700;margin-right:1.2mm;vertical-align:3pt}
-.t3u .say{font-size:7.2pt;color:#DADCF5;margin-top:1mm}
-.t3u .freq{margin-top:auto;border-top:.3mm solid rgba(255,255,255,.35);padding-top:1mm;font-size:7pt;color:#DADCF5;line-height:1.45}
-.t3u .freq b{color:#FFB27A}
+.t3o .rule{position:absolute;left:7mm;top:7mm;bottom:7mm;width:.9mm;background:#36376A}
+.t3o .safe{left:11.6mm}
+.t3o .ey{font-family:"Barlow",sans-serif;font-weight:600;font-size:7pt;letter-spacing:.26em;color:#36376A}
+.t3o h1{font-size:15pt;font-weight:900;color:#1A2140;line-height:1.34;letter-spacing:.02em;margin-top:2.2mm}
+.t3o h1 em{font-style:normal;color:#E05200}
+.t3o .kinds{margin-top:auto;display:flex;gap:1.2mm}
+.t3o .kinds span{font-size:7pt;font-weight:700;color:#36376A;border:.25mm solid #36376A;padding:.3mm 1.5mm;letter-spacing:.04em}
+.t3o .sub{font-size:7pt;color:#4A5470;margin-top:1.6mm;letter-spacing:.03em}
 
-/* ===================== 青山リアルティー様 ===================== */
-/* A1 生成り×藍・明朝・金の細線：コーポレートの配色を一段上品に */
-.a1o{background:#FBF8EF}
-.a1o .frame{position:absolute;inset:6mm;border:.25mm solid #B49A5E}
-.a1o .frame::after{content:"";position:absolute;inset:.9mm;border:.15mm solid #D8C79C}
-.a1o .safe{inset:9mm 10mm 8.6mm 10mm;align-items:center;text-align:center;color:#24236E}
-.a1o .en{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:8pt;letter-spacing:.18em;color:#8C7440}
-.a1o h1{font-family:"Shippori Mincho B1",serif;font-weight:600;font-size:15pt;letter-spacing:.14em;margin-top:2.6mm;line-height:1.4}
-.a1o .orn{width:12mm;height:.25mm;background:#B49A5E;margin:2.4mm auto 0}
-.a1o p{font-family:"Shippori Mincho B1",serif;font-size:7.4pt;letter-spacing:.06em;color:#3A3970;margin-top:2.2mm;line-height:1.7}
-.a1u{background:#FBF8EF;color:#24236E}
-.a1u .safe{inset:8mm 9mm 7.4mm 9mm}
-.a1u .lab{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:8pt;letter-spacing:.16em;color:#8C7440}
-.a1u ul{list-style:none;margin-top:1.6mm;font-family:"Shippori Mincho B1",serif;font-size:7.4pt;letter-spacing:.05em;line-height:1.75}
-.a1u ul li::before{content:"";display:inline-block;width:1.6mm;height:.2mm;background:#B49A5E;vertical-align:middle;margin-right:1.6mm}
-.a1u .ct{margin-top:auto;border-top:.2mm solid #B49A5E;padding-top:1.4mm}
-.a1u .ct .co{font-family:"Shippori Mincho B1",serif;font-size:7.6pt;font-weight:600;letter-spacing:.04em;line-height:1.45}
-.a1u .ct .co small{display:block;font-size:7pt;font-weight:500;color:#5B5A86}
-.a1u .ct .tel{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:13pt;letter-spacing:.04em;line-height:1;margin-top:.6mm}
-.a1u .ct .tel small{font-family:"Shippori Mincho B1",serif;font-size:7pt;font-weight:500;margin-right:1.6mm;color:#5B5A86;letter-spacing:.06em}
-.a1u .by{font-family:"Shippori Mincho B1",serif;font-size:7pt;color:#7D7C9E;margin-top:.8mm;letter-spacing:.03em}
+.t3u{background:#fff}
+.t3u .top{display:grid;grid-template-columns:1fr 16mm;column-gap:4.4mm;align-items:start}
+.t3u .h{font-size:8pt;font-weight:900;color:#36376A;letter-spacing:.06em;display:flex;justify-content:space-between;align-items:baseline}
+.t3u .h small{font-size:7pt;font-weight:500;color:#6A7192;letter-spacing:.02em}
+.t3u table{width:100%;border-collapse:collapse;margin-top:1.2mm}
+.t3u th{font-size:7pt;font-weight:700;color:#36376A;text-align:left;width:15mm;height:6.4mm;vertical-align:bottom;padding-bottom:.7mm;letter-spacing:.04em;border-bottom:.2mm solid #A9AECB}
+.t3u td{font-size:7pt;color:#8B91AE;text-align:right;vertical-align:bottom;padding-bottom:.7mm;border-bottom:.2mm solid #A9AECB;letter-spacing:.02em}
+.t3u td span{display:inline-block;width:9mm}
+.t3u .hint{font-size:7pt;color:#6A7192;margin-top:1.2mm}
+.t3u .qr{width:16mm;height:16mm}
+.t3u .ct{margin-top:auto;border-top:.25mm solid #36376A;padding-top:1.4mm;display:grid;grid-template-columns:auto 1fr;column-gap:3mm;align-items:end}
+.t3u .co{font-size:7pt;font-weight:700;color:#36376A;letter-spacing:.06em}
+.t3u .tel{font-family:"Barlow",sans-serif;font-weight:700;font-size:14pt;line-height:1;color:#1A2140;margin-top:.6mm}
+.t3u .say{font-size:7pt;color:#1A2140;text-align:right;line-height:1.45}
+.t3u .say b{color:#D04A00;font-weight:700}
+.t3u .say span{color:#6A7192}
 
-/* A2 深藍の夜×シャンパンゴールド：夜景の邸宅の静けさ。最も格調高い */
-.a2o{background:#1B1A4B;background-image:radial-gradient(120% 90% at 85% 0%,#2D2A8D 0%,#1B1A4B 55%,#121133 100%)}
-.a2o .safe{justify-content:center;color:#E9DDBF}
-.a2o .mono{font-family:"Cormorant Garamond",serif;font-style:italic;font-weight:500;font-size:9pt;letter-spacing:.32em;color:#CBB57E}
-.a2o h1{font-family:"Shippori Mincho B1",serif;font-weight:500;font-size:14.4pt;letter-spacing:.16em;line-height:1.55;margin-top:2.4mm;color:#F3EAD3}
-.a2o .line{width:16mm;height:.2mm;background:linear-gradient(90deg,#CBB57E,rgba(203,181,126,0));margin-top:2.8mm}
-.a2o p{font-family:"Shippori Mincho B1",serif;font-size:7.2pt;letter-spacing:.08em;color:#C9C3DE;margin-top:2mm}
-.a2u{background:#F7F4EC;color:#1B1A4B}
-.a2u .safe{inset:8mm 9mm 7.4mm 9mm}
-.a2u .mono{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:8pt;letter-spacing:.24em;color:#9A8350}
-.a2u .two{display:grid;grid-template-columns:1fr 1fr;gap:3mm;margin-top:1.8mm;font-family:"Shippori Mincho B1",serif}
-.a2u .two div{font-size:7.2pt;letter-spacing:.04em;line-height:1.6}
-.a2u .two b{display:block;font-weight:600;font-size:7.8pt;color:#2D2A8D;letter-spacing:.08em;border-bottom:.2mm solid #CBB57E;padding-bottom:.4mm;margin-bottom:.6mm}
+/* ============================================================
+   青山リアルティー・アドバイザーズ様：明朝（Shippori Mincho B1）＋欧文は Cormorant Garamond（ロゴの斜体セリフに合わせる）
+   売り込みの言葉を置かない。住まい手への案内状の調子。金は箔押し想定
+   ============================================================ */
+.ar{font-family:"Shippori Mincho B1",serif;color:#25236A;line-height:1.5;font-feature-settings:"palt" 1}
+.ar .gar{font-family:"Cormorant Garamond",serif;font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1}
+.ar .c{text-align:center}
+.ar y-k.o{margin-left:-.5em}.ar y-k.c{margin-right:-.5em}.ar y-k.m{margin:0 -.25em}
+
+/* ---- 案1 生成りの案内状：生成りに藍の明朝、金の細い枠一本。欧文の小さな見出しを添える ---- */
+.a1o,.a1u{background:#FBF7E4}
+.a1o .frame{position:absolute;inset:7mm;border:.2mm solid #B0905A}
+.a1o .safe{inset:10.4mm 11mm 10mm;text-align:center}
+.a1o .en{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:7pt;letter-spacing:.42em;padding-left:.42em;color:#9A7B45;margin-top:1.4mm}
+.a1o h1{font-weight:500;font-size:13.4pt;letter-spacing:.16em;padding-left:.16em;line-height:1.72;margin-top:2.6mm}
+.a1o .orn{display:block;width:7mm;height:.2mm;background:#B0905A;margin:2.6mm auto 0}
+.a1o .sub{font-size:7.2pt;font-weight:500;letter-spacing:.1em;padding-left:.1em;color:#4E4C7E;margin-top:2.6mm}
+.a1o .from{margin-top:auto;font-size:7pt;font-weight:500;letter-spacing:.14em;padding-left:.14em;color:#6B6992}
+
+.a1u .safe{inset:8.6mm 9.4mm 8.2mm}
+.a1u .head{display:flex;justify-content:space-between;align-items:baseline}
+.a1u .en{font-family:"Cormorant Garamond",serif;font-style:italic;font-weight:500;font-size:9pt;letter-spacing:.08em;color:#9A7B45;line-height:1}
+.a1u dl{margin-top:2.2mm}
+.a1u dl div{display:grid;grid-template-columns:14.5mm 1fr;align-items:baseline}
+.a1u dl div+div{margin-top:1.2mm}
+.a1u dt{font-size:7.4pt;font-weight:600;width:4.2em;text-align-last:justify;white-space:nowrap}  /* 均等割り（4字幅） */
+.a1u dd{font-size:7.4pt;font-weight:500;letter-spacing:.04em;line-height:1.6}
+.a1u dd small{display:block;font-size:7pt;color:#6B6992;letter-spacing:.02em}
+.a1u .ct{margin-top:auto;border-top:.2mm solid #B0905A;padding-top:1.8mm}
+.a1u .lab{font-size:7pt;color:#6B6992;letter-spacing:.1em}
+.a1u .co{font-size:7.8pt;font-weight:600;letter-spacing:.04em;margin-top:.4mm}
+.a1u .tel{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:13.4pt;letter-spacing:.06em;line-height:1;margin-top:.8mm;font-feature-settings:"lnum" 1}
+.a1u .tel small{font-family:"Shippori Mincho B1",serif;font-weight:500;font-size:7pt;letter-spacing:.1em;margin-right:1.6mm;color:#6B6992}
+.a1u .by{font-size:7pt;color:#6B6992;letter-spacing:.04em}
+.a1u .say{font-size:7pt;color:#6B6992;letter-spacing:.02em;margin-top:1mm}
+
+/* ---- 案2 夜の藍：深い藍一色に、金の ARA と一行だけ。もっとも格調の高い案（ARA の表記は御社のご了承が前提） ---- */
+.a2o{background:#1D1B55}
+.a2o .safe{justify-content:center;text-align:center}
+.a2o .mono{font-family:"Cormorant Garamond",serif;font-style:italic;font-weight:600;font-size:27pt;line-height:1;letter-spacing:.03em;color:#CDB781;padding-right:.03em}
+.a2o .line{display:block;width:8mm;height:.2mm;background:#CDB781;margin:3mm auto 0}
+.a2o .en{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:7pt;letter-spacing:.44em;padding-left:.44em;color:#CDB781;margin-top:2.6mm}
+.a2o .jp{font-weight:500;font-size:7.6pt;letter-spacing:.12em;padding-left:.12em;color:#ECE5D2;margin-top:4mm}
+
+.a2u{background:#F8F3E3}
+.a2u .safe{inset:8.6mm 9.4mm 8.2mm;text-align:center}
+.a2u .two{display:grid;grid-template-columns:1fr 1fr;column-gap:7mm;width:100%}
+.a2u .two b{display:block;font-weight:600;font-size:7.8pt;letter-spacing:.26em;padding-left:.26em}
+.a2u .two b::after{content:"";display:block;width:6mm;height:.2mm;background:#B0905A;margin:1.1mm auto 1.2mm}
+.a2u .two span{display:block;font-size:7.2pt;font-weight:500;letter-spacing:.03em;line-height:1.62;color:#3B3970}
 .a2u .ct{margin-top:auto}
-.a2u .ct .co{font-family:"Shippori Mincho B1",serif;font-size:7.6pt;font-weight:600;letter-spacing:.04em;line-height:1.45}
-.a2u .ct .co small{display:block;font-size:7pt;font-weight:500;color:#5B5A86}
-.a2u .ct .tel{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:13pt;letter-spacing:.05em;color:#2D2A8D;line-height:1;margin-top:.6mm}
-.a2u .ct .tel small{font-family:"Shippori Mincho B1",serif;font-size:7pt;font-weight:500;margin-right:1.6mm;color:#5B5A86;letter-spacing:.06em}
-.a2u .by{font-family:"Shippori Mincho B1",serif;font-size:7pt;color:#7D7C9E;margin-top:.8mm}
+.a2u .co{font-size:7.4pt;font-weight:600;letter-spacing:.04em}
+.a2u .co span{font-weight:500;color:#6B6992;margin-right:1.4mm}
+.a2u .tel{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:13.4pt;letter-spacing:.08em;line-height:1;margin-top:.9mm;font-feature-settings:"lnum" 1}
+.a2u .say,.a2u .by{font-size:7pt;color:#6B6992;letter-spacing:.02em;margin-top:.9mm}
+.a2u .by{margin-top:.2mm}
 
-/* A3 建築の線画：白地に藍の細い一本線で建物の輪郭。ARAの建物モチーフを継ぐ。モダンで知的 */
-.a3o{background:#fff}
-.a3o svg.bld{position:absolute;right:0;bottom:0;width:52mm;height:46mm}
-.a3o .safe{color:#2D2A8D}
-.a3o .en{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:13pt;letter-spacing:.06em;line-height:1.05}
-.a3o .en i{font-weight:500}
-.a3o .jp{font-family:"Shippori Mincho B1",serif;font-size:7.4pt;letter-spacing:.12em;margin-top:1.8mm;color:#3A3970}
-.a3o .bottom{margin-top:auto;font-family:"Shippori Mincho B1",serif;font-size:7pt;letter-spacing:.06em;color:#5B5A86;line-height:1.65;max-width:50mm}
-.a3u{background:#2D2A8D;color:#fff}
-.a3u .safe{inset:8mm 9mm 7.4mm 9mm}
-.a3u .en{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:8pt;letter-spacing:.2em;color:#C9C7F0}
-.a3u .items{display:grid;grid-template-columns:repeat(4,1fr);margin-top:2mm;border-top:.2mm solid rgba(255,255,255,.4);border-bottom:.2mm solid rgba(255,255,255,.4)}
-.a3u .items div{text-align:center;padding:1.2mm 0;font-family:"Shippori Mincho B1",serif;font-size:7.2pt;letter-spacing:.06em;border-left:.15mm solid rgba(255,255,255,.25)}
-.a3u .items div:first-child{border-left:0}
-.a3u .note{font-family:"Shippori Mincho B1",serif;font-size:7pt;letter-spacing:.05em;color:#DCDAF6;margin-top:1.6mm}
+/* ---- 案3 縦組み：白い紙に藍の縦書き。和の便箋のような静けさ。裏は藍に生成りの文字 ---- */
+.a3o{background:#FCFBF7}
+.a3o .tate{position:absolute;top:2mm;right:1mm;height:calc(100% - 2mm);writing-mode:vertical-rl;font-feature-settings:normal}
+.a3o .h{font-weight:500;font-size:12.6pt;letter-spacing:.16em;line-height:2}
+.a3o .h2{padding-top:1.6em}
+.a3o .vr{display:block;width:.2mm;height:11mm;background:#B0905A;margin:12.4mm 3.4mm 0 3.8mm}
+.a3o .s{font-weight:500;font-size:7.4pt;letter-spacing:.16em;line-height:2;color:#4E4C7E;padding-top:12.4mm}
+.a3o .from{position:absolute;left:0;bottom:0;font-size:7pt;font-weight:500;letter-spacing:.16em;color:#6B6992;line-height:1.5}
+.a3o .from b{display:block;font-family:"Cormorant Garamond",serif;font-style:italic;font-weight:500;font-size:7.6pt;letter-spacing:.06em;color:#9A7B45}
+
+.a3u{background:#2D2A8D;color:#F4EFDD}
+.a3u .safe{inset:8.6mm 9.4mm 8.2mm}
+.a3u .vlab{position:absolute;right:0;top:0;writing-mode:vertical-rl;font-feature-settings:normal;font-weight:600;font-size:7.6pt;letter-spacing:.34em;color:#E3CF9C}
+.a3u .vline{position:absolute;right:5.6mm;top:0;bottom:0;width:.2mm;background:rgba(227,207,156,.55)}
+.a3u .body{position:absolute;inset:0 9.4mm 0 0;display:flex;flex-direction:column}
+.a3u ul{list-style:none;font-size:7.4pt;font-weight:600;letter-spacing:.04em;line-height:1.62}
+.a3u ul li+li{margin-top:1mm}
+.a3u ul small{display:block;font-size:7pt;font-weight:500;color:#CFCBEA;letter-spacing:.02em}
 .a3u .ct{margin-top:auto}
-.a3u .ct .co{font-family:"Shippori Mincho B1",serif;font-size:7.8pt;font-weight:600;letter-spacing:.06em}
-.a3u .ct .tel{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:14pt;letter-spacing:.06em;margin-top:.4mm}
-.a3u .ct .tel small{font-family:"Shippori Mincho B1",serif;font-size:7pt;font-weight:500;margin-right:1.4mm;letter-spacing:.06em}
-.a3u .by{font-family:"Shippori Mincho B1",serif;font-size:7pt;color:#C9C7F0;margin-top:1mm;letter-spacing:.04em}
+.a3u .co{font-size:7.4pt;font-weight:600;letter-spacing:.04em}
+.a3u .co span{font-weight:500;color:#CFCBEA;margin-right:1.4mm}
+.a3u .tel{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:13.4pt;letter-spacing:.08em;line-height:1;margin-top:.8mm;color:#fff;font-feature-settings:"lnum" 1}
+.a3u .say,.a3u .by{font-size:7pt;font-weight:500;color:#CFCBEA;letter-spacing:.02em;margin-top:.9mm}
+.a3u .by{margin-top:.2mm}
 </style></head>
 <body>
 
-<!-- ============ タカラ T1 ============ -->
+<!-- ================= タカラ 案1 コーポレート ================= -->
 <div class="page tk t1o" id="takara-1-omote">
-  <div class="band"></div>
+  <div class="louver"></div>
   <div class="safe">
     <p class="ey">AIR CONDITIONER CLEANING</p>
-    <h1>エアコンの洗浄も、<br><em>タカラサービス</em>にお任せください。</h1>
+    <h1>エアコンの洗浄も、<br>タカラサービスへ。</h1>
+    <i class="bar"></i>
     <p class="sub">業務用・家庭用エアコンを、分解して洗います。</p>
-    <div class="pts">
-      <div class="pt"><b>匂い・カビ</b><span>嫌な匂いのもとを<br>洗い流します</span></div>
-      <div class="pt"><b>効きの回復</b><span>目詰まりを取り<br>本来の風量に</span></div>
-      <div class="pt"><b>故障の予防</b><span>水漏れを防ぎ<br>長く使えるように</span></div>
-    </div>
+    <p class="kinds"><b>1台から</b>天井カセット／天吊り／床置き／壁掛け</p>
   </div>
 </div>
 <div class="page tk t1u" id="takara-1-ura">
   <div class="safe">
-    <span class="lab">ご相談・お申込み</span>
-    <p class="co">株式会社タカラサービス</p>
-    <p class="tel"><small>TEL</small><b class="num">0120-655-080</b></p>
-    <p class="say"><b>「洗浄のカードを見た」</b>とお伝えください。</p>
-    <p class="menu"><b>対応</b>　天井カセット・天吊り・床置き・壁掛け／1台から数十台まで</p>
-    <p class="by">施工：ワンヒッター株式会社（東京・千葉・神奈川）</p>
+    <div class="main">
+      <div>
+        <p class="lab">ご相談・お申込み</p>
+        <p class="co">株式会社タカラサービス</p>
+        <p class="tel"><small>TEL</small><b>0120-655-080</b></p>
+        <p class="say">「<b>洗浄のカードを見た</b>」とお伝えください。</p>
+      </div>
+      <figure class="qrbox"><div class="qr" data-url="https://lp.onehitter.jp/takara/?src=card-t1" data-fg="#122F60"></div><figcaption>洗浄の様子と<br>流れはこちら</figcaption></figure>
+    </div>
+    <p class="foot"><span>業務用・家庭用　分解洗浄</span><span>施工　ワンヒッター株式会社</span></p>
   </div>
 </div>
 
-<!-- ============ タカラ T2 ============ -->
+<!-- ================= タカラ 案2 写真 ================= -->
 <div class="page tk t2o" id="takara-2-omote">
-  <div class="ph l" style="background-image:url('../../lp/aircon/img/fin-before.jpg')"></div>
-  <div class="ph r" style="background-image:url('../../lp/aircon/img/fin-after.jpg')"></div>
-  <div class="shade"></div>
-  <span class="tag l">洗浄前</span><span class="tag r">洗浄後</span>
-  <div class="bot">
-    <h1>見えない奥の汚れまで、分解して洗います。</h1>
+  <div class="ph b"></div><div class="ph a"></div><i class="div"></i><div class="shade"></div>
+  <div class="safe">
+    <div class="tags"><span class="b">洗浄前</span><span class="a">洗浄後</span></div>
+    <h1>見えない奥のカビまで、<br>分解して洗います。</h1>
     <p>エアコンの洗浄は、タカラサービスへ。</p>
   </div>
 </div>
 <div class="page tk t2u" id="takara-2-ura">
+  <div class="band"></div>
   <div class="safe">
-    <h2>こんな時は、洗浄のサインです</h2>
-    <div class="row">
-      <div><b>匂う</b><span>冷房をつけると<br>酸っぱい匂い</span></div>
-      <div><b>効かない</b><span>設定温度に<br>なかなか届かない</span></div>
-      <div><b>水が垂れる</b><span>吹き出し口から<br>水滴・黒い点</span></div>
-    </div>
+    <h2>こんな時は、洗浄のサインです。</h2>
+    <ol>
+      <li><span class="num">01</span><b>匂う</b>冷房をつけると<br>酸っぱい匂いがする</li>
+      <li><span class="num">02</span><b>効かない</b>設定温度に<br>なかなか届かない</li>
+      <li><span class="num">03</span><b>水が垂れる</b>吹き出し口から<br>水滴や黒い点</li>
+    </ol>
     <div class="ct">
-      <div class="co">株式会社タカラサービス<small>ご相談・お見積り</small></div>
-      <div class="tel num">0120-655-080</div>
+      <div>
+        <p class="co"><span>ご相談</span>株式会社タカラサービス</p>
+        <p class="tel">0120-655-080</p>
+        <p class="say">「洗浄のカードを見た」とお伝えください。</p>
+        <p class="by">施工　ワンヒッター株式会社</p>
+      </div>
+      <div class="qr" data-url="https://lp.onehitter.jp/takara/?src=card-t2" data-fg="#122F60"></div>
     </div>
-    <p class="by">業務用（天カセ・天吊り・床置き）・壁掛けに対応／施工：ワンヒッター株式会社</p>
   </div>
 </div>
 
-<!-- ============ タカラ T3 ============ -->
+<!-- ================= タカラ 案3 記録カード ================= -->
 <div class="page tk t3o" id="takara-3-omote">
-  <div class="rule"></div>
+  <i class="rule"></i>
   <div class="safe">
-    <p class="ey">TAKARA SERVICE × CLEANING</p>
-    <h1>取り付けたエアコンの<br>洗浄も、<span>同じ窓口</span>で。</h1>
+    <p class="ey">TAKARA SERVICE</p>
+    <h1>取り付けたエアコンの<br>洗浄も、<em>同じ窓口</em>で。</h1>
     <div class="kinds"><span>天井カセット</span><span>天吊り</span><span>床置き</span><span>壁掛け</span></div>
-    <p class="sub">分解洗浄・フィルター清掃。1台から数十台まで承ります。</p>
+    <p class="sub">分解洗浄・フィルター清掃　1台から数十台まで</p>
   </div>
 </div>
 <div class="page tk t3u" id="takara-3-ura">
   <div class="safe">
-    <p class="ey">CONTACT</p>
-    <p class="co">株式会社タカラサービス</p>
-    <p class="tel num"><small>TEL</small>0120-655-080</p>
-    <p class="say">「洗浄のカードを見た」とお伝えください。</p>
-    <p class="freq"><b>洗浄の目安</b>　飲食店・365日営業は年1回／オフィスは1〜2年に1回<br>施工：ワンヒッター株式会社（東京・千葉・神奈川）</p>
+    <div class="top">
+      <div>
+        <p class="h">エアコン洗浄の記録<small>リモコンのそばに置いてください</small></p>
+        <table>
+          <tr><th>設置</th><td><span>年</span><span>月</span></td></tr>
+          <tr><th>前回の洗浄</th><td><span>年</span><span>月</span></td></tr>
+          <tr><th>次回の目安</th><td><span>年</span><span>月</span></td></tr>
+        </table>
+        <p class="hint">目安：飲食店は年1回／オフィスは1〜2年に1回</p>
+      </div>
+      <figure class="qrbox"><div class="qr" data-url="https://lp.onehitter.jp/takara/?src=card-t3" data-fg="#36376A"></div><figcaption>洗浄の様子</figcaption></figure>
+    </div>
+    <div class="ct">
+      <div>
+        <p class="co">ご相談　株式会社タカラサービス</p>
+        <p class="tel">0120-655-080</p>
+      </div>
+      <p class="say">「<b>洗浄のカードを見た</b>」とお伝えください。<br><span>施工　ワンヒッター株式会社</span></p>
+    </div>
   </div>
 </div>
 
-<!-- ============ 青山 A1 ============ -->
-<div class="page a1o" id="aoyama-1-omote">
-  <div class="frame"></div>
+<!-- ================= 青山 案1 生成りの案内状 ================= -->
+<div class="page ar a1o" id="aoyama-1-omote">
+  <i class="frame"></i>
   <div class="safe">
-    <p class="en">Residence Care Service</p>
-    <h1>空気まで、<br>美しい住まいに。</h1>
-    <div class="orn"></div>
-    <p>エアコンの分解洗浄と、水まわりのクリーニング。<br>ご用命は、青山リアルティー・アドバイザーズが承ります。</p>
+    <p class="en">RESIDENCE CARE</p>
+    <h1>空気まで、<br>澄んだ住まいに。</h1>
+    <i class="orn"></i>
+    <p class="sub">エアコンの分解洗浄と、水まわりのお手入れ</p>
+    <p class="from">青山リアルティー・アドバイザーズ</p>
   </div>
 </div>
-<div class="page a1u" id="aoyama-1-ura">
+<div class="page ar a1u" id="aoyama-1-ura">
   <div class="safe">
-    <p class="lab">Services</p>
-    <ul>
-      <li>エアコンの分解洗浄（お掃除機能付き・天井埋め込みも）</li>
-      <li>浴室・キッチン・レンジフード・洗面のクリーニング</li>
-      <li>専有部の定期的なお手入れのご相談</li>
-    </ul>
+    <div class="head"><p class="en">Residence Care</p><p class="by">施工　ワンヒッター株式会社</p></div>
+    <dl>
+      <div><dt>空調</dt><dd>エアコンの分解洗浄<small>お掃除機能付き・天井埋め込み型にも対応します</small></dd></div>
+      <div><dt>水まわり</dt><dd>浴室・キッチン・洗面所・レンジフード</dd></div>
+    </dl>
     <div class="ct">
-      <div class="co">青山リアルティー・アドバイザーズ株式会社</div>
-      <div class="tel"><small>ご用命・ご相談</small>03-6455-5091</div>
-    </div>
-    <p class="by">施工：ワンヒッター株式会社</p>
-  </div>
-</div>
-
-<!-- ============ 青山 A2 ============ -->
-<div class="page a2o" id="aoyama-2-omote">
-  <div class="safe">
-    <p class="mono">ARA · Residence Care</p>
-    <h1>見えないところまで、<br>手入れの行き届いた住まいを。</h1>
-    <div class="line"></div>
-    <p>エアコン分解洗浄・水まわりクリーニング</p>
-  </div>
-</div>
-<div class="page a2u" id="aoyama-2-ura">
-  <div class="safe">
-    <p class="mono">For Residents</p>
-    <div class="two">
-      <div><b>空調</b>エアコンの分解洗浄<br>お掃除機能付き・天井型も</div>
-      <div><b>水まわり</b>浴室・キッチン<br>レンジフード・洗面</div>
-    </div>
-    <div class="ct">
-      <div class="co">青山リアルティー・アドバイザーズ株式会社</div>
-      <div class="tel"><small>ご用命</small>03-6455-5091</div>
-    </div>
-    <p class="by">施工：ワンヒッター株式会社</p>
-  </div>
-</div>
-
-<!-- ============ 青山 A3 ============ -->
-<div class="page a3o" id="aoyama-3-omote">
-  <svg class="bld" viewBox="0 0 520 460" fill="none" stroke="#2D2A8D" stroke-linejoin="round" aria-hidden="true">
-    <g stroke-width="2" stroke-opacity=".6">
-      <path d="M250 460 V40 H360 V460"/>
-      <path d="M380 460 V130 H470 V460"/>
-      <path d="M150 460 V250 H235 V460"/>
-    </g>
-    <g stroke-width="1.1" stroke-opacity=".3">
-      <path d="M277 60 V460 M305 60 V460 M333 60 V460"/>
-      <path d="M402 150 V460 M425 150 V460 M448 150 V460"/>
-      <path d="M171 270 V460 M193 270 V460 M214 270 V460"/>
-    </g>
-    <path d="M250 40 L305 18 L360 40" stroke-width="1.4" stroke-opacity=".45"/>
-    <path d="M90 460 H520" stroke-width="2" stroke="#B49A5E" stroke-opacity=".8"/>
-  </svg>
-  <div class="safe">
-    <p class="en">Residence <i>Care</i></p>
-    <p class="jp">エアコン・水まわりの専門クリーニング</p>
-    <p class="bottom">ご入居中のお住まいを、<br>専門の職人が丁寧に整えます。</p>
-  </div>
-</div>
-<div class="page a3u" id="aoyama-3-ura">
-  <div class="safe">
-    <p class="en">Services</p>
-    <div class="items"><div>エアコン</div><div>浴室</div><div>キッチン</div><div>洗面</div></div>
-    <p class="note">お掃除機能付き・天井埋め込みのエアコンにも対応します。</p>
-    <div class="ct">
+      <p class="lab">ご用命・ご相談</p>
       <p class="co">青山リアルティー・アドバイザーズ株式会社</p>
-      <p class="tel"><small>ご用命</small>03-6455-5091</p>
+      <p class="tel"><small>TEL</small>03-6455-5091</p>
+      <p class="say">お電話の際は「お手入れのご案内を見た」とお伝えください。</p>
     </div>
-    <p class="by">施工：ワンヒッター株式会社</p>
   </div>
 </div>
 
+<!-- ================= 青山 案2 夜の藍（ARA） ================= -->
+<div class="page ar a2o" id="aoyama-2-omote">
+  <div class="safe">
+    <p class="mono">ARA</p>
+    <i class="line"></i>
+    <p class="en">RESIDENCE CARE</p>
+    <p class="jp">見えないところまで、行き届いた住まいを。</p>
+  </div>
+</div>
+<div class="page ar a2u" id="aoyama-2-ura">
+  <div class="safe">
+    <div class="two">
+      <div><b>空調</b><span>エアコンの分解洗浄<br>お掃除機能付き・天井型も</span></div>
+      <div><b>水まわり</b><span>浴室・キッチン<br>洗面所・レンジフード</span></div>
+    </div>
+    <div class="ct">
+      <p class="co"><span>ご用命は</span>青山リアルティー・アドバイザーズ株式会社</p>
+      <p class="tel">03-6455-5091</p>
+      <p class="say">お電話の際は「お手入れのご案内を見た」とお伝えください。</p>
+      <p class="by">施工　ワンヒッター株式会社</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 青山 案3 縦組み ================= -->
+<div class="page ar a3o" id="aoyama-3-omote">
+  <div class="safe">
+    <div class="tate">
+      <p class="h">住まいの奥まで、</p>
+      <p class="h h2">静かに整える。</p>
+      <i class="vr"></i>
+      <p class="s">エアコンの分解洗浄と<br>水まわりのお手入れ</p>
+    </div>
+    <p class="from"><b>Residence Care</b>青山リアルティー・アドバイザーズ</p>
+  </div>
+</div>
+<div class="page ar a3u" id="aoyama-3-ura">
+  <div class="safe">
+    <p class="vlab">お手入れのご案内</p>
+    <i class="vline"></i>
+    <div class="body">
+      <ul>
+        <li>エアコンの分解洗浄<small>お掃除機能付き・天井埋め込み型にも対応します</small></li>
+        <li>水まわりのクリーニング<small>浴室・キッチン・洗面所・レンジフード</small></li>
+      </ul>
+      <div class="ct">
+        <p class="co"><span>ご用命は</span>青山リアルティー・アドバイザーズ株式会社</p>
+        <p class="tel">03-6455-5091</p>
+        <p class="say">お電話の際は「お手入れのご案内を見た」とお伝えください。</p>
+        <p class="by">施工　ワンヒッター株式会社</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 約物詰め：Shippori Mincho B1（Google Fonts 版）は palt が効かない。青山様の横組みだけ、約物を手で半角幅に詰める（縦組みはそのまま） -->
+<script>
+(function () {
+  var O = '「『（〈《【', C = '」』）〉》】、。，．', M = '・：；';
+  document.querySelectorAll('.ar').forEach(function (pg) {
+    var w = document.createTreeWalker(pg, NodeFilter.SHOW_TEXT), ns = [], n;
+    while ((n = w.nextNode())) if (/[「『（〈《【」』）〉》】、。，．・：；]/.test(n.nodeValue) && getComputedStyle(n.parentElement).writingMode === 'horizontal-tb') ns.push(n);
+    ns.forEach(function (t) {
+      var f = document.createDocumentFragment(), buf = '';
+      function flush() { if (buf) { f.appendChild(document.createTextNode(buf)); buf = ''; } }
+      for (var ch of t.nodeValue) {
+        var k = O.indexOf(ch) >= 0 ? 'o' : C.indexOf(ch) >= 0 ? 'c' : M.indexOf(ch) >= 0 ? 'm' : '';
+        if (!k) { buf += ch; continue; }
+        flush(); var s = document.createElement('y-k'); s.className = k; s.textContent = ch; f.appendChild(s);
+      }
+      flush(); t.parentNode.replaceChild(f, t);
+    });
+  });
+})();
+</script>
+<!-- QR：qrcode-generator（cdnjs）で SVG を作る。誤り訂正 M・静寂域3モジュール（周りの白地で4以上を確保） -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+document.querySelectorAll('.qr[data-url]').forEach(function (el) {
+  var q = qrcode(0, 'M'); q.addData(el.dataset.url); q.make();
+  var n = q.getModuleCount(), m = 3, N = n + m * 2, d = '';
+  for (var r = 0; r < n; r++) for (var c = 0; c < n; c++) if (q.isDark(r, c)) d += 'M' + (c + m) + ' ' + (r + m) + 'h1v1h-1z';
+  el.innerHTML = '<svg viewBox="0 0 ' + N + ' ' + N + '" shape-rendering="crispEdges"><rect width="' + N + '" height="' + N + '" fill="#fff"/><path d="' + d + '" fill="' + (el.dataset.fg || '#000') + '"/></svg>';
+  el.dataset.modules = n;
+});
+</script>
 </body></html>

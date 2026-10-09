@@ -19,6 +19,8 @@
   会社ごとの値引き率は COMPANIES の waribiki（既定 0。オーナーが決めたら入れる）。
 
 【受け取り】Netlify フォーム "partner"（全社共通）。通知メールが毎時点検で拾える。
+【ご紹介カードの数え方】お客様が「カードを見た」と言ったら、提携先の担当者が「ご紹介カードを見たお客様」に
+  チェック（任意・1タップ）→ フォームの「きっかけ＝ご紹介カード」で数える（print/partner-cards/cards.html の導線）。
 
   python3 tools/build-partner.py        # lp/partner/<鍵>/index.html を全社ぶん作る
   python3 tools/check-public-page.py lp/partner/*/index.html   # 配信前に必ず
@@ -102,6 +104,8 @@ button.send{display:block;width:100%;margin:16px 0 6px;padding:14px;font:inherit
 button.send:hover{background:var(--cta-h)}
 .err{color:#B72C0A;font-size:14px;min-height:1em}
 .hp{position:absolute;left:-9999px}
+.chk{display:flex;align-items:center;gap:8px;margin:14px 0 0;font-size:15px;cursor:pointer}
+.chk input{width:20px;height:20px;margin:0;accent-color:var(--ink)}
 footer{border-top:1px solid var(--rule);padding:18px 0 28px;font-size:13px;color:var(--text-2)}
 footer a{color:var(--aqua)}
 """
@@ -292,6 +296,7 @@ def page(key: str, c: dict) -> str:
     <input id="f-genba" name="現場の住所" type="text" placeholder="例：大田区大森本町（区・町名まででも結構です）">
     <label class="f" for="f-genbamei">現場のお名前<span class="opt">任意・店舗名や物件名</span></label>
     <input id="f-genbamei" name="現場のお名前" type="text">
+    <label class="chk"><input type="checkbox" name="きっかけ" value="ご紹介カード">ご紹介カードを見たお客様<span class="opt">任意</span></label>
   </section>
 
   <section class="card">
