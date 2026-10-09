@@ -619,6 +619,43 @@ console.log('レビュー指摘の固定（文言・上限・請求の通り道�
   }
 })();
 
+/* ===================== 12. 流入経路「チラシ(OH)」で自動適用（オーナー決定 10/9） ===================== */
+
+console.log('流入経路 チラシ(OH) の自動適用');
+
+(function () {
+  const plain = calc({});
+  ['チラシ(OH)', 'チラシ（OH）', ' チラシ(oh) ', 'チラシOH'].forEach(function (v) {
+    const c = calc({ inflowRoute: v });
+    check('流入経路 ' + JSON.stringify(v) + '：チラシ特典が自動で付く', [c.flyerApplied, c.grandTotal], [455, 10280]);
+  });
+  check('チェックを明示的に外していれば付かない', calc({ inflowRoute: 'チラシ(OH)', flyerManual: false }).grandTotal, plain.grandTotal);
+  check('チェックが明示されていれば付く（経路なし）', calc({ flyerManual: true }).grandTotal, 10280);
+  ['', null, undefined, 'WEB', 'チラシ', 'Googleマップ', 'チラシ(OH)2'].forEach(function (v) {
+    check('流入経路 ' + JSON.stringify(v) + '：何も変わらない', core(calc({ inflowRoute: v })), core(plain));
+  });
+  check('マスタにチラシ特典が無ければ付かず、警告が出る', (() => {
+    const c = calc({ inflowRoute: 'チラシ(OH)' }, CTX_OLD);
+    return [c.grandTotal, exTexts(c).length > 0];
+  })(), [10780, true]);
+
+  // 他の割引との関係は手動チェックと同じ（大きいほう）
+  check('流入経路チラシ＋早期予約980円：早期予約のほうが大きいので、チラシは使わない',
+    [calc({ inflowRoute: 'チラシ(OH)', discountManual: true }).flyerApplied || 0, calc({ inflowRoute: 'チラシ(OH)', discountManual: true }).grandTotal], [0, 9702]);
+
+  // 保存→復元（チェックの印が残り、あとでマスタが変わっても同じ）
+  const pay = pl({ inflowRoute: 'チラシ(OH)' });
+  const saved = sandbox.calculateEstimate_(pay, CTX);
+  const rec = sandbox.buildEstimateRecord_(pay, CTX, saved, 'EST-20260910-0020');
+  check('保存：流入経路が残る', rec['流入経路'], 'チラシ(OH)');
+  check('保存：チラシ特典の印と税込額', [sandbox.parseBooleanLoose_(rec['チラシ特典_手動設定']), rec['チラシ特典_税込額']], [true, 500]);
+  check('復元：同じ合計（マスタを1,000円に変えても）',
+    sandbox.rebuildCalcFromRecord_(rec, Object.assign({}, CTX, { flyerBenefit: { name: 'チラシ特典', amount: 1000, note: '' } })).grandTotal, saved.grandTotal);
+  const none = sandbox.buildEstimateRecord_(pl({}), CTX, sandbox.calculateEstimate_(pl({}), CTX), 'EST-20260910-0021');
+  check('経路を使わない見積：流入経路は空欄', none['流入経路'], '');
+  check('見積の列に 流入経路 がある', sandbox.getEstimateHeaders_().indexOf('流入経路') >= 0, true);
+})();
+
 /* ===================== 結果 ===================== */
 
 console.log('');

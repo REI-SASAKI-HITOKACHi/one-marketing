@@ -271,6 +271,12 @@
     // 作業日や経路タブを変えても解除しない（ネット特典の写しで書くと、日付を直しただけで黙って消える）
     byId('flyerManual').addEventListener('change', recalc);
 
+    // 流入経路が「チラシ(OH)」ならチラシ特典を自動でチェックする。外したいときは、チェックを手で外せる
+    byId('inflowRoute').addEventListener('change', function () {
+      if (byId('inflowRoute').value === 'チラシ(OH)') byId('flyerManual').checked = true;
+      recalc();
+    });
+
     byId('referralOn').addEventListener('change', function () {
       byId('referralBlock').classList.toggle('hidden', !byId('referralOn').checked);
       recalc();
@@ -684,6 +690,7 @@
       netBenefitManual: state.netBenefitTouched ? byId('netBenefitManual').checked : null,
       // チラシ特典・紹介割引：チェック／入力したときだけ送る。既定は何も送らない
       flyerManual: byId('flyerManual').checked,
+      inflowRoute: byId('inflowRoute').value,
       referralAmount: byId('referralOn').checked ? val('referralAmount') : '',
       referralBalance: byId('referralOn').checked ? val('referralBalance') : '',
       channel: state.channel,
@@ -1293,6 +1300,7 @@
     // チラシ特典（1世帯1回）と紹介割引（残高から引く）は複製しない。
     // 持ち込むと、同じ権利・同じ残高が2件の見積に載って二重に使われる。
     byId('flyerManual').checked = false;
+    byId('inflowRoute').value = '';
     byId('referralOn').checked = false;
     byId('referralBlock').classList.add('hidden');
     setVal('referralAmount', '');

@@ -1045,6 +1045,7 @@ function buildEstimateRecord_(payload, ctx, calc, estimateId) {
     ネット特典_手動設定: boolText_(calc.netBenefitOn),
     ネット特典額: calc.netBenefitApplied,
     // チラシ特典・紹介割引。使っていないときは空欄（「使っていない」と「0円」を区別するため）
+    流入経路: calc.inflowRoute || '',
     チラシ特典_手動設定: calc.flyerRequested ? 'TRUE' : '',
     チラシ特典額: calc.flyerRequested ? calc.flyerApplied : '',
     チラシ特典_税込額: calc.flyerRequested ? calc.flyerGross : '',
@@ -2395,7 +2396,7 @@ function getEstimateHeaders_() {
     'フォーム提示額', 'フォーム差額');
 
   // チラシ特典・紹介割引（2026-10）。既存列の位置は動かさず右端に足す。
-  headers.push('チラシ特典_手動設定', 'チラシ特典額', 'チラシ特典_税込額',
+  headers.push('流入経路', 'チラシ特典_手動設定', 'チラシ特典額', 'チラシ特典_税込額',
     '紹介割引_入力額', '紹介割引額', '紹介割引_適用額', '紹介割引_残り確認');
 
   for (let i = 1; i <= APP.MAX_ADJUSTMENT_SLOTS; i++) {

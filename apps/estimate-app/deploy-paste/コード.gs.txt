@@ -532,6 +532,12 @@ var CalcEngine = (function () {
     return String(Math.abs(yen(n))).replace(/\\B(?=(\\d{3})+(?!\\d))/g, ',');
   }
 
+  /** 流入経路が「チラシ(OH)」か。全角かっこ・空白・大小文字の違いは同じとみなす */
+  function isFlyerRoute(v) {
+    var s = String(v == null ? '' : v).replace(/[\\s\\u3000]/g, '').replace(/（/g, '(').replace(/）/g, ')').toLowerCase();
+    return s === 'チラシ(oh)' || s === 'チラシoh';
+  }
+
   function parseBool(v) {
     if (v === true) return true;
     if (v === false) return false;
@@ -1254,7 +1260,10 @@ var CalcEngine = (function () {
      * だから止める処理は、全部の候補を出し終えたあと、最後に Applied を0にする形で行う。
      */
     var flyerInfo = calcFlyerBenefit(ctx, p, taxRate);
-    var flyerRequested = flyerInfo.exists && parseBool(p.flyerManual);   // 既定OFF。自動判定は持たない
+    // 流入経路が「チラシ(OH)」なら、チェックを指定していないときは自動で適用する（オーナー決定 10/9）。
+    // チェックの有無が明示されている（true/false）ときは、そちらを優先する。何も送らなければ従来どおり使わない
+    var flyerWanted = isBlank(p.flyerManual) ? isFlyerRoute(p.inflowRoute) : parseBool(p.flyerManual);
+    var flyerRequested = flyerInfo.exists && flyerWanted;
     var referralInfo = calcReferral(p, taxRate);
 
     var othersCandidate = setDiscountApplied + netBenefitApplied + autoDiscountApplied
@@ -1401,7 +1410,8 @@ var CalcEngine = (function () {
       flyerExists: flyerInfo.exists,
       flyerRequested: flyerRequested,
       // 指定はされたが、マスタに額が無い。保存はしない（あとでマスタに額を足したとき、過去の見積に黙って付いてしまう）
-      flyerAsked: parseBool(p.flyerManual),
+      flyerAsked: flyerWanted,
+      inflowRoute: isFlyerRoute(p.inflowRoute) ? 'チラシ(OH)' : '',
       flyerApplied: flyerApplied,
       flyerGross: flyerInfo.gross,
       flyerCandidate: flyerInfo.candidate,
@@ -2280,6 +2290,7 @@ function buildEstimateRecord_(payload, ctx, calc, estimateId) {
     ネット特典_手動設定: boolText_(calc.netBenefitOn),
     ネット特典額: calc.netBenefitApplied,
     // チラシ特典・紹介割引。使っていないときは空欄（「使っていない」と「0円」を区別するため）
+    流入経路: calc.inflowRoute || '',
     チラシ特典_手動設定: calc.flyerRequested ? 'TRUE' : '',
     チラシ特典額: calc.flyerRequested ? calc.flyerApplied : '',
     チラシ特典_税込額: calc.flyerRequested ? calc.flyerGross : '',
@@ -3630,7 +3641,7 @@ function getEstimateHeaders_() {
     'フォーム提示額', 'フォーム差額');
 
   // チラシ特典・紹介割引（2026-10）。既存列の位置は動かさず右端に足す。
-  headers.push('チラシ特典_手動設定', 'チラシ特典額', 'チラシ特典_税込額',
+  headers.push('流入経路', 'チラシ特典_手動設定', 'チラシ特典額', 'チラシ特典_税込額',
     '紹介割引_入力額', '紹介割引額', '紹介割引_適用額', '紹介割引_残り確認');
 
   for (let i = 1; i <= APP.MAX_ADJUSTMENT_SLOTS; i++) {

@@ -131,6 +131,12 @@
 
         <!-- チラシ特典と紹介割引は、自動判定を持たない（手でチェック／入力したときだけ付く）。
              どちらも1行ずつで、使わない限り何も増えない。 -->
+        <label for="inflowRoute" class="mini">流入経路（チラシ(OH)を選ぶと、チラシ特典が自動でチェックされます）</label>
+        <select id="inflowRoute">
+          <option value="">指定なし</option>
+          <option value="チラシ(OH)">チラシ(OH)</option>
+        </select>
+
         <label class="check-row" id="flyerRow" hidden>
           <input id="flyerManual" type="checkbox">
           <span>チラシ特典を適用</span>
