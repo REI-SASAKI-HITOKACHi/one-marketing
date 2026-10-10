@@ -18,7 +18,12 @@
   繁忙期（5〜7月・12月）は 1台 +3,300。ただしエアコン5台超は加算なし（法人の決まり）。
   会社ごとの値引き率は COMPANIES の waribiki（既定 0。オーナーが決めたら入れる）。
 
-【受け取り】Netlify フォーム "partner"（全社共通）。通知メールが毎時点検で拾える。
+【タカラサービス様は形が違う（第6回MTG 6-4 No.4・2026-10-10）】上部タブ2つ（①見積依頼 ②現調依頼）。
+  中身は tools/partner_tabs.py。料金は data/partner-price/takara.json（★タカラ様専用の料金表が未着のため標準価格で仮置き。
+  届いたら takara.json だけ直して、このスクリプトを流す）。高速代・移動時間は data/partner-area.json
+  （tools/build-kousoku-ic.py がドラぷらから作る）。青山様は従来の1画面のまま。
+
+【受け取り】Netlify フォーム "partner"（全社共通）。項目は partner_tabs.FORM_FIELDS で全社そろえる。通知メールが毎時点検で拾える。
 【ご紹介カードの数え方】お客様が「カードを見た」と言ったら、提携先の担当者が「ご紹介カードを見たお客様」に
   チェック（任意・1タップ）→ フォームの「きっかけ＝ご紹介カード」で数える（print/partner-cards/cards.html の導線）。
 

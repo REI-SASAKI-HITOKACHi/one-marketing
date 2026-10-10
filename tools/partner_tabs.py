@@ -96,6 +96,7 @@ button,input,textarea,select{font:inherit;color:inherit}
 .field input[type=text],.field input[type=tel],.field textarea{width:100%;border:1px solid var(--line-2);border-radius:8px;padding:11px 12px;
   font-size:16px;background:#fff;min-height:46px}
 .field textarea{min-height:76px;resize:vertical}
+.field input::-webkit-calendar-picker-indicator{display:none !important}
 .field input:focus,.field textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(18,47,96,.12)}
 .field.bad input,.field.bad textarea{border-color:var(--err)}
 .field .msg{display:none;color:var(--err);font-size:13px;margin:6px 0 0}
@@ -649,7 +650,7 @@ def page(key: str, c: dict, price: dict, area: dict, api: str, tel: str, footer:
 
 <main>
   <div class="panel wrap" id="p-mitsu" role="tabpanel" aria-labelledby="t-mitsu">
-    <p class="lead">台数を入れると、その場で料金と作業できる日が出ます。</p>
+    <p class="lead">台数を入れると、料金と作業できる日がすぐに出ます。</p>
     <section class="sec" id="mf-items">
       <h2>機種と台数<small>税込・合計台数で単価が下がります</small></h2>
       <div class="box">
