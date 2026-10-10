@@ -28,6 +28,8 @@
 import json
 import pathlib
 
+import partner_tabs
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "lp" / "partner"
 
@@ -239,7 +241,17 @@ JS = r"""
 """
 
 
+# Netlify フォーム "partner" の項目を全社でそろえる（partner_tabs.FORM_FIELDS）。1画面ページに無い項目は空の隠しで置く。
+_ICHIGAMEN = {"種別", "提携先", "ご担当", "ページ", "請求先", "内容", "目安金額", "希望日時", "送信元の確認",
+              "現場の住所", "現場のお名前", "きっかけ", "ご要望"}
+KYOUTSUU_HIDDEN = "\n  ".join(f'<input type="hidden" name="{f}" value="">' for f in partner_tabs.FORM_FIELDS if f not in _ICHIGAMEN)
+
+
 def page(key: str, c: dict) -> str:
+    if c.get("katachi") == "tabs":
+        price = json.loads((ROOT / c["ryokin"]).read_text(encoding="utf-8"))
+        area = json.loads((ROOT / "data" / "partner-area.json").read_text(encoding="utf-8"))
+        return partner_tabs.page(key, c, price, area, API, TEL, FOOTER)
     conf = {
         "menus": c["menus"], "M": {k: MENUS[k] for k in c["menus"]}, "gyomu": GYOMU,
         "hanbou": [5, 6, 7, 12], "hanbouGaku": 3300, "waribiki": c.get("waribiki", 0),
@@ -292,6 +304,8 @@ def page(key: str, c: dict) -> str:
   <input type="hidden" id="f-kingaku" name="目安金額" value="">
   <input type="hidden" id="f-hi" name="希望日時" value="">
   <input type="hidden" id="f-sentaku" name="送信元の確認" value="">
+  <input type="hidden" name="種別" value="仮押さえ">
+  {KYOUTSUU_HIDDEN}
 
   <section class="card">
     <h2><span class="step">1</span>現場</h2>
@@ -334,14 +348,14 @@ THANKS = f"""<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>仮押さえを受け付けました｜ワンヒッター株式会社</title>
+<title>ご依頼を受け付けました｜ワンヒッター株式会社</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>{CSS}</style>
 </head>
 <body>
-<header><div class="wrap"><p class="tag">提携先さま専用</p><h1>仮押さえを受け付けました</h1>
-<p>担当の渡辺から、1営業日以内に確定のご連絡をします。お急ぎの場合はお電話（{TEL}）でお知らせください。</p></div></header>
-<main class="wrap"><div class="card"><p>続けて別の現場をご依頼の場合は、ブラウザの「戻る」で前のページに戻ってお送りください。</p></div></main>
+<header><div class="wrap"><p class="tag">提携先さま専用</p><h1>ご依頼を受け付けました</h1>
+<p>担当の渡辺から、1営業日以内にご連絡します。お急ぎの場合はお電話（{TEL}）でお知らせください。</p></div></header>
+<main class="wrap"><div class="card"><p>続けて別の現場や現調をご依頼の場合は、ブラウザの「戻る」で前のページに戻ってお送りください。</p></div></main>
 {FOOTER}
 </body>
 </html>
