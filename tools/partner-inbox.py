@@ -115,7 +115,7 @@ def mitsumorisho(d: dict, dry: bool) -> dict:
     title = ("テスト_" if is_test(d) else "") + f"タカラ_{ban}" + (f"_{ate_mei[:20]}" if ate_mei else "")
     toll = str(d.get("高速代の目安", ""))
     biko = ("［備考］\nご依頼いただきました御見積をご案内差し上げます。ご査収くださいませ。\n"
-            + ("高速代は実費でご請求差し上げます（目安：" + toll + "）。\n" if toll and not toll.startswith("0円") else "")
+            + ("高速代は実費でご請求差し上げます（目安 " + toll.split("（")[0].strip() + "）。\n" if toll and not toll.startswith("0円") else "")
             + "駐車場が無い場合にはコインパーキング代実費を上記に加えてご請求差し上げます。\n"
             + ("型番の分からないお掃除機能付きは最低額で計算しています（現地で型番を確かめて確定）。\n" if any(x.get("ijou") for x in meisai) else "")
             + "ご不明点やご要望等ございましたら何なりとお申し付けくださいませ。")
