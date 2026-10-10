@@ -10,7 +10,8 @@
   「すべてにおいてUIUXを最優先」「AI味を極力排除して洗練されたデザイン」。
 
 【使うデータ】
-  - 料金：c["ryokin"]（例 data/partner-price/takara.json）。区分・単価・段・作業時間はすべてこのファイル。
+  - 料金：c["ryokin"]（例 data/partner-price/takara.json）。区分・単価・段・作業時間・税の表示はすべてこのファイル。
+    段は gun（家庭用／業務用）ごとの台数の合計で決まる。お掃除機能付きは shurui（メーカー・シリーズ）ごとに1行（tenkai()）。
   - 高速代・移動時間：data/partner-area.json（tools/build-kousoku-ic.py がドラぷらから作る）。
   - 空き枠：予約ページと同じ Apps Script（JSONP）。落ちたら yoyaku.onehitter.jp/slots.json（同じ中身）を試す。
 
@@ -75,6 +76,11 @@ button,input,textarea,select{font:inherit;color:inherit}
 .item .nm span{display:block;font-size:12px;color:var(--sub);line-height:1.5;margin-top:1px}
 .item .nm em{font-style:normal;color:var(--ink);font-weight:500}
 .item .nm span:empty{display:none}
+.grp{padding:12px 16px 4px;border-top:1px solid var(--line);background:#FAFBFC}
+.grp b{display:block;font-size:15px;font-weight:500;line-height:1.45}
+.grp span{display:block;font-size:12px;color:var(--sub);line-height:1.5}
+.item.ko{background:#FAFBFC;border-top:1px dashed var(--line);padding:9px 12px 9px 28px}
+.item.ko .nm b{font-size:14px}
 .step{display:flex;align-items:center;border:1px solid var(--line-2);border-radius:8px;overflow:hidden;flex:none}
 .step button{width:44px;height:44px;border:0;background:#fff;font-size:22px;line-height:1;color:var(--navy);cursor:pointer;display:grid;place-items:center}
 .step button:active{background:var(--ok-bg)}
@@ -251,41 +257,58 @@ JS = r"""
     t.addEventListener('keydown', function(e){ if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { var j = 1 - i; hiraku(j, true); tabs[j].focus(); } });
   });
 
-  /* ---------- ① 見積：料金 ---------- */
-  var q = {}; P.kubun.forEach(function(k){ q[k.id] = 0; });
+  /* ---------- ① 見積：料金 ----------
+     区分（P.items）は takara.json の kubun を Python 側で平らにしたもの（お掃除機能付きはメーカー・シリーズごとに1行）。
+     台数の段は gun（家庭用＝katei／業務用＝gyomu）ごとの合計で決まり、その組の全台に掛かる。上限を超えた組はお見積り。 */
+  var q = {}; P.items.forEach(function(k){ q[k.id] = 0; });
   var mSel = null;   // {date, label, time, start}
-  function tankaOf(k, units){
-    if (k.kind === 'tanka') { return k.tanka; }
-    if (k.kind !== 'dan') { return 0; }
-    var u = Math.max(1, Math.min(units, P.jougen_daisu)), t = k.dan[k.dan.length - 1][2];
-    k.dan.forEach(function(d){ if (u >= d[0] && u <= d[1]) { t = d[2]; } });
+  function dan3(list, n){
+    var u = Math.max(1, n), t = list[list.length - 1][2];
+    list.forEach(function(d){ if (u >= d[0] && u <= d[1]) { t = d[2]; } });
     return t;
   }
+  function tankaOf(k, n){
+    if (k.kind === 'tanka') { return k.tanka; }
+    if (k.kind === 'dan') { return dan3(k.dan, n); }
+    if (k.kind === 'hiki') { return k.tanka - dan3(k.hiki, n); }
+    return 0;
+  }
+  function gunUnits(){
+    var u = {}; Object.keys(P.gun).forEach(function(g){ u[g] = 0; });
+    P.items.forEach(function(k){ if (k.gun) { u[k.gun] += q[k.id]; } });
+    return u;
+  }
+  function koeta(u, g){ return !!g && u[g] > P.gun[g].jougen; }
   function keisan(){
-    var units = 0, lines = [], total = 0, mitsu = [], work = 0, naiyou = [];
-    P.kubun.forEach(function(k){ if (k.daisu) { units += q[k.id]; } });
+    var u = gunUnits(), units = 0, lines = [], total = 0, mitsu = [], work = 0, naiyou = [], ijou = false, over = [];
+    Object.keys(u).forEach(function(g){ units += u[g]; if (koeta(u, g)) { over.push(P.gun[g].name); } });
     var mon = mSel ? parseInt(mSel.date.slice(5, 7), 10) : 0, H = P.hanbouki || {};
     var hanbou = (H.months || []).indexOf(mon) >= 0 && units > 0 && units <= (H.jogai_daisu || 0);
-    P.kubun.forEach(function(k){
+    P.items.forEach(function(k){
       var n = q[k.id]; if (!n) { return; }
-      var nm = k.name + (k.sub && k.kind !== 'mitsumori' ? '・' + k.sub : '');
-      work += k.fun * n; naiyou.push(nm + ' ' + n + (k.unit || '台'));
-      if (k.kind === 'mitsumori') { mitsu.push(k.name + ' ' + n + (k.unit || '台')); return; }
-      var t = tankaOf(k, units);
-      if (hanbou && k.daisu) { t += H.kasan; }
+      var nm = k.nm, tani = k.unit || '台';
+      work += k.fun * n; naiyou.push(nm + ' ' + n + tani);
+      if (k.kind === 'mitsumori') { mitsu.push(k.name + ' ' + n + tani); return; }
+      if (koeta(u, k.gun)) { mitsu.push(nm + ' ' + n + tani + '（' + P.gun[k.gun].name + ' ' + (P.gun[k.gun].jougen + 1) + '台以上）'); return; }
+      var t = tankaOf(k, u[k.gun] || 0);
+      if (hanbou && k.gun) { t += H.kasan; }
+      if (k.ijou) { ijou = true; }
       total += t * n;
-      lines.push([nm, yen(t) + ' × ' + n + (k.unit || '台'), yen(t * n)]);
+      lines.push([nm, yen(t) + (k.ijou ? '〜' : '') + ' × ' + n + tani, yen(t * n) + (k.ijou ? '〜' : '')]);
     });
     var wari = P.waribiki_ritsu ? Math.floor(total * P.waribiki_ritsu / 100) : 0;
-    return { units: units, lines: lines, total: total - wari, wari: wari, mitsu: mitsu, work: work, naiyou: naiyou, hanbou: hanbou, mon: mon, over: units > P.jougen_daisu };
+    return { u: u, units: units, lines: lines, total: total - wari, wari: wari, mitsu: mitsu, work: work, naiyou: naiyou, hanbou: hanbou, mon: mon, over: over, ijou: ijou };
   }
+  function kingaku(r){ return yen(r.total) + (r.ijou ? '〜' : ''); }
   function egakuItems(r){
-    P.kubun.forEach(function(k){
+    P.items.forEach(function(k){
       var out = $('q-' + k.id), n = q[k.id];
       out.value = n; out.className = n ? 'on num' : 'num';
       $('m-' + k.id).disabled = !n;
       var pr = $('pr-' + k.id);
-      if (k.kind === 'dan') { pr.innerHTML = '1台 <em class="num">' + yen(tankaOf(k, Math.max(1, r.units))) + '</em>'; }
+      if (k.kind === 'dan' || k.kind === 'hiki') {
+        pr.innerHTML = koeta(r.u, k.gun) ? '1台 <em>お見積り</em>' : '1台 <em class="num">' + yen(tankaOf(k, r.u[k.gun] || 0)) + (k.ijou ? '〜' : '') + '</em>';
+      }
     });
   }
   function egakuMitsu(){
@@ -297,19 +320,22 @@ JS = r"""
       if (r.wari) { h += '<li><span>お取引先さま割引</span><span class="num">−' + yen(r.wari) + '</span></li>'; }
       r.mitsu.forEach(function(s){ h += '<li><span>' + esc(s) + '</span><span>お見積り</span></li>'; });
       h += '</ul>';
-      var notes = [];
-      if (r.units > 1) { notes.push('エアコン合計 ' + r.units + '台の単価です。'); }
+      var notes = [], dai = [];
+      Object.keys(r.u).forEach(function(g){ if (r.u[g] > 1 && !koeta(r.u, g)) { dai.push(P.gun[g].name + ' ' + r.u[g] + '台'); } });
+      if (dai.length) { notes.push(dai.join('・') + 'の単価です。'); }
+      if (r.ijou) { notes.push('型番が分からない分は最低額で計算しています（現地で型番を確かめて確定します）。'); }
       if (r.hanbou) { notes.push('繁忙期（' + r.mon + '月）のため1台 ' + yen(P.hanbouki.kasan) + 'を含みます。'); }
-      if (r.over) { notes.push(P.chuuki); }
+      if (r.over.length) { notes.push(P.chuuki); }
       if (notes.length) { h += '<p>' + notes.join('') + '</p>'; }
       u.innerHTML = h; u.hidden = false;
     }
-    var bv = $('bm-v'), br = $('bm-r');
-    if (r.lines.length) { bv.innerHTML = '<span class="num">' + yen(r.total) + '</span><small>税込' + (r.mitsu.length ? '・ほかお見積り' : '') + '</small>'; }
+    var bv = $('bm-v'), br = $('bm-r'), zl = [C.zei, r.mitsu.length ? 'ほかお見積り' : ''].filter(Boolean).join('・');
+    if (r.lines.length) { bv.innerHTML = '<span class="num">' + kingaku(r) + '</span>' + (zl ? '<small>' + zl + '</small>' : ''); }
     else if (r.mitsu.length) { bv.innerHTML = 'お見積り'; }
     else { bv.innerHTML = '<span style="color:var(--muted)">—</span>'; }
     br.innerHTML = r.work ? '作業 約' + jikan(r.work) + '<br>高速代・駐車場代は別' : '台数を選んでください';
     return r;
+  }
   }
 
   /* ---------- ① 見積：住所・高速代 ---------- */
@@ -399,7 +425,7 @@ JS = r"""
     }
   });
 
-  P.kubun.forEach(function(k){
+  P.items.forEach(function(k){
     function set(v){ q[k.id] = Math.max(0, Math.min(99, v)); egakuMitsu(); mitsuWaku(); kesu($('mf-items')); }
     $('m-' + k.id).onclick = function(){ set(q[k.id] - 1); };
     $('p-' + k.id).onclick = function(){ set(q[k.id] + 1); };
@@ -524,10 +550,11 @@ JS = r"""
     if (!$('m-addr').value.trim()) { bad.push($('m-addr').closest('.field')); }
     if (!$('m-name').value.trim()) { bad.push($('m-name').closest('.field')); }
     if (bad.length) { return dame(bad); }
-    var d = kyoutsuu('m'), kin = r.lines.length ? yen(r.total) + '（税込）' + (r.mitsu.length ? '＋お見積り分' : '') : 'お見積り';
+    var d = kyoutsuu('m'), kin = r.lines.length ? kingaku(r) + (C.zei ? '（' + C.zei + '）' : '') + (r.mitsu.length ? '＋お見積り分' : '') : 'お見積り';
     var uti = r.lines.map(function(l){ return l[0] + '　' + l[1] + ' ＝ ' + l[2]; }).concat(r.mitsu.map(function(s){ return s + '：お見積り'; }));
     if (r.wari) { uti.push('お取引先さま割引 −' + yen(r.wari)); }
     if (r.hanbou) { uti.push('繁忙期加算を含む'); }
+    if (r.ijou) { uti.push('型番が分からない分は最低額（現地で確定）'); }
     var toll = tollText(mArea, d['現場の住所']), hi = mSel ? mSel.label + ' ' + mSel.time + '〜' : '';
     d['種別'] = '見積依頼'; d['内容'] = r.naiyou.join('／'); d['内訳'] = uti.join('\n'); d['目安金額'] = kin;
     d['作業時間の目安'] = '約' + jikan(r.work) + '（1名）'; d['高速代の目安'] = toll; d['移動時間の目安'] = mArea ? '片道 約' + mArea.idou_fun + '分' : '';
@@ -564,26 +591,63 @@ def _esc(s: str) -> str:
     return (str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;"))
 
 
+def tenkai(price: dict) -> list:
+    """takara.json の kubun を、ページの1行＝1区分に平らにする（shurui＝お掃除機能付きのメーカー・シリーズは1種類1行）。
+    nm は内訳・送信内容に出す名前。_ で始まる注記は落とす。"""
+    items = []
+    for k in price["kubun"]:
+        base = {kk: v for kk, v in k.items() if not kk.startswith("_") and kk != "shurui"}
+        if k.get("shurui"):
+            for i, s in enumerate(k["shurui"]):
+                it = dict(base, id=s["id"], name=s["name"], sub=s.get("kataban", ""), tanka=s["tanka"],
+                          ijou=bool(s.get("ijou")), nm=k["name"] + "・" + s["name"], oya=k["id"], first=i == 0)
+                items.append(it)
+        else:
+            base["nm"] = k["name"]
+            items.append(base)
+    return items
+
+
+def _hajime(k: dict) -> str:
+    """台数0のときに出す1台の単価（段の最初）。"""
+    if k["kind"] == "dan":
+        return f'1台 <em class="num">{k["dan"][0][2]:,}円</em>'
+    if k["kind"] == "hiki":
+        return f'1台 <em class="num">{k["tanka"] - k["hiki"][0][2]:,}円{"〜" if k.get("ijou") else ""}</em>'
+    if k["kind"] == "tanka":
+        return f'1台 <em class="num">{k["tanka"]:,}円</em>'
+    return "現地を確認してお見積り"
+
+
+def _gyou(k: dict, ko: bool = False) -> str:
+    sub = _esc(k["sub"]) if k.get("sub") and k["kind"] != "mitsumori" else ""
+    label = _esc(k.get("nm") or k["name"])
+    return f"""<div class="item{' ko' if ko else ''}"><div class="nm"><b>{_esc(k['name'])}</b><span>{sub}</span><span id="pr-{k['id']}">{_hajime(k)}</span></div>
+        <div class="step"><button type="button" id="m-{k['id']}" aria-label="{label}を減らす" disabled>−</button><output id="q-{k['id']}" class="num" aria-live="polite">0</output><button type="button" id="p-{k['id']}" aria-label="{label}を増やす">＋</button></div></div>"""
+
+
 def page(key: str, c: dict, price: dict, area: dict, api: str, tel: str, footer: str) -> str:
     areas = [{k: a.get(k) for k in ("name", "pref", "match", "ic", "ic_hyouji", "etc", "idou_fun", "ippan", "eria_gai")} for a in area["areas"]]
+    items = tenkai(price)
+    zei = price.get("zei_hyouji", "")
     conf = {
-        "price": {k: price[k] for k in ("kubun", "hanbouki", "waribiki_ritsu", "jougen_daisu", "chuuki")},
+        "price": {"items": items, "gun": price["gun"], "hanbouki": price["hanbouki"], "waribiki_ritsu": price["waribiki_ritsu"], "chuuki": price["chuuki"]},
+        "zei": zei,
         "areas": areas, "areaJiten": area["時点"].replace("-", "/"),
         "kitenIc": "船堀橋", "dp": "https://www.driveplaza.com/dp/SearchQuick", "dpTop": "https://www.driveplaza.com/dp/SearchTop",
         "api": api, "slotsJson": "https://yoyaku.onehitter.jp/slots.json", "tel": tel,
         "genchouFun": 60, "saichouNichi": 21, "kaisha": c["kaisha"], "tantou": c["tantou"],
     }
     rows = []
-    for k in price["kubun"]:
-        if k["kind"] == "dan":
-            pr = f'1台 <em class="num">{k["dan"][0][2]:,}円</em>'
-        elif k["kind"] == "tanka":
-            pr = f'1台 <em class="num">{k["tanka"]:,}円</em>'
+    oya = {k["id"]: k for k in price["kubun"]}
+    for k in items:
+        if k.get("oya"):
+            if k["first"]:
+                g = oya[k["oya"]]
+                rows.append(f'<div class="grp"><b>{_esc(g["name"])}</b><span>{_esc(g.get("sub", ""))}</span></div>')
+            rows.append(_gyou(k, ko=True))
         else:
-            pr = "現地を確認してお見積り"
-        sub = _esc(k["sub"]) if k.get("sub") and k["kind"] != "mitsumori" else ""
-        rows.append(f"""<div class="item"><div class="nm"><b>{_esc(k['name'])}</b><span>{sub}</span><span id="pr-{k['id']}">{pr}</span></div>
-        <div class="step"><button type="button" id="m-{k['id']}" aria-label="{_esc(k['name'])}を減らす" disabled>−</button><output id="q-{k['id']}" class="num" aria-live="polite">0</output><button type="button" id="p-{k['id']}" aria-label="{_esc(k['name'])}を増やす">＋</button></div></div>""")
+            rows.append(_gyou(k))
     kouho = []
     for a in area["areas"]:
         if a["eria_gai"]:
@@ -652,7 +716,7 @@ def page(key: str, c: dict, price: dict, area: dict, api: str, tel: str, footer:
   <div class="panel wrap" id="p-mitsu" role="tabpanel" aria-labelledby="t-mitsu">
     <p class="lead">台数を入れると、料金と作業できる日がすぐに出ます。</p>
     <section class="sec" id="mf-items">
-      <h2>機種と台数<small>税込・合計台数で単価が下がります</small></h2>
+      <h2>機種と台数<small>{(zei + '・') if zei else ''}台数が多いほど1台が安く</small></h2>
       <div class="box">
         {''.join(rows)}
         <div class="utiwake" id="utiwake" hidden></div>
