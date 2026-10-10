@@ -32,7 +32,7 @@ import json
 # Netlify フォーム "partner" の項目。全社のページに同じ名前で置く（同じフォーム名で項目がずれると、
 # Netlify がどちらかの項目しか登録しないことがあるため。青山様の1画面ページにも隠しで置く）。
 FORM_FIELDS = ["種別", "提携先", "ご担当", "ページ", "請求先", "お客様名", "お客様の電話", "現場の住所", "現場のお名前",
-               "きっかけ", "内容", "内訳", "目安金額", "作業時間の目安", "高速代の目安", "移動時間の目安", "希望日時",
+               "きっかけ", "内容", "内訳", "明細", "目安金額", "作業時間の目安", "高速代の目安", "移動時間の目安", "希望日時",
                "ご要望", "料金表", "送信元の確認"]
 
 CSS = """
@@ -280,7 +280,7 @@ JS = r"""
   }
   function koeta(u, g){ return !!g && u[g] > P.gun[g].jougen; }
   function keisan(){
-    var u = gunUnits(), units = 0, lines = [], total = 0, mitsu = [], work = 0, naiyou = [], ijou = false, over = [];
+    var u = gunUnits(), units = 0, lines = [], meisai = [], total = 0, mitsu = [], work = 0, naiyou = [], ijou = false, over = [];
     Object.keys(u).forEach(function(g){ units += u[g]; if (koeta(u, g)) { over.push(P.gun[g].name); } });
     var mon = mSel ? parseInt(mSel.date.slice(5, 7), 10) : 0, H = P.hanbouki || {};
     var hanbou = (H.months || []).indexOf(mon) >= 0 && units > 0 && units <= (H.jogai_daisu || 0);
@@ -295,9 +295,10 @@ JS = r"""
       if (k.ijou) { ijou = true; }
       total += t * n;
       lines.push([nm, yen(t) + (k.ijou ? '〜' : '') + ' × ' + n + tani, yen(t * n) + (k.ijou ? '〜' : '')]);
+      meisai.push({ hinmei: nm, suuryou: n, tani: tani, tanka: t, ijou: !!k.ijou });
     });
     var wari = P.waribiki_ritsu ? Math.floor(total * P.waribiki_ritsu / 100) : 0;
-    return { u: u, units: units, lines: lines, total: total - wari, wari: wari, mitsu: mitsu, work: work, naiyou: naiyou, hanbou: hanbou, mon: mon, over: over, ijou: ijou };
+    return { u: u, units: units, lines: lines, meisai: meisai, total: total - wari, wari: wari, mitsu: mitsu, work: work, naiyou: naiyou, hanbou: hanbou, mon: mon, over: over, ijou: ijou };
   }
   function kingaku(r){ return yen(r.total) + (r.ijou ? '〜' : ''); }
   /* 料金表が税抜のとき（タカラ様：過去の見積書は小計＋消費税10%）、税込の合計も添える */
@@ -341,6 +342,8 @@ JS = r"""
 
   /* ---------- ① 見積：住所・高速代 ---------- */
   var mArea = null;
+  /* 都内23区は高速代をいただかない（オーナー 2026-10-10「都内23区は取らないから０にして」） */
+  function nijuusan(a){ return !!a && a.pref === '東京都' && /区$/.test(a.name); }
   function egakuArea(inp, out, tollBox){
     var v = inp.value.trim(), a = sagasu(v);
     if (!v) { out.innerHTML = ''; if (tollBox) { tollBox.hidden = true; } return null; }
@@ -356,7 +359,9 @@ JS = r"""
     out.innerHTML = '<b>' + esc(a.pref + ' ' + a.name) + '</b>　江戸川区から車で片道 約' + a.idou_fun + '分' + (a.eria_gai ? '<br>対応エリア（東京・千葉・神奈川）の外です。日程はご相談になります。' : '');
     if (tollBox) {
       tollBox.hidden = false;
-      if (a.ippan) {
+      if (nijuusan(a)) {
+        tollBox.innerHTML = '<div class="row"><span class="k">高速代</span><span class="v">0円</span></div><p>都内23区は高速代をいただきません。</p>';
+      } else if (a.ippan) {
         tollBox.innerHTML = '<div class="row"><span class="k">高速代の目安</span><span class="v">0円</span></div><p>近いので一般道で伺います。</p>';
       } else {
         tollBox.innerHTML = '<div class="row"><span class="k">高速代の目安（往復）</span><span class="v num">' + yen(a.etc * 2) + '</span></div>' +
@@ -369,6 +374,7 @@ JS = r"""
   function tollText(a, v){
     if (!v) { return ''; }
     if (!a) { return '目安表に無い地域（ドラぷらで要確認）'; }
+    if (nijuusan(a)) { return '0円（都内23区は高速代なし）'; }
     if (a.ippan) { return '0円（一般道）'; }
     return '往復 ' + yen(a.etc * 2) + '（ETC普通車・' + a.ic_hyouji + 'IC⇄' + C.kitenIc + 'IC・ドラぷら ' + C.areaJiten + ' 時点）';
   }
@@ -534,22 +540,33 @@ JS = r"""
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !$('sheet').hidden) { tojiru(); } });
   $('s-send').onclick = function(){
     if (!okuru) { return; }
-    var f = $('form');
+    var f = $('form'), btn = this;
+    /* 前の送信の値を残さない（2026-10-10 見積の内訳が現調依頼に混ざって届いた） */
+    f.querySelectorAll('input[type="hidden"]').forEach(function(el){ if (['form-name', '提携先', 'ページ', '請求先', '料金表'].indexOf(el.name) < 0) { el.value = ''; } });
     Object.keys(okuru).forEach(function(k){ var el = f.querySelector('[name="' + k + '"]'); if (el) { el.value = okuru[k]; } });
     f.querySelector('[name="送信元の確認"]').value = 'ブラウザから送信';
-    this.disabled = true; this.textContent = '送信しています…';
-    f.submit();
+    btn.disabled = true; btn.textContent = '送信しています…';
+    var body = new URLSearchParams(new FormData(f)).toString();
+    function okuruFetch(n){
+      /* 送り先は送信後のページ（実在する静的ページ）。「/」は lp.onehitter.jp では転送（301）されて記録されない（10/10 実測） */
+      return fetch(f.getAttribute('action'), { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body, redirect: 'manual' })
+        .then(function(res){ if (!res.ok || res.redirected || res.type === 'opaqueredirect') { throw new Error(res.status); } })
+        .catch(function(e){ if (n > 0) { return new Promise(function(ok){ setTimeout(ok, 1500); }).then(function(){ return okuruFetch(n - 1); }); } throw e; });
+    }
+    /* 2026-10-10 見積依頼の送信が ERR_CONNECTION_CLOSED で落ちた（オーナー）。画面遷移の送信をやめ、切れたら1回やり直す */
+    okuruFetch(1).then(function(){ location.href = f.getAttribute('action'); }).catch(function(){
+      btn.disabled = false; btn.textContent = 'もう一度送信する';
+      $('s-sub').textContent = '通信が切れて送れませんでした。もう一度「送信する」を押すか、お電話（' + C.tel + '）でお知らせください。';
+    });
   };
   function kyoutsuu(pre){
     return { 'お客様名': $(pre + '-name').value.trim(), 'お客様の電話': $(pre + '-tel').value.trim(), '現場の住所': $(pre + '-addr').value.trim(),
-      '現場のお名前': $(pre + '-site').value.trim(), 'ご要望': $(pre + '-biko').value.trim(), 'ご担当': $(pre + '-tantou').value.trim() || C.tantou,
+      '現場のお名前': $(pre + '-site').value.trim(), 'ご要望': $(pre + '-biko').value.trim(), 'ご担当': ($(pre + '-tantou').value.trim() || C.tantou).replace(/\s*様$/, ''),
       'きっかけ': $(pre + '-card').checked ? 'ご紹介カード' : '' };
   }
   $('m-cta').onclick = function(){
     var r = keisan(), bad = [];
     if (!r.lines.length && !r.mitsu.length) { bad.push($('mf-items')); }
-    if (!$('m-addr').value.trim()) { bad.push($('m-addr').closest('.field')); }
-    if (!$('m-name').value.trim()) { bad.push($('m-name').closest('.field')); }
     if (bad.length) { return dame(bad); }
     var d = kyoutsuu('m'), kin = r.lines.length ? kingaku(r) + (C.zei ? '（' + C.zei + (zeikomi(r) ? '・' + zeikomi(r) : '') + '）' : '') + (r.mitsu.length ? '＋お見積り分' : '') : 'お見積り';
     var uti = r.lines.map(function(l){ return l[0] + '　' + l[1] + ' ＝ ' + l[2]; }).concat(r.mitsu.map(function(s){ return s + '：お見積り'; }));
@@ -557,7 +574,7 @@ JS = r"""
     if (r.hanbou) { uti.push('繁忙期加算を含む'); }
     if (r.ijou) { uti.push('型番が分からない分は最低額（現地で確定）'); }
     var toll = tollText(mArea, d['現場の住所']), hi = mSel ? mSel.label + ' ' + mSel.time + '〜' : '';
-    d['種別'] = '見積依頼'; d['内容'] = r.naiyou.join('／'); d['内訳'] = uti.join('\n'); d['目安金額'] = kin;
+    d['種別'] = '見積依頼'; d['内容'] = r.naiyou.join('／'); d['内訳'] = uti.join('\n'); d['明細'] = JSON.stringify(r.meisai); d['目安金額'] = kin;
     d['作業時間の目安'] = '約' + jikan(r.work) + '（1名）'; d['高速代の目安'] = toll; d['移動時間の目安'] = mArea ? '片道 約' + mArea.idou_fun + '分' : '';
     d['希望日時'] = hi || '未選択（あとで調整）';
     kakunin('この内容で見積を依頼します', '内容を確かめて「送信する」を押してください。担当の渡辺からご連絡します。', [
@@ -663,14 +680,15 @@ def page(key: str, c: dict, price: dict, area: dict, api: str, tel: str, footer:
     js = JS.replace("__CONF__", json.dumps(conf, ensure_ascii=False))
 
     def kyoutsuu(pre, addr_label, addr_ph, biko_ph):
+        req = '<span class="opt">任意</span>' if pre == 'm' else '<span class="req">必須</span>'   # 見積は住所・お客様名とも任意（オーナー 2026-10-10）
         return f"""
     <section class="sec">
       <h2>{'現調先' if pre == 'g' else '現場とお客様'}</h2>
       <div class="box">
-        <div class="field"><label for="{pre}-addr">{addr_label}<span class="req">必須</span></label>
+        <div class="field"><label for="{pre}-addr">{addr_label}{req}</label>
           <input id="{pre}-addr" type="text" list="areas" autocomplete="off" enterkeyhint="next" placeholder="{addr_ph}"><p class="msg">住所を入れてください（区市まででも結構です）。</p>
           <p class="area" id="{pre}-area"></p>{'<div class="toll" id="m-toll" hidden></div>' if pre == 'm' else ''}</div>
-        <div class="field"><label for="{pre}-name">お客様名<span class="req">必須</span></label>
+        <div class="field"><label for="{pre}-name">お客様名{req}</label>
           <input id="{pre}-name" type="text" autocomplete="off" enterkeyhint="next" placeholder="例：江戸前ハーブ 様／山田 様"><p class="msg">お客様名を入れてください。</p></div>
         <div class="field"><label for="{pre}-tel">お客様の電話<span class="opt">任意</span></label>
           <input id="{pre}-tel" type="tel" inputmode="tel" autocomplete="off" enterkeyhint="next" placeholder="当日の連絡先があれば"></div>
@@ -685,7 +703,7 @@ def page(key: str, c: dict, price: dict, area: dict, api: str, tel: str, footer:
         <div class="field"><label for="{pre}-biko">ご要望・立ち会い・駐車場など<span class="opt">任意</span></label>
           <textarea id="{pre}-biko" placeholder="{biko_ph}"></textarea></div>
         <div class="field"><label for="{pre}-tantou">御社のご担当<span class="opt">変わるときだけ</span></label>
-          <input id="{pre}-tantou" type="text" value="{_esc(c['tantou'])}" autocomplete="off"></div>
+          <input id="{pre}-tantou" type="text" value="{_esc(c['tantou'])}様" autocomplete="off"></div>
       </div>
     </section>"""
 
