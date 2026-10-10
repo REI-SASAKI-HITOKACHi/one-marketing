@@ -793,6 +793,12 @@ def survey_form(doc: str, target: str) -> str:
     return doc.replace(SURVEY_FORM_OPEN, SURVEY_FORM_NETLIFY, 1)
 
 
+# 完成品のうち、公開の承認待ちのもの。承認が出たらここから外す（外すまで deploy/ に出ない）。
+# 確認は copy_kanseihin(ROOT / "preview" / "kansei", "preview") で preview/ に書き出す。
+#   takara：タカラサービス様の確認とオーナー承認のあと（依頼 20261009-02-lp）
+KANSEI_MACHI = {"takara"}
+
+
 def copy_kanseihin(out: pathlib.Path, target: str) -> None:
     """完成した文書としてソースにあるページを、そのまま配信先へ写す。
 
@@ -805,7 +811,10 @@ def copy_kanseihin(out: pathlib.Path, target: str) -> None:
     # PAGES に足すと lp_id や og の欄が要るが、これは商品ページではないので
     # こちら側で写す。ここに名前を足さないと、配信しても本番に出ない。
     # privacy（個人情報の取扱い）も同じ。公式サイトの 403 障害（2026-10-09）から、LP 等のリンク先はこちらが正。
-    for name in ("survey", "tokushoho", "privacy"):
+    # takara（タカラサービス様の紹介カードのQRの受け皿。?src=card-t1〜t3）も同じ。依頼 20261009-02-lp
+    for name in ("survey", "tokushoho", "privacy", "takara"):
+        if name in KANSEI_MACHI and target != "preview":
+            continue
         src = ROOT / "lp" / name / "index.html"
         if not src.exists():
             continue
@@ -828,9 +837,12 @@ def copy_kanseihin(out: pathlib.Path, target: str) -> None:
         # index.html 以外の添え物（_redirects・_headers・画像など）もそのまま写す。
         # 写さないと、ソースに置いた _redirects が配信物に入らず効かない。
         soeru = 0
-        for f in sorted(src.parent.iterdir()):
-            if f.is_file() and f.name != "index.html":
-                (dst / f.name).write_bytes(f.read_bytes())
+        # 下のフォルダは img/ だけ写す（takara の写真）。survey/qr/ は印刷用の素材で、公開しない
+        for f in sorted(list(src.parent.iterdir()) + sorted((src.parent / "img").glob("*"))):
+            if f.is_file() and f != src:
+                to = dst / f.relative_to(src.parent)
+                to.parent.mkdir(parents=True, exist_ok=True)
+                to.write_bytes(f.read_bytes())
                 soeru += 1
         soe = f"＋添え物{soeru}件" if soeru else ""
         print(f"{dst.relative_to(ROOT)}/index.html  （完成品をそのまま複製＋計測タグ{soe}）")
