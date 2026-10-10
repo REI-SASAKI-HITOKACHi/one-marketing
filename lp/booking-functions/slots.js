@@ -13,21 +13,21 @@ const API = "https://script.google.com/macros/s/AKfycbzuuMGVICQPoLlUrFBarb1zAgi_
 const BUCKETS = [60, 90, 120, 150, 180, 210, 240, 300, 360, 420, 480];
 
 async function kiku(minutes) {
-  let err;
-  for (let i = 0; i < 2; i++) {
-    try {
-      const ctl = new AbortController();
-      const t = setTimeout(() => ctl.abort(), 7000);
-      const r = await fetch(`${API}?action=slots&minutes=${minutes}`, { redirect: "follow", signal: ctl.signal });
-      clearTimeout(t);
-      const body = await r.text();
-      const m = body.match(/^\s*\w+\(([\s\S]*)\);?\s*$/);
-      const d = JSON.parse(m ? m[1] : body);
-      if (!d.ok || !Array.isArray(d.slots)) throw new Error(d.error || "ok:false");
-      return d.slots;
-    } catch (e) { err = e; }
+  // 2026-10-11：所要の長い枠（480分など）は Apps Script が14秒ほどかかり、7秒×2回の待ちでは毎回あきらめて
+  // 控え（10/9 18時のまま）を返していた。関数の持ち時間（約10秒）に収まるよう、1回だけ9秒まで待つ。
+  // 取れなかった所要時間だけ控えで埋める（下の handler）。
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), 9000);
+  try {
+    const r = await fetch(`${API}?action=slots&minutes=${minutes}`, { redirect: "follow", signal: ctl.signal });
+    const body = await r.text();
+    const m = body.match(/^\s*\w+\(([\s\S]*)\);?\s*$/);
+    const d = JSON.parse(m ? m[1] : body);
+    if (!d.ok || !Array.isArray(d.slots)) throw new Error(d.error || "ok:false");
+    return d.slots;
+  } finally {
+    clearTimeout(t);
   }
-  throw new Error(`所要${minutes}分: ${err && err.message}`);
 }
 
 function jst() {
@@ -48,23 +48,32 @@ exports.handler = async (event) => {
       "Access-Control-Allow-Origin": "https://lp.onehitter.jp" }, cache || {}),
     body: JSON.stringify(obj),
   });
-  try {
-    const kekka = await Promise.all(BUCKETS.map((m) => kiku(m)));
+  const host = (event && event.headers && (event.headers.host || event.headers.Host)) || "yoyaku.onehitter.jp";
+  const kekka = await Promise.allSettled(BUCKETS.map((m) => kiku(m)));
+  const ok = kekka.filter((k) => k.status === "fulfilled").length;
+  const t = jst();
+  if (ok === BUCKETS.length) {
     const buckets = {};
-    BUCKETS.forEach((m, i) => { buckets[String(m)] = kekka[i]; });
-    const t = jst();
+    BUCKETS.forEach((m, i) => { buckets[String(m)] = kekka[i].value; });
     return json(200, { generated: t.iso, generatedLabel: t.label, staleHours: 6, source: "apps-script-live", buckets },
       { "Netlify-CDN-Cache-Control": "public, durable, s-maxage=600, stale-while-revalidate=86400" });
-  } catch (e) {
-    // 取れないときは最後の写しを返す（CDN には置かない＝次の人でまた取り直す）
-    try {
-      const host = (event && event.headers && (event.headers.host || event.headers.Host)) || "yoyaku.onehitter.jp";
-      const r = await fetch(`https://${host}/slots-hikae.json`);
-      const d = await r.json();
+  }
+  // 一部だけ取れなかった：取れた所要時間は今の答え、取れなかった所要時間だけ控えで埋める（CDN には短く置く）
+  try {
+    const r = await fetch(`https://${host}/slots-hikae.json`);
+    const d = await r.json();
+    if (ok === 0) {
       d.source = "hikae";
       return json(200, d, { "Netlify-CDN-Cache-Control": "no-store" });
-    } catch (e2) {
-      return json(502, { error: String(e && e.message) }, { "Netlify-CDN-Cache-Control": "no-store" });
     }
+    const buckets = {}, kake = [];
+    BUCKETS.forEach((m, i) => {
+      if (kekka[i].status === "fulfilled") { buckets[String(m)] = kekka[i].value; }
+      else { buckets[String(m)] = (d.buckets || {})[String(m)] || []; kake.push(m); }
+    });
+    return json(200, { generated: t.iso, generatedLabel: t.label, staleHours: 6, source: "apps-script-partial", hikaeBuckets: kake,
+      hikaeGenerated: d.generated, buckets }, { "Netlify-CDN-Cache-Control": "public, durable, s-maxage=120, stale-while-revalidate=600" });
+  } catch (e2) {
+    return json(502, { error: String(e2 && e2.message) }, { "Netlify-CDN-Cache-Control": "no-store" });
   }
 };
