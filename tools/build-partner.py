@@ -45,6 +45,8 @@ TEL = "080-8043-8259"
 COMPANIES = {
     "takara-7q2m": {
         "kaisha": "株式会社タカラサービス", "tantou": "深堀",
+        # 見積書の送り先のいつもの宛先（オーナー 2026-10-10）。先方が依頼時に追加でき、「追加分だけに送る」も選べる
+        "mitsu_ate": "info@takara-co.jp",
         # 第6回MTG 6-4 No.4：上部タブ2つ（見積依頼／現調依頼）の形。料金は data/partner-price/takara.json が正。
         # タカラ様専用の料金表を 2026-10-10 に反映済み（takara.json の motoshiryou）。料金を変えるときは takara.json だけ直す。
         "katachi": "tabs", "ryokin": "data/partner-price/takara.json",

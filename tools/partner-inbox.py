@@ -118,7 +118,9 @@ def mitsumorisho(d: dict, dry: bool) -> dict:
     kyou = datetime.datetime.now(JST)
     shoukei = sum(int(x["tanka"]) * int(x["suuryou"]) for x in meisai)
     goukei = shoukei + int(shoukei * 0.1)
-    kekka = {"ban": ban, "title": title, "shoukei": shoukei, "goukei": goukei, "ate": m["ate"], "tantou": d.get("ご担当") or m["tantou"],
+    # 送り先：ページで先方が選んだもの（いつもの宛先＋追加／追加分だけ）。無ければいつもの宛先
+    ate = (d.get("見積書の送り先") or "").strip() or m["ate"]
+    kekka = {"ban": ban, "title": title, "shoukei": shoukei, "goukei": goukei, "ate": ate, "tantou": d.get("ご担当") or m["tantou"],
              "ate_mei": ate_mei, "meisai": meisai, "toll": toll, "kibou": d.get("希望日時", "")}
     if dry:
         return kekka
@@ -127,11 +129,9 @@ def mitsumorisho(d: dict, dry: bool) -> dict:
                 payload={"requests": [{"duplicateSheet": {"sourceSheetId": src, "newSheetName": title, "insertSheetIndex": len(tabs)}}]})
     props = r["replies"][0]["duplicateSheet"]["properties"]
     gid = props["sheetId"]
-    # 見本タブの35行目より下には過去の見積書（と印影の画像）が残っているので、新しいタブでは消す
-    nrows = props.get("gridProperties", {}).get("rowCount", 1000)
-    if nrows > 34:
-        sc.call(tok, f"/{MITSU_SS}:batchUpdate", method="POST", payload={"requests": [
-            {"deleteDimension": {"range": {"sheetId": gid, "dimension": "ROWS", "startIndex": 34, "endIndex": nrows}}}]})
+    # 見本タブの35行目より下には過去の見積書の貼り付け画像が残っている。画像は Sheets API では消せないので、
+    # mitsumori-shitagaki.gs（嶺さんのアカウント）が下を消し、印影（電子印影_角印.png）を重ねてから PDF にする
+    # （2026-10-10 オーナー「見積書の印影も入れて」）
     q = lambda a: f"'{title}'!{a}"
     rows = [[x["hinmei"] + ("（〜）" if x.get("ijou") else ""), "", "", int(x["suuryou"]), int(x["tanka"])] for x in meisai[:12]]
     rows += [["", "", "", "", ""]] * (12 - len(rows))
@@ -175,7 +175,7 @@ def machi_ni_noseru(k: dict, gid: int):
                 payload={"values": [["状態（空＝待ち）", "載せた日時", "見積書タブのgid", "見積番号", "宛先", "件名", "本文", "PDFの名前", "下書きを作った日時"]]},
                 query={"valueInputOption": "RAW"})
     t = shitagaki(k).split("\n", 3)
-    ate, kenmei, honbun_ = t[0].split("：", 1)[1].split("（")[0], t[1].split("：", 1)[1], t[3]
+    ate, kenmei, honbun_ = k["ate"], t[1].split("：", 1)[1], t[3]
     sc.call(tok, f"/{MITSU_SS}/values/" + urllib.parse.quote(f"'{MACHI}'!A:I", safe="") + ":append", method="POST",
             payload={"values": [["", datetime.datetime.now(JST).strftime("%Y/%m/%d %H:%M"), gid, k["ban"], ate, kenmei, honbun_, f"見積書_{k['ban']}.pdf", ""]]},
             query={"valueInputOption": "RAW", "insertDataOption": "INSERT_ROWS"})
@@ -184,7 +184,7 @@ def machi_ni_noseru(k: dict, gid: int):
 def shitagaki(k: dict) -> str:
     sama = f"{k['ate_mei']}様 " if k.get("ate_mei") else ""
     uti = "\n".join(f"　{x['hinmei']}　{int(x['tanka']):,}円 × {x['suuryou']}{x.get('tani', '台')}" for x in k["meisai"])
-    return (f"宛先：{k['ate']}（仮。正しい宛先に直してください）\n件名：お見積書のご送付（{sama}エアコン洗浄・見積番号{k['ban']}）\n\n"
+    return (f"宛先：{k['ate']}\n件名：お見積書のご送付（{sama}エアコン洗浄・見積番号{k['ban']}）\n\n"
             f"株式会社タカラサービス\n{k['tantou']} 様\n\nいつもお世話になっております。ワンヒッター株式会社の佐々木です。\n"
             f"専用ページからご依頼いただいた{sama}のエアコン洗浄について、お見積書をお送りします。\n\n{uti}\n"
             f"　小計 {k['shoukei']:,}円／消費税 {int(k['shoukei'] * 0.1):,}円／合計 {k['goukei']:,}円（税込）\n"
@@ -227,7 +227,7 @@ def main():
                 msg += "\n見積書：" + k["err"]
                 print("見積書：", k["err"])
             else:
-                msg += f"\n見積書（自動作成・{k['ban']}・合計 {k['goukei']:,}円 税込）：{k['url']}\nメールの下書き（PDF付き）は嶺さんの Gmail に自動で入ります"
+                msg += f"\n見積書（自動作成・{k['ban']}・合計 {k['goukei']:,}円 税込）：{k['url']}\n送り先：{k['ate']}\nメールの下書き（PDF・印影付き）は嶺さんの Gmail に自動で入ります（送るのは嶺さん）"
                 print(f"\n見積書を作りました：{k['title']}\n{k['url']}\nPDF：{k.get('pdf') or k.get('pdf_err')}")
                 print("\n--- メール下書き（mitsumori-shitagaki.gs が PDF を付けて嶺さんの Gmail に作る）---\n" + shitagaki(k))
         r = subprocess.run([sys.executable, str(ROOT / "tools" / "line_client.py"), "push", msg],

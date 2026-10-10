@@ -32,7 +32,7 @@ import json
 # Netlify フォーム "partner" の項目。全社のページに同じ名前で置く（同じフォーム名で項目がずれると、
 # Netlify がどちらかの項目しか登録しないことがあるため。青山様の1画面ページにも隠しで置く）。
 FORM_FIELDS = ["種別", "提携先", "ご担当", "ページ", "請求先", "お客様名", "お客様の電話", "現場の住所", "現場のお名前",
-               "きっかけ", "内容", "内訳", "明細", "目安金額", "作業時間の目安", "高速代の目安", "移動時間の目安", "希望日時",
+               "きっかけ", "内容", "内訳", "明細", "見積書の送り先", "目安金額", "作業時間の目安", "高速代の目安", "移動時間の目安", "希望日時",
                "ご要望", "料金表", "送信元の確認"]
 
 CSS = """
@@ -99,7 +99,7 @@ button,input,textarea,select{font:inherit;color:inherit}
 .field label{display:flex;align-items:baseline;gap:8px;font-size:13px;color:var(--sub);margin:0 0 6px}
 .field label .req{font-size:11px;color:var(--cta);font-weight:700}
 .field label .opt{font-size:11px;color:var(--muted)}
-.field input[type=text],.field input[type=tel],.field textarea{width:100%;border:1px solid var(--line-2);border-radius:8px;padding:11px 12px;
+.field input[type=text],.field input[type=tel],.field input[type=email],.field textarea{width:100%;border:1px solid var(--line-2);border-radius:8px;padding:11px 12px;
   font-size:16px;background:#fff;min-height:46px}
 .field textarea{min-height:76px;resize:vertical}
 .field input::-webkit-calendar-picker-indicator{display:none !important}
@@ -107,6 +107,7 @@ button,input,textarea,select{font:inherit;color:inherit}
 .field.bad input,.field.bad textarea{border-color:var(--err)}
 .field .msg{display:none;color:var(--err);font-size:13px;margin:6px 0 0}
 .field.bad .msg{display:block}
+.atena{padding:14px 16px 4px;font-size:14px;color:var(--sub)}.atena b{color:var(--ink);font-weight:700}
 .chk{display:flex;align-items:center;gap:10px;padding:14px 16px;border-top:1px solid var(--line);font-size:15px;cursor:pointer;min-height:52px}
 .chk input{width:20px;height:20px;margin:0;accent-color:var(--navy);flex:none}
 .chk .opt{font-size:11px;color:var(--muted)}
@@ -521,7 +522,7 @@ JS = r"""
 
   /* ---------- 確かめて送る ---------- */
   function kesu(f){ if (f) { f.classList.remove('bad'); } }
-  ['m-addr','m-name','g-addr','g-name'].forEach(function(id){ $(id).addEventListener('input', function(){ kesu(this.closest('.field')); }); });
+  ['m-addr','m-name','g-addr','g-name','m-ate'].filter(function(id){ return $(id); }).forEach(function(id){ $(id).addEventListener('input', function(){ kesu(this.closest('.field')); }); });
   function dame(list){
     list.forEach(function(f){ f.classList.add('bad'); });
     var f = list[0]; f.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -567,6 +568,10 @@ JS = r"""
   $('m-cta').onclick = function(){
     var r = keisan(), bad = [];
     if (!r.lines.length && !r.mitsu.length) { bad.push($('mf-items')); }
+    /* 見積書の送り先（オーナー 2026-10-10）：いつもの宛先＋追加分。「追加分だけ」も選べる */
+    var ateIn = $('m-ate'), tsuika = ateIn ? ateIn.value.split(/[,、，\s]+/).map(function(x){ return x.trim(); }).filter(Boolean) : [];
+    var ateOnly = $('m-ate-only') && $('m-ate-only').checked;
+    if (ateIn && (tsuika.some(function(x){ return !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x); }) || (ateOnly && !tsuika.length))) { bad.push(ateIn.closest('.field')); }
     if (bad.length) { return dame(bad); }
     var d = kyoutsuu('m'), kin = r.lines.length ? kingaku(r) + (C.zei ? '（' + C.zei + (zeikomi(r) ? '・' + zeikomi(r) : '') + '）' : '') + (r.mitsu.length ? '＋お見積り分' : '') : 'お見積り';
     var uti = r.lines.map(function(l){ return l[0] + '　' + l[1] + ' ＝ ' + l[2]; }).concat(r.mitsu.map(function(s){ return s + '：お見積り'; }));
@@ -574,13 +579,15 @@ JS = r"""
     if (r.hanbou) { uti.push('繁忙期加算を含む'); }
     if (r.ijou) { uti.push('型番が分からない分は最低額（現地で確定）'); }
     var toll = tollText(mArea, d['現場の住所']), hi = mSel ? mSel.label + ' ' + mSel.time + '〜' : '';
+    var ate = (ateOnly ? [] : (C.mitsuAte ? [C.mitsuAte] : [])).concat(tsuika.filter(function(x){ return x !== C.mitsuAte; }));
+    d['見積書の送り先'] = ate.join(', ');
     d['種別'] = '見積依頼'; d['内容'] = r.naiyou.join('／'); d['内訳'] = uti.join('\n'); d['明細'] = JSON.stringify(r.meisai); d['目安金額'] = kin;
     d['作業時間の目安'] = '約' + jikan(r.work) + '（1名）'; d['高速代の目安'] = toll; d['移動時間の目安'] = mArea ? '片道 約' + mArea.idou_fun + '分' : '';
     d['希望日時'] = hi || '未選択（あとで調整）';
     kakunin('この内容で見積を依頼します', '内容を確かめて「送信する」を押してください。担当の渡辺からご連絡します。', [
       ['お客様', d['お客様名'] + (d['現場のお名前'] ? '（' + d['現場のお名前'] + '）' : '')], ['電話', d['お客様の電話']], ['現場', d['現場の住所']],
       ['内容', r.naiyou.join('\n')], ['目安の料金', kin, true], ['作業時間', d['作業時間の目安']], ['高速代', toll],
-      ['希望日時', d['希望日時']], ['ご要望', d['ご要望']], ['ご紹介カード', d['きっかけ'] ? '見たお客様' : ''], ['ご依頼者', C.kaisha + ' ' + d['ご担当'] + '様']
+      ['希望日時', d['希望日時']], ['ご要望', d['ご要望']], ['ご紹介カード', d['きっかけ'] ? '見たお客様' : ''], ['見積書の送り先', d['見積書の送り先']], ['ご依頼者', C.kaisha + ' ' + d['ご担当'] + '様']
     ], d);
   };
   $('g-cta').onclick = function(){
@@ -654,7 +661,7 @@ def page(key: str, c: dict, price: dict, area: dict, api: str, tel: str, footer:
         "areas": areas, "areaJiten": area["時点"].replace("-", "/"),
         "kitenIc": "船堀橋", "dp": "https://www.driveplaza.com/dp/SearchQuick", "dpTop": "https://www.driveplaza.com/dp/SearchTop",
         "api": api, "slotsJson": "https://yoyaku.onehitter.jp/slots.json", "tel": tel,
-        "genchouFun": 60, "saichouNichi": 21, "kaisha": c["kaisha"], "tantou": c["tantou"],
+        "genchouFun": 60, "saichouNichi": 21, "kaisha": c["kaisha"], "tantou": c["tantou"], "mitsuAte": c.get("mitsu_ate", ""),
     }
     rows = []
     oya = {k["id"]: k for k in price["kubun"]}
@@ -707,6 +714,17 @@ def page(key: str, c: dict, price: dict, area: dict, api: str, tel: str, footer:
       </div>
     </section>"""
 
+    mitsu_ate = c.get("mitsu_ate", "")
+    ate_box = f"""
+    <section class="sec">
+      <h2>見積書の送り先</h2>
+      <div class="box">
+        <p class="atena">いつもの宛先：<b>{_esc(mitsu_ate)}</b></p>
+        <div class="field"><label for="m-ate">追加の送り先<span class="opt">任意</span></label>
+          <input id="m-ate" type="email" inputmode="email" autocomplete="email" multiple placeholder="例：fukahori@takara-co.jp（複数はカンマ区切り）"><p class="msg">メールアドレスの形を確かめてください。</p></div>
+        <label class="chk"><input type="checkbox" id="m-ate-only">追加した送り先だけに送る</label>
+      </div>
+    </section>""" if mitsu_ate else ""
     m_top, m_bottom = kyoutsuu("m", "現場の住所", "例：大田区大森本町（区市まででも可）", "例：営業時間外（20時以降）希望、駐車スペースなし、立ち会いは店長 など")
     g_top, g_bottom = kyoutsuu("g", "現調先の住所（区市まで）", "例：墨田区／横浜市港北区", "例：見てほしい機種と台数、立ち会いの方、駐車場の有無 など")
 
@@ -750,6 +768,7 @@ def page(key: str, c: dict, price: dict, area: dict, api: str, tel: str, footer:
       <p class="lead" id="m-pick" style="color:var(--navy);font-weight:700;font-size:14px" aria-live="polite"></p>
     </section>
     {m_bottom}
+    {ate_box}
     <p class="fine">表示は目安です。現場の状況で変わる場合は、作業の前にご説明します。高速代・駐車場代は実費です。いただいた内容はご依頼の対応のためだけに使います（<a href="https://lp.onehitter.jp/privacy/">個人情報の取扱いについて</a>）。</p>
   </div>
 
