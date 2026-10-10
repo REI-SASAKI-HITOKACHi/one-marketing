@@ -6,7 +6,7 @@
 【なぜ】
   2026-10-10 タカラサービス様の専用ページ（/partner/takara-7q2m/）を本番に出した（オーナー「僕が操作できる状態で出して」）。
   送られた依頼は Netlify の「partner」フォームに入るが、取り込む道具が無く、誰も気づかない状態だった。
-  提携先の依頼は「日時が決まりしだい御社へ確定のご連絡」と約束しているので、毎時の点検で拾って和真さんへ回す。
+  提携先の依頼は「日時が決まりしだい貴社へ確定のご連絡」と約束しているので、毎時の点検で拾って和真さんへ回す。
 
 【知らせる中身】
   提携先・種別（見積依頼／現調依頼）・内容・内訳・目安金額・希望日時・現場の住所（区市まで）・現場のお名前・ご担当・ご要望（先頭80字）。
@@ -20,6 +20,10 @@
     メール下書きの件名・本文を「_下書き待ち（自動・消さない）」タブに載せる。嶺さんのアカウントで動く
     tools/mitsumori-shitagaki.gs が5分ごとに PDF を付けて Gmail の下書きにする（送信は嶺さん）。
   - LINE の通知に見積書のリンクを添える。テスト送信は、タブ名の頭に「テスト_」を付ける（消してよい）。
+
+【カレンダーの【仮】】日時が選ばれた依頼（現調依頼・日時を選んだ見積依頼）は、ほかの予約と重ならないよう
+  和真さんのカレンダーに【仮】を入れる。サービスアカウントにはカレンダーの権限が無いので、材料を
+  ~/.cache/one-hitter/partner-kari.json に置き、毎時点検の CMO が Google Calendar コネクタで入れる（予約ページと同じ形）。
 
 【二重に知らせない】
   知らせた ID だけを data/partner-tsuchi.json に残す（中身は残さない）。
@@ -121,7 +125,7 @@ def mitsumorisho(d: dict, dry: bool) -> dict:
     # 送り先：ページで先方が選んだもの（いつもの宛先＋追加／追加分だけ）。無ければいつもの宛先
     ate = (d.get("見積書の送り先") or "").strip() or m["ate"]
     kekka = {"ban": ban, "title": title, "shoukei": shoukei, "goukei": goukei, "ate": ate, "tantou": d.get("ご担当") or m["tantou"],
-             "ate_mei": ate_mei, "meisai": meisai, "toll": toll, "kibou": d.get("希望日時", "")}
+             "ate_mei": ate_mei, "meisai": meisai, "toll": toll, "kibou": d.get("希望日時", ""), "test": is_test(d)}
     if dry:
         return kekka
     src = tabs[m["tab"]]
@@ -176,6 +180,8 @@ def machi_ni_noseru(k: dict, gid: int):
                 query={"valueInputOption": "RAW"})
     t = shitagaki(k).split("\n", 3)
     ate, kenmei, honbun_ = k["ate"], t[1].split("：", 1)[1], t[3]
+    if k.get("test"):   # テスト送信は先方あての下書きにしない（宛先は空・件名に【テスト】）
+        ate, kenmei = "", "【テスト】" + kenmei
     sc.call(tok, f"/{MITSU_SS}/values/" + urllib.parse.quote(f"'{MACHI}'!A:I", safe="") + ":append", method="POST",
             payload={"values": [["", datetime.datetime.now(JST).strftime("%Y/%m/%d %H:%M"), gid, k["ban"], ate, kenmei, honbun_, f"見積書_{k['ban']}.pdf", ""]]},
             query={"valueInputOption": "RAW", "insertDataOption": "INSERT_ROWS"})
@@ -192,6 +198,40 @@ def shitagaki(k: dict) -> str:
             + (f"　ご希望日時：{k['kibou']}\n" if k.get("kibou") else "")
             + "\n日程が決まりしだい、担当の渡辺から確定のご連絡をいたします。\nどうぞよろしくお願いいたします。\n\n"
             f"ワンヒッター株式会社\n佐々木 嶺\nTEL {TEL}")
+
+
+KARI = pathlib.Path(os.path.expanduser("~/.cache/one-hitter/partner-kari.json"))   # お客様情報が入るのでリポジトリに置かない
+
+
+def kari_yotei(d: dict, sid: str):
+    """希望日時が選ばれていれば、和真さんのカレンダーに入れる【仮】の材料を返す（無ければ None）。
+    例：「10月13日（火） 15:30〜16:30（現調60分）」「10月21日（水） 12:30〜」。"""
+    m = re.search(r"(\d{1,2})月(\d{1,2})日.*?(\d{1,2}):(\d{2})", str(d.get("希望日時", "")))
+    if not m:
+        return None
+    now = datetime.datetime.now(JST)
+    mon, day, hh, mm = (int(x) for x in m.groups())
+    nen = now.year + (1 if mon < now.month - 1 else 0)
+    if d.get("種別") == "現調依頼":
+        fun = 60
+    else:
+        h = re.search(r"([\d.]+)時間", str(d.get("作業時間の目安", "")))
+        mi = re.search(r"(\d+)分", str(d.get("作業時間の目安", "")))
+        fun = int(float(h.group(1)) * 60 if h else 0) + (int(mi.group(1)) if mi else 0) or 120
+        fun = min(fun, 9 * 60)   # 1日を超える分は2日目以降を相談（ページの表示どおり）
+    hajime = datetime.datetime(nen, mon, day, hh, mm, tzinfo=JST)
+    mei = (d.get("現場のお名前") or d.get("お客様名") or "").strip()
+    return {
+        "submissionId": sid,
+        "summary": ("【テスト】" if is_test(d) else "") + f"【仮】{d.get('提携先', '')}（{d.get('種別', '')}）" + (f" {mei}様" if mei else ""),
+        "start": hajime.isoformat(), "end": (hajime + datetime.timedelta(minutes=fun)).isoformat(),
+        "location": d.get("現場の住所", ""),
+        "description": "\n".join(x for x in [
+            f"提携先の専用フォームから（{d.get('種別', '')}）。確定したら提携先へ確定のご連絡・受注フォームで記録",
+            f"内容：{d.get('内容', '')}", f"目安金額：{d.get('目安金額', '')}", f"高速代：{d.get('高速代の目安', '')}",
+            f"お客様：{d.get('お客様名', '')}", f"お電話：{d.get('お客様の電話', '')}", f"ご要望：{d.get('ご要望', '')}",
+            f"ご担当：{d.get('ご担当', '')}"] if not x.endswith("：")),
+    }
 
 
 def main():
@@ -230,6 +270,16 @@ def main():
                 msg += f"\n見積書（自動作成・{k['ban']}・合計 {k['goukei']:,}円 税込）：{k['url']}\n送り先：{k['ate']}\nメールの下書き（PDF・印影付き）は嶺さんの Gmail に自動で入ります（送るのは嶺さん）"
                 print(f"\n見積書を作りました：{k['title']}\n{k['url']}\nPDF：{k.get('pdf') or k.get('pdf_err')}")
                 print("\n--- メール下書き（mitsumori-shitagaki.gs が PDF を付けて嶺さんの Gmail に作る）---\n" + shitagaki(k))
+        ky = kari_yotei(d, s["id"])
+        if ky:
+            ima = json.loads(KARI.read_text(encoding="utf-8")) if KARI.exists() else []
+            if s["id"] not in [x["submissionId"] for x in ima]:
+                ima.append(ky)
+                KARI.parent.mkdir(parents=True, exist_ok=True)
+                KARI.write_text(json.dumps(ima, ensure_ascii=False, indent=1), encoding="utf-8")
+            msg += "\n和真さんのカレンダーに【仮】で入れます（CMO）"
+            print("\n--- カレンダーに入れる【仮】（CMO が Google Calendar コネクタで和真さんのカレンダーへ。入れたら partner-kari.json から消す）---\n"
+                  + json.dumps(ky, ensure_ascii=False, indent=1))
         r = subprocess.run([sys.executable, str(ROOT / "tools" / "line_client.py"), "push", msg],
                            capture_output=True, text=True)
         if r.returncode != 0:

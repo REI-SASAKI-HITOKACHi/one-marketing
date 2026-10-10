@@ -52,13 +52,13 @@ COMPANIES = {
         "katachi": "tabs", "ryokin": "data/partner-price/takara.json",
         "menus": ["gyomu", "normal", "robo", "shitsugaiki", "filter"],
         "waribiki": 0,
-        "seikyu": "御社（これまでどおり）",
+        "seikyu": "貴社（これまでどおり）",
     },
     "aoyama-k4x9": {
         "kaisha": "青山リアルティー・アドバイザーズ株式会社", "tantou": "荒木",
         "menus": ["gyomu", "normal", "robo", "shitsugaiki", "drain"],
         "waribiki": 0,
-        "seikyu": "御社（これまでどおり）",
+        "seikyu": "貴社（これまでどおり）",
     },
 }
 
@@ -284,7 +284,7 @@ def page(key: str, c: dict) -> str:
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>{c['kaisha']}さま専用 ご依頼ページ｜ワンヒッター株式会社</title>
+<title>{c['kaisha']}様 専用フォーム｜ご依頼｜ワンヒッター株式会社</title>
 <!-- tools/build-partner.py で生成。手で直さない。 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -294,7 +294,7 @@ def page(key: str, c: dict) -> str:
 <body>
 <header>
   <div class="wrap">
-    <p class="tag">{c['kaisha']} {c['tantou']}さま専用</p>
+    <p class="tag">{c['kaisha']}様 専用フォーム</p>
     <h1>洗浄のご依頼ページ</h1>
     <p>台数を選ぶと、その場で目安の料金と空いている日時が出ます。日時を選んで送れば仮押さえです。担当の渡辺から確定のご連絡をします。</p>
   </div>
@@ -360,8 +360,8 @@ THANKS = f"""<!doctype html>
 <style>{CSS}</style>
 </head>
 <body>
-<header><div class="wrap"><p class="tag">提携先さま専用</p><h1>ご依頼を受け付けました</h1>
-<p>担当の渡辺から、1営業日以内にご連絡します。お急ぎの場合はお電話（{TEL}）でお知らせください。</p></div></header>
+<header><div class="wrap"><p class="tag">提携先様 専用</p><h1>ご依頼を受け付けました</h1>
+<p>見積依頼は、見積書をメールでお送りします。日時が決まりしだい、担当の渡辺から確定のご連絡をします。お急ぎの場合はお電話（{TEL}）でお知らせください。</p></div></header>
 <main class="wrap"><div class="card"><p>続けて別の現場や現調をご依頼の場合は、ブラウザの「戻る」で前のページに戻ってお送りください。</p></div></main>
 {FOOTER}
 </body>

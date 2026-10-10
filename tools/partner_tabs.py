@@ -709,7 +709,7 @@ def page(key: str, c: dict, price: dict, area: dict, api: str, tel: str, footer:
       <div class="box">
         <div class="field"><label for="{pre}-biko">ご要望・立ち会い・駐車場など<span class="opt">任意</span></label>
           <textarea id="{pre}-biko" placeholder="{biko_ph}"></textarea></div>
-        <div class="field"><label for="{pre}-tantou">御社のご担当<span class="opt">変わるときだけ</span></label>
+        <div class="field"><label for="{pre}-tantou">貴社のご担当<span class="opt">変わるときだけ</span></label>
           <input id="{pre}-tantou" type="text" value="{_esc(c['tantou'])}様" autocomplete="off"></div>
       </div>
     </section>"""
@@ -735,7 +735,7 @@ def page(key: str, c: dict, price: dict, area: dict, api: str, tel: str, footer:
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#122F60">
-<title>{_esc(c['kaisha'])}さま専用 見積・現調のご依頼｜ワンヒッター株式会社</title>
+<title>{_esc(c['kaisha'])}様 専用フォーム｜見積・現調のご依頼｜ワンヒッター株式会社</title>
 <!-- tools/build-partner.py（tools/partner_tabs.py）で生成。手で直さない。料金は {c['ryokin']}、高速代・移動時間は data/partner-area.json。 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -743,7 +743,7 @@ def page(key: str, c: dict, price: dict, area: dict, api: str, tel: str, footer:
 <style>{CSS}</style>
 </head>
 <body>
-<header class="top"><div class="wrap"><p class="co">ワンヒッター株式会社　エアコン洗浄のご依頼</p><p class="for">{_esc(c['kaisha'])}<span>{_esc(c['tantou'])}様 専用</span></p></div></header>
+<header class="top"><div class="wrap"><p class="co">ワンヒッター株式会社　エアコン洗浄のご依頼</p><p class="for">{_esc(c['kaisha'])}<span>様 専用フォーム</span></p></div></header>
 <nav class="tabs" role="tablist" aria-label="ご依頼の種類"><div class="wrap">
   <button type="button" class="tab" role="tab" id="t-mitsu" aria-controls="p-mitsu" aria-selected="true">見積依頼</button>
   <button type="button" class="tab" role="tab" id="t-genchou" aria-controls="p-genchou" aria-selected="false" tabindex="-1">現調依頼</button>
