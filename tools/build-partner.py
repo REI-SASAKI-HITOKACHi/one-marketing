@@ -19,8 +19,8 @@
   会社ごとの値引き率は COMPANIES の waribiki（既定 0。オーナーが決めたら入れる）。
 
 【タカラサービス様は形が違う（第6回MTG 6-4 No.4・2026-10-10）】上部タブ2つ（①見積依頼 ②現調依頼）。
-  中身は tools/partner_tabs.py。料金は data/partner-price/takara.json（★タカラ様専用の料金表が未着のため標準価格で仮置き。
-  届いたら takara.json だけ直して、このスクリプトを流す）。高速代・移動時間は data/partner-area.json
+  中身は tools/partner_tabs.py。料金は data/partner-price/takara.json（タカラ様専用の料金表＝Drive「エアコン料金一覧表.pdf」
+  2023-11-13 を 2026-10-10 に反映。お掃除機能付きはメーカー別、家庭用・業務用それぞれの台数で段）。高速代・移動時間は data/partner-area.json
   （tools/build-kousoku-ic.py がドラぷらから作る）。青山様は従来の1画面のまま。
 
 【受け取り】Netlify フォーム "partner"（全社共通）。項目は partner_tabs.FORM_FIELDS で全社そろえる。通知メールが毎時点検で拾える。
@@ -46,7 +46,7 @@ COMPANIES = {
     "takara-7q2m": {
         "kaisha": "株式会社タカラサービス", "tantou": "深堀",
         # 第6回MTG 6-4 No.4：上部タブ2つ（見積依頼／現調依頼）の形。料金は data/partner-price/takara.json が正。
-        # ★ タカラ様専用の料金表は未着（2026-10-10）。takara.json は標準価格の仮置き。届いたら takara.json だけ直す。
+        # タカラ様専用の料金表を 2026-10-10 に反映済み（takara.json の motoshiryou）。料金を変えるときは takara.json だけ直す。
         "katachi": "tabs", "ryokin": "data/partner-price/takara.json",
         "menus": ["gyomu", "normal", "robo", "shitsugaiki", "filter"],
         "waribiki": 0,

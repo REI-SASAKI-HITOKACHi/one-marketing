@@ -37,10 +37,32 @@ def kaku(d):
     return BASE + "#" + b
 
 
+_JOBS = None
+
+
+def gamen1_meigi(y):
+    """画面1（お客様に見せる画面）の名乗り。"自社" / "本舗" / "不明"。T050・20261009-06-crm。
+
+    tools/kanryo_meigi.py（crm）で、今日の売上種類に加えて**同じ日の本舗の行**（台帳と受注の両方）を見る
+    （和真さん 9/20 の同日ルール）。台帳が読めない・道具が無いときは「不明」＝画面1にQRもクチコミも出さない。
+    ★売上種類（"s"）は受注フォームが売上シートに書き戻すので変えない。画面1の判定だけ "g" で渡す。
+    """
+    global _JOBS
+    try:
+        import kanryo_meigi as KM
+        if _JOBS is None:
+            _JOBS = KM.daichou_jobs()
+        yotei = json.loads(YOTEI.read_text(encoding="utf-8")) if YOTEI.exists() else []
+        return KM.gamen1_meigi(y, yotei, _JOBS)
+    except Exception as e:      # 照合できない＝出さない側に倒す
+        print(f"  ⚠ 画面1の名乗りを照合できません（QRとクチコミは出しません）: {e}")
+        return "不明"
+
+
 def url(y, p=None):
     d = {"i": y["id"], "r": y.get("台帳", ""), "n": y.get("氏名", ""),
          "s": y.get("売上種類", ""), "d": y.get("施工日付", ""), "t": y.get("開始時刻", ""),
-         "m": y.get("メニュー", []), "k": y.get("金額", "")}
+         "m": y.get("メニュー", []), "k": y.get("金額", ""), "g": gamen1_meigi(y)}
     if p:   # まだ完了フォームが入っていない施工の一覧（2ページ目のプルダウンになる。2026-09-26 オーナー指示）
         d["p"] = p
     return kaku(d)

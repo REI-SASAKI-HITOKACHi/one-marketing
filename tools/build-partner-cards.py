@@ -32,13 +32,14 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / "print" / "partner-cards" / "cards.html"
 OUT = ROOT / "dist" / "partner-cards"
 OUT.mkdir(parents=True, exist_ok=True)
-ASOF = "2026年10月9日"
+ASOF = "2026年10月10日"
 
 # 提案書2ページ目に載せる、提携先の担当者が使う専用ページ（tools/build-partner.py が作る）
 PARTNER_PAGES = {
     "takara": ROOT / "lp" / "partner" / "takara-7q2m" / "index.html",
-    "aoyama": ROOT / "lp" / "partner" / "aoyama-k4x9" / "index.html",
 }
+# 青山様の専用ページは作らない（オーナー決定 2026-10-10「青山リアルティ様は専用ページ作らないからね」）。
+# 青山様の流れは「お電話・メールでこれまでどおり当社へ」。
 
 PROPOSALS = {
     "takara": {
@@ -72,7 +73,7 @@ PROPOSALS = {
             ("御社", "p", "ご相談を受ける",
              "台数・機種・場所を伺います。いつもの受付のままです。", "call"),
             ("御社 → 当社", "p", "専用ページで当社へ",
-             "入力は現場の住所・台数・日時のタップだけ。料金の目安と空き枠はその場で出て、送れば仮押さえです。", "phone"),
+             "見積依頼は台数を入れるだけで、料金（交通費込み）と最短の日がその場で出ます。現地調査は空き枠を選ぶだけです。", "phone"),
             ("当社", "o", "確定のご連絡・施工",
              "日時が決まりしだい御社へ確定のご連絡。当日は当社が伺って分解洗浄します。", "kakutei"),
             ("当社 → 御社", "o", "御社へご報告",
@@ -86,7 +87,7 @@ PROPOSALS = {
             "report": '<div class="ph2"><figure><img src="../../lp/aircon/img/fin-before.jpg"><figcaption>洗浄前</figcaption></figure><figure><img src="../../lp/aircon/img/fin-after.jpg"><figcaption>洗浄後</figcaption></figure></div>',
         },
         "burden": ("御社のお手間はここだけ",
-                   "お電話を受けて、専用ページで<b>現場の住所・台数・日時</b>を入れて送るだけ。<br>料金の目安と空き枠はその場で分かります。"),
+                   "お電話を受けて、専用ページで<b>台数と現場</b>を入れて送るだけ。<br>御社向けの料金（交通費込み）と空き枠はその場で分かります。"),
         "boxes": [
             ("カード経由のご相談の数え方",
              "QRには案ごとの印を付け、ご案内ページを開いた数を当社で数えます。お電話の分は、専用ページの"
@@ -125,8 +126,8 @@ PROPOSALS = {
              "お電話で「お手入れのご案内を見た」とお申し付けいただきます。", "card"),
             ("御社", "p", "ご用命を受ける",
              "お部屋・内容・ご希望の日時を伺います。いつもの受付のままです。", "call"),
-            ("御社 → 当社", "p", "専用ページで当社へ",
-             "入力は現場の住所・台数・日時のタップだけ。料金の目安と空き枠はその場で出て、送れば仮押さえです。", "phone"),
+            ("御社 → 当社", "p", "これまでどおり当社へ",
+             "お電話・メールで、お部屋・内容・ご希望の日時をお知らせください。日程の調整は当社が行います。", "phone"),
             ("当社", "o", "確定のご連絡・お伺い",
              "日時が決まりしだい御社へ確定のご連絡。当日は当社が伺います。", "kakutei"),
             ("当社 → 御社", "o", "御社へご報告",
@@ -135,16 +136,16 @@ PROPOSALS = {
         "vis": {
             "card": '<div class="card"><img src="aoyama-1-ura.png"></div><p class="cap">お部屋のご案内書類に添えて、またはフロントに</p>',
             "call": '<div class="bub"><small>ご入居者さまから御社へ</small>「お手入れのご案内を見た」</div>',
-            "phone": '<div class="phone"><div><img src="flow-aoyama-partner.png"></div></div><p class="cap">御社専用ページ<br>lp.onehitter.jp/partner/<br>aoyama-k4x9/</p>',
+            "phone": '<div class="bub"><small>御社から当社へ（お電話・メール）</small>○○様 ○○号室<br>エアコン2台・浴室<br>ご希望 ○日の午前</div>',
             "kakutei": '<div class="bub"><small>当社から御社へ</small>○月○日○時に伺います。<br>担当：渡辺</div>',
             "report": '<div class="ph2"><figure><img src="../../lp/aircon/img/fin-before.jpg"><figcaption>洗浄前</figcaption></figure><figure><img src="../../lp/aircon/img/fin-after.jpg"><figcaption>洗浄後</figcaption></figure></div>',
         },
         "burden": ("御社のお手間はここだけ",
-                   "お電話を受けて、専用ページで<b>現場の住所・台数・日時</b>を入れて送るだけ。<br>料金の目安と空き枠はその場で分かります。"),
+                   "お電話を受けて、<b>お部屋・内容・ご希望の日時</b>を当社へお知らせいただくだけ。<br>日程の調整・作業・ご報告は当社が行います。"),
         "boxes": [
             ("カード経由のご用命の数え方",
-             "お電話で「お手入れのご案内を見た」と伺ったら、専用ページの「ご紹介カードを見たお客様」に"
-             "チェックを入れてください。カード経由の件数を当社で集計し、お知らせします。"),
+             "お電話で「お手入れのご案内を見た」と伺ったら、当社へのご連絡の際に「カード経由」と"
+             "一言添えてください。カード経由の件数を当社で集計し、お知らせします。"),
             ("窓口とご請求",
              "ご用命の窓口は御社です。カードにも当社の連絡先は載せていません。ご請求・お支払いはこれまでどおりです。"),
         ],

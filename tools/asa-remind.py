@@ -92,7 +92,7 @@ def kyou_ripi(kyou):
     tok = sc.access_token(sc.load_credentials())
     # 台帳の「受注回数」「最終施工日」には先の予約も入っている（例：12月の定期便）。
     # 今年の月タブを全部読み、今日より前の施工だけで「前回」を決め、先の予約の分を回数から引く。
-    rs = [f"'{m}月_売上/顧客'!A4:T504" for m in range(1, 13)] + ["'顧客管理台帳'!A16:AG3000"]
+    rs = [f"'{m}月_売上/顧客'!A4:T504" for m in range(1, 13)] + ["'顧客管理台帳'!A16:AH3000"]
     qs = "&".join("ranges=" + urllib.parse.quote(r, safe="") for r in rs)
     vr = [v.get("values", []) for v in sc.call(tok, f"/{km.SS}/values:batchGet?{qs}")["valueRanges"]]
     tsuki, daicho = vr[kyou.month - 1], vr[12]
@@ -112,7 +112,7 @@ def kyou_ripi(kyou):
         tel, na = num(r[5]), mei(r[4])
         hit = None
         for d in daicho:
-            d = d + [""] * 33
+            d = d + [""] * 34
             if tel and len(tel) >= 10 and num(d[3]) == tel:
                 hit = d
                 break
@@ -121,14 +121,15 @@ def kyou_ripi(kyou):
         nadake = not (tel and len(tel) >= 10) and len(na) >= 3
         if hit is None and nadake:
             for d in daicho:
-                d = d + [""] * 33
+                d = d + [""] * 34
                 if na and (mei(d[1]) == na or na in [mei(x) for x in d[31].split("／")]):
                     hit = d
                     break
         if hit is None:
             continue
-        onaji = [z[2].strip() for z in zenbu
-                 if (tel and len(tel) >= 10 and num(z[5]) == tel) or (nadake and mei(z[4]) == na)]
+        onaji_gyo = [z for z in zenbu
+                     if (tel and len(tel) >= 10 and num(z[5]) == tel) or (nadake and mei(z[4]) == na)]
+        onaji = [z[2].strip() for z in onaji_gyo]
         mae = sorted(x for x in onaji if re.fullmatch(r"\d{4}/\d{2}/\d{2}", x) and x < kyou_s)
         saki = sum(1 for x in onaji if re.fullmatch(r"\d{4}/\d{2}/\d{2}", x) and x > kyou_s)
         kai = int(num(hit[6]) or 0)
@@ -137,10 +138,13 @@ def kyou_ripi(kyou):
         zenkai = mae[-1] if mae else (saigo if saigo < kyou_s else "")
         if konkai < 2 or not (zenkai or hit[10].strip() < kyou_s):
             continue
+        # 前回のメニュー（2026-10-09 第6回MTG 嶺さん「リピーターの朝の連絡に前回のメニューも写真も来ていない」）
+        zm = [(z[9].strip() or z[3].strip()) for z in onaji_gyo if z[2].strip() == zenkai] if zenkai else []
+        # 写真：自動フォルダの記録（顧客ID が合うときだけ）→ 無ければ顧客管理台帳の AH「写真フォルダ」（その行のお客様のもの）
+        url = shashin_url(shashin.get(na), hit[0].strip()) or hit[33].strip()
         out.append({"n": r[4].strip(), "menu": r[9].strip() or r[3].strip(), "kai": konkai,
-                    "shokai": hit[10].strip(), "saigo": zenkai,
-                    "uchiwake": hit[30].strip(), "claim": hit[32].strip(),
-                    "url": shashin_url(shashin.get(na), hit[0].strip())})
+                    "shokai": hit[10].strip(), "saigo": zenkai, "zmenu": "／".join(x for x in zm if x),
+                    "uchiwake": hit[30].strip(), "claim": hit[32].strip(), "url": url})
     return out
 
 
@@ -293,13 +297,12 @@ def main():
         gyo += ([""] if gyo else []) + ["【今日のリピーターさま】前回の内容です"]
         for x in rp:
             gyo += ["", f"■ {x['n']} さま（{x['kai']}回目・今日：{x['menu']}）"]
-            gyo += [f"前回 {x['saigo']}" if x["saigo"] else f"初回 {x['shokai']}"]
+            gyo += [(f"前回 {x['saigo']}" + (f"：{x['zmenu'][:60]}" if x.get("zmenu") else "")) if x["saigo"] else f"前回 2025年以前（今年の売上シートに無し。初回 {x['shokai']}）"]
             if x["uchiwake"]:
                 gyo += [f"これまで：{x['uchiwake'][:80]}"]
             if x["claim"]:
                 gyo += [f"🔴 過去のクレーム：{x['claim'][:120]}"]
-            if x["url"]:
-                gyo += [f"前回までの写真：{x['url']}"]
+            gyo += [f"前回までの写真：{x['url']}" if x["url"] else "前回までの写真：ドライブに未登録（施工後に作業完了フォームから写真を）"]
     if nk or kf:
         gyo += ([""] if gyo else []) + ["【入力のお願い】昨日までの施工で、まだ入っていないものがあります"]
     if nk:
