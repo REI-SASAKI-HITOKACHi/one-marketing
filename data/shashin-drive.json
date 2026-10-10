@@ -1,5 +1,12 @@
 {
- "sumi": [],
+ "sumi": [
+  "6ab8795fde371186cdb8a1ba",
+  "6ab8ab489b1c09c4bf47905e",
+  "6abb7d2856b1032653b0f4d5",
+  "6abb7f3c56995c02d51305f3",
+  "6abb8abb22492b1510a4e0c0",
+  "6abb8ac237ce57100ac5f3b0"
+ ],
  "okyaku": {
   "魚橋和也": {
    "url": "https://drive.google.com/drive/folders/1KJAe7KeAQHdHh6sSRl6bsSBEGRzvEneE",
@@ -155,6 +162,31 @@
    "url": "https://drive.google.com/drive/folders/1TRL82eROWoo0z98wptImqPWmjhmFAbef",
    "saigo": "2026-09-17",
    "id": "C0089"
+  },
+  "みねみゆ": {
+   "url": "https://drive.google.com/drive/folders/1vlyEQMNQVeSq_ga0xiT0JHT5gMu5_oYP",
+   "saigo": "2026-09-27",
+   "id": "C0958"
+  },
+  "村井輝美": {
+   "url": "https://drive.google.com/drive/folders/1oZ4ZTDWtmTVoUrosJE05D8wNFzhtEhUG",
+   "saigo": "2026-09-27",
+   "id": "C0962"
+  },
+  "加藤ひろみ": {
+   "url": "https://drive.google.com/drive/folders/1-w6WeQKxRqrT9by226FnizjLOhQSF2g_",
+   "saigo": "2026-09-29",
+   "id": "C0959"
+  },
+  "株式会社才木工業": {
+   "url": "https://drive.google.com/drive/folders/1kMGvb8P5RsB4-O_KwC7N_UdekV7Q5ifH",
+   "saigo": "2026-09-28",
+   "id": "C0193"
+  },
+  "株式会社レジェンド": {
+   "url": "https://drive.google.com/drive/folders/1s-vziR3gPaNzA11EUA2uSpsWFqqy2EyQ",
+   "saigo": "2026-09-26",
+   "id": "C0376"
   }
  },
  "temochi": {
@@ -972,48 +1004,6 @@
   "10xaK7ah6PSQWjpZDGYr50fci-uZPRD9t": "1REOW1sr3cY_yitGHkAq4_XbGVClHtyqC"
  },
  "machi": {
-  "6ab8795fde371186cdb8a1ba": {
-   "na": "みねみゆ",
-   "hi": "2026-09-27",
-   "id": "C0958",
-   "f_ok": "1vlyEQMNQVeSq_ga0xiT0JHT5gMu5_oYP",
-   "n": 20
-  },
-  "6ab8ab489b1c09c4bf47905e": {
-   "na": "村井輝美",
-   "hi": "2026-09-27",
-   "id": "C0962",
-   "f_ok": "1oZ4ZTDWtmTVoUrosJE05D8wNFzhtEhUG",
-   "n": 20
-  },
-  "6abb7d2856b1032653b0f4d5": {
-   "na": "加藤ひろみ",
-   "hi": "2026-09-29",
-   "id": "C0959",
-   "f_ok": "1-w6WeQKxRqrT9by226FnizjLOhQSF2g_",
-   "n": 20
-  },
-  "6abb7f3c56995c02d51305f3": {
-   "na": "株式会社才木工業",
-   "hi": "2026-09-28",
-   "id": "C0193",
-   "f_ok": "1kMGvb8P5RsB4-O_KwC7N_UdekV7Q5ifH",
-   "n": 18
-  },
-  "6abb8abb22492b1510a4e0c0": {
-   "na": "株式会社レジェンド",
-   "hi": "2026-09-26",
-   "id": "C0376",
-   "f_ok": "1s-vziR3gPaNzA11EUA2uSpsWFqqy2EyQ",
-   "n": 16
-  },
-  "6abb8ac237ce57100ac5f3b0": {
-   "na": "株式会社レジェンド",
-   "hi": "2026-09-26",
-   "id": "C0376",
-   "f_ok": "1s-vziR3gPaNzA11EUA2uSpsWFqqy2EyQ",
-   "n": 12
-  },
   "6abb8ad426c95300ba30e547": {
    "na": "株式会社レジェンド",
    "hi": "2026-09-26",

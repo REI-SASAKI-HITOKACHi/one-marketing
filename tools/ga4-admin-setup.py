@@ -90,6 +90,8 @@ DIMENSIONS = [
     ("estimate_total", "見積り額", "申込1件あたりの概算金額"),
     ("traffic_src", "流入元", "?src= の値。QR・SMS・施設カードの別"),
     ("traffic_cid", "流入元の個別ID", "?cid= の値"),
+    # 2026-10-10 measurement 依頼：cta_click の行き先（yoyaku＝予約ページ／#rei 等＝ページ内）。入口の直し・C対E の判定に要る
+    ("link_target", "リンクの行き先", "cta_click の行き先。yoyaku＝予約ページ、#rei 等＝ページ内"),
 ]
 
 
