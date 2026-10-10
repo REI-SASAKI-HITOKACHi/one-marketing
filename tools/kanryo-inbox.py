@@ -110,6 +110,11 @@ def tsuzuki_shashin(sumi, dry):
 
 
 SUITOU = "出納帳"   # 2026-10-03 第5回MTG：今の24シートの出納帳をやめ、このスプシに1タブ（上にダッシュボード・下に履歴）
+# 2026-10-10 第6回MTG 6-4 No.12「新しい出納帳を作成して…月次シートとリンク」で作り直した。
+#   履歴は 39行目が見出し、40行目から。列：A日付 B区分 C相手 D摘要 E金額 F対象月 G月次タブの行(リンク)
+#   H残高(式) I記録元 J送信ID K集計月(式) L現金の増減(式)。H・K・L は見出し行の ARRAYFORMULA なので書かない（None）
+SUITOU_SHO = 40
+SUITOU_OWARI = 2003
 
 
 def nyukin_keiro(shiharai: str, shurui: str) -> str:
@@ -120,29 +125,44 @@ def nyukin_keiro(shiharai: str, shurui: str) -> str:
     return shiharai   # 現金／請求書(翌月)／請求書(2か月後)
 
 
-def suitou_ireru(call, han, dry: bool, sub: dict, d: dict, na: str, kin: int) -> None:
-    """現金を出納帳タブの履歴に1行足す。同じ送信（ID）は二度入れない。出金（和真さんの振込）は LINE の報告を CMO が入れる"""
+def suitou_ireru(call, han, dry: bool, sub: dict, d: dict, na: str, kin: int, tab: str = "", gyo=None) -> None:
+    """現金を出納帳タブの履歴に1行足す（区分＝入金）。同じ送信（ID）は二度入れない。
+    出金（和真さんの振込）・精算・プール払い出しは CMO が入れる"""
     if not kin:
         print("   ⚠ 現金だが金額が無いので出納帳には入れません")
         return
     try:
-        ids = call(han(f"'{SUITOU}'!H10:H5000")).get("values", [])
+        hyo = call(han(f"'{SUITOU}'!A{SUITOU_SHO}:J{SUITOU_OWARI}")).get("values", [])
     except SystemExit:
-        print(f"   ⚠ 『{SUITOU}』タブが読めません（まだ作っていない？）。出納帳には入れていません")
+        print(f"   ⚠ 『{SUITOU}』タブが読めません。出納帳には入れていません")
         return
-    if any(r and r[0] == sub["id"] for r in ids):
+    if any(len(r) > 9 and r[9] == sub["id"] for r in hyo):
         print("   出納帳には入れ済み")
         return
-    hi = (sub.get("created_at") or "")[:10]   # 日付は送信日（オーナー「日付の欄はなくていい」）
-    gyo = [[hi, "本舗" if "本舗" in (d.get("売上種類") or "") else "ワンヒッター",
-            f"{na} さま　{d.get('実施した内容', '')}"[:80], kin, "", "", "作業完了フォーム", sub["id"]]]
-    if dry:
-        print(f"   [予定] 出納帳に現金 {kin:,}円（{hi}）")
+    ato = max([i for i, r in enumerate(hyo) if any(str(c).strip() for c in r[:5])], default=-1)
+    gyo_saki = SUITOU_SHO + ato + 1
+    if gyo_saki > SUITOU_OWARI:
+        print(f"   ⚠ 出納帳の履歴が {SUITOU_OWARI} 行目まで埋まっています。行を足してから入れ直してください")
         return
-    gyo = [[mojinomama(v) for v in gyo[0]]]
-    call(han(f"'{SUITOU}'!A10:H10") + ":append", "POST", {"values": gyo},
-         q={"valueInputOption": "USER_ENTERED", "insertDataOption": "INSERT_ROWS"})
-    print(f"   出納帳: 現金 {kin:,}円 を記録")
+    hi = (sub.get("created_at") or "")[:10]   # 日付は送信日（オーナー「日付の欄はなくていい」）
+    meigi = "本舗" if "本舗" in (d.get("売上種類") or "") else "ワンヒッター"
+    link = None
+    if tab and gyo:
+        try:
+            meta = call(f"/{SS}", q={"fields": "sheets.properties(sheetId,title)"})
+            gid = next(x["properties"]["sheetId"] for x in meta["sheets"] if x["properties"]["title"] == tab)
+            link = f'=HYPERLINK("#gid={gid}&range=A{gyo}","{tab} {gyo}行目")'
+        except (StopIteration, KeyError):
+            link = f"{tab} {gyo}行目"
+    gyo_atai = [hi, "入金", mojinomama(f"{na} さま"),
+                mojinomama(f"現金（{meigi}名義）{d.get('実施した内容', '')}"[:80]), kin,
+                None, link, None, "作業完了フォーム", sub["id"]]
+    if dry:
+        print(f"   [予定] 出納帳 {gyo_saki}行目に現金 {kin:,}円（{hi}・{tab} {gyo}行目）")
+        return
+    call(han(f"'{SUITOU}'!A{gyo_saki}:J{gyo_saki}"), "PUT", {"values": [gyo_atai]},
+         q={"valueInputOption": "USER_ENTERED"})
+    print(f"   出納帳: {gyo_saki}行目に現金 {kin:,}円 を記録")
 
 
 def main():
@@ -279,7 +299,7 @@ def main():
                 print(f"   入金経路: {tab} {gyo}行目 ← {keiro}")
             if shiharai == "現金":
                 kin = re.sub(r"\D", "", str(d.get("最終金額", "")))
-                suitou_ireru(call, han, a.dry_run, s, d, na, int(kin) if kin else 0)
+                suitou_ireru(call, han, a.dry_run, s, d, na, int(kin) if kin else 0, tab, gyo)
 
         if d.get("クレーム") == "あり":
             kureemu.append((na, d.get("施工日付", ""), d.get("クレーム内容", "")))
