@@ -1,0 +1,55 @@
+--- a/tools/kanryo-okuru.py	2026-10-10 03:22:13.712050085 +0000
++++ b/tools/kanryo-okuru.py	2026-10-10 03:22:31.673020342 +0000
+@@ -37,10 +37,32 @@
+     return BASE + "#" + b
+ 
+ 
++_JOBS = None
++
++
++def gamen1_meigi(y):
++    """画面1（お客様に見せる画面）の名乗り。"自社" / "本舗" / "不明"。T050・20261009-06-crm。
++
++    tools/kanryo_meigi.py（crm）で、今日の売上種類に加えて**同じ日の本舗の行**（台帳と受注の両方）を見る
++    （和真さん 9/20 の同日ルール）。台帳が読めない・道具が無いときは「不明」＝画面1にQRもクチコミも出さない。
++    ★売上種類（"s"）は受注フォームが売上シートに書き戻すので変えない。画面1の判定だけ "g" で渡す。
++    """
++    global _JOBS
++    try:
++        import kanryo_meigi as KM
++        if _JOBS is None:
++            _JOBS = KM.daichou_jobs()
++        yotei = json.loads(YOTEI.read_text(encoding="utf-8")) if YOTEI.exists() else []
++        return KM.gamen1_meigi(y, yotei, _JOBS)
++    except Exception as e:      # 照合できない＝出さない側に倒す
++        print(f"  ⚠ 画面1の名乗りを照合できません（QRとクチコミは出しません）: {e}")
++        return "不明"
++
++
+ def url(y, p=None):
+     d = {"i": y["id"], "r": y.get("台帳", ""), "n": y.get("氏名", ""),
+          "s": y.get("売上種類", ""), "d": y.get("施工日付", ""), "t": y.get("開始時刻", ""),
+-         "m": y.get("メニュー", []), "k": y.get("金額", "")}
++         "m": y.get("メニュー", []), "k": y.get("金額", ""), "g": gamen1_meigi(y)}
+     if p:   # まだ完了フォームが入っていない施工の一覧（2ページ目のプルダウンになる。2026-09-26 オーナー指示）
+         d["p"] = p
+     return kaku(d)
+--- a/tools/build-kanryo.py	2026-10-10 03:22:13.760050083 +0000
++++ b/tools/build-kanryo.py	2026-10-10 03:22:31.673556892 +0000
+@@ -429,10 +429,13 @@
+     return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+   }
+ 
+-  /* ---- 画面1：名乗りは受注の内容どおり。読めないときは出さない ---- */
++  /* ---- 画面1：名乗りは台帳と照合した結果（J.g）。読めないときは出さない ----
++     J.g は kanryo-okuru.py が kanryo_meigi で同日の本舗行まで見て決めた値（自社／本舗／不明）。
++     J.g が無い古いリンクは、これまでどおり受注の売上種類（J.s）で決める。 */
+   (function(){
+-    var na = J && J.s === '本舗' ? 'おそうじ本舗' : (J && J.s === 'One Hitter' ? 'ワンヒッター株式会社' : '');
+-    if (J && J.s === 'One Hitter') {
++    var g = J ? (J.g || (J.s === 'One Hitter' ? '自社' : (J.s === '本舗' ? '本舗' : '不明'))) : '不明';
++    var na = g === '本舗' ? 'おそうじ本舗' : (g === '自社' ? 'ワンヒッター株式会社' : '');
++    if (g === '自社') {
+       $('rei').textContent = 'よろしければ、仕上がりのご感想をお聞かせください。';
+       Array.prototype.forEach.call(document.querySelectorAll('#okyaku .jisha'), function(e){ e.hidden = false; });
+     }
