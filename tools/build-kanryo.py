@@ -429,10 +429,13 @@ HTML = r"""<!doctype html>
     return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
   }
 
-  /* ---- 画面1：名乗りは受注の内容どおり。読めないときは出さない ---- */
+  /* ---- 画面1：名乗りは台帳と照合した結果（J.g）。読めないときは出さない ----
+     J.g は kanryo-okuru.py が kanryo_meigi で同日の本舗行まで見て決めた値（自社／本舗／不明）。
+     J.g が無い古いリンクは、これまでどおり受注の売上種類（J.s）で決める。 */
   (function(){
-    var na = J && J.s === '本舗' ? 'おそうじ本舗' : (J && J.s === 'One Hitter' ? 'ワンヒッター株式会社' : '');
-    if (J && J.s === 'One Hitter') {
+    var g = J ? (J.g || (J.s === 'One Hitter' ? '自社' : (J.s === '本舗' ? '本舗' : '不明'))) : '不明';
+    var na = g === '本舗' ? 'おそうじ本舗' : (g === '自社' ? 'ワンヒッター株式会社' : '');
+    if (g === '自社') {
       $('rei').textContent = 'よろしければ、仕上がりのご感想をお聞かせください。';
       Array.prototype.forEach.call(document.querySelectorAll('#okyaku .jisha'), function(e){ e.hidden = false; });
     }
