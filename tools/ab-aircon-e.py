@@ -47,22 +47,20 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 CSS = """
 /* ===== 次のA/B 対抗案E：いちばん早い空き（tools/ab-aircon-e.py が足す） ===== */
 .aki{margin:2px 0 2px;}
-.aki-h{font-size:13px;font-weight:700;color:var(--text);text-align:center;margin:0 0 7px;}
-.aki-h span{font-weight:500;color:var(--steel);font-size:11.5px;}
+.aki-h{font-size:13px;font-weight:700;color:var(--text);text-align:center;margin:0 0 6px;}
+.aki-h span{font-weight:500;color:var(--steel);font-size:11px;}
 .aki-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
-.aki-chip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:52px;
+.aki-chip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;min-height:46px;
   border:1.5px solid var(--ink);border-radius:10px;background:#fff;color:var(--ink);text-decoration:none;line-height:1.25;}
 .aki-chip b{font-size:15px;font-weight:700;}
 .aki-chip span{font-size:12px;font-weight:500;color:var(--text-2);}
 .aki-chip:active{background:var(--paper-2);}
-.aki-toki{font-size:10.5px;color:var(--steel);text-align:center;margin:5px 0 0;}
 """
 
 HTML = """
       <div class="aki" id="aki" hidden>
-        <p class="aki-h">いちばん早い空き<span>（エアコン1台・60分の場合）</span></p>
+        <p class="aki-h">いちばん早い空き<span id="aki-toki">（エアコン1台・60分の場合）</span></p>
         <div class="aki-row" id="aki-row"></div>
-        <p class="aki-toki" id="aki-toki"></p>
       </div>"""
 
 JS = r"""
@@ -105,7 +103,7 @@ JS = r"""
       a.appendChild(b); a.appendChild(s); row.appendChild(a);
     });
     var t = document.getElementById('aki-toki');
-    if (t) t.textContent = (toki ? toki + ' 時点。' : '') + '押すと、その日の空き時間から選べます';
+    if (t && toki) t.textContent = '（エアコン1台・60分／' + toki + ' 時点）';
     box.hidden = false;
     try {
       var P = (window.OH_M || {}).page || {};
@@ -192,7 +190,7 @@ def make_thanks(h: str) -> str:
 def tenken(out: pathlib.Path) -> list:
     ng = []
     h = (out / 'index.html').read_text(encoding='utf-8')
-    for k in ['id="aki"', 'data-place="slot_chip"' if False else 'slot_chip', '"lp_variant":"E"', 'reserve-aircon-e',
+    for k in ['id="aki"', 'slot_chip', '"lp_variant":"E"', 'reserve-aircon-e',
               "lp: 'aircon-e'", '?menu=ac1&date=']:
         if k not in h:
             ng.append(f'index.html に {k} が無い')
