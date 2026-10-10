@@ -709,7 +709,7 @@ def page(key: str, c: dict, price: dict, area: dict, api: str, tel: str, footer:
       <div class="box">
         <div class="field"><label for="{pre}-biko">ご要望・立ち会い・駐車場など<span class="opt">任意</span></label>
           <textarea id="{pre}-biko" placeholder="{biko_ph}"></textarea></div>
-        <div class="field"><label for="{pre}-tantou">御社のご担当<span class="opt">変わるときだけ</span></label>
+        <div class="field"><label for="{pre}-tantou">貴社のご担当<span class="opt">変わるときだけ</span></label>
           <input id="{pre}-tantou" type="text" value="{_esc(c['tantou'])}様" autocomplete="off"></div>
       </div>
     </section>"""
