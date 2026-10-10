@@ -336,7 +336,6 @@ JS = r"""
     br.innerHTML = r.work ? '作業 約' + jikan(r.work) + '<br>高速代・駐車場代は別' : '台数を選んでください';
     return r;
   }
-  }
 
   /* ---------- ① 見積：住所・高速代 ---------- */
   var mArea = null;

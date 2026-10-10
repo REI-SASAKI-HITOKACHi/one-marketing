@@ -36,7 +36,7 @@
     {"id": "robo-pt", "name": "パナソニック・東芝", "kataban": "CS-…／RAS-…", "tanka": 17800},
     {"id": "robo-hsfm", "name": "日立・シャープ・富士通・三菱", "kataban": "日立 AS-…/RAS-…／AY-…／AS-…／MSZ-…", "tanka": 16800},
     {"id": "robo-hoka", "name": "ダイキン・そのほか", "kataban": "AN-…／F…・上記に無いお掃除機能付き", "tanka": 15800},
-    {"id": "robo-fumei", "name": "メーカー・型番が分からない", "kataban": "現地で型番を確かめて確定します", "tanka": 15800, "ijou": true}
+    {"id": "robo-fumei", "name": "型番が分からない", "kataban": "現地で型番を確かめて確定", "tanka": 15800, "ijou": true}
    ]},
   {"id": "shitsugaiki", "name": "室外機の洗浄", "sub": "オプション", "kind": "tanka", "fun": 20, "tanka": 6050,
    "_注": "タカラ様の料金表に無い。従来の扱い（docs/price-master.md の 6,050円・税込）のまま。税の扱いが『税抜』に決まったら 5,500 に揃えるかを決める"},
