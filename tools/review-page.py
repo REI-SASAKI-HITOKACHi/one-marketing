@@ -42,7 +42,8 @@ def main() -> None:
     # 右ウィンドウ（iframe）ではページ内リンク #… が効かない（2026-10-10 オーナー「②③のボタンが反応しない」）。
     # → ボタンで1つずつ表示を切り替える。JS が動かない環境でも全部見えるよう、既定は全表示にして JS で絞る
     toc = "".join(f'<button type="button" data-i="{i}">{e(s["heading"])}</button>' for i, s in enumerate(spec["sections"]))
-    parts.append(f'<nav>{toc}</nav>')
+    if len(spec["sections"]) > 1:   # 1件だけなら切り替えボタンを出さない（右ウィンドウでは別々のファイルで出すのが確実）
+        parts.append(f'<nav>{toc}</nav>')
     for i, s in enumerate(spec["sections"]):
         parts.append(f'<section data-i="{i}"><h2>{e(s["heading"])}</h2>')
         if s.get("note"):
