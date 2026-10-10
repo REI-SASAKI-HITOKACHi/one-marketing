@@ -245,10 +245,8 @@ const CASES = [
   { label: 'キッチン1＋コンロ1（11月）', month: 11, basket: [{ name: 'キッチンクリーニング', qty: 1 }, { name: 'コンロクリーニング', qty: 1 }] },
   { label: '洗濯機1＋トイレ1（11月）', month: 11, basket: [{ name: '洗濯機クリーニング', qty: 1 }, { name: 'トイレクリーニング', qty: 1 }] },
 
-  // 11月も10%にする（オーナー決定 2026-10-03）。公開中の予約フォームは souki["11"]=0 のまま。
-  // フォーム側を souki["11"]=0.1 に直したら、pending を外す（下の「待ち」判定がそれを知らせる）
-  { label: 'エアコン1（11月・単品）', month: 11, basket: [{ name: 'エアコンクリーニング（ノーマル）', qty: 1 }],
-    pending: '予約フォームの11月がまだ0%（souki["11"]）', pendingDiff: -1078 }
+  // 11月も10%（オーナー決定 2026-10-03）。公開中の予約フォームは 2026-10-10 に souki["11"]=0.1 を確認済み
+  { label: 'エアコン1（11月・単品）', month: 11, basket: [{ name: 'エアコンクリーニング（ノーマル）', qty: 1 }] }
 ];
 
 const yen = n => '¥' + Math.round(n).toLocaleString('en-US');
@@ -365,7 +363,7 @@ if (gaps.length === 0 && mismatches.length === 0) {
 
   ■ 納品時の設定
   auto_discount_enabled = FALSE（通常見積）／auto_discount_enabled_web = TRUE（WEB経由）。
-  この表は納品時の設定そのもので計算しているので、**デプロイした瞬間から揃う**（11月1箇所だけは予約フォームの更新待ち）。
+  この表は納品時の設定そのもので計算しているので、**デプロイした瞬間から揃う**。
   通常見積に自動割引が載らない点は変わらないので、電話・紹介のお客様の金額は動かない。
 `);
   console.log(`✅ ${CASES.length - pendingGaps.length} 通り一致` + (pendingGaps.length ? `（フォーム更新待ち ${pendingGaps.length} 通りを除く）` : '') + '\n');
