@@ -215,6 +215,8 @@ a{color:var(--accent-deep);}
 .copied{font-size:12.5px;font-weight:700;color:var(--ok);}
 .card .line-note{font-size:11.5px;color:var(--muted);line-height:1.7;}
 #done-line p,#done-line .btn{word-break:auto-phrase;}
+.refer-terms{margin:6px 0 10px;padding-left:1.1em;display:grid;gap:4px;}
+.refer-terms li{word-break:auto-phrase;}
 .step-list{margin:0;padding-left:1.2em;font-size:12.5px;color:var(--muted);line-height:1.9;}
 
 footer{background:var(--invert);color:var(--invert-ink);padding:30px 0 26px;margin-top:34px;}
@@ -497,11 +499,18 @@ footer a{color:var(--invert-ink);}
         <p class="line-note">ワンヒッター株式会社の公式アカウントです。配信はいつでも止められます。</p>
       </div>
 
-      <!-- ご紹介（Q7で「紹介したい人がいる」を選んだ方だけ） -->
+      <!-- ご紹介（Q7で「紹介したい人がいる」「機会があれば」を選んだ方）。2026-10-09 依頼 20261009-03-lp
+           条件は data/prices.json「紹介」どおり：紹介された方は初回1,000円引き（予約時に紹介者の名前）、
+           紹介した方は紹介先の施工完了ごとに次回1,000円引き（人数分・有効期限なし）。
+           紙の紹介カード（print/an/card-d.html、?src=shokai）と同じ受け口（予約ページの「ご紹介者のお名前」欄）に揃える。 -->
       <div class="card" id="done-refer" hidden>
-        <h3>ご紹介いただくと、次回 1,000円割引です</h3>
-        <p><b>ご紹介くださったお客様ご本人</b>の、次回のお掃除が1,000円割引になります。
-           そのまま送れる文章をご用意しました。よろしければお使いください。</p>
+        <h3>ご紹介で、お知り合いもあなたも1,000円引きです</h3>
+        <ul class="refer-terms">
+          <li><b>お知り合い</b>：初回のお掃除が1,000円引き。ご予約のときに、あなたのお名前を伝えていただくだけです</li>
+          <li><b>あなた</b>：ご紹介先のお掃除が終わるたびに、次回のお掃除が1,000円引き。人数分重ねて使えて、有効期限はありません</li>
+        </ul>
+        <p>担当者がお渡しした「紹介カード」があれば、それをそのままお渡しください。
+           カードが無くても、下の文章を送っていただければ同じです。</p>
         <div class="quote" id="refer-text"></div>
         <div class="copy-row">
           <button class="btn sm ghost" type="button" id="copy-refer">紹介文をコピー</button>
@@ -512,7 +521,7 @@ footer a{color:var(--invert-ink);}
         </div>
         <!-- 割引の配布経路は公式LINE。友だち追加のボタンは上の #done-line に一本化した -->
         <div class="branch" style="margin-top:14px">
-          <b>割引は公式LINEでお渡しします</b>
+          <b>あなたへの割引は、公式LINEでお渡しします</b>
           <p>上の「LINEでチケットを受け取る」からご登録いただくと、
              紹介割引のご案内も同じLINEでお送りします。</p>
         </div>
@@ -902,13 +911,16 @@ footer a{color:var(--invert-ink);}
     return lines.join('\n');
   }
 
-  var REFER_URL = 'https://lp.onehitter.jp/mizumawari/?ref=' + encodeURIComponent(P.id || 'shoukai');
+  /* 紹介文のリンク先は予約ページ。?src=shokai のときだけ「ご紹介者のお名前（任意）」欄が出る（紙の紹介カードと同じ受け口）。
+     cid=survey で、紙のカード経由と区別する。以前の lp.onehitter.jp/mizumawari/?ref= は、どこでも受け取っていなかった */
+  var REFER_URL = 'https://yoyaku.onehitter.jp/?src=shokai&cid=survey';
 
   function referText(){
     var place = (state.q3 && state.q3 !== 'その他') ? state.q3 : '家の水まわり';
     return 'この前、ハウスクリーニングをONE HITTERさんにお願いしたよ。\n' +
            place + 'をやってもらったんだけど、想像以上にきれいになった。\n' +
-           '東京・千葉・神奈川で、見積り以上の追加請求もなし。よかったら見てみて。\n' +
+           '東京・千葉・神奈川で、見積り以上の追加請求もなし。\n' +
+           '予約のときに「ご紹介者」の欄に私の名前を書くと、初回が1,000円引きになるよ。\n' +
            REFER_URL;
   }
 
@@ -1023,7 +1035,7 @@ footer a{color:var(--invert-ink);}
       book.hidden = false;
       done.insertBefore(book, done.children[1]);
     }
-    if (state.q7 === '紹介したい人がいる') {
+    if (state.q7 === '紹介したい人がいる' || state.q7 === '機会があれば') {
       refer.hidden = false;
     }
 
