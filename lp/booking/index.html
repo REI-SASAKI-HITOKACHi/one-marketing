@@ -234,6 +234,9 @@ footer a{color:var(--invert-ink);}
   display:flex;flex-direction:column;gap:9px;}
 .day .dl{font-size:14px;font-weight:700;}
 .day .dl .we{color:var(--cta-text);}
+/* LPで押した日（?date=）。2026-10-10 次のA/B（docs/LP-次のABテスト-2026-10.md） */
+.day.pick{border-color:var(--cta-text);box-shadow:0 0 0 2px rgba(0,0,0,.04);}
+.day .pk{display:inline-block;margin-left:6px;font-size:11px;font-weight:700;color:var(--cta-text);}
 .times{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:7px;}
 .times button{min-height:44px;border-radius:8px;border:1.5px solid var(--line-strong);background:var(--surface);
   color:var(--ink);font-family:"Barlow",sans-serif;font-weight:700;font-size:15px;cursor:pointer;}
@@ -336,6 +339,7 @@ gtag('config','AW-18450975194');
         <span class="tag-req">必須</span>
         <h2>ご希望の日時をお選びください</h2>
         <p class="why">担当（渡辺）のいまの空き状況です。ここに出ている枠なら、そのままお伺いできます。作業時間は<b id="yotei-fun">—</b>を見込んでいます。</p>
+        <p class="why" id="pre-note" hidden></p>
       </div>
       <div id="slots"><p class="loading">空き状況を確認しています…</p></div>
       <p class="slots-toki" id="slots-toki"></p>
@@ -479,8 +483,15 @@ gtag('config','AW-18450975194');
   hiroGclid();   // 到着した時点で保存しておく（予約せずに離脱しても次回に効く）
 
   try {
-    var srcSns = (new URLSearchParams(location.search)).get('src') || '';
-    if (srcSns === 'ig' || srcSns === 'fb' || srcSns === 'gbp') {
+    /* 2026-10-10 直し：はじめての方の文言に切り替える条件を広げた。
+       以前は src が ig／fb／gbp と完全に一致したときだけで、LP から来た広告の方（src=gads_aircon 等）や、
+       LP を経由した方（lp= が付く）にも「前回ご利用いただいたお客様専用のページです」と出ていた。
+       LP の「空いている日を見て予約する」はこのページに来るので、はじめての方に「専用」と見せない。
+       区切り（- _）の前だけを小文字で見るのは LP 側（KOUKOKU）と同じ考え方。SMS・QR 等の既存客の画面は変えない。 */
+    var qSns = new URLSearchParams(location.search);
+    var srcSns = String(qSns.get('src') || '').toLowerCase().split(/[-_]/)[0];
+    var hajimete = ['gads', 'ig', 'fb', 'gbp'].indexOf(srcSns) !== -1 || !!qSns.get('lp');
+    if (hajimete) {
       document.getElementById('lead').innerHTML = 'はじめての方もこのページからご予約いただけます。所要 <b>約2分</b>。ご予約前に、まず料金の目安が出ます。お電話でも承ります。';
       document.getElementById('bar-sub').textContent = 'ワンヒッター株式会社｜ハウスクリーニング（東京・千葉・神奈川）';
       document.getElementById('why3').textContent = 'ご住所は、お伺いできる範囲かの確認と当日の道順に使います。営業のご連絡には使いません。';
@@ -490,6 +501,7 @@ gtag('config','AW-18450975194');
   } catch (e) {}
   var $ = function(id){ return document.getElementById(id); };
 
+  var PRE = { date: '' };   // LP から付いて来た日付（?date=）。下の preYomu() で入れる
   var state = {
     qty: {},          // メニュー名 -> 個数
     date: '', time: '',
@@ -793,6 +805,13 @@ gtag('config','AW-18450975194');
       lab.className = 'dl';
       lab.textContent = d.label;
       if (/（[土日]）/.test(d.label)) { lab.innerHTML = '<span class="we">' + d.label + '</span>'; }
+      if (PRE.date && d.date === PRE.date) {
+        el.className = 'day pick';
+        var pk = document.createElement('span');
+        pk.className = 'pk';
+        pk.textContent = 'ページで選んだ日';
+        lab.appendChild(pk);
+      }
       el.appendChild(lab);
       var tl = document.createElement('div');
       tl.className = 'times';
@@ -1046,6 +1065,34 @@ gtag('config','AW-18450975194');
 
   drawMenus();
   go(1);
+
+  /* ---------------- LP から「この日の空き」で来た方（?menu=…&date=…） ----------------
+     2026-10-10 次のA/B（docs/LP-次のABテスト-2026-10.md）。対抗案のLP（/aircon-e/）の
+     「いちばん早い空き」の日付ボタンだけがこの2つを付けて来る。付いていなければ何も変わらない。
+     menu は決めた記号だけ受け付ける（URL の文字をそのまま画面に出さない）。 */
+  var PRE_MENU = { ac1: ['エアコンクリーニング（ノーマル）', 1] };
+  function preYomu(){
+    try {
+      var q = new URLSearchParams(location.search);
+      var m = PRE_MENU[q.get('menu') || ''];
+      var dt = String(q.get('date') || '');
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dt)) { dt = ''; }
+      if (!m) { return; }
+      var rows = document.querySelectorAll('#menus .menu-row');
+      for (var i = 0; i < rows.length; i++) {
+        if (rows[i]._m && rows[i]._m.n === m[0]) { kaeru(m[0], m[1], rows[i]); }
+      }
+      if (!kasho()) { return; }
+      PRE.date = dt;
+      var note = $('pre-note');
+      note.textContent = 'エアコンクリーニング（ノーマル）1台で空き枠を出しています。台数やお掃除機能付きに変えるときは、下の「もどる」から選び直せます。';
+      note.hidden = false;
+      $('yotei-fun').textContent = 'およそ' + funHyouji(shoyouFun());
+      go(2);
+      loadSlots();
+    } catch (e) { /* 読めなければ通常どおり 1 から */ }
+  }
+  preYomu();
 })();
 </script>
 

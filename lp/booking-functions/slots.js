@@ -42,7 +42,10 @@ function jst() {
 exports.handler = async (event) => {
   const json = (code, obj, cache) => ({
     statusCode: code,
-    headers: Object.assign({ "Content-Type": "application/json; charset=utf-8", "Cache-Control": "public, max-age=0, must-revalidate" }, cache || {}),
+    // LP（lp.onehitter.jp）の「いちばん早い空き」がこの JSON を読む（2026-10-10 次のA/B・docs/LP-次のABテスト-2026-10.md）。
+    // 中身は予約ページに出している空き枠と同じで、個人情報は入っていない。読めるのは自社LPのホストだけにする。
+    headers: Object.assign({ "Content-Type": "application/json; charset=utf-8", "Cache-Control": "public, max-age=0, must-revalidate",
+      "Access-Control-Allow-Origin": "https://lp.onehitter.jp" }, cache || {}),
     body: JSON.stringify(obj),
   });
   try {
