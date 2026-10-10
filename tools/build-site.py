@@ -626,7 +626,7 @@ IRIGUCHI_PAGES: set = set()
 CHUUKI_PAGES: set = set()
 
 # ギフトの入口を入れるページ（承認が出るまで空。build_page の中の説明を参照）
-GIFT_PAGES: set = set()
+GIFT_PAGES = {"nenmatsu", "nenmatsu-b"}  # 2026-10-10 掲出承認（第6回MTG 6-4 No.14・依頼 20261010-01-lp）
 
 # 担当者のイラスト（和真さん本人の確認が済んだものだけをここに置く）。
 # 作り方は tools/make-staff-illust.py の冒頭を参照。写真そのものは置かない。

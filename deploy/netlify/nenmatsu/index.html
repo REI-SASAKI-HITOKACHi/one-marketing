@@ -995,6 +995,179 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
   </div>
 </section>
 
+<style>
+.gift{padding:48px 0;background:var(--surface);border-top:1px solid rgba(13,59,92,.12);border-bottom:1px solid rgba(13,59,92,.12);}
+.gift .gift-in{max-width:640px;margin:0 auto;padding:0 20px;}
+.gift .gift-eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--ink);opacity:.75;}
+.gift h2{font-size:22px;line-height:1.5;margin:6px 0 14px;color:var(--ink);text-wrap:balance;}
+.gift .gift-lead{font-size:15.5px;line-height:1.95;margin:0 0 16px;}
+.gift .gift-list{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:8px;}
+.gift .gift-list li{position:relative;padding-left:22px;font-size:15px;line-height:1.8;}
+.gift .gift-list li::before{content:"";position:absolute;left:4px;top:.75em;width:8px;height:8px;border-radius:50%;background:var(--ink);}
+.gift .gift-note{font-size:14px;line-height:1.85;background:var(--paper);border-radius:10px;padding:12px 14px;margin:0 0 20px;}
+.gift .gift-cta{display:block;width:100%;min-height:56px;border:2px solid var(--ink);background:#fff;color:var(--ink);
+  font:inherit;font-size:16.5px;font-weight:700;border-radius:9999px;cursor:pointer;padding:14px 18px;}
+.gift .gift-cta:focus-visible,.gift .gift-form button:focus-visible{outline:3px solid var(--cta);outline-offset:3px;}
+.gift .gift-small{font-size:13px;line-height:1.75;color:#536A78;margin:8px 0 0;text-align:center;}
+.gift .gift-form{margin-top:18px;border:1px solid rgba(13,59,92,.18);border-radius:12px;padding:18px 16px;background:#fff;}
+.gift .gift-form h3{font-size:16px;margin:0 0 12px;color:var(--ink);}
+.gift .gift-field{margin:0 0 14px;}
+.gift .gift-field label{display:block;font-size:14px;font-weight:700;margin-bottom:6px;}
+.gift .gift-field .gift-req{font-size:11px;font-weight:700;color:#fff;background:var(--cta);border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:1px;}
+.gift .gift-field input[type=email],.gift .gift-field input[type=text]{width:100%;font:inherit;font-size:16px;padding:12px;border:1px solid #B4C5D0;border-radius:8px;background:#fff;color:inherit;}
+.gift .gift-field .gift-help{font-size:12.5px;color:#536A78;margin-top:4px;line-height:1.6;}
+.gift .gift-zipres{font-size:14px;line-height:1.7;margin-top:6px;min-height:1.7em;}
+.gift .gift-zipres.ok{color:#1B6B4F;font-weight:700;}
+.gift .gift-zipres.ng{color:#8F2408;}
+.gift .gift-agree{display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.7;margin:0 0 14px;}
+.gift .gift-agree input{margin-top:5px;width:18px;height:18px;flex:none;}
+.gift .gift-form button[type=submit]{width:100%;min-height:52px;border:0;border-radius:9999px;background:var(--ink);color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer;}
+.gift .gift-form button[disabled]{opacity:.6;cursor:wait;}
+.gift .gift-err{font-size:14px;color:#8F2408;margin:10px 0 0;line-height:1.7;}
+.gift .gift-done{margin-top:18px;border-radius:12px;background:var(--paper);padding:18px 16px;font-size:15.5px;line-height:1.9;font-weight:700;color:var(--ink);}
+.gift .gift-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+</style>
+<section class="gift" id="gift" aria-labelledby="gift-h">
+  <div class="gift-in">
+    <p class="gift-eyebrow">ご実家のお掃除</p>
+    <h2 id="gift-h">ご実家のこと、気になっていませんか</h2>
+    <p class="gift-lead">年末に帰省されるなら、その前に。<br>ご実家のお掃除を、贈り物としてお申し込みいただけるようにする準備を進めています。お代はご依頼主さま、作業はご実家で。当日はご一緒に立ち会っていただけます。</p>
+    <ul class="gift-list">
+      <li>ご依頼主さまがお支払い、ご実家で作業いたします</li>
+      <li>ご実家が 東京都・千葉県・神奈川県 の場合にお伺いできます</li>
+      <li>作業は年明け1〜2月が中心です（年末は予約が埋まりやすいため）</li>
+    </ul>
+    <p class="gift-note">ご実家の方に内緒で進めることはできません。当日ご在宅いただく必要があるため、お申し込み前にお話しいただく形をお願いしています。</p>
+
+    <button type="button" class="gift-cta" id="gift-open" aria-expanded="false" aria-controls="gift-form">準備ができたらお知らせする</button>
+    <p class="gift-small">11月上旬にご案内をお送りします。この時点でのお支払いはありません。</p>
+
+    <form class="gift-form" id="gift-form" name="gift-oshirase" method="post" data-netlify="true" netlify-honeypot="gift-bot" hidden novalidate>
+      <input type="hidden" name="form-name" value="gift-oshirase">
+      <p class="gift-hp"><label>この欄は空のままにしてください <input name="gift-bot" tabindex="-1" autocomplete="off"></label></p>
+      <input type="hidden" name="エリア判定（画面）" id="gift-h-area" value="">
+      <input type="hidden" name="都県（画面）" id="gift-h-pref" value="">
+      <input type="hidden" name="src" id="gift-h-src" value="direct">
+      <input type="hidden" name="cid" id="gift-h-cid" value="">
+      <input type="hidden" name="lp" id="gift-h-lp" value="">
+      <h3>お知らせの送り先</h3>
+      <div class="gift-field">
+        <label for="gift-mail">メールアドレス<span class="gift-req">必須</span></label>
+        <input type="email" id="gift-mail" name="メールアドレス" autocomplete="email" inputmode="email" required maxlength="120">
+      </div>
+      <div class="gift-field">
+        <label for="gift-zip">ご実家の郵便番号<span class="gift-req">必須</span></label>
+        <input type="text" id="gift-zip" name="ご実家の郵便番号" inputmode="numeric" autocomplete="off" required maxlength="8" placeholder="例：134-0081" aria-describedby="gift-zip-help gift-zipres">
+        <p class="gift-help" id="gift-zip-help">お伺いできる地域かを、その場でお調べします</p>
+        <p class="gift-zipres" id="gift-zipres" aria-live="polite"></p>
+      </div>
+      <label class="gift-agree"><input type="checkbox" id="gift-agree" name="個人情報の取扱いに同意" value="同意する" required>
+        <span><a href="https://lp.onehitter.jp/privacy/" target="_blank" rel="noopener">個人情報の取扱い</a>に同意する</span></label>
+      <button type="submit" id="gift-send">登録する</button>
+      <p class="gift-err" id="gift-err" hidden></p>
+    </form>
+    <p class="gift-done" id="gift-done" hidden aria-live="polite"></p>
+  </div>
+</section>
+<script>
+/* ギフトの入口。計測（gift_block_view / gift_block_click / gift_zip_submit）は CMO が 9/17 に置いた名前に合わせ、
+   最終の仕様は measurement の確認待ち（20260918-01-measurement）。
+   - gift_zip_submit は申込ではないので generate_lead にしない（広告のCVに混ぜない）
+   - 郵便番号そのものは送らない。送るのはエリア内／外（area_result）と都県（gift_pref）だけ */
+(function(){
+  var M = window.OH_M || {}, P = M.page || {};
+  var q; try { q = new URLSearchParams(location.search); } catch (e) { q = null; }
+  var clean = function(v, n){ return (v || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, n); };
+  var SRC = clean(q && q.get('src'), 20) || 'direct';
+  var CID = clean(q && q.get('cid'), 20);
+  function send(name, p){
+    p = p || {};
+    p.lp_id = P.lp_id; p.lp_variant = P.lp_variant; p.page_kind = P.kind; p.traffic_src = SRC;
+    if (CID) p.traffic_cid = CID;
+    if (typeof window.gtag === 'function') window.gtag('event', name, p);
+    if (typeof window.fbq === 'function') window.fbq('trackCustom', name, p);
+  }
+  var $ = function(id){ return document.getElementById(id); };
+  var box = $('gift'), openBtn = $('gift-open'), form = $('gift-form'), zip = $('gift-zip'),
+      res = $('gift-zipres'), err = $('gift-err'), done = $('gift-done'), sendBtn = $('gift-send');
+  if (!box || !form) return;
+  $('gift-h-src').value = SRC; $('gift-h-cid').value = CID;
+
+  /* 1. 入口が画面に入った（1ページ1回） */
+  if ('IntersectionObserver' in window) {
+    var seen = false, io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if (!seen && e.isIntersecting) { seen = true; send('gift_block_view', {}); io.disconnect(); } });
+    }, { threshold: 0.4 });
+    io.observe(box);
+  }
+
+  /* 2. 「準備ができたらお知らせする」 */
+  openBtn.addEventListener('click', function(){
+    var opening = form.hidden;
+    form.hidden = !opening;
+    openBtn.setAttribute('aria-expanded', opening ? 'true' : 'false');
+    if (opening) { send('gift_block_click', {}); $('gift-mail').focus(); }
+  });
+
+  /* 郵便番号の判定（年末LPのエリア確認と同じ範囲：東京 100-208／神奈川 210-259／千葉 260-299） */
+  function region(d){
+    var n = parseInt(d.slice(0, 3), 10);
+    if (isNaN(n)) return null;
+    if (n >= 100 && n <= 208) return { name: '東京都', code: 'tokyo' };
+    if (n >= 210 && n <= 259) return { name: '神奈川県', code: 'kanagawa' };
+    if (n >= 260 && n <= 299) return { name: '千葉県', code: 'chiba' };
+    return null;
+  }
+  function judge(){
+    var d = (zip.value || '').replace(/[^0-9]/g, '');
+    if (d.length < 7) { res.className = 'gift-zipres'; res.textContent = ''; return null; }
+    var r = region(d);
+    if (r) { res.className = 'gift-zipres ok'; res.textContent = 'お伺いできる地域です。'; }
+    else { res.className = 'gift-zipres ng'; res.textContent = '申し訳ありません。いまお伺いできるのは東京都・千葉県・神奈川県のみです。エリアが広がりましたら、こちらからご連絡いたします。'; }
+    return { digits: d, r: r };
+  }
+  /* 入力した直後に分かるように（原稿 §2「あとでメールで断るのが、いちばん悪い形」） */
+  zip.addEventListener('input', judge);
+  zip.addEventListener('blur', judge);
+
+  /* 3. 登録（エリア外でも受け付ける。CMO 9/20 決定） */
+  form.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    err.hidden = true;
+    var mail = $('gift-mail');
+    var j = judge();
+    var msg = '';
+    if (!mail.value || !mail.checkValidity()) msg = 'メールアドレスをご確認ください。';
+    else if (!j) msg = '郵便番号を7桁でご入力ください。';
+    else if (!$('gift-agree').checked) msg = '個人情報の取扱いへの同意をお願いします。';
+    if (msg) { err.textContent = msg; err.hidden = false; return; }
+    var inArea = !!j.r;
+    $('gift-h-area').value = inArea ? 'エリア内' : 'エリア外';
+    $('gift-h-pref').value = inArea ? j.r.name : '';
+    /* どのLPから来たか。予約フォーム（この入口より下にある）の隠し欄 lp と同じ値を、送る時点で写す */
+    var lpEl = document.querySelector('input[name="lp"]:not(#gift-h-lp)');
+    $('gift-h-lp').value = lpEl ? lpEl.value : '';
+    zip.value = j.digits.slice(0, 3) + '-' + j.digits.slice(3, 7);
+    sendBtn.disabled = true;
+    var body = new URLSearchParams(new FormData(form)).toString();
+    fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body })
+      .then(function(r){ if (!r.ok) throw new Error(r.status); })
+      .then(function(){
+        send('gift_zip_submit', { area_result: inArea ? 'in_area' : 'out_of_area', gift_pref: inArea ? j.r.code : 'out' });
+        form.hidden = true; openBtn.hidden = true;
+        done.textContent = inArea ? 'ありがとうございます。11月上旬にご案内をお送りします。'
+                                  : 'ありがとうございます。エリアが広がりましたら、こちらからご連絡いたします。';
+        done.hidden = false;
+      })
+      .catch(function(){
+        sendBtn.disabled = false;
+        err.textContent = '送信できませんでした。通信状況をご確認のうえ、もう一度お試しください。';
+        err.hidden = false;
+      });
+  });
+})();
+</script>
+
 <section class="alt">
   <div class="wrap">
     <div class="sec-h">
