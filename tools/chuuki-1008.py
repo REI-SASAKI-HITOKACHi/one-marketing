@@ -44,6 +44,11 @@ OKIKAE = [
 
 YOKUSHITSU_PAGES = {"mizumawari", "mizumawari-b", "booking"}
 
+# 含まれるもの。2026-10-10 第6回MTG（依頼 20261010-03-lp）で「落ちきらない可能性」を足した
+YK_IN_MAE = "床・壁・天井・鏡・ドアの、ふだんの汚れ"
+OCHIKIRANAI = "汚れの程度により、落ちきらない可能性があります。"
+YK_IN = YK_IN_MAE + '<br><span class="yk-n2">' + OCHIKIRANAI + "</span>"
+
 YOKUSHITSU_CSS = """<style>
 .yk-box{border:1px solid rgba(13,59,92,.22);border-radius:10px;background:#fff;padding:14px 16px;margin:0 0 16px;font-size:14px;line-height:1.75;text-align:left;}
 .yk-box .yk-h{font-weight:800;color:var(--ink,#0D3B5C);margin:0;}
@@ -52,6 +57,7 @@ YOKUSHITSU_CSS = """<style>
 .yk-box li{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dashed rgba(13,59,92,.15);padding:3px 0;}
 .yk-box li b{white-space:nowrap;font-variant-numeric:tabular-nums;}
 .yk-box .yk-n{font-size:12.5px;color:#536A78;margin:6px 0 0;}
+.yk-box .yk-n2{font-size:12.5px;color:#536A78;}
 </style>"""
 
 
@@ -70,7 +76,7 @@ def yokushitsu_box():
     li = "".join(f"<li><span>{k}</span><b>{yen(opt[n]['価格'])}</b></li>" for k, n in rows)
     return (YOKUSHITSU_CSS +
             f'<div class="yk-box" id="yk-box"><p class="yk-h">浴室クリーニング（{yen(menu["浴室クリーニング"]["単体"])}）に含まれるもの</p>'
-            '<p class="yk-in">床・壁・天井・鏡・ドアの、ふだんの汚れ</p>'
+            f'<p class="yk-in">{YK_IN}</p>'
             '<p class="yk-h">別料金のオプション（ご希望の方のみ・税込）</p>'
             f"<ul>{li}</ul>"
             '<p class="yk-n">どこまでご希望かは、お見積りのお電話で確認してからお伺いします。</p></div>')
@@ -83,8 +89,17 @@ def apply(doc: str, page: str):
         if n and b not in doc:
             doc = doc.replace(a, b)
             hits[a[:18]] = n
-    if not hits:
+    if not hits and KOUTSUU not in doc and KOUTSUU_KAKKO not in doc:
         raise SystemExit(f"{page}: 交通費の一文を足す場所が1つも見つかりません（言い回しが変わった？）")
+    # すでに浴室の枠が入っているページ（10/9 配信分）には「落ちきらない可能性」だけ足す
+    if 'id="yk-box"' in doc and OCHIKIRANAI not in doc:
+        old = f'<p class="yk-in">{YK_IN_MAE}</p>'
+        if doc.count(old) != 1:
+            raise SystemExit(f"{page}: 浴室の枠の「含まれるもの」が見つかりません")
+        doc = doc.replace(old, f'<p class="yk-in">{YK_IN}</p>')
+        doc = doc.replace(".yk-box .yk-n{font-size:12.5px;color:#536A78;margin:6px 0 0;}",
+                          ".yk-box .yk-n{font-size:12.5px;color:#536A78;margin:6px 0 0;}\n.yk-box .yk-n2{font-size:12.5px;color:#536A78;}", 1)
+        hits["落ちきらない"] = 1
     if page in YOKUSHITSU_PAGES and 'id="yk-box"' not in doc:
         box = yokushitsu_box()
         if page == "booking":
