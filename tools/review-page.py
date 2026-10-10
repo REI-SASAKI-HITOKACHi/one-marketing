@@ -39,10 +39,12 @@ def main() -> None:
     parts = [f"<h1>{e(spec['title'])}</h1>"]
     if spec.get("lead"):
         parts.append(f'<p class="lead">{e(spec["lead"])}</p>')
-    toc = "".join(f'<a href="#s{i}">{e(s["heading"])}</a>' for i, s in enumerate(spec["sections"]))
+    # 右ウィンドウ（iframe）ではページ内リンク #… が効かない（2026-10-10 オーナー「②③のボタンが反応しない」）。
+    # → ボタンで1つずつ表示を切り替える。JS が動かない環境でも全部見えるよう、既定は全表示にして JS で絞る
+    toc = "".join(f'<button type="button" data-i="{i}">{e(s["heading"])}</button>' for i, s in enumerate(spec["sections"]))
     parts.append(f'<nav>{toc}</nav>')
     for i, s in enumerate(spec["sections"]):
-        parts.append(f'<section id="s{i}"><h2>{e(s["heading"])}</h2>')
+        parts.append(f'<section data-i="{i}"><h2>{e(s["heading"])}</h2>')
         if s.get("note"):
             parts.append(f'<p class="note">{e(s["note"])}</p>')
         for t in s.get("texts", []):
@@ -61,12 +63,18 @@ h1{{font-size:20px;margin:8px 0}} h2{{font-size:18px;border-left:5px solid var(-
 h3{{font-size:14px;margin:14px 0 4px;color:var(--navy)}}
 .lead,.note{{font-size:14px}} .note{{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:8px 10px}}
 nav{{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 16px;position:sticky;top:0;background:var(--bg);padding:6px 0;z-index:1}}
-nav a{{font-size:13px;padding:4px 10px;border:1px solid var(--line);border-radius:999px;color:inherit;text-decoration:none;background:var(--card)}}
+nav button{{font:inherit;font-size:14px;padding:6px 14px;border:1px solid var(--line);border-radius:999px;color:inherit;background:var(--card);cursor:pointer}}
+nav button[aria-pressed=true]{{background:var(--navy);border-color:var(--navy);color:#fff}}
 section{{margin:0 0 32px}}
 pre{{white-space:pre-wrap;word-break:break-word;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px;font-family:inherit;font-size:14px;margin:0}}
 figure{{margin:12px 0}} img{{width:100%;height:auto;border:1px solid var(--line);border-radius:4px;background:#fff}}
 figcaption{{font-size:12px;opacity:.7}}
-</style></head><body><main>{''.join(parts)}</main></body></html>"""
+</style></head><body><main>{''.join(parts)}</main>
+<script>
+(function(){{var bs=document.querySelectorAll('nav button'),ss=document.querySelectorAll('section[data-i]');
+function show(i){{ss.forEach(function(s){{s.hidden=s.dataset.i!==i;}});bs.forEach(function(b){{b.setAttribute('aria-pressed',b.dataset.i===i);}});window.scrollTo(0,0);}}
+bs.forEach(function(b){{b.addEventListener('click',function(){{show(b.dataset.i);}});}});if(bs.length)show('0');}})();
+</script></body></html>"""
     out.write_text(doc, encoding="utf-8")
     print(f"書きました: {out}（{out.stat().st_size // 1024} KB）")
 

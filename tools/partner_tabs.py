@@ -274,6 +274,11 @@ JS = r"""
     if (k.kind === 'hiki') { return k.tanka - dan3(k.hiki, n); }
     return 0;
   }
+  function wakuOf(k, n){   // 台数の段の枠「2～5台」
+    var list = k.kind === 'dan' ? k.dan : k.hiki, s = '';
+    list.forEach(function(d){ if (n >= d[0] && n <= d[1]) { s = d[0] + '～' + d[1] + '台'; } });
+    return s;
+  }
   function gunUnits(){
     var u = {}; Object.keys(P.gun).forEach(function(g){ u[g] = 0; });
     P.items.forEach(function(k){ if (k.gun) { u[k.gun] += q[k.id]; } });
@@ -281,7 +286,7 @@ JS = r"""
   }
   function koeta(u, g){ return !!g && u[g] > P.gun[g].jougen; }
   function keisan(){
-    var u = gunUnits(), units = 0, lines = [], meisai = [], total = 0, mitsu = [], work = 0, naiyou = [], ijou = false, over = [];
+    var u = gunUnits(), units = 0, lines = [], meisai = [], total = 0, mitsu = [], work = 0, naiyou = [], ijou = false, over = [], wg = {}, wk = [];
     Object.keys(u).forEach(function(g){ units += u[g]; if (koeta(u, g)) { over.push(P.gun[g].name); } });
     var mon = mSel ? parseInt(mSel.date.slice(5, 7), 10) : 0, H = P.hanbouki || {};
     var hanbou = (H.months || []).indexOf(mon) >= 0 && units > 0 && units <= (H.jogai_daisu || 0);
@@ -291,12 +296,25 @@ JS = r"""
       work += k.fun * n; naiyou.push(nm + ' ' + n + tani);
       if (k.kind === 'mitsumori') { mitsu.push(k.name + ' ' + n + tani); return; }
       if (koeta(u, k.gun)) { mitsu.push(nm + ' ' + n + tani + '（' + P.gun[k.gun].name + ' ' + (P.gun[k.gun].jougen + 1) + '台以上）'); return; }
-      var t = tankaOf(k, u[k.gun] || 0);
-      if (hanbou && k.gun) { t += H.kasan; }
+      /* 定価（1台の段）で1行、台数の段による値引きは「複数台割引（2～5台）」の行に分ける。
+         2026-10-10 オーナー「複数台割引の行（品名に台数枠）を作ってほしい。定価の単価を誤読させる可能性があるから」。
+         過去の見積書（ドリームエリア様・世田谷福祉作業所様・タカラ様）も、定価の行＋「…複数台割引」のマイナスの行。 */
+      var teika = tankaOf(k, 1), t = tankaOf(k, u[k.gun] || 0), hiku = teika - t;
+      if (hanbou && k.gun) { teika += H.kasan; t += H.kasan; }
       if (k.ijou) { ijou = true; }
       total += t * n;
-      lines.push([nm, yen(t) + (k.ijou ? '〜' : '') + ' × ' + n + tani, yen(t * n) + (k.ijou ? '〜' : '')]);
-      meisai.push({ hinmei: nm, suuryou: n, tani: tani, tanka: t, ijou: !!k.ijou });
+      lines.push([nm, yen(teika) + (k.ijou ? '〜' : '') + ' × ' + n + tani, yen(teika * n) + (k.ijou ? '〜' : '')]);
+      meisai.push({ hinmei: nm, suuryou: n, tani: tani, tanka: teika, ijou: !!k.ijou });
+      if (hiku > 0) {
+        var w = wakuOf(k, u[k.gun] || 0), key = (k.oya || k.id) + '|' + hiku;
+        if (!wg[key]) { wg[key] = { hinmei: (k.wari_nm || k.name) + ' 複数台割引（' + w + '）', suuryou: 0, tani: tani, tanka: -hiku }; wk.push(key); }
+        wg[key].suuryou += n;
+      }
+    });
+    wk.forEach(function(key){
+      var g = wg[key];
+      lines.push([g.hinmei, '−' + yen(-g.tanka) + ' × ' + g.suuryou + g.tani, '−' + yen(-g.tanka * g.suuryou)]);
+      meisai.push(g);
     });
     var wari = P.waribiki_ritsu ? Math.floor(total * P.waribiki_ritsu / 100) : 0;
     return { u: u, units: units, lines: lines, meisai: meisai, total: total - wari, wari: wari, mitsu: mitsu, work: work, naiyou: naiyou, hanbou: hanbou, mon: mon, over: over, ijou: ijou };
@@ -625,10 +643,12 @@ def tenkai(price: dict) -> list:
         if k.get("shurui"):
             for i, s in enumerate(k["shurui"]):
                 it = dict(base, id=s["id"], name=s["name"], sub=s.get("kataban", ""), tanka=s["tanka"],
-                          ijou=bool(s.get("ijou")), nm=k["name"] + "・" + s["name"], oya=k["id"], first=i == 0)
+                          ijou=bool(s.get("ijou")), nm=k["name"] + "・" + s["name"], oya=k["id"], first=i == 0,
+                          wari_nm=k["name"])
                 items.append(it)
         else:
             base["nm"] = k["name"]
+            base["wari_nm"] = k["name"]
             items.append(base)
     return items
 
