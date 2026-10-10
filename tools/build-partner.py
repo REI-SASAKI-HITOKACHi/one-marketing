@@ -361,7 +361,7 @@ THANKS = f"""<!doctype html>
 </head>
 <body>
 <header><div class="wrap"><p class="tag">提携先様 専用</p><h1>ご依頼を受け付けました</h1>
-<p>担当の渡辺から、1営業日以内にご連絡します。お急ぎの場合はお電話（{TEL}）でお知らせください。</p></div></header>
+<p>見積依頼は、見積書をメールでお送りします。日時が決まりしだい、担当の渡辺から確定のご連絡をします。お急ぎの場合はお電話（{TEL}）でお知らせください。</p></div></header>
 <main class="wrap"><div class="card"><p>続けて別の現場や現調をご依頼の場合は、ブラウザの「戻る」で前のページに戻ってお送りください。</p></div></main>
 {FOOTER}
 </body>
