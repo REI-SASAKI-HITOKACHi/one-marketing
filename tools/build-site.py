@@ -794,6 +794,9 @@ def survey_form(doc: str, target: str) -> str:
     return doc.replace(SURVEY_FORM_OPEN, SURVEY_FORM_NETLIFY, 1)
 
 
+# 次のA/B の対抗案 /aircon-e/（上の main の最後で作る）。承認・予約ページの配信のあと True に
+AB_AIRCON_E = False
+
 # 完成品のうち、公開の承認待ちのもの。承認が出たらここから外す（外すまで deploy/ に出ない）。
 # 確認は copy_kanseihin(ROOT / "preview" / "kansei", "preview") で preview/ に書き出す。
 #   takara：タカラサービス様の確認とオーナー承認のあと（依頼 20261009-02-lp）
@@ -884,3 +887,13 @@ if __name__ == "__main__":
         build_page(name, meta, target, out, cfg)
 
     copy_kanseihin(out, target)
+
+    # 次のA/B の対抗案 /aircon-e/ は、出来上がった aircon-c から作る（tools/ab-aircon-e.py・依頼 20261010-02-lp）。
+    # aircon-c と「いちばん早い空き」1か所だけ違う形にするので、aircon-c に何か当てたら必ず作り直す。
+    # 承認までは AB_AIRCON_E = False（deploy/ に出さない）。確認は
+    #   python3 tools/ab-aircon-e.py --src deploy/netlify/aircon-c --out preview/aircon-e
+    # 予約ページ側の ?menu=ac1&date= の受け取り（CMO の build-booking.py）が本番に出てから True にする。
+    if AB_AIRCON_E and target == "netlify":
+        import subprocess
+        subprocess.run([sys.executable, str(ROOT / "tools" / "ab-aircon-e.py"),
+                        "--src", str(out / "aircon-c"), "--out", str(out / "aircon-e")], check=True)
