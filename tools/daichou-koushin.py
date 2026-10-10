@@ -48,6 +48,14 @@
   減らす方向に書き換えると、その人の履歴が消える。報告に出すだけ。
 - 書く前に `kensan_hani()` が全セルの宛先を検査する。台帳の許された列以外なら例外で止まる。
 
+## 写真フォルダ（AH列）は data/shashin-drive.json から入れる（2026-10-10 第6回MTG 6-4 No.13）
+
+オーナー「顧客別小フォルダを使う。で、顧客台帳にも紐づけをする」。AH「写真フォルダ」に、
+`施工写真_お客様別（自動）/<お客様名>` の URL を入れる。値の元は `data/shashin-drive.json` の okyaku
+（`tools/shashin-drive.py` が仕分けのたびに更新）。**okyaku の顧客ID が台帳の顧客ID と一致する人だけ**入れる
+（名前では当てない。同名の別人に入れないため）。**消さない**：okyaku に無い人の AH は今の値のまま。
+AH列が無い台帳（列を消した等）では何もしない。表示に「写真フォルダ：n名」と出るので、--kaku の前に確かめる。
+
 電話番号・郵便番号は**文字列のまま**書く（RAW）。数値にすると先頭の0が消える（過去に800件消えた事故）。
 """
 
@@ -90,6 +98,8 @@ SHUUKEI = ["受注回数", "合計受注額", "平均単価", "最高単価", "�
            "最終月", "利用年", "主な流入経路", "売上種類"] + CAT_NAMES + ["次のおすすめ", "施工メニュー（内訳）"]
 SHINKI_DAKE = ["顧客ID", "顧客名", "法人/個人", "TEL", "郵便番号", "住所"]
 KAKENAI = {"統合した表記", "クレーム履歴（日付・内容・対応）"}
+SHASHIN = "写真フォルダ"   # AH。data/shashin-drive.json の okyaku（顧客ID が一致する人だけ）から入れる。消さない
+SHASHIN_KIROKU = os.path.join(ROOT, "data", "shashin-drive.json")
 
 
 def tn(t):
@@ -263,9 +273,17 @@ def _num(b):
         return None
 
 
+def shashin_sabun(led, okyaku):
+    """写真フォルダ列に入れる {顧客ID: URL}。okyaku の顧客ID が台帳にある人で、今の値と違うものだけ。
+    okyaku に無い人・URL の無い人は含めない（＝消さない）。"""
+    url = {str(o.get("id")).strip(): o.get("url") for o in okyaku.values() if o.get("id") and o.get("url")}
+    return {x["顧客ID"]: url[x["顧客ID"]] for x in led
+            if x["顧客ID"] in url and str(x.get(SHASHIN) or "").strip() != url[x["顧客ID"]]}
+
+
 def kensan_hani(data, ix):
     """書き込み先の検査。**台帳の、書いてよい列以外に1セルでも向いていたら止める。**"""
-    yoi = {a1(ix[c] + 1) for c in ix if c in set(SHUUKEI) | set(SHINKI_DAKE)}
+    yoi = {a1(ix[c] + 1) for c in ix if c in set(SHUUKEI) | set(SHINKI_DAKE) | {SHASHIN}}
     warui = []
     for d in data:
         rng = d["range"]
@@ -376,6 +394,13 @@ def main():
             for k, val in s.items():
                 data.append({"range": f"{TAB}!{a1(ix[k] + 1)}{gyou[x['顧客ID']]}", "values": [[val]]})
 
+    shashin = {}
+    if SHASHIN in ix and os.path.exists(SHASHIN_KIROKU):
+        with open(SHASHIN_KIROKU, encoding="utf-8") as f:
+            shashin = shashin_sabun(led, json.load(f).get("okyaku", {}))
+        for cid, u in shashin.items():
+            data.append({"range": f"{TAB}!{a1(ix[SHASHIN] + 1)}{gyou[cid]}", "values": [[u]]})
+
     saidai = max(int(x["顧客ID"][1:]) for x in led if re.fullmatch(r"C\d+", str(x["顧客ID"])))
     atarashii_gyou = []
     for i, g in enumerate(shinki):
@@ -404,6 +429,8 @@ def main():
         print(f"  {cid}（{n}行目）: {rec['受注回数']}件 最終 {max(j['d'] for j in g)} 売上種類={rec['売上種類'] or '空'} 法人/個人={rec['法人/個人']}（推定）")
     for c in chuui:
         print("  ⚠", c)
+    print(f"\n写真フォルダ（{a1(ix[SHASHIN] + 1) if SHASHIN in ix else '列なし'}）に入れる・直す人: {len(shashin)}名"
+          + ("（" + "・".join(sorted(shashin)[:20]) + "）" if shashin else ""))
     print(f"\n触らない人（台帳の件数のほうが多い＝9/5 に表記をまとめた人）: {len(fureru_nai)}名")
     for cid, a, b in fureru_nai[:20]:
         print(f"  {cid}: 台帳 {a}件／月次から引けたのは {b}件")

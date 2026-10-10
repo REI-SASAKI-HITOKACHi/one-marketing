@@ -122,6 +122,18 @@ hajiku("AG（クレーム履歴）は止める", "顧客管理台帳!AG20")
 hajiku("AF（統合した表記）は止める", "顧客管理台帳!AF20")
 hajiku("見出し（15行目）は止める", "顧客管理台帳!G15")
 hajiku("1200行より下は止める", "顧客管理台帳!G1201")
+IX["写真フォルダ"] = 33
+shiken("写真フォルダ（AH）は通る", dk.kensan_hani([{"range": "顧客管理台帳!AH20", "values": [["u"]]}], IX), True)
+hajiku("AH より右（AI）は止める", "顧客管理台帳!AI20")
+
+print("\n== 6. 写真フォルダは顧客ID が一致する人だけ・消さない ==")
+LED = [{"顧客ID": "C0001", "写真フォルダ": ""}, {"顧客ID": "C0002", "写真フォルダ": "https://x/old"},
+       {"顧客ID": "C0003", "写真フォルダ": "https://x/keep"}, {"顧客ID": "C0004", "写真フォルダ": "https://x/same"}]
+OK = {"山田": {"id": "C0001", "url": "https://x/a"}, "佐藤": {"id": "C0002", "url": "https://x/new"},
+      "同名": {"url": "https://x/no-id"}, "鈴木": {"id": "C0004", "url": "https://x/same"},
+      "台帳に無い": {"id": "C9999", "url": "https://x/z"}}
+shiken("空欄に入れる・違えば直す・ID なし/台帳に無い/同じ値は入れない・okyaku に無い人は消さない",
+       dk.shashin_sabun(LED, OK), {"C0001": "https://x/a", "C0002": "https://x/new"})
 
 print()
 print("すべてOK" if not ng else f"★★ NG {ng}件。直すまで --kaku で書かないこと")
