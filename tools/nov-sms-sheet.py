@@ -69,6 +69,8 @@ def main():
     ap.add_argument("--taishou", required=True)
     ap.add_argument("--privacy", default="https://one-hitter.jp/privacy_policy/")
     ap.add_argument("--kaku", action="store_true")
+    ap.add_argument("--tsukurinaoshi", action="store_true",
+                    help="この道具が作った同名のタブ（A1 の見出しで確かめる）を消してから作り直す")
     a = ap.parse_args()
     if not ikiteru(a.privacy):
         sys.exit(f"個人情報の取扱いの URL が開けません（{a.privacy}）。公開前の URL は使いません")
@@ -98,7 +100,16 @@ def main():
     meta = sc.call(tok, f"/{SS}", query={"fields": "sheets.properties(title,sheetId)"})
     gid = {s["properties"]["title"]: s["properties"]["sheetId"] for s in meta["sheets"]}
     if TAB in gid:
-        sys.exit(f"「{TAB}」タブがもうあります。作り直すなら先に消すか名前を変えてください（上書きはしない）")
+        if not a.tsukurinaoshi:
+            sys.exit(f"「{TAB}」タブがもうあります。作り直すなら --tsukurinaoshi（上書きはしない）")
+        a1 = sc.call(tok, f"/{SS}/values/{urllib.parse.quote(TAB + '!A1:A1', safe='')}").get("values", [[""]])[0][0]
+        if not str(a1).startswith("11月の早期予約SMS（ワンヒッター名義）／ワンタップ送信シート"):
+            sys.exit("同名のタブの見出しが、この道具の作ったものと違います。消さずに止めます")
+        e = sc.call(tok, f"/{SS}/values/{urllib.parse.quote(TAB + '!E6:E100', safe='')}").get("values", [])
+        if any(str(c).strip() for r in e for c in r):
+            sys.exit("前のタブの E列（送信済み）に記録があります。送信の記録を消さないよう、作り直しを止めます")
+        sc.call(tok, f"/{SS}:batchUpdate", "POST", {"requests": [{"deleteSheet": {"sheetId": gid[TAB]}}]})
+        print(f"前のタブ（この道具が作ったもの・送信の記録なし）を消しました")
     r = sc.call(tok, f"/{SS}:batchUpdate", "POST", {"requests": [{"addSheet": {"properties": {
         "title": TAB, "gridProperties": {"rowCount": len(rows) + 10, "columnCount": 7, "frozenRowCount": 5}}}}]})
     g = r["replies"][0]["addSheet"]["properties"]["sheetId"]
