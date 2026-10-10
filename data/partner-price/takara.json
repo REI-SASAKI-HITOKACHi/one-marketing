@@ -1,0 +1,30 @@
+{
+ "_状態": "仮置き（標準価格）。タカラサービス様専用の料金表が届いていない（2026-10-10 時点。業務連絡LINE・LINE_ログ・Driveを確認して無し）。届いたら、このファイルの kubun と hanbouki・waribiki_ritsu だけを料金表どおりに直し、python3 tools/build-partner.py を流す。ページの文言には『仮』と出さない（社内の注記はここだけ）",
+ "_元資料": "未着。届いたら元の画像・PDFはリポジトリに入れず、置き場所（LINE のメッセージID または Drive のURL）だけを下の motoshiryou に書く",
+ "motoshiryou": "",
+ "jiten": "2026-10-10",
+ "konkyo": "docs/price-master.md（業務用エアコンの台数割引・壁掛けの複数台割引・室外機・繁忙期）",
+ "_書き方": {
+  "kind": "dan=台数の段で単価が変わる（dan の [下限台数, 上限台数, 1台の税込単価]）／tanka=1台の単価が固定／mitsumori=お見積り（金額を出さない）",
+  "daisu": "true の区分は『エアコンの合計台数』に数える。段はこの合計で決まり、全台に掛かる",
+  "fun": "1台（1か所）あたりの作業時間の目安（分・1名）。空き枠を探す長さに使う",
+  "hanbouki": "繁忙期の加算。months の月に施工し、エアコン合計が jogai_daisu 台以下のとき、daisu の区分に1台 kasan 円を足す",
+  "waribiki_ritsu": "合計からの割引率（%）。料金表が単価で決まっているなら 0 のまま"
+ },
+ "kubun": [
+  {"id": "cassette", "name": "天井カセット形", "sub": "業務用（1・2・4方向）", "kind": "dan", "daisu": true, "fun": 120,
+   "dan": [[1, 1, 32780], [2, 10, 27280], [11, 20, 26180], [21, 50, 25080]]},
+  {"id": "tsuri", "name": "天井吊り形・床置き形", "sub": "業務用", "kind": "dan", "daisu": true, "fun": 120,
+   "dan": [[1, 1, 32780], [2, 10, 27280], [11, 20, 26180], [21, 50, 25080]]},
+  {"id": "kabe", "name": "壁掛け形", "sub": "お掃除機能なし", "kind": "dan", "daisu": true, "fun": 60,
+   "dan": [[1, 4, 10780], [5, 10, 10280], [11, 20, 9780], [21, 50, 9280]]},
+  {"id": "robo", "name": "壁掛け形", "sub": "お掃除機能付き", "kind": "dan", "daisu": true, "fun": 120,
+   "dan": [[1, 4, 17380], [5, 10, 16380], [11, 20, 15880], [21, 50, 15380]]},
+  {"id": "shitsugaiki", "name": "室外機の洗浄", "sub": "オプション", "kind": "tanka", "daisu": false, "fun": 20, "tanka": 6050},
+  {"id": "filter", "name": "フィルター清掃のみ", "sub": "現地を確認してお見積り", "kind": "mitsumori", "daisu": false, "fun": 30}
+ ],
+ "hanbouki": {"months": [5, 6, 7, 12], "kasan": 3300, "jogai_daisu": 5},
+ "waribiki_ritsu": 0,
+ "jougen_daisu": 50,
+ "chuuki": "51台以上はご相談（表示は21〜50台の単価）。駐車場代・高速代は実費。"
+}

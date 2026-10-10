@@ -1,0 +1,1243 @@
+{
+ "_説明": "区市ごとの最寄りIC・船堀橋ICからの高速料金（ETC普通車・片道）・江戸川区からの移動時間の目安。tools/build-kousoku-ic.py が作る。手で直さない（AREAS を直して作り直す）。",
+ "_根拠": "NEXCO東日本 ドラぷら 高速料金・ルート検索（出発＝船堀橋、到着＝表のIC、普通車、平日11時出発）。候補経路のうち 通常時間が最も短いもの。時間帯割引は含まない。",
+ "_移動時間": "高速を使う区市＝5分＋高速の通常時間＋10分を10分単位に切り上げ。近い区市（ippan）は一般道の目安を人が決めた値。渋滞は含まない。",
+ "時点": "2026-10-10",
+ "起点": {
+  "拠点": "東京都江戸川区（船堀）",
+  "IC": "船堀橋（首都高速中央環状線）"
+ },
+ "areas": [
+  {
+   "name": "江戸川区",
+   "pref": "東京都",
+   "match": [
+    "江戸川区"
+   ],
+   "eria_gai": false,
+   "ic": null,
+   "etc": 0,
+   "idou_fun": 15,
+   "ippan": true
+  },
+  {
+   "name": "江東区",
+   "pref": "東京都",
+   "match": [
+    "江東区"
+   ],
+   "eria_gai": false,
+   "ic": null,
+   "etc": 0,
+   "idou_fun": 25,
+   "ippan": true
+  },
+  {
+   "name": "墨田区",
+   "pref": "東京都",
+   "match": [
+    "墨田区"
+   ],
+   "eria_gai": false,
+   "ic": null,
+   "etc": 0,
+   "idou_fun": 25,
+   "ippan": true
+  },
+  {
+   "name": "葛飾区",
+   "pref": "東京都",
+   "match": [
+    "葛飾区"
+   ],
+   "eria_gai": false,
+   "ic": null,
+   "etc": 0,
+   "idou_fun": 25,
+   "ippan": true
+  },
+  {
+   "name": "足立区",
+   "pref": "東京都",
+   "match": [
+    "足立区"
+   ],
+   "eria_gai": false,
+   "ic": "加平",
+   "ic_hyouji": "加平",
+   "dp_tochaku": "加平(東京都)",
+   "etc": 1100,
+   "kousoku_fun": 29,
+   "kyori_km": 26.3,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "荒川区",
+   "pref": "東京都",
+   "match": [
+    "荒川区"
+   ],
+   "eria_gai": false,
+   "ic": "入谷",
+   "ic_hyouji": "入谷",
+   "dp_tochaku": "入谷(東京都)",
+   "etc": 1070,
+   "kousoku_fun": 29,
+   "kyori_km": 25.3,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "台東区",
+   "pref": "東京都",
+   "match": [
+    "台東区"
+   ],
+   "eria_gai": false,
+   "ic": "入谷",
+   "ic_hyouji": "入谷",
+   "dp_tochaku": "入谷(東京都)",
+   "etc": 1070,
+   "kousoku_fun": 29,
+   "kyori_km": 25.3,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "千代田区",
+   "pref": "東京都",
+   "match": [
+    "千代田区"
+   ],
+   "eria_gai": false,
+   "ic": "神田橋",
+   "ic_hyouji": "神田橋",
+   "dp_tochaku": "神田橋(東京都)",
+   "etc": 720,
+   "kousoku_fun": 20,
+   "kyori_km": 15.6,
+   "idou_fun": 40,
+   "ippan": false
+  },
+  {
+   "name": "中央区",
+   "pref": "東京都",
+   "match": [
+    "中央区"
+   ],
+   "eria_gai": false,
+   "ic": "宝町",
+   "ic_hyouji": "宝町",
+   "dp_tochaku": "宝町(東京都)",
+   "etc": 710,
+   "kousoku_fun": 19,
+   "kyori_km": 15.3,
+   "idou_fun": 40,
+   "ippan": false
+  },
+  {
+   "name": "港区",
+   "pref": "東京都",
+   "match": [
+    "港区"
+   ],
+   "eria_gai": false,
+   "ic": "芝公園",
+   "ic_hyouji": "芝公園",
+   "dp_tochaku": "芝公園(東京都)",
+   "etc": 800,
+   "kousoku_fun": 19,
+   "kyori_km": 17.8,
+   "idou_fun": 40,
+   "ippan": false
+  },
+  {
+   "name": "文京区",
+   "pref": "東京都",
+   "match": [
+    "文京区"
+   ],
+   "eria_gai": false,
+   "ic": "護国寺",
+   "ic_hyouji": "護国寺",
+   "dp_tochaku": "護国寺(東京都)",
+   "etc": 920,
+   "kousoku_fun": 27,
+   "kyori_km": 21.2,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "新宿区",
+   "pref": "東京都",
+   "match": [
+    "新宿区"
+   ],
+   "eria_gai": false,
+   "ic": "新宿",
+   "ic_hyouji": "新宿",
+   "dp_tochaku": "新宿(東京都)",
+   "etc": 1040,
+   "kousoku_fun": 30,
+   "kyori_km": 24.4,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "渋谷区",
+   "pref": "東京都",
+   "match": [
+    "渋谷区"
+   ],
+   "eria_gai": false,
+   "ic": "渋谷",
+   "ic_hyouji": "渋谷",
+   "dp_tochaku": "渋谷(東京都)",
+   "etc": 1020,
+   "kousoku_fun": 27,
+   "kyori_km": 24.0,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "品川区",
+   "pref": "東京都",
+   "match": [
+    "品川区"
+   ],
+   "eria_gai": false,
+   "ic": "戸越",
+   "ic_hyouji": "戸越",
+   "dp_tochaku": "戸越(東京都)",
+   "etc": 1040,
+   "kousoku_fun": 27,
+   "kyori_km": 24.4,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "目黒区",
+   "pref": "東京都",
+   "match": [
+    "目黒区"
+   ],
+   "eria_gai": false,
+   "ic": "目黒",
+   "ic_hyouji": "目黒",
+   "dp_tochaku": "目黒(東京都)",
+   "etc": 950,
+   "kousoku_fun": 24,
+   "kyori_km": 22.1,
+   "idou_fun": 40,
+   "ippan": false
+  },
+  {
+   "name": "大田区",
+   "pref": "東京都",
+   "match": [
+    "大田区"
+   ],
+   "eria_gai": false,
+   "ic": "平和島",
+   "ic_hyouji": "平和島",
+   "dp_tochaku": "平和島(東京都)",
+   "etc": 1170,
+   "kousoku_fun": 32,
+   "kyori_km": 28.0,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "世田谷区",
+   "pref": "東京都",
+   "match": [
+    "世田谷区"
+   ],
+   "eria_gai": false,
+   "ic": "三軒茶屋",
+   "ic_hyouji": "三軒茶屋",
+   "dp_tochaku": "三軒茶屋(東京都)",
+   "etc": 1090,
+   "kousoku_fun": 28,
+   "kyori_km": 26.0,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "中野区",
+   "pref": "東京都",
+   "match": [
+    "中野区"
+   ],
+   "eria_gai": false,
+   "ic": "中野長者橋",
+   "ic_hyouji": "中野長者橋",
+   "dp_tochaku": "中野長者橋(東京都)",
+   "etc": 1710,
+   "kousoku_fun": 44,
+   "kyori_km": 43.2,
+   "idou_fun": 60,
+   "ippan": false
+  },
+  {
+   "name": "杉並区",
+   "pref": "東京都",
+   "match": [
+    "杉並区"
+   ],
+   "eria_gai": false,
+   "ic": "永福",
+   "ic_hyouji": "永福",
+   "dp_tochaku": "永福(東京都)",
+   "etc": 1190,
+   "kousoku_fun": 33,
+   "kyori_km": 32.1,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "豊島区",
+   "pref": "東京都",
+   "match": [
+    "豊島区"
+   ],
+   "eria_gai": false,
+   "ic": "東池袋",
+   "ic_hyouji": "東池袋",
+   "dp_tochaku": "東池袋(東京都)",
+   "etc": 980,
+   "kousoku_fun": 29,
+   "kyori_km": 22.8,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "北区",
+   "pref": "東京都",
+   "match": [
+    "北区"
+   ],
+   "eria_gai": false,
+   "ic": "王子北",
+   "ic_hyouji": "王子北",
+   "dp_tochaku": "王子北(東京都)",
+   "etc": 1240,
+   "kousoku_fun": 33,
+   "kyori_km": 32.1,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "板橋区",
+   "pref": "東京都",
+   "match": [
+    "板橋区"
+   ],
+   "eria_gai": false,
+   "ic": "板橋本町",
+   "ic_hyouji": "板橋本町",
+   "dp_tochaku": "板橋本町(東京都)",
+   "etc": 1120,
+   "kousoku_fun": 33,
+   "kyori_km": 26.8,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "練馬区",
+   "pref": "東京都",
+   "match": [
+    "練馬区"
+   ],
+   "eria_gai": false,
+   "ic": "中台",
+   "ic_hyouji": "中台",
+   "dp_tochaku": "中台(東京都)",
+   "etc": 1230,
+   "kousoku_fun": 37,
+   "kyori_km": 29.7,
+   "idou_fun": 60,
+   "ippan": false
+  },
+  {
+   "name": "武蔵野市",
+   "pref": "東京都",
+   "match": [
+    "武蔵野市"
+   ],
+   "eria_gai": false,
+   "ic": "永福",
+   "ic_hyouji": "永福",
+   "dp_tochaku": "永福(東京都)",
+   "etc": 1190,
+   "kousoku_fun": 33,
+   "kyori_km": 32.1,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "三鷹市",
+   "pref": "東京都",
+   "match": [
+    "三鷹市"
+   ],
+   "eria_gai": false,
+   "ic": "調布",
+   "ic_hyouji": "調布",
+   "dp_tochaku": "調布(東京都)",
+   "etc": 1740,
+   "kousoku_fun": 46,
+   "kyori_km": 39.9,
+   "idou_fun": 70,
+   "ippan": false
+  },
+  {
+   "name": "調布市",
+   "pref": "東京都",
+   "match": [
+    "調布市"
+   ],
+   "eria_gai": false,
+   "ic": "調布",
+   "ic_hyouji": "調布",
+   "dp_tochaku": "調布(東京都)",
+   "etc": 1740,
+   "kousoku_fun": 46,
+   "kyori_km": 39.9,
+   "idou_fun": 70,
+   "ippan": false
+  },
+  {
+   "name": "狛江市",
+   "pref": "東京都",
+   "match": [
+    "狛江市"
+   ],
+   "eria_gai": false,
+   "ic": "調布",
+   "ic_hyouji": "調布",
+   "dp_tochaku": "調布(東京都)",
+   "etc": 1740,
+   "kousoku_fun": 46,
+   "kyori_km": 39.9,
+   "idou_fun": 70,
+   "ippan": false
+  },
+  {
+   "name": "府中市",
+   "pref": "東京都",
+   "match": [
+    "府中市"
+   ],
+   "eria_gai": false,
+   "ic": "国立府中",
+   "ic_hyouji": "国立府中",
+   "dp_tochaku": "国立府中(東京都)",
+   "etc": 1950,
+   "kousoku_fun": 51,
+   "kyori_km": 52.5,
+   "idou_fun": 70,
+   "ippan": false
+  },
+  {
+   "name": "稲城市",
+   "pref": "東京都",
+   "match": [
+    "稲城市"
+   ],
+   "eria_gai": false,
+   "ic": "稲城",
+   "ic_hyouji": "稲城",
+   "dp_tochaku": "稲城(東京都)",
+   "etc": 1810,
+   "kousoku_fun": 47,
+   "kyori_km": 45.5,
+   "idou_fun": 70,
+   "ippan": false
+  },
+  {
+   "name": "多摩市",
+   "pref": "東京都",
+   "match": [
+    "多摩市"
+   ],
+   "eria_gai": false,
+   "ic": "稲城",
+   "ic_hyouji": "稲城",
+   "dp_tochaku": "稲城(東京都)",
+   "etc": 1810,
+   "kousoku_fun": 47,
+   "kyori_km": 45.5,
+   "idou_fun": 70,
+   "ippan": false
+  },
+  {
+   "name": "国分寺市",
+   "pref": "東京都",
+   "match": [
+    "国分寺市"
+   ],
+   "eria_gai": false,
+   "ic": "国立府中",
+   "ic_hyouji": "国立府中",
+   "dp_tochaku": "国立府中(東京都)",
+   "etc": 1950,
+   "kousoku_fun": 51,
+   "kyori_km": 52.5,
+   "idou_fun": 70,
+   "ippan": false
+  },
+  {
+   "name": "立川市",
+   "pref": "東京都",
+   "match": [
+    "立川市"
+   ],
+   "eria_gai": false,
+   "ic": "国立府中",
+   "ic_hyouji": "国立府中",
+   "dp_tochaku": "国立府中(東京都)",
+   "etc": 1950,
+   "kousoku_fun": 51,
+   "kyori_km": 52.5,
+   "idou_fun": 70,
+   "ippan": false
+  },
+  {
+   "name": "日野市",
+   "pref": "東京都",
+   "match": [
+    "日野市"
+   ],
+   "eria_gai": false,
+   "ic": "国立府中",
+   "ic_hyouji": "国立府中",
+   "dp_tochaku": "国立府中(東京都)",
+   "etc": 1950,
+   "kousoku_fun": 51,
+   "kyori_km": 52.5,
+   "idou_fun": 70,
+   "ippan": false
+  },
+  {
+   "name": "八王子市",
+   "pref": "東京都",
+   "match": [
+    "八王子市"
+   ],
+   "eria_gai": false,
+   "ic": "八王子",
+   "ic_hyouji": "八王子",
+   "dp_tochaku": "八王子(東京都)",
+   "etc": 1950,
+   "kousoku_fun": 57,
+   "kyori_km": 58.0,
+   "idou_fun": 80,
+   "ippan": false
+  },
+  {
+   "name": "町田市",
+   "pref": "東京都",
+   "match": [
+    "町田市"
+   ],
+   "eria_gai": false,
+   "ic": "横浜町田",
+   "ic_hyouji": "横浜町田",
+   "dp_tochaku": "横浜町田(神奈川県)",
+   "etc": 2100,
+   "kousoku_fun": 46,
+   "kyori_km": 51.5,
+   "idou_fun": 70,
+   "ippan": false
+  },
+  {
+   "name": "西東京市",
+   "pref": "東京都",
+   "match": [
+    "西東京市"
+   ],
+   "eria_gai": false,
+   "ic": "大泉",
+   "ic_hyouji": "大泉",
+   "dp_tochaku": "大泉(東京都)",
+   "etc": 1950,
+   "kousoku_fun": 51,
+   "kyori_km": 46.3,
+   "idou_fun": 70,
+   "ippan": false
+  },
+  {
+   "name": "浦安市",
+   "pref": "千葉県",
+   "match": [
+    "浦安市"
+   ],
+   "eria_gai": false,
+   "ic": null,
+   "etc": 0,
+   "idou_fun": 20,
+   "ippan": true
+  },
+  {
+   "name": "市川市",
+   "pref": "千葉県",
+   "match": [
+    "市川市"
+   ],
+   "eria_gai": false,
+   "ic": null,
+   "etc": 0,
+   "idou_fun": 25,
+   "ippan": true
+  },
+  {
+   "name": "船橋市",
+   "pref": "千葉県",
+   "match": [
+    "船橋市"
+   ],
+   "eria_gai": false,
+   "ic": "船橋",
+   "ic_hyouji": "船橋",
+   "dp_tochaku": "船橋(千葉県)",
+   "etc": 1290,
+   "kousoku_fun": 35,
+   "kyori_km": 31.6,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "習志野市",
+   "pref": "千葉県",
+   "match": [
+    "習志野市"
+   ],
+   "eria_gai": false,
+   "ic": "湾岸習志野",
+   "ic_hyouji": "湾岸習志野",
+   "dp_tochaku": "湾岸習志野(千葉県)",
+   "etc": 1150,
+   "kousoku_fun": 19,
+   "kyori_km": 23.8,
+   "idou_fun": 40,
+   "ippan": false
+  },
+  {
+   "name": "千葉市",
+   "pref": "千葉県",
+   "match": [
+    "千葉市"
+   ],
+   "eria_gai": false,
+   "ic": "穴川",
+   "ic_hyouji": "穴川",
+   "dp_tochaku": "穴川(千葉県)",
+   "etc": 1380,
+   "kousoku_fun": 30,
+   "kyori_km": 35.9,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "八千代市",
+   "pref": "千葉県",
+   "match": [
+    "八千代市"
+   ],
+   "eria_gai": false,
+   "ic": "千葉北",
+   "ic_hyouji": "千葉北",
+   "dp_tochaku": "千葉北(千葉県)",
+   "etc": 1510,
+   "kousoku_fun": 28,
+   "kyori_km": 34.7,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "松戸市",
+   "pref": "千葉県",
+   "match": [
+    "松戸市"
+   ],
+   "eria_gai": false,
+   "ic": "松戸",
+   "ic_hyouji": "松戸",
+   "dp_tochaku": "松戸(千葉県)",
+   "etc": 1220,
+   "kousoku_fun": 21,
+   "kyori_km": 26.0,
+   "idou_fun": 40,
+   "ippan": false
+  },
+  {
+   "name": "鎌ケ谷市",
+   "pref": "千葉県",
+   "match": [
+    "鎌ケ谷市",
+    "鎌ヶ谷市"
+   ],
+   "eria_gai": false,
+   "ic": "市川北(東京外環道)",
+   "ic_hyouji": "市川北",
+   "dp_tochaku": "市川北(東京外環道)(千葉県)",
+   "etc": 1040,
+   "kousoku_fun": 17,
+   "kyori_km": 20.5,
+   "idou_fun": 40,
+   "ippan": false
+  },
+  {
+   "name": "柏市",
+   "pref": "千葉県",
+   "match": [
+    "柏市"
+   ],
+   "eria_gai": false,
+   "ic": "柏",
+   "ic_hyouji": "柏",
+   "dp_tochaku": "柏(千葉県)",
+   "etc": 1880,
+   "kousoku_fun": 37,
+   "kyori_km": 46.3,
+   "idou_fun": 60,
+   "ippan": false
+  },
+  {
+   "name": "我孫子市",
+   "pref": "千葉県",
+   "match": [
+    "我孫子市"
+   ],
+   "eria_gai": false,
+   "ic": "柏",
+   "ic_hyouji": "柏",
+   "dp_tochaku": "柏(千葉県)",
+   "etc": 1880,
+   "kousoku_fun": 37,
+   "kyori_km": 46.3,
+   "idou_fun": 60,
+   "ippan": false
+  },
+  {
+   "name": "流山市",
+   "pref": "千葉県",
+   "match": [
+    "流山市"
+   ],
+   "eria_gai": false,
+   "ic": "流山",
+   "ic_hyouji": "流山",
+   "dp_tochaku": "流山(千葉県)",
+   "etc": 1720,
+   "kousoku_fun": 34,
+   "kyori_km": 41.6,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "佐倉市",
+   "pref": "千葉県",
+   "match": [
+    "佐倉市"
+   ],
+   "eria_gai": false,
+   "ic": "佐倉",
+   "ic_hyouji": "佐倉",
+   "dp_tochaku": "佐倉(千葉県)",
+   "etc": 1870,
+   "kousoku_fun": 34,
+   "kyori_km": 45.9,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "四街道市",
+   "pref": "千葉県",
+   "match": [
+    "四街道市"
+   ],
+   "eria_gai": false,
+   "ic": "四街道",
+   "ic_hyouji": "四街道",
+   "dp_tochaku": "四街道(千葉県)",
+   "etc": 1690,
+   "kousoku_fun": 31,
+   "kyori_km": 40.5,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "市原市",
+   "pref": "千葉県",
+   "match": [
+    "市原市"
+   ],
+   "eria_gai": false,
+   "ic": "市原",
+   "ic_hyouji": "市原",
+   "dp_tochaku": "市原(千葉県)",
+   "etc": 2030,
+   "kousoku_fun": 43,
+   "kyori_km": 54.9,
+   "idou_fun": 60,
+   "ippan": false
+  },
+  {
+   "name": "木更津市",
+   "pref": "千葉県",
+   "match": [
+    "木更津市"
+   ],
+   "eria_gai": false,
+   "ic": "木更津金田",
+   "ic_hyouji": "木更津金田",
+   "dp_tochaku": "木更津金田(千葉県)",
+   "etc": 1900,
+   "kousoku_fun": 35,
+   "kyori_km": 41.2,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "成田市",
+   "pref": "千葉県",
+   "match": [
+    "成田市"
+   ],
+   "eria_gai": false,
+   "ic": "成田(東関東道)",
+   "ic_hyouji": "成田",
+   "dp_tochaku": "成田(東関東道)(千葉県)",
+   "etc": 2350,
+   "kousoku_fun": 42,
+   "kyori_km": 60.8,
+   "idou_fun": 60,
+   "ippan": false
+  },
+  {
+   "name": "川崎市 川崎区・幸区",
+   "pref": "神奈川県",
+   "match": [
+    "川崎市川崎区",
+    "川崎市幸区",
+    "川崎区",
+    "幸区",
+    "川崎市"
+   ],
+   "eria_gai": false,
+   "ic": "大師",
+   "ic_hyouji": "大師",
+   "dp_tochaku": "大師(神奈川県)",
+   "etc": 1020,
+   "kousoku_fun": 24,
+   "kyori_km": 23.8,
+   "idou_fun": 40,
+   "ippan": false
+  },
+  {
+   "name": "川崎市 中原区・高津区",
+   "pref": "神奈川県",
+   "match": [
+    "川崎市中原区",
+    "川崎市高津区",
+    "中原区",
+    "高津区"
+   ],
+   "eria_gai": false,
+   "ic": "京浜川崎",
+   "ic_hyouji": "京浜川崎",
+   "dp_tochaku": "京浜川崎(神奈川県)",
+   "etc": 1340,
+   "kousoku_fun": 45,
+   "kyori_km": 36.8,
+   "idou_fun": 60,
+   "ippan": false
+  },
+  {
+   "name": "川崎市 宮前区・多摩区・麻生区",
+   "pref": "神奈川県",
+   "match": [
+    "川崎市宮前区",
+    "川崎市多摩区",
+    "川崎市麻生区",
+    "宮前区",
+    "麻生区"
+   ],
+   "eria_gai": false,
+   "ic": "東名川崎",
+   "ic_hyouji": "東名川崎",
+   "dp_tochaku": "東名川崎(神奈川県)",
+   "etc": 1670,
+   "kousoku_fun": 39,
+   "kyori_km": 39.4,
+   "idou_fun": 60,
+   "ippan": false
+  },
+  {
+   "name": "横浜市 鶴見区・神奈川区",
+   "pref": "神奈川県",
+   "match": [
+    "横浜市鶴見区",
+    "横浜市神奈川区",
+    "鶴見区",
+    "神奈川区"
+   ],
+   "eria_gai": false,
+   "ic": "子安",
+   "ic_hyouji": "子安",
+   "dp_tochaku": "子安(神奈川県)",
+   "etc": 1400,
+   "kousoku_fun": 34,
+   "kyori_km": 34.7,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "横浜市 西区・中区・南区",
+   "pref": "神奈川県",
+   "match": [
+    "横浜市西区",
+    "横浜市中区",
+    "横浜市南区",
+    "横浜市"
+   ],
+   "eria_gai": false,
+   "ic": "みなとみらい",
+   "ic_hyouji": "みなとみらい",
+   "dp_tochaku": "みなとみらい(神奈川県)",
+   "etc": 1580,
+   "kousoku_fun": 39,
+   "kyori_km": 39.7,
+   "idou_fun": 60,
+   "ippan": false
+  },
+  {
+   "name": "横浜市 港北区・都筑区",
+   "pref": "神奈川県",
+   "match": [
+    "横浜市港北区",
+    "横浜市都筑区",
+    "港北区",
+    "都筑区"
+   ],
+   "eria_gai": false,
+   "ic": "港北",
+   "ic_hyouji": "港北",
+   "dp_tochaku": "港北(神奈川県)",
+   "etc": 1740,
+   "kousoku_fun": 45,
+   "kyori_km": 46.1,
+   "idou_fun": 60,
+   "ippan": false
+  },
+  {
+   "name": "横浜市 青葉区・緑区",
+   "pref": "神奈川県",
+   "match": [
+    "横浜市青葉区",
+    "横浜市緑区",
+    "青葉区"
+   ],
+   "eria_gai": false,
+   "ic": "横浜青葉",
+   "ic_hyouji": "横浜青葉",
+   "dp_tochaku": "横浜青葉(神奈川県)",
+   "etc": 1900,
+   "kousoku_fun": 43,
+   "kyori_km": 45.1,
+   "idou_fun": 60,
+   "ippan": false
+  },
+  {
+   "name": "横浜市 保土ケ谷区・旭区・戸塚区",
+   "pref": "神奈川県",
+   "match": [
+    "横浜市保土ケ谷区",
+    "横浜市保土ヶ谷区",
+    "横浜市旭区",
+    "横浜市戸塚区",
+    "横浜市泉区",
+    "横浜市瀬谷区",
+    "保土ケ谷区",
+    "保土ヶ谷区",
+    "戸塚区"
+   ],
+   "eria_gai": false,
+   "ic": "狩場",
+   "ic_hyouji": "狩場",
+   "dp_tochaku": "狩場(神奈川県)",
+   "etc": 1930,
+   "kousoku_fun": 46,
+   "kyori_km": 46.3,
+   "idou_fun": 70,
+   "ippan": false
+  },
+  {
+   "name": "横浜市 磯子区・金沢区",
+   "pref": "神奈川県",
+   "match": [
+    "横浜市磯子区",
+    "横浜市金沢区",
+    "横浜市港南区",
+    "横浜市栄区",
+    "磯子区",
+    "金沢区",
+    "港南区"
+   ],
+   "eria_gai": false,
+   "ic": "幸浦",
+   "ic_hyouji": "幸浦",
+   "dp_tochaku": "幸浦(神奈川県)",
+   "etc": 2090,
+   "kousoku_fun": 44,
+   "kyori_km": 54.7,
+   "idou_fun": 60,
+   "ippan": false
+  },
+  {
+   "name": "相模原市",
+   "pref": "神奈川県",
+   "match": [
+    "相模原市"
+   ],
+   "eria_gai": false,
+   "ic": "相模原",
+   "ic_hyouji": "相模原",
+   "dp_tochaku": "相模原(神奈川県)",
+   "etc": 2440,
+   "kousoku_fun": 71,
+   "kyori_km": 76.1,
+   "idou_fun": 90,
+   "ippan": false
+  },
+  {
+   "name": "大和市",
+   "pref": "神奈川県",
+   "match": [
+    "大和市"
+   ],
+   "eria_gai": false,
+   "ic": "横浜町田",
+   "ic_hyouji": "横浜町田",
+   "dp_tochaku": "横浜町田(神奈川県)",
+   "etc": 2100,
+   "kousoku_fun": 46,
+   "kyori_km": 51.5,
+   "idou_fun": 70,
+   "ippan": false
+  },
+  {
+   "name": "厚木市",
+   "pref": "神奈川県",
+   "match": [
+    "厚木市"
+   ],
+   "eria_gai": false,
+   "ic": "厚木",
+   "ic_hyouji": "厚木",
+   "dp_tochaku": "厚木(神奈川県)",
+   "etc": 2600,
+   "kousoku_fun": 56,
+   "kyori_km": 66.8,
+   "idou_fun": 80,
+   "ippan": false
+  },
+  {
+   "name": "海老名市",
+   "pref": "神奈川県",
+   "match": [
+    "海老名市",
+    "座間市"
+   ],
+   "eria_gai": false,
+   "ic": "海老名",
+   "ic_hyouji": "海老名",
+   "dp_tochaku": "海老名(神奈川県)",
+   "etc": 2630,
+   "kousoku_fun": 57,
+   "kyori_km": 67.6,
+   "idou_fun": 80,
+   "ippan": false
+  },
+  {
+   "name": "藤沢市",
+   "pref": "神奈川県",
+   "match": [
+    "藤沢市"
+   ],
+   "eria_gai": false,
+   "ic": "藤沢",
+   "ic_hyouji": "藤沢",
+   "dp_tochaku": "藤沢(神奈川県)",
+   "etc": 1930,
+   "kousoku_fun": 78,
+   "kyori_km": 64.8,
+   "idou_fun": 100,
+   "ippan": false
+  },
+  {
+   "name": "茅ヶ崎市",
+   "pref": "神奈川県",
+   "match": [
+    "茅ヶ崎市",
+    "茅ケ崎市"
+   ],
+   "eria_gai": false,
+   "ic": "茅ヶ崎中央",
+   "ic_hyouji": "茅ヶ崎中央",
+   "dp_tochaku": "茅ヶ崎中央(神奈川県)",
+   "etc": 2240,
+   "kousoku_fun": 83,
+   "kyori_km": 70.0,
+   "idou_fun": 100,
+   "ippan": false
+  },
+  {
+   "name": "平塚市",
+   "pref": "神奈川県",
+   "match": [
+    "平塚市"
+   ],
+   "eria_gai": false,
+   "ic": "平塚",
+   "ic_hyouji": "平塚",
+   "dp_tochaku": "平塚(神奈川県)",
+   "etc": 2970,
+   "kousoku_fun": 64,
+   "kyori_km": 75.3,
+   "idou_fun": 80,
+   "ippan": false
+  },
+  {
+   "name": "鎌倉市",
+   "pref": "神奈川県",
+   "match": [
+    "鎌倉市"
+   ],
+   "eria_gai": false,
+   "ic": "朝比奈",
+   "ic_hyouji": "朝比奈",
+   "dp_tochaku": "朝比奈(神奈川県)",
+   "etc": 2500,
+   "kousoku_fun": 51,
+   "kyori_km": 61.9,
+   "idou_fun": 70,
+   "ippan": false
+  },
+  {
+   "name": "横須賀市",
+   "pref": "神奈川県",
+   "match": [
+    "横須賀市"
+   ],
+   "eria_gai": false,
+   "ic": "横須賀",
+   "ic_hyouji": "横須賀",
+   "dp_tochaku": "横須賀(神奈川県)",
+   "etc": 2650,
+   "kousoku_fun": 57,
+   "kyori_km": 69.7,
+   "idou_fun": 80,
+   "ippan": false
+  },
+  {
+   "name": "小田原市",
+   "pref": "神奈川県",
+   "match": [
+    "小田原市"
+   ],
+   "eria_gai": false,
+   "ic": "小田原東",
+   "ic_hyouji": "小田原東",
+   "dp_tochaku": "小田原東(神奈川県)",
+   "etc": 3290,
+   "kousoku_fun": 80,
+   "kyori_km": 91.8,
+   "idou_fun": 100,
+   "ippan": false
+  },
+  {
+   "name": "さいたま市",
+   "pref": "埼玉県",
+   "match": [
+    "さいたま市"
+   ],
+   "eria_gai": true,
+   "ic": "外環浦和",
+   "ic_hyouji": "外環浦和",
+   "dp_tochaku": "外環浦和(埼玉県)",
+   "etc": 1770,
+   "kousoku_fun": 41,
+   "kyori_km": 52.8,
+   "idou_fun": 60,
+   "ippan": false
+  },
+  {
+   "name": "川口市",
+   "pref": "埼玉県",
+   "match": [
+    "川口市"
+   ],
+   "eria_gai": true,
+   "ic": "新井宿",
+   "ic_hyouji": "新井宿",
+   "dp_tochaku": "新井宿(埼玉県)",
+   "etc": 1630,
+   "kousoku_fun": 41,
+   "kyori_km": 40.9,
+   "idou_fun": 60,
+   "ippan": false
+  },
+  {
+   "name": "草加市",
+   "pref": "埼玉県",
+   "match": [
+    "草加市"
+   ],
+   "eria_gai": true,
+   "ic": "草加",
+   "ic_hyouji": "草加",
+   "dp_tochaku": "草加(埼玉県)",
+   "etc": 1590,
+   "kousoku_fun": 34,
+   "kyori_km": 42.7,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "八潮市",
+   "pref": "埼玉県",
+   "match": [
+    "八潮市"
+   ],
+   "eria_gai": true,
+   "ic": "八潮",
+   "ic_hyouji": "八潮",
+   "dp_tochaku": "八潮(埼玉県)",
+   "etc": 1260,
+   "kousoku_fun": 33,
+   "kyori_km": 30.7,
+   "idou_fun": 50,
+   "ippan": false
+  },
+  {
+   "name": "三郷市",
+   "pref": "埼玉県",
+   "match": [
+    "三郷市"
+   ],
+   "eria_gai": true,
+   "ic": "三郷南",
+   "ic_hyouji": "三郷南",
+   "dp_tochaku": "三郷南(埼玉県)",
+   "etc": 1220,
+   "kousoku_fun": 21,
+   "kyori_km": 26.0,
+   "idou_fun": 40,
+   "ippan": false
+  }
+ ]
+}
