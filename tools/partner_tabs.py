@@ -300,6 +300,8 @@ JS = r"""
     return { u: u, units: units, lines: lines, total: total - wari, wari: wari, mitsu: mitsu, work: work, naiyou: naiyou, hanbou: hanbou, mon: mon, over: over, ijou: ijou };
   }
   function kingaku(r){ return yen(r.total) + (r.ijou ? '〜' : ''); }
+  /* 料金表が税抜のとき（タカラ様：過去の見積書は小計＋消費税10%）、税込の合計も添える */
+  function zeikomi(r){ return C.zei === '税抜' ? '税込 ' + yen(Math.round(r.total * 1.1)) + (r.ijou ? '〜' : '') : ''; }
   function egakuItems(r){
     P.items.forEach(function(k){
       var out = $('q-' + k.id), n = q[k.id];
@@ -329,7 +331,7 @@ JS = r"""
       if (notes.length) { h += '<p>' + notes.join('') + '</p>'; }
       u.innerHTML = h; u.hidden = false;
     }
-    var bv = $('bm-v'), br = $('bm-r'), zl = [C.zei, r.mitsu.length ? 'ほかお見積り' : ''].filter(Boolean).join('・');
+    var bv = $('bm-v'), br = $('bm-r'), zl = [C.zei, zeikomi(r), r.mitsu.length ? 'ほかお見積り' : ''].filter(Boolean).join('・');
     if (r.lines.length) { bv.innerHTML = '<span class="num">' + kingaku(r) + '</span>' + (zl ? '<small>' + zl + '</small>' : ''); }
     else if (r.mitsu.length) { bv.innerHTML = 'お見積り'; }
     else { bv.innerHTML = '<span style="color:var(--muted)">—</span>'; }
@@ -549,7 +551,7 @@ JS = r"""
     if (!$('m-addr').value.trim()) { bad.push($('m-addr').closest('.field')); }
     if (!$('m-name').value.trim()) { bad.push($('m-name').closest('.field')); }
     if (bad.length) { return dame(bad); }
-    var d = kyoutsuu('m'), kin = r.lines.length ? kingaku(r) + (C.zei ? '（' + C.zei + '）' : '') + (r.mitsu.length ? '＋お見積り分' : '') : 'お見積り';
+    var d = kyoutsuu('m'), kin = r.lines.length ? kingaku(r) + (C.zei ? '（' + C.zei + (zeikomi(r) ? '・' + zeikomi(r) : '') + '）' : '') + (r.mitsu.length ? '＋お見積り分' : '') : 'お見積り';
     var uti = r.lines.map(function(l){ return l[0] + '　' + l[1] + ' ＝ ' + l[2]; }).concat(r.mitsu.map(function(s){ return s + '：お見積り'; }));
     if (r.wari) { uti.push('お取引先さま割引 −' + yen(r.wari)); }
     if (r.hanbou) { uti.push('繁忙期加算を含む'); }
