@@ -153,6 +153,9 @@ def prepare_media(entry: dict) -> list[pathlib.Path]:
     out = []
     for n, rel in enumerate(entry["media"], 1):
         src = ROOT / rel
+        if not src.exists() and "dist/cards/" in rel:      # dist は git に無い。新しい clone ではカードをここで作る
+            cid = "-".join(pathlib.Path(rel).stem.split("-")[:2])
+            subprocess.run([sys.executable, str(ROOT / "tools" / "build-sns-cards.py"), cid], check=False)
         if not src.exists():
             raise FileNotFoundError(f"{entry['id']}: {rel} がありません")
         if entry["type"] == "reel":
