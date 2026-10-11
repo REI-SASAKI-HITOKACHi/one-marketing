@@ -264,6 +264,9 @@ def main() -> None:
         kin = str(d.get('概算金額') or '').replace(',', '')
         iriguchi = d.get('流入元', '')
         tel = re.sub(r'\D', '', str(d.get('お電話番号', '')))
+        # 2026-10-11：国番号つき（+81 90…）で届くと 81… の12桁になり、和真さんへの知らせが掛けられない番号になった。0 始まりに直す
+        if tel.startswith('81') and len(tel) in (11, 12):
+            tel = '0' + tel[2:]
         tel_h = (f'{tel[:3]}-{tel[3:7]}-{tel[7:]}' if len(tel) == 11 else
                  f'{tel[:2]}-{tel[2:6]}-{tel[6:]}' if len(tel) == 10 else tel)
         juchu = JUCHU_URL + '#p=' + tsumeru({
