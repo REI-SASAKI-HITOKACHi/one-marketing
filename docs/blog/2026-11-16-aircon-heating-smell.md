@@ -7,7 +7,7 @@ description: "暖房をつけるたびににおいがする。フィルターを
 tags: [エアコン, 江戸川区, ハウスクリーニング, 西葛西]
 source: docs/読本-出典.md #57（東京都 指針No.23 https://www.hokeniryo.metro.tokyo.lg.jp/documents/d/hokeniryo/web_bunya10）／#3（東京都アレルギー情報navi. https://www.hokeniryo1.metro.tokyo.lg.jp/allergy/measure/indoor.html）／#19（ダイキン https://www.daikincc.com/faq/customer/web/knowledge2504.html、パナソニック https://jpn.faq.panasonic.com/app/answers/detail/a_id/62157/、三菱電機 https://faq01.mitsubishielectric.co.jp/faq/show/2643?category_id=298&site_domain=default）／#4（ダイキン https://www.daikincc.com/faq/customer/web/knowledge2700.html）／#5（三菱電機 https://faq01.mitsubishielectric.co.jp/faq/show/712?site_domain=default）／#6（NITE https://www.nite.go.jp/jiko/chuikanki/press/2020fy/prs200625.html）／docs/price-master.md（料金・割引・お客様への約束）
 notes: "10/13〜10/15 のにおい3本組（原因・取る方法・生やさない使い方）、11/14（暖房を使い始める前の4つの確認）と重なるため、切り口を『フィルターを見たあとも、においが続くときに頼む目安』に絞った。フィルターの見方は2文だけにして、11/14 に譲った。暖房運転時のにおいの原因は出典に無いので断定していない（『見ただけでは決められない』と書いた）。冷房後に内部が結露する、付いたカビやにおいは内部クリーンでは取れない、は #19 の3社の原文の範囲。料金は price-master の税込。ノーマル9,702円・お掃除機能付き15,642円は同表の10%引き欄の金額。写真 ph-417 は指定どおり（eyecatch と本文1枚目に同じ）。説明は事実のみ。前後の記事：11/14 暖房を使い始める前の確認、11/20 年末の大掃除の表。予約導線は予約ページ直行。"
-status: draft
+status: approved
 ---
 
 暖房をつけると、においがする。切って、また入れても、同じにおいがする。
