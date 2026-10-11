@@ -31,7 +31,7 @@ REQUIRED = ("title", "date", "category", "eyecatch", "description")
 # 2026-09-23 cmo 判断：カテゴリは公式サイトの過去記事に合わせてメニュー名にする
 # （docs/blog-過去記事の型.md。過去記事は「水まわり」「洗濯機」のようにメニュー別だった）
 CATEGORIES = ("エアコン", "水まわり", "洗濯機", "レンジフード", "トイレ", "お知らせ")
-STATUSES = ("draft", "reviewed", "published")
+STATUSES = ("draft", "reviewed", "approved", "published")
 # サイトに出さない欄。投稿ツールはここを落とす
 INTERNAL_FIELDS = ("source", "notes", "status")
 
