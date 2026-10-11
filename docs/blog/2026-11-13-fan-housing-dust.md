@@ -106,7 +106,7 @@ https://www.tfd.metro.tokyo.lg.jp/lfe/kasai/10_kokoroe/chapter06.html
 - 浴室にカビを生やさない毎日の習慣　最後に入る人がやる4つ
 - 入浴のあと、最後の人がやる2つのこと｜TOTOとLIXILの案内から
 - 冬のあいだ結露をためない毎日　朝1分と夜5分
-- レンジフードに油をためない毎日　調理のあとの2分
+- レンジフードに油をためない毎日　調理のあとと週1回の手入れ
 
 ご予約はこちらから。https://yoyaku.onehitter.jp/?src=blog
 
