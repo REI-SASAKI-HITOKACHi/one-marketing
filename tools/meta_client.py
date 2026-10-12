@@ -14,6 +14,10 @@ CONF = os.path.expanduser("~/.config/one-hitter/meta.json")
 
 
 def conf() -> dict:
+    # 環境変数 META_CONF_JSON（meta.json の中身そのもの。環境のシークレットに置く）があればそれを使う。新しい環境でファイルが消えても投稿できるように
+    env = os.environ.get("META_CONF_JSON")
+    if env:
+        return json.loads(env)
     if not os.path.exists(CONF):
         sys.exit(f"{CONF} がありません（認証情報ドキュメント第11節から転記する）")
     return json.load(open(CONF, encoding="utf-8"))
