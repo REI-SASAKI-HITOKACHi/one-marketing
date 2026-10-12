@@ -117,6 +117,7 @@ def mitsumorisho(d: dict, dry: bool) -> dict:
     biko = ("［備考］\nご依頼いただきました御見積をご案内差し上げます。ご査収くださいませ。\n"
             + ("高速代は実費でご請求差し上げます（目安 " + toll.split("（")[0].strip() + "）。\n" if toll and not toll.startswith("0円") else "")
             + "駐車場が無い場合にはコインパーキング代実費を上記に加えてご請求差し上げます。\n"
+            + ("複数台割引を適用させていただいております。\n" if any(int(x["tanka"]) < 0 for x in meisai) else "")
             + ("型番の分からないお掃除機能付きは最低額で計算しています（現地で型番を確かめて確定）。\n" if any(x.get("ijou") for x in meisai) else "")
             + "ご不明点やご要望等ございましたら何なりとお申し付けくださいませ。")
     kyou = datetime.datetime.now(JST)
@@ -148,6 +149,10 @@ def mitsumorisho(d: dict, dry: bool) -> dict:
         {"range": q("A17:E28"), "values": rows},
         {"range": q("A30"), "values": [[biko]]},
     ]})
+    # 品名の文字の大きさをそろえる（見本タブは17・18行目だけ 9pt で、複数台割引の行と並ぶと大きさが不ぞろいに見える）
+    sc.call(tok, f"/{MITSU_SS}:batchUpdate", method="POST", payload={"requests": [{"repeatCell": {
+        "range": {"sheetId": gid, "startRowIndex": 16, "endRowIndex": 28, "startColumnIndex": 0, "endColumnIndex": 6},
+        "cell": {"userEnteredFormat": {"textFormat": {"fontSize": 10}}}, "fields": "userEnteredFormat.textFormat.fontSize"}}]})
     kekka["url"] = f"https://docs.google.com/spreadsheets/d/{MITSU_SS}/edit#gid={gid}"
     kekka["gid"] = gid
     machi_ni_noseru(kekka, gid)

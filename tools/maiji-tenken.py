@@ -25,6 +25,9 @@ import os
 import re
 import subprocess
 import sys
+import pathlib
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 KOKO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 JST = datetime.timezone(datetime.timedelta(hours=9))
@@ -126,6 +129,22 @@ def hikae_furui():
     except Exception as e:
         return [f'予約ページの控え（slots.json）が読めない: {e}']
     keika = (datetime.datetime.now(JST) - gen).total_seconds() / 3600
+    # 2026-10-11：Apps Script は所要の長い枠ほど遅く（480分で約14秒）、関数は一部の所要時間を控えで埋める
+    # （source=apps-script-partial / hikae）。控えが3時間より古ければ、ここで Apps Script から順に取り直して
+    # 控え（slots-hikae.json）だけ作り直し、予約ページを配信し直す（index.html は手元＝本番と同じもの・関数込み）。
+    hg = d.get('hikaeGenerated') or (d.get('generated') if d.get('source') == 'hikae' else None)
+    if d.get('source') != 'apps-script-live' and hg:
+        hk = (datetime.datetime.now(JST) - datetime.datetime.fromisoformat(hg)).total_seconds() / 3600
+        if hk > 3:
+            import subprocess
+            r1 = subprocess.run([sys.executable, str(ROOT / 'tools' / 'slots-from-api.py'),
+                                 '--out', str(ROOT / 'lp' / 'booking' / 'slots-hikae.json')], capture_output=True, text=True, timeout=400)
+            r2 = subprocess.run([sys.executable, str(ROOT / 'tools' / 'deploy-booking.py')], capture_output=True, text=True, timeout=300) \
+                if r1.returncode == 0 else None
+            if not r2 or r2.returncode != 0:
+                return [f'予約ページの控えの作り直しに失敗（控えは {hk:.0f}時間前）: {(r1.stderr or (r2.stderr if r2 else ""))[-200:]}']
+            print(f'  予約ページの控えを作り直して配信（前の控えは {hk:.0f}時間前）')
+            return []
     if keika > 24:
         return [f'予約ページの控え（slots.json）が {d.get("generatedLabel")} のまま（{keika:.0f}時間前）→ Apps Script 直結が切れている（source={d.get("source")}）。lp/booking-functions/slots.js と Apps Script を確認']
     return []
