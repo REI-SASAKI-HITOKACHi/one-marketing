@@ -19,6 +19,8 @@
   CMS_JSON               → cms.json
   DRIVE_JSON             → drive.json            （写真をドライブへ入れる鍵。T056）
   META_CONF_JSON         → meta.json             （Instagram／Facebook の自動投稿。2026-10-12 環境入れ替えで消えた）
+  QUOTE_API_TOKEN        → quote-api-token.txt   （見積アプリの外部APIの合言葉。tools/mitsumori-app.py）
+  QUOTE_API_URL          → quote-api-url.txt     （見積アプリのウェブアプリ …/exec）
 
   すでにファイルがあるときは上書きしない（--uwagaki で上書き）。権限は 600。
   何を書いたかは名前だけ出す。値は出さない。
@@ -41,6 +43,8 @@ TAIOU = [
     ("CMS_JSON", "cms.json"),
     ("DRIVE_JSON", "drive.json"),
     ("META_CONF_JSON", "meta.json"),
+    ("QUOTE_API_TOKEN", "quote-api-token.txt"),
+    ("QUOTE_API_URL", "quote-api-url.txt"),
 ]
 
 
