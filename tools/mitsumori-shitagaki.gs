@@ -19,10 +19,17 @@
  * 【印影】嶺さんのドライブの「電子印影_角印.png」を、見積書の社名・住所の右に重ねてから PDF にする（inei()）。
  *
  * 【シートの列】A 状態（空＝待ち・下書き済・失敗: …）／B 載せた日時／C 見積書タブの gid／D 見積番号／E 宛先／F 件名／G 本文／H PDFの名前／I 下書きを作った日時
+ *   ／J ドライブのPDFのURL（リンクを知っている人は閲覧可）
  *   A が空の行だけを処理する。下書きを消す・送る処理は持たない。
+ *
+ * 【ドライブにも保存（2026-10-12 オーナー「GoogleドライブへアップしてURL送るのが最短だろ。今後もPDFの送付指示には同じように対応して」）】
+ *   PDF を嶺さんのドライブ「アプリ/見積書・請求書/見積書」（PDF_FOLDER_ID）にも保存し、「リンクを知っている人は閲覧可」にして J列へURLを書く。
+ *   CMO はそのURLを業務連絡LINEへ送る（嶺さんがお客様へ転送する）。
+ *   F（件名）が「【Driveのみ】」で始まる行は、Gmail の下書きを作らずドライブ保存だけ行う。
  */
 
 var MACHI = '_下書き待ち（自動・消さない）';
+var PDF_FOLDER_ID = '1jWqoPrOzvD4naIW6tjB-sqU-xsJSOqw3';   // 嶺さんのドライブ「アプリ/見積書・請求書/見積書」
 
 function shitagaki() {
   var lock = LockService.getScriptLock();
@@ -31,7 +38,8 @@ function shitagaki() {
     var ss = SpreadsheetApp.getActiveSpreadsheet() || SpreadsheetApp.openById('12NMMswkvumA1BjKxU1HrqMQjFgRUJNz4YMiC4m6QSu0');
     var sh = ss.getSheetByName(MACHI);
     if (!sh || sh.getLastRow() < 2) { Logger.log('下書き：0件'); return; }
-    var rows = sh.getRange(2, 1, sh.getLastRow() - 1, 9).getValues(), n = 0;
+    var rows = sh.getRange(2, 1, sh.getLastRow() - 1, 10).getValues(), n = 0;
+    if (sh.getRange(1, 10).getValue() === '') sh.getRange(1, 10).setValue('ドライブのPDF（リンクを知っている人は閲覧可）');
     for (var i = 0; i < rows.length; i++) {
       var r = rows[i];
       if (r[0] !== '' || !r[2]) continue;
@@ -43,8 +51,12 @@ function shitagaki() {
         var url = 'https://docs.google.com/spreadsheets/d/' + ss.getId() + '/export?format=pdf&gid=' + r[2] +
           '&size=A4&portrait=true&fitw=true&gridlines=false&printtitle=false&sheetnames=false&pagenum=UNDEFINED&r1=0&c1=0&r2=33&c2=6';
         var pdf = UrlFetchApp.fetch(url, { headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() } }).getBlob().setName(r[7] || ('見積書_' + r[3] + '.pdf'));
-        GmailApp.createDraft(r[4], r[5], r[6], { attachments: [pdf], name: 'ワンヒッター株式会社 佐々木 嶺' });
-        sh.getRange(i + 2, 1).setValue('下書き済');
+        var f = DriveApp.getFolderById(PDF_FOLDER_ID).createFile(pdf.copyBlob().setName(pdf.getName()));
+        f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+        sh.getRange(i + 2, 10).setValue(f.getUrl());
+        var driveNomi = String(r[5]).indexOf('【Driveのみ】') === 0;
+        if (!driveNomi) GmailApp.createDraft(r[4], r[5], r[6], { attachments: [pdf], name: 'ワンヒッター株式会社 佐々木 嶺' });
+        sh.getRange(i + 2, 1).setValue(driveNomi ? 'ドライブ保存済' : '下書き済');
         sh.getRange(i + 2, 9).setValue(new Date());
         n++;
       } catch (e) {
