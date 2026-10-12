@@ -78,8 +78,17 @@ def main() -> None:
                     json.loads(v2)
                     v = v2
                 except ValueError:
-                    print(f"⚠ {env} が JSON として読めません（書き出さずに飛ばします）。値の貼り方を確認してください")
-                    continue
+                    # 環境変数の画面が { } と " を外して保存することがある（2026-10-12 META_CONF_JSON で発生）。
+                    # 「キー:値,キー:値」の形なら JSON に組み直す
+                    try:
+                        d = dict(x.split(":", 1) for x in v.strip("{} ").split(","))
+                        d = {k.strip().strip('"'): w.strip().strip('"') for k, w in d.items()}
+                        if not all(k.replace("_", "").isalnum() for k in d):
+                            raise ValueError
+                        v = json.dumps(d, ensure_ascii=False)
+                    except ValueError:
+                        print(f"⚠ {env} が JSON として読めません（書き出さずに飛ばします）。値の貼り方を確認してください")
+                        continue
         f.write_text(v + ("" if na.endswith(".json") else "\n"), encoding="utf-8")
         os.chmod(f, 0o600)
         kaita.append(na)
