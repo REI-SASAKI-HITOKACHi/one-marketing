@@ -23,10 +23,9 @@
  *   A が空の行だけを処理する。下書きを消す・送る処理は持たない。
  *
  * 【ドライブにも保存（2026-10-12 オーナー「GoogleドライブへアップしてURL送るのが最短だろ。今後もPDFの送付指示には同じように対応して」）】
- *   F（件名）が「【Driveのみ】」で始まる行だけ、Gmail の下書きを作らず、PDF を嶺さんのドライブ「アプリ/見積書・請求書/見積書」（PDF_FOLDER_ID）に
- *   「リンクを知っている人は閲覧可」で保存して J列へURLを書く。CMO はそのURLを業務連絡LINEへ送る（嶺さんがお客様へ転送する）。
- *   それ以外の行（提携先の見積書）は従来どおり下書きだけ。ドライブには置かない。
- *   ※お客様の見積書は本来は見積アプリで作る（アプリがドライブへ自動保存する）。これはアプリ外で作った見積書の例外用。
+ *   PDF を嶺さんのドライブ「アプリ/見積書・請求書/見積書」（PDF_FOLDER_ID）にも保存し、「リンクを知っている人は閲覧可」にして J列へURLを書く。
+ *   CMO はそのURLを業務連絡LINEへ送る（嶺さんがお客様へ転送する）。
+ *   F（件名）が「【Driveのみ】」で始まる行は、Gmail の下書きを作らずドライブ保存だけ行う。
  */
 
 var MACHI = '_下書き待ち（自動・消さない）';
@@ -52,14 +51,11 @@ function shitagaki() {
         var url = 'https://docs.google.com/spreadsheets/d/' + ss.getId() + '/export?format=pdf&gid=' + r[2] +
           '&size=A4&portrait=true&fitw=true&gridlines=false&printtitle=false&sheetnames=false&pagenum=UNDEFINED&r1=0&c1=0&r2=33&c2=6';
         var pdf = UrlFetchApp.fetch(url, { headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() } }).getBlob().setName(r[7] || ('見積書_' + r[3] + '.pdf'));
+        var f = DriveApp.getFolderById(PDF_FOLDER_ID).createFile(pdf.copyBlob().setName(pdf.getName()));
+        f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+        sh.getRange(i + 2, 10).setValue(f.getUrl());
         var driveNomi = String(r[5]).indexOf('【Driveのみ】') === 0;
-        if (driveNomi) {   // ドライブ保存だけ（お客様へ転送するURLが要るとき）。提携先の見積書（下書き）は従来どおりで、ドライブには置かない
-          var f = DriveApp.getFolderById(PDF_FOLDER_ID).createFile(pdf.copyBlob().setName(pdf.getName()));
-          f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-          sh.getRange(i + 2, 10).setValue(f.getUrl());
-        } else {
-          GmailApp.createDraft(r[4], r[5], r[6], { attachments: [pdf], name: 'ワンヒッター株式会社 佐々木 嶺' });
-        }
+        if (!driveNomi) GmailApp.createDraft(r[4], r[5], r[6], { attachments: [pdf], name: 'ワンヒッター株式会社 佐々木 嶺' });
         sh.getRange(i + 2, 1).setValue(driveNomi ? 'ドライブ保存済' : '下書き済');
         sh.getRange(i + 2, 9).setValue(new Date());
         n++;
