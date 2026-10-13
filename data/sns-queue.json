@@ -974,13 +974,33 @@
     "fb_caption": "11月に作業するご依頼は、料金が10%引きになります。1箇所のご依頼が対象です。\n\n12月は割引がなく、繁忙期の料金になります（1箇所あたり3,300円（税込）の加算）。\n\n写真は、洗ったあとのエアコンの熱交換器です。アルミのフィンの間まで、分解して洗います。\n\n予約のページで、メニューと空いている日を見て、そのままご予約いただけます。\nご予約はこちらから。\n\n#江戸川区 #エアコンクリーニング #エアコン掃除 #年末大掃除 #ハウスクリーニング #西葛西",
     "link": "https://yoyaku.onehitter.jp/?src=ig",
     "fb_link": "https://yoyaku.onehitter.jp/?src=fb",
-    "status": "approved",
+    "status": "posted",
     "note": "11月の早期予約10%→予約ページ直行（cmo 20261006-01）。オーナー決定（10/9 MTG No.10）で承認。10/13 12:00 に出す。割引の根拠は cmo ブランチの price-master（2026-10-03 オーナー決定）",
     "現場日": "2026-09-09",
     "ロゴ確認": "2026-10-06 web-inflow が目視。熱交換器の寄りのみ。左端に青い雪の結晶のシール（部品のマーク。文字・ロゴなし）、白い発泡材、ビニール。本舗のロゴ・制服・社名入りの道具や車・書類・080-1344-3137 いずれも無し",
     "ロゴ確認済": true,
     "確認者": "web-inflow（2026-10-06）",
-    "承認": "2026-10-11 cmo（20261011-01-web-inflow「w05-2 を CMO 承認。10/13（火）12:00 に IG・FB で公開」。数字は prices.json と照合済み）"
+    "承認": "2026-10-11 cmo（20261011-01-web-inflow「w05-2 を CMO 承認。10/13（火）12:00 に IG・FB で公開」。数字は prices.json と照合済み）",
+    "results": {
+      "instagram": {
+        "container_id": "18079977599709070",
+        "media_id": "18152463481540603",
+        "permalink": "https://www.instagram.com/p/DeazjAMlEx3/",
+        "published": true
+      },
+      "facebook": {
+        "post_id": "103698149101436_1129760959840254",
+        "permalink": "https://www.facebook.com/1100803886069295/posts/1129760959840254",
+        "media_ids": [
+          "1129760946506922"
+        ]
+      }
+    },
+    "posted_at": "2026-10-13T12:07:25+09:00",
+    "permalinks": {
+      "instagram": "https://www.instagram.com/p/DeazjAMlEx3/",
+      "facebook": "https://www.facebook.com/1100803886069295/posts/1129760959840254"
+    }
   },
   {
     "id": "g01-1",
