@@ -17,7 +17,15 @@ def conf() -> dict:
     # 環境変数 META_CONF_JSON（meta.json の中身そのもの。環境のシークレットに置く）があればそれを使う。新しい環境でファイルが消えても投稿できるように
     env = os.environ.get("META_CONF_JSON")
     if env:
-        return json.loads(env)
+        try:
+            return json.loads(env)
+        except ValueError:      # 画面が { } と " を外して保存した形（access_token:…,page_id:…,ig_user_id:…）を組み直す
+            d = {}
+            for part in env.strip().strip("{}").split(","):
+                if ":" in part:
+                    k, v = part.split(":", 1)
+                    d[k.strip().strip('"')] = v.strip().strip('"')
+            return d
     if not os.path.exists(CONF):
         sys.exit(f"{CONF} がありません（認証情報ドキュメント第11節から転記する）")
     return json.load(open(CONF, encoding="utf-8"))
