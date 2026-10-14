@@ -10,6 +10,13 @@
     python3 tools/kanryo-okuru.py --dry-run   # 何を送るかを出すだけ
     python3 tools/kanryo-okuru.py             # 実際に送る
 
+  2026-10-14 和真さん「作業入った30分後に送るシステムだったよね？…だから毎回手入力で作業報告してるよ！」
+    → 原因：送る材料が受注フォーム経由の予約（data/kanryo-yotei.json）だけで、カレンダーにだけある予約
+      （受注フォーム導入前に入った予約・和真さんが直接入れた予約）が一度も対象になっていなかった。
+    → 売上表に今日の施工日付がある行（tools/kanryo_mishin.py の未入力一覧）も対象に足す。開始時刻は、
+      和真さんのカレンダーの控え（~/.cache/one-hitter/kyou-yotei.json。CMO がカレンダーのコネクタで保存する）で
+      お名前が説明欄か件名に入っている予定から取る。控えが無い・見つからないときは 09:00 とみなす。
+
   ★お客様の情報（お名前・メニュー・金額）は、URLの「#」のうしろに入れる。
     # のうしろはサーバへ送られないので、社内ホストにお客様の情報が残らない。
     材料は data/kanryo-yotei.json（tools/juchu-inbox.py が作る）。非公開リポジトリにコミットする（毎時点検はコンテナが作り直されるため。2026-09-27 CMO決定）。リンクの中身はサーバに置かない。
@@ -30,6 +37,48 @@ SUMI = ROOT / "data" / "kanryo-okurizumi.json"
 BASE = "https://oh-naibu-sms-k7q3x.netlify.app/kanryo/"
 JST = datetime.timezone(datetime.timedelta(hours=9))
 SAKI_FUN = 30   # 開始から何分後に送るか
+KYOU_CAL = pathlib.Path.home() / ".cache" / "one-hitter" / "kyou-yotei.json"   # 和真さんの今日の予定（コネクタの list_events の返り値そのまま）
+
+
+def cal_kaishi(na, hi):
+    """カレンダーの控えから、そのお客様の開始時刻（HH:MM）を探す。無ければ None。"""
+    try:
+        import kanryo_mishin as KMI
+        ev = json.loads(KYOU_CAL.read_text(encoding="utf-8")).get("events", [])
+    except Exception:
+        return None
+    key = KMI.seiki(na)
+    for e in ev:
+        st = (e.get("start") or {}).get("dateTime", "")
+        if not st.startswith(hi) or not key:
+            continue
+        if key in KMI.seiki(e.get("description", "")) or key in KMI.seiki(e.get("summary", "")):
+            return st[11:16]
+    return None
+
+
+def hyou_kara(yotei, sumi, kyou):
+    """売上表で今日が施工日なのに、受注フォーム経由の材料に無いお客様を、送る材料の形にして返す。"""
+    try:
+        import kanryo_mishin as KMI
+        ls = KMI.ichiran(kyou)
+    except Exception as e:
+        print(f"  ⚠ 売上表から今日の施工を読めませんでした（受注フォーム経由の分だけ送ります）: {e}")
+        return []
+    aru = {str(y.get("台帳", "")).strip() for y in yotei}
+    out = []
+    for x in ls:
+        if x["d"] != kyou.isoformat() or x["r"] in aru:
+            continue
+        kid = "hyou:" + x["r"] + ":" + x["d"]
+        if kid in sumi:
+            continue
+        t = x.get("t") or cal_kaishi(x["n"], x["d"])
+        if not t:
+            print(f"  ⚠ {x['n']} さまの開始時刻がカレンダーの控えに無いので 09:00 とみなします")
+        out.append({"id": kid, "氏名": x["n"], "売上種類": x["s"], "施工日付": x["d"], "開始時刻": t or "09:00",
+                    "メニュー": x["m"], "金額": x["k"], "台帳": x["r"]})
+    return out
 
 
 def kaku(d):
@@ -132,6 +181,7 @@ def main():
     yotei = json.loads(YOTEI.read_text(encoding="utf-8"))
     sumi = set(json.loads(SUMI.read_text(encoding="utf-8"))) if SUMI.exists() else set()
     ima = datetime.datetime.now(JST)
+    yotei = yotei + hyou_kara(yotei, sumi, ima.date())
 
     okuru = []
     for y in yotei:
