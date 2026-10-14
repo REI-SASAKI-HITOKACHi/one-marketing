@@ -117,9 +117,13 @@ def check_target(target: str, cfg: dict) -> None:
             p = page.get("page", {})
             if p.get("kind") != kind:
                 bad(f"{where}: kind が {p.get('kind')} になっています（{kind} のはず）")
-            if p.get("lp_id") != meta["lp_id"] or p.get("lp_variant") != meta["lp_variant"]:
+            want_variant = meta["lp_variant"]
+            # /aircon/ が C 対 E の振り分け（tools/furiwake-aircon.py）になっているときは、中身は aircon-c の写し（C）
+            if kind == "lp" and d == "aircon" and "tools/furiwake-aircon.py" in html_text:
+                want_variant = "C"
+            if p.get("lp_id") != meta["lp_id"] or p.get("lp_variant") != want_variant:
                 bad(f"{where}: lp_id/lp_variant が {p.get('lp_id')}/{p.get('lp_variant')} "
-                    f"になっています（{meta['lp_id']}/{meta['lp_variant']} のはず）")
+                    f"になっています（{meta['lp_id']}/{want_variant} のはず）")
 
             if "ONE HITTER ／ LP計測スクリプト" not in html_text:
                 bad(f"{where}: 計測スクリプトの本体が入っていません")
