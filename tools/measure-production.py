@@ -49,11 +49,14 @@ except ImportError:
 CHROME = os.environ.get("OH_CHROME", "/opt/pw-browsers/chromium-1194/chrome-linux/chrome")
 
 LP_BASE = "https://lp.onehitter.jp"
-LPS = ["mizumawari", "aircon", "aircon-b", "nenmatsu"]
+# /aircon/ は 2026-10-15 から C 対 E の振り分け（tools/furiwake-aircon.py）。開くとすぐ移るので、
+# 着地する /aircon-c/・/aircon-e/ を見る。/aircon/thanks.html（今の版のサンクス）は残っているので見続ける
+LPS = ["mizumawari", "aircon-c", "aircon-e", "aircon-b", "nenmatsu"]
+THANKS = ["mizumawari", "aircon", "aircon-c", "aircon-e", "aircon-b", "nenmatsu"]
 
 # (保存名, URL)
 PAGES = [(f"{n}", f"{LP_BASE}/{n}/") for n in LPS]
-PAGES += [(f"{n}-thanks", f"{LP_BASE}/{n}/thanks.html") for n in LPS]
+PAGES += [(f"{n}-thanks", f"{LP_BASE}/{n}/thanks.html") for n in THANKS]
 PAGES += [
     ("survey", f"{LP_BASE}/survey/"),
     ("yoyaku", "https://yoyaku.onehitter.jp/"),
