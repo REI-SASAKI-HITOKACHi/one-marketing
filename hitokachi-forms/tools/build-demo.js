@@ -286,6 +286,7 @@ var DEMO_BOOT = {
     return { key: p.key, needs: p.needs, savings: p.savings };
   }),
   savingsYes: SAVINGS_YES,
+  mailTemplate: MAIL_TEMPLATE_DEFAULT,
   defaults: { contractType: '個人', author: '佐々木 嶺' },
   fields: FIELD_DEFS.map(function (f) {
     var o = {

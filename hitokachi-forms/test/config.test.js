@@ -207,6 +207,20 @@ console.log('\n--- 検証実施者は作成者から決まる ---');
   t('知らないアドレスは null', ctx.getAgentByEmail_('nobody@example.com'), null);
 }
 
+console.log('\n--- 連絡メールの差し込み ---');
+{
+  const ctx = makeContext({});
+  const out = ctx.fillTemplate_('{代理店名}\n{募集人名} 様\n{帳票一覧}\n{無い項目}', {
+    '代理店名': 'クレスト保険', '募集人名': '熊澤 善弘', '帳票一覧': '・A\n・B'
+  });
+  t('項目が差し替わる', out.indexOf('クレスト保険\n熊澤 善弘 様\n・A\n・B') === 0, true);
+  t('無い項目はそのまま残す', out.indexOf('{無い項目}') >= 0, true);
+  t('既定の本文に宛名と帳票一覧がある',
+    ['{代理店名}', '{募集人名}', '{契約者氏名}', '{帳票一覧}', '{フォルダURL}']
+      .every(k => ctx.MAIL_TEMPLATE_DEFAULT.indexOf(k) >= 0), true);
+  t('署名は入れない', ctx.MAIL_TEMPLATE_DEFAULT.indexOf('080-') < 0, true);
+}
+
 console.log('\n--- 募集人の選択肢は代理店で決まる ---');
 {
   const ctx = makeContext({

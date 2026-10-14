@@ -70,6 +70,10 @@
   .path { font-family: ui-monospace, monospace; font-size: 12px; color: var(--muted); word-break: break-all; }
   a { color: var(--accent); }
   .files a { display: block; padding: 9px 0; }
+  textarea.mail { width: 100%; min-height: 240px; padding: 10px 12px; font-family: inherit; font-size: 13px;
+                  line-height: 1.6; border: 1px solid var(--line); border-radius: 6px; resize: vertical; }
+  .mailBar { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+  .copied { color: var(--good); font-size: 13px; }
   .spin { color: var(--muted); }
   .hide { display: none; }
 </style></head>
@@ -594,12 +598,66 @@ function renderDone(r) {
     ])
   ]));
 
+  var mail = mailBody(r);
+  if (mail) app.appendChild(renderMail(mail));
+
   var bar = $('bar');
   bar.innerHTML = '';
   bar.appendChild(el('button', {
     class: 'primary', text: '続けてもう1件つくる',
     onclick: function () { STATE = { values: {}, prepared: null, choice: 'new', answers: null }; renderForm(); }
   }));
+}
+
+/**
+ * 提携先への連絡メールの本文。提携先の契約のときだけ返す（自社の契約なら空）。
+ * 本文の雛形は設定シートから。差し込み項目は fillTemplate_ と同じ書き方。
+ */
+function mailBody(r) {
+  var v = STATE.values;
+  var own = '';
+  BOOT.agents.forEach(function (a) { if (a.name === v.author) own = a.agency; });
+  if (!v.agency || v.agency === own) return '';
+
+  var values = {
+    '代理店名': v.agency,
+    '募集人名': v.agent || '',
+    '作成者': v.author || '',
+    '契約者氏名': v.customerName || '',
+    '確認日': v.confirmDate || '',
+    '帳票一覧': r.files.map(function (f) { return '・' + f.name; }).join('\n'),
+    'フォルダURL': r.folderUrl || ''
+  };
+  return String(BOOT.mailTemplate || '').replace(/\{([^{}]+)\}/g, function (whole, key) {
+    return (values[key] == null) ? whole : String(values[key]);
+  });
+}
+
+function renderMail(text) {
+  var ta = el('textarea', { class: 'mail', readonly: 'readonly' });
+  ta.value = text;
+  var done = el('span', { class: 'copied', text: '' });
+  var btn = el('button', {
+    class: 'ghost', type: 'button', text: '本文をコピー',
+    onclick: function () {
+      var ok = function () { done.textContent = 'コピーしました。メールに貼り付けてください。'; };
+      var fallback = function () {
+        ta.focus(); ta.select();
+        try { document.execCommand('copy'); ok(); } catch (e) { done.textContent = 'コピーできませんでした。本文を選択して Ctrl+C で写してください。'; }
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(ta.value).then(ok, fallback);
+      } else {
+        fallback();
+      }
+    }
+  });
+  return el('div', { class: 'card' }, [
+    el('h2', { text: '提携先への連絡メール' }),
+    el('div', { class: 'note', text: '宛名と帳票名は入力内容から入っています。署名はメール側で付きます。' }),
+    ta,
+    el('div', { class: 'mailBar' }, [btn, done])
+  ]);
 }
 
 /* ---------- 共通 ---------- */

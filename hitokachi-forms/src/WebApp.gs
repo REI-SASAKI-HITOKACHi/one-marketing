@@ -56,6 +56,8 @@ function bootstrap_() {
       return { key: p.key, needs: p.needs, savings: p.savings };
     }),
     savingsYes: SAVINGS_YES,
+    // 完了画面の連絡メール。本文は設定シートで書き換えられる。
+    mailTemplate: String(getSetting_(SETTING_MAIL_TEMPLATE, MAIL_TEMPLATE_DEFAULT)),
     defaults: {
       contractType: String(getSetting_('既定の契約形態', '個人')),
       // ログイン中のアドレスが募集人マスタにあれば、その人を作成者の初期値にする。

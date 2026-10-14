@@ -33,6 +33,40 @@ var SHEET_CO_AGENTS = '代理店募集人マスタ';
 
 /** 設定シートのキー名。コードと Setup.gs で同じ文字列を使うため。 */
 var SETTING_DEFAULT_VERIFIER = '既定の検証実施者';
+
+/** 完了画面に出す、提携先への連絡メールの本文。設定シートで書き換えられる。 */
+var SETTING_MAIL_TEMPLATE = '完了メールの本文';
+
+/**
+ * 連絡メールの本文の既定。{ } の中が差し込み項目（fillTemplate_）。
+ * 署名はメールソフト側で入るので付けない。
+ */
+var MAIL_TEMPLATE_DEFAULT = [
+  '{代理店名}',
+  '{募集人名} 様',
+  '',
+  'いつもお世話になっております。',
+  'ヒトカチ株式会社の{作成者}です。',
+  '',
+  '{契約者氏名} 様の下記の書類を作成し、共有フォルダに保存しました。',
+  'ご確認のほどよろしくお願いいたします。',
+  '',
+  '{帳票一覧}',
+  '',
+  '保存先：{フォルダURL}'
+].join('\n');
+
+/**
+ * {項目名} を値に差し替える。無い項目名はそのまま残す（入れ忘れに気づけるように）。
+ * @param {string} template
+ * @param {Object} values  { 項目名: 値 }
+ */
+function fillTemplate_(template, values) {
+  return String(template == null ? '' : template).replace(/\{([^{}]+)\}/g, function (whole, key) {
+    var v = values[key];
+    return (v == null) ? whole : String(v);
+  });
+}
 var SHEET_AGENTS   = '募集人マスタ';
 var SHEET_FIELDS   = '項目設定';
 var SHEET_USERS    = '利用者';
