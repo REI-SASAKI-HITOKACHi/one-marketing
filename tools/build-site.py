@@ -795,7 +795,7 @@ def survey_form(doc: str, target: str) -> str:
 
 
 # 次のA/B の対抗案 /aircon-e/（上の main の最後で作る）。承認・予約ページの配信のあと True に
-AB_AIRCON_E = False
+AB_AIRCON_E = True  # 2026-10-10 配信済み（本番 /aircon-e/）
 
 # 完成品のうち、公開の承認待ちのもの。承認が出たらここから外す（外すまで deploy/ に出ない）。
 # 確認は copy_kanseihin(ROOT / "preview" / "kansei", "preview") で preview/ に書き出す。
