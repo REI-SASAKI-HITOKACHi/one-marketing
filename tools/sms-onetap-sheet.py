@@ -44,15 +44,17 @@ def ikiteru(url):
         return False
 
 
-def kensa(b, url):
+def kensa(b, url, jougen=210, privacy_hissu=True):
+    """本文の検査。jougen が 210（KDDI の3通）以下のときだけ、URL・電話が 70 字ごとの境目をまたがないかも見る。
+    和真さんの手送り（1通に結合される）の型（山口様の型・約270〜290字）は --jougen 300 --privacy-nashi で通す。"""
     ng = MC.honbun_ihan("自社", b)
-    if len(b) > 210:
-        ng.append(f"{len(b)}字")
+    if len(b) > jougen:
+        ng.append(f"{len(b)}字（上限{jougen}）")
     for kw in (url, PRIVACY, TEL_OH):
         u = b.find(kw)
-        if u < 0 and kw != TEL_OH:
+        if u < 0 and (kw == url or (kw == PRIVACY and privacy_hissu)):
             ng.append(f"{kw[:20]}が本文に無い")
-        if u >= 0 and any(u < k < u + len(kw) for k in (70, 140)):
+        if u >= 0 and jougen <= 210 and any(u < k < u + len(kw) for k in (70, 140)):
             ng.append(f"{kw[:12]}…が通の境目")
     return ng
 
@@ -65,6 +67,8 @@ def main():
     ap.add_argument("--midashi", required=True)
     ap.add_argument("--kaku", action="store_true")
     ap.add_argument("--tsukurinaoshi", action="store_true")
+    ap.add_argument("--jougen", type=int, default=210, help="本文の上限字数（手送りの山口様の型は 300）")
+    ap.add_argument("--privacy-nashi", action="store_true", help="個人情報URLを必須にしない（山口様の型）")
     a = ap.parse_args()
     for u in (a.url, PRIVACY, S_HTML):
         if not ikiteru(u):
@@ -77,7 +81,10 @@ def main():
     rows, tometa = [], []
     for o in sorted(taishou, key=lambda o: (bool(o.get("fuyu")), o.get("kubun", ""), o["last"])):
         ok, riyuu = MC.atesaki_ok(hyou, o["t"], o["full"], "自社")
-        ng = kensa(o["body"], a.url)
+        if o.get("ng"):
+            tometa.append((o.get("kubun"), o["ng"]))
+            continue
+        ng = kensa(o["body"], a.url, a.jougen, not a.privacy_nashi)
         if not ok or ng:
             tometa.append((o.get("kubun"), riyuu if not ok else "／".join(ng)))
             continue
