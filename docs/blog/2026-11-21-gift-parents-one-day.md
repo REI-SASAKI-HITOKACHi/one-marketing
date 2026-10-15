@@ -6,7 +6,7 @@ eyecatch: ph-006.jpg
 description: "ご実家のお掃除を、贈り物として申し込める形を準備しています。お伺いできる条件は3つ。お申し込みが始まったら、お知らせをお送りします。"
 tags: [お知らせ, ギフト, 実家, エアコン, 江戸川区, ハウスクリーニング]
 source: gift 20261010-02 §0（贈り物の条件：1都2県／年明け1〜2月／内緒にできない）／docs/price-master.md（対応エリア）
-notes: "10/16『実家のエアコン、最後に掃除したのはいつですか』の続き。申し込みは未開始のため、予約ページ(yoyaku)ではなく年末ページ https://lp.onehitter.jp/nenmatsu/?src=blog への登録を案内する。末尾の導線がこの記事だけ nenmatsu のため、check-blog は『予約導線の URL が無い』を出す（tools/check-blog.py の CTA_RE が lp/aircon・lp/mizumawari・tenken・yoyaku だけを認めるため）。書かないと決めたもの：割引、贈られた方の声、98.6%、サプライズ、全国、No.1、最安、脚立の資料（読本-出典.md に国民生活センターの脚立の資料が無い）、メニューの選択肢の数、料金。書いたのは、お支払いはご依頼主さま／作業はご実家／ご依頼主さまも当日ご一緒に立ち会える、の3点と3条件のみ。写真は指定の ph-006.jpg（吹き出し口・風向板、養生あり、作業中）で説明は事実のみ。 cmo査読反映 2026-10-11"
+notes: "10/16『実家のエアコン、最後に掃除したのはいつですか』の続き。申し込みは未開始のため、予約ページ(yoyaku)ではなく年末ページ https://lp.onehitter.jp/nenmatsu/?src=blog#gift への登録を案内する。末尾の導線がこの記事だけ nenmatsu のため、check-blog は『予約導線の URL が無い』を出す（tools/check-blog.py の CTA_RE が lp/aircon・lp/mizumawari・tenken・yoyaku だけを認めるため）。書かないと決めたもの：割引、贈られた方の声、98.6%、サプライズ、全国、No.1、最安、脚立の資料（読本-出典.md に国民生活センターの脚立の資料が無い）、メニューの選択肢の数、料金。書いたのは、お支払いはご依頼主さま／作業はご実家／ご依頼主さまも当日ご一緒に立ち会える、の3点と3条件のみ。写真は指定の ph-006.jpg（吹き出し口・風向板、養生あり、作業中）で説明は事実のみ。 cmo査読反映 2026-10-11"
 status: approved
 ---
 
@@ -75,13 +75,13 @@ status: approved
 
 始まったら、お知らせをお送りします。登録は、年末のページから。
 
-https://lp.onehitter.jp/nenmatsu/?src=blog
+https://lp.onehitter.jp/nenmatsu/?src=blog#gift
 
 ## 関連する記事
 
 - 実家のエアコン、最後に掃除したのはいつですか　帰省した日に確かめる3つのこと
 - 年末の大掃除は11月から　混む時期と、料金が変わる月
 
-お知らせの登録はこちらから。https://lp.onehitter.jp/nenmatsu/?src=blog
+お知らせの登録はこちらから。https://lp.onehitter.jp/nenmatsu/?src=blog#gift
 
 LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN
