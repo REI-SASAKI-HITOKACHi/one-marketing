@@ -23,7 +23,15 @@ JOKEN = {
     "aircon-b": "エアコン1台のご依頼",
     "mizumawari": "1箇所のご依頼",
     "mizumawari-b": "1箇所のご依頼",
+    # 年末LP（依頼 20261015-02-lp）。看板の2箇所セットは対象外なので「だけ」を付ける
+    "nenmatsu": "1箇所だけのご依頼",
+    "nenmatsu-b": "1箇所だけのご依頼",
 }
+
+# 12月の書き方。水まわり・年末は繁忙期の加算をはっきり書く（依頼 20261015-02-lp）。エアコンは今のまま
+DEC = {"mizumawari": "12月は繁忙期（1箇所+3,300円）", "mizumawari-b": "12月は繁忙期（1箇所+3,300円）",
+       "nenmatsu": "12月は繁忙期（1箇所+3,300円）", "nenmatsu-b": "12月は繁忙期（1箇所+3,300円）"}
+DEC_MOTO = "12月は割引なし"
 
 
 def insert(html: str, page: str) -> str:
@@ -35,8 +43,18 @@ def insert(html: str, page: str) -> str:
     if not m:
         raise SystemExit(f"{page}: ファーストビュー（class=\"hero\"）が見つかりません")
     part = re.sub(r"<!--.*?-->\s*", "", PART.read_text(encoding="utf-8"), flags=re.S)
-    part = part.replace("{joken}", JOKEN[page])
+    part = part.replace("{joken}", JOKEN[page]).replace("{dec}", DEC.get(page, DEC_MOTO))
     return html[:m.start()] + "\n" + part.rstrip("\n") + html[m.start():]
+
+
+def dec_dake(html: str, page: str) -> str:
+    """すでに帯が入っているページの「12月は割引なし」だけを、DEC の書き方に替える。"""
+    if page not in DEC or DEC[page] in html:
+        return html
+    old = f'<span class="nov-sub">{JOKEN[page]}・{DEC_MOTO}</span>'
+    if html.count(old) != 1:
+        raise SystemExit(f"{page}: 帯の文言が見つかりません")
+    return html.replace(old, f'<span class="nov-sub">{JOKEN[page]}・{DEC[page]}</span>')
 
 
 def main():

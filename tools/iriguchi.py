@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """広告LPの「申込の入口」を予約ページ（カレンダー）に寄せる（依頼 20261008-05-lp）。
 
-  python3 tools/iriguchi.py <ページ名> 元.html 出力.html     # aircon / aircon-c / mizumawari / mizumawari-b
+  python3 tools/iriguchi.py <ページ名> 元.html 出力.html     # aircon / aircon-c / mizumawari / mizumawari-b / nenmatsu / nenmatsu-b
 
 なぜ：measurement の判定表（10/9）で、広告LPを見た人の94〜100%がLP内フォームに手を付けずに離れていた
 （入力開始率 aircon 2%・aircon-c 6%・mizumawari 3%・mizumawari-b 0%）。一方、予約ページは4閲覧で申込1。
@@ -42,6 +42,7 @@ HERO = {
                f'<a class="btn lg" href="{Y}" data-yoyaku data-place="hero">空いている日を見て予約する</a>'),
     "mizumawari": ('<a class="btn lg" href="#builder">箇所を選んで、料金を見る</a>',
                    f'<a class="btn lg" href="{Y}" data-yoyaku data-place="hero">空いている日と料金を見る</a>'),
+    "none": None,   # 最初の画面の主ボタンは替えない（nenmatsu：料金の組み立てへ。最初の画面の外）
     "learned": ('<a class="btn lg" href="#rei">よくある頼み方と金額を見る</a>',
                 f'<a class="btn lg" href="{Y}" data-yoyaku data-place="hero">空いている日を見て予約する</a>'
                 '\n      <a class="iri-sub" href="#rei">よくある頼み方と金額を見る</a>'),
@@ -55,6 +56,11 @@ PAGES = {
     "mizumawari":   {"hero": "mizumawari", "sticky": "builder", "estimate": True},
     "aircon-c":     {"hero": "learned", "sticky": "form", "estimate": False},
     "mizumawari-b": {"hero": "learned", "sticky": "builder", "estimate": False},
+    # 年末LP（依頼 20261015-02-lp・11月の需要）。nenmatsu の「11月中の空き枠を確認する」はフォーム行きだったので予約ページへ
+    "nenmatsu":     {"hero": "none", "sticky": "builder", "estimate": True,
+                     "extra": [('<a class="btn lg" href="#form">11月中の空き枠を確認する</a>',
+                                f'<a class="btn lg" href="{Y}" data-yoyaku data-place="aki">11月中の空き枠を確認する</a>')]},
+    "nenmatsu-b":   {"hero": "learned", "sticky": "builder", "estimate": False},
 }
 
 CSS = """<style data-oh="iriguchi">
@@ -94,7 +100,10 @@ def apply(doc, page):
     cfg = PAGES[page]
     for a, b in KYOTSU:
         doc = rep(doc, a, b, page, "ヘッダー")
-    doc = rep(doc, *HERO[cfg["hero"]], page, "ファーストビュー")
+    if HERO[cfg["hero"]]:
+        doc = rep(doc, *HERO[cfg["hero"]], page, "ファーストビュー")
+    for x, y in cfg.get("extra", []):
+        doc = rep(doc, x, y, page, "そのほかのボタン")
     doc = rep(doc, *STICKY[cfg["sticky"]], page, "固定バー")
     if cfg["estimate"]:
         doc = rep(doc, *ESTIMATE_OLD, page, "料金の下")
