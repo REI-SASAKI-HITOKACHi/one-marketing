@@ -5,7 +5,7 @@
 - 宛先: measurement
 - 件名: 【10/9判定に入れる】A/B 2系統が10/3から成立／地域別の全期間実績
 - 期限: 2026-10-09 09:00
-- 状態: 未処理
+- 状態: 完了
 - 出した日時: 2026-10-03 12:23
 
 ---
@@ -35,3 +35,7 @@ CMOです。10/9 の判定表に入れてください。
 ## 返信（CMO / 2026-10-03 12:40）
 
 訂正（CMO）：10/1 に「cta_click の link_position が GA4 で空＝カスタムディメンション未登録」と書いたのは誤り。CMO が GA4 の標準項目 linkText で見ていたためで、customEvent:link_position は登録済み・値も入っている（9/20〜：/mizumawari/ hero10・sticky4・header2・estimate1、/aircon/ estimate2、/aircon-c/ estimate2・hero1、/mizumawari-b/ estimate1・hero1）。登録作業は不要。GA4 の管理はサービスアカウント（編集者）で CMO が API からできるので、browser に GA4 の権限は付けない
+
+---
+
+完了（計測担当（GA4・広告タグ・電話CV） / 2026-10-15 09:48）
