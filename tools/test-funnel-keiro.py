@@ -1,0 +1,33 @@
+#!/usr/bin/env python3
+"""tools/funnel-keiro.py を偽の GA4 結果で確かめる。  python3 tools/test-funnel-keiro.py"""
+import json, pathlib, subprocess, sys, tempfile
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+TOOL = ROOT / "tools" / "funnel-keiro.py"
+tmp = pathlib.Path(tempfile.mkdtemp())
+rows = [
+    ["page_view", "lp.onehitter.jp", "/aircon-c/?src=gads_aircon&ag=1&gclid=X", 80],
+    ["page_view", "yoyaku.onehitter.jp", "/aircon-c/?src=gads_aircon&ag=1&gclid=X", 10],
+    ["booking_start", "yoyaku.onehitter.jp", "/aircon-c/?src=gads_aircon&ag=1&gclid=X", 4],
+    ["generate_lead", "yoyaku.onehitter.jp", "/aircon-c/?src=gads_aircon&ag=1&gclid=X", 1],
+    ["page_view", "lp.onehitter.jp", "/mizumawari/?gclid=Y", 20],          # src 無しでも gclid で広告
+    ["page_view", "yoyaku.onehitter.jp", "/?src=sms_nov", 30],
+    ["booking_start", "yoyaku.onehitter.jp", "/?src=sms_nov", 3],
+    ["page_view", "lp.onehitter.jp", "/aircon/?src=ig", 5],
+    ["page_view", "lp.onehitter.jp", "/", 7],
+    ["scroll", "lp.onehitter.jp", "/", 99],                                 # 数えない
+]
+(tmp / "g.json").write_text(json.dumps({"start": "2026-10-01", "end": "2026-10-14", "rows": rows}), encoding="utf-8")
+(tmp / "y.csv").write_text("注文ID,src,受信日時,状態の区分\nA,gads_aircon,2026-10-06 10:37,受注済\nB,sms_nov,2026-10-12 9:00,\nC,direct,2026-10-08 4:24,空送信\nD,gads_aircon,2026-09-27 18:41,受注済\n", encoding="utf-8")
+ok = True
+def chk(l, c, e=""):
+    global ok
+    print(("PASS " if c else "FAIL ") + l + (("\n" + str(e)) if (e and not c) else ""))
+    if not c: ok = False
+out = subprocess.run([sys.executable, str(TOOL), "--json", str(tmp / "g.json"), "--yoyaku", str(tmp / "y.csv")], capture_output=True, text=True).stdout
+chk("広告：LP100（gclid のみの行も広告）・予約ページ10・入力開始4・申込1", "| 広告 | 100 | 10（10%） | 4（40%） | 1（25%） | 1 |" in out, out)
+chk("SMS：LPを経ずに予約ページへ", "| SMS | 0 | 30（—） | 3（10%） | 0（0%） | 1 |" in out, out)
+chk("SNS（ig）", "| SNS | 5 |" in out)
+chk("src 無し・gclid 無しは直接・その他", "| 直接・その他 | 7 |" in out)
+chk("予約_Web：期間外と空送信は数えない", "| 直接・その他 | 7 | 0（0%） | 0（0%） | 0（—） | 0 |" in out, out)
+chk("いちばん落ちている所＝広告の LP→予約ページ", "**広告 の「LP表示→予約ページ表示」**" in out, out)
+print("\n" + ("すべて通りました" if ok else "失敗あり")); sys.exit(0 if ok else 1)
