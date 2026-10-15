@@ -1142,9 +1142,29 @@
     "fb_caption": "Googleクチコミより。\n\nエアコン本体と室外機のお掃除をご依頼いただいた現場です。\n\nご予約はこちらから。\n\n※掲載内容はお客様個人の感想です。\n\n#エアコンクリーニング #室外機 #お客様の声 #江戸川区 #西葛西 #ハウスクリーニング",
     "link": "https://lp.onehitter.jp/nenmatsu/?src=ig",
     "fb_link": "https://yoyaku.onehitter.jp/?src=fb",
-    "status": "approved",
+    "status": "posted",
     "note": "E型 H様（docs/クチコミ素材.md 短縮版5を原文どおり）。料金なし。査読待ち",
-    "承認": "2026-10-11 cmo 査読OK（20261011-01）"
+    "承認": "2026-10-11 cmo 査読OK（20261011-01）",
+    "results": {
+      "instagram": {
+        "container_id": "18080251847709070",
+        "media_id": "18109681412085122",
+        "permalink": "https://www.instagram.com/p/DefpMytDEnk/",
+        "published": true
+      },
+      "facebook": {
+        "post_id": "103698149101436_1131622449654105",
+        "permalink": "https://www.facebook.com/1100803886069295/posts/1131622449654105",
+        "media_ids": [
+          "1131622432987440"
+        ]
+      }
+    },
+    "posted_at": "2026-10-15T09:13:08+09:00",
+    "permalinks": {
+      "instagram": "https://www.instagram.com/p/DefpMytDEnk/",
+      "facebook": "https://www.facebook.com/1100803886069295/posts/1131622449654105"
+    }
   },
   {
     "id": "w05-5",
