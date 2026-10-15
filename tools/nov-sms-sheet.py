@@ -67,7 +67,7 @@ def honbun(sei, nengetsu, privacy):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--taishou", required=True)
-    ap.add_argument("--privacy", default="https://one-hitter.jp/privacy_policy/")
+    ap.add_argument("--privacy", default="https://lp.onehitter.jp/privacy/")
     ap.add_argument("--kaku", action="store_true")
     ap.add_argument("--tsukurinaoshi", action="store_true",
                     help="この道具が作った同名のタブ（A1 の見出しで確かめる）を消してから作り直す")
