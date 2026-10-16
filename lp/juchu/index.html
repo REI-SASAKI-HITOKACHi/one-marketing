@@ -43,6 +43,7 @@
  .kz input{width:52px;text-align:center;padding:10px 2px;font-size:17px}
  .gk{background:var(--usu);border-radius:10px;padding:12px;margin-top:12px}
  .gk div{display:flex;justify-content:space-between;font-size:14px;padding:3px 0}
+ .gk div[hidden]{display:none}
  .gk .go{font-size:20px;font-weight:700;border-top:1px solid var(--fuchi);margin-top:6px;padding-top:8px}
  .chu{font-size:12px;color:var(--gure);margin-top:6px}
  .err{color:var(--aka);font-size:13px;margin-top:4px;display:none}
@@ -139,7 +140,7 @@
   <div class="gk">
     <div><span>小計</span><b id="g-sho">0円</b></div>
     <div id="g-hanki-gyo" hidden><span>繁忙期加算</span><b id="g-hanki">0円</b></div>
-    <div id="g-toku-gyo" hidden><span>チラシ特典（自動）</span><b id="g-toku">0円</b></div>
+    <div id="g-toku-gyo" hidden><span id="g-toku-na">チラシ特典（自動）</span><b id="g-toku">0円</b></div>
     <div><span>所要の目安</span><b id="g-fun">—</b></div>
     <div class="go"><span>見込み金額</span><b id="g-go">0円</b></div>
   </div>
@@ -365,6 +366,12 @@
     $('g-hanki').textContent = en(kasan);
     /* チラシ特典：流入経路「チラシ(OH)」はすべて自動で500円引き（2026-10-03 第5回 5-4 No.5「①1回 ②期限なし ③チラシ（OH）はすべて割引を自動適用」。他の割引と併用不可） */
     var toku = (sho && h.kata === 'oh' && jotai.keiro === 'チラシ(OH)') ? 500 : 0;
+    /* リピート割引：流入経路「リピート」は一律で1,000円引き（2026-10-16 オーナー「リピートを選択したら一律で1,000円割引だよ」・和真さんの要望）。
+       ワンヒッターの料金表のときだけ（本舗の料金は本舗の決まり）。チラシ特典とは流入経路が別なので重ならない */
+    var tokuNa = toku ? 'チラシ特典（自動）' : '';
+    if (sho && h.kata === 'oh' && jotai.keiro === 'リピート') { toku = 1000; tokuNa = 'リピート割引（自動）'; }
+    jotai.tokuNa = tokuNa;
+    if ($('g-toku-na')) { $('g-toku-na').textContent = tokuNa || 'チラシ特典（自動）'; }
     $('g-toku-gyo').hidden = !toku;
     $('g-toku').textContent = toku ? '−' + en(toku) : en(0);
     $('g-sho').textContent = en(sho);
@@ -540,7 +547,7 @@
       '法人名': houjinMoji(),
       '紹介者': $('shokai-box').hidden ? '' : $('shokaisha').value.trim(),
       'ヒアリング': kikuMoji(),
-      '備考': [jotai.toku ? 'チラシ特典 −500円（自動・他の割引と併用不可）' : '', $('memo').value.trim()].filter(Boolean).join('　'),
+      '備考': [jotai.toku ? (jotai.tokuNa === 'リピート割引（自動）' ? 'リピート割引 −1,000円（自動）' : 'チラシ特典 −500円（自動・他の割引と併用不可）') : '', $('memo').value.trim()].filter(Boolean).join('　'),
       '入力日時': new Date().toISOString()
     };
     var body = Object.keys(atai).map(function(k){
