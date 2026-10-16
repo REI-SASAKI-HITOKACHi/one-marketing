@@ -181,7 +181,7 @@
     // 送信中は押せなくする（二度押しで、1回の打ち間違いが2回に数えられたり、初期表示が二重になるのを防ぐ）
     var btn = document.querySelector('[data-action="unlock-pin"]');
     if (btn) { if (btn.disabled) return; btn.disabled = true; }
-    var release = function () { if (btn) btn.disabled = false; };
+    function release() { if (btn) btn.disabled = false; }
 
     err.textContent = '確認しています…';
     google.script.run
