@@ -47,4 +47,11 @@ chk("fb_ad の日別", "| 2026-10-18 | fb_ad | 3 | 0 | 0 | 0 |" in out, out)
 chk("自然投稿の ig は入れない", "| ig |" not in out)
 chk("予約_Web の件数（ig_ad 1・fb_ad 0）", "ig_ad 1件、fb_ad 0件" in out, out)
 
+rows3 = [["page_view", "lp.onehitter.jp", "/kabi/?src=gads_kabi&ag=9&gclid=Z", 12],
+         ["page_view", "yoyaku.onehitter.jp", "/kabi/?src=gads_kabi&ag=9&gclid=Z", 3],
+         ["page_view", "lp.onehitter.jp", "/aircon-c/?src=gads_aircon&gclid=X", 5]]
+(tmp / "g3.json").write_text(json.dumps({"start": "2026-10-20", "end": "2026-10-30", "rows": rows3}), encoding="utf-8")
+out = subprocess.run([sys.executable, str(TOOL), "--json", str(tmp / "g3.json")], capture_output=True, text=True).stdout
+chk("gads_kabi はカビLPとして別の行（広告の行に混ざらない）", "| 広告（カビLP） | 12 | 3（25%） |" in out and "| 広告 | 5 |" in out, out)
+
 print("\n" + ("すべて通りました" if ok else "失敗あり")); sys.exit(0 if ok else 1)

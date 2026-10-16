@@ -85,6 +85,10 @@ chk("クリック60 → クリック不足", "クリック不足（60/100）" in
 chk("増額は嶺さんに確認と書く", "嶺さんに確認" in out)
 chk("予約ページ経由は版不明として出し、注意する", "（予約ページ・版不明）" in out and "版の比較に入れていない" in out)
 chk("lp=booking（予約ページ直）も版不明として出す", "| A_エアコン | （予約ページ・版不明） | yoyaku | 1 |" in out, out)
+r_k = subprocess.run([sys.executable, str(TOOL), str(tmp / "z.csv")], capture_output=True, text=True)
+(tmp / "kb.csv").write_text("注文ID,src,ag,lp,★売上（税込）\nK1,gads_kabi,9,kabi,\n", encoding="utf-8")
+r_k = subprocess.run([sys.executable, str(TOOL), str(tmp / "kb.csv")], capture_output=True, text=True)
+chk("lp=kabi はカビLP（今の版に入れない）", "| カビLP | kabi | 1 |" in r_k.stdout, r_k.stdout)
 chk("注記が出る", "> 長田さまはgclidなし" in out)
 (tmp / "z2.csv").write_text("注文ID,src,ag,lp,★売上（税込）\n" + "".join(f"OH-a{i},gads_aircon,222,aircon-c,\n" for i in range(4)), encoding="utf-8")
 r = subprocess.run([sys.executable, str(TOOL), str(tmp / "z2.csv"), "--ag-name", "222=A_エアコン",

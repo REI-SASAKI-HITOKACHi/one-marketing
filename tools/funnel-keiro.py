@@ -17,6 +17,7 @@ src が無いセッションは、広告のクリックID（gclid 等）が URL 
 
 | 経路 | src |
 |---|---|
+| 広告（カビLP） | `gads_kabi`、または URL に `lp=kabi`（2026-10-16 追加。C対E とは別に数える） |
 | 広告 | `gads_*`（または URL に gclid／gbraid／wbraid） |
 | SNS | `fb*`・`ig*` |
 | ブログ | `blog*` |
@@ -50,12 +51,14 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PROP = "381320625"
 
-KEIRO = ["広告", "SNS", "ブログ", "SMS", "GBP", "直接・その他"]
+KEIRO = ["広告", "広告（カビLP）", "SNS", "ブログ", "SMS", "GBP", "直接・その他"]
 DAN = ["LP表示", "予約ページ表示", "入力開始", "申込"]
 
 
 def keiro_of_src(src, url=""):
     s = (src or "").lower()
+    if s.startswith("gads_kabi") or re.search(r"[?&]lp=kabi(&|$)", url or ""):
+        return "広告（カビLP）"
     if s.startswith("gads") or (not s and re.search(r"[?&](gclid|gbraid|wbraid)=", url or "")):
         return "広告"
     if s.startswith(("fb", "ig")):
