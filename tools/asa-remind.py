@@ -172,6 +172,10 @@ def kari_hikae(kyou, path):
         dai = (e.get("summary") or "").strip()
         if not dai.startswith("【仮】") or e.get("status") == "cancelled":
             continue
+        # 嶺さんが直接お客様とやり取りしている【仮】は、和真さんに確定の電話を出さない
+        # （2026-10-16 福島様：嶺さんが Messenger で日時を提案中の予約に「確定の電話」を出してしまった）
+        if re.search(r"嶺さんが.{0,40}提案", e.get("description") or ""):
+            continue
         st = e.get("start") or {}
         dt = st.get("dateTime") or st.get("date") or ""
         try:
