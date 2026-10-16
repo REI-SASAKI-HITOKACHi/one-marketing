@@ -9,7 +9,7 @@ sys.path.insert(0, __file__.rsplit("/", 1)[0])
 import sheets_client as s
 
 PROP = "381320625"
-SRCS = ["ig", "ig_profile", "fb"]
+SRCS = ["ig", "ig_profile", "fb", "ig_ad", "fb_ad"]
 CV = ["booking_submit", "form_submit", "generate_lead"]
 
 
