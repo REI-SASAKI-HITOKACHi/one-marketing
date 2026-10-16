@@ -3278,3 +3278,48 @@ web-inflow の洗い出しの「未確認4件」は、すべて画面で確認�
 シェルがコマンド置換として解釈して、その部分が消える。**実際に2か所が空になった（補足で訂正済み）。
 **長い本文や記号を含む本文は、Python のヒアドキュメントから `subprocess.run` でリストで渡す。**
 
+## 変更82（2026-10-16）SNS広告：リール3本の写り込み確認 … **3本とも問題なし**
+
+依頼 20261016-03-browser。広告に使う前の確認（オーナー承認済みの案 `docs/SNS広告-再検討案-2026-10-16.md`）。
+
+| 投稿 | reel ID | 長さ | 内容 | 判定 |
+|---|---|---:|---|---|
+| 9/16 12:03 | DdVRm8GlUUy | 20.5秒 | エアコン吹き出し口 | **可** |
+| 9/18 12:04 | DdabTLSkQxd | 13.0秒 | レンジフード（シロッコファン） | **可** |
+| 9/24 12:08 | Ddp4fRKDGNW | 20.5秒 | エアコン洗浄後の汚れ | **可** |
+
+**本舗のロゴ・社名・本舗の電話番号・お客様の名前は、3本とも1か所も無い。**
+電話番号はそもそも出ない（導線はプロフィールのリンクのみ）。人物・表札・郵便物も写っていない。
+
+出ている文字は4種類だけ：
+1. 右上のバッジ「実際の現場写真（合成なし）」
+2. 見出し「江戸川区のエアコンの中身」／「江戸川区のレンジフードの中身」
+3. 撮影日と部位の説明
+4. 末尾のオレンジのボタン「分解して、内部から洗います」＋「ご予約は プロフィールの『エアコン』（9/18は『水まわり』）のリンクから」＋**「ワンヒッター｜江戸川区のハウスクリーニング」**（当社名のみ）
+
+### 動画の中身を確認するやり方（確立した）
+
+**Instagram の動画は Chrome（オーナーのPC・ログイン済み）でないと再生できない。**内蔵ブラウザは未ログインで `video` 要素が出ない。
+
+```js
+// 0.5秒刻みでフレームを1枚のシートに並べる
+const v=document.querySelector('video'); v.pause(); v.muted=true;
+const c=document.createElement('canvas');
+c.style.cssText='position:fixed;top:0;left:0;z-index:2147483647;background:#111;width:1000px;height:auto';
+document.body.appendChild(c);
+const g=c.getContext('2d');
+for(const t of ts){
+  v.currentTime=t;
+  await new Promise(r=>{const h=()=>{v.removeEventListener('seeked',h);r();}; v.addEventListener('seeked',h); setTimeout(r,700);});
+  g.drawImage(v, x, y, cw, ch);          // 文字を読むときは drawImage(v, sx,sy,sw,sh, 0,0,大きく) で切り出し拡大
+}
+```
+
+⚠ **Instagram のタブはスクリーンショットが頻繁にタイムアウトする**（"Page.captureScreenshot timed out"）。
+**リロード → 1回だけ描画 → 1回だけスクショ**のサイクルが安定する。2枚目を撮ろうとすると落ちる。
+失敗しても1〜2回繰り返せば通ることがある。
+
+⚠ **動画のフレームは `canvas` に描ける**（CORS汚染で `toDataURL` は試していない）。
+拡大して文字を読むときは `drawImage` の切り出し指定（9引数）を使う。動画は 360×640。
+末尾テロップは y=300〜480 のあたり。
+
