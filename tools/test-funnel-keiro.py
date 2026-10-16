@@ -30,4 +30,21 @@ chk("SNS（ig）", "| SNS | 5 |" in out)
 chk("src 無し・gclid 無しは直接・その他", "| 直接・その他 | 7 |" in out)
 chk("予約_Web：期間外と空送信は数えない", "| 直接・その他 | 7 | 0（0%） | 0（0%） | 0（—） | 0 |" in out, out)
 chk("いちばん落ちている所＝広告の LP→予約ページ", "**広告 の「LP表示→予約ページ表示」**" in out, out)
+# SNS広告の日別（--src）
+rows2 = [
+    ["20261017", "page_view", "yoyaku.onehitter.jp", "/?src=ig_ad&fbclid=abc", 6],
+    ["20261017", "booking_start", "yoyaku.onehitter.jp", "/?src=ig_ad&fbclid=abc", 2],
+    ["20261017", "booking_submit", "yoyaku.onehitter.jp", "/?src=ig_ad&fbclid=abc", 1],
+    ["20261017", "generate_lead", "yoyaku.onehitter.jp", "/?src=ig_ad&fbclid=abc", 1],
+    ["20261018", "page_view", "yoyaku.onehitter.jp", "/?src=fb_ad", 3],
+    ["20261018", "page_view", "yoyaku.onehitter.jp", "/?src=ig", 9],          # 自然投稿は入れない
+]
+(tmp / "g2.json").write_text(json.dumps({"start": "2026-10-17", "end": "2026-10-30", "rows": rows2}), encoding="utf-8")
+(tmp / "y2.csv").write_text("注文ID,src,受信日時,状態の区分\nA,ig_ad,2026-10-17 20:00,\nB,ig,2026-10-18 9:00,\n", encoding="utf-8")
+out = subprocess.run([sys.executable, str(TOOL), "--json", str(tmp / "g2.json"), "--src", "ig_ad,fb_ad", "--yoyaku", str(tmp / "y2.csv")], capture_output=True, text=True).stdout
+chk("ig_ad の日別（到達6・入力開始2・送信1・申込1）", "| 2026-10-17 | ig_ad | 6 | 2 | 1 | 1 |" in out, out)
+chk("fb_ad の日別", "| 2026-10-18 | fb_ad | 3 | 0 | 0 | 0 |" in out, out)
+chk("自然投稿の ig は入れない", "| ig |" not in out)
+chk("予約_Web の件数（ig_ad 1・fb_ad 0）", "ig_ad 1件、fb_ad 0件" in out, out)
+
 print("\n" + ("すべて通りました" if ok else "失敗あり")); sys.exit(0 if ok else 1)

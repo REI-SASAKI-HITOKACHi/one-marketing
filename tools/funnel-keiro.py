@@ -4,6 +4,7 @@
     python3 tools/funnel-keiro.py --start 2026-10-01 --end 2026-10-14
     python3 tools/funnel-keiro.py --start 2026-10-01 --end 2026-10-14 --yoyaku 予約_Web.csv
     python3 tools/funnel-keiro.py --json 保存したGA4の結果.json      # 鍵の無い環境で表だけ作り直す
+    python3 tools/funnel-keiro.py --start 2026-10-17 --end 2026-10-30 --src ig_ad,fb_ad   # SNS広告の日別
 
 **読むだけです。** GA4 Data API（鍵は tools/sheets_client.py）と、任意で予約_Web の CSV を読む。
 
@@ -119,6 +120,54 @@ def yoyaku_web(path, start, end):
     return out
 
 
+NICHIBETSU_DAN = [("予約ページ到達", "page_view", "yoyaku."), ("入力開始", "booking_start", None),
+                  ("送信", "booking_submit", None), ("申込", "generate_lead", None)]
+
+
+def nichibetsu(ga4_rows, srcs):
+    """ga4_rows: [(date, eventName, hostName, landingPagePlusQueryString, users)] → {(date, src): {段: 数}}"""
+    out = {}
+    for date, ev, host, landing, n in ga4_rows:
+        src = src_of_url(landing)
+        if src not in srcs:
+            continue
+        for name, e, h in NICHIBETSU_DAN:
+            if ev == e and (h is None or (host or "").startswith(h)):
+                d = out.setdefault((date, src), {k[0]: 0 for k in NICHIBETSU_DAN})
+                d[name] += n
+    return out
+
+
+def nichibetsu_hyouji(nb, srcs):
+    lines = ["| 日付 | src | 予約ページ到達 | 入力開始 | 送信 | 申込 |", "|---|---|--:|--:|--:|--:|"]
+    gokei = {s: {k[0]: 0 for k in NICHIBETSU_DAN} for s in srcs}
+    for (date, src) in sorted(nb):
+        d = nb[(date, src)]
+        lines.append(f"| {date[:4]}-{date[4:6]}-{date[6:]} | {src} | " + " | ".join(str(d[k[0]]) for k in NICHIBETSU_DAN) + " |")
+        for k in d:
+            gokei[src][k] += d[k]
+    for s in srcs:
+        lines.append(f"| **計** | {s} | " + " | ".join(f"**{gokei[s][k[0]]}**" for k in NICHIBETSU_DAN) + " |")
+    return "\n".join(lines), gokei
+
+
+def yoyaku_src(path, start, end, src):
+    n = 0
+    text = None
+    for enc in ("utf-8-sig", "cp932", "utf-8"):
+        try:
+            text = pathlib.Path(path).read_text(encoding=enc)
+            break
+        except UnicodeDecodeError:
+            continue
+    for r in csv.DictReader(text.splitlines()):
+        s = (r.get("src") or r.get("流入元") or "").strip()
+        when = (r.get("受信日時") or "").strip()[:10]
+        if s == src and (not when or start <= when <= end) and (r.get("状態の区分") or "").strip() != "空送信":
+            n += 1
+    return n
+
+
 def wari(a, b):
     return f"{a / b * 100:.0f}%" if b else "—"
 
@@ -164,8 +213,44 @@ def main():
     ap.add_argument("--end")
     ap.add_argument("--yoyaku", help="予約_Web の CSV（src・受信日時・状態の区分 の列）")
     ap.add_argument("--json", help="GA4 の結果を保存したもの（--save で作る）。鍵の無い環境用")
+    ap.add_argument("--src", help="この src だけを日別に出す（カンマ区切り。例 ig_ad,fb_ad）")
     ap.add_argument("--save", help="GA4 の結果をこのファイルに保存する（個人情報は含まない）")
     args = ap.parse_args()
+
+    if args.src:
+        srcs = [x.strip() for x in args.src.split(",") if x.strip()]
+        if args.json:
+            saved = json.loads(pathlib.Path(args.json).read_text(encoding="utf-8"))
+            rows_ = [tuple(r) for r in saved["rows"]]
+            start, end = saved["start"], saved["end"]
+        else:
+            if not (args.start and args.end):
+                sys.exit("--start と --end を付けてください")
+            start, end = args.start, args.end
+            spec = importlib.util.spec_from_file_location("shirabe", ROOT / "tools" / "ga4-event-shirabe.py")
+            sh = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(sh)
+            sc = sh.load_sheets_client()
+            token = sc.access_token(sc.load_credentials(), scope=sh.SCOPE)
+            body = {
+                "dateRanges": [{"startDate": start, "endDate": end}],
+                "dimensions": [{"name": "date"}, {"name": "eventName"}, {"name": "hostName"},
+                               {"name": "landingPagePlusQueryString"}],
+                "metrics": [{"name": "totalUsers"}],
+                "dimensionFilter": {"filter": {"fieldName": "eventName", "inListFilter": {
+                    "values": [e for _, e, _ in NICHIBETSU_DAN]}}},
+                "limit": 100000,
+            }
+            rows_ = [(d[0], d[1], d[2], d[3], m[0]) for d, m in sh.rows(sh.run_report(token, PROP, body))]
+            if args.save:
+                pathlib.Path(args.save).write_text(json.dumps({"start": start, "end": end, "rows": rows_},
+                                                              ensure_ascii=False), encoding="utf-8")
+        hyou_, gokei = nichibetsu_hyouji(nichibetsu(rows_, srcs), srcs)
+        print(f"# src 別・日別（{start}〜{end}）\n")
+        print(hyou_)
+        if args.yoyaku:
+            print("\n予約_Web の申込：" + "、".join(f"{s} {yoyaku_src(args.yoyaku, start, end, s)}件" for s in srcs))
+        return
 
     if args.json:
         saved = json.loads(pathlib.Path(args.json).read_text(encoding="utf-8"))
