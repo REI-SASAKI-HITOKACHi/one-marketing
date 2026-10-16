@@ -156,7 +156,7 @@ const rules = [
   { ruleType: '同時施工価格', target: 'M006', condition: '', value: 13800, priority: 40 },
   { ruleType: '同時施工価格', target: 'M007', condition: '', value: 13800, priority: 40 },
   { ruleType: '同時施工価格', target: 'M008', condition: '', value: 15100, priority: 40 },
-  { ruleType: '同時施工価格', target: 'M009', condition: 'M006', value: 5500, priority: 40 },
+  { ruleType: '同時施工価格', target: 'M009', condition: 'M006', value: 5000, priority: 40 },
   { ruleType: '同時施工価格', target: 'M010', condition: '', value: 6800, priority: 40 },
 
   { ruleType: 'ネット申込特典', target: 'ネット申込特典', condition: '', value: 2200, priority: 50 }

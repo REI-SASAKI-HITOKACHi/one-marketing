@@ -428,6 +428,22 @@ note('税率： ' + ctx.taxRate + ' / 繁忙期加算： ' + ctx.busySurcharge +
 console.log('■ マスタキャッシュ');
 
 sandbox.clearContextCache_();
+/* --- オプション価格の二重課税の訂正（2026-10-16）---
+ * パンフレット上「元から税込」の項目は、マスタの単価（税抜）に 税込÷1.1 を入れる。
+ * 税込の値をそのまま入れると、アプリが税を足して二重課税になる（和真さんの指摘）。
+ * 画面で出る税込額が、パンフレットの税込額と一致することを固定する。 */
+const TAX_IN = { O001: 1100, O002: 5500, O003: 3300, O004: 3300, O005: 3300, O006: 5500, O007: 19800,
+  O010: 3300, O011: 3300, O012: 7700, M012: 19800, M015: 52800 };
+const taxInShown = {};
+Object.keys(TAX_IN).forEach(id => {
+  const m = ctx.menuMap[id];
+  taxInShown[id] = m ? Math.round(m.unitPrice * (1 + ctx.taxRate)) : null;
+});
+check('T-1 元から税込の12項目は、単価（税抜）×1.1 がパンフレットの税込額と一致する（二重課税でない）', taxInShown, TAX_IN);
+// 税抜の形で正しい項目は変えない
+check('T-2 税抜の形の項目（浴室乾燥機・追い焚き・各セット・洗面台丸洗い）はそのまま',
+  ['O008', 'O009', 'O013', 'O014', 'O015', 'O016'].map(id => Math.round(ctx.menuMap[id].unitPrice * (1 + ctx.taxRate))),
+  [8580, 16610, 15180, 15180, 15180, 7480]);
 const cold = sandbox.loadContext_();
 check('K-1 1回目はシートを実読みする', cold.fromCache, false);
 
