@@ -50,7 +50,7 @@ import segno
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "lp" / "kanryo" / "index.html"
-SURVEY = "https://survey.onehitter.jp/?src=kanryo"
+SURVEY = "https://survey.onehitter.jp/?src=kanryo&m=j"  # m=j：自社名義（この画面は自社のときしかQRを出さない）。アンケートはこれでクチコミのお願いを出す（T050）
 
 
 def qr_data_uri(url):
@@ -220,7 +220,7 @@ HTML = r"""<!doctype html>
   <img class="qr" src="__QR__" alt="アンケートのQRコード">
   <p class="qr-shita">スマートフォンで読み取ってください</p>
   <a class="kono" href="__SURVEY__" target="_blank" rel="noopener">このスマホで回答する</a>
-  <p class="qr-shita">アンケートの最後に、Googleクチコミへの投稿のご案内があります。<br>率直なご感想をいただければ、それがいちばんの励みになります。</p>
+  <p class="qr-shita">率直なご感想をいただければ、それがいちばんの励みになります。</p>
   </div>
   <p class="nanori" id="nanori"></p>
   <div class="tsugi"><button type="button" id="tsugi">次へ（スタッフ用）</button></div>
