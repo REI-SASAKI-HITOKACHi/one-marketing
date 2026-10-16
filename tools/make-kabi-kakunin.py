@@ -6,7 +6,7 @@
 - preview/kabi/ は tools/make-kabi.py が作ったもの。lp.onehitter.jp/kabi/ として読み込み、空き枠は本番の slots.json を使う
 - GA4・広告の送信は止めて写す（数字を汚さない）
 - 画像は HTML に埋め込む（右ウィンドウで1枚で開けるように）
-- 広告の見出し案は measurement の docs/広告-カビ訴求の見出し案-2026-10.md（claude/measurement-ga4-calltracking）から読む
+- 広告文は measurement の docs/提示-カビ広告文-学習後.html（claude/measurement-ga4-calltracking）から読む（見出し・説明文の表と、検索結果の見え方）
 """
 import base64, html, io, os, pathlib, re, subprocess, sys
 from PIL import Image
@@ -67,14 +67,24 @@ def jpeg(img: Image.Image, width=585, q=72) -> str:
     return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
 
 
-def midashi():
+def koukoku():
+    """measurement の docs/提示-カビ広告文-学習後.html から、検索結果の見え方・見出し・説明文を読む。"""
     try:
-        md = subprocess.run(["git", "-c", "core.quotepath=off", "show",
-                             "origin/claude/measurement-ga4-calltracking:docs/広告-カビ訴求の見出し案-2026-10.md"],
-                            cwd=ROOT, capture_output=True, text=True, check=True).stdout
+        h = subprocess.run(["git", "-c", "core.quotepath=off", "show",
+                            "origin/claude/measurement-ga4-calltracking:docs/提示-カビ広告文-学習後.html"],
+                           cwd=ROOT, capture_output=True, text=True, check=True).stdout
     except subprocess.CalledProcessError:
-        return []
-    return re.findall(r"^\| (\d) \| ([^|]+) \| (\d+) \|", md, re.M)
+        return [], [], []
+    cards = re.findall(r'<div class="t">(.*?)</div>\s*<div class="d">(.*?)</div>', h, re.S)
+    tables = re.findall(r'<table>(.*?)</table>', h, re.S)
+    out = []
+    for t in tables[:2]:
+        out.append([[html.unescape(re.sub(r'<[^>]+>', '', c)).strip() for c in r]
+                    for r in (re.findall(r'<td[^>]*>(.*?)</td>', x, re.S) for x in re.findall(r'<tr>(.*?)</tr>', t, re.S)) if r])
+    while len(out) < 2:
+        out.append([])
+    cards = [(html.unescape(re.sub(r'<[^>]+>', '', a)).strip(), html.unescape(re.sub(r'<[^>]+>', '', b)).strip()) for a, b in cards]
+    return cards, out[0], out[1]
 
 
 def main():
@@ -82,12 +92,14 @@ def main():
     fi = Image.open(io.BytesIO(first)); fu = Image.open(io.BytesIO(full))
     step = H * 2
     panels = [jpeg(fu.crop((0, y, fu.width, min(y + step, fu.height)))) for y in range(0, fu.height, step)]
-    ads = midashi()
+    cards, heads, descs = koukoku()
     esc = html.escape
     body_text = "\n".join(
         (f"<h4>{esc(t)}</h4>" if tag in ("H1", "H2") else f"<p class='t-{tag.lower()}'>{esc(t)}</p>") for tag, t in text)
-    ad_rows = "".join(f"<tr><td>{n}</td><td>{esc(t.strip())}</td><td class='num'>{w}</td></tr>" for n, t, w in ads) or \
-        "<tr><td colspan='3'>measurement の見出し案を読めませんでした</td></tr>"
+    tr = lambda rows: "".join("<tr>" + "".join(f"<td{' class=num' if i == len(r) - 1 else ''}>{esc(c)}</td>" for i, c in enumerate(r)) + "</tr>" for r in rows)
+    serp = "".join(f'<div class="serp"><div class="u">スポンサー ・ lp.onehitter.jp/kabi/</div><div class="st">{esc(t)}</div><div class="sd">{esc(d)}</div></div>'
+                   for t, d in cards)
+    kensaku = [k for k in ("臭い", "臭") if any(k in r[1] for r in heads if len(r) > 1)]
     page = f"""<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>カビ特化LP 確認用</title>
@@ -103,7 +115,9 @@ h2{{font-size:17px;margin:0 0 10px;color:var(--ink)}} h4{{font-size:15px;margin:
 .shots figcaption{{font-size:12px;color:var(--sub);text-align:center}}
 table{{border-collapse:collapse;width:100%;font-size:14px}} td,th{{border-top:1px solid var(--rule);padding:6px 8px;text-align:left;vertical-align:top}}
 .num{{text-align:right;font-variant-numeric:tabular-nums}} .t-li::before{{content:"・"}} .t-p,.t-li{{margin:2px 0}}
-.zen{{columns:2 340px;column-gap:28px}} .zen h4{{break-after:avoid}} .warn{{color:var(--cta);font-weight:700}}
+.zen{{columns:2 340px;column-gap:28px}}
+.serp{{border:1px solid var(--rule);border-radius:8px;padding:10px 12px;margin:8px 0;max-width:640px}} .serp .u{{font-size:12px;color:var(--sub)}} .serp .st{{color:#1a0dab;font-size:17px;line-height:1.4}} .serp .sd{{font-size:14px}}
+.note{{font-size:13px;background:#FFF8E6;border:1px solid #F0D9A0;border-radius:6px;padding:8px 10px}} .zen h4{{break-after:avoid}} .warn{{color:var(--cta);font-weight:700}}
 </style></head><body>
 <header><h1>カビ特化LP（/kabi/）確認用</h1><p>2026-10-16 作成・LP担当。まだ配信していません。オーナーの合格後に配信します。</p></header>
 <main>
@@ -120,9 +134,16 @@ table{{border-collapse:collapse;width:100%;font-size:14px}} td,th{{border-top:1p
 <figure><img src="{jpeg(fi)}" alt="最初の画面"><figcaption>最初の画面（下の固定バーつき）</figcaption></figure>
 {''.join(f'<figure><img src="{u}" alt="{i+1}画面目"><figcaption>{i+1}画面目</figcaption></figure>' for i, u in enumerate(panels))}
 </div></section>
-<section><h2>広告の見出し案（measurement 作成・下書き）</h2>
-<table><tr><th>#</th><th>見出し</th><th class="num">幅（半角30まで）</th></tr>{ad_rows}</table>
-<p style="font-size:13px;color:var(--sub)">出典：計測担当 docs/広告-カビ訴求の見出し案-2026-10.md。LPの見出し（暖房をつけたら、エアコンが臭い。）に合わせた直しと説明文は、計測担当と調整中です。</p></section>
+<section><h2>広告文（計測担当 作成・下書き）</h2>
+<p style="font-size:13px;color:var(--sub);margin-top:0">出典：計測担当 docs/提示-カビ広告文-学習後.html（広告グループ A2_エアコン臭い）。リンク先はこの LP（/kabi/）。</p>
+<h4>検索結果での見え方（例）</h4>{serp}
+<p style="font-size:12px;color:var(--sub)">Google が組み合わせを自動で選ぶので、毎回この並びにはなりません。</p>
+<h4>見出し（{len(heads)}本・半角30文字まで）</h4>
+<table><tr><th>#</th><th>見出し</th><th>当てた学習</th><th class="num">文字数</th></tr>{tr(heads)}</table>
+<h4>説明文（{len(descs)}本・半角90文字まで）</h4>
+<table><tr><th>#</th><th>説明文</th><th>当てた学習</th><th class="num">文字数</th></tr>{tr(descs)}</table>
+<p class="note">LP担当から一言：LP の見出しは「暖房をつけたら、エアコンが臭い。」です。見出し2の「LPの見出しと同じ言葉」は、もとになった学習版（/aircon-c/）の見出しのことです。検索語「エアコン 臭い」「暖房 臭い」をそのまま含む見出しを1本足すなら、たとえば「暖房をつけたらエアコンが臭い」（28/30）。</p>
+</section>
 <section><h2>全文</h2><div class="zen">{body_text}</div></section>
 </main></body></html>"""
     OUT.write_text(page, encoding="utf-8")
