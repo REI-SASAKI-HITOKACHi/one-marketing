@@ -14,6 +14,8 @@
      W列などの「早期予約の確定」列があれば 確定/未確定 も分ける。ネット経由（広告・予約ページ・LP・地図検索・HP ほか）の小計
   2. 9〜12月_支出/成績：A〜F列の「見出し → 右隣の数値」の組（50行目以降。P/L の部分）。
      H列より右（アルバイトの氏名・時給など）は読まない
+  3. 予約_Web：src の種類（広告・SMS・LINE・GBP・その他）× ご希望日の月 × 状態（受注済／キャンセル／空送信／その他）の件数。
+     お名前・電話・住所の列は読まない（11/1 判定 `docs/2026-11月1日-広告増額の判定シート.md` の①③で使う）
 """
 import argparse
 import datetime
@@ -136,6 +138,49 @@ def shuukei_shishutsu(rows):
     return kumi
 
 
+def src_kubun(src):
+    s = (src or '').strip().lower()
+    for pre, mei in (('gads', '広告'), ('sms', 'SMS'), ('line', 'LINE'), ('gbp', 'GBP')):
+        if s.startswith(pre):
+            return mei
+    return 'その他'
+
+
+def kibou_tsuki(v):
+    if isinstance(v, (int, float)) and v > 30000:
+        return (KIJUN_HI + datetime.timedelta(days=int(v))).month
+    t = str(v or '').strip()
+    import re
+    m = re.match(r'(?:\d{4}[/-])?(\d{1,2})[/-]\d{1,2}', t) or re.match(r'(?:\d{4}年)?(\d{1,2})月', t)
+    return int(m.group(1)) if m else None
+
+
+def shuukei_yoyaku(rows):
+    """予約_Web（1行目が見出し）。件数だけ数える。氏名・電話・住所は読まない"""
+    if not rows:
+        return {'エラー': 'タブが空'}
+    hdr = [str(h or '').strip() for h in rows[0]]
+    idx = {h: i for i, h in enumerate(hdr)}
+    need = ['受信日時', '状態', 'ご希望日', 'src']
+    if any(n not in idx for n in need):
+        return {'エラー': f'見出しが見つからない: {[n for n in need if n not in idx]}'}
+    out = {}
+    for r in rows[1:]:
+        g = lambda n: r[idx[n]] if idx[n] < len(r) else ''
+        if not str(g('受信日時')).strip():
+            continue
+        jo = str(g('状態'))
+        jotai = ('空送信' if '空送信' in jo else 'キャンセル' if 'キャンセル' in jo
+                 else '受注済' if '受注' in jo else 'その他')
+        tsuki = kibou_tsuki(g('ご希望日'))
+        uke = g('受信日時')
+        uke_d = hizuke(uke) if not isinstance(uke, str) else hizuke(uke[:10])
+        k = '|'.join([src_kubun(g('src')), f'{tsuki}月' if tsuki else '希望日なし', jotai,
+                      f'受信{uke_d.month}/{uke_d.day}' if uke_d else '受信日不明'])
+        out[k] = out.get(k, 0) + 1
+    return {'件数（src|ご希望日の月|状態|受信日）': dict(sorted(out.items()))}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--kijun', help='施工済み/予約の境目の日 YYYY-MM-DD（既定は今日 JST）')
@@ -156,6 +201,9 @@ def main():
         out['売上'][f'{m}月'] = shuukei_uriage(yomu(uriage_tab(m)), kijun)
         out['支出/成績'][f'{m}月'] = shuukei_shishutsu(
             yomu(shishutsu_tab(m)) if not a.backup else bk.get(shishutsu_tab(m), []))
+
+    if not a.backup:
+        out['予約_Web'] = shuukei_yoyaku(yomu_api("'予約_Web'!A1:Z1000"))
 
     if a.backup:
         print(json.dumps(out, ensure_ascii=False, indent=1)[:4000])
