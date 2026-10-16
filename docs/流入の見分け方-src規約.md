@@ -35,11 +35,16 @@
 | **`gads_aircon`** | **検索広告・エアコン**（新規） | 広告の最終ページURL |
 | **`gads_mizumawari`** | **検索広告・水回り**（新規） | 同上 |
 | **`gads_brand`** | **検索広告・社名の指名**（新規） | 同上 |
+| **`gads_kabi`** | **検索広告・カビ特化LP**（2026-10-16 追加。cmo 20261016-07、MTGシート F799・LP T069）。広告グループ `A2_エアコン臭い`。着地URLは `?src=gads_kabi&cid={campaignid}&ag={adgroupid}`（`cid`・`ag` は広告の値の受け取り用） | 広告の最終ページURL（カビ特化LP。`lp=kabi`） |
+| **`ig_ad`** | **Instagram 広告**（2026-10-16 追加。オーナー承認 20261016-06） | 広告の着地URL（予約ページ） |
+| **`fb_ad`** | **Facebook 広告**（同上） | 同上 |
+| **`ig_profile`** | **Instagram プロフィールの2本目のリンク**（無料点検） | プロフィールのリンク |
+| **`gbp_book`** | **GBP の予約リンク**（予約ボタン。投稿のボタンは `gbp`） | GBP の予約リンク |
 | **`teikei_takara`** | **提携先・タカラサービスさまの紹介カード**（2026-09-20 追加。cmo 承認 `20260919-02-web-inflow`） | 紹介カードのQR（予約ページ） |
 
 ### 決めごと
 
-- **広告は `gads_` で始める。** 後から「広告ぶんだけ」を前方一致で抜ける
+- **検索広告は `gads_` で始める。** 後から「検索広告ぶんだけ」を前方一致で抜ける。**SNS広告は `ig_ad`・`fb_ad`**（媒体＋`_ad`。`ig`・`fb` の自然流入と分ける）
 - **1つの広告グループに1つの値。** キーワード単位まで分けない（GA4 と Google 広告の管理画面で見るほうが正確）
 - Yahoo! を出すことになったら `yads_` を使う。**まだ使わない**
 - **ブログは既定が `blog`。**記事ごとに分けたいときだけ `blog_<短い名前>`（`docs/blog/README.md`）。
@@ -89,6 +94,7 @@ var src = clean(q.get('src'), 20) || 'direct';
 ```
 https://lp.onehitter.jp/aircon/?src=gads_aircon
 https://lp.onehitter.jp/mizumawari/?src=gads_mizumawari
+https://lp.onehitter.jp/kabi/?src=gads_kabi&cid={campaignid}&ag={adgroupid}   （カビ特化LP。LPの置き場のパスは lp 担当の決定に合わせる）
 ```
 
 - **自動タグ設定（auto-tagging）はオンのままでよい。** Google が `&gclid=…` を足すが、`?src=` とはぶつからない
@@ -121,3 +127,10 @@ https://lp.onehitter.jp/mizumawari/?src=gads_mizumawari
 
 - **電話からの申し込みは `?src=` では拾えない。** ユニークコール（`docs/tracking-setup.md`）が入るまで、電話の出どころは分からないまま
 - 広告の着地ページを専用に作る場合（`20260914-02-lp`）、そのページのURLと `src` の値をここに足す
+
+
+## 付録：`lp=kabi`（LPの識別）と集計への足し方（2026-10-16・cmo 20261016-07）
+
+- カビ特化LPは、既存の `lp_id`（LPごとの識別。tenken が `lp_id=tenken` を送っているのと同じ仕組み）に **`kabi`** を使う。GA4 では `lp_id=kabi` と `traffic_src=gads_kabi` の両方で絞れる
+- **私（web-inflow）の側の集計：**`tools/sns-weekly.py` は SNS 系（ig・ig_profile・fb・ig_ad・fb_ad）だけを数える。`gads_kabi` は広告の側なので入れていない。**`funnel-keiro` など広告・流入の集計は私の持ち物に無い**（measurement の持ち物）。`gads_kabi` と `lp_id=kabi` を数えに足すのは measurement に依頼する
+- `gads_` で始まるので、既存の「広告ぶんだけ」の前方一致の集計には自動で入る
