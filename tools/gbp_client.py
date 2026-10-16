@@ -48,6 +48,15 @@ def conf(strict: bool = True) -> dict:
         c.update({k: f[k] for k in ("client_id", "client_secret") if k in f})
     if os.path.exists(CONF):
         c.update(json.load(open(CONF, encoding="utf-8")))
+    env = os.environ.get("GBP_CONF_JSON")   # 環境のシークレット。{ } と " が外れた形（client_id:…,client_secret:…,refresh_token:…）も読む
+    if env:
+        try:
+            c.update(json.loads(env))
+        except ValueError:
+            for part in env.strip().strip("{}").split(","):
+                if ":" in part:
+                    k, v = part.split(":", 1)
+                    c[k.strip().strip('"')] = v.strip().strip('"')
     if strict:
         for k in ("client_id", "client_secret", "refresh_token"):
             if not c.get(k):
