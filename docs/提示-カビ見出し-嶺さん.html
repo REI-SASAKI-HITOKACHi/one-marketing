@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>カビ見出しの提示</title>
+<style>
+:root{--bg:#faf8f4;--card:#fff;--ink:#1f2a2e;--soft:#5b6669;--line:#e3ddd3;--accent:#0f7a8a;--ad:#1a0dab;--new:#e8f4f1;--warn:#fff4e0;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15191b;--card:#1e2427;--ink:#e8ecec;--soft:#a8b3b5;--line:#33404a;--accent:#5cc3cf;--ad:#8ab4f8;--new:#1d3532;--warn:#3a2f1c;}}
+:root[data-theme="dark"]{--bg:#15191b;--card:#1e2427;--ink:#e8ecec;--soft:#a8b3b5;--line:#33404a;--accent:#5cc3cf;--ad:#8ab4f8;--new:#1d3532;--warn:#3a2f1c;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;line-height:1.7;font-size:15px}
+main{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--soft);font-size:13px;margin:0 0 20px}
+h2{font-size:17px;margin:28px 0 10px;border-left:4px solid var(--accent);padding-left:8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:10px 0}
+.ask{background:var(--new);border-color:var(--accent)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}
+th{color:var(--soft);font-weight:600;font-size:12px}
+td.n{text-align:right;white-space:nowrap;color:var(--soft)}
+tr.new td{background:var(--new)}
+.ad{font-family:Arial,system-ui,sans-serif}
+.ad .t{color:var(--ad);font-size:18px;line-height:1.35}
+.ad .u{font-size:13px;color:var(--soft)}
+.ad .d{font-size:14px}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:99px;background:var(--accent);color:#fff;margin-right:6px}
+.warn{background:var(--warn)}
+ul{padding-left:20px;margin:6px 0}
+small{color:var(--soft)}
+</style>
+</head>
+<body>
+<main>
+<h1>エアコン広告に「カビ」の見出しを4本足す案</h1>
+<p class="sub">2026-10-16 計測担当 ／ 嶺さんの承認をいただいてから、browser が入れます</p>
+
+<div class="card ask">
+<b>お願いしたいこと</b><br>
+下の4本を、エアコンの広告に足してよいか。<br>
+よければ「カビ見出しOK」、直したい見出しがあれば番号と直し方を返してください。<br>
+<small>予算・入札・キーワードは変えません。広告費は増えません。</small>
+</div>
+
+<h2>足す4本</h2>
+<div class="card">
+<table>
+<tr><th>#</th><th>見出し</th><th>ねらい</th><th>文字数</th></tr>
+<tr class="new"><td>1</td><td>暖房のカビ臭、内部から洗浄</td><td>暖房に切り替えたときの臭い</td><td class="n">26/30</td></tr>
+<tr class="new"><td>2</td><td>フィルター掃除で取れないカビ臭</td><td>LPの見出しと同じ言葉</td><td class="n">30/30</td></tr>
+<tr class="new"><td>3</td><td>暖房をつける前に内部洗浄を</td><td>季節の呼びかけ</td><td class="n">26/30</td></tr>
+<tr class="new"><td>4</td><td>エアコンのカビ臭、ご相談を</td><td>やわらかい呼びかけ</td><td class="n">26/30</td></tr>
+</table>
+<small>文字数は Google の数え方（全角＝2）。上限は30。<br>
+使わなかった言葉：「消えます」「除菌100%」などの言い切り、他社との比較、「分解」（標準の作業に含まれるか確かめていないため）。<br>
+きっかけ：第6回MTGで和真さん「今年は長雨でカビが多い・暖房に切り替えた瞬間に臭う」。</small>
+</div>
+
+<h2>検索結果での見え方（例）</h2>
+<div class="card ad">
+<div class="u">スポンサー ・ lp.onehitter.jp/aircon/edogawa</div>
+<div class="t">暖房のカビ臭、内部から洗浄 | 60分10,780円税込から | 満足度98.6%の実績</div>
+<div class="d">専用の機材でエアコン内部を洗浄します。西葛西・葛西・浦安はすぐ伺えます。</div>
+</div>
+<small>Google が見出しを自動で組み合わせるので、毎回同じ並びにはなりません。</small>
+
+<h2>今の見出し（10本）と並べると</h2>
+<div class="card">
+<table>
+<tr><th></th><th>見出し</th></tr>
+<tr><td>今</td><td>エアコン掃除 江戸川区</td></tr>
+<tr><td>今</td><td>エアコンクリーニング</td></tr>
+<tr><td>今</td><td>エアコン1台から</td></tr>
+<tr><td>今</td><td>満足度98.6%の実績</td></tr>
+<tr><td>今</td><td>Googleクチコミ評価5.0</td></tr>
+<tr><td>今</td><td>60分10,780円税込から</td></tr>
+<tr><td>今</td><td>東京・千葉・神奈川対応</td></tr>
+<tr><td>今</td><td>土日も承ります</td></tr>
+<tr><td>今</td><td>Web予約は24時間受付</td></tr>
+<tr><td>今</td><td>江戸川区の清掃業者</td></tr>
+<tr class="new"><td><span class="tag">追加</span></td><td>上の4本 → 合計14本（上限15本）</td></tr>
+</table>
+<small>今の10本は入稿時の原稿（data/ads/段0-広告文.md）。管理画面の実物と違っていれば、browser が入れる前に知らせます。</small>
+</div>
+
+<h2>入れる場所</h2>
+<div class="card">
+<ul>
+<li>キャンペーン「検索_江戸川_段0_v2」の広告グループ <b>A_エアコン</b> の、今の広告に足す</li>
+<li>新しい広告・広告グループは作らない。行き先（LP）も変えない</li>
+<li>LP の比較（今の学習版 と 空き日を出す版 を半々）は、LP 側で振り分けているので崩れない</li>
+</ul>
+</div>
+
+<h2>効果の測り方</h2>
+<div class="card">
+<ul>
+<li><b>10/20 と 11/3</b> に、検索語句のうち「カビ」「臭」「におい」「暖房」を含むもののクリック・申込を数える</li>
+<li>見出しごとの表示回数は、広告の「アセット」の画面で見る（Google は見出しごとの申込を出さないことが多い）</li>
+<li>止める目安：11/3 にカビ系の見出しの表示が他の見出しの半分未満なら、Google が選んでいないので入れ替える</li>
+</ul>
+</div>
+
+<h2>まだ確かめていないこと</h2>
+<div class="card warn">
+<ul>
+<li>今「カビ」「臭い」で検索した人に、どれくらい広告が出ているか（browser が検索語句の画面で見る）</li>
+<li>「エアコン カビ 臭い」をキーワードとして足す必要があるか。足すと広告費が増えるので、そのときは別にお聞きします</li>
+</ul>
+</div>
+</main>
+</body>
+</html>
