@@ -125,7 +125,7 @@ def main():
         [cell("")],
         [cell(x) for x in ("陣・送る日", "顧客名", "電話番号", "▶SMSを開く", "送信済み", "送信する本文", "前回の施工", "区分", "返信メモ")],
     ]
-    body = [[cell(f"{JIN[bool(o.get('fuyu'))][0]} {JIN[bool(o.get('fuyu'))][1]}"), cell(o["full"]), cell(o["t"]),
+    body = [[cell(o.get("jin") or f"{JIN[bool(o.get('fuyu'))][0]} {JIN[bool(o.get('fuyu'))][1]}"), cell(o["full"]), cell(o["t"]),
              cell("▶ 送る", link), cell(""), cell(o["body"]), cell(o["last"]), cell(o.get("kubun", "")), cell("")]
             for o, link in rows]
     sc.call(tok, f"/{SS}:batchUpdate", "POST", {"requests": [
