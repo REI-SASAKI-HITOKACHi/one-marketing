@@ -491,6 +491,12 @@ function unlockByPin_(pin) {
     return { ok: false, error: '暗証番号は6桁の数字です。' };
   }
 
+  // 止まっている間は、ロックを取らずに戻す。
+  // 鍵の無い人が呼ぶ入口なので、止まっているときまで見積・請求の保存と同じロックを取らせない
+  // （大量に呼ばれて、和真さんの保存がロック待ちで失敗するのを避ける）
+  const early = pinBlockedResult_(readPinState_(), Date.now());
+  if (early) return early;
+
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(15000)) {
     return { ok: false, error: '混み合っています。少し待ってから、もう一度お試しください。' };
@@ -501,43 +507,64 @@ function unlockByPin_(pin) {
     const now = Date.now();
     const state = readPinState_();
 
-    if (state.totalFails >= PIN_TOTAL_LIMIT) {
-      return { ok: false, locked: true, error: '暗証番号は使えなくなっています。代表へ連絡してください。' };
-    }
-    if (state.lockedUntil > now) {
-      const minutes = Math.max(1, Math.ceil((state.lockedUntil - now) / 60000));
-      return { ok: false, locked: true, error: '間違いが続いたため止めています。あと約' + minutes + '分待ってください。' };
-    }
+    // ロックを取ったあとにもう一度確かめる（待っている間に、ほかの呼び出しが止めたかもしれない）
+    const blocked = pinBlockedResult_(state, now);
+    if (blocked) return blocked;
 
     const keys = readUiKeys_();
     const pins = readUiPins_();
     const salt = props.getProperty('UI_PIN_SALT') || '';
 
-    let matched = '';
+    const matches = [];
     // 全員ぶんを最後まで比べる（見つかった時点で抜けると、応答時間から誰かが分かる）
     Object.keys(pins).forEach(function (name) {
       if (!isValidUiKeyValue_(keys[name])) return;
-      if (constantTimeEquals_(hashUiPin_(salt, name, given), String(pins[name] || ''))) matched = matched || name;
+      if (constantTimeEquals_(hashUiPin_(salt, name, given), String(pins[name] || ''))) matches.push(name);
     });
 
-    if (!matched) {
+    // 一致が2人以上（同じ番号を2人に設定してしまった）ときは、誰の鍵かを決められないので通さない
+    if (matches.length !== 1) {
+      if (matches.length > 1) console.warn('暗証番号：複数の人に同じ番号が設定されています。');
       state.fails += 1;
       state.totalFails += 1;
+      state.lastFailAt = now;
+      let locked = false;
       if (state.fails >= PIN_FAIL_LIMIT) {
         state.fails = 0;
         state.lockedUntil = now + PIN_LOCK_MINUTES * 60000;
+        locked = true;
       }
       props.setProperty(APP.UI_PIN_STATE_PROPERTY, JSON.stringify(state));
       console.warn('暗証番号：一致しませんでした（累計 ' + state.totalFails + ' 回）。');
+      if (locked) {
+        return { ok: false, locked: true, error: '間違いが続いたため、' + PIN_LOCK_MINUTES + '分止めます。しばらく待ってください。' };
+      }
       return { ok: false, error: '暗証番号が違います。' };
     }
 
-    props.setProperty(APP.UI_PIN_STATE_PROPERTY, JSON.stringify({ fails: 0, totalFails: 0, lockedUntil: 0 }));
+    const matched = matches[0];
+    // 成功しても「合計の間違い回数」は戻さない（本人の成功をはさんで総当たりを続けられないように）。
+    // 回数は時間で少しずつ減る（readPinState_）。止まる状態と、連続の回数だけ戻す
+    state.fails = 0;
+    state.lockedUntil = 0;
+    props.setProperty(APP.UI_PIN_STATE_PROPERTY, JSON.stringify(state));
     console.log('暗証番号で鍵を再取得：' + matched);
     return { ok: true, name: matched, key: keys[matched] };
   } finally {
     lock.releaseLock();
   }
+}
+
+/** 止まっているなら、そのときの返事を返す。止まっていなければ null */
+function pinBlockedResult_(state, now) {
+  if (state.totalFails >= PIN_TOTAL_LIMIT) {
+    return { ok: false, locked: true, error: '暗証番号は使えなくなっています。代表へ連絡してください。' };
+  }
+  if (state.lockedUntil > now) {
+    const minutes = Math.max(1, Math.ceil((state.lockedUntil - now) / 60000));
+    return { ok: false, locked: true, error: '間違いが続いたため止めています。あと約' + minutes + '分待ってください。' };
+  }
+  return null;
 }
 
 /** 暗証番号の照合に使う指紋。名前を混ぜるので、同じ番号でも人ごとに値が変わる */
@@ -552,6 +579,17 @@ function hashUiPin_(salt, name, pin) {
   }).join('');
 }
 
+/** 管理関数用。壊れていたら例外で止める（空扱いで書き戻すと、ほかの人の暗証番号を黙って消すため） */
+function readUiPinsStrict_() {
+  const raw = PropertiesService.getScriptProperties().getProperty(APP.UI_PINS_PROPERTY);
+  if (!raw) return {};
+  const obj = JSON.parse(raw);
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
+    throw new Error('スクリプトプロパティ ' + APP.UI_PINS_PROPERTY + ' の形が壊れています。');
+  }
+  return obj;
+}
+
 function readUiPins_() {
   try {
     const raw = PropertiesService.getScriptProperties().getProperty(APP.UI_PINS_PROPERTY);
@@ -563,19 +601,30 @@ function readUiPins_() {
 }
 
 function readPinState_() {
-  const empty = { fails: 0, totalFails: 0, lockedUntil: 0 };
+  const stopped = { fails: 0, totalFails: PIN_TOTAL_LIMIT, lockedUntil: 0, lastFailAt: 0 };
   try {
     const raw = PropertiesService.getScriptProperties().getProperty(APP.UI_PIN_STATE_PROPERTY);
-    if (!raw) return empty;
+    if (!raw) return { fails: 0, totalFails: 0, lockedUntil: 0, lastFailAt: 0 };
     const o = JSON.parse(raw);
-    return {
-      fails: Number(o.fails) > 0 ? Number(o.fails) : 0,
-      totalFails: Number(o.totalFails) > 0 ? Number(o.totalFails) : 0,
-      lockedUntil: Number(o.lockedUntil) > 0 ? Number(o.lockedUntil) : 0
-    };
+    // 形が違う（配列・数値・文字列・数でない値）ものは「止めた状態」として扱う。
+    // 空に読み替えると、数えがリセットされて総当たりができてしまう
+    if (!o || typeof o !== 'object' || Array.isArray(o)) return stopped;
+    const num = function (v) { return typeof v === 'number' && isFinite(v) && v >= 0 ? v : null; };
+    const fails = num(o.fails);
+    const total = num(o.totalFails);
+    const until = num(o.lockedUntil);
+    if (fails === null || total === null || until === null) return stopped;
+    const last = num(o.lastFailAt) || 0;
+
+    // 合計の間違い回数は、最後に間違えてから24時間ごとに1回ぶん減る。
+    // 本人の打ち間違いが何か月もかけて積み上がって止まる、を避けるため。
+    // 総当たりの側が得をするのは、1日に1回ぶん増えるだけ
+    const now = Date.now();
+    const decay = last > 0 && now > last ? Math.floor((now - last) / 86400000) : 0;
+    const totalFails = decay > 0 ? Math.max(0, total - decay) : total;
+    return { fails: fails, totalFails: totalFails, lockedUntil: until, lastFailAt: last };
   } catch (e) {
-    // 壊れていたら「止めた状態」として扱う（読めないのを空にすると、数えがリセットされて総当たりができてしまう）
-    return { fails: 0, totalFails: PIN_TOTAL_LIMIT, lockedUntil: 0 };
+    return stopped;
   }
 }
 

@@ -61,6 +61,9 @@ if node tools/admin-guard-test.js | tail -1; then :; else fail=1; fi
 step "10. 画面の鍵（人ごと）"
 if node tools/ui-key-test.js | tail -1; then :; else fail=1; fi
 
+step "10a-2. 画面の鍵の動き（偽の画面で動かす）"
+if node tools/ui-key-client-test.js | tail -1; then :; else fail=1; fi
+
 step "10a. 暗証番号での鍵の再取得"
 if node tools/pin-unlock-test.js | tail -1; then :; else fail=1; fi
 

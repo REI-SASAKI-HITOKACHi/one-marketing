@@ -147,7 +147,7 @@ nowMs += 59 * 60000;
 check('59分後もまだ止まっている', sandbox.unlockByPin('482915').ok, false);
 nowMs += 2 * 60000;
 check('61分後には解ける', sandbox.unlockByPin('482915').ok, true);
-check('成功したら数えがリセットされる', state(), { fails: 0, totalFails: 0, lockedUntil: 0 });
+check('成功したら、連続の回数と止まる状態は戻る（合計は戻さない）', [state().fails, state().lockedUntil, state().totalFails], [0, 0, 5]);
 
 keys = setup();
 nowMs = Date.parse('2026-10-16T12:00:00Z');
@@ -175,7 +175,8 @@ for (let n = 0; n < 2000; n++) {
   const guess = String(100000 + n * 7);   // 482915 とは違う並び
   if (guess === '482915' || guess === '730164') continue;
   const x = sandbox.unlockByPin(guess);
-  if (!x.locked) tried++;
+  const refused = x.locked && (/止めています/.test(x.error) || /使えなくなって/.test(x.error));   // 照合までいかずに断られた
+  if (!refused) tried++;
   if (x.locked && /代表/.test(x.error)) break;
   if (x.locked) nowMs += 61 * 60000;
 }
@@ -193,6 +194,46 @@ r = sandbox.unlockByPin('482915');
 lockBusy = false;
 check('ロックが取れなければ通さず、混み合っていると返す', [r.ok, /混み合って/.test(r.error)], [false, true]);
 
+console.log('■ 止まっている間はロックを取らない／止めた回の返事／24時間ごとに合計が減る／成功しても合計は戻らない');
+
+keys = setup();
+nowMs = Date.parse('2026-10-16T12:00:00Z');
+for (let i = 0; i < 4; i++) sandbox.unlockByPin('111112');
+r = sandbox.unlockByPin('111112');
+check('5回目の返事で、止めたことを知らせる', [r.ok, r.locked, /60分止めます/.test(r.error)], [false, true, true]);
+lockBusy = true;
+r = sandbox.unlockByPin('482915');
+lockBusy = false;
+check('止まっている間は、ロックが取れない状態でも「止めています」と返す（ロックに触れない）', [r.locked, /止めています/.test(r.error)], [true, true]);
+
+keys = setup();
+nowMs = Date.parse('2026-10-16T12:00:00Z');
+for (let i = 0; i < 4; i++) sandbox.unlockByPin('111112');
+check('4回間違えた', state().totalFails, 4);
+check('本人が成功しても、合計は戻らない', (() => { sandbox.unlockByPin('482915'); return state().totalFails; })(), 4);
+for (let i = 0; i < 4; i++) sandbox.unlockByPin('111112');
+check('そのあとの間違いは足し算で積み上がる（8回）', state().totalFails, 8);
+nowMs += 3 * 86400000;
+sandbox.unlockByPin('111112');
+check('3日たつと3回ぶん減る（8 - 3 + 今回の1回）', state().totalFails, 6);
+
+keys = setup();
+scriptProps.UI_PIN_STATE = '[]';
+check('状態が配列 → 止めた状態として扱う', sandbox.unlockByPin('482915').ok, false);
+scriptProps.UI_PIN_STATE = '{"fails":"x","totalFails":0,"lockedUntil":0}';
+check('状態の値が数でない → 止めた状態', sandbox.unlockByPin('482915').ok, false);
+scriptProps.UI_PIN_STATE = '5';
+check('状態が数値 → 止めた状態', sandbox.unlockByPin('482915').ok, false);
+
+keys = setup();
+r = sandbox.unlockByPin('482915');
+check('成功の返事のキーは ok・name・key だけ（余計な情報を返さない）', Object.keys(r).sort(), ['key', 'name', 'ok']);
+
+keys = setup();
+scriptProps.UI_PINS = '{broken';
+check('暗証番号の保存が壊れていたら、設定は止まる（ほかの人の番号を黙って消さない）', (() => { try { sandbox.adminSetUiPin('和真', '509318'); return 'ok'; } catch (e) { return 'error'; } })(), 'error');
+check('壊れたままでも、書き換えられていない', scriptProps.UI_PINS, '{broken');
+
 /* ===================== 保存の仕方 ===================== */
 
 console.log('■ 暗証番号そのものは保存しない／鍵を止めたら暗証番号も使えない');
@@ -200,12 +241,17 @@ console.log('■ 暗証番号そのものは保存しない／鍵を止めたら
 keys = setup();
 check('保存した値に番号そのものが入っていない', JSON.stringify(scriptProps).indexOf('482915') < 0 && JSON.stringify(scriptProps).indexOf('730164') < 0, true);
 const pins = JSON.parse(scriptProps.UI_PINS);
-check('同じ番号でも人が違えば指紋が違う（名前を混ぜている）', (() => {
-  sandbox.adminSetUiPin('オーナー', '482915');
-  const p2 = JSON.parse(scriptProps.UI_PINS);
-  return p2['オーナー'] !== p2['和真'];
-})(), true);
-check('番号を変えると指紋も変わる', JSON.parse(scriptProps.UI_PINS)['和真'] === pins['和真'], true);
+check('同じ番号を2人に設定しようとすると断る', (() => { try { sandbox.adminSetUiPin('オーナー', '482915'); return 'ok'; } catch (e) { return /和真/.test(e.message) ? 'refused' : 'other:' + e.message; } })(), 'refused');
+check('断られたので、オーナーの番号はそのまま', sandbox.unlockByPin('730164').name, 'オーナー');
+check('同じ番号が両方に入っていても（手でプロパティを書き換えた等）、誰の鍵か決められないので通さない', (() => {
+  const salt = scriptProps.UI_PIN_SALT;
+  const h = (name) => crypto.createHash('sha256').update(salt + ':' + name + ':' + '555123', 'utf8').digest('hex');
+  scriptProps.UI_PINS = JSON.stringify({ '和真': h('和真'), 'オーナー': h('オーナー') });
+  const x = sandbox.unlockByPin('555123');
+  return [x.ok, x.key];
+})(), [false, undefined]);
+sandbox.adminSetUiPin('和真', '482915');
+check('別の人の番号を設定しても、和真の指紋は変わらない', JSON.parse(scriptProps.UI_PINS)['和真'] === pins['和真'], true);
 
 keys = setup();
 sandbox.adminRevokeUiKey('和真');

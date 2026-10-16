@@ -278,7 +278,7 @@ function adminRevokeUiKey(name) {
   delete keys[who];
   PropertiesService.getScriptProperties().setProperty(APP.UI_KEYS_PROPERTY, JSON.stringify(keys));
   // 暗証番号も一緒に消す（止めた人が、暗証番号で鍵を取り戻せないように）
-  const pinsLeft = readUiPins_();
+  const pinsLeft = readUiPinsStrict_();
   if (Object.prototype.hasOwnProperty.call(pinsLeft, who)) {
     delete pinsLeft[who];
     PropertiesService.getScriptProperties().setProperty(APP.UI_PINS_PROPERTY, JSON.stringify(pinsLeft));
@@ -292,7 +292,7 @@ function adminRevokeUiKey(name) {
 
 /**
  * 暗証番号を決める（6桁の数字）。鍵を失った端末で、本人がこれを入れると鍵が戻る。
- * 例：adminSetUiPin('和真', '482915')
+ * 例：adminSetUiPin('和真', '（自分で決めた6桁）')
  * 単純な並び（000000・123456・654321 など）と、誕生日のような推測しやすいものは避けること。
  * 決めた番号は、本人にだけ伝える（LINE のグループや掲示板には書かない）。
  */
@@ -317,7 +317,17 @@ function adminSetUiPin(name, pin) {
     props.setProperty('UI_PIN_SALT', salt);
   }
 
-  const pins = readUiPins_();
+  const pins = readUiPinsStrict_();
+
+  // 同じ番号を、ほかの人に設定していないか。同じだと、暗証番号で入ったときに誰の鍵か決められない
+  const clash = Object.keys(pins).filter(function (other) {
+    return other !== who && isValidUiKeyValue_(keys[other])
+      && constantTimeEquals_(hashUiPin_(salt, other, digits), String(pins[other] || ''));
+  });
+  if (clash.length) {
+    throw new Error('その番号は「' + clash.join('、') + '」と同じです。人ごとに違う番号にしてください。');
+  }
+
   pins[who] = hashUiPin_(salt, who, digits);
   props.setProperty(APP.UI_PINS_PROPERTY, JSON.stringify(pins));
 
@@ -347,7 +357,7 @@ function adminRemoveUiPin(name) {
 function adminClearPinLock() {
   requireOwner_();
   PropertiesService.getScriptProperties().setProperty(
-    APP.UI_PIN_STATE_PROPERTY, JSON.stringify({ fails: 0, totalFails: 0, lockedUntil: 0 }));
+    APP.UI_PIN_STATE_PROPERTY, JSON.stringify({ fails: 0, totalFails: 0, lockedUntil: 0, lastFailAt: 0 }));
   const message = '暗証番号の間違い回数と、止まっている状態を解除しました。';
   console.log(message);
   return message;
