@@ -220,7 +220,9 @@ function adminAddUiKey(name, execUrl) {
   keys[who] = key;
   PropertiesService.getScriptProperties().setProperty(APP.UI_KEYS_PROPERTY, JSON.stringify(keys));
 
-  const suffix = '?openExternalBrowser=1#key=' + key;
+  // 鍵はリンクの ?k= に持たせる。ホーム画面に追加したアイコンは、開いていたURLを覚えるので、
+  // 鍵ごと残り、アイコンを押すだけで開く（# 以下だと、アイコンに残らないことがある）
+  const suffix = '?openExternalBrowser=1&k=' + key;
 
   const lines = [
     (reissued ? '「' + who + '」の鍵を作り直しました（前の鍵は使えなくなりました）。' : '「' + who + '」の鍵を発行しました。'),
@@ -236,8 +238,10 @@ function adminAddUiKey(name, execUrl) {
   }
   lines.push('');
   lines.push('本人への案内文：');
-  lines.push('「このリンクをスマホで1回開いてください。以後はいつもどおり開くだけで使えます。');
-  lines.push('　使えなくなったら、このリンクをもう一度タップしてください。」');
+  lines.push('「このリンクをスマホで開いて、そのまま『ホーム画面に追加』してください。');
+  lines.push('　以後はそのアイコンを押すだけで使えます。');
+  lines.push('　もし鍵のエラーが出たら、暗証番号（6桁）を入れれば戻ります。」');
+  lines.push('※ 暗証番号は adminSetUiPin(\'' + who + '\', \'6桁\') で決める（本人にだけ伝える）。');
 
   const message = lines.join('\n');
   console.log(message);
@@ -273,9 +277,78 @@ function adminRevokeUiKey(name) {
   }
   delete keys[who];
   PropertiesService.getScriptProperties().setProperty(APP.UI_KEYS_PROPERTY, JSON.stringify(keys));
+  // 暗証番号も一緒に消す（止めた人が、暗証番号で鍵を取り戻せないように）
+  const pinsLeft = readUiPins_();
+  if (Object.prototype.hasOwnProperty.call(pinsLeft, who)) {
+    delete pinsLeft[who];
+    PropertiesService.getScriptProperties().setProperty(APP.UI_PINS_PROPERTY, JSON.stringify(pinsLeft));
+  }
   const rest = Object.keys(keys);
   const message = '「' + who + '」の鍵を止めました。'
     + (rest.length ? '残り：' + rest.join('、') : '鍵が1つも無くなったので、画面は誰も使えません。');
+  console.log(message);
+  return message;
+}
+
+/**
+ * 暗証番号を決める（6桁の数字）。鍵を失った端末で、本人がこれを入れると鍵が戻る。
+ * 例：adminSetUiPin('和真', '482915')
+ * 単純な並び（000000・123456・654321 など）と、誕生日のような推測しやすいものは避けること。
+ * 決めた番号は、本人にだけ伝える（LINE のグループや掲示板には書かない）。
+ */
+function adminSetUiPin(name, pin) {
+  requireOwner_();
+  const who = String(name || '').trim();
+  const digits = String(pin == null ? '' : pin).trim();
+
+  const keys = readUiKeysStrict_();
+  if (!Object.prototype.hasOwnProperty.call(keys, who) || !isValidUiKeyValue_(keys[who])) {
+    throw new Error('「' + who + '」の鍵がありません。先に adminAddUiKey で鍵を発行してください。発行済み：' + (Object.keys(keys).join('、') || '（なし）'));
+  }
+  if (!/^[0-9]{6}$/.test(digits)) throw new Error('暗証番号は6桁の数字にしてください。');
+  if (/^(\d)\1{5}$/.test(digits) || '0123456789012345'.indexOf(digits) >= 0 || '9876543210987654'.indexOf(digits) >= 0) {
+    throw new Error('並びが単純すぎます（000000・123456・654321 など）。別の番号にしてください。');
+  }
+
+  const props = PropertiesService.getScriptProperties();
+  let salt = props.getProperty('UI_PIN_SALT');
+  if (!salt) {
+    salt = Utilities.getUuid() + Utilities.getUuid();
+    props.setProperty('UI_PIN_SALT', salt);
+  }
+
+  const pins = readUiPins_();
+  pins[who] = hashUiPin_(salt, who, digits);
+  props.setProperty(APP.UI_PINS_PROPERTY, JSON.stringify(pins));
+
+  const message = '「' + who + '」の暗証番号を設定しました（番号そのものは保存していません）。本人にだけ伝えてください。';
+  console.log(message);
+  return message;
+}
+
+/** 暗証番号を無くす（その人は、暗証番号では鍵を取り戻せなくなる） */
+function adminRemoveUiPin(name) {
+  requireOwner_();
+  const who = String(name || '').trim();
+  const pins = readUiPins_();
+  if (!Object.prototype.hasOwnProperty.call(pins, who)) {
+    const message = '「' + who + '」の暗証番号はありません。';
+    console.log(message);
+    return message;
+  }
+  delete pins[who];
+  PropertiesService.getScriptProperties().setProperty(APP.UI_PINS_PROPERTY, JSON.stringify(pins));
+  const message = '「' + who + '」の暗証番号を消しました。';
+  console.log(message);
+  return message;
+}
+
+/** 暗証番号の「間違い回数」と「止まっている状態」を解除する（本人が忘れた・止まってしまったとき） */
+function adminClearPinLock() {
+  requireOwner_();
+  PropertiesService.getScriptProperties().setProperty(
+    APP.UI_PIN_STATE_PROPERTY, JSON.stringify({ fails: 0, totalFails: 0, lockedUntil: 0 }));
+  const message = '暗証番号の間違い回数と、止まっている状態を解除しました。';
   console.log(message);
   return message;
 }
@@ -286,8 +359,11 @@ function adminListUiKeys() {
   const keys = readUiKeysStrict_();
   const names = Object.keys(keys);
   const broken = names.filter(function (n) { return !isValidUiKeyValue_(keys[n]); });
+  const pins = readUiPins_();
+  const withPin = names.filter(function (n) { return Object.prototype.hasOwnProperty.call(pins, n); });
   let message = names.length
     ? '画面の鍵を持っている人（' + names.length + '人）：' + names.join('、')
+      + '\n暗証番号を決めている人：' + (withPin.join('、') || '（なし）')
     : '画面の鍵は1つも発行されていません。いまは誰も画面を使えません。';
   if (broken.length) {
     message += '\n※ 形が壊れていて使えない鍵：' + broken.join('、') + '（adminAddUiKey で作り直してください）';

@@ -47,17 +47,31 @@
     resolveUiKey();
   }
 
-  /** 鍵が決まったら初期表示を読む。鍵が無ければサーバーを呼ばずに案内を出す */
-  function onUiKeyResolved(key) {
+  /**
+   * 鍵が決まったら初期表示を読む。鍵が無ければサーバーを呼ばずに案内を出す。
+   * alt は予備の鍵（リンクの鍵が古くて合わなかったとき、このスマホに残っている鍵を試す）
+   */
+  function onUiKeyResolved(key, alt) {
     currentUiKey = key || '';
     if (!currentUiKey) { showKeyRequired('wrong'); return; }
 
     google.script.run
-      .withSuccessHandler(onBootstrap)
+      .withSuccessHandler(function (res) {
+        // 通ったら、この鍵をアドレス欄にも持たせる（このあと「ホーム画面に追加」しても鍵が残る）
+        storeUiKey(currentUiKey);
+        keepKeyInUrl(currentUiKey);
+        onBootstrap(res);
+      })
       .withFailureHandler(function (err) {
-        var text = message(err);
+        var text = (err && err.message) || String(err || '');
+        // リンク（アイコン）の鍵が古くても、このスマホに新しい鍵が残っていれば、止めずにそちらで開く
+        if (text.indexOf(UI_KEY_MARK) >= 0 && alt && alt !== key) {
+          onUiKeyResolved(alt, '');
+          return;
+        }
+        var shown = message(err);
         // 鍵の案内を出したときは、それを上書きしない
-        if (!keyBlocked) showFatal(text);
+        if (!keyBlocked) showFatal(shown);
       })
       .apiBootstrap(uiKey());
   }
@@ -65,15 +79,21 @@
   /* ===================== 画面の鍵 ===================== */
 
   /*
-   * 鍵は「専用リンク（…/exec#key=…）」で1回だけ受け取り、このスマホに記憶させる。
-   * # 以下はサーバーに送られない。受け取ったらすぐアドレス欄から消す
-   * （閲覧履歴やブックマークに鍵を残さないため）。
+   * 鍵は「専用リンク（…/exec?k=…）」に持たせる。ホーム画面に追加したアイコンは、
+   * 開いていたURLを覚えるので、鍵ごと残る。**アイコンを押すだけで開く**のが基本。
    *
-   * GAS の画面は Google の別ドメインの枠の中で動くので、location.hash は直接読めない。
-   * google.script.url.getLocation() で受け取り、google.script.history.replace() で消す。
+   * 鍵の置き場所は3つ。上から順に試す。
+   *   ① アドレス欄の ?k=（アイコン・ブックマーク・LINEのリンク）
+   *   ② このスマホに覚えさせた鍵（localStorage）。アドレス欄に鍵が無いときの予備。
+   *      ②で開けたときは、アドレス欄にも鍵を書き戻す（ここからアイコンを作り直せば①になる）
+   *   ③ どちらも使えないときは、暗証番号（6桁）で鍵を取り戻す（unlockByPin）
    *
-   * iPhone の Safari は、この種の保存をしばらく使わないと消すことがある（ITP）。
-   * 消えたら「LINE に残っている専用リンクをもう一度タップ」で戻る。
+   * GAS の画面は Google の別ドメインの枠の中で動くので、アドレス欄は直接読めない。
+   * google.script.url.getLocation() で読み、google.script.history.replace() で書く。
+   * 旧い専用リンク（#key=…）も読める。
+   *
+   * アドレス欄に鍵が入るのは意図したこと（アイコンに残すため）。鍵は人ごとに発行していて、
+   * 止めたい人だけ止められる。ただし、このURLを他人に送ると、その人も使えてしまう。
    */
   var UI_KEY_STORAGE = 'estimateAppUiKey';
   var UI_KEY_MARK = '[UI_KEY] ';
@@ -88,18 +108,32 @@
   function resolveUiKey() {
     var stored = readStoredUiKey();
 
-    if (!(google.script.url && google.script.url.getLocation)) { onUiKeyResolved(stored); return; }
+    if (!(google.script.url && google.script.url.getLocation)) { onUiKeyResolved(stored, ''); return; }
 
     google.script.url.getLocation(function (loc) {
-      var fromLink = parseUiKey(loc && loc.hash);
+      var fromLink = keyFromLocation(loc);
       if (fromLink) {
-        storeUiKey(fromLink);
-        try { google.script.history.replace(null, {}, ''); } catch (e) { /* 消せなくても使える */ }
-        onUiKeyResolved(fromLink);
+        // リンクの鍵が先。古くて合わなかったときだけ、スマホに残っている鍵（stored）を試す
+        onUiKeyResolved(fromLink, stored);
         return;
       }
-      onUiKeyResolved(stored);
+      onUiKeyResolved(stored, '');
     });
+  }
+
+  /** アドレス欄から鍵を取り出す。?k=（新）と #key=（旧い専用リンク）の両方を読む */
+  function keyFromLocation(loc) {
+    var p = (loc && loc.parameter) || {};
+    var k = p.k;
+    if (Object.prototype.toString.call(k) === '[object Array]') k = k[0];
+    k = String(k || '').toLowerCase();
+    if (/^[0-9a-f]{64}$/.test(k)) return k;
+    return parseUiKey(loc && loc.hash);
+  }
+
+  /** 鍵をアドレス欄に持たせる（すでに入っていても同じ値を書くだけ） */
+  function keepKeyInUrl(key) {
+    try { google.script.history.replace(null, { k: key }, ''); } catch (e) { /* 書けなくても使える */ }
   }
 
   function parseUiKey(hash) {
@@ -114,7 +148,7 @@
    */
   function parseUiKeyFromText(text) {
     var t = String(text || '').replace(/\s+/g, '');
-    var m = t.match(/[#&?]key=([0-9a-fA-F]{64})(?![0-9a-zA-Z])/) || t.match(/^([0-9a-fA-F]{64})$/);
+    var m = t.match(/[#&?](?:key|k)=([0-9a-fA-F]{64})(?![0-9a-zA-Z])/) || t.match(/^([0-9a-fA-F]{64})$/);
     return m ? m[1].toLowerCase() : '';
   }
 
@@ -131,11 +165,44 @@
     err.textContent = '';
     storeUiKey(key);
     byId('keyPasteInput').value = '';
+    reopenWithKey(key);
+  }
+
+  /** 暗証番号の「入る」。合えばサーバーが鍵を返す */
+  function unlockWithPin() {
+    var err = byId('pinError');
+    var pin = String(val('pinInput') || '').replace(/\s+/g, '');
+
+    if (!/^[0-9]{6}$/.test(pin)) {
+      err.textContent = '暗証番号は6桁の数字です。';
+      return;
+    }
+
+    err.textContent = '確認しています…';
+    google.script.run
+      .withSuccessHandler(function (res) {
+        if (res && res.ok && res.key) {
+          err.textContent = '';
+          byId('pinInput').value = '';
+          storeUiKey(res.key);
+          reopenWithKey(res.key);
+          showToast('鍵を取り戻しました。いまの画面を「ホーム画面に追加」し直すと、次から暗証番号なしで開きます。');
+          return;
+        }
+        err.textContent = (res && res.error) || '入れませんでした。';
+      })
+      .withFailureHandler(function () {
+        err.textContent = '通信に失敗しました。電波の良いところでもう一度お試しください。';
+      })
+      .unlockByPin(pin);
+  }
+
+  function reopenWithKey(key) {
     hideKeyPaste();
     keyBlocked = false;
     byId('fatalError').classList.add('hidden');
     byId('loading').classList.remove('hidden');
-    onUiKeyResolved(key);
+    onUiKeyResolved(key, '');
   }
 
   function showKeyPaste() {
@@ -171,13 +238,13 @@
     keyBlocked = true;
     var app = byId('app');
     if (app) app.classList.add('hidden');
-    // 鍵が合わないときだけ貼り付け欄を出す（未発行のときは、貼っても入れないので出さない）
+    // 鍵が合わないときだけ入力欄を出す（未発行のときは、入れても入れないので出さない）
     if (kind === 'none') hideKeyPaste(); else showKeyPaste();
     showFatal(kind === 'none'
       ? 'いま見積アプリは準備中です。少し待ってから開き直してください。\n続くようなら代表へ連絡してください。'
       : 'このスマホでは、まだ見積アプリを使えません。\n'
-        + 'LINEで届いた専用リンクを開いてください。\n'
-        + '（前は使えていたのに急に出た場合も、同じリンクをもう一度タップすれば戻ります）');
+        + '下の欄に、暗証番号（6桁）を入れてください。\n'
+        + '（暗証番号が分からないときは、LINEの専用リンクをもう一度開くか、代表へ連絡してください）');
   }
 
   function onBootstrap(res) {
@@ -312,6 +379,7 @@
       else if (action === 'view-invoice') openInvoiceDetail(el.getAttribute('data-id'));
       else if (action === 'save-invoice') saveInvoice();
       else if (action === 'save-key') saveKeyFromPaste();
+      else if (action === 'unlock-pin') unlockWithPin();
     });
   }
 

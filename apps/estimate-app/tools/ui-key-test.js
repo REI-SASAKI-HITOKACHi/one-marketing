@@ -311,7 +311,7 @@ check('発行すると保存される', typeof stored1['和真'], 'string');
 check('鍵は64桁の英数字（小文字にそろえる。大文字だと照合で弾かれて全員締め出される）',
   /^[0-9a-f]{64}$/.test(stored1['和真']), true);
 check('専用リンクは渡したURL＋外部ブラウザで開く指定＋鍵',
-  issued.indexOf(EXEC + '?openExternalBrowser=1#key=' + stored1['和真']) >= 0, true);
+  issued.indexOf(EXEC + '?openExternalBrowser=1&k=' + stored1['和真']) >= 0, true);
 check('URLの形が違えば断る', (() => { try { sandbox.adminAddUiKey('和真', 'https://evil.example.com/exec'); return 'ok'; } catch (e) { return 'error'; } })(), 'error');
 check('URLの形が違って断ったとき、鍵は作り直していない（前の鍵が生きている）',
   JSON.parse(scriptProps.UI_KEYS)['和真'], stored1['和真']);
@@ -321,10 +321,10 @@ serviceUrl = 'https://script.google.com/macros/s/TESTDEPLOY/dev';
 const devIssued = sandbox.adminAddUiKey('試し');
 const devKey = JSON.parse(scriptProps.UI_KEYS)['試し'];
 check('/dev しか取れないときは /dev のリンクを出さない', devIssued.indexOf('/dev') < 0, true);
-check('そのときは「いつものURLに付け足す部分」を出す', devIssued.indexOf('?openExternalBrowser=1#key=' + devKey) >= 0, true);
+check('そのときは「いつものURLに付け足す部分」を出す', devIssued.indexOf('?openExternalBrowser=1&k=' + devKey) >= 0, true);
 serviceUrl = 'https://script.google.com/macros/s/TESTDEPLOY/exec';
 sandbox.adminRevokeUiKey('試し');
-check('案内文に「リンクをもう一度タップ」が入っている', issued.indexOf('もう一度タップ') >= 0, true);
+check('案内文に「ホーム画面に追加」と暗証番号の案内が入っている', issued.indexOf('ホーム画面に追加') >= 0 && issued.indexOf('暗証番号') >= 0, true);
 check('発行した鍵で入口が通る', callUi('apiSearchEstimates', stored1['和真'], [{}]), 'ok');
 
 sandbox.adminAddUiKey('和真', EXEC);
@@ -405,8 +405,13 @@ const showKeySrc = (clientJs.match(/function showKeyRequired\([^)]*\) \{[\s\S]*?
 check('showKeyRequired が見つかる', showKeySrc.length > 0, true);
 check('案内を出したら画面の中身を隠す（そのまま操作させない）',
   /byId\('app'\)/.test(showKeySrc) && /classList\.add\('hidden'\)/.test(showKeySrc), true);
-check('鍵を受け取ったらアドレス欄から消す（履歴に残さない）',
-  /storeUiKey\(fromLink\);[\s\S]{0,120}google\.script\.history\.replace/.test(clientJs), true);
+check('鍵が通ったら、アドレス欄にも鍵を持たせる（ホーム画面のアイコンに鍵が残る）',
+  /storeUiKey\(currentUiKey\);\s*keepKeyInUrl\(currentUiKey\);/.test(clientJs)
+  && /google\.script\.history\.replace\(null, \{ k: key \}, ''\)/.test(clientJs), true);
+check('アドレス欄の ?k= と、旧い #key= の両方を読む',
+  /p\.k/.test(clientJs) && /parseUiKey\(loc && loc\.hash\)/.test(clientJs), true);
+check('リンクの鍵が古いときは、スマホに残っている鍵で開き直す（止めない）',
+  /alt && alt !== key/.test(clientJs) && /onUiKeyResolved\(fromLink, stored\)/.test(clientJs), true);
 
 /* ===================== ⑧ 鍵の貼り付け欄（ホーム画面アイコン向けの手当て） ===================== */
 
@@ -451,7 +456,7 @@ check('鍵が合わないときは貼り付け欄を出し、未発行のとき�
 const saveSrc = (clientJs.match(/function saveKeyFromPaste\([\s\S]*?\n  \}/) || [''])[0];
 check('貼り付けから読み取れなければ、保存せずに案内を出す',
   /if \(!key\)[\s\S]*?return;[\s\S]*?storeUiKey\(key\)/.test(saveSrc), true);
-check('保存したら初期表示を読み直す', /onUiKeyResolved\(key\)/.test(saveSrc), true);
+check('保存したら初期表示を読み直す', /reopenWithKey\(key\)/.test(saveSrc) && /onUiKeyResolved\(key, ''\)/.test(clientJs), true);
 
 /* ===================== 結果 ===================== */
 

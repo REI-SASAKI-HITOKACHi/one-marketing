@@ -29,7 +29,14 @@
          リンクを開き直しても鍵が届かない。そのときの手当て。 -->
     <section id="keyPaste" class="card hidden">
       <h2>鍵を入れ直す</h2>
-      <div class="note">
+
+      <label for="pinInput">暗証番号（6桁）</label>
+      <input id="pinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" placeholder="●●●●●●">
+      <div id="pinError" class="mini-info"></div>
+      <button type="button" class="primary full" data-action="unlock-pin">暗証番号で入る</button>
+
+      <div class="note" style="margin-top:16px">
+        暗証番号が使えないときは、こちら：
         LINEに届いた専用リンクを、長押しして「コピー」→ 下の欄に「貼り付け」→「保存して開く」。
         リンクの全部をコピーしてください（途中までだと入りません）。
       </div>

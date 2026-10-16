@@ -95,7 +95,8 @@ console.log('\n■ 画面から呼べる関数（名前が _ で終わらない�
  * 1行で書いた関数・名前とかっこの間の空白・字下げ・var 代入など、書き方の違いで
  * 棚卸しから漏れないようにするため（独立レビュー 2026-09-29 の指摘）。
  */
-const UI_ENTRY_POINTS = new Set(['doGet', 'doPost', 'include', 'calcEngineTag']);
+// unlockByPin は、鍵を失った人が呼ぶ唯一の「鍵なし」の入口（暗証番号 + 失敗回数の制限つき）。tools/pin-unlock-test.js が受け持つ
+const UI_ENTRY_POINTS = new Set(['doGet', 'doPost', 'include', 'calcEngineTag', 'unlockByPin']);
 const isUiApi = name => /^api[A-Z]/.test(name);
 
 const publicFns = Object.keys(sandbox)

@@ -40,6 +40,8 @@ const APP = {
   MAX_DETAIL_ROWS: 16,
   API_TOKEN_PROPERTY: 'API_TOKEN',
   UI_KEYS_PROPERTY: 'UI_KEYS',
+  UI_PINS_PROPERTY: 'UI_PINS',
+  UI_PIN_STATE_PROPERTY: 'UI_PIN_STATE',
   MAX_ADJUSTMENT_SLOTS: 5,
 
   // マスタキャッシュの世代。マスタ構造を変えたらここを上げる。
@@ -457,6 +459,124 @@ function readUiKeysStrict_() {
     throw new Error('スクリプトプロパティ ' + APP.UI_KEYS_PROPERTY + ' の形が壊れています。');
   }
   return obj;
+}
+
+/* ===================== 暗証番号での鍵の再取得（最後の手当て） ===================== */
+
+/*
+ * 鍵が端末から消えたとき（ホーム画面のアイコンから開いた、ブラウザの記憶が消えた、鍵を作り直した）に、
+ * 本人だけが知っている6桁の暗証番号で、その人の鍵を取り戻す。
+ * 鍵を持たない人が呼ぶ入口なので、この関数だけは鍵なしで呼べる（唯一の例外）。
+ * そのぶん、総当たりを次の3つで止めている。
+ *   ・暗証番号は6桁（100万通り）。単純な並び（000000・123456 など）は設定できない
+ *   ・5回間違えたら60分止まる
+ *   ・止まった回数の合計で15回間違えたら、所有者が adminClearPinLock() を実行するまで使えない
+ *     → 総当たりで当てられる確率は 15 / 100万。止められても、鍵のある人の普段の利用には影響しない
+ * 失敗の数え方は全員で1つ（GAS では相手を区別できないため）。わざと間違え続けられると
+ * この手当てだけは使えなくなるが、データは読まれない。
+ */
+const PIN_FAIL_LIMIT = 5;
+const PIN_LOCK_MINUTES = 60;
+const PIN_TOTAL_LIMIT = 15;
+
+function unlockByPin(pin) {
+  return unlockByPin_(pin);
+}
+
+function unlockByPin_(pin) {
+  const given = typeof pin === 'string' ? pin.replace(/\s+/g, '') : '';
+
+  // 形が違うものは、数えずに戻す（押し間違いで止めない。形の違うものでは総当たりにならない）
+  if (!/^[0-9]{6}$/.test(given)) {
+    return { ok: false, error: '暗証番号は6桁の数字です。' };
+  }
+
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(15000)) {
+    return { ok: false, error: '混み合っています。少し待ってから、もう一度お試しください。' };
+  }
+
+  try {
+    const props = PropertiesService.getScriptProperties();
+    const now = Date.now();
+    const state = readPinState_();
+
+    if (state.totalFails >= PIN_TOTAL_LIMIT) {
+      return { ok: false, locked: true, error: '暗証番号は使えなくなっています。代表へ連絡してください。' };
+    }
+    if (state.lockedUntil > now) {
+      const minutes = Math.max(1, Math.ceil((state.lockedUntil - now) / 60000));
+      return { ok: false, locked: true, error: '間違いが続いたため止めています。あと約' + minutes + '分待ってください。' };
+    }
+
+    const keys = readUiKeys_();
+    const pins = readUiPins_();
+    const salt = props.getProperty('UI_PIN_SALT') || '';
+
+    let matched = '';
+    // 全員ぶんを最後まで比べる（見つかった時点で抜けると、応答時間から誰かが分かる）
+    Object.keys(pins).forEach(function (name) {
+      if (!isValidUiKeyValue_(keys[name])) return;
+      if (constantTimeEquals_(hashUiPin_(salt, name, given), String(pins[name] || ''))) matched = matched || name;
+    });
+
+    if (!matched) {
+      state.fails += 1;
+      state.totalFails += 1;
+      if (state.fails >= PIN_FAIL_LIMIT) {
+        state.fails = 0;
+        state.lockedUntil = now + PIN_LOCK_MINUTES * 60000;
+      }
+      props.setProperty(APP.UI_PIN_STATE_PROPERTY, JSON.stringify(state));
+      console.warn('暗証番号：一致しませんでした（累計 ' + state.totalFails + ' 回）。');
+      return { ok: false, error: '暗証番号が違います。' };
+    }
+
+    props.setProperty(APP.UI_PIN_STATE_PROPERTY, JSON.stringify({ fails: 0, totalFails: 0, lockedUntil: 0 }));
+    console.log('暗証番号で鍵を再取得：' + matched);
+    return { ok: true, name: matched, key: keys[matched] };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** 暗証番号の照合に使う指紋。名前を混ぜるので、同じ番号でも人ごとに値が変わる */
+function hashUiPin_(salt, name, pin) {
+  const bytes = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    String(salt) + ':' + String(name) + ':' + String(pin),
+    Utilities.Charset.UTF_8);
+  return bytes.map(function (b) {
+    const v = (b < 0 ? b + 256 : b).toString(16);
+    return v.length === 1 ? '0' + v : v;
+  }).join('');
+}
+
+function readUiPins_() {
+  try {
+    const raw = PropertiesService.getScriptProperties().getProperty(APP.UI_PINS_PROPERTY);
+    const obj = raw ? JSON.parse(raw) : {};
+    return obj && typeof obj === 'object' && !Array.isArray(obj) ? obj : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function readPinState_() {
+  const empty = { fails: 0, totalFails: 0, lockedUntil: 0 };
+  try {
+    const raw = PropertiesService.getScriptProperties().getProperty(APP.UI_PIN_STATE_PROPERTY);
+    if (!raw) return empty;
+    const o = JSON.parse(raw);
+    return {
+      fails: Number(o.fails) > 0 ? Number(o.fails) : 0,
+      totalFails: Number(o.totalFails) > 0 ? Number(o.totalFails) : 0,
+      lockedUntil: Number(o.lockedUntil) > 0 ? Number(o.lockedUntil) : 0
+    };
+  } catch (e) {
+    // 壊れていたら「止めた状態」として扱う（読めないのを空にすると、数えがリセットされて総当たりができてしまう）
+    return { fails: 0, totalFails: PIN_TOTAL_LIMIT, lockedUntil: 0 };
+  }
 }
 
 /* ===================== 計算エンジンの共有 ===================== */

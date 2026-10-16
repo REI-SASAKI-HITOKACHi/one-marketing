@@ -61,6 +61,9 @@ if node tools/admin-guard-test.js | tail -1; then :; else fail=1; fi
 step "10. 画面の鍵（人ごと）"
 if node tools/ui-key-test.js | tail -1; then :; else fail=1; fi
 
+step "10a. 暗証番号での鍵の再取得"
+if node tools/pin-unlock-test.js | tail -1; then :; else fail=1; fi
+
 step "10b. 割引追加（早期予約11月・チラシ特典・紹介割引）"
 if node tools/discount-2026-10-test.js | tail -1; then :; else fail=1; fi
 
