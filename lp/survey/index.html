@@ -994,9 +994,10 @@ footer a{color:var(--invert-ink);}
 
     /* Googleクチコミのお願いは、自社名義の施工のときだけ（T050・オーナー 第6回 G733「QR読み取り後に表示させるほうがよい」）。
        名義は作業完了フォームの名乗り照合（kanryo_meigi）が決め、リンクの m= で渡す（j＝自社／h＝本舗）。
-       m が無いときは、作業完了フォームから来た（src=kanryo）場合だけ自社とみなす（画面1は自社のときしかQRを出さない）。
+       m が無いときは、作業完了フォーム（src=kanryo・画面1は自社のときしかQRを出さない）と、現場の紙のQRカード（src=qr・
+       ワンヒッターのカードで自社名義の現場で渡す前提。CMO 判断 10/16）を自社とみなす。それ以外の m 無しは出さない。
        本舗名義のお客様に、ワンヒッターのGoogleクチコミをお願いしない（名乗りの規則）。評価の高低では分けない */
-    var jisha = (P.meigi === 'j') || (P.meigi === '' && P.src === 'kanryo');
+    var jisha = (P.meigi === 'j') || (P.meigi === '' && (P.src === 'kanryo' || P.src === 'qr'));
     if (!jisha) { google.hidden = true; }
 
     if (low) {

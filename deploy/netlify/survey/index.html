@@ -543,7 +543,8 @@ gtag('config','AW-18450975194');
     menu:  (params.get('menu')  || '').slice(0, 120),
     staff: (params.get('staff') || '').slice(0, 20),
     date:  (params.get('date')  || '').slice(0, 20),
-    src:   (params.get('src')   || 'direct').slice(0, 20)
+    src:   (params.get('src')   || 'direct').slice(0, 20),
+    meigi: ((params.get('m') || '').match(/^[jh]$/) || [''])[0]
   };
   $('h-src').value   = P.src;
   $('h-id').value    = P.id;
@@ -966,6 +967,14 @@ gtag('config','AW-18450975194');
     var book   = $('done-book');
     var refer  = $('done-refer');
     var low    = (state.q1 !== null && state.q1 <= 6);
+
+    /* Googleクチコミのお願いは、自社名義の施工のときだけ（T050・オーナー 第6回 G733「QR読み取り後に表示させるほうがよい」）。
+       名義は作業完了フォームの名乗り照合（kanryo_meigi）が決め、リンクの m= で渡す（j＝自社／h＝本舗）。
+       m が無いときは、作業完了フォーム（src=kanryo・画面1は自社のときしかQRを出さない）と、現場の紙のQRカード（src=qr・
+       ワンヒッターのカードで自社名義の現場で渡す前提。CMO 判断 10/16）を自社とみなす。それ以外の m 無しは出さない。
+       本舗名義のお客様に、ワンヒッターのGoogleクチコミをお願いしない（名乗りの規則）。評価の高低では分けない */
+    var jisha = (P.meigi === 'j') || (P.meigi === '' && (P.src === 'kanryo' || P.src === 'qr'));
+    if (!jisha) { google.hidden = true; }
 
     if (low) {
       /* 低評価の方には「まず直接お聞かせください」を先に。

@@ -614,13 +614,13 @@ def make_og(src: pathlib.Path, dst: pathlib.Path, line1: str, line2: str) -> Non
 
 
 # 「11月の早期予約は10%お得」の帯を入れるページ＝広告の着地LP（2026-10-05 オーナー決定）
-BAND_PAGES = {"aircon", "aircon-c", "mizumawari", "mizumawari-b"}
+BAND_PAGES = {"aircon", "aircon-c", "mizumawari", "mizumawari-b", "nenmatsu-b"}
 
 # クチコミの件数を外す・98.6%の脚注を直すページ（承認が出るまで空。tools/bunmen-1010.py）
 BUNMEN_PAGES = {"aircon-c", "aircon-d", "mizumawari-b", "nenmatsu-b"}  # 2026-10-09 配信（第6回MTG 6-4 No.3）。今の版は deploy/netlify に直接当てた
 
 # 申込の入口を予約ページに寄せるページ（承認が出るまで空。tools/iriguchi.py）
-IRIGUCHI_PAGES = {"aircon-c", "mizumawari-b"}  # 2026-10-09 配信（同上）。aircon・mizumawari の今の版は deploy/netlify に直接当てた
+IRIGUCHI_PAGES = {"aircon-c", "mizumawari-b", "nenmatsu-b"}  # 2026-10-09 配信（同上）。aircon・mizumawari の今の版は deploy/netlify に直接当てた
 
 # 交通費の一文・浴室の内訳を入れるページ（公開の承認が出るまで空。tools/chuuki-1008.py）
 CHUUKI_PAGES = {"aircon-c", "aircon-d", "mizumawari-b", "nenmatsu-b"}  # 2026-10-09 配信（同上）

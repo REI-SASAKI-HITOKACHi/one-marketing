@@ -2,6 +2,34 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
+<script>
+/* 学習版7：今の版3 の振り分け（tools/furiwake-mizumawari.py・依頼 20261016-01-lp）。広告から来た人だけ。同じ人には同じ版。
+   残せないとき・JS が動かないときは今の版（このページ）。クエリと # はそのまま引き継ぐ */
+(function () {
+  var K = 'oh_ab_mizumawari_ba', ban = null, kaketa = false, q;
+  var h = location.hash || '';
+  var kotei = /^#ab-(a|b)$/.exec(h);
+  try { q = new URLSearchParams(location.search); } catch (e) { q = null; }
+  var koukoku = !!(q && (q.get('gclid') || q.get('gbraid') || q.get('wbraid') || /^gads/.test(q.get('src') || '')));
+  if (!kotei && (!koukoku || navigator.webdriver)) return;
+  function yomu() {
+    try { var v = localStorage.getItem(K); if (v === 'a' || v === 'b') return v; } catch (e) {}
+    var m = document.cookie.match(new RegExp('(?:^|; )' + K + '=([ab])'));
+    return m ? m[1] : null;
+  }
+  function kaku(v) {
+    try { localStorage.setItem(K, v); if (localStorage.getItem(K) === v) kaketa = true; } catch (e) {}
+    try { document.cookie = K + '=' + v + '; max-age=7776000; path=/; SameSite=Lax; Secure';
+          if (document.cookie.indexOf(K + '=' + v) >= 0) kaketa = true; } catch (e) {}
+  }
+  if (kotei) { ban = kotei[1]; kaku(ban); h = ''; }
+  else { ban = yomu(); if (!ban) { ban = Math.random() < 0.7 ? 'b' : 'a'; kaku(ban); if (!kaketa) ban = 'a'; } }
+  if (ban !== 'b') { if (kotei) history.replaceState(null, '', location.pathname + location.search); return; }
+  window.OH_FURIWAKE = 'b';
+  try { document.documentElement.style.visibility = 'hidden'; } catch (e) {}
+  location.replace('/mizumawari-b/' + location.search + h);
+})();
+</script>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>水まわりクリーニング まとめて依頼で1箇所3,300円おトク｜ONE HITTER</title>
 <meta name="description" content="キッチン・浴室・レンジフード・洗濯機・追い焚き配管。2箇所目からは同時施工価格。浴室＋キッチンで33,660円（税込）、半日で完了。東京・千葉・神奈川、最短即日。">
@@ -32,8 +60,8 @@ gtag('js',new Date());
 var ohClean=function(v,n){return (v||'').replace(/[^A-Za-z0-9_-]/g,'').slice(0,n);};
 var oh_src=ohClean(new URLSearchParams(location.search).get('src'),20)||'direct';
 var oh_cid=ohClean(new URLSearchParams(location.search).get('cid'),20);
-gtag('config','G-DLJCTKGTDN',{'lp_id':'mizumawari','lp_variant':'A','traffic_src':oh_src,'traffic_cid':oh_cid});
-gtag('config','AW-18450975194');
+if(!window.OH_FURIWAKE)gtag('config','G-DLJCTKGTDN',{'lp_id':'mizumawari','lp_variant':'A','traffic_src':oh_src,'traffic_cid':oh_cid});
+if(!window.OH_FURIWAKE)gtag('config','AW-18450975194');
 </script>
 <style data-oh="iriguchi">
 .iri-sub{display:block;text-align:center;margin-top:10px;font-size:14px;font-weight:700;color:var(--ink);text-decoration:underline;text-underline-offset:3px;}
@@ -474,7 +502,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
 .nov-band a:focus-visible{outline:3px solid var(--ink);outline-offset:2px;}
 </style>
 <div class="nov-band" id="nov-band">
-  <p class="nov-in"><b>11月のお掃除は、今のご予約で10%お得</b><span class="nov-sub">1箇所のご依頼・12月は割引なし</span><a href="https://yoyaku.onehitter.jp/" id="nov-link">空いている日を見る</a></p>
+  <p class="nov-in"><b>11月のお掃除は、今のご予約で10%お得</b><span class="nov-sub">1箇所のご依頼・12月は繁忙期（1箇所+3,300円）</span><a href="https://yoyaku.onehitter.jp/" id="nov-link">空いている日を見る</a></p>
 </div>
 <script>
 (function(){
@@ -503,6 +531,11 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     <span class="area" id="hero-area">✓ 東京・千葉・神奈川 対応／最短即日</span>
     <h1>水まわりは、<br><span class="hl">まとめて頼むほど安い。</span></h1>
     <p class="sub" id="hero-sub">キッチン、浴室、レンジフード、洗濯機、追い焚き配管。1箇所ずつ頼むより、同時施工のほうが1箇所あたり3,300円おトク（コンロは4,730円）になります。半日で、家じゅうの水まわりがリセットされます。</p>
+    <!-- nov1015-ue -->    <div class="hero-cta" style="margin:14px 0 18px">
+      <a class="btn lg" href="https://yoyaku.onehitter.jp/" data-yoyaku data-place="hero">空いている日と料金を見る</a>
+      <a class="btn lg tel-cta" id="hero-tel" href="tel:08080438259" hidden>電話で相談する<span class="tel-no">080-8043-8259</span><span class="tel-time">8:00〜20:00／担当 渡辺</span></a>
+      <a class="btn lg line" href="https://lin.ee/7kD9WGN">LINEで相談・予約する</a>
+    </div>
 
     <div class="setbox">
       <div class="top">いちばん多いご依頼｜浴室＋キッチンの2箇所</div>
@@ -524,11 +557,6 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
       <div><span class="t num">半日</span><span class="b">水まわり2〜3箇所の<br>目安作業時間</span></div>
     </div>
 
-    <div class="hero-cta">
-      <a class="btn lg tel-cta" id="hero-tel" href="tel:08080438259" hidden>電話で相談する<span class="tel-no">080-8043-8259</span><span class="tel-time">8:00〜20:00／担当 渡辺</span></a>
-      <a class="btn lg" href="https://yoyaku.onehitter.jp/" data-yoyaku data-place="hero">空いている日と料金を見る</a>
-      <a class="btn lg line" href="https://lin.ee/7kD9WGN">LINEで相談・予約する</a>
-    </div>
     <p class="hero-note">※1 ご利用後アンケートの設問「ご家族や知人友人の方へ『オススメしたい』と思いますか？」に、「すぐにオススメしたい」「機会があればススメてもよい」と答えた方の割合：集計期間 2023年1月〜2025年12月、回答209名中206名、自社調べ</p>
   </div>
 </div>
