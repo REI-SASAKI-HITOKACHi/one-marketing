@@ -17,7 +17,8 @@
      {"heading": "…", "note": "…（任意）",
       "images": ["dist/…/a.png", …],          # 任意
       "texts": [{"label": "メール本文", "body": "…"}]}  # 任意。コピーしやすいよう <pre> で出す
-   ]}
+   ],
+   "nav": false}                                     # 任意。false で切り替えボタンを出さず全部を縦に並べる
 """
 import base64
 import html
@@ -42,7 +43,9 @@ def main() -> None:
     # 右ウィンドウ（iframe）ではページ内リンク #… が効かない（2026-10-10 オーナー「②③のボタンが反応しない」）。
     # → ボタンで1つずつ表示を切り替える。JS が動かない環境でも全部見えるよう、既定は全表示にして JS で絞る
     toc = "".join(f'<button type="button" data-i="{i}">{e(s["heading"])}</button>' for i, s in enumerate(spec["sections"]))
-    if len(spec["sections"]) > 1:   # 1件だけなら切り替えボタンを出さない（右ウィンドウでは別々のファイルで出すのが確実）
+    # 1件だけなら切り替えボタンを出さない。"nav": false なら複数の節でも出さない（縦に全部並べる）。
+    # 右ウィンドウではボタンも効かなかった（2026-10-10 オーナー「面倒だから別々で出しな」）→ 1社1ファイルで nav: false が基本
+    if len(spec["sections"]) > 1 and spec.get("nav", True):
         parts.append(f'<nav>{toc}</nav>')
     for i, s in enumerate(spec["sections"]):
         parts.append(f'<section data-i="{i}"><h2>{e(s["heading"])}</h2>')

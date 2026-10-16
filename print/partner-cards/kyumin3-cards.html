@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><title>休眠先3社 ご紹介カード</title>
+<!--
+  休眠先3社（エル・アップ様・キノビト様・インテリアエージェント様）ご紹介カード（名刺サイズ）デザイン案。3社×3案×表裏＝18面。
+  オーナー 2026-10-16「内容は青山リアルティ様と同様に報告書＋紹介カードの打診で」。青山様・タカラ様の cards.html と同じ規格・同じ検査。
+
+  規格：名刺 91×55mm＋塗り足し各3mm＝97×61mm。文字は7pt以上・仕上がり線から4mm内側（＝紙の端から7mm。.safe）。
+  決まり：当社（ワンヒッター）の名前・連絡先は一切載せない（オーナー 2026-10-10「弊社名は出さなくていい」）。
+          窓口は先方の既存の受付（電話番号は各社サイトの番号を仮に入れた。先方のご指定に差し替える）。
+          QR は付けない（先方の受付ページが決まっていない。青山様と同じく電話の一言で数える）。
+          写真は assets/photos の採用分（docs/photo-inventory-2026-09-14.md：ロゴ・私物・人物の写り込みなしを確認済み）。
+  色の出どころ（docs/休眠先3社-送付物-2026-10.md §6-1）：
+     エル・アップ＝l-up.jp の紺 #394b73・オレンジ #ff721d・水色 #4ea0b8（ゴシック）
+     キノビト＝kinobito.co.jp の木の茶 #906857・金 #daaf08・生成り、見出しは明朝（しっぽり明朝）
+     インテリアエージェント＝rv21.jp の黒 #32373c・赤 #d40707（ゴシック・太字）
+  出力：python3 tools/build-kyumin3-cards.py（各面PNG・提案書の画像。安全域・文字サイズ・孤立文字・重なりの検査つき）
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Barlow:wght@500;600;700&family=Shippori+Mincho+B1:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&display=block" rel="stylesheet">
+<style>
+@page { size:97mm 61mm; margin:0; }
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:#fff}
+body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{width:97mm;height:61mm;position:relative;overflow:hidden;break-after:page}
+@media screen{.page{margin-bottom:4px}}
+.safe{position:absolute;inset:7mm;display:flex;flex-direction:column}
+.num{font-family:"Barlow","Noto Sans JP",sans-serif;font-feature-settings:"tnum" 1,"lnum" 1}
+
+/* ============================================================
+   エル・アップ様：ゴシック。紺が主、オレンジは線と印、水色は差し色
+   ============================================================ */
+.el{font-family:"Noto Sans JP",sans-serif;font-feature-settings:"palt" 1;color:#25304A;line-height:1.4}
+
+/* 案1 コーポレート：紺の表に「工事のあとも」 */
+.e1o{background:#394B73}
+.e1o .tile{position:absolute;right:0;top:0;bottom:0;width:40mm;
+  background:linear-gradient(90deg,#394B73 0%,rgba(57,75,115,0) 60%),repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 .3mm,transparent .3mm 4mm),repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0 .3mm,transparent .3mm 4mm)}
+.e1o .safe{justify-content:center}
+.e1o .ey{font-family:"Barlow",sans-serif;font-weight:600;font-size:7pt;letter-spacing:.24em;color:#FF9A5C}
+.e1o h1{font-size:15pt;font-weight:900;color:#fff;line-height:1.4;letter-spacing:.02em;margin-top:2.4mm}
+.e1o .bar{display:block;width:9mm;height:.8mm;background:#FF721D;margin-top:3mm}
+.e1o .sub{font-size:7.4pt;font-weight:500;color:#D3DAE8;margin-top:2.8mm;letter-spacing:.03em}
+
+.e1u{background:#fff}
+.e1u .lab{font-size:7pt;font-weight:700;color:#394B73;letter-spacing:.12em;display:flex;align-items:center;gap:1.4mm}
+.e1u .lab::before{content:"";width:1.6mm;height:1.6mm;background:#FF721D}
+.e1u .main{margin:auto 0}
+.e1u .co{font-size:9.6pt;font-weight:700;color:#394B73;margin-top:2.2mm;letter-spacing:.02em}
+.e1u .tel{display:flex;align-items:baseline;gap:1.6mm;color:#394B73;margin-top:.6mm}
+.e1u .tel small{font-size:7pt;font-weight:700;letter-spacing:.06em}
+.e1u .tel b{font-family:"Barlow",sans-serif;font-weight:700;font-size:20pt;line-height:1;letter-spacing:.01em}
+.e1u .hrs{font-size:7pt;color:#5A6580;margin-top:.8mm}
+.e1u .say{font-size:7.2pt;margin-top:1.6mm;color:#25304A}
+.e1u .say b{color:#D9550B;font-weight:700}
+.e1u .foot{border-top:.25mm solid #C9D0DE;padding-top:1.5mm;font-size:7pt;color:#5A6580;letter-spacing:.02em}
+
+/* 案2 写真：分解した熱交換器（真っ黒）。リフォームしたお部屋の、見えない奥 */
+.e2o{background:#26324F}
+.e2o .ph{position:absolute;top:0;bottom:0;right:0;width:58mm;background:url('../../assets/photos/IMG_6520.jpg') no-repeat;background-size:cover;background-position:50% 55%;filter:saturate(.85) contrast(1.08)}
+.e2o .shade{position:absolute;top:0;bottom:0;right:0;width:58mm;background:linear-gradient(90deg,#26324F 0%,rgba(38,50,79,.6) 24%,rgba(38,50,79,0) 52%)}
+.e2o .safe{justify-content:center;right:50mm}
+.e2o .tag{align-self:flex-start;font-size:7pt;font-weight:700;letter-spacing:.1em;color:#fff;background:#FF721D;padding:.5mm 1.8mm}
+.e2o h1{margin-top:2.8mm;font-size:12.6pt;font-weight:900;color:#fff;line-height:1.42;letter-spacing:.02em}
+.e2o p{font-size:7.2pt;font-weight:500;color:#D3DAE8;margin-top:2.2mm;line-height:1.5}
+.e2o .cap{position:absolute;right:7mm;bottom:7mm;font-size:7pt;color:rgba(255,255,255,.9);text-shadow:0 0 2mm rgba(0,0,0,.7)}
+
+.e2u{background:#F3F5F9}
+.e2u .band{position:absolute;left:0;right:0;bottom:0;height:24mm;background:#394B73}
+.e2u h2{font-size:8.6pt;font-weight:900;color:#394B73;letter-spacing:.03em}
+.e2u ol{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);column-gap:1.6mm;margin-top:1.8mm}
+.e2u li{background:#fff;padding:1.2mm 1.6mm 1.4mm;font-size:7pt;line-height:1.36;color:#4A5570}
+.e2u li b{display:block;font-size:8pt;font-weight:900;color:#394B73;margin-bottom:.4mm}
+.e2u li b::before{content:"";display:inline-block;width:1.4mm;height:1.4mm;background:#4EA0B8;margin-right:1mm;vertical-align:.3mm}
+.e2u .ct{margin-top:auto;color:#fff}
+.e2u .co{font-size:7.4pt;font-weight:700;letter-spacing:.04em}
+.e2u .co span{font-weight:500;color:#B9C4DB;margin-right:1.6mm}
+.e2u .tel{font-family:"Barlow",sans-serif;font-weight:700;font-size:15pt;line-height:1;margin-top:.8mm}
+.e2u .say{font-size:7pt;color:#DCE3F0;margin-top:1mm}
+
+/* 案3 お手入れ帳：設備の「設置・前回のお手入れ」を書ける。交換の時期の相談がエル・アップに戻る */
+.e3o{background:#fff}
+.e3o .rule{position:absolute;left:7mm;top:9mm;bottom:9mm;width:.9mm;background:#394B73}
+.e3o .safe{left:11.6mm;justify-content:center}
+.e3o .ey{font-family:"Barlow",sans-serif;font-weight:600;font-size:7pt;letter-spacing:.26em;color:#4EA0B8}
+.e3o h1{font-size:14pt;font-weight:900;color:#25304A;line-height:1.38;letter-spacing:.02em;margin-top:2mm}
+.e3o h1 em{font-style:normal;color:#E0600F}
+.e3o .kinds{margin-top:4mm;display:flex;gap:1.2mm}
+.e3o .kinds span{font-size:7pt;font-weight:700;color:#394B73;border:.25mm solid #394B73;padding:.3mm 1.4mm}
+.e3o .sub{font-size:7pt;color:#5A6580;margin-top:1.6mm}
+
+.e3u{background:#fff}
+.e3u .safe{inset:6.6mm 7mm 7mm}
+.e3u .h{font-size:8pt;font-weight:900;color:#394B73;letter-spacing:.06em;display:flex;justify-content:space-between;align-items:baseline}
+.e3u .h small{font-size:7pt;font-weight:500;color:#6A7390}
+.e3u table{width:100%;border-collapse:collapse;margin-top:.6mm}
+.e3u th,.e3u td{font-size:7pt;height:4.6mm;vertical-align:bottom;padding-bottom:.4mm;border-bottom:.2mm solid #B5BDD0}
+.e3u th{font-weight:700;color:#394B73;text-align:left;width:22mm}
+.e3u thead th{color:#6A7390;font-weight:500;height:3.4mm;border-bottom:.25mm solid #394B73}
+.e3u td{color:#8A92AC;text-align:right;width:auto}
+.e3u .hint{font-size:7pt;color:#5A6580;margin-top:1.4mm}
+.e3u .hint b{color:#D9550B}
+.e3u .ct{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end}
+.e3u .co{font-size:7pt;font-weight:700;color:#394B73}
+.e3u .tel{font-family:"Barlow",sans-serif;font-weight:700;font-size:13pt;line-height:1;color:#25304A;margin-top:.5mm}
+.e3u .say{font-size:7pt;color:#25304A;text-align:right;line-height:1.45}
+.e3u .say b{color:#D9550B}
+
+/* ============================================================
+   キノビト様：見出しは明朝（しっぽり明朝）、本文はゴシック。木の茶・金・生成り
+   ============================================================ */
+.kn{font-family:"Noto Sans JP",sans-serif;font-feature-settings:"palt" 1;color:#4A3A30;line-height:1.5}
+.kn .m{font-family:"Shippori Mincho B1",serif;font-feature-settings:normal}
+
+/* 案1 生成りの案内状 */
+.k1o,.k1u{background:#FAF5EA}
+.k1o .frame{position:absolute;inset:7mm;border:.25mm solid #906857}
+.k1o .safe{inset:10mm 11mm 9.6mm;text-align:center}
+.k1o .en{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:7pt;letter-spacing:.4em;padding-left:.4em;color:#A88A12;margin-top:1mm}
+.k1o h1{font-weight:600;font-size:13pt;letter-spacing:.14em;padding-left:.14em;line-height:1.7;margin-top:2.2mm;color:#5B4335}
+.k1o .orn{display:block;width:7mm;height:.25mm;background:#DAAF08;margin:2.2mm auto 0}
+.k1o .sub{font-size:7.2pt;font-weight:500;letter-spacing:.06em;color:#6E5A4D;margin-top:2.2mm}
+.k1o .from{margin-top:auto;font-size:7.4pt;font-weight:600;letter-spacing:.2em;padding-left:.2em;color:#906857}
+
+.k1u .safe{inset:8.4mm 9.4mm 8mm}
+.k1u .en{font-family:"Cormorant Garamond",serif;font-style:italic;font-weight:500;font-size:9pt;color:#A88A12;line-height:1}
+.k1u dl{margin-top:2mm}
+.k1u dl div{display:grid;grid-template-columns:14mm 1fr;align-items:baseline}
+.k1u dl div+div{margin-top:1mm}
+.k1u dt{font-size:7.4pt;font-weight:600;color:#5B4335}
+.k1u dd{font-size:7.4pt;font-weight:500;line-height:1.55}
+.k1u dd small{display:block;font-size:7pt;color:#7C6A5E}
+.k1u .ct{margin-top:auto;border-top:.25mm solid #DAAF08;padding-top:1.6mm}
+.k1u .lab{font-size:7pt;color:#7C6A5E;letter-spacing:.08em}
+.k1u .co{font-size:7.8pt;font-weight:600;color:#5B4335;margin-top:.2mm}
+.k1u .tel{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:13.4pt;letter-spacing:.06em;line-height:1;margin-top:.8mm;color:#5B4335;font-feature-settings:"lnum" 1}
+.k1u .tel small{font-family:"Noto Sans JP",sans-serif;font-weight:500;font-size:7pt;margin-right:1.4mm;color:#7C6A5E}
+.k1u .say{font-size:7pt;color:#7C6A5E;margin-top:.9mm}
+
+/* 案2 木の色：売る前に、住む前に（売主様・買主様の両方） */
+.k2o{background:#7E5B4B}
+.k2o .grain{position:absolute;inset:0;background:repeating-linear-gradient(176deg,rgba(255,255,255,.035) 0 .4mm,transparent .4mm 2.2mm)}
+.k2o .safe{justify-content:center;text-align:center}
+.k2o h1{font-weight:600;font-size:16pt;letter-spacing:.16em;padding-left:.16em;line-height:1.6;color:#FBF4E2}
+.k2o .line{display:block;width:8mm;height:.3mm;background:#DAAF08;margin:2.8mm auto 0}
+.k2o .sub{font-size:7.4pt;font-weight:500;letter-spacing:.08em;color:#EADFCB;margin-top:2.6mm}
+.k2o .from{font-size:7pt;font-weight:600;letter-spacing:.24em;padding-left:.24em;color:#E4C55A;margin-top:3mm}
+
+.k2u{background:#FAF5EA}
+.k2u .safe{inset:8mm 8.6mm 7.6mm}
+.k2u .two{display:grid;grid-template-columns:1fr 1fr;column-gap:3mm}
+.k2u .two div{border-top:.6mm solid #906857;padding-top:1.4mm}
+.k2u .two b{display:block;font-size:8.2pt;font-weight:600;color:#5B4335;letter-spacing:.06em}
+.k2u .two em{display:block;font-style:normal;font-size:7pt;color:#A88A12;font-weight:700;margin-top:.2mm}
+.k2u .two span{display:block;font-size:7pt;color:#5E4C40;line-height:1.5;margin-top:.6mm}
+.k2u .ct{margin-top:auto;text-align:center}
+.k2u .co{font-size:7.4pt;font-weight:600;color:#5B4335}
+.k2u .co span{font-weight:500;color:#7C6A5E;margin-right:1.4mm}
+.k2u .tel{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:13pt;letter-spacing:.08em;line-height:1;margin-top:.7mm;color:#5B4335;font-feature-settings:"lnum" 1}
+.k2u .say{font-size:7pt;color:#7C6A5E;margin-top:.8mm}
+
+/* 案3 ご入居前のチェック：鍵と一緒に渡す、しおりの形 */
+.k3o{background:#fff}
+.k3o .band{position:absolute;left:0;top:0;bottom:0;width:30mm;background:#906857}
+.k3o .vt{position:absolute;left:7mm;top:7mm;bottom:7mm;width:16mm;writing-mode:vertical-rl;font-feature-settings:normal;display:flex;align-items:center;justify-content:center}
+.k3o .vt p{font-weight:600;font-size:12pt;letter-spacing:.24em;color:#FBF4E2;line-height:1.8}
+.k3o .safe{left:36mm;justify-content:center}
+.k3o .en{font-family:"Cormorant Garamond",serif;font-style:italic;font-weight:600;font-size:8pt;color:#A88A12}
+.k3o h1{font-weight:600;font-size:11.6pt;line-height:1.6;color:#5B4335;margin-top:1.4mm;letter-spacing:.04em}
+.k3o .sub{font-size:7pt;color:#7C6A5E;margin-top:2mm;line-height:1.55}
+.k3o .from{font-size:7pt;font-weight:600;color:#906857;letter-spacing:.18em;margin-top:2.4mm}
+
+.k3u{background:#FAF5EA}
+.k3u .safe{inset:7.4mm 8mm 7.4mm}
+.k3u .h{font-size:8.4pt;font-weight:600;color:#5B4335;letter-spacing:.06em}
+.k3u ul{list-style:none;margin-top:1.2mm}
+.k3u li{display:grid;grid-template-columns:3.4mm 1fr;column-gap:1.4mm;align-items:start;font-size:7.2pt;color:#4A3A30;line-height:1.45}
+.k3u li+li{margin-top:.5mm}
+.k3u li i{width:2.8mm;height:2.8mm;border:.25mm solid #906857;margin-top:.5mm}
+.k3u li small{display:block;font-size:7pt;color:#7C6A5E}
+.k3u .ct{margin-top:auto;border-top:.25mm solid #DAAF08;padding-top:1.3mm;display:flex;justify-content:space-between;align-items:flex-end}
+.k3u .co{font-size:7pt;font-weight:600;color:#5B4335}
+.k3u .tel{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:12.6pt;letter-spacing:.06em;line-height:1;color:#5B4335;margin-top:1mm;font-feature-settings:"lnum" 1}
+.k3u .say{font-size:7pt;color:#7C6A5E;text-align:right;line-height:1.45}
+
+/* ============================================================
+   インテリアエージェント様：ゴシック太字。黒が主、赤は線と印
+   ============================================================ */
+.ia{font-family:"Noto Sans JP",sans-serif;font-feature-settings:"palt" 1;color:#32373C;line-height:1.4}
+
+/* 案1 コーポレート */
+.i1o{background:#2B2F34}
+.i1o .slash{position:absolute;right:-6mm;top:-4mm;width:30mm;height:72mm;background:#D40707;transform:skewX(-14deg);opacity:.95}
+.i1o .slash2{position:absolute;right:20mm;top:-4mm;width:2mm;height:72mm;background:#D40707;transform:skewX(-14deg);opacity:.6}
+.i1o .safe{justify-content:center;right:30mm}
+.i1o .ey{font-family:"Barlow",sans-serif;font-weight:600;font-size:7pt;letter-spacing:.2em;color:#FF6B6B}
+.i1o h1{font-size:13.4pt;font-weight:900;color:#fff;line-height:1.42;letter-spacing:.01em;margin-top:2.2mm}
+.i1o .sub{font-size:7.2pt;font-weight:500;color:#C9CDD2;margin-top:2.6mm}
+
+.i1u{background:#fff}
+.i1u .main{margin:auto 0}
+.i1u .lab{font-size:7pt;font-weight:700;color:#D40707;letter-spacing:.12em}
+.i1u .co{font-size:9.6pt;font-weight:900;color:#32373C;margin-top:1.6mm}
+.i1u .tel{display:flex;align-items:baseline;gap:1.6mm;margin-top:.6mm}
+.i1u .tel small{font-size:7pt;font-weight:700}
+.i1u .tel b{font-family:"Barlow",sans-serif;font-weight:700;font-size:20pt;line-height:1}
+.i1u .say{font-size:7.2pt;margin-top:1.8mm}
+.i1u .say b{color:#C00606}
+.i1u .foot{border-top:.6mm solid #D40707;padding-top:1.4mm;display:flex;justify-content:space-between;font-size:7pt;color:#5A6068}
+
+/* 案2 写真：分解洗浄で出た汚水（3台ぶん） */
+.i2o{background:#1F2226}
+.i2o .ph{position:absolute;top:0;bottom:0;left:0;width:50mm;background:url('../../assets/photos/IMG_6561.jpg') no-repeat;background-size:cover;background-position:40% 30%;filter:saturate(.8) contrast(1.06)}
+.i2o .shade{position:absolute;top:0;bottom:0;left:0;width:50mm;background:linear-gradient(270deg,#1F2226 0%,rgba(31,34,38,.5) 22%,rgba(31,34,38,0) 50%)}
+.i2o .safe{left:52mm;justify-content:center}
+.i2o .tag{align-self:flex-start;font-size:7pt;font-weight:700;color:#fff;background:#D40707;padding:.5mm 1.8mm;letter-spacing:.08em}
+.i2o h1{margin-top:2.6mm;font-size:12.4pt;font-weight:900;color:#fff;line-height:1.42}
+.i2o p{font-size:7.2pt;color:#C9CDD2;margin-top:2mm;line-height:1.5}
+.i2o .cap{position:absolute;left:7mm;bottom:7mm;font-size:7pt;color:rgba(255,255,255,.9);text-shadow:0 0 2mm rgba(0,0,0,.8)}
+
+.i2u{background:#F4F4F5}
+.i2u .band{position:absolute;left:0;right:0;bottom:0;height:23mm;background:#2B2F34}
+.i2u .band::before{content:"";position:absolute;left:0;right:0;top:0;height:.8mm;background:#D40707}
+.i2u h2{font-size:8.6pt;font-weight:900;color:#32373C}
+.i2u ol{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);column-gap:1.6mm;margin-top:1.8mm}
+.i2u li{background:#fff;padding:1.2mm 1.6mm 1.4mm;font-size:7pt;line-height:1.36;color:#5A6068;border-top:.5mm solid #D40707}
+.i2u li b{display:block;font-size:8pt;font-weight:900;color:#32373C;margin-bottom:.3mm}
+.i2u .ct{margin-top:auto;color:#fff}
+.i2u .co{font-size:7.4pt;font-weight:700}
+.i2u .co span{font-weight:500;color:#AEB4BB;margin-right:1.6mm}
+.i2u .tel{font-family:"Barlow",sans-serif;font-weight:700;font-size:15pt;line-height:1;margin-top:.8mm}
+.i2u .say{font-size:7pt;color:#D5D9DE;margin-top:1mm}
+
+/* 案3 原状回復と一緒に：管理会社・オーナー向け。裏は洗浄の記録 */
+.i3o{background:#fff}
+.i3o .rule{position:absolute;left:7mm;top:9mm;bottom:9mm;width:1mm;background:#D40707}
+.i3o .safe{left:11.6mm;justify-content:center}
+.i3o .ey{font-family:"Barlow",sans-serif;font-weight:600;font-size:7pt;letter-spacing:.22em;color:#5A6068}
+.i3o h1{font-size:13.6pt;font-weight:900;color:#32373C;line-height:1.4;margin-top:2mm}
+.i3o h1 em{font-style:normal;color:#D40707}
+.i3o .kinds{margin-top:3.6mm;display:flex;gap:1.2mm}
+.i3o .kinds span{font-size:7pt;font-weight:700;color:#32373C;border:.25mm solid #32373C;padding:.3mm 1.4mm}
+.i3o .sub{font-size:7pt;color:#5A6068;margin-top:1.6mm}
+
+.i3u{background:#fff}
+.i3u .h{font-size:8pt;font-weight:900;color:#32373C;display:flex;justify-content:space-between;align-items:baseline}
+.i3u .h small{font-size:7pt;font-weight:500;color:#6A7078}
+.i3u table{width:100%;border-collapse:collapse;margin-top:1mm}
+.i3u th{font-size:7pt;font-weight:700;color:#32373C;text-align:left;width:16mm;height:5.8mm;vertical-align:bottom;padding-bottom:.6mm;border-bottom:.2mm solid #B8BCC2}
+.i3u td{font-size:7pt;color:#8A9098;text-align:right;vertical-align:bottom;padding-bottom:.6mm;border-bottom:.2mm solid #B8BCC2}
+.i3u td span{display:inline-block;width:9mm}
+.i3u .hint{font-size:7pt;color:#6A7078;margin-top:1mm}
+.i3u .ct{margin-top:auto;border-top:.6mm solid #D40707;padding-top:1.3mm;display:flex;justify-content:space-between;align-items:flex-end}
+.i3u .co{font-size:7pt;font-weight:700}
+.i3u .tel{font-family:"Barlow",sans-serif;font-weight:700;font-size:13pt;line-height:1;margin-top:.5mm}
+.i3u .say{font-size:7pt;text-align:right;line-height:1.45}
+.i3u .say b{color:#C00606}
+</style></head>
+<body>
+
+<!-- ================= エル・アップ 案1 コーポレート ================= -->
+<div class="page el e1o" id="elup-1-omote">
+  <div class="tile"></div>
+  <div class="safe">
+    <p class="ey">HOUSE CARE</p>
+    <h1>工事のあとの<br>お手入れも、<br>エル・アップへ。</h1>
+    <i class="bar"></i>
+    <p class="sub">エアコン・浴室・キッチン・洗濯機・追い焚き配管</p>
+  </div>
+</div>
+<div class="page el e1u" id="elup-1-ura">
+  <div class="safe">
+    <div class="main">
+      <p class="lab">お手入れのご相談</p>
+      <p class="co">株式会社エル・アップ</p>
+      <p class="tel"><small>TEL</small><b>0120-030-371</b></p>
+      <p class="hrs">受付 10:00〜18:00（水・日・祝はお休み）</p>
+      <p class="say">「<b>お手入れのカードを見た</b>」とお伝えください。</p>
+    </div>
+    <p class="foot">エアコンの分解洗浄／浴室／キッチン・換気扇／洗濯機／追い焚き配管</p>
+  </div>
+</div>
+
+<!-- ================= エル・アップ 案2 写真 ================= -->
+<div class="page el e2o" id="elup-2-omote">
+  <div class="ph"></div><div class="shade"></div>
+  <div class="safe">
+    <span class="tag">分解したエアコンの奥</span>
+    <h1>きれいな<br>お部屋の、<br>見えない奥。</h1>
+    <p>お手入れも、<br>エル・アップへ。</p>
+  </div>
+  <p class="cap">分解洗浄の前</p>
+</div>
+<div class="page el e2u" id="elup-2-ura">
+  <div class="band"></div>
+  <div class="safe">
+    <h2>こんな時は、お手入れのサインです。</h2>
+    <ol>
+      <li><b>エアコン</b>においがする<br>効きが悪い</li>
+      <li><b>浴室</b>水あか・カビが<br>落ちない</li>
+      <li><b>追い焚き</b>お湯に汚れが<br>浮いてくる</li>
+    </ol>
+    <div class="ct">
+      <p class="co"><span>ご相談</span>株式会社エル・アップ</p>
+      <p class="tel">0120-030-371</p>
+      <p class="say">「お手入れのカードを見た」とお伝えください。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= エル・アップ 案3 お手入れ帳 ================= -->
+<div class="page el e3o" id="elup-3-omote">
+  <i class="rule"></i>
+  <div class="safe">
+    <p class="ey">HOUSE CARE NOTE</p>
+    <h1>設備のお手入れと、<br><em>交換の時期</em>を一枚に。</h1>
+    <div class="kinds"><span>エアコン</span><span>浴室</span><span>キッチン</span><span>給湯器</span></div>
+    <p class="sub">お手入れも、交換のご相談も、エル・アップへ。</p>
+  </div>
+</div>
+<div class="page el e3u" id="elup-3-ura">
+  <div class="safe">
+    <p class="h">お住まいのお手入れ帳<small>冷蔵庫に貼ってお使いください</small></p>
+    <table>
+      <thead><tr><th>設備</th><td>設置</td><td>前回のお手入れ</td></tr></thead>
+      <tr><th>エアコン</th><td>年</td><td>年　　月</td></tr>
+      <tr><th>浴室・追い焚き</th><td>年</td><td>年　　月</td></tr>
+      <tr><th>キッチン・換気扇</th><td>年</td><td>年　　月</td></tr>
+    </table>
+    <p class="hint">設置から年数がたった設備は、<b>交換のご相談</b>も承ります。</p>
+    <div class="ct">
+      <div>
+        <p class="co">ご相談　株式会社エル・アップ</p>
+        <p class="tel">0120-030-371</p>
+      </div>
+      <p class="say">お電話の際は<br>「<b>お手入れのカードを見た</b>」と。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= キノビト 案1 生成りの案内状 ================= -->
+<div class="page kn k1o" id="kinobito-1-omote">
+  <i class="frame"></i>
+  <div class="safe">
+    <p class="en">HOME CARE</p>
+    <h1 class="m">見つけた家を、<br>気持ちよく始める。</h1>
+    <i class="orn"></i>
+    <p class="sub">ご入居前のエアコンと、水まわりのお手入れ</p>
+    <p class="from m">株式会社キノビト</p>
+  </div>
+</div>
+<div class="page kn k1u" id="kinobito-1-ura">
+  <div class="safe">
+    <p class="en">Home Care</p>
+    <dl>
+      <div><dt class="m">空調</dt><dd>エアコンの分解洗浄<small>お掃除機能付きのエアコンにも対応します</small></dd></div>
+      <div><dt class="m">水まわり</dt><dd>浴室・キッチン・洗面所・換気扇</dd></div>
+    </dl>
+    <div class="ct">
+      <p class="lab">ご相談</p>
+      <p class="co m">株式会社キノビト</p>
+      <p class="tel"><small>TEL</small>03-5879-5509</p>
+      <p class="say">お電話の際は「お手入れのカードを見た」とお伝えください。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= キノビト 案2 木の色 ================= -->
+<div class="page kn k2o" id="kinobito-2-omote">
+  <i class="grain"></i>
+  <div class="safe">
+    <h1 class="m">売る前に。<br>住む前に。</h1>
+    <i class="line"></i>
+    <p class="sub">内覧の前、ご入居の前のお手入れ</p>
+    <p class="from m">株式会社キノビト</p>
+  </div>
+</div>
+<div class="page kn k2u" id="kinobito-2-ura">
+  <div class="safe">
+    <div class="two">
+      <div><b class="m">売却をお考えの方</b><em>内覧の前に</em><span>浴室・キッチン・エアコン。<br>お住まいのままでも伺います。</span></div>
+      <div><b class="m">ご購入の方</b><em>ご入居の前に</em><span>エアコン・換気扇・浴室。<br>家具が入る前が手軽です。</span></div>
+    </div>
+    <div class="ct">
+      <p class="co m"><span>ご相談は</span>株式会社キノビト</p>
+      <p class="tel">03-5879-5509</p>
+      <p class="say">お電話の際は「お手入れのカードを見た」とお伝えください。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= キノビト 案3 ご入居前のチェック ================= -->
+<div class="page kn k3o" id="kinobito-3-omote">
+  <i class="band"></i>
+  <div class="vt"><p class="m">新しい住まいへ</p></div>
+  <div class="safe">
+    <p class="en">Before you move in</p>
+    <h1 class="m">鍵を受け取ったら、<br>家具が入る前に。</h1>
+    <p class="sub">エアコン・換気扇・浴室のお手入れは、<br>お部屋が空いているうちが手軽です。</p>
+    <p class="from m">株式会社キノビト</p>
+  </div>
+</div>
+<div class="page kn k3u" id="kinobito-3-ura">
+  <div class="safe">
+    <p class="h m">ご入居前のチェック</p>
+    <ul>
+      <li><i></i><span>エアコン<small>前のお住まいの汚れが、内部に残っていませんか</small></span></li>
+      <li><i></i><span>換気扇・レンジフード<small>油汚れは、使い始める前がいちばん落としやすい</small></span></li>
+      <li><i></i><span>浴室・洗面所<small>水あか・カビは、暮らし始める前に</small></span></li>
+    </ul>
+    <div class="ct">
+      <div>
+        <p class="co m">ご相談　株式会社キノビト</p>
+        <p class="tel">03-5879-5509</p>
+      </div>
+      <p class="say">お電話の際は<br>「お手入れのカードを見た」と。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= インテリアエージェント 案1 コーポレート ================= -->
+<div class="page ia i1o" id="interior-1-omote">
+  <i class="slash"></i><i class="slash2"></i>
+  <div class="safe">
+    <p class="ey">AIR CONDITIONER CLEANING</p>
+    <h1>業務用エアコンの<br>分解洗浄も、<br>インテリアエージェントへ。</h1>
+    <p class="sub">オフィス・店舗の天井カセットから壁掛けまで</p>
+  </div>
+</div>
+<div class="page ia i1u" id="interior-1-ura">
+  <div class="safe">
+    <div class="main">
+      <p class="lab">ご相談・お見積り</p>
+      <p class="co">インテリアエージェント</p>
+      <p class="tel"><small>TEL</small><b>0120-17-1154</b></p>
+      <p class="say">「<b>エアコン洗浄のカードを見た</b>」とお伝えください。</p>
+    </div>
+    <p class="foot"><span>業務用・家庭用エアコン　分解洗浄</span><span>天井カセット／天吊り／床置き／壁掛け</span></p>
+  </div>
+</div>
+
+<!-- ================= インテリアエージェント 案2 写真 ================= -->
+<div class="page ia i2o" id="interior-2-omote">
+  <div class="ph"></div><div class="shade"></div>
+  <div class="safe">
+    <span class="tag">分解洗浄の排水</span>
+    <h1>フィルターの<br>奥に、これだけの<br>汚れ。</h1>
+    <p>エアコンの洗浄は、<br>インテリアエージェントへ。</p>
+  </div>
+  <p class="cap">エアコン3台ぶん</p>
+</div>
+<div class="page ia i2u" id="interior-2-ura">
+  <div class="band"></div>
+  <div class="safe">
+    <h2>オフィス・店舗で、こんな声が出たら。</h2>
+    <ol>
+      <li><b>におう</b>冷房をつけると<br>酸っぱいにおい</li>
+      <li><b>効かない</b>設定温度に<br>なかなか届かない</li>
+      <li><b>水が垂れる</b>吹き出し口から<br>水滴や黒い点</li>
+    </ol>
+    <div class="ct">
+      <p class="co"><span>ご相談</span>インテリアエージェント</p>
+      <p class="tel">0120-17-1154</p>
+      <p class="say">「エアコン洗浄のカードを見た」とお伝えください。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= インテリアエージェント 案3 原状回復と一緒に ================= -->
+<div class="page ia i3o" id="interior-3-omote">
+  <i class="rule"></i>
+  <div class="safe">
+    <p class="ey">RESTORATION ＋ CLEANING</p>
+    <h1>原状回復の工程に、<br><em>エアコンの洗浄</em>も。</h1>
+    <div class="kinds"><span>天井カセット</span><span>天吊り</span><span>床置き</span><span>壁掛け</span></div>
+    <p class="sub">クロス・床と同じ窓口で、日程もまとめて。</p>
+  </div>
+</div>
+<div class="page ia i3u" id="interior-3-ura">
+  <div class="safe">
+    <p class="h">エアコン洗浄の記録<small>リモコンのそばに置いてください</small></p>
+    <table>
+      <tr><th>設置</th><td><span>年</span><span>月</span></td></tr>
+      <tr><th>前回の洗浄</th><td><span>年</span><span>月</span></td></tr>
+      <tr><th>次回の目安</th><td><span>年</span><span>月</span></td></tr>
+    </table>
+    <p class="hint">目安：飲食店は年1回／オフィスは1〜2年に1回</p>
+    <div class="ct">
+      <div>
+        <p class="co">ご相談　インテリアエージェント</p>
+        <p class="tel">0120-17-1154</p>
+      </div>
+      <p class="say">お電話の際は<br>「<b>エアコン洗浄のカードを見た</b>」と。</p>
+    </div>
+  </div>
+</div>
+
+</body></html>
