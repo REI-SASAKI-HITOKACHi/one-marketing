@@ -110,15 +110,43 @@ def tenken(out: pathlib.Path) -> list:
     return ng
 
 
+# オーナーの指摘が来たときに、すぐ差し替えられる代案（依頼 20261017-01-lp）。--alt bunkai,koe-namae のように指定する
+ALT = {
+    # 「分解して洗います」が、背抜き（完全分解）を受ける意味に取られないように
+    "bunkai": [
+        ("分解して洗います。ノーマル10,780円", "カバーを外して、奥まで洗います。ノーマル10,780円"),
+        ("フィルター掃除では届かないところを、分解して洗います。", "カバーを外して、フィルター掃除では届かない奥まで洗います。"),
+        ("送風ファンのカビかもしれません。分解して洗います。<b>お見積りは無料です。</b>",
+         "送風ファンのカビかもしれません。カバーを外して、奥まで洗います。<b>お見積りは無料です。</b>"),
+        ("<h2>フィルターの奥を、<br>分解して洗います</h2>", "<h2>フィルターの奥まで、<br>洗います</h2>"),
+    ],
+    # 季節の節を、和真さんの名前で出す
+    "koe-namae": [("― ワンヒッター 担当者より（2026年10月）", "― 担当 渡辺（2026年10月）")],
+    # 季節の節を、人の声ではなく会社の記録として出す（名乗りの行を消す）
+    "koe-nashi": [('\n      <p class="kisetsu-who">― ワンヒッター 担当者より（2026年10月）</p>', "")],
+}
+
+
+def alt(h: str, names) -> str:
+    for n in names:
+        for a, b in ALT[n]:
+            if a not in h:
+                sys.exit(f"代案 {n}：差し替え先が見つかりません：{a[:40]}")
+            h = h.replace(a, b)
+    return h
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--src", default=str(ROOT / "deploy" / "netlify" / "aircon-e"))
     ap.add_argument("--img", default=str(ROOT / "deploy" / "netlify" / "aircon-c" / "img"))
     ap.add_argument("--out", default=str(ROOT / "preview" / "kabi"))
+    ap.add_argument("--alt", default="", help="代案：bunkai／koe-namae／koe-nashi をカンマ区切りで")
     a = ap.parse_args()
     src, out = pathlib.Path(a.src), pathlib.Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
-    (out / "index.html").write_text(make_index((src / "index.html").read_text(encoding="utf-8")), encoding="utf-8")
+    names = [x for x in a.alt.split(",") if x]
+    (out / "index.html").write_text(alt(make_index((src / "index.html").read_text(encoding="utf-8")), names), encoding="utf-8")
     (out / "thanks.html").write_text(make_thanks((src / "thanks.html").read_text(encoding="utf-8")), encoding="utf-8")
     if (out / "img").exists():
         shutil.rmtree(out / "img")
