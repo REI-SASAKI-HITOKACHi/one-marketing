@@ -35,6 +35,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 YOTEI = ROOT / "data" / "kanryo-yotei.json"
 SUMI = ROOT / "data" / "kanryo-okurizumi.json"
 BASE = "https://oh-naibu-sms-k7q3x.netlify.app/kanryo/"
+JUCHU = "https://oh-naibu-sms-k7q3x.netlify.app/juchu/"   # 次回予約用（お名前・電話・住所・メニューを入れた状態で開く）
 JST = datetime.timezone(datetime.timedelta(hours=9))
 SAKI_FUN = 30   # 開始から何分後に送るか
 KYOU_CAL = pathlib.Path.home() / ".cache" / "one-hitter" / "kyou-yotei.json"   # 和真さんの今日の予定（コネクタの list_events の返り値そのまま）
@@ -117,6 +118,44 @@ def url(y, p=None):
     return kaku(d)
 
 
+def daichou_gyo(daichou):
+    """「10月_売上/顧客 8行目」の行から、電話・住所を読む（次回予約の受注フォームに入れる）。読めなければ空。"""
+    import re
+    m = re.match(r"\s*(.+?)\s+(\d+)行目", str(daichou or ""))
+    if not m:
+        return {}
+    try:
+        import urllib.parse
+        import sheets_client as sc
+        tok = sc.access_token(sc.load_credentials())
+        rng = f"'{m.group(1)}'!A{m.group(2)}:H{m.group(2)}"
+        v = sc.call(tok, "/1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64/values/" + urllib.parse.quote(rng, safe="")).get("values", [[]])
+        r = (v or [[]])[0] + [""] * 8
+        return {"t": str(r[5]).strip(), "a": str(r[7]).strip()}
+    except Exception as e:
+        print(f"  ⚠ 次回予約リンク用に台帳の電話・住所を読めませんでした（名前とメニューだけ入れます）: {e}")
+        return {}
+
+
+def jikai_url(y):
+    """次回予約用の受注フォーム（同じお客様の情報を入れた状態）。2026-10-16 和真さんの要望・オーナー了承。
+
+    その場で次回予約を取ったとき、受注フォームの住所などの入力でお客様を待たせてしまい、
+    カレンダーに仮で入れてから後で受注フォーム、の二度手間になっていた。
+    → 作業完了フォームと一緒に、お名前・電話・住所・今回のメニューが入った受注フォームのリンクを送る。
+       日付と時刻だけ入れれば送れる。値は # のうしろ（サーバへ送られない）。受け側は lp/juchu の #p=。
+    """
+    from importlib import import_module
+    g = gamen1_meigi(y)
+    shurui = {"自社": "One Hitter", "本舗": "本舗"}.get(g, y.get("売上種類", ""))
+    menu = "／".join(str(x).replace("(", "（").replace(")", "）") for x in (y.get("メニュー") or []))
+    atai = {"s": shurui, "k": "早期予約", "n": y.get("氏名", ""), "m": menu,
+            "b": f"次回予約（{y.get('施工日付', '')} の作業完了時に受注）"}
+    atai.update(daichou_gyo(y.get("台帳")))
+    j = json.dumps({k: v for k, v in atai.items() if v}, ensure_ascii=False, separators=(",", ":"))
+    return JUCHU + "#p=" + base64.urlsafe_b64encode(j.encode("utf-8")).decode("ascii").rstrip("=")
+
+
 def mishin_ichiran():
     try:
         import kanryo_mishin
@@ -148,6 +187,9 @@ def honbun(y, p=None):
         "最初の画面はお客様に見せるものです（アンケートのQR）。",
         "お客様が回答されている間に、次回のご予約をご提案ください。",
         "下の「次へ（スタッフ用）」で入力画面に変わります。",
+        "",
+        "【次回のご予約が取れたら】お名前・電話・住所・今回のメニューが入った受注フォームです。日付と時刻を入れて送るだけです（メニューは変えられます）。",
+        jikai_url(y),
     ] + (["", f"※ ほかに作業完了フォームが未入力のお客様が {len(hoka)} 名います（入力画面のお客様欄から選べます）："]
          + ["・" + x["d"][5:].replace("-", "/") + " " + x["n"] + " さま" for x in hoka] if hoka else []))
 

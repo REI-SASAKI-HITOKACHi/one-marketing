@@ -329,7 +329,8 @@ const [src, out, jobs, partners] = [process.argv[2], process.argv[3], JSON.parse
     console.log('QR', q.id, q.url, q.mm.toFixed(1) + 'mm', q.n + 'モジュール', '1モジュール' + (q.mm / (q.n + 6)).toFixed(2) + 'mm', ok ? '読取OK' : '読取NG ' + JSON.stringify(got));
     if (!ok) probs.push(q.id + ' QRが読めない／中身が違う');
   }
-  await pg.pdf({ path: out + '/cards-print.pdf', width: '97mm', height: '61mm', printBackground: true });
+  // NO_PDF=1 のときは PDF を作らない（合格前は PDF を渡さない：オーナー 2026-10-10。tools/build-kyumin3-cards.py が使う）
+  if (!process.env.NO_PDF) await pg.pdf({ path: out + '/cards-print.pdf', width: '97mm', height: '61mm', printBackground: true });
   const fonts = [...new Set(await pg.evaluate(() => [...document.fonts].filter(f => f.status === 'loaded').map(f => f.family)))];
   // ---- 専用ページの画面（提案書2ページ目のスマホ枠に入れる）。空き枠の取得は止める（実際の予定を写さない） ----
   for (const [key, html] of Object.entries(partners)) {
@@ -343,7 +344,7 @@ const [src, out, jobs, partners] = [process.argv[2], process.argv[3], JSON.parse
   for (const [h, p] of jobs) {
     const q = await b.newPage({ deviceScaleFactor: 1.5, viewport: { width: 1123, height: 794 } });
     await q.goto('file://' + h, { waitUntil: 'networkidle' }); await q.evaluate(() => document.fonts.ready); await q.waitForTimeout(500);
-    await q.pdf({ path: p, width: '297mm', height: '210mm', printBackground: true });
+    if (!process.env.NO_PDF) await q.pdf({ path: p, width: '297mm', height: '210mm', printBackground: true });
     for (const sid of ['p1', 'p2']) await q.locator('#' + sid).screenshot({ path: p.replace(/\.pdf$/, '-' + sid + '.png') });
     // 提案書のはみ出し（中身が A4 の外へ）を見る
     const of = await q.evaluate(() => [...document.querySelectorAll('.sheet')].filter(s => s.scrollHeight > s.clientHeight + 1 || s.scrollWidth > s.clientWidth + 1).map(s => s.id));
