@@ -37,14 +37,22 @@ kaeru = f_.kaeru
 TITLE = "エアコンが臭い・暖房にしたらカビ臭いときに｜エアコンクリーニング 10,780円｜ONE HITTER"
 DESC = ("エアコンが臭い、暖房に切り替えたらカビ臭い。そのにおいは、フィルターの奥の熱交換器や送風ファンのカビかもしれません。"
         "分解して洗います。ノーマル10,780円（税込）・60分。お見積り以上の追加請求はありません。東京・千葉・神奈川。")
-H1 = '<h1>暖房をつけたら、<br>エアコンが<span class="hl">臭い</span>。</h1>'
-SUB = ('<p class="hero-sub" id="hero-sub">においの元は、フィルターの奥の熱交換器や送風ファンのカビかもしれません。'
-       'フィルター掃除では届かないところを、分解して洗います。</p>')
+# 最初の画面のフック（オーナー案 10/17・依頼 20261017-02-lp）。気象の数字・「記録的」・「◯%のお宅」は書かない。現場で見ていることとして
+H1 = ('<p class="nagaame-ue">毎日エアコンを洗う職人より、この秋のお知らせ</p>\n'
+      '    <h1>9月の長雨で、<br>エアコンの奥に<span class="hl">カビ</span>が<br>増えています。</h1>\n'
+      '    <p class="nagaame-sub">暖房をつけたら、エアコンが臭い。</p>')
+SETSUMEI = ('いま伺うお宅では、送風ファンの奥に黒いカビが残っているエアコンが目立ちます。'
+            '暖房をつけて臭ったら、それが合図です。')
+SUB = f'<p class="hero-sub" id="hero-sub">{SETSUMEI}</p>'
+NAGAAME_CSS = """
+/* 最初の画面の長雨のフック（tools/make-kabi.py） */
+.nagaame-ue{display:inline-block;margin:0 0 6px;padding:3px 10px;border-radius:999px;background:#FCEAE4;color:#8F2408;font-size:12.5px;font-weight:700;}
+.nagaame-sub{margin:8px 0 4px;font-size:17px;font-weight:800;color:var(--ink);}
+"""
 
 
 HERO_SUB_GADS_OLD = "sashikae('hero-sub',  '熱交換器の奥まで分解して洗います。<b>お見積りは無料です。</b>');"
-HERO_SUB_GADS_NEW = ("sashikae('hero-sub',  'においの元は、フィルターの奥の熱交換器や送風ファンのカビかもしれません。"
-                     "分解して洗います。<b>お見積りは無料です。</b>');")
+HERO_SUB_GADS_NEW = f"sashikae('hero-sub',  '{SETSUMEI}<b>お見積りは無料です。</b>');"
 
 
 def make_index(h: str) -> str:
@@ -69,7 +77,7 @@ def make_index(h: str) -> str:
     h = kaeru(h, f_.H1_OLD, H1)
     h = kaeru(h, f_.SUB_OLD, SUB)
     h = kaeru(h, HERO_SUB_GADS_OLD, HERO_SUB_GADS_NEW)   # 広告で来た人向けの差し替え文も、においの話に
-    h = kaeru(h, '.hero-tel .num{font-size:17px;}\n', '.hero-tel .num{font-size:17px;}\n' + f_.CSS)
+    h = kaeru(h, '.hero-tel .num{font-size:17px;}\n', '.hero-tel .num{font-size:17px;}\n' + f_.CSS + NAGAAME_CSS)
     h = kaeru(h, '\n<section id="check">', f_.KISETSU + '\n<section id="check">')
     h = zei.apply(h)
     rest = sorted(set(re.findall(r'.{0,40}aircon-[ce](?!\.py).{0,40}', re.sub(r'/\*.*?\*/', '', h, flags=re.S))))
@@ -131,7 +139,7 @@ def alt(h: str, names) -> str:
     for n in names:
         for a, b in ALT[n]:
             if a not in h:
-                sys.exit(f"代案 {n}：差し替え先が見つかりません：{a[:40]}")
+                continue   # 新しい説明文（10/17）で元の言い回しが無くなったものは飛ばす
             h = h.replace(a, b)
     return h
 
@@ -141,7 +149,7 @@ def main():
     ap.add_argument("--src", default=str(ROOT / "deploy" / "netlify" / "aircon-e"))
     ap.add_argument("--img", default=str(ROOT / "deploy" / "netlify" / "aircon-c" / "img"))
     ap.add_argument("--out", default=str(ROOT / "preview" / "kabi"))
-    ap.add_argument("--alt", default="", help="代案：bunkai／koe-namae／koe-nashi をカンマ区切りで")
+    ap.add_argument("--alt", default="bunkai", help="代案：bunkai／koe-namae／koe-nashi をカンマ区切りで")
     a = ap.parse_args()
     src, out = pathlib.Path(a.src), pathlib.Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
