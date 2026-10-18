@@ -109,12 +109,46 @@ section.band{padding:clamp(60px,7.5vw,108px) 0}
 .sy dt{font-size:11px;letter-spacing:.14em;color:var(--red);font-weight:700;margin-bottom:5px}
 .sy dd{margin:0;font-size:13.5px;color:var(--mute);line-height:1.95}
 .sy dd b{color:var(--ink);font-weight:500}
+.sy dd .src{color:var(--mute);font-size:11.5px;text-decoration:underline;text-underline-offset:2px}
+.sy dd .src:hover{color:var(--red)}
 .sy .go{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;margin-top:18px;font-size:12.5px;color:var(--mute)}
 .sy .go b{font-family:var(--mincho);font-size:20px;color:var(--ink);font-weight:400;letter-spacing:.02em;white-space:nowrap}
 .sy .go b i{font-style:normal;font-size:.58em;margin-left:1px}
 .sy .go a{margin-left:auto;text-decoration:none;color:var(--red);font-weight:700;font-size:13px;white-space:nowrap}
 .sy .go a:hover{text-decoration:underline}
 @media(max-width:800px){.sy{grid-template-columns:1fr}.sy .pic{min-height:0;aspect-ratio:3/2}}
+
+
+/* ---- 価格×評判 ---- */
+.price{background:#2d2d2a;color:#f5f4f1}
+.price .in{max-width:1120px;margin:0 auto;padding:clamp(54px,6.5vw,92px) 28px}
+.price .t{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,56px);align-items:end;margin-bottom:38px}
+.price h2{margin:0;font-family:var(--mincho);font-size:clamp(23px,3.4vw,38px);
+  letter-spacing:.09em;line-height:1.55;font-weight:400}
+.price h2 em{font-style:normal;color:#ff8b7d}
+.price .t p{margin:0;color:rgba(245,244,241,.7);font-size:13.5px;line-height:2}
+.price table{width:100%;border-collapse:collapse;font-size:14px}
+.price tr{border-bottom:1px solid rgba(245,244,241,.16)}
+.price tr:first-child{border-top:1px solid rgba(245,244,241,.16)}
+.price th{text-align:left;font-weight:400;padding:16px 0;color:rgba(245,244,241,.72);letter-spacing:.06em}
+.price td{text-align:right;padding:16px 0;font-family:var(--mincho);font-size:22px;letter-spacing:.02em}
+.price td i{font-style:normal;font-size:.55em;margin-left:2px}
+.price td.d{width:6.5em;font-family:var(--gothic);font-size:13px;color:rgba(245,244,241,.6)}
+.price tr.me{background:rgba(217,71,57,.14)}
+.price tr.me th{color:#fff;font-weight:700}
+.price tr.me td{color:#ff8b7d}
+.price tr.me td.d{color:rgba(245,244,241,.6)}
+.price .kome{margin-top:18px;font-size:11px;line-height:2;color:rgba(245,244,241,.55);opacity:1}
+.price .big{margin:38px 0 0;padding-top:30px;border-top:1px solid rgba(245,244,241,.16);
+  font-family:var(--mincho);font-size:clamp(17px,2.2vw,24px);line-height:1.9;letter-spacing:.07em}
+.price .big b{color:#ff8b7d;font-weight:400}
+@media(max-width:760px){
+  .price .t{grid-template-columns:1fr;gap:16px;align-items:start}
+  .price .in{padding:46px 18px}
+  .price td{font-size:19px}
+  .price td.d{width:4.6em;font-size:11.5px}
+  .price th{font-size:13px}
+}
 
 /* ---- 差（/concept/ への入口） ---- */
 .why{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(255,255,255,.5)}
@@ -226,6 +260,11 @@ footer .in{max-width:1120px;margin:0 auto;padding:0 28px;display:flex;flex-wrap:
             <dd>フィルターの洗浄と、使用後の送風運転。<b>届くのはここまで</b>で、熱交換器とファンには手が入りません。市販の洗浄スプレーは、溶けた汚れが内部に残ることがあります。</dd></div>
           <div><dt>頼む目安</dt>
             <dd>フィルターを洗っても臭いが消えない。吹き出し口の奥に黒い点が見える。1〜2年、内部を洗っていない。</dd></div>
+          <div><dt>電気代のこと</dt>
+            <dd>汚れが溜まると風の通り道が狭くなり、同じ温度にするのに余計に電力を使います。
+            <b>フィン（熱交換器）とフィルターの清掃で、消費電力の5〜10%の削減が期待できる</b>とされています
+            <a class="src" href="https://j-net21.smrj.go.jp/development/energyeff/Q1262.html" target="_blank" rel="noopener">（中小企業基盤整備機構 J-Net21）</a>。
+            汚れ方とお使いの環境によって変わります。</dd></div>
         </dl>
         <div class="go">エアコンクリーニング（お掃除機能なし）<b>10,780<i>円</i></b>
           <a href="/feature/エアコンクリーニング/">くわしく見る →</a></div>
@@ -313,9 +352,27 @@ footer .in{max-width:1120px;margin:0 auto;padding:0 28px;display:flex;flex-wrap:
   <p class="more rv"><a class="btn ghost" href="/menu/">料金とメニューを全部見る<span class="ar">→</span></a></p>
 </div></section>
 
+<div class="price"><div class="in">
+  <div class="t rv">
+    <h2 class="mincho">大手3社より、<em>2〜3割</em>。<br>評価は、<em>★5.0</em>。</h2>
+    <p>エアコンクリーニング（壁掛け・お掃除機能なし／税込）を、大手ハウスクリーニング3社の標準料金と並べたものです。</p>
+  </div>
+  <table class="rv">
+    <tr><th>大手A社</th><td>15,400<i>円</i></td><td class="d">−30%</td></tr>
+    <tr><th>大手B社</th><td>14,300<i>円</i></td><td class="d">−25%</td></tr>
+    <tr><th>大手C社</th><td>14,190<i>円</i></td><td class="d">−24%</td></tr>
+    <tr class="me"><th>ワンヒッター</th><td>10,780<i>円</i></td><td class="d">—</td></tr>
+  </table>
+  <p class="kome rv">※ 2026年10月時点、各社公式サイトの標準料金（税込・1台）。キャンペーン価格は含みません。<br>
+    ※ 3社のほかに、当社と同程度またはそれ以下の料金の事業者もあります。最安ではありません。<br>
+    ※ 当社は5月〜7月・12月に1台あたり3,300円が加算されます。他社にも繁忙期の設定がある場合があります。</p>
+  <p class="big rv">この価格帯で、<b>Googleクチコミ25件すべてが★5</b>です。<br>
+    平均が5.0なのではなく、★4以下が1件もありません（2026年10月時点）。</p>
+</div></div>
+
 <div class="why"><div class="in">
-  <h2 class="mincho">どこに頼んでも同じ、ではありません。</h2>
-  <p>分解して中まで洗う。汚れをお見せする。——ここまでは、どの業者でも書けることです。私たちを選んでくださる理由は、そのあとにあります。</p>
+  <h2 class="mincho">安さだけで選ぶと、ここが揃いません。</h2>
+  <p>分解して中まで洗う。汚れをお見せする。——ここまでは、どの業者でも書けることです。値段の下には、たいてい理由があります。</p>
   <div class="g">
     <div class="rv"><b>209名のうち206名が<br>「勧めてもよい」</b>
       <span>施工後のアンケート（2023年1月〜2025年12月／回答209名）。Googleのクチコミ25件には、★4以下が1件もありません（2026年10月時点）。</span></div>
