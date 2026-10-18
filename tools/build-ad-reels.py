@@ -462,7 +462,7 @@ def check(reel):
     return bad
 
 
-def build(reel, poster=False, bgm=True):
+def build(reel, poster=False, bgm=True, proxy=False):
     scenes = reel["scenes"]
     starts, total = timeline(scenes)
     OUT.mkdir(parents=True, exist_ok=True)
@@ -506,6 +506,9 @@ def build(reel, poster=False, bgm=True):
         sys.exit("ffmpeg が失敗した")
     print(f"できた {out}  {total:.1f}秒  {out.stat().st_size/1024/1024:.1f}MB")
 
+    if proxy:
+        make_proxy(out)
+
     if poster:
         # 確認用：各カットの真ん中を1枚ずつ並べた静止画
         shots = []
@@ -520,12 +523,29 @@ def build(reel, poster=False, bgm=True):
         print(f"できた {ps}")
 
 
+def make_proxy(src: pathlib.Path):
+    """確認用の軽い版（720x1280・2〜3MB）。Drive や LINE で配るときはこちら。
+    入稿には使わない（Meta には 1080x1920 の本体を入れる）"""
+    import imageio_ffmpeg
+    exe = imageio_ffmpeg.get_ffmpeg_exe()
+    dst = src.with_name(src.stem + "-軽量" + src.suffix)
+    cmd = [exe, "-y", "-loglevel", "error", "-i", str(src),
+           "-vf", "scale=720:1280:flags=lanczos",
+           "-c:v", "libx264", "-preset", "slow", "-crf", "26",
+           "-profile:v", "high", "-pix_fmt", "yuv420p",
+           "-c:a", "aac", "-b:a", "96k", "-movflags", "+faststart", str(dst)]
+    if subprocess.run(cmd).returncode != 0:
+        sys.exit("ffmpeg が失敗した（軽量版）")
+    print(f"できた {dst}  {dst.stat().st_size/1024/1024:.1f}MB")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("ids", nargs="*")
     ap.add_argument("--check", action="store_true", help="文言の検査だけ")
     ap.add_argument("--poster", action="store_true", help="確認用の静止画も出す")
     ap.add_argument("--no-bgm", action="store_true", help="BGMを入れない（無音の音声だけ）")
+    ap.add_argument("--proxy", action="store_true", help="確認用の軽量版（720x1280）も出す")
     a = ap.parse_args()
 
     reels = json.loads(SPEC.read_text(encoding="utf-8"))["reels"]
@@ -542,7 +562,7 @@ def main():
     if a.check:
         return
     for r in reels:
-        build(r, poster=a.poster, bgm=not a.no_bgm)
+        build(r, poster=a.poster, bgm=not a.no_bgm, proxy=a.proxy)
 
 
 if __name__ == "__main__":
