@@ -225,26 +225,31 @@ footer .in{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between}
    JavaScriptなし。文字は <span class="ch" style="--i:n"> に分けてある。
    読み上げ用に h1 へ aria-label を付けてあるので、分割しても意味は壊れない。
    ===================================================================== */
+/* 組み立ての時間（2026-10-19 オーナー指示：文字3.5秒、背景まで込みで5秒）
+   0.00s 小見出し／0.45s 1文字目 … 100ms刻み … 3.50s 20文字目が出きる
+   2.60s 幕が右へ引きはじめ → 4.20s 引き終わる
+   2.70s 背景がぼけから戻りはじめ → 5.00s 戻りきる
+   3.30s 下線／3.00s 本文／3.30s ボタン                               */
 .hero h1 .ch{display:inline-block;opacity:0;transform:translateY(.42em) rotateX(38deg);
-  transform-origin:50% 100%;animation:chin .72s cubic-bezier(.2,.8,.2,1) forwards;
-  animation-delay:calc(var(--i) * 52ms + .22s)}
+  transform-origin:50% 100%;animation:chin 1.15s cubic-bezier(.2,.8,.2,1) forwards;
+  animation-delay:calc(var(--i) * 100ms + .45s)}
 @keyframes chin{to{opacity:1;transform:none}}
-/* 2行目の下線は、文字が出そろってから引く */
+/* 2行目の下線は、文字が出そろうのに合わせて引く */
 .hero h1 .em::after{transform:scaleX(0);transform-origin:left;
-  animation:emline .75s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:1.26s}
+  animation:emline 1s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:3.3s}
 @keyframes emline{to{transform:scaleX(1)}}
 
 /* 文字を追いかける幕。右へ引いていくと背景が現れる */
 .hero .veil{position:absolute;inset:0;z-index:1;background:var(--bg);
-  transform-origin:right;animation:veil 1.25s cubic-bezier(.76,0,.24,1) forwards;animation-delay:.4s}
+  transform-origin:right;animation:veil 1.6s cubic-bezier(.76,0,.24,1) forwards;animation-delay:2.6s}
 @keyframes veil{to{transform:scaleX(0)}}
 .hero .bg img{opacity:0;transform:scale(1.13);filter:saturate(.55) blur(7px);
-  animation:bgin 1.9s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:.42s}
+  animation:bgin 2.3s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:2.7s}
 @keyframes bgin{to{opacity:1;transform:none;filter:none}}
 /* 先に出る小見出しと、あとから出る本文・ボタン */
-.hero .eyebrow{animation:rise .7s cubic-bezier(.2,.8,.2,1) both}
-.hero p.lead{animation:rise .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:1.35s}
-.hero .acts{animation:rise .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:1.5s}
+.hero .eyebrow{animation:rise .8s cubic-bezier(.2,.8,.2,1) both}
+.hero p.lead{animation:rise .9s cubic-bezier(.2,.8,.2,1) both;animation-delay:3s}
+.hero .acts{animation:rise .9s cubic-bezier(.2,.8,.2,1) both;animation-delay:3.3s}
 @keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
 
 /* =====================================================================
@@ -307,7 +312,7 @@ footer .in{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between}
   .trust .n .cnt{animation:none;counter-reset:n var(--to)}
 }
 @media(max-width:600px){
-  .hero h1 .ch{animation-delay:calc(var(--i) * 40ms + .18s)}
+  .hero h1 .ch{animation-delay:calc(var(--i) * 90ms + .4s)}
   .trust .c{padding:26px 12px 24px}
   .trust .sub{margin-top:5px;font-size:9.5px;letter-spacing:0}
 }
@@ -430,8 +435,11 @@ footer .in{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between}
     <div class="v rv"><div class="st">★★★★★</div><p class="tx">…前回のエアコンクリーニングも同じ方にやっていただき、アフターサービスも大変充実していたので、とっても信頼できる会社だと思います。</p><div class="wh">M様／Googleクチコミ・2024年4月／洗濯機・換気扇</div></div>
     <div class="v rv"><div class="st">★★★★★</div><p class="tx">非常に気の行き届いた細やかなお仕事をして頂いて…兎に角おかげさまで大満足です。</p><div class="wh">H様／Googleクチコミ・2024年10月／エアコン・室外機</div></div>
   </div>
-  <!-- 公開前に href を Google のクチコミ一覧URLに差し替えること（短縮版を載せる以上、全文が読める導線が必須） -->
-  <p class="more rv"><a class="btn ghost" href="#">Googleクチコミを全文で読む<span class="ar">→</span></a></p>
+  <!-- クチコミ一覧（Place ID: ChIJef_3b2eHGGARMY2GoTASaXs）。
+       PC・スマホとも、クチコミ25件が全文で開くことを 2026-10-19 に実測。
+       g.page/r/… の短縮URLはGoogleのトップに飛ぶので使わない（変更99） -->
+  <p class="more rv"><a class="btn ghost" rel="noopener" target="_blank"
+    href="https://search.google.com/local/reviews?placeid=ChIJef_3b2eHGGARMY2GoTASaXs&amp;hl=ja">Googleクチコミを全文で読む（25件）<span class="ar">→</span></a></p>
   <p class="kome rv">※ 掲載内容はお客様個人の感想であり、効果・仕上がりを保証するものではありません。<br>※ 2026年10月時点／Googleクチコミ 25件・平均 ★5.0。本文はいただいたまま、省略箇所のみ「…」で示しています。</p>
 </div></section>
 
