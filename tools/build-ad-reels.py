@@ -462,7 +462,7 @@ def check(reel):
     return bad
 
 
-def build(reel, poster=False):
+def build(reel, poster=False, bgm=True):
     scenes = reel["scenes"]
     starts, total = timeline(scenes)
     OUT.mkdir(parents=True, exist_ok=True)
@@ -475,14 +475,24 @@ def build(reel, poster=False):
     except ImportError:
         sys.exit("pip3 install imageio-ffmpeg が要ります")
 
+    # BGM。他人の曲は権利の確認が要るので使わない。tools/make-reel-bgm.py でその場で合成する
+    if bgm:
+        from importlib.machinery import SourceFileLoader
+        mb = SourceFileLoader("mb", str(ROOT / "tools" / "make-reel-bgm.py")).load_module()
+        wav = OUT / f"bgm-{reel['id']}.wav"
+        mb.write_wav(wav, mb.build(total))
+        audio_in = ["-i", str(wav)]
+    else:
+        audio_in = ["-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=44100"]
+
     cmd = [exe, "-y", "-loglevel", "error",
            "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
-           "-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=44100",
+           *audio_in,
            "-shortest",
            "-c:v", "libx264", "-preset", "slow", "-crf", "18",
            "-profile:v", "high", "-level", "4.0", "-pix_fmt", "yuv420p",
            "-x264-params", "keyint=60:min-keyint=30",
-           "-c:a", "aac", "-b:a", "128k",
+           "-c:a", "aac", "-b:a", "160k", "-ar", "44100",
            "-movflags", "+faststart", str(out)]
     pr = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     for i in range(n):
@@ -515,6 +525,7 @@ def main():
     ap.add_argument("ids", nargs="*")
     ap.add_argument("--check", action="store_true", help="文言の検査だけ")
     ap.add_argument("--poster", action="store_true", help="確認用の静止画も出す")
+    ap.add_argument("--no-bgm", action="store_true", help="BGMを入れない（無音の音声だけ）")
     a = ap.parse_args()
 
     reels = json.loads(SPEC.read_text(encoding="utf-8"))["reels"]
@@ -531,7 +542,7 @@ def main():
     if a.check:
         return
     for r in reels:
-        build(r, poster=a.poster)
+        build(r, poster=a.poster, bgm=not a.no_bgm)
 
 
 if __name__ == "__main__":
