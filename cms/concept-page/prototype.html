@@ -75,6 +75,7 @@ nav.main a:hover::after,nav.main a.on::after{transform:scaleX(1);transform-origi
 .phead .in{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:82px 28px 76px}
 .phead .en{display:block;font-size:11.5px;letter-spacing:.26em;color:var(--red);font-weight:700;margin-bottom:14px}
 .phead h1{margin:0;font-size:clamp(27px,4.4vw,46px);letter-spacing:.09em;line-height:1.5}
+.phead h1 em{font-style:normal;color:var(--red)}
 .phead p{margin:24px 0 0;max-width:38em;color:var(--mute);font-size:14.5px}
 .phead .crumb{font-size:11.5px;color:var(--mute);letter-spacing:.06em;margin-bottom:18px}
 .phead .crumb a{text-decoration:none}
@@ -85,6 +86,8 @@ section.band{padding:clamp(64px,8vw,120px) 0}
 .sechead{margin:0 0 44px}
 .sechead .en{display:block;font-size:11.5px;letter-spacing:.26em;color:var(--red);font-weight:700;margin-bottom:14px}
 .sechead h2{margin:0;font-size:clamp(22px,3.2vw,34px);letter-spacing:.09em;line-height:1.6}
+.sechead p{margin:18px 0 0;max-width:44em;color:var(--mute);font-size:14.5px}
+.sechead p strong{color:var(--ink);font-weight:500}
 .rule{height:1px;background:var(--line);position:relative;margin:0 0 44px}
 .rule i{position:absolute;left:0;top:0;width:84px;height:1px;background:var(--red);transform-origin:left;display:block}
 
@@ -106,6 +109,12 @@ section.band{padding:clamp(64px,8vw,120px) 0}
 .diff .c b{display:block;font-family:var(--mincho);font-size:19px;letter-spacing:.07em;
   font-weight:400;line-height:1.7;margin-bottom:11px}
 .diff .c span{font-size:13px;color:var(--mute);line-height:1.95}
+.diff .c q{display:block;margin-top:16px;padding:14px 0 0;border-top:1px solid var(--line);
+  font-family:var(--mincho);font-size:13.5px;line-height:1.95;letter-spacing:.04em;quotes:"C" "D"}
+.diff .c q::before{content:open-quote;color:var(--red);opacity:.4;margin-right:.1em}
+.diff .c q::after{content:close-quote;color:var(--red);opacity:.4}
+.diff .c cite{display:block;margin-top:8px;font-style:normal;font-family:var(--gothic);
+  font-size:10.5px;letter-spacing:.06em;color:var(--mute);opacity:.85}
 
 /* ---- 写真つきの節 ---- */
 .split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,5vw,72px);align-items:center}
@@ -117,19 +126,21 @@ section.band{padding:clamp(64px,8vw,120px) 0}
   background:linear-gradient(transparent,rgba(45,45,42,.72));color:#fff;font-size:11.5px;letter-spacing:.06em}
 @media(max-width:860px){.split{grid-template-columns:1fr}.split.rev{direction:ltr}}
 
-/* ---- 数字 ---- */
-.nums{display:grid;grid-template-columns:repeat(2,1fr);border:1px solid var(--line);background:rgba(255,255,255,.5)}
-.nums .c{padding:34px 24px 30px;text-align:center;border-left:1px solid var(--line)}
-.nums .c:first-child{border-left:0}
-.nums .n{font-family:var(--mincho);font-size:clamp(26px,3.6vw,38px);letter-spacing:.03em;line-height:1.2}
-.nums .n i{font-style:normal;font-size:.5em;margin-left:2px}
-.nums .n .dec{font-size:.62em;letter-spacing:0}
-.nums .n .stars{color:var(--red);letter-spacing:.06em;font-size:.6em}
-.nums .t{margin-top:9px;font-size:12.5px;color:var(--mute);line-height:1.8}
-.nums .t b{color:var(--ink);font-weight:700}
-.nums .sub{margin-top:6px;font-size:10.5px;color:var(--mute);opacity:.85;line-height:1.7}
-@media(max-width:600px){.nums{grid-template-columns:1fr}
-  .nums .c{border-left:0;border-top:1px solid var(--line)}.nums .c:first-child{border-top:0}}
+/* ---- 数字の帯 ---- */
+.numband{border-bottom:1px solid var(--line);background:rgba(255,255,255,.55)}
+.numband .in{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
+.numband .c{padding:36px 24px 32px;text-align:center;border-left:1px solid var(--line)}
+.numband .c:first-child{border-left:0}
+.numband .n{font-family:var(--mincho);font-size:clamp(26px,3.6vw,38px);letter-spacing:.03em;line-height:1.2}
+.numband .n i{font-style:normal;font-size:.5em;margin-left:2px}
+.numband .n .dec{font-size:.62em;letter-spacing:0}
+.numband .n .stars{color:var(--red);letter-spacing:.06em;font-size:.56em}
+.numband .t{margin-top:9px;font-size:12.5px;color:var(--mute);line-height:1.8}
+.numband .t b{color:var(--ink);font-weight:700}
+.numband .sub{margin-top:6px;font-size:10.5px;color:var(--mute);opacity:.85;line-height:1.7}
+@media(max-width:760px){.numband .in{grid-template-columns:1fr}
+  .numband .c{border-left:0;border-top:1px solid var(--line);padding:24px 18px}
+  .numband .c:first-child{border-top:0}}
 
 /* ---- 正直な節 ---- */
 .honest{background:#2d2d2a;color:#f5f4f1}
@@ -208,38 +219,65 @@ footer .in{max-width:1120px;margin:0 auto;padding:0 28px;display:flex;flex-wrap:
   <div class="in">
     <p class="crumb"><a href="/">ホーム</a>　›　コンセプト</p>
     <span class="en">CONCEPT</span>
-    <h1 class="mincho">いちばん安い会社では、<br>ありません。</h1>
-    <p>もっと安いところは、探せば見つかります。それでも私たちを選んでくださる方が、くり返しご依頼くださいます。その差が何なのかを、このページに書きます。</p>
+    <h1 class="mincho">209名のうち206名が、<br><em>「勧めてもよい」</em>と答えました。</h1>
+    <p>施工のあとにお送りしているアンケートの結果です（2023年1月〜2025年12月）。自分が使って良かったかどうかより、家族や友人に勧められるかどうかは、ひとつ厳しい質問だと思っています。</p>
   </div>
 </div>
+
+<div class="numband"><div class="in">
+  <div class="c rv">
+    <div class="n">98<span class="dec">.6</span><i>%</i></div>
+    <div class="t">ご家族や友人に<br><b>勧めてもよい</b></div>
+    <div class="sub">2023年1月〜2025年12月／回答209名中206名（自社アンケート）</div>
+  </div>
+  <div class="c rv">
+    <div class="n"><span class="stars">★★★★★</span> 5.0</div>
+    <div class="t">Googleクチコミ<br><b>25件すべてが★5</b></div>
+    <div class="sub">2026年10月時点／★4以下は1件もありません</div>
+  </div>
+  <div class="c rv">
+    <div class="n">0<i>円</i></div>
+    <div class="t">お見積りのあとの<br><b>追加請求</b></div>
+    <div class="sub">お出しした金額から増やしません</div>
+  </div>
+</div></div>
 
 <section class="band"><div class="wrap narrow">
   <p class="lead rv">掃除をやめた分だけ、<br><em>暮らしは戻ってくる。</em></p>
   <div class="body">
     <p class="rv">日本人がいちばん嫌いな家事は、掃除です。1日30分なら、1年で180時間。その時間を、大切なことに使っていただきたい。それがワンヒッターのはじまりでした。</p>
-    <p class="rv">ただ、時間を返すだけなら、安く早く済ませる方法はいくらでもあります。<strong>私たちがそちらに行かなかったのは、「やった感じはするけれど、半年でまた同じになる」掃除を何度も見てきたからです。</strong></p>
-    <p class="rv">エアコンのカビは、フィルターの奥の熱交換器と、送風ファンの羽根の間にあります。洗濯機の黒いカスは、槽の裏側から出ます。レンジフードの吸い込みが落ちるのは、ファンの羽根1枚ずつに油が固まるからです。<strong>どれも、外から拭いて届く場所ではありません。</strong></p>
-    <p class="rv">分解して、中を洗う。それをやると、時間も人もかかります。その分が、料金に乗っています。</p>
+    <p class="rv">エアコンのカビは、フィルターの奥の熱交換器と、送風ファンの羽根の間にあります。洗濯機の黒いカスは、槽の裏側から出ます。レンジフードの吸い込みが落ちるのは、ファンの羽根1枚ずつに油が固まるからです。分解して、中を洗う。<strong>——ただ、ここまでは当たり前のことです。</strong></p>
+    <p class="rv">分解洗浄をうたう会社は、いくらでもあります。大手にもありますし、もっと安いところにもあります。<strong>「分解します」「汚れをお見せします」は、選ぶ理由になりません。</strong></p>
+    <p class="rv">料金でいえば、私たちは大手のハウスクリーニング会社より抑えてお出ししています。けれど、安さで選んでいただきたいわけでもありません。<strong>206名が「勧めてもよい」と答えた理由は、たぶん、もっと手前にあります。</strong></p>
   </div>
 </div></section>
 
 <section class="band" style="background:rgba(255,255,255,.45);border-top:1px solid var(--line);border-bottom:1px solid var(--line)"><div class="wrap">
   <div class="sechead rv"><span class="en">THE DIFFERENCE</span>
-    <h2 class="mincho">その差額で、<br>私たちがしていること。</h2></div>
+    <h2 class="mincho">「勧めてもよい」の、中身。</h2>
+    <p>どこに頼んでも同じことではなく、<strong>私たちに頼まないと起きないこと</strong>だけを4つ挙げます。</p></div>
   <div class="rule rv"><i></i></div>
   <div class="diff">
+
     <div class="c rv"><div class="no">01</div>
-      <b>分解して、中まで洗う</b>
-      <span>外から拭くのではなく、外せるところは外して洗います。エアコンの送風ファン、洗濯槽、レンジフードのシロッコファン。汚れが溜まるのは、どれも分解しないと届かない場所です。</span></div>
+      <b>毎回、同じ職人が伺います</b>
+      <span>下請けには出していません。だから「前回の人は良かったのに」が起きません。2回目以降も、前回どこが汚れていたかを覚えたまま伺えます。</span>
+      <q>作業してくださる方の力量も一定ではなく不満に思っていたので、去年からこちらにお願いしました。<cite>K様・Googleクチコミ（他社から移られた理由）</cite></q></div>
+
     <div class="c rv"><div class="no">02</div>
-      <b>洗う前と、落ちた汚れをお見せする</b>
-      <span>作業前の状態と、洗い出した汚れをその場でご覧いただいてから次に進みます。「こんなに汚れていたんだ」と確認していただくところまでが、私たちの仕事です。</span></div>
+      <b>頼まれていない不具合も、お伝えします</b>
+      <span>決められた範囲だけ洗って帰る仕事にはしていません。開けたときに気づいたことは、料金に関係なくお伝えします。</span>
+      <q>今回はクリーニング対象外のエアコンの不具合も見つけて頂き、大変助かりました。<cite>Y様・Googleクチコミ</cite></q></div>
+
     <div class="c rv"><div class="no">03</div>
-      <b>お見積りの金額から、増やさない</b>
-      <span>作業のあとで追加の請求をすることはありません。駐車場が確保できない場合のコインパーキング代と、高速道路を使う地域の交通費だけは、お見積りのお電話で先にお伝えします。</span></div>
+      <b>お見積りの金額から、増やしません</b>
+      <span>当日になって「これは別料金です」がありません。増えるのは、駐車場が確保できない場合のコインパーキング代と、高速道路を使う地域の交通費だけ。それもお見積りのお電話で先にお伝えします。</span></div>
+
     <div class="c rv"><div class="no">04</div>
-      <b>伺うのは、自社の職人</b>
-      <span>下請けには出していません。だから人によって仕上がりが変わることがなく、2回目以降も同じ者が伺えるように組んでいます。前回どこが汚れていたかを、覚えたまま伺えます。</span></div>
+      <b>クチコミ25件に、★4以下がありません</b>
+      <span>平均が5.0なのではなく、1件ずつが★5です。当たり外れが無い、ということだと受け止めています。</span>
+      <q>とっても信頼できる会社だと思います。<cite>M様・Googleクチコミ</cite></q></div>
+
   </div>
 </div></section>
 
@@ -260,29 +298,12 @@ footer .in{max-width:1120px;margin:0 auto;padding:0 28px;display:flex;flex-wrap:
   </div>
 </div></section>
 
-<section class="band" style="padding-top:0"><div class="wrap narrow">
-  <div class="nums">
-    <div class="c rv">
-      <div class="n">98<span class="dec">.6</span><i>%</i></div>
-      <div class="t">ご家族や友人に<br><b>勧めてもよい</b></div>
-      <div class="sub">2023年1月〜2025年12月／回答209名中206名（自社アンケート）</div>
-    </div>
-    <div class="c rv">
-      <div class="n"><span class="stars">★★★★★</span> 5.0</div>
-      <div class="t">Googleクチコミの<br><b>平均評価</b></div>
-      <div class="sub">25件（2026年10月時点）</div>
-    </div>
-  </div>
-  <p class="kome rv">※ 98.6%は自社で集計したアンケートの結果です。第三者による調査ではありません。<br>
-    ※ Googleクチコミの件数と平均は変わります。<a href="/voice/">お客様の声</a>で全文をご覧いただけます。</p>
-</div></section>
-
 <section class="band honest"><div class="wrap narrow">
   <p class="q rv">合わない方も、<br>いらっしゃると思います。</p>
   <div class="rv">
-    <p>私たちはいちばん安い会社ではありません。次のような場合は、他をあたっていただいた方が、きっとご満足いただけます。</p>
+    <p>いただいた仕事を全部こなせるわけではありません。次のような場合は、他をあたっていただいた方が、きっとご満足いただけます。</p>
     <ul>
-      <li>とにかく価格を抑えたい。見た目がきれいになれば十分、という場合</li>
+      <li>とにかく価格を抑えたい、という場合（大手より抑えてはいますが、最安ではありません）</li>
       <li>今日・明日にどうしても、という場合（お受けできる日は空き状況によります）</li>
       <li>東京都・千葉県・神奈川県の外からのご依頼</li>
     </ul>
@@ -308,28 +329,51 @@ footer .in{max-width:1120px;margin:0 auto;padding:0 28px;display:flex;flex-wrap:
 <!-- =====================================================================
  書き換えの根拠（2026-10-19 ブラウザ担当）
 
- 公開中の /concept/ から外したもの：
- ・「価格設定を一般的な価格と比較し2~4割程度安くしており」（本文1）
- ・「一般的なハウスクリーニングと比較し、約2～4割程度お安く」（本文2）
- ・見出し「安くても安心の高品質な仕上がり」
- ・ページ副題「安くて早い高品質なハウスクリーニング」
- ・「最短で即日対応」（裏が取れていないため）
+ ■ 前提の訂正（オーナー指摘 2026-10-19）
+   「価格に関して比較しているのはポータルサイトではなく大手ハウスクリーニング会社だよ。
+     それらと比較すると弊社は安い側だからね。安いだけを売りたいわけではないので方向性はそれでいい」
 
- 理由：docs/LP改善-調査-2026-09-21.md §2-1
- 「価格の相場 ― 当社は『安い側』ではありません」
- 江戸川区の相場は8,000円台、当社のエアコンは10,780円で、調べた6社のうち上から2番目に高い。
- 同じ調査の結論：「安さの言い訳をやめて、8,000円台と何が違うのかを書く場所に変える」。
- docs/クチコミ素材.md §4 も「相場より2〜4割安い」は一次情報の裏付けが取れるまで載せない、と決めている。
+   docs/LP改善-調査-2026-09-21.md §2-1 の表には くらしのマーケット（ポータル）が並んでいるため、
+   私は「当社は安い側ではない」と読んだが、**比較すべき相手は大手**。
+   大手との比較なら当社は安い側（例：おそうじ本舗のエアコン 14,300円／当社 10,780円）。
+   よって「2〜4割安い」は根拠なしではなく、**比較の相手と時点を書いていないことが問題**。
+   公開するときは「大手ハウスクリーニング◯社の標準価格との比較／2026年◯月時点」の形で添える。
 
- 載せた事実の出どころ：
- ・98.6%（209名中206名・2023年1月〜2025年12月）… CLAUDE.md（オーナー決定 2026-09-23）
- ・Googleクチコミ★5.0・25件（2026年10月時点）… 2026-10-19 に実測（変更122）
- ・「汚れをその場で見せる」… Y様・M様のクチコミ2件が独立して挙げている施工の型
- ・「もっと早く頼めばよかった」… 公開中の /concept/ にもある表現。残した
- ・追加請求なし／コインパーキング代／遠方の交通費 … docs/price-master.md・/menu/ の本文と同じ
- ・下請けに出さない … 公開中のサイトとトップページ案で使っている表現
+ ■ このページでの価格の扱い
+   ・数字は書かない。「大手のハウスクリーニング会社より抑えてお出ししています」とだけ
+   ・ただし、**安さを選ぶ理由にはしない**（オーナー「安いだけを売りたいわけではない」）
+   ・他社の価格は1円も書かない（比較広告にすると相場が動くたびに実証が要る）
 
- ⚠ 他社の価格は1円も書いていない。「もっと安いところはあります」とだけ書いた。
-    比較広告にすると、相場が動くたびに実証を取り直す必要が出るため。
+ ■ 「差」の4つを作り直した理由（オーナー指摘）
+   「“その差額で、私たちがしていること”がそのままでは弱い。
+     1. 分解して、中まで洗う 2. 洗う前と、落ちた汚れをお見せする
+     これなんてクソ安い業者でもやることだからね」
+
+   → 1・2 は本文に落とし、「ここまでは当たり前」と自分で言い切る形に変えた。
+     差として残したのは、**安い業者では構造的に起きないこと**だけ：
+
+   01 毎回、同じ職人が伺う（下請けに出さない）
+      … K様が他社から移った理由そのもの。マッチング型・下請け型では担保できない
+   02 頼まれていない不具合も伝える
+      … Y様の実例。決められた範囲だけ洗って帰る形では起きない
+   03 見積りから増やさない
+      … 当日追加が無い
+   04 クチコミ25件に★4以下が無い
+      … 平均5.0ではなく1件ずつが★5。2026-10-19 に Google のクチコミ一覧で
+        評価の内訳（5が満杯／4・3・2・1が0）を実見して確認した
+
+   そのうえで **98.6%（209名中206名）をページの先頭**に置いた（オーナー指示）。
+
+ ■ 載せた事実の出どころ
+   ・98.6%（209名中206名・2023年1月〜2025年12月）… CLAUDE.md（オーナー決定 2026-09-23）
+   ・Googleクチコミ★5.0・25件・★4以下なし … 2026-10-19 実測
+   ・K様・Y様・M様の引用 … docs/クチコミ素材.md（本文無改変・頭文字のみ）
+   ・追加請求なし／コインパーキング代／遠方の交通費 … docs/price-master.md・/menu/ と同じ
+   ・下請けに出さない … 公開中のサイトとトップページ案で使っている表現
+
+ ■ 公開中の /concept/ から外したもの
+   ・「安くて早い高品質なハウスクリーニング」（副題）… 安さを前面にしないため
+   ・「2~4割程度安く」×2 … 比較の相手と時点が無いため。添えれば使える
+   ・「最短で即日対応」… 裏が取れていないため
  ===================================================================== -->
 </html>
