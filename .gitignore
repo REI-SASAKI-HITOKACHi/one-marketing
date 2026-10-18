@@ -19,3 +19,9 @@ scratch-*.json
 data/backup/*.json
 # 下書きLPの確認用の書き出し（build-site.py --draft）。配信物ではない
 preview/
+
+# 広告リールの素材。写真は claude/web-inflow が持っている（この枝では複製を置かない）
+#   git checkout origin/claude/web-inflow -- assets/photos
+assets/photos/
+# 描画用のフォント（OFL）。大きいので置かない。python3 tools/fetch-fonts.py で取る
+assets/fonts/
