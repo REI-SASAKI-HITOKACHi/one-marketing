@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>メニュー料金 デザイン案</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ===== ワンヒッター メニュー料金セクション =====================================
+   公式サイトの色から拾ったトークン。CMSに入れるときはこの :root ごとレイアウトの
+   CSSタブへ、下の .oh-* の markup を ブロック42946 の本文へ。
+   動きは IntersectionObserver で class を足すだけ。JSが動かない環境でも
+   .oh-rv は最初から見える（no-js フォールバックを :root に入れてある）。
+   ------------------------------------------------------------------------- */
+:root{
+  --oh-red:#d94739; --oh-red-dark:#b9362a; --oh-ink:#202223; --oh-mute:#5e6368;
+  --oh-line:rgba(32,34,35,.12); --oh-cream:#f7f2eb; --oh-cream2:#efe5da; --oh-white:#fff;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Noto Sans JP",system-ui,sans-serif;color:var(--oh-ink);background:var(--oh-white);line-height:1.8;-webkit-font-smoothing:antialiased}
+
+.oh-wrap{max-width:1040px;margin:0 auto;padding:64px 20px 90px}
+
+/* --- 見出し --- */
+.oh-head{margin:0 0 10px;font-size:clamp(13px,1.4vw,14px);letter-spacing:.22em;color:var(--oh-red);font-weight:700}
+.oh-h2{margin:0 0 18px;font-size:clamp(24px,3.4vw,34px);font-weight:900;letter-spacing:.02em;line-height:1.45}
+.oh-h2 em{font-style:normal;position:relative;white-space:nowrap}
+.oh-h2 em::after{content:"";position:absolute;left:0;right:0;bottom:.06em;height:.42em;background:rgba(217,71,57,.16);z-index:-1;transform:scaleX(0);transform-origin:left;transition:transform .7s cubic-bezier(.2,.7,.2,1) .25s}
+.oh-rv.is-in .oh-h2 em::after{transform:scaleX(1)}
+.oh-lead{margin:0 0 44px;max-width:62ch;color:var(--oh-mute)}
+.oh-lead strong{color:var(--oh-ink)}
+
+/* --- 料金カード --- */
+.oh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px;margin:0 0 14px;padding:0;list-style:none}
+.oh-card{position:relative;display:flex;align-items:center;gap:14px;background:var(--oh-white);border:1px solid var(--oh-line);border-radius:14px;padding:18px 20px 18px 22px;overflow:hidden;transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s,border-color .35s}
+.oh-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--oh-red);transform:scaleY(0);transform-origin:top;transition:transform .4s cubic-bezier(.2,.7,.2,1)}
+.oh-card:hover{transform:translateY(-4px);box-shadow:0 14px 34px -18px rgba(32,34,35,.45);border-color:rgba(217,71,57,.35)}
+.oh-card:hover::before{transform:scaleY(1)}
+.oh-card .nm{flex:1 1 auto;min-width:0}
+.oh-card .nm b{display:block;font-size:16px;font-weight:700;letter-spacing:.01em;line-height:1.45}
+.oh-card .nm b span{white-space:nowrap}
+.oh-card .nm b u{text-decoration:none;white-space:nowrap;font-weight:700;color:var(--oh-mute);font-size:.86em;margin-left:1px}
+.oh-card .nm small{display:block;margin-top:3px;font-size:12.5px;color:var(--oh-mute);line-height:1.6}
+.oh-card .pr{flex:0 0 auto;text-align:right}
+.oh-card .pr .y{font-size:clamp(20px,2.4vw,23px);font-weight:900;letter-spacing:.01em;font-variant-numeric:tabular-nums}
+.oh-card .pr .y i{font-style:normal;font-size:.62em;font-weight:700;margin-left:1px}
+.oh-card .pr .mi{display:inline-block;margin-top:2px;font-size:11.5px;color:var(--oh-mute);border:1px solid var(--oh-line);border-radius:999px;padding:1px 9px}
+
+/* セット割のしるし */
+.oh-card.is-set{background:linear-gradient(180deg,#fff 0%,var(--oh-cream) 100%)}
+.oh-tag{display:inline-block;margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:.06em;color:#fff;background:var(--oh-red);border-radius:999px;padding:2px 10px}
+
+/* --- 注記パネル --- */
+.oh-note{margin:34px 0 0;background:var(--oh-cream);border-radius:16px;padding:26px 28px}
+.oh-note h3{margin:0 0 14px;font-size:15px;font-weight:700;letter-spacing:.04em}
+.oh-note ul{margin:0;padding:0;list-style:none;display:grid;gap:11px}
+.oh-note li{position:relative;padding-left:26px;font-size:14.5px}
+.oh-note li::before{content:"";position:absolute;left:4px;top:.72em;width:9px;height:9px;border-radius:50%;background:var(--oh-red);opacity:.85}
+.oh-note li b{font-weight:700}
+.oh-hanbou{display:inline-block;background:#fff;border:1px solid rgba(217,71,57,.4);color:var(--oh-red-dark);border-radius:6px;padding:0 7px;font-weight:700}
+
+/* --- エリア＋CTA --- */
+.oh-foot{display:flex;flex-wrap:wrap;gap:26px;align-items:center;justify-content:space-between;margin:34px 0 0;padding:26px 0 0;border-top:1px solid var(--oh-line)}
+.oh-area{font-size:14.5px}
+.oh-area b{display:block;font-size:13px;letter-spacing:.1em;color:var(--oh-red);margin-bottom:4px}
+.oh-cta{display:inline-flex;align-items:center;gap:10px;background:var(--oh-red);color:#fff !important;text-decoration:none !important;font-weight:700;font-size:15.5px;border-radius:999px;padding:14px 30px;position:relative;overflow:hidden;transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s,background .3s}
+.oh-cta::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.35) 50%,transparent 65%);transform:translateX(-120%)}
+.oh-cta:hover{background:var(--oh-red-dark);transform:translateY(-2px);box-shadow:0 12px 26px -12px rgba(217,71,57,.9)}
+.oh-cta:hover::after{animation:oh-shine .9s ease}
+@keyframes oh-shine{to{transform:translateX(120%)}}
+.oh-cta .ar{transition:transform .3s}
+.oh-cta:hover .ar{transform:translateX(4px)}
+.oh-kome{margin:18px 0 0;font-size:12.5px;color:var(--oh-mute)}
+
+/* --- スクロールで出す（JSが class を足す） --- */
+.oh-rv{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+.oh-rv.is-in{opacity:1;transform:none}
+.oh-grid .oh-rv{transition-delay:var(--d,0ms)}
+html.oh-nojs .oh-rv{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .oh-rv,.oh-card,.oh-cta,.oh-h2 em::after{transition:none !important;animation:none !important}
+  .oh-rv{opacity:1;transform:none}
+}
+@media(max-width:560px){
+  .oh-wrap{padding:44px 16px 64px}
+  .oh-card{padding:15px 16px 15px 18px;gap:10px}
+  .oh-card .nm b{font-size:15px}
+  .oh-note{padding:20px 18px}
+  .oh-cta{width:100%;justify-content:center}
+}
+</style>
+
+<div class="oh-wrap">
+
+  <section class="oh-rv">
+    <p class="oh-head">MENU &amp; PRICE</p>
+    <h2 class="oh-h2">水まわりから、<em>メニューにない箇所</em>まで。</h2>
+    <p class="oh-lead">キッチン・浴室・トイレ・洗面台の水まわりはもちろん、ご自身では難しいエアコン内部の丸洗い、洗濯機や乾燥機まで。<strong>メニューに無い場所も、まずはご相談ください。</strong></p>
+  </section>
+
+  <ul class="oh-grid">
+    <li class="oh-card oh-rv" style="--d:0ms"><div class="nm"><b><span>エアコン</span><u>クリーニング</u></b><small>お掃除機能なし</small></div><div class="pr"><div class="y">10,780<i>円</i></div><span class="mi">約60分</span></div></li>
+    <li class="oh-card oh-rv" style="--d:60ms"><div class="nm"><b><span>エアコン</span><u>クリーニング</u></b><small>お掃除機能付き</small></div><div class="pr"><div class="y">17,380<i>円</i></div><span class="mi">約120分</span></div></li>
+    <li class="oh-card oh-rv" style="--d:120ms"><div class="nm"><b><span>レンジフード</span><u>クリーニング</u></b><small>プロペラ式は 10,780円</small></div><div class="pr"><div class="y">18,480<i>円</i></div><span class="mi">約90分</span></div></li>
+    <li class="oh-card oh-rv" style="--d:180ms"><div class="nm"><b><span>キッチン</span><u>クリーニング</u></b></div><div class="pr"><div class="y">18,480<i>円</i></div><span class="mi">約120分</span></div></li>
+    <li class="oh-card is-set oh-rv" style="--d:240ms"><div class="nm"><span class="oh-tag">キッチンとセットで 5,500円</span><b><span>コンロ</span><u>クリーニング</u></b></div><div class="pr"><div class="y">10,780<i>円</i></div><span class="mi">約60分</span></div></li>
+    <li class="oh-card oh-rv" style="--d:300ms"><div class="nm"><b><span>浴室</span><u>クリーニング</u></b></div><div class="pr"><div class="y">18,480<i>円</i></div><span class="mi">約120分</span></div></li>
+    <li class="oh-card oh-rv" style="--d:360ms"><div class="nm"><b><span>追い焚き配管</span><u>クリーニング</u></b></div><div class="pr"><div class="y">19,910<i>円</i></div></div></li>
+    <li class="oh-card oh-rv" style="--d:420ms"><div class="nm"><b><span>洗濯機</span><u>クリーニング</u></b></div><div class="pr"><div class="y">17,380<i>円</i></div><span class="mi">約120分</span></div></li>
+    <li class="oh-card oh-rv" style="--d:480ms"><div class="nm"><b><span>トイレ</span><u>クリーニング</u></b></div><div class="pr"><div class="y">10,780<i>円</i></div><span class="mi">約60分</span></div></li>
+    <li class="oh-card oh-rv" style="--d:540ms"><div class="nm"><b><span>洗面台</span><u>クリーニング</u></b></div><div class="pr"><div class="y">10,780<i>円</i></div><span class="mi">約60分</span></div></li>
+  </ul>
+  <p class="oh-kome oh-rv">表示はすべて税込です。</p>
+
+  <section class="oh-note oh-rv">
+    <h3>お見積りの前に、知っておいていただきたいこと</h3>
+    <ul>
+      <li><span class="oh-hanbou">5月〜7月・12月</span> は、全メニュー一律で1台・1箇所あたり <b>3,300円</b> が加算されます。</li>
+      <li>同じ日に <b>2箇所以上</b> をご依頼いただく場合は、まとめてお見積りをお出しします。</li>
+      <li><b>お見積りでお出しした金額から、作業後に増やすことはありません。</b></li>
+      <li>お車を停められる場所が無い場合のみ、コインパーキング代が実費で加わります。</li>
+      <li>遠方（目安：高速道路を使う地域）は、交通費をいただく場合があります。お見積りのお電話でご案内します。</li>
+    </ul>
+  </section>
+
+  <div class="oh-foot oh-rv">
+    <div class="oh-area"><b>対応エリア</b>東京都・千葉県・神奈川県（江戸川区を中心に）<br>事務所は東京都江戸川区北葛西にあります。</div>
+    <a class="oh-cta" href="https://yoyaku.onehitter.jp/?src=menu">空いている日を見て予約する<span class="ar">→</span></a>
+  </div>
+  <p class="oh-kome oh-rv">※料金は季節／年次により改定を行っています。</p>
+
+</div>
+
+<script>
+(function(){
+  var els = document.querySelectorAll('.oh-rv');
+  if (!('IntersectionObserver' in window)) {
+    document.documentElement.className += ' oh-nojs';
+    return;
+  }
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
+    });
+  }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
+  Array.prototype.forEach.call(els, function(el){ io.observe(el); });
+})();
+</script>
+</html>
