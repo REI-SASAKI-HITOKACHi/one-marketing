@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ONE HITTER お客様の声 デザイン案</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* =============================================================
+   ONE HITTER /voice/ 案　— トップページ案（cms/top-page/prototype.html）と同じ設計言語
+   JavaScript は使っていない。動きは animation-timeline: view() のみ。
+   いま公開中の /voice/ には 🔴 根拠の無い数字が2つ載っているので、
+   このページでは実測値に置き換えてある（下の「数字の出どころ」を参照）。
+   ============================================================= */
+:root{
+  --bg:#f8f7f4; --ink:#2d2d2a; --mute:#6f6e68; --line:rgba(45,45,42,.14);
+  --red:#d94739; --red-dark:#b9362a; --paper:#fff;
+  --mincho:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --gothic:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--gothic);
+  font-size:15px;line-height:2;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding:0 28px}
+.mincho{font-family:var(--mincho);font-weight:400;letter-spacing:.07em;line-height:1.55}
+
+@supports (animation-timeline: view()){
+  @media (prefers-reduced-motion: no-preference){
+    @keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+    @keyframes wipe{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+    .rv{animation:rise both;animation-timeline:view();animation-range:entry 0% entry 50%}
+    .rule i{animation:wipe both;animation-timeline:view();animation-range:entry 5% entry 60%}
+  }
+}
+
+/* ---- ヘッダー（トップと同じ） ---- */
+header{position:sticky;top:0;z-index:50;background:rgba(248,247,244,.9);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header .in{display:flex;align-items:center;justify-content:space-between;gap:20px;
+  max-width:1120px;margin:0 auto;padding:14px 28px}
+.logo{display:flex;align-items:center;gap:11px;text-decoration:none}
+.logo .mk{width:34px;height:34px;border-radius:7px;background:var(--red);color:#fff;
+  display:grid;place-items:center;font-size:10px;font-weight:700;letter-spacing:.04em;line-height:1.1;text-align:center}
+.logo b{font-family:var(--mincho);font-size:17px;letter-spacing:.14em;font-weight:400}
+.logo small{display:block;font-size:9.5px;letter-spacing:.22em;color:var(--mute)}
+nav.main{display:flex;gap:26px;font-size:13.5px;letter-spacing:.04em}
+nav.main a{text-decoration:none;position:relative;padding:4px 0}
+nav.main a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--red);
+  transform:scaleX(0);transform-origin:right;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+nav.main a:hover::after,nav.main a.on::after{transform:scaleX(1);transform-origin:left}
+.hbtn{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;
+  text-decoration:none;font-size:13.5px;font-weight:700;border-radius:999px;padding:11px 22px;
+  transition:background .3s,transform .3s}
+.hbtn:hover{background:var(--red-dark);transform:translateY(-1px)}
+@media(max-width:900px){nav.main{display:none}}
+
+/* ---- ページの頭（トップのヒーローより浅く） ---- */
+.phead{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.phead .bg{position:absolute;inset:0;z-index:0}
+.phead .bg img{width:100%;height:100%;object-fit:cover}
+.phead .bg::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(100deg,rgba(248,247,244,.97) 0%,rgba(248,247,244,.9) 46%,rgba(248,247,244,.6) 100%)}
+.phead .in{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:76px 28px 70px}
+.phead .en{display:block;font-size:11.5px;letter-spacing:.26em;color:var(--red);font-weight:700;margin-bottom:14px}
+.phead h1{margin:0;font-size:clamp(26px,4.2vw,44px);letter-spacing:.09em;line-height:1.5}
+.phead p{margin:22px 0 0;max-width:40em;color:var(--mute);font-size:14.5px}
+.phead .crumb{font-size:11.5px;color:var(--mute);letter-spacing:.06em;margin-bottom:18px}
+.phead .crumb a{text-decoration:none}
+.phead .crumb a:hover{color:var(--red)}
+
+/* ---- 数字の帯（トップの信頼バーと同じ組み） ---- */
+.trust{border-bottom:1px solid var(--line);background:rgba(255,255,255,.5)}
+.trust .in{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
+.trust .c{padding:34px 22px 30px;text-align:center;border-left:1px solid var(--line);position:relative}
+.trust .c:first-child{border-left:0}
+.trust .n{font-family:var(--mincho);font-size:clamp(24px,3.4vw,36px);letter-spacing:.03em;line-height:1.2}
+.trust .n i{font-style:normal;font-size:.5em;margin-left:2px}
+.trust .n .dec{font-size:.62em;letter-spacing:0}
+.trust .t{margin-top:8px;font-size:12px;letter-spacing:.06em;color:var(--mute);line-height:1.8}
+.trust .t b{color:var(--ink);font-weight:700}
+.trust .sub{margin-top:6px;font-size:10.5px;color:var(--mute);opacity:.85;line-height:1.7}
+.trust .stars{color:var(--red);letter-spacing:.06em;font-size:.62em}
+@media(max-width:720px){
+  .trust .in{grid-template-columns:1fr}
+  .trust .c{border-left:0;border-top:1px solid var(--line);padding:24px 18px}
+  .trust .c:first-child{border-top:0}
+}
+
+/* ---- セクション共通 ---- */
+section.band{padding:clamp(64px,8vw,116px) 0}
+.sechead{margin:0 0 46px}
+.sechead .en{display:block;font-size:11.5px;letter-spacing:.26em;color:var(--red);font-weight:700;margin-bottom:14px}
+.sechead h2{margin:0;font-size:clamp(22px,3.2vw,33px);letter-spacing:.09em;line-height:1.55}
+.sechead p{margin:18px 0 0;max-width:46em;color:var(--mute);font-size:14.5px}
+.rule{height:1px;background:var(--line);position:relative;margin:0 0 46px}
+.rule i{position:absolute;left:0;top:0;width:84px;height:1px;background:var(--red);transform-origin:left;display:block}
+
+/* ---- クチコミ全文 ---- */
+.reviews{display:grid;gap:22px}
+.rev{background:var(--paper);border:1px solid var(--line);border-radius:3px;
+  padding:34px clamp(24px,4vw,42px) 30px;position:relative;
+  transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s}
+.rev:hover{transform:translateY(-3px);box-shadow:0 20px 40px -26px rgba(45,45,42,.5)}
+.rev .top{display:flex;flex-wrap:wrap;align-items:baseline;gap:14px;
+  padding-bottom:16px;margin-bottom:20px;border-bottom:1px solid var(--line)}
+.rev .who{font-family:var(--mincho);font-size:19px;letter-spacing:.12em}
+.rev .st{color:var(--red);letter-spacing:.2em;font-size:12px}
+.rev .meta{margin-left:auto;font-size:11.5px;color:var(--mute);letter-spacing:.06em}
+.rev .tag{display:inline-block;font-size:10.5px;letter-spacing:.08em;color:var(--mute);
+  border:1px solid var(--line);border-radius:999px;padding:2px 11px}
+.rev .tx{font-family:var(--mincho);font-size:clamp(14.5px,1.5vw,16.5px);line-height:2.1;
+  letter-spacing:.05em;margin:0}
+.rev .tx::before{content:"\201C";font-family:var(--mincho);color:var(--red);opacity:.28;
+  font-size:34px;line-height:0;vertical-align:-.12em;margin-right:.12em}
+.rev.short .tx{font-size:clamp(15px,1.7vw,19px)}
+
+/* ---- アンケートの説明 ---- */
+.survey{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,64px);align-items:start}
+.survey .q{font-family:var(--mincho);font-size:clamp(18px,2.3vw,25px);line-height:1.95;
+  letter-spacing:.08em;margin:0 0 22px}
+.survey .q em{font-style:normal;color:var(--red)}
+.survey p{color:var(--mute);margin:0 0 15px;font-size:14.5px}
+.survey dl{margin:0;border-top:1px solid var(--line)}
+.survey dl div{display:flex;gap:18px;padding:15px 2px;border-bottom:1px solid var(--line)}
+.survey dt{flex:0 0 9.5em;font-size:12.5px;color:var(--mute);letter-spacing:.06em}
+.survey dd{margin:0;font-size:13.5px;line-height:1.85}
+@media(max-width:860px){.survey{grid-template-columns:1fr}}
+
+/* ---- ボタン ---- */
+.btn{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:700;
+  border-radius:999px;padding:16px 32px;font-size:14.5px;position:relative;overflow:hidden;
+  transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s,background .3s,color .3s,border-color .3s}
+.btn.primary{background:var(--red);color:#fff}
+.btn.primary:hover{background:var(--red-dark);transform:translateY(-2px);box-shadow:0 16px 30px -14px rgba(217,71,57,.85)}
+.btn.ghost{border:1px solid var(--line);color:var(--ink);background:transparent}
+.btn.ghost:hover{border-color:var(--red);color:var(--red)}
+.btn .ar{transition:transform .3s}
+.btn:hover .ar{transform:translateX(5px)}
+.more{margin-top:38px;text-align:center}
+.kome{margin-top:22px;text-align:center;font-size:11px;line-height:2;color:var(--mute);opacity:.85}
+
+/* ---- 最後のCTA・フッター（トップと同じ） ---- */
+.cta{background:#2d2d2a;color:#f5f4f1;padding:clamp(64px,8vw,112px) 0;text-align:center}
+.cta h2{margin:0 0 16px;font-family:var(--mincho);font-size:clamp(22px,3.2vw,33px);
+  letter-spacing:.09em;line-height:1.6;font-weight:400}
+.cta p{margin:0 0 34px;color:rgba(245,244,241,.72);font-size:14px}
+.cta .acts{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;align-items:center}
+.cta .btn.ghost{border-color:rgba(245,244,241,.3);color:#f5f4f1}
+.cta .btn.ghost:hover{border-color:#fff;color:#fff}
+.cta .tel{font-size:13px;color:rgba(245,244,241,.72)}
+.cta .tel b{display:block;font-family:var(--mincho);font-size:22px;color:#fff;letter-spacing:.04em}
+footer{border-top:1px solid var(--line);padding:30px 0;font-size:11.5px;color:var(--mute)}
+footer .in{max-width:1120px;margin:0 auto;padding:0 28px;display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between}
+
+@media(max-width:600px){
+  body{font-size:14.5px;line-height:1.95}
+  .wrap{padding:0 18px}
+  header .in{padding:11px 18px;gap:10px}
+  .logo .mk{width:30px;height:30px;font-size:8.5px}
+  .logo b{font-size:13.5px;letter-spacing:.08em}
+  .logo small{font-size:8px;letter-spacing:.14em}
+  .hbtn{padding:9px 15px;font-size:12px;white-space:nowrap}
+  .btn{justify-content:center;padding:15px 24px;font-size:14.5px}
+  .cta .acts{flex-direction:column;align-items:stretch;gap:12px}
+  .cta .tel{margin-top:4px}
+  .phead .in{padding:52px 18px 48px}
+  .phead h1{font-size:25px;letter-spacing:.04em;line-height:1.7}
+  .phead p{font-size:13.5px}
+  .phead .bg::after{background:linear-gradient(180deg,rgba(248,247,244,.96) 0%,rgba(248,247,244,.9) 60%,rgba(248,247,244,.82) 100%)}
+  .rev .tx{line-height:2}
+  .survey dt{flex:0 0 8em;font-size:11.5px}
+  .survey dd{font-size:12.5px}
+  .rev{padding:26px 20px 24px}
+  .rev .meta{margin-left:0;width:100%}
+  footer .in{padding:0 18px}
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .rv,.rule i{animation:none}
+}
+</style>
+
+<header>
+  <div class="in">
+    <a class="logo" href="/"><span class="mk">ONE<br>HITTER</span>
+      <span><b>ワンヒッター株式会社</b><small>HOUSE CLEANING SERVICE</small></span></a>
+    <nav class="main">
+      <a href="/menu/">メニュー</a>
+      <a href="/constructed/">施工事例</a>
+      <a class="on" href="/voice/">お客様の声</a>
+      <a href="/blog/">ブログ</a>
+      <a href="/corporation/">事業者の方</a>
+    </nav>
+    <a class="hbtn" href="https://yoyaku.onehitter.jp/?src=voice">空いている日を見る</a>
+  </div>
+</header>
+
+<div class="phead">
+  <div class="bg"><img alt="" src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=1600&q=80&auto=format&fit=crop"></div>
+  <div class="in">
+    <p class="crumb"><a href="/">ホーム</a>　›　お客様の声</p>
+    <span class="en">VOICE</span>
+    <h1 class="mincho">頼んでよかった、と<br>書いてくださった方の言葉。</h1>
+    <p>Googleのクチコミに届いた声を、いただいたまま載せています。言い換えも、良いところだけの切り貼りもしていません。<br>施工のあとにお送りしているアンケートの結果も、根拠の数字とあわせてそのまま出しています。</p>
+  </div>
+</div>
+
+<div class="trust"><div class="in">
+  <div class="c rv">
+    <div class="n">98<span class="dec">.6</span><i>%</i></div>
+    <div class="t">ご家族や友人に<br><b>勧めてもよい</b></div>
+    <div class="sub">2023年1月〜2025年12月／回答209名中206名</div>
+  </div>
+  <div class="c rv">
+    <div class="n"><span class="stars">★★★★★</span> 5.0</div>
+    <div class="t">Googleクチコミの<br><b>平均評価</b></div>
+    <div class="sub">25件（2026年10月時点）</div>
+  </div>
+  <div class="c rv">
+    <div class="n">0<i>円</i></div>
+    <div class="t">お見積りのあとの<br><b>追加請求</b></div>
+    <div class="sub">お出しした金額から増やしません</div>
+  </div>
+</div></div>
+
+<section class="band"><div class="wrap">
+  <div class="sechead rv"><span class="en">GOOGLE REVIEWS</span>
+    <h2 class="mincho">Googleに届いた声を、全文で。</h2>
+    <p>お名前は頭文字だけにしています。それ以外はいただいた文章のままで、誤字も直していません。</p></div>
+  <div class="rule rv"><i></i></div>
+
+  <div class="reviews">
+    <div class="rev rv">
+      <div class="top"><span class="who">K様</span><span class="st">★★★★★</span>
+        <span class="tag">エアコン・2台</span><span class="meta">Googleクチコミ／2026年4月</span></div>
+      <p class="tx">毎年某大手のエアコンクリーニングを頼んでいたのですが、エアコンの見えるところの汚れ残しやゴミを残していったり、作業してくださる方の力量も一定ではなく不満に思っていたので、去年からこちらにお願いしました。結果、大手のエアコン一台分のお値段で2台お掃除していただき、しかも迅速で丁寧に仕上げてくださいます。早割を使っているので掃除の時期は早いですが、その分余裕を持って夏を迎えられるのでありがたいです。<br>また来年もお願いします。</p>
+    </div>
+
+    <div class="rev rv">
+      <div class="top"><span class="who">Y様</span><span class="st">★★★★★</span>
+        <span class="tag">3回目のご利用</span><span class="meta">Googleクチコミ／2026年4月</span></div>
+      <p class="tx">今回3回目の利用です。毎回丁寧でお客様第１の説明に関心しています。クリーニング後は汚れを見せてくれるので、こんなに汚れていたんだと確認できます。<br>今回はクリーニング対象外のエアコンの不具合も見つけて頂き、大変助かりました。またリピします。ありがとうございました。</p>
+    </div>
+
+    <div class="rev rv">
+      <div class="top"><span class="who">M様</span><span class="st">★★★★★</span>
+        <span class="tag">洗濯機・換気扇</span><span class="meta">Googleクチコミ／2024年4月</span></div>
+      <p class="tx">今回は洗濯機と換気扇のクリーニングをお願いしました。まず作業前に現状を見せていただきました。洗濯機は60度の水温設定でハイターを使って曹洗浄を定期的にやっているにも関わらずカビがはびこっていてびっくり。クリーニング後は、新品同様にピッカピカになり大満足。毎日気持ちよく洗濯できています。換気扇も同様に丁寧に完璧な作業をしていただき、下のガスコンロまでピカピカになりました。前回のエアコンクリーニングも同じ方にやっていただき、アフターサービスも大変充実していたので、とっても信頼できる会社だと思います。また来年もお願いしようと思います。</p>
+    </div>
+
+    <div class="rev rv">
+      <div class="top"><span class="who">H様</span><span class="st">★★★★★</span>
+        <span class="tag">エアコン・室外機</span><span class="meta">Googleクチコミ／2024年10月</span></div>
+      <p class="tx">エアコン本体と室外機のお掃除をお願いしました。<br>非常に気の行き届いた細やかなお仕事をして頂いて、空気が洗われたような感じで、エアコンは内部だけでなく室外機も定期的にお掃除しないと十分に働かないことを身を持って実感しました。<br>今までどれだけカビとホコリを吸っていたのかと…<br>兎に角おかげさまで大満足です。<br>次もまたよろしくお願いします！</p>
+    </div>
+
+    <div class="rev short rv">
+      <div class="top"><span class="who">F様</span><span class="st">★★★★★</span>
+        <span class="tag">リピート</span><span class="meta">Googleクチコミ／2026年4月</span></div>
+      <p class="tx">細かい観察に加えて確かな技術なので今回リピートでしたが早速来年の予約を入れました。</p>
+    </div>
+  </div>
+
+  <p class="more rv"><a class="btn ghost" rel="noopener" target="_blank"
+    href="https://search.google.com/local/reviews?placeid=ChIJef_3b2eHGGARMY2GoTASaXs&amp;hl=ja">Googleで25件すべて見る<span class="ar">→</span></a></p>
+  <p class="kome rv">※ 掲載内容はお客様個人の感想であり、効果・仕上がりを保証するものではありません。<br>
+    ※ Googleクチコミは2026年10月時点で25件・平均★5.0。件数と平均は変わります。<br>
+    ※ 掲載しているのは、ご本人の許可なく編集していない投稿です。お名前は頭文字のみにしています。</p>
+</div></section>
+
+<section class="band" id="survey" style="background:rgba(255,255,255,.45);border-top:1px solid var(--line)"><div class="wrap">
+  <div class="sechead rv"><span class="en">SURVEY</span>
+    <h2 class="mincho">98.6%という数字の、中身。</h2></div>
+  <div class="rule rv"><i></i></div>
+  <div class="survey">
+    <div class="rv">
+      <p class="q">209名のうち <em>206名</em> が、<br>「ご家族や友人に勧めてもよい」<br>と答えてくださいました。</p>
+      <p>施工のあと、ご利用いただいたお客様にアンケートをお送りしています。2023年1月から2025年12月までの3年間にお答えいただいた209名のうち、206名が「勧めてもよい」を選んでくださいました。</p>
+      <p>残りの3名がどう答えたかも、私たちは見ています。いただいたご指摘は、作業の手順や当日のご説明の仕方に反映しています。</p>
+    </div>
+    <div class="rv">
+      <dl>
+        <div><dt>集計の期間</dt><dd>2023年1月〜2025年12月（3年間）</dd></div>
+        <div><dt>回答の数</dt><dd>209名</dd></div>
+        <div><dt>「勧めてもよい」</dt><dd>206名（98.6%）</dd></div>
+        <div><dt>お聞きの仕方</dt><dd>施工後にお送りするアンケート。回答は任意です</dd></div>
+        <div><dt>第三者の評価</dt><dd>Googleクチコミ 平均★5.0・25件（2026年10月時点）</dd></div>
+      </dl>
+      <p class="kome" style="text-align:left;margin-top:18px">※ アンケートは自社で集計したものです。第三者による調査ではありません。</p>
+    </div>
+  </div>
+</div></section>
+
+<section class="cta"><div class="wrap">
+  <h2 class="mincho">空いている日を見て、<br>そのままご予約いただけます。</h2>
+  <p>入力はおよそ1分。ご予約時のお支払いはありません。</p>
+  <div class="acts">
+    <a class="btn primary" href="https://yoyaku.onehitter.jp/?src=voice">空いている日を見る<span class="ar">→</span></a>
+    <a class="btn ghost" href="/contact/">お問い合わせ</a>
+    <span class="tel">受付 8:00〜20:00<b>080-8043-8259</b></span>
+  </div>
+</div></section>
+
+<footer><div class="in">
+  <span>ワンヒッター株式会社　〒134-0081 東京都江戸川区北葛西5-14-11 クオーディア西葛西503</span>
+  <span>対応エリア：東京都・千葉県・神奈川県</span>
+</div></footer>
+</html>
