@@ -6,111 +6,153 @@
 <title>11月のギフト案内</title>
 <style>
 :root{
-  --ink:#20302d; --sub:#5c6d69; --main:#0a5c50; --line:#d5ded9; --bg:#ffffff; --panel:#f4f7f5;
+  --ink:#20302d; --sub:#5c6d69; --main:#0a5c50; --line:#d5ded9; --bg:#eef2f0; --card:#ffffff; --panel:#f4f7f5;
   --warn-bg:#fdf6e6; --warn-line:#e3d3a8; --red-bg:#fbeeec; --red-line:#e8c4be; --red:#b03a2e;
-  --ok-bg:#eef7f3; --ok-line:#a9d3c4; --hl:#b8e4dc;
+  --ok-bg:#eef7f3; --ok-line:#a9d3c4; --hl:#b8e4dc; --mail:#fbfcfb;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --ink:#e3ebe8; --sub:#9db0ab; --main:#5cc3b1; --line:#34443f; --bg:#141c1a; --panel:#1c2725;
+    --ink:#e3ebe8; --sub:#9db0ab; --main:#5cc3b1; --line:#34443f; --bg:#0f1514; --card:#18211f; --panel:#1f2a28;
     --warn-bg:#2e2818; --warn-line:#5a4c26; --red-bg:#331d1a; --red-line:#5e322c; --red:#f08a7e;
-    --ok-bg:#16302a; --ok-line:#2f5d52; --hl:#24594f;
+    --ok-bg:#16302a; --ok-line:#2f5d52; --hl:#24594f; --mail:#141c1a;
   }
 }
 :root[data-theme="dark"]{
-  --ink:#e3ebe8; --sub:#9db0ab; --main:#5cc3b1; --line:#34443f; --bg:#141c1a; --panel:#1c2725;
+  --ink:#e3ebe8; --sub:#9db0ab; --main:#5cc3b1; --line:#34443f; --bg:#0f1514; --card:#18211f; --panel:#1f2a28;
   --warn-bg:#2e2818; --warn-line:#5a4c26; --red-bg:#331d1a; --red-line:#5e322c; --red:#f08a7e;
-  --ok-bg:#16302a; --ok-line:#2f5d52; --hl:#24594f;
+  --ok-bg:#16302a; --ok-line:#2f5d52; --hl:#24594f; --mail:#141c1a;
 }
 *{box-sizing:border-box}
 html{font-size:15px}
 body{margin:0;background:var(--bg);color:var(--ink);line-height:1.8;
   font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",sans-serif}
-.wrap{max-width:860px;margin:0 auto;padding:28px 16px 64px}
+.deck{max-width:880px;margin:0 auto;padding:20px 16px 60px}
+.slide{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:26px 24px;margin:0 0 22px;
+  page-break-after:always;break-after:page}
+.pg{font-size:12px;color:var(--sub);letter-spacing:.12em;display:flex;justify-content:space-between;margin-bottom:6px}
 .kaisha{font-size:12px;letter-spacing:.25em;color:var(--sub)}
-h1{font-size:26px;line-height:1.4;margin:6px 0 4px}
-.sub{color:var(--sub);font-size:13.5px}
-.rule{height:3px;width:64px;background:var(--main);margin:18px 0 22px}
-h2{font-size:19px;line-height:1.45;margin:40px 0 12px;padding-bottom:6px;border-bottom:2.5px solid var(--main)}
-h2 .no{display:block;font-size:12px;color:var(--main);letter-spacing:.12em}
-h3{font-size:15.5px;color:var(--main);margin:22px 0 8px}
+h1{font-size:27px;line-height:1.4;margin:6px 0 6px}
+h2{font-size:21px;line-height:1.45;margin:0 0 14px;padding-bottom:6px;border-bottom:2.5px solid var(--main)}
+h2 small{display:block;font-size:12.5px;color:var(--main);letter-spacing:.1em;font-weight:700}
+h3{font-size:15.5px;color:var(--main);margin:18px 0 8px}
 p{margin:0 0 .8em}
+.sub{color:var(--sub);font-size:13.5px}
+.rule{height:3px;width:64px;background:var(--main);margin:16px 0 20px}
 .hl{background:linear-gradient(transparent 62%,var(--hl) 62%);font-weight:700}
-.box{border:1px solid var(--line);background:var(--panel);padding:12px 16px;margin:14px 0;border-radius:6px}
+.box{border:1px solid var(--line);background:var(--panel);padding:12px 16px;margin:12px 0;border-radius:6px}
 .box.warn{background:var(--warn-bg);border-color:var(--warn-line)}
 .box.red{background:var(--red-bg);border-color:var(--red-line)}
 .box.ok{background:var(--ok-bg);border-color:var(--ok-line)}
 .box .t{font-weight:700;margin-bottom:4px}
-.box p:last-child{margin-bottom:0}
+.box p:last-child,.box ul:last-child{margin-bottom:0}
 .tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:10px 0}
-table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:560px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+table.wide{min-width:560px}
 th,td{border:1px solid var(--line);padding:6px 8px;vertical-align:top;text-align:left}
-th{background:var(--panel);white-space:nowrap}
-td.num{text-align:right;white-space:nowrap}
-.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+th{background:var(--panel);white-space:nowrap;width:8.5em}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:12px 0 4px;font-size:13px}
+.flow span{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:3px 11px}
+.flow span.on{background:var(--main);color:var(--card);border-color:var(--main);font-weight:700}
+.flow i{color:var(--sub);font-style:normal}
+.mail{border:1px solid var(--line);border-radius:6px;background:var(--mail);overflow:hidden;margin:10px 0}
+.mail .h{background:var(--panel);padding:8px 14px;font-size:13px;border-bottom:1px solid var(--line)}
+.mail .b{padding:14px 16px;font-size:14px;white-space:pre-wrap;line-height:1.9}
+.mail .b .new{background:var(--hl);font-weight:700}
+.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
 .kpi .c{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:10px 12px;text-align:center}
 .kpi .l{font-size:12px;color:var(--sub)}
 .kpi .v{font-size:24px;font-weight:700;color:var(--main);line-height:1.3}
 .kpi .c.bad .v{color:var(--red)}
 .kpi .n{font-size:11.5px;color:var(--sub)}
-@media (max-width:560px){.kpi{grid-template-columns:1fr}}
-.mail{border:1px solid var(--line);border-radius:6px;background:var(--bg);overflow:hidden}
-.mail .h{background:var(--panel);padding:8px 14px;font-size:13.5px;border-bottom:1px solid var(--line)}
-.mail .b{padding:14px 16px;font-size:14px;white-space:pre-wrap;line-height:1.9}
-.q{border:2px solid var(--main);border-radius:8px;padding:12px 16px;margin:14px 0}
+@media (max-width:560px){.kpi{grid-template-columns:1fr}.slide{padding:20px 14px}}
+.q{border:2px solid var(--main);border-radius:8px;padding:12px 16px;margin:12px 0}
 .q .n{font-weight:700;color:var(--main)}
-.q .rec{display:inline-block;font-size:12px;font-weight:700;background:var(--main);color:var(--bg);border-radius:4px;padding:1px 8px;margin-left:6px}
+.rec{display:inline-block;font-size:12px;font-weight:700;background:var(--main);color:var(--card);border-radius:4px;padding:1px 8px;margin-left:6px}
 .kome{font-size:12.5px;color:var(--sub)}
-ul{margin:4px 0 10px;padding-left:1.3em}
+ul,ol{margin:4px 0 10px;padding-left:1.3em}
 li{margin-bottom:4px}
-.who{font-weight:700;white-space:nowrap}
 .kz{color:var(--red);font-weight:700}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="deck">
 
-<div class="kaisha">ONE HITTER／ギフト事業担当</div>
-<h1>11月のギフト案内<br>── 送る文面と、全体の流れ</h1>
-<div class="sub">嶺さんへのご説明（10/24 MTG の前に）｜2026年10月17日 作成</div>
+<!-- 0 表紙・結論 -->
+<section class="slide">
+<div class="pg"><span>ONE HITTER／ギフト事業担当</span><span>1 / 8</span></div>
+<h1>11月のギフト案内<br>── お客様に届く文面と、全体の流れ</h1>
+<div class="sub">第7回MTG（10/24）用｜2026年10月18日 作成（10/17 版を作り直し）</div>
 <div class="rule"></div>
 
+<div class="flow"><span>① 登録</span><i>→</i><span>② 案内</span><i>→</i><span>③ 申込</span><i>→</i><span>④ 施工</span><i>→</i><span>⑤ お礼</span></div>
+<p class="kome">2〜6枚目で、この5段階を1枚ずつ説明します。各段階で<b>お客様に届く文面は全文</b>載せています。</p>
+
 <div class="box ok">
-<div class="t">先に結論</div>
+<div class="t">結論</div>
 <ul>
-<li>年末LPの「ギフトのお知らせを受け取る」に登録した方へ、<span class="hl">11月上旬にワンヒッター名義のメールを1通だけ</span>送る案です。</li>
-<li>ただし<span class="hl">今の登録は0件</span>です。入口を置いた年末LPに、ほとんど人が来ていないためです（④）。</li>
-<li>決めていただきたいことは<b>3つ</b>で、すべて「はい／いいえ」で答えられます（⑤）。</li>
+<li>年末LPで「ギフトのお知らせ」に登録した方へ、<span class="hl">11月上旬にワンヒッター名義のメールを1通だけ</span>送る案です。</li>
+<li><span class="hl">今の登録は0件</span>です。入口を置いた年末LPに、まだ人が来ていないためです（7枚目）。</li>
+<li>決めていただきたいことは<b>3つ</b>、すべて「はい／いいえ」です（8枚目）。</li>
 </ul>
 </div>
 
-<!-- ① -->
-<h2><span class="no">① 全体の流れ</span>どこで、誰が、何をするか</h2>
+<div class="box warn">
+<div class="t">10/17 版からの直し：遠方の交通費</div>
+<p>10/17 のオーナー決定「出張費が一切かからない、とは書かない（遠方では発生するケースがある）」に合わせ、<b>「追加のお支払いはありません」の言い切りをやめました。</b>東京・千葉・神奈川の中でも高速道路を使う地域はあるためです。代わりに「<b>遠方は交通費をいただく場合がある／金額はお電話でお伝えし、ご了承のあとでお支払い／お伝えした金額から当日増えることはない</b>」と書いています（2枚目・3枚目）。</p>
+</div>
+</section>
 
-<p>申込から施工まで、<b>日程は贈り主（ご依頼主さま）がお電話で決めます</b>（予約代行型。10/4 CMO 決定）。<b>受け取るご実家の方が自分で予約することはありません。</b></p>
+<!-- 1 登録 -->
+<section class="slide">
+<div class="pg"><span>① 登録</span><span>2 / 8</span></div>
+<h2><small>① 登録（10/10〜・公開済み）</small>年末LPで「お知らせを受け取る」</h2>
+<div class="flow"><span class="on">① 登録</span><i>→</i><span>② 案内</span><i>→</i><span>③ 申込</span><i>→</i><span>④ 施工</span><i>→</i><span>⑤ お礼</span></div>
 
 <div class="tw"><table>
-<tr><th>#</th><th>いつ</th><th>何が起きるか</th><th>お客様に届くもの</th><th>動く人</th><th>和真さんの手間</th></tr>
-<tr><td>0</td><td>10/10〜</td><td>年末LP・SNS・ブログを見た方が「お知らせを受け取る」に登録（メールアドレスとご実家の郵便番号だけ）</td><td>画面に「ありがとうございます」が出るだけ。<b>自動メールは送らない</b></td><td class="who">自動</td><td>なし</td></tr>
-<tr><td>1</td><td>11/4〜6</td><td><b>案内メールを1通</b>（エリア内の登録者だけ）</td><td>②の文面</td><td class="who">crm が送信<br>（承認：嶺さん）</td><td>なし</td></tr>
-<tr><td>2</td><td>随時</td><td>贈り主がギフトLPから申込（氏名・電話・ご実家の情報）。<b>ここで初めて名乗りの照合ができる</b>（③）</td><td>画面のお礼だけ（支払いはまだ）</td><td class="who">自動／CMO が照合</td><td>なし</td></tr>
-<tr><td>3</td><td>申込の翌日まで</td><td><b>贈り主へお電話</b>：メニュー・お掃除機能付きか・ご実家のご都合・ご実家に話してあるか → 日程を決める</td><td>お電話</td><td class="who">和真さん</td><td class="kz">電話1回（ここが増える）</td></tr>
-<tr><td>4</td><td>日程が決まったら</td><td>お支払い（クレジット／デビット・PayPay・メルペイ・d払い。Square リンク決済）</td><td>決済リンク</td><td class="who">CMO／crm（案）</td><td>なし（案）</td></tr>
-<tr><td>5</td><td>施工の前日</td><td>ご実家へ確認のご連絡</td><td>お電話</td><td class="who">和真さん</td><td>通常の予約と同じ</td></tr>
-<tr><td>6</td><td>1〜2月</td><td>施工。贈り主も立ち会える</td><td>―</td><td class="who">和真さん</td><td>通常の施工と同じ</td></tr>
-<tr><td>7</td><td>施工後</td><td>贈り主へ完了のご報告。お掃除機能付きでなかった場合は 6,600円を返金</td><td>メール</td><td class="who">CMO／crm（案）</td><td>なし（写真は通常どおり）</td></tr>
+<tr><th>どこで</th><td>年末LP <code>lp.onehitter.jp/nenmatsu/#gift</code>（10/10 公開）。SNS・ブログからもここへ</td></tr>
+<tr><th>預かるもの</th><td>メールアドレス・ご実家の郵便番号だけ（氏名・電話は聞かない）</td></tr>
+<tr><th>動く人</th><td>なし（自動）。<b>自動返信メールは送らない</b></td></tr>
+<tr><th>和真さん</th><td>なし</td></tr>
 </table></div>
 
-<div class="box warn">
-<div class="t">和真さんに増える手間は「贈り主への電話1回」だけ、の設計です</div>
-<p>080-8043-8259 は和真さんの業務用携帯なので、③の電話は和真さんにお願いすることになります。決済リンク・完了のご報告・返金は、和真さんの手を使わずに CMO／crm で回す案です（<b>未決。crm と詰めます</b>）。</p>
-</div>
+<h3>お客様が見る文面（公開中の実物どおり）</h3>
+<div class="mail"><div class="h"><b>年末LPの中の箱</b></div><div class="b">ご実家のこと、気になっていませんか
 
-<!-- ② -->
-<h2><span class="no">② 送る文面</span>11月上旬の案内メール（案）</h2>
+年末に帰省されるなら、その前に。
+ご実家のお掃除を、贈り物としてお申し込みいただけるようにする準備を進めています。お代はご依頼主さま、作業はご実家で。当日はご一緒に立ち会っていただけます。
 
+・ご依頼主さまがお支払い、ご実家で作業いたします
+・ご実家が 東京都・千葉県・神奈川県 の場合にお伺いできます
+・作業は年明け1〜2月が中心です（年末は予約が埋まりやすいため）
+
+ご実家の方に内緒で進めることはできません。当日ご在宅いただく必要があるため、お申し込み前にお話しいただく形をお願いしています。
+
+［ 準備ができたらお知らせする ］
+11月上旬にご案内をお送りします。この時点でのお支払いはありません。</div></div>
+
+<div class="mail"><div class="h"><b>郵便番号を入れた直後</b>（送信の前に、その場で出る）</div><div class="b">エリア内：お伺いできる地域です。
+エリア外：申し訳ありません。いまお伺いできるのは東京都・千葉県・神奈川県のみです。エリアが広がりましたら、こちらからご連絡いたします。</div></div>
+
+<div class="mail"><div class="h"><b>登録した直後の画面</b></div><div class="b">エリア内：ありがとうございます。11月上旬にご案内をお送りします。
+エリア外：ありがとうございます。エリアが広がりましたら、こちらからご連絡いたします。</div></div>
+<p class="kome">この箱には料金を出していないので、交通費の一文は入れていません（料金を出すのは②の案内メールとギフトLPから）。</p>
+</section>
+
+<!-- 2 案内 -->
+<section class="slide">
+<div class="pg"><span>② 案内</span><span>3 / 8</span></div>
+<h2><small>② 案内（11/4〜6・1回だけ）</small>登録者への案内メール</h2>
+<div class="flow"><span>① 登録</span><i>→</i><span class="on">② 案内</span><i>→</i><span>③ 申込</span><i>→</i><span>④ 施工</span><i>→</i><span>⑤ お礼</span></div>
+
+<div class="tw"><table>
+<tr><th>宛先</th><td>①の登録者のうち<b>エリア内の方だけ</b>（エリア外には送らない）</td></tr>
+<tr><th>動く人</th><td>送信：crm ／ 送る前に宛先の一覧を人の目で確認 ／ 承認：嶺さん（外に出す）</td></tr>
+<tr><th>和真さん</th><td>なし</td></tr>
+</table></div>
+
+<h3>文面（全文・案）</h3>
 <div class="mail">
-<div class="h"><b>件名：</b>ご実家のお掃除を贈る準備が整いました（ワンヒッター）<br><b>送信者：</b>ワンヒッター株式会社 ／ <b>宛先：</b>お知らせ登録のメールアドレス（エリア内のみ）</div>
+<div class="h"><b>件名：</b>ご実家のお掃除を贈る準備が整いました（ワンヒッター）<br><b>送信者：</b>ワンヒッター株式会社</div>
 <div class="b">年末のお掃除のページで「準備ができたらお知らせする」にご登録いただき、ありがとうございます。
 ワンヒッター株式会社です。
 
@@ -123,7 +165,8 @@ li{margin-bottom:4px}
 ・レンジフード　18,480円
 ・エアコン 1台 ＋ 浴室　25,960円
 
-追加のお支払いはありません（繁忙期の加算・駐車場代は当社が負担します）。
+繁忙期の加算と駐車場代は当社が負担します。
+<span class="new">ご実家が遠方（目安：高速道路を使う地域）の場合は、交通費をいただくことがあります。金額はお申し込み後のお電話でお伝えし、ご了承いただいてからのお支払いです。お電話でお伝えした金額から、当日に増えることはありません。</span>
 早期予約割引など他の割引との併用はできません。
 
 ■ お申し込みからの流れ
@@ -151,78 +194,171 @@ https://lp.onehitter.jp/gift/
 電話 080-8043-8259
 個人情報の取扱い https://lp.onehitter.jp/privacy/</div>
 </div>
+<p class="kome">色付きが 10/17 版からの直し。料金は料金マスター（<code>data/prices.json</code>）どおり（エアコン＋浴室＝10,780円＋浴室の同時施工 15,180円）。送信者・住所・受信拒否の連絡先は、広告・宣伝のメールに表示が必要なもの（特定電子メール法）。<b>リンク先のギフトLPは未公開</b>のため、送るときはギフトLPの公開も同時のご承認になります。</p>
+</section>
 
-<p class="kome">料金は料金マスター（<code>data/prices.json</code>）とギフトLPの表示どおり。エアコン＋浴室 25,960円＝10,780円＋浴室の同時施工 15,180円。<br>
-送信者名・住所・受信拒否の連絡先は、広告・宣伝のメールに表示が必要なもの（特定電子メール法）として入れています。<br>
-<b>リンク先のギフトLP（lp.onehitter.jp/gift/）は、まだ公開していません。</b>案内を送るときは、ギフトLPの公開（外に出す）も同時にご承認いただくことになります。</p>
+<!-- 3 申込 -->
+<section class="slide">
+<div class="pg"><span>③ 申込</span><span>4 / 8</span></div>
+<h2><small>③ 申込 → お電話 → お支払い</small>贈り主が申し込み、日程を決める</h2>
+<div class="flow"><span>① 登録</span><i>→</i><span>② 案内</span><i>→</i><span class="on">③ 申込</span><i>→</i><span>④ 施工</span><i>→</i><span>⑤ お礼</span></div>
 
-<!-- ③ -->
-<h2><span class="no">③ 名乗りの照合</span>なぜできないか、送るなら何を守るか</h2>
+<div class="tw"><table class="wide">
+<tr><th>段取り</th><th>お客様に届くもの</th><th>動く人</th><th>和真さん</th></tr>
+<tr><td>贈り主がギフトLPから申込（氏名・電話・ご実家の情報）</td><td>申込直後の画面（下）</td><td>自動。<b>ここで名乗りを照合</b>（本舗名義と一致したら、電話の前に保留）</td><td>なし</td></tr>
+<tr><td>贈り主へお電話：メニュー・お掃除機能付きか・ご実家のご都合・ご実家に話してあるか・<b>遠方なら交通費の金額</b> → 日程を決める</td><td>お電話（要点は下）</td><td>和真さん（080-8043-8259 は和真さんの業務用携帯）</td><td class="kz">電話1回（ここだけ増える）</td></tr>
+<tr><td>お支払い（Square リンク決済）</td><td>決済のご案内メール（下）</td><td>CMO／crm（案）</td><td>なし（案）</td></tr>
+</table></div>
+
+<div class="mail"><div class="h"><b>申込直後の画面</b></div><div class="b">お申し込みを承りました。
+
+このあと、担当より お電話（080-8043-8259）でご連絡いたします。
+作業の内容とお日にちをご相談してから、確定いたします。
+
+お支払いは、お日にちが決まってからです。
+この時点では、まだ費用は発生していません。
+
+※ お電話は 8:00〜20:00 のあいだにいたします。
+※ 番号を登録しておいていただけると、お受け取りいただきやすくなります。</div></div>
+
+<div class="mail"><div class="h"><b>贈り主へのお電話（話す順番の要点）</b></div><div class="b">1. ワンヒッターの〇〇です。ギフトのお申し込みありがとうございます
+2. メニューの確認（エアコンなら、お掃除機能付きかどうか。分からなければ当日確認でよい）
+3. ご実家のご住所の確認 → <span class="new">遠方（高速道路を使う地域）なら、交通費の金額をお伝えしてご了承をいただく</span>
+4. ご実家にお話し済みか（まだなら、先にお話しいただくようお願い）
+5. ご実家のご都合のよい日を伺い、日程を決める（年明け1〜2月が中心）
+6. このあとお支払いのご案内をメールでお送りします</div></div>
+
+<div class="mail"><div class="h"><b>件名：</b>【ワンヒッター】ギフトのお支払いのご案内</div><div class="b">〇〇様
+
+お電話ありがとうございました。ワンヒッター株式会社です。
+次の内容で承りました。下のリンクからお支払いをお願いいたします。
+
+・メニュー：〇〇
+・作業日：〇月〇日（〇）〇時ごろ
+・ご実家：〇〇市〇〇
+・お支払い額：〇〇円（税込）<span class="new">（交通費 〇〇円を含みます）※遠方の場合のみ</span>
+
+お支払いはこちら（クレジットカード・PayPay・メルペイ・d払い）
+［ Square の決済リンク ］
+
+作業の前であれば、いつでもキャンセルできます。いただいた代金は全額お返しします。
+早期予約割引など他の割引との併用はできません。
+
+ワンヒッター株式会社　電話 080-8043-8259</div></div>
+</section>
+
+<!-- 4 施工 -->
+<section class="slide">
+<div class="pg"><span>④ 施工</span><span>5 / 8</span></div>
+<h2><small>④ 施工（2027年1〜2月が中心）</small>前日のご連絡と、当日</h2>
+<div class="flow"><span>① 登録</span><i>→</i><span>② 案内</span><i>→</i><span>③ 申込</span><i>→</i><span class="on">④ 施工</span><i>→</i><span>⑤ お礼</span></div>
+
+<div class="tw"><table class="wide">
+<tr><th>段取り</th><th>お客様に届くもの</th><th>動く人</th><th>和真さん</th></tr>
+<tr><td>前日：ご実家へ確認のご連絡</td><td>お電話（要点は下）</td><td>和真さん</td><td>通常の予約と同じ</td></tr>
+<tr><td>当日：作業。贈り主も立ち会える。汚れの出方をその場でお見せする</td><td>―</td><td>和真さん</td><td>通常の施工と同じ</td></tr>
+<tr><td>お掃除機能付きでなかった場合</td><td>差額 6,600円を返金（⑤で）</td><td>当日の確認は和真さん</td><td>確認だけ</td></tr>
+</table></div>
+
+<div class="mail"><div class="h"><b>前日のお電話（ご実家へ・話す順番の要点）</b></div><div class="b">1. ワンヒッターの〇〇です。〇〇様（贈り主）からのご依頼で、明日〇時ごろお伺いします
+2. お伺いする場所（ご住所）の確認
+3. 駐車場の有無（無ければ近くのコインパーキングに停めます。代金は当社負担）
+4. 当日ご在宅いただけるかの確認</div></div>
+
+<div class="box warn">
+<div class="t">和真さんにとっての違い</div>
+<p>前日の連絡相手が<b>贈り主ではなくご実家</b>になること以外は、通常の施工と同じです。ご実家の電話番号は、③のお電話で贈り主から必ず伺っておきます（取れないまま日程を決めない）。</p>
+</div>
+</section>
+
+<!-- 5 お礼 -->
+<section class="slide">
+<div class="pg"><span>⑤ お礼</span><span>6 / 8</span></div>
+<h2><small>⑤ お礼（施工の当日〜翌日）</small>贈り主へのご報告</h2>
+<div class="flow"><span>① 登録</span><i>→</i><span>② 案内</span><i>→</i><span>③ 申込</span><i>→</i><span>④ 施工</span><i>→</i><span class="on">⑤ お礼</span></div>
+
+<div class="tw"><table>
+<tr><th>届くもの</th><td>完了のご報告メール（下）。差額の返金がある場合はその一文も</td></tr>
+<tr><th>動く人</th><td>CMO／crm（案）。作業完了フォームの送信を合図に送る</td></tr>
+<tr><th>和真さん</th><td>なし（作業完了フォームと写真は通常どおり）</td></tr>
+</table></div>
+
+<div class="mail"><div class="h"><b>件名：</b>【ワンヒッター】ご実家のお掃除が終わりました</div><div class="b">〇〇様
+
+本日、ご実家（〇〇様）のお掃除を終えました。
+贈り物としてご依頼いただき、ありがとうございました。
+
+・作業日：〇月〇日
+・作業内容：〇〇
+<span class="new">［お掃除機能付きでなかった場合のみ］お掃除機能付きの料金でお預かりしていたため、差額の 6,600円をお返しします。3営業日以内にお手続きします（カード会社によって、明細への反映に日数がかかることがあります）。</span>
+
+ご実家のみなさまにも、気持ちよくお過ごしいただけましたら幸いです。
+よろしければ、ご感想をお聞かせください。
+［ ご利用後アンケート ］
+
+ワンヒッター株式会社　電話 080-8043-8259</div></div>
+<p class="kome">返金の文面は、運用設計（<code>docs/gift/2026-09-17-お掃除機能付きエアコンの運用設計.md</code> §10・§11）と同じ言い方です。Square は残高が足りないと返金できないため、返金が詰まったときの手順を先に決めておきます（同 §12）。</p>
+</section>
+
+<!-- 6 照合 -->
+<section class="slide">
+<div class="pg"><span>名乗りの照合</span><span>7 / 8</span></div>
+<h2><small>名乗りの照合と、今の登録数</small>なぜ照合できないか／いま何件か</h2>
 
 <h3>照合ができない理由</h3>
-<div class="tw"><table>
-<tr><th>事実</th><th>確かめた方法</th></tr>
-<tr><td>お知らせ登録で預かっているのは<b>メールアドレスとご実家の郵便番号だけ</b>（登録を軽くするため。氏名・電話は聞いていない）</td><td>年末LPの入口の実物</td></tr>
-<tr><td>名乗りの照合の道具（<code>meigi_hyou()</code>）は、<b>電話番号か氏名</b>で台帳の「最新の施工の名義」と突き合わせる</td><td>ツールの中身</td></tr>
-<tr><td><b>顧客管理台帳にメールアドレスは1件も無い</b>。「登録メールが本舗名義の人と一致したら外す」は、今の台帳ではできない</td><td>10/17 の台帳の控え（約3万セル）を数えて0件</td></tr>
-</table></div>
-<p>規則（全スレッド共通）は「<b>照合できない相手には送らない</b>」です。そのまま当てると、<b>登録者の全員に送れません</b>。</p>
-
-<div class="box">
-<div class="t">それでも送ってよいと考える理由</div>
-<p>登録者は、<b>ワンヒッターの名前が出ているページで、自分から「お知らせを受け取る」を押した方</b>です。送る名乗りは、ご本人が同意した名乗りと必ず一致します。9/11 の事故（本舗のお客様に、ご本人が知らないワンヒッター名義の SMS が届いた）とは向きが逆です。</p>
-</div>
-
-<h3>送るなら守る条件（5つ）</h3>
-<ol>
-<li><b>名義はワンヒッターだけ。</b>本舗の名前・番号は一切出さない（登録したページにも出ていない）</li>
-<li><b>1通だけ。</b>登録のときに約束したのは「11月上旬にご案内」だけなので、営業のメールに使い回さない</li>
-<li><b>エリア外の登録者には送らない</b>（登録時に「エリアが広がりましたら」とだけお伝えしている）</li>
-<li><b>申込の段階で照合する。</b>申込で氏名・電話が入った時点で <code>meigi_hyou()</code> を通し、<b>本舗名義のお客様と一致したら、和真さんの電話の前に保留</b>して CMO が判断する</li>
-<li><b>送る前に、宛先の一覧を人の目で確かめる</b>（件数が少ないので）</li>
-</ol>
-
-<!-- ④ -->
-<h2><span class="no">④ 今の登録者数と見込み</span>正直に言うと、まだ測れていません</h2>
-
-<div class="kpi">
-<div class="c bad"><div class="l">お知らせ登録</div><div class="v">0件</div><div class="n">10/10 公開〜10/16（迷惑判定も0件）</div></div>
-<div class="c bad"><div class="l">年末LPの閲覧</div><div class="v">ほぼ0</div><div class="n">GA4 で /nenmatsu/ の表示が1週間 0件</div></div>
-<div class="c"><div class="l">参考：エアコンLP</div><div class="v">55件</div><div class="n">同じ1週間の表示（広告の行き先）</div></div>
-</div>
-
-<div class="box red">
-<div class="t">0件の理由は「需要がない」ではなく「誰も年末LPに来ていない」です</div>
-<p>広告は <b>エアコンLP・水まわりLP</b> に送っていて、ギフトの入口を置いた<b>年末LPには流入がありません</b>。GA4 のタグは年末LPにも入っていることを確かめたので、計測漏れではなく本当に来ていません。</p>
-<p>SNS の第1週（10/12）は入口の公開前だったので、リンクを付けていません。<b>ブログ（10/17）と SNS の第2週（10/19〜）から、入口へのリンクが付きます。</b>流入はそこからです。</p>
-</div>
-
-<h3>見込み（何件の申込を狙うか）</h3>
 <ul>
-<li><b>件数の目標は置きません。</b>前回の母の日は0件、ギフトの販売実績もまだ無く、置ける根拠がありません。狙いは<b>「0を1にする」</b>ことです。</li>
-<li>効く先：2027年2月は中立シナリオで唯一の赤字月（経常 ▲35,545円）。<b>ギフト4件で消えます</b>（経営企画室が確認済み）。</li>
-<li>売上が立つのは施工月の<b>2027年1〜2月</b>です。11〜12月に入るのは前受金だけです。</li>
+<li>①で預かるのは<b>メールアドレスと郵便番号だけ</b>。名乗りの照合の道具は<b>電話番号か氏名</b>で台帳と突き合わせる</li>
+<li><b>顧客管理台帳にメールアドレスは1件も無い</b>（10/17 の控えで確認）。「登録メールで本舗名義の人を外す」は、今の台帳ではできない</li>
+<li>規則は「照合できない相手には送らない」。そのまま当てると<b>登録者の全員に送れない</b></li>
 </ul>
 
-<!-- ⑤ -->
-<h2><span class="no">⑤ 決めていただきたいこと</span>3つ（はい／いいえ）</h2>
+<div class="box">
+<div class="t">それでも送ってよいと考える理由と、守る条件</div>
+<p>登録者は<b>ワンヒッターの名前が出ているページで、自分から登録した方</b>なので、送る名乗りは本人が同意した名乗りと必ず一致します（9/11 の事故とは向きが逆）。</p>
+<ol>
+<li>名義はワンヒッターだけ。本舗の名前・番号は出さない</li>
+<li>1通だけ。営業のメールに使い回さない</li>
+<li>エリア外の登録者には送らない</li>
+<li><b>③の申込で氏名・電話が入った時点で照合し、本舗名義と一致したら、和真さんの電話の前に保留</b>して CMO が判断する</li>
+<li>送る前に、宛先の一覧を人の目で確かめる</li>
+</ol>
+</div>
+
+<h3>今の登録数（10/17 まで）</h3>
+<div class="kpi">
+<div class="c bad"><div class="l">お知らせ登録</div><div class="v">0件</div><div class="n">10/10 公開〜（迷惑判定も0件）</div></div>
+<div class="c bad"><div class="l">年末LPの閲覧</div><div class="v">0件</div><div class="n">GA4・/nenmatsu/・10/10〜10/17</div></div>
+<div class="c"><div class="l">参考：LP全体の閲覧</div><div class="v">358件</div><div class="n">同じ期間（多くはエアコン・水まわりLP）</div></div>
+</div>
+<div class="box red">
+<div class="t">0件は「需要がない」ではなく「誰も年末LPに来ていない」</div>
+<p>広告の行き先はエアコンLP・水まわりLPで、年末LPには流入がありません（タグは入っていることを確認済み）。SNS の第1週は入口の公開前でリンクなし。<b>ブログ（10/17）と SNS 第2週（10/19〜）から入口へのリンクが付きます。</b></p>
+<p><b>申込件数の目標は置きません</b>（前回0件・販売実績なし）。狙いは「0を1に」。2027年2月の赤字（経常 ▲35,545円）は<b>ギフト4件で消えます</b>。売上が立つのは施工月の2027年1〜2月です。</p>
+</div>
+</section>
+
+<!-- 7 決めること -->
+<section class="slide">
+<div class="pg"><span>決めていただきたいこと</span><span>8 / 8</span></div>
+<h2><small>決めていただきたいこと</small>3つ（はい／いいえ）</h2>
 
 <div class="q">
-<div><span class="n">Q1.</span> お知らせ登録をした<b>エリア内</b>の方に、11月上旬、<b>ワンヒッター名義の案内メールを1通だけ</b>送ってよいですか？（②の文面・③の条件5つつき）<span class="rec">推奨：はい</span></div>
+<div><span class="n">Q1.</span> お知らせ登録をした<b>エリア内</b>の方に、11月上旬、<b>ワンヒッター名義の案内メールを1通だけ</b>送ってよいですか？（3枚目の文面・7枚目の条件つき）<span class="rec">推奨：はい</span></div>
 <p class="kome">送るときは、リンク先のギフトLPの公開も同時のご承認になります。登録が0件のままなら、送る相手がいないので送りません。</p>
 </div>
 
 <div class="q">
 <div><span class="n">Q2.</span> 申込の段階で<b>本舗名義のお客様と一致した方</b>は、和真さんがお電話する前に<b>保留して CMO が判断</b>する、でよいですか？<span class="rec">推奨：はい</span></div>
-<p class="kome">本舗名義のお客様にワンヒッター名義で電話や決済リンクが届くことを、申込の時点で止めるためです。</p>
+<p class="kome">本舗名義のお客様に、ワンヒッター名義の電話や決済のご案内が届くのを、申込の時点で止めるためです。</p>
 </div>
 
 <div class="q">
 <div><span class="n">Q3.</span> 10月末の判断（「エリア内の登録が1件以上なら、ギフトLPの公開と広告 上限5万円に進む」）は、<b>年末LPに流入が無いまま0件だった場合、「保留」にして 11/15 に見直す</b>、でよいですか？<span class="rec">推奨：はい</span></div>
-<p class="kome">今のまま10月末に0件で止めると、「要らない」のか「誰も見ていない」のかが分かりません。前回の母の日と同じく、測れていないものを失敗と読むことになります。</p>
+<p class="kome">今のまま10月末に0件で止めると、「要らない」のか「誰も見ていない」のかが分かりません。</p>
 </div>
 
-<p class="kome" style="margin-top:28px">出典：Netlify フォーム gift-oshirase（10/17 確認）／GA4 page_view・gift_block_view（10/10〜10/16）／顧客管理台帳の控え（2026-10-17）／<code>data/prices.json</code>／<code>lp/gift/index.html</code>／<code>docs/org/README.md</code> 4.5／<code>docs/gift/2026-09-14-企画書.md</code>。</p>
+<p class="kome" style="margin-top:22px">出典：Netlify フォーム gift-oshirase（10/18 確認）／GA4 page_view（10/10〜10/17）／顧客管理台帳の控え（2026-10-17）／<code>data/prices.json</code>／年末LPの入口の実物（<code>lp/_parts/gift-oshirase.html</code>）／<code>docs/gift/2026-09-18-申込フォーム仕様.md</code> §3.1／<code>docs/org/README.md</code> 4.5／オーナー決定 10/17（遠方の交通費）。</p>
+</section>
 
 </div>
 </body>
