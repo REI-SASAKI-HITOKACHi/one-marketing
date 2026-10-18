@@ -2,7 +2,7 @@
 title: "エアコンの暖房でにおいが続くとき　頼む目安と、自分でやらないこと"
 date: 2026-11-16
 category: エアコン
-eyecatch: ph-417.jpg
+eyecatch: ph-417-r.jpg
 description: "暖房をつけるたびににおいがする。フィルターを見たあと、それでも続くときに、頼む目安と、自分でやらないほうがよいことを分けました。料金は税込で。"
 tags: [エアコン, 江戸川区, ハウスクリーニング, 西葛西]
 source: docs/読本-出典.md #57（東京都 指針No.23 https://www.hokeniryo.metro.tokyo.lg.jp/documents/d/hokeniryo/web_bunya10）／#3（東京都アレルギー情報navi. https://www.hokeniryo1.metro.tokyo.lg.jp/allergy/measure/indoor.html）／#19（ダイキン https://www.daikincc.com/faq/customer/web/knowledge2504.html、パナソニック https://jpn.faq.panasonic.com/app/answers/detail/a_id/62157/、三菱電機 https://faq01.mitsubishielectric.co.jp/faq/show/2643?category_id=298&site_domain=default）／#4（ダイキン https://www.daikincc.com/faq/customer/web/knowledge2700.html）／#5（三菱電機 https://faq01.mitsubishielectric.co.jp/faq/show/712?site_domain=default）／#6（NITE https://www.nite.go.jp/jiko/chuikanki/press/2020fy/prs200625.html）／docs/price-master.md（料金・割引・お客様への約束）
@@ -14,7 +14,7 @@ status: approved
 
 フィルターを見ても変わらないとき、どうするか。頼む目安と、自分でやらないほうがよいことを書きます。
 
-![エアコンの吹き出し口](ph-417.jpg)
+![エアコンの吹き出し口](ph-417-r.jpg)
 *当社が作業したお宅のエアコンの吹き出し口。養生をして作業前の様子*
 
 ## 先に、フィルターを見る
