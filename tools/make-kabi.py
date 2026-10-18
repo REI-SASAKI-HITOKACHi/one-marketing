@@ -32,7 +32,7 @@ def mod(name):
 
 f_ = mod("ab-aircon-kabi")   # 季節の節と CSS は /aircon-f/ 案と同じ
 zei = mod("zei-1016")
-fan = mod("fan-1018")   # ファンは付けたまま（和真さん 10/17）
+fan = mod("fan-1019")   # ファンの取り外しを約束しない・付けたままとも書かない（和真さん 10/17・オーナー 10/18）
 kaeru = f_.kaeru
 
 TITLE = "エアコンが臭い・暖房にしたらカビ臭いときに｜エアコンクリーニング 10,780円｜ONE HITTER"
@@ -112,9 +112,9 @@ def tenken(out: pathlib.Path) -> list:
             ng.append(f"使ってはいけない {bad} がある")
     ng += [f"古い金額 {x}" for x in zei.nokori(h)]
     ng += [f"ファンの書き方が古い {x}" for x in fan.nokori(h)]
-    # 完全分解は「オプションがあるときだけファンを外す」の説明にだけ出してよい（和真さん 10/17）。それ以外で約束しない
-    if text.replace('完全分解のオプション', '').count('完全分解'):
-        ng.append("「完全分解」がオプションの説明以外に出ている")
+    # 完全分解（ファンの取り外し）は今は承っていないので書かない（和真さん 10/17）
+    if '完全分解' in text:
+        ng.append("「完全分解」が出ている")
     for img in re.findall(r'src="(img/[^"]+)"', h):
         if not (out / img).exists():
             ng.append(f"写真が無い {img}")
@@ -126,7 +126,8 @@ def tenken(out: pathlib.Path) -> list:
 
 # オーナーの指摘が来たときに、すぐ差し替えられる代案（依頼 20261017-01-lp）。--alt bunkai,koe-namae のように指定する
 ALT = {
-    # 「分解して洗います」が、背抜き（完全分解）を受ける意味に取られないように
+    # 「分解して洗います」が、背抜き（完全分解）を受ける意味に取られないように。
+    # オーナー 10/18「分解して洗うことには変わりないからね」で、既定から外した（使わない）
     "bunkai": [
         ("分解して洗います。ノーマル10,780円", "カバーを外して、奥まで洗います。ノーマル10,780円"),
         ("フィルター掃除では届かないところを、分解して洗います。", "カバーを外して、フィルター掃除では届かない奥まで洗います。"),
@@ -155,7 +156,7 @@ def main():
     ap.add_argument("--src", default=str(ROOT / "deploy" / "netlify" / "aircon-e"))
     ap.add_argument("--img", default=str(ROOT / "deploy" / "netlify" / "aircon-c" / "img"))
     ap.add_argument("--out", default=str(ROOT / "preview" / "kabi"))
-    ap.add_argument("--alt", default="bunkai", help="代案：bunkai／koe-namae／koe-nashi をカンマ区切りで")
+    ap.add_argument("--alt", default="", help="代案：bunkai／koe-namae／koe-nashi をカンマ区切りで")
     a = ap.parse_args()
     src, out = pathlib.Path(a.src), pathlib.Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
