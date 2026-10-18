@@ -1,0 +1,86 @@
+TITLE: ONE HITTER ブログ一覧 デザイン案
+{{HEADER:/blog/:blog}}
+{{PHEAD:BLOG|掃除のことを、<br><em>書いています</em>。|現場で見ていることと、ご自身でできることを書いています。読んで解決するなら、それが一番です。|ブログ|}}
+
+<section class="band"><div class="wrap">
+  <input type="radio" name="bc" id="b-all" checked>
+  <input type="radio" name="bc" id="b-aircon">
+  <input type="radio" name="bc" id="b-washer">
+  <input type="radio" name="bc" id="b-news">
+  <div class="filter">
+    <label for="b-all">すべて</label>
+    <label for="b-aircon">エアコン</label>
+    <label for="b-washer">洗濯機</label>
+    <label for="b-news">新着情報</label>
+  </div>
+
+  <div class="posts">
+    <a class="p aircon rv" href="/blog/20261009-1733/">
+      <time>2026.10.18</time><span class="cat">エアコン</span>
+      <span class="ti">実家のエアコン、最後に掃除したのはいつですか　帰省した日に確かめる3つのこと</span>
+      <span class="ex">カバーを開けなくても分かることがあります。帰省したときに、3分でできる確認です。</span>
+      <span class="go">読む →</span></a>
+    <a class="p washer rv" href="/blog/20261009-1731/">
+      <time>2026.10.18</time><span class="cat">洗濯機</span>
+      <span class="ti">槽洗浄をしても黒いカスが出るとき　槽の裏を見てから決める</span>
+      <span class="ex">洗浄剤が効いていないのではなく、届いていないだけ、ということがあります。</span>
+      <span class="go">読む →</span></a>
+    <a class="p washer rv" href="/blog/20261017-1803/">
+      <time>2026.10.17</time><span class="cat">洗濯機</span>
+      <span class="ti">洗濯槽の掃除方法　月1回の槽洗浄と、使ってはいけないもの</span>
+      <span class="ex">塩素系と酸素系の違いと、混ぜてはいけない組み合わせ。</span>
+      <span class="go">読む →</span></a>
+    <a class="p washer rv" href="/blog/20261009-1729/">
+      <time>2026.10.16</time><span class="cat">洗濯機</span>
+      <span class="ti">洗濯物に黒いカスが付く原因　洗濯槽の裏側で起きていること</span>
+      <span class="ex">二重構造の槽の、見えない面で何が起きているか。</span>
+      <span class="go">読む →</span></a>
+    <a class="p news rv" href="/blog/20261009-1721/">
+      <time>2026.10.12</time><span class="cat">新着情報</span>
+      <span class="ti">Googleのクチコミを5件、全文で載せます</span>
+      <span class="ex">いただいた文章を、省略も言い換えもせずに掲載しました。</span>
+      <span class="go">読む →</span></a>
+    <a class="p news rv" href="/blog/20260924-1717/">
+      <time>2026.10.10</time><span class="cat">新着情報</span>
+      <span class="ti">対応エリアと、ご依頼から作業までの流れ｜東京都・千葉県・神奈川県</span>
+      <span class="ex">お問い合わせから当日までに、何をどう決めていくか。</span>
+      <span class="go">読む →</span></a>
+  </div>
+
+  <p class="kome center rv">※ これはデザイン案です。記事の並びと本数は公開中のものと異なります。</p>
+</div></section>
+
+<style>
+.filter{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 40px}
+input[name=bc]{position:absolute;opacity:0;width:0;height:0}
+.filter label{display:inline-flex;cursor:pointer;border:1px solid var(--line);border-radius:999px;
+  padding:9px 19px;font-size:13px;letter-spacing:.05em;transition:border-color .3s,background .3s,color .3s}
+.filter label:hover{border-color:var(--red);color:var(--red)}
+#b-all:checked ~ .filter label[for=b-all],
+#b-aircon:checked ~ .filter label[for=b-aircon],
+#b-washer:checked ~ .filter label[for=b-washer],
+#b-news:checked ~ .filter label[for=b-news]{background:var(--red);border-color:var(--red);color:#fff}
+#b-aircon:checked ~ .posts .p:not(.aircon),
+#b-washer:checked ~ .posts .p:not(.washer),
+#b-news:checked ~ .posts .p:not(.news){display:none}
+.posts{border-top:1px solid var(--line)}
+.posts .p{display:grid;grid-template-columns:7.5em 7em 1fr 6em;gap:6px 22px;align-items:baseline;
+  padding:26px 6px;border-bottom:1px solid var(--line);text-decoration:none;
+  transition:background .35s,padding-left .35s}
+.posts .p:hover{background:var(--paper);padding-left:16px}
+.posts time{font-size:12.5px;color:var(--mute);letter-spacing:.06em}
+.posts .cat{font-size:10.5px;letter-spacing:.1em;color:var(--red);
+  border:1px solid rgba(217,71,57,.35);border-radius:999px;padding:2px 10px;justify-self:start}
+.posts .ti{font-family:var(--mincho);font-size:16.5px;letter-spacing:.06em;line-height:1.7}
+.posts .ex{grid-column:3/4;font-size:12.5px;color:var(--mute);line-height:1.9;margin-top:4px}
+.posts .go{font-size:12.5px;color:var(--red);text-align:right;white-space:nowrap}
+.posts .p:hover .go{text-decoration:underline}
+@media(max-width:820px){
+  .posts .p{grid-template-columns:1fr auto;gap:4px 14px}
+  .posts time{order:1}.posts .cat{order:2;justify-self:end}
+  .posts .ti{order:3;grid-column:1/-1}.posts .ex{order:4;grid-column:1/-1}
+  .posts .go{order:5;grid-column:1/-1;text-align:left}
+}
+</style>
+
+{{CTA:blog|読んでも解決しないときは、<br>お呼びください。|空いている日を見て、そのままご予約いただけます。入力はおよそ1分。|/feature/|症状から探す}}

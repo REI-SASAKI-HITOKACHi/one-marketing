@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ONE HITTER ブログ一覧 デザイン案</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* =============================================================
+   ONE HITTER サイト共通CSS（2026-10-19 ブラウザ担当）
+   トップページ案 cms/top-page/prototype.html の設計言語を1か所にまとめたもの。
+   JavaScript は使っていない。動きは animation-timeline: view() のみで、
+   対応していないブラウザでは最初から全部見える。
+
+   CMSへ入れるときは、このファイルを「ファイル管理 → テキストファイルを追加」で
+   base.css として置き、レイアウトの「外部CSS/JS」で読み込ませる
+   （docs/cms-realize-manual-facts の手順）。
+   ============================================================= */
+:root{
+  --bg:#f8f7f4; --ink:#2d2d2a; --mute:#6f6e68; --line:rgba(45,45,42,.14);
+  --red:#d94739; --red-dark:#b9362a; --paper:#fff;
+  --mincho:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --gothic:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--gothic);
+  font-size:15px;line-height:2;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding:0 28px}
+.narrow{max-width:800px}
+.mincho{font-family:var(--mincho);font-weight:400;letter-spacing:.07em;line-height:1.55}
+
+/* ---- スクロールで現れる（既定は見えている） ---- */
+@supports (animation-timeline: view()){
+  @media (prefers-reduced-motion: no-preference){
+    @keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+    @keyframes wipe{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+    @keyframes zoomout{from{transform:scale(1.12)}to{transform:scale(1)}}
+    .rv{animation:rise both;animation-timeline:view();animation-range:entry 0% entry 50%}
+    .rule i{animation:wipe both;animation-timeline:view();animation-range:entry 5% entry 60%}
+    .kenban img{animation:zoomout both;animation-timeline:view();animation-range:entry 0% cover 60%}
+  }
+}
+
+/* ---- ヘッダー ---- */
+header{position:sticky;top:0;z-index:50;background:rgba(248,247,244,.9);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header .in{display:flex;align-items:center;justify-content:space-between;gap:20px;
+  max-width:1120px;margin:0 auto;padding:14px 28px}
+.logo{display:flex;align-items:center;gap:11px;text-decoration:none}
+.logo .mk{width:34px;height:34px;border-radius:7px;background:var(--red);color:#fff;
+  display:grid;place-items:center;font-size:10px;font-weight:700;letter-spacing:.04em;line-height:1.1;text-align:center}
+.logo b{font-family:var(--mincho);font-size:17px;letter-spacing:.14em;font-weight:400}
+.logo small{display:block;font-size:9.5px;letter-spacing:.22em;color:var(--mute)}
+nav.main{display:flex;gap:26px;font-size:13.5px;letter-spacing:.04em}
+nav.main a{text-decoration:none;position:relative;padding:4px 0}
+nav.main a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--red);
+  transform:scaleX(0);transform-origin:right;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+nav.main a:hover::after,nav.main a.on::after{transform:scaleX(1);transform-origin:left}
+.hbtn{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;
+  text-decoration:none;font-size:13.5px;font-weight:700;border-radius:999px;padding:11px 22px;
+  transition:background .3s,transform .3s}
+.hbtn:hover{background:var(--red-dark);transform:translateY(-1px)}
+@media(max-width:900px){nav.main{display:none}}
+
+/* ---- ページの頭 ---- */
+.phead{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.phead .bg{position:absolute;inset:0;z-index:0}
+.phead .bg img{width:100%;height:100%;object-fit:cover}
+.phead .bg::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(100deg,rgba(248,247,244,.97) 0%,rgba(248,247,244,.93) 48%,rgba(248,247,244,.7) 100%)}
+.phead .in{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:78px 28px 72px}
+.phead .en{display:block;font-size:11.5px;letter-spacing:.26em;color:var(--red);font-weight:700;margin-bottom:14px}
+.phead h1{margin:0;font-size:clamp(26px,4.3vw,45px);letter-spacing:.09em;line-height:1.5}
+.phead h1 em{font-style:normal;color:var(--red)}
+.phead p{margin:24px 0 0;max-width:38em;color:var(--mute);font-size:14.5px}
+.phead .crumb{font-size:11.5px;color:var(--mute);letter-spacing:.06em;margin-bottom:18px}
+.phead .crumb a{text-decoration:none}
+.phead .crumb a:hover{color:var(--red)}
+.phead.plain{background:rgba(255,255,255,.4)}
+
+/* ---- セクション共通 ---- */
+section.band{padding:clamp(60px,7.5vw,108px) 0}
+section.band.tint{background:rgba(255,255,255,.45);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.sechead{margin:0 0 40px}
+.sechead .en{display:block;font-size:11.5px;letter-spacing:.26em;color:var(--red);font-weight:700;margin-bottom:14px}
+.sechead h2{margin:0;font-size:clamp(22px,3.2vw,34px);letter-spacing:.09em;line-height:1.6}
+.sechead p{margin:18px 0 0;max-width:44em;color:var(--mute);font-size:14.5px}
+.sechead p strong{color:var(--ink);font-weight:500}
+.rule{height:1px;background:var(--line);position:relative;margin:0 0 40px}
+.rule i{position:absolute;left:0;top:0;width:84px;height:1px;background:var(--red);transform-origin:left;display:block}
+
+/* ---- 本文 ---- */
+.lead{font-family:var(--mincho);font-size:clamp(19px,2.5vw,27px);line-height:2;letter-spacing:.08em;margin:0 0 30px}
+.lead em{font-style:normal;color:var(--red)}
+.body p{color:var(--mute);margin:0 0 18px;font-size:14.5px}
+.body p strong{color:var(--ink);font-weight:500}
+.body h3{font-family:var(--mincho);font-size:clamp(18px,2.2vw,23px);letter-spacing:.07em;
+  font-weight:400;line-height:1.7;margin:40px 0 14px}
+.body ul{margin:0 0 18px;padding:0;list-style:none}
+.body ul li{position:relative;padding-left:1.3em;color:var(--mute);font-size:14.5px}
+.body ul li::before{content:"—";position:absolute;left:0;color:var(--red)}
+
+/* ---- 写真つきの節 ---- */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,5vw,72px);align-items:center}
+.kenban{position:relative;overflow:hidden;border-radius:3px;aspect-ratio:4/3;margin:0}
+.kenban img{width:100%;height:100%;object-fit:cover}
+.kenban figcaption{position:absolute;left:0;right:0;bottom:0;padding:26px 20px 14px;
+  background:linear-gradient(transparent,rgba(45,45,42,.72));color:#fff;font-size:11.5px;letter-spacing:.06em}
+@media(max-width:860px){.split{grid-template-columns:1fr}}
+
+/* ---- 数字の帯 ---- */
+.numband{border-bottom:1px solid var(--line);background:rgba(255,255,255,.55)}
+.numband .in{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
+.numband .c{padding:36px 24px 32px;text-align:center;border-left:1px solid var(--line)}
+.numband .c:first-child{border-left:0}
+.numband .n{font-family:var(--mincho);font-size:clamp(26px,3.6vw,38px);letter-spacing:.03em;line-height:1.2}
+.numband .n i{font-style:normal;font-size:.5em;margin-left:2px}
+.numband .n .dec{font-size:.62em;letter-spacing:0}
+.numband .n .stars{color:var(--red);letter-spacing:.06em;font-size:.56em}
+.numband .t{margin-top:9px;font-size:12.5px;color:var(--mute);line-height:1.8}
+.numband .t b{color:var(--ink);font-weight:700}
+.numband .sub{margin-top:6px;font-size:10.5px;color:var(--mute);opacity:.85;line-height:1.7}
+@media(max-width:760px){.numband .in{grid-template-columns:1fr}
+  .numband .c{border-left:0;border-top:1px solid var(--line);padding:24px 18px}
+  .numband .c:first-child{border-top:0}}
+
+/* ---- カードの並び ---- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line)}
+.cards>div{background:var(--bg);padding:30px 26px 28px;position:relative;transition:background .35s}
+.cards>div:hover{background:var(--paper)}
+.cards>div::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:var(--red);
+  transform:scaleX(0);transform-origin:left;transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+.cards>div:hover::before{transform:scaleX(1)}
+.cards .no{font-family:var(--mincho);font-size:12px;letter-spacing:.2em;color:var(--red);margin-bottom:12px}
+.cards b{display:block;font-family:var(--mincho);font-size:18px;letter-spacing:.07em;
+  font-weight:400;line-height:1.7;margin-bottom:10px}
+.cards span{font-size:13px;color:var(--mute);line-height:1.95}
+.cards q{display:block;margin-top:15px;padding:14px 0 0;border-top:1px solid var(--line);
+  font-family:var(--mincho);font-size:13.5px;line-height:1.95;letter-spacing:.04em;quotes:"\201C" "\201D"}
+.cards q::before{content:open-quote;color:var(--red);opacity:.4;margin-right:.1em}
+.cards q::after{content:close-quote;color:var(--red);opacity:.4}
+.cards cite{display:block;margin-top:8px;font-style:normal;font-family:var(--gothic);
+  font-size:10.5px;letter-spacing:.06em;color:var(--mute);opacity:.85}
+
+/* ---- 定義リスト（料金・会社概要） ---- */
+.dl{margin:0;border-top:1px solid var(--line)}
+.dl>div{display:flex;flex-wrap:wrap;gap:6px 22px;padding:17px 2px;border-bottom:1px solid var(--line)}
+.dl dt{flex:0 0 10em;font-size:12.5px;color:var(--mute);letter-spacing:.06em}
+.dl dd{margin:0;flex:1 1 16em;font-size:14px;line-height:1.9}
+@media(max-width:600px){.dl dt{flex:0 0 100%}.dl dd{flex:1 1 100%}}
+
+/* ---- ボタン ---- */
+.btn{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:700;
+  border-radius:999px;padding:16px 32px;font-size:14.5px;position:relative;overflow:hidden;
+  transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s,background .3s,color .3s,border-color .3s}
+.btn.primary{background:var(--red);color:#fff}
+.btn.primary:hover{background:var(--red-dark);transform:translateY(-2px);box-shadow:0 16px 30px -14px rgba(217,71,57,.85)}
+.btn.ghost{border:1px solid var(--line);color:var(--ink);background:transparent}
+.btn.ghost:hover{border-color:var(--red);color:var(--red)}
+.btn .ar{transition:transform .3s}
+.btn:hover .ar{transform:translateX(5px)}
+.more{margin-top:40px;text-align:center}
+.kome{margin-top:22px;font-size:11px;line-height:2;color:var(--mute);opacity:.85}
+.kome.center{text-align:center}
+
+/* ---- 最後のCTA ---- */
+.cta{background:#2d2d2a;color:#f5f4f1;padding:clamp(60px,7.5vw,108px) 0;text-align:center}
+.cta h2{margin:0 0 16px;font-family:var(--mincho);font-size:clamp(22px,3.2vw,33px);
+  letter-spacing:.09em;line-height:1.6;font-weight:400}
+.cta p{margin:0 0 34px;color:rgba(245,244,241,.72);font-size:14px}
+.cta .acts{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;align-items:center}
+.cta .btn.ghost{border-color:rgba(245,244,241,.3);color:#f5f4f1}
+.cta .btn.ghost:hover{border-color:#fff;color:#fff}
+.cta .tel{font-size:13px;color:rgba(245,244,241,.72)}
+.cta .tel b{display:block;font-family:var(--mincho);font-size:22px;color:#fff;letter-spacing:.04em}
+
+/* ---- フッター ---- */
+footer{border-top:1px solid var(--line);padding:34px 0;font-size:11.5px;color:var(--mute)}
+footer .in{max-width:1120px;margin:0 auto;padding:0 28px;display:flex;flex-wrap:wrap;gap:14px 28px;justify-content:space-between}
+footer nav{display:flex;flex-wrap:wrap;gap:8px 20px}
+footer nav a{text-decoration:none}
+footer nav a:hover{color:var(--red)}
+
+@media(max-width:600px){
+  body{font-size:14.5px;line-height:1.95}
+  .wrap{padding:0 18px}
+  header .in{padding:11px 18px;gap:10px}
+  .logo .mk{width:30px;height:30px;font-size:8.5px}
+  .logo b{font-size:13.5px;letter-spacing:.08em}
+  .logo small{font-size:8px;letter-spacing:.14em}
+  .hbtn{padding:9px 15px;font-size:12px;white-space:nowrap}
+  .btn{justify-content:center;padding:15px 24px;font-size:14.5px}
+  .cta .acts{flex-direction:column;align-items:stretch;gap:12px}
+  .phead .in{padding:52px 18px 48px}
+  .phead h1{font-size:24px;letter-spacing:.04em;line-height:1.7}
+  .phead p{font-size:13.5px}
+  .phead .bg::after{background:linear-gradient(180deg,rgba(248,247,244,.96) 0%,rgba(248,247,244,.9) 60%,rgba(248,247,244,.82) 100%)}
+  footer .in{padding:0 18px}
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .rv,.rule i,.kenban img{animation:none}
+}
+</style>
+
+<header>
+  <div class="in">
+    <a class="logo" href="/"><span class="mk">ONE<br>HITTER</span>
+      <span><b>ワンヒッター株式会社</b><small>HOUSE CLEANING SERVICE</small></span></a>
+    <nav class="main">
+      <a href="/menu/">メニュー</a>
+      <a href="/constructed/">施工事例</a>
+      <a href="/voice/">お客様の声</a>
+      <a class="on" href="/blog/">ブログ</a>
+      <a href="/corporation/">事業者の方</a>
+    </nav>
+    <a class="hbtn" href="https://yoyaku.onehitter.jp/?src=blog">空いている日を見る</a>
+  </div>
+</header>
+<div class="phead plain">
+  
+  <div class="in">
+    <p class="crumb"><a href="/">ホーム</a>　›　ブログ</p>
+    <span class="en">BLOG</span>
+    <h1 class="mincho">掃除のことを、<br><em>書いています</em>。</h1>
+    <p>現場で見ていることと、ご自身でできることを書いています。読んで解決するなら、それが一番です。</p>
+  </div>
+</div>
+
+<section class="band"><div class="wrap">
+  <input type="radio" name="bc" id="b-all" checked>
+  <input type="radio" name="bc" id="b-aircon">
+  <input type="radio" name="bc" id="b-washer">
+  <input type="radio" name="bc" id="b-news">
+  <div class="filter">
+    <label for="b-all">すべて</label>
+    <label for="b-aircon">エアコン</label>
+    <label for="b-washer">洗濯機</label>
+    <label for="b-news">新着情報</label>
+  </div>
+
+  <div class="posts">
+    <a class="p aircon rv" href="/blog/20261009-1733/">
+      <time>2026.10.18</time><span class="cat">エアコン</span>
+      <span class="ti">実家のエアコン、最後に掃除したのはいつですか　帰省した日に確かめる3つのこと</span>
+      <span class="ex">カバーを開けなくても分かることがあります。帰省したときに、3分でできる確認です。</span>
+      <span class="go">読む →</span></a>
+    <a class="p washer rv" href="/blog/20261009-1731/">
+      <time>2026.10.18</time><span class="cat">洗濯機</span>
+      <span class="ti">槽洗浄をしても黒いカスが出るとき　槽の裏を見てから決める</span>
+      <span class="ex">洗浄剤が効いていないのではなく、届いていないだけ、ということがあります。</span>
+      <span class="go">読む →</span></a>
+    <a class="p washer rv" href="/blog/20261017-1803/">
+      <time>2026.10.17</time><span class="cat">洗濯機</span>
+      <span class="ti">洗濯槽の掃除方法　月1回の槽洗浄と、使ってはいけないもの</span>
+      <span class="ex">塩素系と酸素系の違いと、混ぜてはいけない組み合わせ。</span>
+      <span class="go">読む →</span></a>
+    <a class="p washer rv" href="/blog/20261009-1729/">
+      <time>2026.10.16</time><span class="cat">洗濯機</span>
+      <span class="ti">洗濯物に黒いカスが付く原因　洗濯槽の裏側で起きていること</span>
+      <span class="ex">二重構造の槽の、見えない面で何が起きているか。</span>
+      <span class="go">読む →</span></a>
+    <a class="p news rv" href="/blog/20261009-1721/">
+      <time>2026.10.12</time><span class="cat">新着情報</span>
+      <span class="ti">Googleのクチコミを5件、全文で載せます</span>
+      <span class="ex">いただいた文章を、省略も言い換えもせずに掲載しました。</span>
+      <span class="go">読む →</span></a>
+    <a class="p news rv" href="/blog/20260924-1717/">
+      <time>2026.10.10</time><span class="cat">新着情報</span>
+      <span class="ti">対応エリアと、ご依頼から作業までの流れ｜東京都・千葉県・神奈川県</span>
+      <span class="ex">お問い合わせから当日までに、何をどう決めていくか。</span>
+      <span class="go">読む →</span></a>
+  </div>
+
+  <p class="kome center rv">※ これはデザイン案です。記事の並びと本数は公開中のものと異なります。</p>
+</div></section>
+
+<style>
+.filter{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 40px}
+input[name=bc]{position:absolute;opacity:0;width:0;height:0}
+.filter label{display:inline-flex;cursor:pointer;border:1px solid var(--line);border-radius:999px;
+  padding:9px 19px;font-size:13px;letter-spacing:.05em;transition:border-color .3s,background .3s,color .3s}
+.filter label:hover{border-color:var(--red);color:var(--red)}
+#b-all:checked ~ .filter label[for=b-all],
+#b-aircon:checked ~ .filter label[for=b-aircon],
+#b-washer:checked ~ .filter label[for=b-washer],
+#b-news:checked ~ .filter label[for=b-news]{background:var(--red);border-color:var(--red);color:#fff}
+#b-aircon:checked ~ .posts .p:not(.aircon),
+#b-washer:checked ~ .posts .p:not(.washer),
+#b-news:checked ~ .posts .p:not(.news){display:none}
+.posts{border-top:1px solid var(--line)}
+.posts .p{display:grid;grid-template-columns:7.5em 7em 1fr 6em;gap:6px 22px;align-items:baseline;
+  padding:26px 6px;border-bottom:1px solid var(--line);text-decoration:none;
+  transition:background .35s,padding-left .35s}
+.posts .p:hover{background:var(--paper);padding-left:16px}
+.posts time{font-size:12.5px;color:var(--mute);letter-spacing:.06em}
+.posts .cat{font-size:10.5px;letter-spacing:.1em;color:var(--red);
+  border:1px solid rgba(217,71,57,.35);border-radius:999px;padding:2px 10px;justify-self:start}
+.posts .ti{font-family:var(--mincho);font-size:16.5px;letter-spacing:.06em;line-height:1.7}
+.posts .ex{grid-column:3/4;font-size:12.5px;color:var(--mute);line-height:1.9;margin-top:4px}
+.posts .go{font-size:12.5px;color:var(--red);text-align:right;white-space:nowrap}
+.posts .p:hover .go{text-decoration:underline}
+@media(max-width:820px){
+  .posts .p{grid-template-columns:1fr auto;gap:4px 14px}
+  .posts time{order:1}.posts .cat{order:2;justify-self:end}
+  .posts .ti{order:3;grid-column:1/-1}.posts .ex{order:4;grid-column:1/-1}
+  .posts .go{order:5;grid-column:1/-1;text-align:left}
+}
+</style>
+
+<section class="cta"><div class="wrap">
+  <h2 class="mincho">読んでも解決しないときは、<br>お呼びください。</h2>
+  <p>空いている日を見て、そのままご予約いただけます。入力はおよそ1分。</p>
+  <div class="acts">
+    <a class="btn primary" href="https://yoyaku.onehitter.jp/?src=blog">空いている日を見る<span class="ar">→</span></a>
+    <a class="btn ghost" href="/feature/">症状から探す</a>
+    <span class="tel">受付 8:00〜20:00<b>080-8043-8259</b></span>
+  </div>
+</div></section>
+
+<footer><div class="in">
+  <nav><a href="/menu/">メニュー</a>
+    <a href="/constructed/">施工事例</a>
+    <a href="/voice/">お客様の声</a>
+    <a href="/concept/">コンセプト</a>
+    <a href="/feature/">特徴</a>
+    <a href="/blog/">ブログ</a>
+    <a href="/corporation/">事業者の方</a>
+    <a href="/greeting/">代表あいさつ</a>
+    <a href="/contact/">お問い合わせ</a>
+    <a href="/Other-businesses">その他事業</a>
+    <a href="/privacy_policy/">個人情報の取扱い</a>
+    <a href="/sitemap/">サイトマップ</a></nav>
+  <span>ワンヒッター株式会社　〒134-0081 東京都江戸川区北葛西5-14-11 クオーディア西葛西503</span>
+</div></footer>
+
