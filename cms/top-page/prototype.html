@@ -155,13 +155,16 @@ section.band{padding:clamp(70px,9vw,130px) 0}
 @media(max-width:520px){.ba{grid-template-columns:1fr}}
 
 /* ---- 声 ---- */
-.voice{display:grid;grid-template-columns:repeat(auto-fit,minmax(246px,1fr));gap:20px}
-.voice .v{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:28px 26px;
+.voice{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(380px,100%),1fr));gap:20px}
+.voice .v{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:30px 30px 26px;
   transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s}
 .voice .v:hover{transform:translateY(-4px);box-shadow:0 18px 36px -22px rgba(45,45,42,.5)}
 .voice .st{color:var(--red);letter-spacing:.22em;font-size:12px}
 .voice .tx{font-family:var(--mincho);font-size:15.5px;line-height:1.95;letter-spacing:.05em;margin:12px 0 16px}
 .voice .wh{font-size:11.5px;color:var(--mute);letter-spacing:.08em}
+.voice .v .tx::before{content:"\201C";font-family:var(--mincho);color:var(--red);opacity:.3;
+  font-size:30px;line-height:0;vertical-align:-.1em;margin-right:.1em}
+#voice .kome{margin-top:22px;text-align:center;font-size:11px;line-height:2;color:var(--mute);opacity:.85}
 
 /* ---- ブログ ---- */
 .posts{border-top:1px solid var(--line)}
@@ -422,12 +425,14 @@ footer .in{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between}
     <h2 class="mincho">お客様からいただいた言葉。</h2></div>
   <div class="rule rv"><i></i></div>
   <div class="voice">
-    <div class="v rv"><div class="st">★★★★★</div><p class="tx">素晴らしい。風の出が良くなり大満足です。</p><div class="wh">68歳 男性／エアコンクリーニング</div></div>
-    <div class="v rv"><div class="st">★★★★★</div><p class="tx">大満足。ただ最初に考えていたよりワックスがけは時間が長かった。</p><div class="wh">52歳 女性</div></div>
-    <div class="v rv"><div class="st">★★★★★</div><p class="tx">大変よかったです。早いレスポンスから、親切丁寧に感動しております。</p><div class="wh">67歳 男性</div></div>
-    <div class="v rv"><div class="st">★★★★★</div><p class="tx">エアコン掃除を頼むのが初めてだったので不安が大きかったです。</p><div class="wh">62歳 女性</div></div>
+    <div class="v rv"><div class="st">★★★★★</div><p class="tx">…大手のエアコン一台分のお値段で2台お掃除していただき、しかも迅速で丁寧に仕上げてくださいます。</p><div class="wh">K様／Googleクチコミ・2026年4月</div></div>
+    <div class="v rv"><div class="st">★★★★★</div><p class="tx">今回3回目の利用です。…クリーニング後は汚れを見せてくれるので、こんなに汚れていたんだと確認できます。</p><div class="wh">Y様／Googleクチコミ・2026年4月</div></div>
+    <div class="v rv"><div class="st">★★★★★</div><p class="tx">…前回のエアコンクリーニングも同じ方にやっていただき、アフターサービスも大変充実していたので、とっても信頼できる会社だと思います。</p><div class="wh">M様／Googleクチコミ・2024年4月／洗濯機・換気扇</div></div>
+    <div class="v rv"><div class="st">★★★★★</div><p class="tx">非常に気の行き届いた細やかなお仕事をして頂いて…兎に角おかげさまで大満足です。</p><div class="wh">H様／Googleクチコミ・2024年10月／エアコン・室外機</div></div>
   </div>
-  <p class="more rv"><a class="btn ghost" href="#">お客様の声をもっと見る<span class="ar">→</span></a></p>
+  <!-- 公開前に href を Google のクチコミ一覧URLに差し替えること（短縮版を載せる以上、全文が読める導線が必須） -->
+  <p class="more rv"><a class="btn ghost" href="#">Googleクチコミを全文で読む<span class="ar">→</span></a></p>
+  <p class="kome rv">※ 掲載内容はお客様個人の感想であり、効果・仕上がりを保証するものではありません。<br>※ 2026年10月時点／Googleクチコミ 25件・平均 ★5.0。本文はいただいたまま、省略箇所のみ「…」で示しています。</p>
 </div></section>
 
 <!-- ブログ -->
