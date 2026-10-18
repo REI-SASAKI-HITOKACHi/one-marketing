@@ -80,7 +80,7 @@ def cta(src, h2='空いている日を見て、<br>そのままご予約いた�
 
 FOOTER = '''<footer><div class="in">
   <nav>%s</nav>
-  <span>ワンヒッター株式会社　%s</span>
+  <span>ワンヒッター株式会社　代表取締役 佐々木 沙樹　%s　TEL 080-8043-8259　対応エリア：東京都・千葉県・神奈川県</span>
 </div></footer>''' % ('\n    '.join('<a href="%s">%s</a>' % (h, t) for h, t in FOOT_NAV), ADDR)
 
 
