@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ONE HITTER 特徴 デザイン案</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* =============================================================
+   ONE HITTER /feature/ 案　— トップページ案と同じ設計言語・JSなし
+
+   公開中の /feature/ は「FEATURE 01 低価格なエアコンクリーニングを提供」のように
+   **メニューの紹介が5本並んでいるだけで、特徴が1つも書かれていない。**
+   どの業者でも同じ文章が書ける（オーナー指摘 2026-10-19
+   「クソ安い業者でもやることは強みにならない」）。
+
+   この案は役割を分けた：
+   ・/concept/ … なぜワンヒッターか（思想と、安い業者には起きない4つの差）
+   ・/feature/ … **症状から入る。** いま家で起きていることの正体と、頼む目安
+   ============================================================= */
+:root{
+  --bg:#f8f7f4; --ink:#2d2d2a; --mute:#6f6e68; --line:rgba(45,45,42,.14);
+  --red:#d94739; --red-dark:#b9362a; --paper:#fff;
+  --mincho:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --gothic:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--gothic);
+  font-size:15px;line-height:2;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding:0 28px}
+.narrow{max-width:800px}
+.mincho{font-family:var(--mincho);font-weight:400;letter-spacing:.07em;line-height:1.55}
+
+@supports (animation-timeline: view()){
+  @media (prefers-reduced-motion: no-preference){
+    @keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+    @keyframes wipe{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+    .rv{animation:rise both;animation-timeline:view();animation-range:entry 0% entry 50%}
+    .rule i{animation:wipe both;animation-timeline:view();animation-range:entry 5% entry 60%}
+  }
+}
+
+/* ---- ヘッダー ---- */
+header{position:sticky;top:0;z-index:50;background:rgba(248,247,244,.9);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header .in{display:flex;align-items:center;justify-content:space-between;gap:20px;
+  max-width:1120px;margin:0 auto;padding:14px 28px}
+.logo{display:flex;align-items:center;gap:11px;text-decoration:none}
+.logo .mk{width:34px;height:34px;border-radius:7px;background:var(--red);color:#fff;
+  display:grid;place-items:center;font-size:10px;font-weight:700;letter-spacing:.04em;line-height:1.1;text-align:center}
+.logo b{font-family:var(--mincho);font-size:17px;letter-spacing:.14em;font-weight:400}
+.logo small{display:block;font-size:9.5px;letter-spacing:.22em;color:var(--mute)}
+nav.main{display:flex;gap:26px;font-size:13.5px;letter-spacing:.04em}
+nav.main a{text-decoration:none;position:relative;padding:4px 0}
+nav.main a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--red);
+  transform:scaleX(0);transform-origin:right;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+nav.main a:hover::after,nav.main a.on::after{transform:scaleX(1);transform-origin:left}
+.hbtn{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;
+  text-decoration:none;font-size:13.5px;font-weight:700;border-radius:999px;padding:11px 22px;
+  transition:background .3s,transform .3s}
+.hbtn:hover{background:var(--red-dark);transform:translateY(-1px)}
+@media(max-width:900px){nav.main{display:none}}
+
+/* ---- ページの頭 ---- */
+.phead{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.phead .bg{position:absolute;inset:0;z-index:0}
+.phead .bg img{width:100%;height:100%;object-fit:cover}
+.phead .bg::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(100deg,rgba(248,247,244,.97) 0%,rgba(248,247,244,.93) 48%,rgba(248,247,244,.7) 100%)}
+.phead .in{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:80px 28px 74px}
+.phead .en{display:block;font-size:11.5px;letter-spacing:.26em;color:var(--red);font-weight:700;margin-bottom:14px}
+.phead h1{margin:0;font-size:clamp(26px,4.3vw,45px);letter-spacing:.09em;line-height:1.5}
+.phead h1 em{font-style:normal;color:var(--red)}
+.phead p{margin:24px 0 0;max-width:38em;color:var(--mute);font-size:14.5px}
+.phead .crumb{font-size:11.5px;color:var(--mute);letter-spacing:.06em;margin-bottom:18px}
+.phead .crumb a{text-decoration:none}
+.phead .crumb a:hover{color:var(--red)}
+
+/* ---- セクション共通 ---- */
+section.band{padding:clamp(60px,7.5vw,108px) 0}
+.sechead{margin:0 0 40px}
+.sechead .en{display:block;font-size:11.5px;letter-spacing:.26em;color:var(--red);font-weight:700;margin-bottom:14px}
+.sechead h2{margin:0;font-size:clamp(22px,3.2vw,34px);letter-spacing:.09em;line-height:1.6}
+.sechead p{margin:18px 0 0;max-width:44em;color:var(--mute);font-size:14.5px}
+.rule{height:1px;background:var(--line);position:relative;margin:0 0 40px}
+.rule i{position:absolute;left:0;top:0;width:84px;height:1px;background:var(--red);transform-origin:left;display:block}
+
+/* ---- 症状のカード ---- */
+.sym{display:grid;gap:26px}
+.sy{background:var(--paper);border:1px solid var(--line);border-radius:3px;overflow:hidden;
+  display:grid;grid-template-columns:minmax(0,320px) 1fr;
+  transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s}
+.sy:hover{transform:translateY(-3px);box-shadow:0 22px 44px -28px rgba(45,45,42,.5)}
+.sy .pic{position:relative;background:#e8e6e1;min-height:220px}
+.sy .pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.sy .pic span{position:absolute;left:12px;top:12px;background:rgba(45,45,42,.82);color:#fff;
+  font-size:10px;letter-spacing:.16em;padding:4px 11px;border-radius:999px}
+.sy .in{padding:30px clamp(22px,3vw,36px) 28px}
+.sy .q{font-family:var(--mincho);font-size:clamp(17px,2.1vw,22px);letter-spacing:.07em;
+  line-height:1.7;margin:0 0 6px}
+.sy .q::before{content:"「";color:var(--red);opacity:.55}
+.sy .q::after{content:"」";color:var(--red);opacity:.55}
+.sy dl{margin:18px 0 0;border-top:1px solid var(--line)}
+.sy dl div{padding:14px 0;border-bottom:1px solid var(--line)}
+.sy dt{font-size:11px;letter-spacing:.14em;color:var(--red);font-weight:700;margin-bottom:5px}
+.sy dd{margin:0;font-size:13.5px;color:var(--mute);line-height:1.95}
+.sy dd b{color:var(--ink);font-weight:500}
+.sy .go{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;margin-top:18px;font-size:12.5px;color:var(--mute)}
+.sy .go b{font-family:var(--mincho);font-size:20px;color:var(--ink);font-weight:400;letter-spacing:.02em;white-space:nowrap}
+.sy .go b i{font-style:normal;font-size:.58em;margin-left:1px}
+.sy .go a{margin-left:auto;text-decoration:none;color:var(--red);font-weight:700;font-size:13px;white-space:nowrap}
+.sy .go a:hover{text-decoration:underline}
+@media(max-width:800px){.sy{grid-template-columns:1fr}.sy .pic{min-height:0;aspect-ratio:3/2}}
+
+/* ---- 差（/concept/ への入口） ---- */
+.why{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(255,255,255,.5)}
+.why .in{max-width:1120px;margin:0 auto;padding:clamp(52px,6vw,86px) 28px}
+.why h2{margin:0 0 10px;font-family:var(--mincho);font-size:clamp(21px,3vw,31px);
+  letter-spacing:.09em;line-height:1.6;font-weight:400}
+.why>.in>p{margin:0 0 36px;color:var(--mute);font-size:14.5px;max-width:44em}
+.why .g{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line)}
+.why .g>div{background:rgba(248,247,244,.9);padding:26px 24px}
+.why .g b{display:block;font-family:var(--mincho);font-size:17px;letter-spacing:.07em;
+  font-weight:400;line-height:1.65;margin-bottom:9px}
+.why .g span{font-size:12.5px;color:var(--mute);line-height:1.9}
+.why .more{margin-top:32px;text-align:center}
+
+/* ---- ボタン ---- */
+.btn{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:700;
+  border-radius:999px;padding:16px 32px;font-size:14.5px;position:relative;overflow:hidden;
+  transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s,background .3s,color .3s,border-color .3s}
+.btn.primary{background:var(--red);color:#fff}
+.btn.primary:hover{background:var(--red-dark);transform:translateY(-2px);box-shadow:0 16px 30px -14px rgba(217,71,57,.85)}
+.btn.ghost{border:1px solid var(--line);color:var(--ink);background:transparent}
+.btn.ghost:hover{border-color:var(--red);color:var(--red)}
+.btn .ar{transition:transform .3s}
+.btn:hover .ar{transform:translateX(5px)}
+.more{margin-top:40px;text-align:center}
+.kome{margin-top:24px;font-size:11px;line-height:2;color:var(--mute);opacity:.85}
+
+/* ---- CTA・フッター ---- */
+.cta{background:#2d2d2a;color:#f5f4f1;padding:clamp(60px,7.5vw,108px) 0;text-align:center}
+.cta h2{margin:0 0 16px;font-family:var(--mincho);font-size:clamp(22px,3.2vw,33px);
+  letter-spacing:.09em;line-height:1.6;font-weight:400}
+.cta p{margin:0 0 34px;color:rgba(245,244,241,.72);font-size:14px}
+.cta .acts{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;align-items:center}
+.cta .btn.ghost{border-color:rgba(245,244,241,.3);color:#f5f4f1}
+.cta .btn.ghost:hover{border-color:#fff;color:#fff}
+.cta .tel{font-size:13px;color:rgba(245,244,241,.72)}
+.cta .tel b{display:block;font-family:var(--mincho);font-size:22px;color:#fff;letter-spacing:.04em}
+footer{border-top:1px solid var(--line);padding:30px 0;font-size:11.5px;color:var(--mute)}
+footer .in{max-width:1120px;margin:0 auto;padding:0 28px;display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between}
+
+@media(max-width:600px){
+  body{font-size:14.5px;line-height:1.95}
+  .wrap{padding:0 18px}
+  header .in{padding:11px 18px;gap:10px}
+  .logo .mk{width:30px;height:30px;font-size:8.5px}
+  .logo b{font-size:13.5px;letter-spacing:.08em}
+  .logo small{font-size:8px;letter-spacing:.14em}
+  .hbtn{padding:9px 15px;font-size:12px;white-space:nowrap}
+  .btn{justify-content:center;padding:15px 24px;font-size:14.5px}
+  .cta .acts{flex-direction:column;align-items:stretch;gap:12px}
+  .phead .in{padding:52px 18px 48px}
+  .phead h1{font-size:24px;letter-spacing:.04em;line-height:1.7}
+  .phead p{font-size:13.5px}
+  .phead .bg::after{background:linear-gradient(180deg,rgba(248,247,244,.96) 0%,rgba(248,247,244,.9) 60%,rgba(248,247,244,.82) 100%)}
+  .why .in{padding:44px 18px}
+  .sy .go a{margin-left:0;width:100%}
+  footer .in{padding:0 18px}
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .rv,.rule i{animation:none}
+  .sy{transition:none}
+}
+</style>
+
+<header>
+  <div class="in">
+    <a class="logo" href="/"><span class="mk">ONE<br>HITTER</span>
+      <span><b>ワンヒッター株式会社</b><small>HOUSE CLEANING SERVICE</small></span></a>
+    <nav class="main">
+      <a href="/menu/">メニュー</a>
+      <a href="/constructed/">施工事例</a>
+      <a href="/voice/">お客様の声</a>
+      <a href="/blog/">ブログ</a>
+      <a href="/corporation/">事業者の方</a>
+    </nav>
+    <a class="hbtn" href="https://yoyaku.onehitter.jp/?src=feature">空いている日を見る</a>
+  </div>
+</header>
+
+<div class="phead">
+  <div class="bg"><img alt="" src="https://one-hitter.jp/_img/ja/article/1338/before/800_533_2_ffffff//"></div>
+  <div class="in">
+    <p class="crumb"><a href="/">ホーム</a>　›　特徴</p>
+    <span class="en">FEATURE</span>
+    <h1 class="mincho">その汚れは、<br><em>開けないと見えません。</em></h1>
+    <p>「掃除はしているのに、なぜか臭う」「洗濯物に黒いカスが付く」。多くの場合、原因は目に見えるところにありません。どこで何が起きているのかを、実際の現場の写真と一緒に書きました。</p>
+  </div>
+</div>
+
+<section class="band"><div class="wrap">
+  <div class="sechead rv"><span class="en">SYMPTOMS</span>
+    <h2 class="mincho">思い当たるものから、お読みください。</h2>
+    <p>写真は、すべて実際にお伺いした現場のものです。</p></div>
+  <div class="rule rv"><i></i></div>
+
+  <div class="sym">
+
+    <article class="sy rv">
+      <div class="pic"><span>BEFORE</span>
+        <img alt="エアコンの熱交換器。黒い汚れが全面に付いた状態" src="https://one-hitter.jp/_img/ja/article/1338/before/800_533_2_ffffff//"></div>
+      <div class="in">
+        <h3 class="q">フィルターを洗っても、エアコンが臭う</h3>
+        <dl>
+          <div><dt>どこで起きているか</dt>
+            <dd>フィルターの<b>奥</b>です。熱交換器（アルミの板が並んだ部分）と、風を送り出すファンの羽根の間に、<b>カビとほこりが溜まります</b>。写真は、カバーを外した状態です。</dd></div>
+          <div><dt>ご自身でできること</dt>
+            <dd>フィルターの洗浄と、使用後の送風運転。<b>届くのはここまで</b>で、熱交換器とファンには手が入りません。市販の洗浄スプレーは、溶けた汚れが内部に残ることがあります。</dd></div>
+          <div><dt>頼む目安</dt>
+            <dd>フィルターを洗っても臭いが消えない。吹き出し口の奥に黒い点が見える。1〜2年、内部を洗っていない。</dd></div>
+        </dl>
+        <div class="go">エアコンクリーニング（お掃除機能なし）<b>10,780<i>円</i></b>
+          <a href="/feature/エアコンクリーニング/">くわしく見る →</a></div>
+      </div>
+    </article>
+
+    <article class="sy rv">
+      <div class="pic"><span>BEFORE</span>
+        <img alt="洗濯槽の内側。黒い汚れが付いた状態" src="https://one-hitter.jp/_img/ja/article/1295/before/800_533_2_ffffff//"></div>
+      <div class="in">
+        <h3 class="q">洗濯物に、黒いカスが付く</h3>
+        <dl>
+          <div><dt>どこで起きているか</dt>
+            <dd><b>槽の裏側</b>です。回っているときは見えない面に汚れが層になって付き、はがれたものが洗濯物に出てきます。写真のお宅は、市販の槽洗浄剤を毎月お使いでした。</dd></div>
+          <div><dt>ご自身でできること</dt>
+            <dd>月1回の槽洗浄と、使っていないときのふたの開放。<b>予防には効きますが、すでに層になった汚れは落ちません</b>。</dd></div>
+          <div><dt>頼む目安</dt>
+            <dd>槽洗浄をしても黒いカスが出る。槽のふちに黒い点が見える。洗ったのにタオルが臭う。</dd></div>
+        </dl>
+        <div class="go">洗濯機クリーニング<b>17,380<i>円</i></b>
+          <a href="/feature/洗濯機/">くわしく見る →</a></div>
+      </div>
+    </article>
+
+    <article class="sy rv">
+      <div class="pic"><span>BEFORE</span>
+        <img alt="レンジフードのシロッコファン。油とほこりが固まった状態" src="https://one-hitter.jp/_img/ja/article/1331/before/800_533_2_ffffff//"></div>
+      <div class="in">
+        <h3 class="q">換気扇の吸い込みが、落ちた気がする</h3>
+        <dl>
+          <div><dt>どこで起きているか</dt>
+            <dd>整流板の奥の<b>シロッコファン</b>です。羽根が何十枚も並んでいて、その1枚ずつに油とほこりが固まります。写真がその状態です。<b>羽根の間がふさがると、回っていても風が通りません。</b></dd></div>
+          <div><dt>ご自身でできること</dt>
+            <dd>整流板とフィルターの洗浄。<b>ファンは外さないと洗えません</b>。機種によって外し方が違い、戻すときの向きも決まっています。</dd></div>
+          <div><dt>頼む目安</dt>
+            <dd>音が大きくなった。吸わなくなった。2年以上、ファンを外して洗っていない。</dd></div>
+        </dl>
+        <div class="go">レンジフードクリーニング<b>18,480<i>円</i></b>
+          <a href="/feature/キッチンクリーニング/">くわしく見る →</a></div>
+      </div>
+    </article>
+
+    <article class="sy rv">
+      <div class="pic"><span>BEFORE</span>
+        <img alt="キッチンのシンク。白くくもった状態" src="https://one-hitter.jp/_img/ja/article/1296/before/800_533_2_ffffff//"></div>
+      <div class="in">
+        <h3 class="q">シンクが、こすっても白いまま</h3>
+        <dl>
+          <div><dt>どこで起きているか</dt>
+            <dd>白いくもりは<b>水垢</b>です。水道水に含まれるミネラルが乾いて固まったもので、油汚れとは性質が違います。<b>洗剤の種類が合っていないと、何度こすっても落ちません。</b></dd></div>
+          <div><dt>ご自身でできること</dt>
+            <dd>使ったあとに水気を拭き取る。これが一番効きます。固まってしまったものは、専用の洗剤と道具が要ります。</dd></div>
+          <div><dt>頼む目安</dt>
+            <dd>こすっても白さが残る。水栓の根元が白い。排水口の奥に手が届かない。</dd></div>
+        </dl>
+        <div class="go">キッチンクリーニング<b>18,480<i>円</i></b>
+          <a href="/feature/キッチンクリーニング/">くわしく見る →</a></div>
+      </div>
+    </article>
+
+    <article class="sy rv">
+      <div class="pic"><span>BEFORE</span>
+        <img alt="浴室" src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=1000&q=80&auto=format&fit=crop"></div>
+      <div class="in">
+        <h3 class="q">浴室が、掃除しても臭う</h3>
+        <dl>
+          <div><dt>どこで起きているか</dt>
+            <dd>床や壁だけではありません。<b>エプロン（浴槽の側面のカバー）の内側</b>、排水口の奥、ドアの下の通気口。どれも普段は開けない場所です。皮脂汚れや石けんカスが固まり、そこにカビが付きます。</dd></div>
+          <div><dt>ご自身でできること</dt>
+            <dd>使ったあとの換気と、見えているところの洗浄。エプロンは外せる機種と外せない機種があるので、<b>無理に外すと割れます</b>。</dd></div>
+          <div><dt>頼む目安</dt>
+            <dd>掃除しても臭いが戻る。ピンクや黒の汚れがすぐ出る。エプロンを一度も外したことがない。</dd></div>
+        </dl>
+        <div class="go">浴室クリーニング<b>18,480<i>円</i></b>
+          <a href="/feature/お風呂/">くわしく見る →</a></div>
+      </div>
+    </article>
+
+  </div>
+
+  <p class="kome rv">※ 写真は実際の現場のものです（浴室の写真は用意中のため、イメージを使っています）。<br>
+    ※ 表示している料金は通常料金（税込）です。5月〜7月・12月は1台・1箇所あたり3,300円が加算されます。<br>
+    ※ 記載は一般的な傾向です。お住まいの状況によって原因が異なる場合があります。お見積りのお電話で伺います。</p>
+
+  <p class="more rv"><a class="btn ghost" href="/menu/">料金とメニューを全部見る<span class="ar">→</span></a></p>
+</div></section>
+
+<div class="why"><div class="in">
+  <h2 class="mincho">どこに頼んでも同じ、ではありません。</h2>
+  <p>分解して中まで洗う。汚れをお見せする。——ここまでは、どの業者でも書けることです。私たちを選んでくださる理由は、そのあとにあります。</p>
+  <div class="g">
+    <div class="rv"><b>209名のうち206名が<br>「勧めてもよい」</b>
+      <span>施工後のアンケート（2023年1月〜2025年12月／回答209名）。Googleのクチコミ25件には、★4以下が1件もありません（2026年10月時点）。</span></div>
+    <div class="rv"><b>毎回、同じ職人が伺います</b>
+      <span>下請けに出していません。だから「前回の人は良かったのに」が起きません。2回目以降も、前回どこが汚れていたかを覚えたまま伺えます。</span></div>
+    <div class="rv"><b>頼まれていない不具合も、<br>お伝えします</b>
+      <span>決められた範囲だけ洗って帰る仕事にはしていません。開けたときに気づいたことは、料金に関係なくお伝えします。</span></div>
+    <div class="rv"><b>お見積りの金額から、<br>増やしません</b>
+      <span>当日になって「これは別料金です」がありません。増えるのはコインパーキング代と遠方の交通費だけで、それも先にお伝えします。</span></div>
+  </div>
+  <p class="more"><a class="btn ghost" href="/concept/">私たちの考え方を読む<span class="ar">→</span></a></p>
+</div></div>
+
+<section class="cta"><div class="wrap">
+  <h2 class="mincho">思い当たる場所が1つでもあれば、<br>そこからで構いません。</h2>
+  <p>空いている日を見て、そのままご予約いただけます。入力はおよそ1分、ご予約時のお支払いはありません。</p>
+  <div class="acts">
+    <a class="btn primary" href="https://yoyaku.onehitter.jp/?src=feature">空いている日を見る<span class="ar">→</span></a>
+    <a class="btn ghost" href="/constructed/">施工事例を見る</a>
+    <span class="tel">受付 8:00〜20:00<b>080-8043-8259</b></span>
+  </div>
+</div></section>
+
+<footer><div class="in">
+  <span>ワンヒッター株式会社　〒134-0081 東京都江戸川区北葛西5-14-11 クオーディア西葛西503</span>
+  <span>対応エリア：東京都・千葉県・神奈川県</span>
+</div></footer>
+
+<!-- =====================================================================
+ 覚え書き（2026-10-19 ブラウザ担当）
+
+ ■ 公開中の /feature/ から外したもの
+  1. 🔴「**70%を超えるリピート率**」… 出どころが見当たらない。実測は25.0%／自社直販の新規でも36%。
+     /voice/ にも同じ数字がある（変更123）
+  2. 🔴「**低価格な**エアコンクリーニングを提供」「お求めやすい低価格で」
+     … オーナー方針「安いだけを売りたいわけではない」（2026-10-19）
+  3. 🔴「効きが良くなり**光熱費の節約**にもなります」… 効果の断定。根拠が要る
+  4. 🔴「（浴室の）嫌なニオイの原因は**蓄積した皮脂汚れです**」… 断定。排水口・エプロン内側・
+     ドアの通気口など、原因は1つではない。この案では「原因は1つではない」書き方にした
+  5. 「**菌が洗濯物に付着**してしまう」… 断定を避け、「汚れがはがれて出てくる」にとどめた
+  6. FEATURE 01〜05 の構成そのもの … **メニューの紹介が5本並んでいるだけで、特徴が1つも無い。**
+     どの業者でも同じ文章が書ける（オーナー指摘「クソ安い業者でもやることは強みにならない」）
+
+ ■ 役割を分けた
+  ・/concept/ … なぜワンヒッターか（思想と、安い業者には起きない4つの差）
+  ・/feature/ … **症状から入る。** 何がどこで起きているか／自分でできることの限界／頼む目安
+    下の「どこに頼んでも同じ、ではありません」から /concept/ へ送る
+
+ ■ 書いた内容の裏づけ
+  ・エアコン＝熱交換器と送風ファン／洗濯機＝槽の裏側／レンジフード＝シロッコファンの羽根／
+    シンク＝水垢 … すべて自社の施工写真で確認できる（記事 1338・1295・1331・1296）
+  ・「市販の槽洗浄剤を毎月使っていた」… M様のクチコミ（「60度の水温設定でハイターを使って
+    曹洗浄を定期的にやっているにも関わらずカビがはびこっていて」）と、記事1295の現場
+  ・料金 … docs/price-master.md
+
+ 🔴 **浴室の施工写真が1枚も無い**ので、浴室の欄だけイメージ写真を使っている。
+    注記も入れた。写真が手に入り次第、差し替えること（変更125）。
+ ===================================================================== -->
+</html>
