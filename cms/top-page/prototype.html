@@ -216,6 +216,98 @@ footer .in{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between}
   .cta .tel{margin-top:4px}
   footer .in{flex-direction:column;gap:8px}
 }
+
+/* =====================================================================
+   ヒーローの1文字ずつ表示と、追いかけてくる背景
+   JavaScriptなし。文字は <span class="ch" style="--i:n"> に分けてある。
+   読み上げ用に h1 へ aria-label を付けてあるので、分割しても意味は壊れない。
+   ===================================================================== */
+.hero h1 .ch{display:inline-block;opacity:0;transform:translateY(.42em) rotateX(38deg);
+  transform-origin:50% 100%;animation:chin .72s cubic-bezier(.2,.8,.2,1) forwards;
+  animation-delay:calc(var(--i) * 52ms + .22s)}
+@keyframes chin{to{opacity:1;transform:none}}
+/* 2行目の下線は、文字が出そろってから引く */
+.hero h1 .em::after{transform:scaleX(0);transform-origin:left;
+  animation:emline .75s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:1.26s}
+@keyframes emline{to{transform:scaleX(1)}}
+
+/* 文字を追いかける幕。右へ引いていくと背景が現れる */
+.hero .veil{position:absolute;inset:0;z-index:1;background:var(--bg);
+  transform-origin:right;animation:veil 1.25s cubic-bezier(.76,0,.24,1) forwards;animation-delay:.4s}
+@keyframes veil{to{transform:scaleX(0)}}
+.hero .bg img{opacity:0;transform:scale(1.13);filter:saturate(.55) blur(7px);
+  animation:bgin 1.9s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:.42s}
+@keyframes bgin{to{opacity:1;transform:none;filter:none}}
+/* 先に出る小見出しと、あとから出る本文・ボタン */
+.hero .eyebrow{animation:rise .7s cubic-bezier(.2,.8,.2,1) both}
+.hero p.lead{animation:rise .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:1.35s}
+.hero .acts{animation:rise .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:1.5s}
+@keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+
+/* =====================================================================
+   4つの訴求：数字が数え上がる・罫が引かれる・持ち上がる
+   @property が無いブラウザでは、数字は最初から最終値で出る（壊れない）
+   ===================================================================== */
+@property --n{syntax:'<integer>';initial-value:0;inherits:false}
+.trust{position:relative}
+.trust .c{position:relative;padding:38px 22px 34px;overflow:hidden;
+  transition:background .4s,transform .4s cubic-bezier(.2,.7,.2,1)}
+.trust .c:hover{background:var(--paper);transform:translateY(-3px)}
+.trust .c .bar{position:absolute;left:0;right:0;top:0;height:2px;background:var(--red);
+  transform:scaleX(0);transform-origin:left}
+.trust .n{display:flex;align-items:baseline;justify-content:center;gap:1px}
+.trust .n .cnt{font-variant-numeric:tabular-nums}
+.trust .n .cnt::after{content:counter(n);counter-reset:none}
+.trust .n .cnt{counter-reset:n var(--n)}
+.trust .n .dec{font-size:.62em;letter-spacing:0}
+.trust .t{font-size:12.5px;line-height:1.8;color:var(--mute);margin-top:9px}
+.trust .t b{display:inline-block;color:var(--ink);font-weight:700;font-size:13px}
+.trust .sub{margin-top:7px;font-size:10.5px;color:var(--mute);opacity:.8;line-height:1.7}
+.trust .stars{position:relative;display:inline-block;color:rgba(45,45,42,.17);letter-spacing:.06em;font-size:.68em}
+.trust .stars .on{position:absolute;left:0;top:0;color:var(--red);overflow:hidden;width:0;white-space:nowrap}
+
+@supports (animation-timeline: view()){
+  @media (prefers-reduced-motion: no-preference){
+    @keyframes count{to{--n:var(--to)}}
+    @keyframes barin{to{transform:scaleX(1)}}
+    @keyframes starsin{to{width:100%}}
+    /* 4枚が左から順に動くように、カードごとに範囲をずらす */
+    .trust .c:nth-child(1){--s:0%}
+    .trust .c:nth-child(2){--s:7%}
+    .trust .c:nth-child(3){--s:14%}
+    .trust .c:nth-child(4){--s:21%}
+    .trust .c.rv{animation-range:entry calc(2% + var(--s,0%)) entry calc(52% + var(--s,0%))}
+    .trust .c .cnt{animation:count 1.5s cubic-bezier(.2,.8,.2,1) both;
+      animation-timeline:view();
+      animation-range:entry calc(12% + var(--s,0%)) entry calc(72% + var(--s,0%))}
+    .trust .c .bar{animation:barin .8s cubic-bezier(.2,.8,.2,1) both;
+      animation-timeline:view();
+      animation-range:entry calc(12% + var(--s,0%)) entry calc(62% + var(--s,0%))}
+    .trust .c .stars .on{animation:starsin 1.2s cubic-bezier(.2,.8,.2,1) both;
+      animation-timeline:view();
+      animation-range:entry calc(14% + var(--s,0%)) entry calc(74% + var(--s,0%))}
+  }
+}
+/* @property が無い／動きを止めている環境向け */
+@supports not (animation-timeline: view()){
+  .trust .c .bar{transform:scaleX(1)}
+  .trust .c .stars .on{width:100%}
+  .trust .n .cnt{counter-reset:n var(--to)}
+}
+@media (prefers-reduced-motion: reduce){
+  .hero h1 .ch,.hero .eyebrow,.hero p.lead,.hero .acts{animation:none;opacity:1;transform:none}
+  .hero .veil{display:none}
+  .hero .bg img{animation:none;opacity:1;transform:none;filter:none}
+  .hero h1 .em::after{animation:none;transform:scaleX(1)}
+  .trust .c .bar{animation:none;transform:scaleX(1)}
+  .trust .c .stars .on{animation:none;width:100%}
+  .trust .n .cnt{animation:none;counter-reset:n var(--to)}
+}
+@media(max-width:600px){
+  .hero h1 .ch{animation-delay:calc(var(--i) * 40ms + .18s)}
+  .trust .c{padding:26px 12px 24px}
+  .trust .sub{margin-top:5px;font-size:9.5px;letter-spacing:0}
+}
 </style>
 
 <header>
@@ -232,10 +324,10 @@ footer .in{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between}
 
 <!-- ヒーロー -->
 <section class="hero">
-  <div class="bg"><img alt="" src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=1800&q=70"></div>
+  <div class="veil" aria-hidden="true"></div><div class="bg"><img alt="" src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=1800&q=70"></div>
   <div class="wrap in">
     <p class="eyebrow rv">EDOGAWA, TOKYO</p>
-    <h1 class="mincho rv">掃除をやめた分だけ、<br><span class="em">暮らしは戻ってくる</span>。</h1>
+    <h1 class="mincho" aria-label="掃除をやめた分だけ、暮らしは戻ってくる。"><span class="ch" style="--i:0">掃</span><span class="ch" style="--i:1">除</span><span class="ch" style="--i:2">を</span><span class="ch" style="--i:3">や</span><span class="ch" style="--i:4">め</span><span class="ch" style="--i:5">た</span><span class="ch" style="--i:6">分</span><span class="ch" style="--i:7">だ</span><span class="ch" style="--i:8">け</span><span class="ch" style="--i:9">、</span><br><span class="em"><span class="ch" style="--i:10">暮</span><span class="ch" style="--i:11">ら</span><span class="ch" style="--i:12">し</span><span class="ch" style="--i:13">は</span><span class="ch" style="--i:14">戻</span><span class="ch" style="--i:15">っ</span><span class="ch" style="--i:16">て</span><span class="ch" style="--i:17">く</span><span class="ch" style="--i:18">る</span><span class="ch" style="--i:19">。</span></span></h1>
     <p class="lead rv">日本人がいちばん嫌いな家事は、掃除です。1日30分なら、1年で180時間。<br>その時間を、大切なことへ返すのが私たちの仕事です。</p>
     <div class="acts rv">
       <a class="btn primary" href="https://yoyaku.onehitter.jp/?src=top">空いている日を見て予約する<span class="ar">→</span></a>
@@ -247,10 +339,22 @@ footer .in{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between}
 
 <!-- 信頼バー -->
 <div class="trust"><div class="wrap in">
-  <div class="c rv"><div class="n">98.6<i>%</i></div><div class="t">ご家族や友人に<br>勧めてもよい</div></div>
-  <div class="c rv"><div class="n">5.0</div><div class="t">Googleクチコミ<br>（25件）</div></div>
-  <div class="c rv"><div class="n">0<i>円</i></div><div class="t">お見積り後の<br>追加請求</div></div>
-  <div class="c rv"><div class="n">3<i>都県</i></div><div class="t">東京・千葉・神奈川<br>自社の職人が伺います</div></div>
+  <div class="c rv"><span class="bar"></span>
+    <div class="n"><span class="cnt" style="--to:98"></span><span class="dec">.6</span><i>%</i></div>
+    <div class="t">ご家族や友人に<br><b>勧めてもよい</b></div>
+    <div class="sub">2023年1月〜2025年12月／209名中206名</div></div>
+  <div class="c rv"><span class="bar"></span>
+    <div class="n"><span class="stars"><span class="on">★★★★★</span>★★★★★</span></div>
+    <div class="t">Googleクチコミ<br><b>評価 5.0</b></div>
+    <div class="sub">25件（2026年10月時点）</div></div>
+  <div class="c rv"><span class="bar"></span>
+    <div class="n"><span class="cnt" style="--to:0"></span><i>円</i></div>
+    <div class="t">お見積りのあとの<br><b>追加請求</b></div>
+    <div class="sub">お出しした金額から増やしません</div></div>
+  <div class="c rv"><span class="bar"></span>
+    <div class="n"><span class="cnt" style="--to:3"></span><i>都県</i></div>
+    <div class="t">東京・千葉・神奈川<br><b>自社の職人が伺います</b></div>
+    <div class="sub">下請けには出しません</div></div>
 </div></div>
 
 <!-- 想い -->
