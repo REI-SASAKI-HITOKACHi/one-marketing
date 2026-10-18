@@ -32,6 +32,7 @@ def mod(name):
 
 f_ = mod("ab-aircon-kabi")   # 季節の節と CSS は /aircon-f/ 案と同じ
 zei = mod("zei-1016")
+fan = mod("fan-1018")   # ファンは付けたまま（和真さん 10/17）
 kaeru = f_.kaeru
 
 TITLE = "エアコンが臭い・暖房にしたらカビ臭いときに｜エアコンクリーニング 10,780円｜ONE HITTER"
@@ -80,6 +81,7 @@ def make_index(h: str) -> str:
     h = kaeru(h, '.hero-tel .num{font-size:17px;}\n', '.hero-tel .num{font-size:17px;}\n' + f_.CSS + NAGAAME_CSS)
     h = kaeru(h, '\n<section id="check">', f_.KISETSU + '\n<section id="check">')
     h = zei.apply(h)
+    h = fan.apply(h)
     rest = sorted(set(re.findall(r'.{0,40}aircon-[ce](?!\.py).{0,40}', re.sub(r'/\*.*?\*/', '', h, flags=re.S))))
     if rest:
         sys.exit('aircon-c／aircon-e が残っている：\n' + '\n'.join(rest))
@@ -105,10 +107,14 @@ def tenken(out: pathlib.Path) -> list:
               'href="https://yoyaku.onehitter.jp/" data-yoyaku data-place="hero"', 'noindex', 'id="aki"', 'slot_chip']:
         if k not in h:
             ng.append(f"index.html に {k} が無い")
-    for bad in ['背抜き', '完全分解', '98.8', '080-1755-7275', '23件', '除菌', '100%', '他の人に勧めたい']:
+    for bad in ['背抜き', '98.8', '080-1755-7275', '23件', '除菌', '100%', '他の人に勧めたい']:
         if bad in text:
             ng.append(f"使ってはいけない {bad} がある")
     ng += [f"古い金額 {x}" for x in zei.nokori(h)]
+    ng += [f"ファンの書き方が古い {x}" for x in fan.nokori(h)]
+    # 完全分解は「オプションがあるときだけファンを外す」の説明にだけ出してよい（和真さん 10/17）。それ以外で約束しない
+    if text.replace('完全分解のオプション', '').count('完全分解'):
+        ng.append("「完全分解」がオプションの説明以外に出ている")
     for img in re.findall(r'src="(img/[^"]+)"', h):
         if not (out / img).exists():
             ng.append(f"写真が無い {img}")
