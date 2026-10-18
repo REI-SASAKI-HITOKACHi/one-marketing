@@ -363,11 +363,14 @@ def render_end(sc, t, dur):
     btn = Image.new("RGBA", (bw + 40, bh + 40), (0, 0, 0, 0))
     bd = ImageDraw.Draw(btn)
     bd.rounded_rectangle((20, 20, bw + 19, bh + 19), radius=bh // 2, fill=CTA + (255,))
-    fb = F900(int(46 * pop))
-    label = "空いている日を見て予約する"
-    fb = F900(int(42 * pop))
+    label = sc.get("cta", "空いている日を見て予約する")
+    size = int(42 * pop)
+    fb = F900(size)
+    while fb.getlength(label) > bw - 56 and size > 24:   # ボタンからはみ出さないところまで詰める
+        size -= 2
+        fb = F900(size)
     tw = fb.getlength(label)
-    bd.text((20 + (bw - tw) / 2, 20 + (bh - 42 * pop) / 2 - 4), label, font=fb, fill=(255, 255, 255, 255))
+    bd.text((20 + (bw - tw) / 2, 20 + (bh - size) / 2 - 4), label, font=fb, fill=(255, 255, 255, 255))
     sh = btn.filter(ImageFilter.GaussianBlur(18))
     sh.putalpha(sh.split()[3].point(lambda v: int(v * 0.45 * a4)))
     canvas.alpha_composite(sh, ((W - bw - 40) // 2, int(y) + 10))
@@ -462,11 +465,17 @@ def check(reel):
     return bad
 
 
-def build(reel, poster=False, bgm=True, proxy=False):
+def build(reel, poster=False, bgm=True, proxy=False, post=False):
     scenes = reel["scenes"]
+    if post:
+        # 通常投稿はリンクを押せない。広告用の「空いている日を見て予約する」は成立しないので差し替える
+        scenes = [dict(sc) for sc in scenes]
+        for sc in scenes:
+            if sc["type"] == "end":
+                sc["cta"] = reel.get("cta_post", "ご予約はプロフィールのリンクから")
     starts, total = timeline(scenes)
     OUT.mkdir(parents=True, exist_ok=True)
-    out = OUT / f"{reel['id']}.mp4"
+    out = OUT / (f"{reel['id']}-投稿.mp4" if post else f"{reel['id']}.mp4")
     n = int(round(total * FPS))
 
     try:
@@ -546,6 +555,7 @@ def main():
     ap.add_argument("--poster", action="store_true", help="確認用の静止画も出す")
     ap.add_argument("--no-bgm", action="store_true", help="BGMを入れない（無音の音声だけ）")
     ap.add_argument("--proxy", action="store_true", help="確認用の軽量版（720x1280）も出す")
+    ap.add_argument("--post", action="store_true", help="通常投稿版（末尾をプロフィールのリンク誘導にする）")
     a = ap.parse_args()
 
     reels = json.loads(SPEC.read_text(encoding="utf-8"))["reels"]
@@ -562,7 +572,7 @@ def main():
     if a.check:
         return
     for r in reels:
-        build(r, poster=a.poster, bgm=not a.no_bgm, proxy=a.proxy)
+        build(r, poster=a.poster, bgm=not a.no_bgm, proxy=a.proxy, post=a.post)
 
 
 if __name__ == "__main__":
