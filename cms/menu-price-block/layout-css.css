@@ -1,0 +1,110 @@
+/* ===== /menu/ 料金セクション（ブロック42946）=================================
+   入れ先：レイアウト「メニュー一覧」 /_cms/layout/edit/102/ の「CSS/JS/画像」タブ
+   本文（ブロック42946の input_ci[text]）は paste-text-classes.html
+
+   設計の前提：
+   - **JavaScript を使わない。** CMSがJSを通すか分からないため
+   - **既定は「全部見えている」。** 動きは @supports が通る環境でだけ足す。
+     対応していないブラウザ（Safari など）では静止したまま正しく読める
+   - prefers-reduced-motion を尊重する
+   - 既存の共通CSSに負けないよう、セクションを起点に書く（!important は必要な所だけ）
+   -------------------------------------------------------------------------- */
+
+.oh-menu{
+  --oh-red:#d94739; --oh-red-dark:#b9362a; --oh-ink:#202223; --oh-mute:#5e6368;
+  --oh-line:rgba(32,34,35,.12); --oh-cream:#f7f2eb;
+  color:var(--oh-ink); line-height:1.8; text-align:left;
+}
+.oh-menu *{box-sizing:border-box}
+
+/* 見出し */
+.oh-menu .oh-head{margin:0 0 10px;font-size:13px;letter-spacing:.22em;color:var(--oh-red);font-weight:700}
+.oh-menu .oh-h2{margin:0 0 18px;font-size:clamp(22px,3.2vw,32px);font-weight:900;line-height:1.45;letter-spacing:.02em}
+.oh-menu .oh-h2 .mk{position:relative;white-space:nowrap;z-index:0}
+.oh-menu .oh-h2 .mk::after{
+  content:"";position:absolute;left:-.05em;right:-.05em;bottom:.06em;height:.42em;
+  background:rgba(217,71,57,.16);z-index:-1;transform-origin:left;
+}
+.oh-menu .oh-lead{margin:0 0 40px;max-width:62ch;color:var(--oh-mute)}
+.oh-menu .oh-lead strong{color:var(--oh-ink)}
+
+/* 料金カード */
+.oh-menu .oh-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:14px;margin:0 0 14px;padding:0;list-style:none;
+}
+.oh-menu .oh-grid > li{margin:0;padding:0;list-style:none;background:none}
+.oh-menu .oh-grid > li::before{content:none}
+.oh-menu .oh-card{
+  position:relative;display:flex;align-items:center;gap:14px;background:#fff;
+  border:1px solid var(--oh-line);border-radius:14px;padding:17px 20px 17px 22px;overflow:hidden;
+  transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s,border-color .35s;
+}
+.oh-menu .oh-card::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--oh-red);
+  transform:scaleY(0);transform-origin:top;transition:transform .4s cubic-bezier(.2,.7,.2,1);
+}
+.oh-menu .oh-card:hover{transform:translateY(-4px);box-shadow:0 14px 34px -18px rgba(32,34,35,.45);border-color:rgba(217,71,57,.35)}
+.oh-menu .oh-card:hover::before{transform:scaleY(1)}
+.oh-menu .oh-card .nm{flex:1 1 auto;min-width:0}
+.oh-menu .oh-card .nm b{display:block;font-size:16px;font-weight:700;line-height:1.45}
+.oh-menu .oh-card .nm b .w{white-space:nowrap}
+.oh-menu .oh-card .nm b .cl{white-space:nowrap;font-size:.86em;color:var(--oh-mute)}
+.oh-menu .oh-card .nm small{display:block;margin-top:3px;font-size:12.5px;color:var(--oh-mute);line-height:1.6}
+.oh-menu .oh-card .pr{flex:0 0 auto;text-align:right}
+.oh-menu .oh-card .pr .y{font-size:clamp(19px,2.2vw,22px);font-weight:900;font-variant-numeric:tabular-nums;white-space:nowrap}
+.oh-menu .oh-card .pr .y i{font-style:normal;font-size:.62em;font-weight:700;margin-left:1px}
+.oh-menu .oh-card .pr .mi{display:inline-block;margin-top:2px;font-size:11.5px;color:var(--oh-mute);border:1px solid var(--oh-line);border-radius:999px;padding:1px 9px;white-space:nowrap}
+.oh-menu .oh-card.is-set{background:linear-gradient(180deg,#fff 0%,var(--oh-cream) 100%)}
+.oh-menu .oh-tag{display:inline-block;margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:.06em;color:#fff;background:var(--oh-red);border-radius:999px;padding:2px 10px}
+
+/* 注記 */
+.oh-menu .oh-note{margin:32px 0 0;background:var(--oh-cream);border-radius:16px;padding:24px 26px}
+.oh-menu .oh-note h3{margin:0 0 14px;font-size:15px;font-weight:700;letter-spacing:.04em}
+.oh-menu .oh-note ul{margin:0;padding:0;list-style:none;display:grid;gap:11px}
+.oh-menu .oh-note li{position:relative;margin:0;padding:0 0 0 26px;font-size:14.5px;list-style:none;background:none}
+.oh-menu .oh-note li::before{content:"";position:absolute;left:4px;top:.72em;width:9px;height:9px;border-radius:50%;background:var(--oh-red);opacity:.85}
+.oh-menu .oh-hanbou{display:inline-block;background:#fff;border:1px solid rgba(217,71,57,.4);color:var(--oh-red-dark);border-radius:6px;padding:0 7px;font-weight:700}
+
+/* エリア＋CTA */
+.oh-menu .oh-foot{display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:space-between;margin:32px 0 0;padding:24px 0 0;border-top:1px solid var(--oh-line)}
+.oh-menu .oh-area{font-size:14.5px}
+.oh-menu .oh-area b{display:block;font-size:13px;letter-spacing:.1em;color:var(--oh-red);margin-bottom:4px}
+.oh-menu a.oh-cta{
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--oh-red) !important;color:#fff !important;text-decoration:none !important;
+  font-weight:700;font-size:15.5px;border-radius:999px;padding:14px 30px;position:relative;overflow:hidden;
+  transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s,background .3s;
+}
+.oh-menu a.oh-cta::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.35) 50%,transparent 65%);transform:translateX(-120%)}
+.oh-menu a.oh-cta:hover{background:var(--oh-red-dark) !important;transform:translateY(-2px);box-shadow:0 12px 26px -12px rgba(217,71,57,.9)}
+.oh-menu a.oh-cta:hover::after{animation:oh-shine .9s ease}
+@keyframes oh-shine{to{transform:translateX(120%)}}
+.oh-menu a.oh-cta .ar{transition:transform .3s}
+.oh-menu a.oh-cta:hover .ar{transform:translateX(4px)}
+.oh-menu .oh-kome{margin:16px 0 0;font-size:12.5px;color:var(--oh-mute)}
+
+/* ---- 動き：対応ブラウザでだけ足す（JSなし・既定は見えている） ---- */
+@supports (animation-timeline: view()){
+  @media (prefers-reduced-motion: no-preference){
+    @keyframes oh-in{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+    @keyframes oh-line{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+    .oh-menu .oh-rv{
+      animation:oh-in both;
+      animation-timeline:view();
+      animation-range:entry 0% entry 55%;
+    }
+    .oh-menu .oh-h2 .mk::after{
+      animation:oh-line both;
+      animation-timeline:view();
+      animation-range:entry 10% entry 70%;
+    }
+  }
+}
+
+@media(max-width:560px){
+  .oh-menu .oh-card{padding:14px 16px 14px 18px;gap:10px}
+  .oh-menu .oh-card .nm b{font-size:15px}
+  .oh-menu .oh-note{padding:18px 16px}
+  .oh-menu a.oh-cta{width:100%;justify-content:center}
+}
