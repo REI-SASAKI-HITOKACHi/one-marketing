@@ -99,7 +99,9 @@ def main() -> None:
     ima = dt.datetime.now(JST)
     data = {
         "generated": ima.isoformat(timespec="minutes"),
-        "generatedLabel": ima.strftime("%-m月%-d日 %H:%M"),
+        # %-m / %-d は glibc だけの書式で Windows では落ちる（2026-10-20 実測）。
+        # 出来上がりは同じ（例「10月20日 09:40」）。
+        "generatedLabel": "%d月%d日 %s" % (ima.month, ima.day, ima.strftime("%H:%M")),
         "staleHours": 6,
         "source": "apps-script",
         "buckets": buckets,

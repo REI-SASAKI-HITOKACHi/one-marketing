@@ -823,6 +823,7 @@ gtag('config','AW-18450975194');
         b.addEventListener('click', function(){
           state.date = d.date; state.time = t;
           drawSlots();
+          drawTotal();
           $('e2').textContent = '';
         });
         tl.appendChild(b);
@@ -867,6 +868,8 @@ gtag('config','AW-18450975194');
   $('n2').addEventListener('click', function(){
     if (!state.date) { $('e2').textContent = 'ご希望の日時をお選びください。'; return; }
     $('e2').textContent = '';
+    /* 浴室の内訳は、浴室を選んだ方にだけ出す（2026-10-17 ブラウザ担当の実機確認で、エアコンだけでも出ていた） */
+    $('yk-box').hidden = !(state.qty['浴室クリーニング'] > 0);
     go(3);
   });
 
@@ -1099,7 +1102,7 @@ gtag('config','AW-18450975194');
 <!-- Netlifyがデプロイ時にこのフォームを見つけて受け口を作る。画面には出さない。
      送信はJavaScriptから同じ項目名でPOSTする。
      ★name を変えたら、送信側（atai）も必ず合わせること。 -->
-<form name="yoyaku" data-netlify="true" netlify-honeypot="bot-field" hidden>
+<form hidden method='post' name='yoyaku'>
   <input type="hidden" name="form-name" value="yoyaku">
   <input type="text" name="bot-field">
   <input type="text" name="お名前">

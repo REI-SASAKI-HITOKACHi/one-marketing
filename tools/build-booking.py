@@ -764,6 +764,7 @@ TEMPLATE = r"""<!doctype html>
         b.addEventListener('click', function(){
           state.date = d.date; state.time = t;
           drawSlots();
+          drawTotal();
           $('e2').textContent = '';
         });
         tl.appendChild(b);
@@ -808,6 +809,8 @@ TEMPLATE = r"""<!doctype html>
   $('n2').addEventListener('click', function(){
     if (!state.date) { $('e2').textContent = 'ご希望の日時をお選びください。'; return; }
     $('e2').textContent = '';
+    /* 浴室の内訳は、浴室を選んだ方にだけ出す（2026-10-17 ブラウザ担当の実機確認で、エアコンだけでも出ていた） */
+    $('yk-box').hidden = !(state.qty['浴室クリーニング'] > 0);
     go(3);
   });
 
@@ -1040,7 +1043,7 @@ TEMPLATE = r"""<!doctype html>
 <!-- Netlifyがデプロイ時にこのフォームを見つけて受け口を作る。画面には出さない。
      送信はJavaScriptから同じ項目名でPOSTする。
      ★name を変えたら、送信側（atai）も必ず合わせること。 -->
-<form name="yoyaku" data-netlify="true" netlify-honeypot="bot-field" hidden>
+<form hidden method='post' name='yoyaku'>
   <input type="hidden" name="form-name" value="yoyaku">
   <input type="text" name="bot-field">
   <input type="text" name="お名前">
@@ -1076,7 +1079,9 @@ def main():
     spec = importlib.util.spec_from_file_location("chuuki_1008", ROOT / "tools" / "chuuki-1008.py")
     mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
     html, _ = mod.apply(html, "booking")
-    OUT.write_text(html, encoding="utf-8")
+    # 改行は LF 固定。Windows で書くと CRLF になり、本番（LF）と中身が食い違う
+    # （2026-10-20 実測：sha が毎回変わり、配信のたびに全行が差分になる）
+    OUT.write_text(html, encoding="utf-8", newline="\n")
     print(f"書き出しました: {OUT.relative_to(ROOT)}  {len(html.encode()):,} bytes")
     if not API_URL:
         print("※ API_URL が空です。Apps Scriptをデプロイしたら、このファイルの")
