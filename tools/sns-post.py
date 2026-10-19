@@ -156,6 +156,9 @@ def prepare_media(entry: dict) -> list[pathlib.Path]:
         if not src.exists() and "dist/cards/" in rel:      # dist は git に無い。新しい clone ではカードをここで作る
             cid = "-".join(pathlib.Path(rel).stem.split("-")[:2])
             subprocess.run([sys.executable, str(ROOT / "tools" / "build-sns-cards.py"), cid], check=False)
+        if not src.exists() and "dist/ad-reels/" in rel:   # 同上。リールは build-ad-reels.py --post で作る（数分かかる）
+            rid = pathlib.Path(rel).stem.removesuffix("-投稿")
+            subprocess.run([sys.executable, str(ROOT / "tools" / "build-ad-reels.py"), "--post", rid], check=False)
         if not src.exists():
             raise FileNotFoundError(f"{entry['id']}: {rel} がありません")
         if entry["type"] == "reel":
