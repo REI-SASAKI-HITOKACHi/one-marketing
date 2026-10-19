@@ -590,5 +590,25 @@
     "media_ids": [
       "1132601912889492"
     ]
+  },
+  {
+    "id": "w06-1",
+    "platform": "instagram",
+    "posted_at": "2026-10-19T09:17:03+09:00",
+    "permalink": "https://www.instagram.com/p/Dep80mJjTax/",
+    "post_id": "18086300993328811",
+    "media_ids": [
+      "18086300993328811"
+    ]
+  },
+  {
+    "id": "w06-1",
+    "platform": "facebook",
+    "posted_at": "2026-10-19T09:17:08+09:00",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1135452605937756",
+    "post_id": "103698149101436_1135452605937756",
+    "media_ids": [
+      "1135452592604424"
+    ]
   }
 ]
