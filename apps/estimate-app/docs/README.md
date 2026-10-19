@@ -591,7 +591,7 @@ HTMLファイルを新規作成しなくて済み、デプロイ時のファイ�
 
 **貼るときに必ずやること：**
 
-1. **「デプロイを管理」で、全部のデプロイ（2026-09-29 時点で4本）を新しいバージョンに差し替える。**
+1. **「デプロイを管理」で、全部のデプロイ（2026-10-12 時点で5本。2026-09-29 の記述の4本は数え間違いだった）を新しいバージョンに差し替える。**
    デプロイはそれぞれ特定のバージョンに固定されています。**1本でも旧バージョンに残すと、そのURLから穴が開いたままです。**
    配ったことのあるURLは消さない（`docs/org/README.md` 4.8.3）。消すのではなく、全部を新しいバージョンに差し替えます
 2. 貼ったあと、エディタで **`adminCheckApiToken()`** を実行する。
@@ -724,9 +724,9 @@ iPhone の Safari は、しばらく使わないと記憶を消すことがあ�
 0. **本人がふだんどう開いているかを確かめる**（上の表。ホーム画面のアイコンなら、先に相談）
 1. `deploy-paste/` を貼る（本番はまだ前の版のまま。和真さんは普通に使える）
 2. エディタで `adminAddUiKey('和真', '…/exec')` を実行する（オーナーも使うなら `adminAddUiKey('オーナー', '…/exec')` も）
-3. 「デプロイを管理」で**4本すべて**を新しいバージョンに差し替える　←　**ここから鍵の無い人は使えない**
+3. 「デプロイを管理」で**稼働中の全本数（5本）**を新しいバージョンに差し替える　←　**ここから鍵の無い人は使えない**
 4. **すぐに**、2で出た専用リンクを本人へ個別トークで送る
-5. **塞がったことを確かめる。**ログアウトしたブラウザ（シークレットウィンドウでよい）で4本それぞれの /exec を開き、
+5. **塞がったことを確かめる。**ログアウトしたブラウザ（シークレットウィンドウでよい）で5本それぞれの /exec を開き、
    開発者ツールのコンソールで表示フレームを `userHtmlFrame`（googleusercontent.com）に切り替えてから：
    ```
    google.script.run
@@ -734,7 +734,7 @@ iPhone の Safari は、しばらく使わないと記憶を消すことがあ�
      .withFailureHandler(e => console.log('止まった', e.message))
      .apiSearchEstimates('', {})
    ```
-   **4本とも「止まった」なら塞がっています。**「通ってしまった」なら、そのURLのデプロイが古いバージョンのままです
+   **5本とも「止まった」なら塞がっています。**「通ってしまった」なら、そのURLのデプロイが古いバージョンのままです
 6. 本人が専用リンクを開いたあと、**いつもの開き方で開き直して使えるか**を本人に確かめてもらう（翌日にもう一度開けるかも）
 
 2を飛ばして3をすると、画面は「いま見積アプリは準備中です」と出て誰も使えません。
@@ -871,35 +871,32 @@ WEB経由タブには「予約フォームの提示額と照合」の欄が出�
 
 ### 別の方法：clasp で push する
 
-Node.js が入っていて、[Apps Script API](https://script.google.com/home/usersettings) が
-オンなら、コピペせずに差し替えられる。リポジトリをローカルにcloneして：
+> ⚠ **`src/` を直接 push しないこと。** 本番は **5ファイル構成**（`appsscript.json` / `コード.js` / `Index.html` /
+> `JavaScript.html` / `Style.html`）で、「コード」に code.gs・Invoice.gs・Admin.gs と計算エンジン（Calc）が連結されている。
+> `src/` の7ファイルを push すると、Invoice.js・Admin.js・Calc.html が新規に増えて関数が二重になる／欠けて壊れる。
+> 2026-10-19 に `tools/build-clasp.sh` を作り直し、**貼り付け用 `deploy-paste/` と同じ中身を5ファイルで**並べる形にした
+> （`run-all.sh` の13番が、5ファイルであること・`コード.js` が `deploy-paste` と同じ中身であることを確かめる）。
 
 ```bash
 npm install -g @google/clasp
-clasp login                      # info.onehitter@gmail.com で
-
-bash apps/estimate-app/tools/build-clasp.sh
-cd apps/estimate-app/clasp-build
-
-clasp deployments                # 既存のデプロイIDを控える（@HEADでない方）
-clasp push
-clasp open                       # → adminDeployAll() を実行
-# 受入テストを通してから
-clasp deploy --deploymentId <控えたID> --description "2026-09 改修版"
+clasp login                       # info.onehitter@gmail.com で
+bash apps/estimate-app/tools/build-clasp.sh     # clasp-build/ に5ファイルを作り、手順を表示する
 ```
 
-`--deploymentId` を必ず付けること。付けないと新規デプロイになりURLが変わる。
+手順の流れ（詳しくは `build-clasp.sh` が表示する）：
 
-こちらは `src/` の構成そのまま（7ファイル）で push する。
-どちらの方法でも動作は同じ。
+1. **控えを取る**：`clasp clone <スクリプトID>` で現状を保管、`clasp deployments` で**稼働中のデプロイを全部**控える
+   （2026-10-12 時点で**5本**。README の旧記述の4本は誤り。数えて確認する）、今のバージョン番号を控える（2026-10-19 時点は @9）
+2. `cd apps/estimate-app/clasp-build && clasp push -f`（まだ公開中の画面は旧バージョンのまま）
+3. `clasp version "説明"` で新バージョンを1つ作る（番号を控える）
+4. **全本数**を新バージョンに差し替える：`clasp deploy --deploymentId <ID> --versionNumber <番号>` を控えた全IDについて。
+   **`--deploymentId` を付けないと新規デプロイになりURLが変わる。** 終わったら `clasp deployments` で全本数が同じ @番号か確認
+5. 必要なら、エディタで管理関数を実行（関数のプルダウンが切り替わらないときは手で選んで ▶）
 
-## 5. マスタ変更内容
+切り戻しは、控えた旧バージョン番号で全本数を差し替える（**@8 = 9/29 のセキュリティ修正より前には戻さない**）。
+`clasp run` は使わない（「API 実行可能」にする設定が必要で、管理関数が画面外から呼べてしまう。上の注意を参照）。
 
-**手順2の `adminDeployAll()` で自動的に反映される。** 手作業は不要。
-手で貼りたい場合のためにTSVも用意した（`master/`）。
-
-| ファイル | 貼り付け先 |
-|---|---|
+---|---|
 | `割引繁忙期マスタ_正規化.tsv` | 割引繁忙期マスタ（A1から。既存行は削除してから） |
 | `差し込みセル定義_正規化.tsv` | 差し込みセル定義（A1から。既存行は削除してから） |
 | `設定マスタ_追加分.tsv` | 設定マスタの**末尾に追記**（ヘッダー行は貼らない） |
@@ -964,7 +961,7 @@ bash apps/estimate-app/tools/run-all.sh   # 下記すべてを一括実行
 | `live-master-test.js` | **本番マスタの実データ**を読み込めるか | 50 |
 | `api-call-benchmark.js` | 旧コードとのシートAPI呼び出し回数比較 | — |
 | `build-paste-bundle.sh` | 貼り付け用4ファイルを生成し、埋め込みエンジンの動作を確認 | — |
-| `build-clasp.sh` | clasp用の7ファイルを生成 | — |
+| `build-clasp.sh` | clasp用の5ファイル（本番と同じ構成。`deploy-paste/` と同じ中身）を生成 | — |
 | `gen-master-tsv.js` | マスタTSVをコード定義から再生成 | — |
 
 `live-master-test.js` は本番スプレッドシートをxlsxで書き出した

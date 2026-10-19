@@ -76,13 +76,20 @@ if node tools/booking-form-parity-test.js | tail -2; then :; else fail=1; fi
 step "12. シートAPI呼び出し回数（旧コードとの比較）"
 if node tools/api-call-benchmark.js | tail -8; then :; else fail=1; fi
 
-step "13. clasp用ビルドが通るか"
+step "13. clasp用ビルドが通るか（本番と同じ5ファイル構成か）"
 if bash tools/build-clasp.sh >/dev/null 2>&1; then
   n=$(ls -1 clasp-build 2>/dev/null | wc -l | tr -d ' ')
-  if [ "$n" = "8" ]; then
-    printf '  ✓ clasp-build に8ファイル生成\n'
+  if [ "$n" = "5" ]; then
+    printf '  ✓ clasp-build に5ファイル生成\n'
   else
-    printf '  ✗ clasp-build のファイル数が想定と違う（%s）\n' "$n"; fail=1
+    printf '  ✗ clasp-build のファイル数が想定と違う（%s。本番は5ファイル）\n' "$n"; fail=1
+  fi
+  # コード.js は貼り付け用と同じ中身（src を直接 push する作りに戻っていないこと）
+  if cmp -s "clasp-build/コード.js" "deploy-paste/コード.gs.txt" \
+     && [ ! -e clasp-build/Invoice.js ] && [ ! -e clasp-build/Admin.js ] && [ ! -e clasp-build/Calc.html ]; then
+    printf '  ✓ コード.js は deploy-paste と同じ中身（Invoice.js・Admin.js・Calc.html を作らない）\n'
+  else
+    printf '  ✗ clasp-build が deploy-paste と違う、または余計なファイルがある（push すると壊れる）\n'; fail=1
   fi
 else
   printf '  ✗ build-clasp.sh が失敗\n'; fail=1
