@@ -1,0 +1,261 @@
+/* =============================================================
+   ONE HITTER サイトスキン（2026-10-20 ブラウザ担当）
+
+   【何のためのもの】
+   いまのCMSが出しているHTMLは**そのまま**にして、見た目だけ新しくする。
+   メニュー・施工事例・お客様の声・ブログは CMS のデータから自動で出ているので、
+   HTMLを静的な案に置き換えると自動更新が止まる。それを避けるための作り。
+   （B案。経緯は docs/サイト改修-CMSへの投入手順-2026-10-20.md）
+
+   【入れ方】
+   ファイル管理に `cms-skin.css` として置き、レイアウトの「外部CSS/JS」で読ませる。
+   **外すだけで元に戻る。** HTMLには一切触らない。
+
+   【当てている相手】
+   リアライズが出す `-w-` 始まりのクラス。
+     .-w-wrapper      … セクションの外枠
+     .-w-ttl_wrap     … 見出しの塊（.-w-font_en ＋ h2.-w-font_title2）
+     .-w-ttl_wrap2    … 見出しの下のリード文
+     .-w-section_inner… セクションの中身
+     .-w-more_btn     … 「もっと見る」ボタン
+     .-w-tr/.-w-ttl/.-w-price … 料金表
+   ============================================================= */
+
+:root{
+  --oh-bg:#f8f7f4;
+  --oh-ink:#2d2d2a;
+  --oh-mute:#6f6e68;
+  --oh-line:rgba(45,45,42,.14);
+  --oh-red:#d94739;
+  --oh-red-dark:#b9362a;
+  --oh-paper:#fff;
+  --oh-mincho:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --oh-gothic:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+}
+
+/* ---- 下地 ---------------------------------------------------- */
+body{
+  background:var(--oh-bg) !important;
+  color:var(--oh-ink) !important;
+  font-family:var(--oh-gothic) !important;
+  line-height:2;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---- セクションの余白 ----------------------------------------- */
+main > section,
+main > section > .-w-wrapper{
+  background:transparent;
+}
+.-w-wrapper{
+  max-width:1120px;
+  margin-left:auto; margin-right:auto;
+  padding-left:28px; padding-right:28px;
+  padding-top:clamp(56px,7vw,104px);
+  padding-bottom:clamp(56px,7vw,104px);
+  box-sizing:border-box;
+}
+
+/* ---- 見出し（EN＋和文） --------------------------------------- */
+.-w-ttl_wrap{
+  margin:0 0 26px;
+  position:relative;
+}
+/* サイト側が `body .-w-font_en { color: … !important }` で色を固定しているので、
+   こちらは `html body` で優先度を1つ上げる。
+   data-lib="29402" は背景が濃くて白文字を指定している部品なので、色は触らない。 */
+html body main section:not([data-lib="29402"]) .-w-font_en,
+html body main section:not([data-lib="29402"]) .-w-general.-w-font_en{
+  display:block !important;
+  font-family:var(--oh-gothic) !important;
+  font-size:11.5px !important;
+  letter-spacing:.26em !important;
+  color:var(--oh-red) !important;
+  font-weight:700 !important;
+  margin-bottom:14px;
+  line-height:1.6;
+}
+html body main .-w-font_title2,
+html body main h2.-w-general{
+  font-family:var(--oh-mincho) !important;
+  font-weight:400 !important;
+  font-size:clamp(22px,3.2vw,34px) !important;
+  letter-spacing:.09em !important;
+  line-height:1.6 !important;
+  margin:0 !important;
+}
+html body main section:not([data-lib="29402"]) .-w-font_title2{
+  color:var(--oh-ink) !important;
+}
+/* 見出しの下に細い赤の罫。
+   inline-block にしておくと、見出しが中央寄せのセクションでは罫も中央、
+   左寄せのセクションでは左に付く（text-align をそのまま引き継ぐ）。 */
+.-w-ttl_wrap::after{
+  content:"";
+  display:inline-block;
+  width:84px; height:1px;
+  background:var(--oh-red);
+  margin-top:24px;
+  vertical-align:middle;
+}
+.-w-ttl_wrap2{
+  margin:0 0 42px;
+  max-width:46em;
+}
+.-w-ttl_wrap2 .-w-text,
+.-w-ttl_wrap2 .-w-txt{
+  color:var(--oh-mute) !important;
+  font-size:14.5px !important;
+  line-height:2 !important;
+}
+
+/* 小見出し */
+.-w-font_title1{
+  font-family:var(--oh-mincho) !important;
+  font-weight:400 !important;
+  letter-spacing:.07em !important;
+  color:var(--oh-ink) !important;
+}
+
+/* ---- 本文 ------------------------------------------------------ */
+.-w-text, .-w-txt, .-w-textArea p{
+  font-size:14.5px;
+  line-height:2;
+  color:var(--oh-mute);
+  letter-spacing:.02em;
+}
+
+/* ---- 料金表 ---------------------------------------------------- */
+.-w-textArea table{
+  width:100%;
+  border-collapse:collapse;
+}
+.-w-thead th{
+  text-align:left;
+  padding:0 0 14px;
+  border-bottom:1px solid var(--oh-line);
+}
+.-w-thead .-w-font_title1{
+  font-size:17px !important;
+  letter-spacing:.09em !important;
+}
+.-w-tr{
+  border-bottom:1px solid var(--oh-line);
+  transition:background .35s;
+}
+.-w-tr:hover{ background:var(--oh-paper); }
+.-w-tr .-w-ttl{
+  text-align:left;
+  padding:18px 16px 18px 2px;
+  font-size:14.5px !important;
+  font-weight:400;
+  vertical-align:middle;
+}
+.-w-tr .-w-price{
+  text-align:right;
+  padding:18px 2px;
+  vertical-align:middle;
+}
+.-w-tr .-w-price p:first-child{
+  font-family:var(--oh-mincho);
+  font-size:20px;
+  color:var(--oh-ink);
+  letter-spacing:.02em;
+  margin:0;
+  white-space:nowrap;
+}
+.-w-tr .-w-price p + p{
+  margin:5px 0 0;
+  font-size:11px;
+  color:var(--oh-mute);
+  opacity:.85;
+  line-height:1.7;
+}
+@media(max-width:620px){
+  .-w-tr .-w-ttl, .-w-tr .-w-price{ display:block; padding:14px 2px; text-align:left; }
+  .-w-tr .-w-ttl{ padding-bottom:4px; }
+  .-w-tr .-w-price{ padding-top:0; }
+}
+
+/* ---- ボタン ---------------------------------------------------- */
+.-w-more_btn,
+.-w-more_btn a{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  text-decoration:none !important;
+  font-weight:700;
+  border-radius:999px;
+  font-size:14.5px;
+  letter-spacing:.04em;
+  transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s,background .3s,color .3s,border-color .3s;
+}
+.-w-more_btn a{
+  border:1px solid var(--oh-line);
+  color:var(--oh-ink) !important;
+  background:transparent;
+  padding:15px 30px;
+}
+.-w-more_btn a:hover{
+  border-color:var(--oh-red);
+  color:var(--oh-red) !important;
+  transform:translateY(-2px);
+}
+
+/* ---- 日付・タグ（ブログ・お知らせ） ---------------------------- */
+.-w-date{
+  font-size:12.5px !important;
+  color:var(--oh-mute) !important;
+  letter-spacing:.06em;
+}
+.-w-tag, .-w-tagname, .-w-cate{
+  font-size:10.5px !important;
+  letter-spacing:.1em !important;
+  color:var(--oh-red) !important;
+  border:1px solid rgba(217,71,57,.35);
+  border-radius:999px;
+  padding:2px 11px;
+  display:inline-block;
+}
+.-w-title{
+  font-family:var(--oh-mincho) !important;
+  font-weight:400 !important;
+  font-size:16.5px !important;
+  letter-spacing:.06em !important;
+  line-height:1.75 !important;
+  color:var(--oh-ink) !important;
+}
+
+/* ---- 写真 ------------------------------------------------------ */
+.-w-image img, .-w-image_wrap img{
+  border-radius:3px;
+  display:block;
+}
+
+/* ---- リンクの色（共通CSSが a を上書きしてくるので !important） -- */
+main a{ color:inherit !important; }
+main a:hover{ color:var(--oh-red) !important; }
+
+/* ---- 動き（スクロールで現れる・JSなし） ------------------------ */
+@supports (animation-timeline: view()){
+  @media (prefers-reduced-motion: no-preference){
+    @keyframes oh-rise{ from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
+    main > section > .-w-wrapper > .-w-ttl_wrap,
+    main > section > .-w-wrapper > .-w-ttl_wrap2,
+    main > section > .-w-wrapper > .-w-section_inner{
+      animation:oh-rise both;
+      animation-timeline:view();
+      animation-range:entry 0% entry 48%;
+    }
+  }
+}
+
+@media(max-width:600px){
+  .-w-wrapper{ padding-left:18px; padding-right:18px; }
+  .-w-ttl_wrap{ margin-bottom:20px; }
+  .-w-ttl_wrap::after{ margin-top:18px; }
+  .-w-ttl_wrap2{ margin-bottom:32px; }
+}
+@media (prefers-reduced-motion: reduce){
+  main > section > .-w-wrapper > *{ animation:none !important; }
+}
