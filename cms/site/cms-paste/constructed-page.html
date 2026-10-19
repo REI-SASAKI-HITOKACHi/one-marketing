@@ -1,0 +1,374 @@
+<!-- ===================================================================
+  constructed-page … CMSの「テキスト」パーツにこのまま貼る
+  ・共通CSSは base.css（ファイル管理に置き、レイアウトの「外部CSS/JS」で読む）
+  ・ヘッダー／フッターはCMSのものを使うので、ここには入れていない
+  ・下のほうにある <style> はこのページだけのもの。消さないこと
+  =================================================================== -->
+<style>
+/* =============================================================
+   ONE HITTER /constructed/ 案　— トップページ案と同じ設計言語
+   JavaScript は使っていない。
+   ・絞り込み … radio + :checked（JSなし）
+   ・ビフォー/アフター … PCはホバー、スマホは［AFTER］のチェックで切り替え（JSなし）
+   写真は公開中のCMSの画像をそのまま読んでいる（/_img/ja/article/<id>/before|after/）。
+   🔴 公開中の /constructed/ はタグと写真が合っていない。詳しくはファイル末尾の覚え書き。
+   ============================================================= */
+:root{
+  --bg:#f8f7f4; --ink:#2d2d2a; --mute:#6f6e68; --line:rgba(45,45,42,.14);
+  --red:#d94739; --red-dark:#b9362a; --paper:#fff;
+  --mincho:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --gothic:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--gothic);
+  font-size:15px;line-height:2;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding:0 28px}
+.mincho{font-family:var(--mincho);font-weight:400;letter-spacing:.07em;line-height:1.55}
+
+@supports (animation-timeline: view()){
+  @media (prefers-reduced-motion: no-preference){
+    @keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+    @keyframes wipe{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+    .rv{animation:rise both;animation-timeline:view();animation-range:entry 0% entry 50%}
+    .rule i{animation:wipe both;animation-timeline:view();animation-range:entry 5% entry 60%}
+  }
+}
+
+/* ---- ヘッダー ---- */
+header{position:sticky;top:0;z-index:50;background:rgba(248,247,244,.9);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header .in{display:flex;align-items:center;justify-content:space-between;gap:20px;
+  max-width:1120px;margin:0 auto;padding:14px 28px}
+.logo{display:flex;align-items:center;gap:11px;text-decoration:none}
+.logo .mk{width:34px;height:34px;border-radius:7px;background:var(--red);color:#fff;
+  display:grid;place-items:center;font-size:10px;font-weight:700;letter-spacing:.04em;line-height:1.1;text-align:center}
+.logo b{font-family:var(--mincho);font-size:17px;letter-spacing:.14em;font-weight:400}
+.logo small{display:block;font-size:9.5px;letter-spacing:.22em;color:var(--mute)}
+nav.main{display:flex;gap:26px;font-size:13.5px;letter-spacing:.04em}
+nav.main a{text-decoration:none;position:relative;padding:4px 0}
+nav.main a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--red);
+  transform:scaleX(0);transform-origin:right;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+nav.main a:hover::after,nav.main a.on::after{transform:scaleX(1);transform-origin:left}
+.hbtn{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;
+  text-decoration:none;font-size:13.5px;font-weight:700;border-radius:999px;padding:11px 22px;
+  transition:background .3s,transform .3s}
+.hbtn:hover{background:var(--red-dark);transform:translateY(-1px)}
+@media(max-width:900px){nav.main{display:none}}
+
+/* ---- ページの頭 ---- */
+.phead{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.phead .bg{position:absolute;inset:0;z-index:0}
+.phead .bg img{width:100%;height:100%;object-fit:cover}
+.phead .bg::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(100deg,rgba(248,247,244,.97) 0%,rgba(248,247,244,.92) 48%,rgba(248,247,244,.66) 100%)}
+.phead .in{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:76px 28px 70px}
+.phead .en{display:block;font-size:11.5px;letter-spacing:.26em;color:var(--red);font-weight:700;margin-bottom:14px}
+.phead h1{margin:0;font-size:clamp(26px,4.2vw,44px);letter-spacing:.09em;line-height:1.5}
+.phead p{margin:22px 0 0;max-width:40em;color:var(--mute);font-size:14.5px}
+.phead .crumb{font-size:11.5px;color:var(--mute);letter-spacing:.06em;margin-bottom:18px}
+.phead .crumb a{text-decoration:none}
+.phead .crumb a:hover{color:var(--red)}
+
+/* ---- セクション共通 ---- */
+section.band{padding:clamp(56px,7vw,96px) 0}
+.sechead{margin:0 0 34px}
+.sechead .en{display:block;font-size:11.5px;letter-spacing:.26em;color:var(--red);font-weight:700;margin-bottom:14px}
+.sechead h2{margin:0;font-size:clamp(22px,3.2vw,33px);letter-spacing:.09em;line-height:1.55}
+.rule{height:1px;background:var(--line);position:relative;margin:0 0 40px}
+.rule i{position:absolute;left:0;top:0;width:84px;height:1px;background:var(--red);transform-origin:left;display:block}
+
+/* ---- 絞り込み（JSなし・radio + :checked） ---- */
+.filter{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 40px}
+.filter input{position:absolute;opacity:0;width:0;height:0}
+.filter label{display:inline-flex;align-items:center;gap:7px;cursor:pointer;
+  border:1px solid var(--line);border-radius:999px;padding:9px 19px;font-size:13px;letter-spacing:.05em;
+  transition:border-color .3s,background .3s,color .3s}
+.filter label:hover{border-color:var(--red);color:var(--red)}
+.filter label .cnt{font-size:11px;color:var(--mute)}
+#f-all:checked ~ .filter label[for=f-all],
+#f-aircon:checked ~ .filter label[for=f-aircon],
+#f-hood:checked ~ .filter label[for=f-hood],
+#f-wash:checked ~ .filter label[for=f-wash],
+#f-kitchen:checked ~ .filter label[for=f-kitchen]{background:var(--red);border-color:var(--red);color:#fff}
+#f-all:checked ~ .filter label[for=f-all] .cnt,
+#f-aircon:checked ~ .filter label[for=f-aircon] .cnt,
+#f-hood:checked ~ .filter label[for=f-hood] .cnt,
+#f-wash:checked ~ .filter label[for=f-wash] .cnt,
+#f-kitchen:checked ~ .filter label[for=f-kitchen] .cnt{color:rgba(255,255,255,.75)}
+#f-aircon:checked  ~ .cases .case:not(.aircon),
+#f-hood:checked    ~ .cases .case:not(.hood),
+#f-wash:checked    ~ .cases .case:not(.wash),
+#f-kitchen:checked ~ .cases .case:not(.kitchen){display:none}
+
+/* ---- 事例カード ---- */
+.cases{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));gap:26px}
+.case{background:var(--paper);border:1px solid var(--line);border-radius:3px;overflow:hidden;
+  transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s}
+.case:hover{transform:translateY(-4px);box-shadow:0 22px 44px -28px rgba(45,45,42,.55)}
+.ba{position:relative;aspect-ratio:3/2;background:#e8e6e1}
+.ba img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .5s ease}
+.ba .aft{opacity:0}
+.case:hover .ba .aft{opacity:1}
+.ba .tagx{position:absolute;left:12px;top:12px;background:rgba(45,45,42,.82);color:#fff;
+  font-size:10px;letter-spacing:.16em;padding:4px 11px;border-radius:999px;z-index:2;pointer-events:none}
+.case:hover .ba .tagx{background:var(--red)}
+.ba .tagx::after{content:"BEFORE"}
+.case:hover .ba .tagx::after{content:"AFTER"}
+/* スマホ用：タップで切り替え */
+.sw{position:absolute;opacity:0;width:0;height:0}
+.ba .swlab{position:absolute;right:12px;bottom:12px;z-index:2;cursor:pointer;
+  background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:999px;
+  font-size:10.5px;letter-spacing:.12em;padding:6px 14px;transition:background .3s,color .3s}
+.ba .swlab:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.sw:checked + .ba .aft{opacity:1}
+.sw:checked + .ba .tagx{background:var(--red)}
+.sw:checked + .ba .tagx::after{content:"AFTER"}
+.sw:checked + .ba .swlab::after{content:"BEFOREを見る"}
+.ba .swlab::after{content:"AFTERを見る"}
+.sw:focus-visible + .ba .swlab{outline:2px solid var(--red);outline-offset:2px}
+.case .body{padding:22px 24px 24px}
+.case .ttl{font-family:var(--mincho);font-size:17px;letter-spacing:.07em;margin:0 0 8px;line-height:1.6}
+.case .tag{display:inline-block;font-size:10.5px;letter-spacing:.1em;color:var(--red);
+  border:1px solid rgba(217,71,57,.35);border-radius:999px;padding:2px 11px;margin-bottom:12px}
+.case p{margin:0;font-size:13px;color:var(--mute);line-height:1.9}
+.case .price{margin-top:14px;padding-top:13px;border-top:1px solid var(--line);
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  font-size:12px;color:var(--mute);line-height:1.7}
+.case .price b{font-family:var(--mincho);font-size:19px;color:var(--ink);font-weight:400;
+  letter-spacing:.02em;white-space:nowrap;flex:0 0 auto}
+.case .price b i{font-style:normal;font-size:.6em;margin-left:1px}
+
+/* ---- ボタン・注記 ---- */
+.btn{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:700;
+  border-radius:999px;padding:16px 32px;font-size:14.5px;position:relative;overflow:hidden;
+  transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s,background .3s,color .3s,border-color .3s}
+.btn.primary{background:var(--red);color:#fff}
+.btn.primary:hover{background:var(--red-dark);transform:translateY(-2px);box-shadow:0 16px 30px -14px rgba(217,71,57,.85)}
+.btn.ghost{border:1px solid var(--line);color:var(--ink);background:transparent}
+.btn.ghost:hover{border-color:var(--red);color:var(--red)}
+.btn .ar{transition:transform .3s}
+.btn:hover .ar{transform:translateX(5px)}
+.more{margin-top:40px;text-align:center}
+.kome{margin-top:24px;text-align:center;font-size:11px;line-height:2;color:var(--mute);opacity:.85}
+
+/* ---- 約束の帯 ---- */
+.promise{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(255,255,255,.5)}
+.promise .in{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
+.promise .c{padding:32px 24px;border-left:1px solid var(--line)}
+.promise .c:first-child{border-left:0}
+.promise .c b{display:block;font-family:var(--mincho);font-size:17px;letter-spacing:.07em;margin-bottom:8px;font-weight:400}
+.promise .c span{font-size:12.5px;color:var(--mute);line-height:1.9}
+@media(max-width:760px){
+  .promise .in{grid-template-columns:1fr}
+  .promise .c{border-left:0;border-top:1px solid var(--line)}
+  .promise .c:first-child{border-top:0}
+}
+
+/* ---- CTA・フッター ---- */
+.cta{background:#2d2d2a;color:#f5f4f1;padding:clamp(64px,8vw,112px) 0;text-align:center}
+.cta h2{margin:0 0 16px;font-family:var(--mincho);font-size:clamp(22px,3.2vw,33px);
+  letter-spacing:.09em;line-height:1.6;font-weight:400}
+.cta p{margin:0 0 34px;color:rgba(245,244,241,.72);font-size:14px}
+.cta .acts{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;align-items:center}
+.cta .btn.ghost{border-color:rgba(245,244,241,.3);color:#f5f4f1}
+.cta .btn.ghost:hover{border-color:#fff;color:#fff}
+.cta .tel{font-size:13px;color:rgba(245,244,241,.72)}
+.cta .tel b{display:block;font-family:var(--mincho);font-size:22px;color:#fff;letter-spacing:.04em}
+footer nav{display:flex;flex-wrap:wrap;gap:8px 20px}
+footer nav a{text-decoration:none}
+footer nav a:hover{color:var(--red)}
+footer{border-top:1px solid var(--line);padding:30px 0;font-size:11.5px;color:var(--mute)}
+footer .in{max-width:1120px;margin:0 auto;padding:0 28px;display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between}
+
+@media(max-width:600px){
+  body{font-size:14.5px;line-height:1.95}
+  .wrap{padding:0 18px}
+  header .in{padding:11px 18px;gap:10px}
+  .logo .mk{width:30px;height:30px;font-size:8.5px}
+  .logo b{font-size:13.5px;letter-spacing:.08em}
+  .logo small{font-size:8px;letter-spacing:.14em}
+  .hbtn{padding:9px 15px;font-size:12px;white-space:nowrap}
+  .btn{justify-content:center;padding:15px 24px;font-size:14.5px}
+  .cta .acts{flex-direction:column;align-items:stretch;gap:12px}
+  .phead .in{padding:52px 18px 48px}
+  .phead h1{font-size:25px;letter-spacing:.04em;line-height:1.7}
+  .phead p{font-size:13.5px}
+  .phead .bg::after{background:linear-gradient(180deg,rgba(248,247,244,.96) 0%,rgba(248,247,244,.9) 60%,rgba(248,247,244,.82) 100%)}
+  .filter label{padding:8px 15px;font-size:12px}
+  .cases{gap:20px}
+  footer .in{padding:0 18px}
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .rv,.rule i{animation:none}
+  .ba img,.case{transition:none}
+}
+</style>
+
+<div class="phead">
+  <div class="bg"><img alt="" src="https://one-hitter.jp/_img/ja/article/1334/after/800_533_2_ffffff//"></div>
+  <div class="in">
+    <p class="crumb"><a href="/">ホーム</a>　›　施工事例</p>
+    <span class="en">CONSTRUCTED</span>
+    <h1 class="mincho">洗う前と、洗ったあと。<br>どちらもお見せします。</h1>
+    <p>写真はすべて、実際にお伺いした現場のものです。ビフォーは、お客様が「そんなに汚れていないと思う」とおっしゃった現場のものも入っています。見えないところがどうなっているかは、開けてみないと分かりません。</p>
+  </div>
+</div>
+
+<section class="band"><div class="wrap">
+  <div class="sechead rv"><span class="en">GALLERY</span>
+    <h2 class="mincho">分解して、中まで。</h2></div>
+  <div class="rule rv"><i></i></div>
+
+  <input type="radio" name="f" id="f-all" checked>
+  <input type="radio" name="f" id="f-aircon">
+  <input type="radio" name="f" id="f-hood">
+  <input type="radio" name="f" id="f-wash">
+  <input type="radio" name="f" id="f-kitchen">
+  <div class="filter">
+    <label for="f-all">すべて <span class="cnt">7</span></label>
+    <label for="f-aircon">エアコン <span class="cnt">1</span></label>
+    <label for="f-hood">レンジフード <span class="cnt">1</span></label>
+    <label for="f-wash">洗濯機 <span class="cnt">3</span></label>
+    <label for="f-kitchen">キッチン <span class="cnt">2</span></label>
+  </div>
+
+  <div class="cases">
+
+    <div class="case aircon rv">
+      <input type="checkbox" class="sw" id="s1">
+      <div class="ba">
+        <img src="https://one-hitter.jp/_img/ja/article/1338/before/800_533_2_ffffff//" alt="エアコンのアルミフィン。黒い汚れが全面に付いた状態">
+        <img class="aft" src="https://one-hitter.jp/_img/ja/article/1338/after/800_533_2_ffffff//" alt="エアコンのアルミフィン。洗浄後">
+        <span class="tagx"></span><label class="swlab" for="s1"></label>
+      </div>
+      <div class="body">
+        <span class="tag">エアコン</span>
+        <h3 class="ttl">熱交換器（アルミフィン）</h3>
+        <p>カバーを外した奥。フィンの溝が黒く埋まっていました。ここは送風のたびに空気が通る場所です。</p>
+        <div class="price">エアコンクリーニング（お掃除機能なし）<b>10,780<i>円</i></b></div>
+      </div>
+    </div>
+
+    <div class="case hood rv">
+      <input type="checkbox" class="sw" id="s2">
+      <div class="ba">
+        <img src="https://one-hitter.jp/_img/ja/article/1331/before/800_533_2_ffffff//" alt="レンジフードのシロッコファン。油とほこりが固まった状態">
+        <img class="aft" src="https://one-hitter.jp/_img/ja/article/1331/after/800_533_2_ffffff//" alt="レンジフードのシロッコファン。洗浄後">
+        <span class="tagx"></span><label class="swlab" for="s2"></label>
+      </div>
+      <div class="body">
+        <span class="tag">レンジフード</span>
+        <h3 class="ttl">シロッコファン</h3>
+        <p>羽根の1枚ずつに油とほこりが固まっていました。この状態だと、回っていても吸い込みません。</p>
+        <div class="price">レンジフードクリーニング<b>18,480<i>円</i></b></div>
+      </div>
+    </div>
+
+    <div class="case wash rv">
+      <input type="checkbox" class="sw" id="s3">
+      <div class="ba">
+        <img src="https://one-hitter.jp/_img/ja/article/1295/before/800_533_2_ffffff//" alt="洗濯槽の内側。黒い汚れが付いた状態">
+        <img class="aft" src="https://one-hitter.jp/_img/ja/article/1295/after/800_533_2_ffffff//" alt="洗濯槽の内側。洗浄後">
+        <span class="tagx"></span><label class="swlab" for="s3"></label>
+      </div>
+      <div class="body">
+        <span class="tag">洗濯機</span>
+        <h3 class="ttl">洗濯槽の内側</h3>
+        <p>市販の槽洗浄剤を毎月使っていたお宅です。それでも、穴のまわりには黒い汚れが残っていました。</p>
+        <div class="price">洗濯機クリーニング<b>17,380<i>円</i></b></div>
+      </div>
+    </div>
+
+    <div class="case wash rv">
+      <input type="checkbox" class="sw" id="s4">
+      <div class="ba">
+        <img src="https://one-hitter.jp/_img/ja/article/1333/before/800_533_2_ffffff//" alt="洗濯槽の内側と底。黒いカスが付いた状態">
+        <img class="aft" src="https://one-hitter.jp/_img/ja/article/1333/after/800_533_2_ffffff//" alt="洗濯槽の内側と底。洗浄後">
+        <span class="tagx"></span><label class="swlab" for="s4"></label>
+      </div>
+      <div class="body">
+        <span class="tag">洗濯機</span>
+        <h3 class="ttl">洗濯槽の底とパルセーター</h3>
+        <p>洗濯物に黒いカスが付く、というご相談でした。出どころは槽の裏側です。</p>
+        <div class="price">洗濯機クリーニング<b>17,380<i>円</i></b></div>
+      </div>
+    </div>
+
+    <div class="case wash rv">
+      <input type="checkbox" class="sw" id="s5">
+      <div class="ba">
+        <img src="https://one-hitter.jp/_img/ja/article/1336/before/800_533_2_ffffff//" alt="ドラム式洗濯機の内部">
+        <img class="aft" src="https://one-hitter.jp/_img/ja/article/1336/after/800_533_2_ffffff//" alt="ドラム式洗濯機の内部。洗浄後">
+        <span class="tagx"></span><label class="swlab" for="s5"></label>
+      </div>
+      <div class="body">
+        <span class="tag">洗濯機</span>
+        <h3 class="ttl">ドラム式の内部</h3>
+        <p>ドラム式は構造が違うので、外し方も洗い方も変わります。機種を伺ってからお伺いしています。</p>
+        <div class="price">洗濯機クリーニング<b>17,380<i>円</i></b></div>
+      </div>
+    </div>
+
+    <div class="case kitchen rv">
+      <input type="checkbox" class="sw" id="s6">
+      <div class="ba">
+        <img src="https://one-hitter.jp/_img/ja/article/1296/before/800_533_2_ffffff//" alt="キッチンのシンク。くもった状態">
+        <img class="aft" src="https://one-hitter.jp/_img/ja/article/1296/after/800_533_2_ffffff//" alt="キッチンのシンク。磨いたあと">
+        <span class="tagx"></span><label class="swlab" for="s6"></label>
+      </div>
+      <div class="body">
+        <span class="tag">キッチン</span>
+        <h3 class="ttl">シンク</h3>
+        <p>白くくもって見えるのは水垢です。こすって落ちるものと、落ちないものがあります。</p>
+        <div class="price">キッチンクリーニング<b>18,480<i>円</i></b></div>
+      </div>
+    </div>
+
+    <div class="case kitchen rv">
+      <input type="checkbox" class="sw" id="s7">
+      <div class="ba">
+        <img src="https://one-hitter.jp/_img/ja/article/1328/before/800_533_2_ffffff//" alt="キッチンのシンクと排水口まわり">
+        <img class="aft" src="https://one-hitter.jp/_img/ja/article/1328/after/800_533_2_ffffff//" alt="キッチンの水栓とシンク。仕上げたあと">
+        <span class="tagx"></span><label class="swlab" for="s7"></label>
+      </div>
+      <div class="body">
+        <span class="tag">キッチン</span>
+        <h3 class="ttl">シンクと水栓</h3>
+        <p>水栓の根元は、スポンジが届かないところに水垢がたまります。</p>
+        <div class="price">キッチンクリーニング<b>18,480<i>円</i></b></div>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="more rv"><a class="btn ghost" href="/menu/">料金とメニューを見る<span class="ar">→</span></a></p>
+  <p class="kome rv">※ 写真はすべて実際の現場のものです。加工はしていません。<br>
+    ※ 表示している料金は通常料金（税込）です。実際のお見積りは、現場を伺ってからお出しします。<br>
+    ※ 5月〜7月・12月は、1台・1箇所あたり3,300円が加算されます。</p>
+</div></section>
+
+<div class="promise"><div class="in">
+  <div class="c rv"><b>209名のうち206名が<br>「勧めてもよい」</b>
+    <span>施工のあとにお送りしているアンケートの結果です（2023年1月〜2025年12月／回答209名）。
+    Googleのクチコミは25件で、★4以下が1件もありません（2026年10月時点）。</span></div>
+  <div class="c rv"><b>毎回、同じ職人が伺います</b>
+    <span>下請けには出していません。だから「前回の人は良かったのに」が起きません。
+    2回目以降も、前回どこが汚れていたかを覚えたまま伺えます。</span></div>
+  <div class="c rv"><b>お見積りの金額から、増やしません</b>
+    <span>当日になって「これは別料金です」がありません。増えるのは、駐車場が確保できない場合の
+    コインパーキング代と、高速道路を使う地域の交通費だけ。それも先にお伝えします。</span></div>
+</div></div>
+
+<section class="cta"><div class="wrap">
+  <h2 class="mincho">開けてみないと、<br>分からないところがあります。</h2>
+  <p>空いている日を見て、そのままご予約いただけます。入力はおよそ1分。</p>
+  <div class="acts">
+    <a class="btn primary" href="https://yoyaku.onehitter.jp/?src=constructed">空いている日を見る<span class="ar">→</span></a>
+    <a class="btn ghost" href="/contact/">お問い合わせ</a>
+    <span class="tel">受付 8:00〜20:00<b>080-8043-8259</b></span>
+  </div>
+</div></section>

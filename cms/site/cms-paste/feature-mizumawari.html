@@ -1,0 +1,123 @@
+<!-- ===================================================================
+  feature-mizumawari … CMSの「テキスト」パーツにこのまま貼る
+  ・共通CSSは base.css（ファイル管理に置き、レイアウトの「外部CSS/JS」で読む）
+  ・ヘッダー／フッターはCMSのものを使うので、ここには入れていない
+  ・下のほうにある <style> はこのページだけのもの。消さないこと
+  =================================================================== -->
+<style>
+.bawrap{margin:0}
+.ba{position:relative;aspect-ratio:3/2;background:#e8e6e1;border-radius:3px;overflow:hidden}
+.ba img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .5s ease}
+.ba .aft{opacity:0}
+.bawrap:hover .ba .aft{opacity:1}
+.ba .tagx{position:absolute;left:12px;top:12px;background:rgba(45,45,42,.82);color:#fff;
+  font-size:10px;letter-spacing:.16em;padding:4px 11px;border-radius:999px;z-index:2;pointer-events:none}
+.ba .tagx::after{content:"BEFORE"}
+.bawrap:hover .ba .tagx{background:var(--red)}
+.bawrap:hover .ba .tagx::after{content:"AFTER"}
+.sw{position:absolute;opacity:0;width:0;height:0}
+.ba .swlab{position:absolute;right:12px;bottom:12px;z-index:2;cursor:pointer;
+  background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:999px;
+  font-size:10.5px;letter-spacing:.12em;padding:6px 14px;transition:background .3s,color .3s}
+.ba .swlab::after{content:"AFTERを見る"}
+.ba .swlab:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.sw:checked + .ba .aft{opacity:1}
+.sw:checked + .ba .tagx{background:var(--red)}
+.sw:checked + .ba .tagx::after{content:"AFTER"}
+.sw:checked + .ba .swlab::after{content:"BEFOREを見る"}
+.bawrap .cap{margin:12px 0 0;font-size:12px;color:var(--mute);letter-spacing:.04em}
+.price-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 20px;
+  margin:28px 0 0;padding:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.price-row .nm{font-size:13.5px}
+.price-row .yen{font-family:var(--mincho);font-size:28px;letter-spacing:.02em;white-space:nowrap}
+.price-row .yen i{font-style:normal;font-size:.5em;margin-left:2px}
+.price-row .mi{font-size:12px;color:var(--mute)}
+.price-row .go{margin-left:auto}
+@media(max-width:600px){.price-row .go{margin-left:0;width:100%}}
+</style>
+<div class="phead">
+  <div class="bg"><img alt="" src="https://one-hitter.jp/_img/ja/article/1328/after/800_533_2_ffffff//"></div>
+  <div class="in">
+    <p class="crumb"><a href="/">ホーム</a>　›　<a href="/feature/">特徴</a>　›　水まわりクリーニング</p>
+    <span class="en">WATER AREA</span>
+    <h1 class="mincho">同じ日にまとめると、<br><em>一度で</em>終わります。</h1>
+    <p>浴室・洗面台・トイレ・キッチン。水まわりは汚れの種類が似ているので、道具も洗剤も共通です。まとめてご依頼いただくと、お見積りも一度で出せます。</p>
+  </div>
+</div>
+
+<section class="band"><div class="wrap narrow">
+  <p class="lead rv">水まわりの汚れは、<br><em>2種類</em>しかありません。</p>
+  <div class="body">
+    <p class="rv"><strong>ひとつは水垢。</strong>水道水のミネラルが乾いて固まったもので、白くくもって見えます。アルカリ性なので、酸性のもので緩めます。</p>
+    <p class="rv"><strong>もうひとつは皮脂と石けんカス。</strong>こちらは酸性で、ぬるっとした手触りです。アルカリ性のもので落とします。</p>
+    <p class="rv">同じ場所にこの2つが重なっているので、<strong>1種類の洗剤でこすり続けても、半分しか落ちません。</strong>市販品で「落ちない」と感じるのは、たいていこれが理由です。</p>
+  </div>
+
+  <div class="cards" style="margin-top:38px">
+    <div class="rv"><div class="no">浴室</div>
+      <b>18,480<span style="font-size:.6em">円</span></b>
+      <span>約120分。エプロンの内側、排水口、ドアの通気口まで。鏡と蛇口の水垢も落とします。<a href="/feature/お風呂/">くわしく →</a></span></div>
+    <div class="rv"><div class="no">洗面台</div>
+      <b>10,780<span style="font-size:.6em">円</span></b>
+      <span>約60分。ボウルと蛇口の水垢、オーバーフロー穴、排水口。鏡と照明まわりも。</span></div>
+    <div class="rv"><div class="no">トイレ</div>
+      <b>10,780<span style="font-size:.6em">円</span></b>
+      <span>約60分。便器の内側のふちと、便座の裏と、床と壁。臭いの出どころは、だいたい床と壁です。</span></div>
+    <div class="rv"><div class="no">キッチン</div>
+      <b>18,480<span style="font-size:.6em">円</span></b>
+      <span>約120分。シンクの水垢、排水口、蛇口の根元、作業台と扉の表面まで。<a href="/feature/キッチンクリーニング/">くわしく →</a></span></div>
+  </div>
+
+  <div class="price-row rv">
+    <span class="nm">同じ日に2箇所以上</span>
+    <span class="yen">まとめてお見積り</span>
+    <span class="mi">移動と準備が一度で済む分を、お見積りに反映します</span>
+    <a class="btn ghost go" href="https://yoyaku.onehitter.jp/?src=feature_mizumawari">空いている日を見る<span class="ar">→</span></a>
+  </div>
+  <p class="kome rv">※ 料金はすべて税込です。5月〜7月・12月は1箇所あたり3,300円が加算されます。<br>※ 追い焚き配管クリーニングは19,910円です。</p>
+</div></section>
+
+<section class="band tint"><div class="wrap narrow">
+  <div class="body">
+    <h3 class="rv">まとめた方がよい理由</h3>
+    <p class="rv">水まわりは、使う道具と洗剤がほとんど同じです。<strong>養生と準備と片付けが一度で済みます。</strong>別々の日にお伺いすると、そのたびに同じ手間がかかります。</p>
+    <p class="rv">それに、水まわりの汚れは連動します。浴室だけきれいにしても、洗面台がくもっていれば、脱衣所全体の印象は変わりません。</p>
+
+    <h3 class="rv">メニューに無い場所も</h3>
+    <p class="rv">「ここは頼めますか」とよく聞かれます。<strong>まずはご相談ください。</strong>お見積りのお電話で状況を伺い、できることとできないことを先にお伝えします。</p>
+
+    <h3 class="rv">お見積りについて</h3>
+    <ul>
+      <li class="rv">お見積りでお出しした金額から、作業後に増やすことはありません</li>
+      <li class="rv">お車を停められる場所が無い場合のみ、コインパーキング代が実費で加わります</li>
+      <li class="rv">遠方（目安：高速道路を使う地域）は、交通費をいただく場合があります。お見積りのお電話でご案内します</li>
+    </ul>
+  </div>
+</div></section>
+
+<div class="numband"><div class="in">
+  <div class="c rv">
+    <div class="n">98<span class="dec">.6</span><i>%</i></div>
+    <div class="t">ご家族や友人に<br><b>勧めてもよい</b></div>
+    <div class="sub">2023年1月〜2025年12月／回答209名中206名（自社アンケート）</div>
+  </div>
+  <div class="c rv">
+    <div class="n"><span class="stars">★★★★★</span> 5.0</div>
+    <div class="t">Googleクチコミ<br><b>25件すべてが★5</b></div>
+    <div class="sub">2026年10月時点／★4以下は1件もありません</div>
+  </div>
+  <div class="c rv">
+    <div class="n">0<i>円</i></div>
+    <div class="t">お見積りのあとの<br><b>追加請求</b></div>
+    <div class="sub">お出しした金額から増やしません</div>
+  </div>
+</div></div>
+<section class="cta"><div class="wrap">
+  <h2 class="mincho">気になる場所を、<br>まとめてご相談ください。</h2>
+  <p>空いている日を見て、そのままご予約いただけます。入力はおよそ1分。</p>
+  <div class="acts">
+    <a class="btn primary" href="https://yoyaku.onehitter.jp/?src=feature_mizumawari">空いている日を見る<span class="ar">→</span></a>
+    <a class="btn ghost" href="/menu/">料金を全部見る</a>
+    <span class="tel">受付 8:00〜20:00<b>080-8043-8259</b></span>
+  </div>
+</div></section>

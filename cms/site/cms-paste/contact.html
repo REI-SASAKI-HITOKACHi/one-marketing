@@ -1,0 +1,81 @@
+<!-- ===================================================================
+  contact … CMSの「テキスト」パーツにこのまま貼る
+  ・共通CSSは base.css（ファイル管理に置き、レイアウトの「外部CSS/JS」で読む）
+  ・ヘッダー／フッターはCMSのものを使うので、ここには入れていない
+  ・下のほうにある <style> はこのページだけのもの。消さないこと
+  =================================================================== -->
+<div class="phead plain">
+  
+  <div class="in">
+    <p class="crumb"><a href="/">ホーム</a>　›　お問い合わせ</p>
+    <span class="en">CONTACT</span>
+    <h1 class="mincho">ご予約は、<br><em>1分</em>で終わります。</h1>
+    <p>日にちが決まっている方は、予約ページで空いている日をそのままお選びください。ご相談や法人のお問い合わせは、フォームかお電話でお受けします。</p>
+  </div>
+</div>
+
+<section class="band"><div class="wrap">
+  <div class="cards">
+    <div class="rv"><div class="no">いちばん早い</div>
+      <b>空いている日を見て予約する</b>
+      <span>カレンダーから日時をお選びいただけます。入力はおよそ1分。<strong>ご予約時のお支払いはありません。</strong></span>
+      <p style="margin:18px 0 0"><a class="btn primary" href="https://yoyaku.onehitter.jp/?src=contact">空いている日を見る<span class="ar">→</span></a></p></div>
+    <div class="rv"><div class="no">聞いてから決めたい</div>
+      <b>電話で相談する</b>
+      <span>受付 8:00〜20:00。時間外でも対応しておりますので、お気軽にご相談ください。</span>
+      <p style="margin:18px 0 0;font-family:var(--mincho);font-size:27px;letter-spacing:.03em">080-8043-8259</p></div>
+    <div class="rv"><div class="no">法人・そのほか</div>
+      <b>フォームから送る</b>
+      <span>お見積り、法人のご依頼、メニューに無い場所のご相談など。<strong>2営業日以内にご返信します。</strong></span>
+      <p style="margin:18px 0 0"><a class="btn ghost" href="#form">フォームへ<span class="ar">→</span></a></p></div>
+  </div>
+</div></section>
+
+<section class="band tint" id="form"><div class="wrap narrow">
+  <div class="sechead rv"><span class="en">FORM</span>
+    <h2 class="mincho">お問い合わせフォーム</h2>
+    <p>ご入力のうえ、［次へ］を押してください。<strong>※</strong> は必須です。</p></div>
+  <div class="rule rv"><i></i></div>
+
+  <form class="f rv" onsubmit="return false">
+    <label><span>依頼メニュー <b>※</b></span>
+      <select><option>選択してください</option><option>エアコン</option>
+      <option>浴室周辺（浴室・洗面所・トイレ）</option><option>キッチン周辺</option>
+      <option>洗濯機</option><option>お部屋</option><option>法人のご依頼</option><option>その他</option></select></label>
+    <label><span>お名前 <b>※</b></span><input type="text" placeholder="山田 太郎"></label>
+    <label><span>フリガナ</span><input type="text" placeholder="ヤマダ タロウ"></label>
+    <label><span>電話番号 <b>※</b></span><input type="tel" placeholder="090-0000-0000"></label>
+    <label><span>メールアドレス</span><input type="email" placeholder="example@example.com"></label>
+    <label><span>ご住所</span><input type="text" placeholder="東京都江戸川区…"></label>
+    <label class="wide"><span>ご相談の内容</span><textarea rows="5" placeholder="気になっている場所、お困りのこと、ご希望の日時など"></textarea></label>
+    <p class="note">送信いただいた内容は、<a href="/privacy_policy/">個人情報の取扱い</a>に沿って利用します。</p>
+    <p><button class="btn primary" type="submit">次へ<span class="ar">→</span></button></p>
+  </form>
+  <p class="kome rv">※ これはデザイン案です。実際の送信は行われません。</p>
+</div></section>
+
+<style>
+.f{display:grid;grid-template-columns:1fr 1fr;gap:20px 26px}
+.f label{display:block}
+.f label.wide,.f .note,.f p{grid-column:1/-1}
+.f span{display:block;font-size:12.5px;letter-spacing:.06em;color:var(--mute);margin-bottom:7px}
+.f span b{color:var(--red);font-size:11px}
+.f input,.f select,.f textarea{width:100%;font:inherit;font-size:14.5px;color:var(--ink);
+  background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:13px 15px;
+  transition:border-color .3s,box-shadow .3s}
+.f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:var(--red);
+  box-shadow:0 0 0 3px rgba(217,71,57,.1)}
+.f textarea{resize:vertical;line-height:1.9}
+.f .note{margin:4px 0 0;font-size:12px;color:var(--mute)}
+@media(max-width:700px){.f{grid-template-columns:1fr}}
+</style>
+
+<section class="cta"><div class="wrap">
+  <h2 class="mincho">日にちが決まっているなら、<br>予約ページが早いです。</h2>
+  <p>カレンダーから選ぶだけ。入力はおよそ1分、ご予約時のお支払いはありません。</p>
+  <div class="acts">
+    <a class="btn primary" href="https://yoyaku.onehitter.jp/?src=contact">空いている日を見る<span class="ar">→</span></a>
+    <a class="btn ghost" href="/menu/">料金を見る</a>
+    <span class="tel">受付 8:00〜20:00<b>080-8043-8259</b></span>
+  </div>
+</div></section>

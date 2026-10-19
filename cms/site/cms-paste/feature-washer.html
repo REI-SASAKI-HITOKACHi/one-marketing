@@ -1,0 +1,124 @@
+<!-- ===================================================================
+  feature-washer … CMSの「テキスト」パーツにこのまま貼る
+  ・共通CSSは base.css（ファイル管理に置き、レイアウトの「外部CSS/JS」で読む）
+  ・ヘッダー／フッターはCMSのものを使うので、ここには入れていない
+  ・下のほうにある <style> はこのページだけのもの。消さないこと
+  =================================================================== -->
+<style>
+.bawrap{margin:0}
+.ba{position:relative;aspect-ratio:3/2;background:#e8e6e1;border-radius:3px;overflow:hidden}
+.ba img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .5s ease}
+.ba .aft{opacity:0}
+.bawrap:hover .ba .aft{opacity:1}
+.ba .tagx{position:absolute;left:12px;top:12px;background:rgba(45,45,42,.82);color:#fff;
+  font-size:10px;letter-spacing:.16em;padding:4px 11px;border-radius:999px;z-index:2;pointer-events:none}
+.ba .tagx::after{content:"BEFORE"}
+.bawrap:hover .ba .tagx{background:var(--red)}
+.bawrap:hover .ba .tagx::after{content:"AFTER"}
+.sw{position:absolute;opacity:0;width:0;height:0}
+.ba .swlab{position:absolute;right:12px;bottom:12px;z-index:2;cursor:pointer;
+  background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:999px;
+  font-size:10.5px;letter-spacing:.12em;padding:6px 14px;transition:background .3s,color .3s}
+.ba .swlab::after{content:"AFTERを見る"}
+.ba .swlab:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.sw:checked + .ba .aft{opacity:1}
+.sw:checked + .ba .tagx{background:var(--red)}
+.sw:checked + .ba .tagx::after{content:"AFTER"}
+.sw:checked + .ba .swlab::after{content:"BEFOREを見る"}
+.bawrap .cap{margin:12px 0 0;font-size:12px;color:var(--mute);letter-spacing:.04em}
+.price-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 20px;
+  margin:28px 0 0;padding:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.price-row .nm{font-size:13.5px}
+.price-row .yen{font-family:var(--mincho);font-size:28px;letter-spacing:.02em;white-space:nowrap}
+.price-row .yen i{font-style:normal;font-size:.5em;margin-left:2px}
+.price-row .mi{font-size:12px;color:var(--mute)}
+.price-row .go{margin-left:auto}
+@media(max-width:600px){.price-row .go{margin-left:0;width:100%}}
+</style>
+<div class="phead">
+  <div class="bg"><img alt="" src="https://one-hitter.jp/_img/ja/article/1333/before/800_533_2_ffffff//"></div>
+  <div class="in">
+    <p class="crumb"><a href="/">ホーム</a>　›　<a href="/feature/">特徴</a>　›　洗濯機クリーニング</p>
+    <span class="en">WASHING MACHINE</span>
+    <h1 class="mincho">黒いカスは、<br><em>槽の裏側</em>から出ます。</h1>
+    <p>市販の槽洗浄剤を毎月使っていても、汚れが出てくることがあります。回っているときは見えない面で、何が起きているのかをご覧ください。</p>
+  </div>
+</div>
+
+<section class="band"><div class="wrap">
+  <div class="split">
+    <div class="rv">
+      <p class="lead">洗っているのに、<br><em>汚れが出てくる。</em></p>
+      <div class="body">
+        <p>洗濯槽は二重構造です。<strong>内側の槽と外側の槽の間</strong>に水が回り、そこに洗剤のカスと皮脂と糸くずが溜まります。普段は見えない面です。</p>
+        <p>層になった汚れは、ある日はがれて洗濯物に出てきます。これが黒いカスの正体です。</p>
+        <p>写真のお宅は、<strong>市販の槽洗浄剤を毎月お使いでした。</strong>それでも、穴のまわりに黒い汚れが残っていました。</p>
+      </div>
+    </div>
+    <div class="bawrap rv">
+  <input type="checkbox" class="sw" id="sw1333">
+  <div class="ba">
+    <img src="https://one-hitter.jp/_img/ja/article/1333/before/800_533_2_ffffff//" alt="洗濯槽の底。黒いカスが付いた状態">
+    <img class="aft" src="https://one-hitter.jp/_img/ja/article/1333/after/800_533_2_ffffff//" alt="洗濯槽の底。洗浄後">
+    <span class="tagx"></span><label class="swlab" for="sw1333"></label>
+  </div>
+  <p class="cap">洗濯槽の底とパルセーター／洗浄前と洗浄後</p>
+</div>
+  </div>
+
+  <div class="price-row rv">
+    <span class="nm">洗濯機クリーニング（縦型・ドラム式）</span>
+    <span class="yen">17,380<i>円</i></span><span class="mi">約120分・税込</span>
+    <a class="btn ghost go" href="https://yoyaku.onehitter.jp/?src=feature_washer">空いている日を見る<span class="ar">→</span></a>
+  </div>
+  <p class="kome rv">※ 5月〜7月・12月は1台あたり3,300円が加算されます。<br>※ 機種によってはお受けできない場合があります。お見積りのお電話で型番を伺い、できない場合は先にお伝えします。</p>
+</div></section>
+
+<section class="band tint"><div class="wrap narrow">
+  <div class="body">
+    <h3 class="rv">ご自身でできること、できないこと</h3>
+    <p class="rv"><strong>月1回の槽洗浄と、使っていないときにふたを開けておくこと。</strong>これは予防に効きます。塩素系の洗浄剤は汚れを分解し、酸素系ははがします。はがす方を使うときは、浮いてきたカスをすくってください。</p>
+    <p class="rv"><strong>すでに層になった汚れは、落ちません。</strong>洗浄剤は水に触れる面にしか効かず、槽の裏にびっしり付いたものは、分解して直接こすらないと取れません。</p>
+
+    <h3 class="rv">頼む目安</h3>
+    <ul>
+      <li class="rv">槽洗浄をしても、黒いカスが出る</li>
+      <li class="rv">槽のふちや、ふたの裏に黒い点が見える</li>
+      <li class="rv">洗ったはずのタオルが、乾くと臭う</li>
+      <li class="rv">一度も分解洗浄をしたことがない</li>
+    </ul>
+
+    <h3 class="rv">ドラム式のこと</h3>
+    <p class="rv">ドラム式は構造が違うので、外し方も洗い方も変わります。<strong>機種によって、分解できるものとできないものがあります。</strong>お見積りのお電話で型番を伺います。</p>
+
+    <h3 class="rv">当日の流れ</h3>
+    <p class="rv">養生 → 槽の取り外し → 高圧洗浄 → すすぎ → 組み立て → 試運転（注水と排水の確認まで）。約120分です。<strong>外した槽の裏側は、洗う前にお見せします。</strong></p>
+  </div>
+</div></section>
+
+<div class="numband"><div class="in">
+  <div class="c rv">
+    <div class="n">98<span class="dec">.6</span><i>%</i></div>
+    <div class="t">ご家族や友人に<br><b>勧めてもよい</b></div>
+    <div class="sub">2023年1月〜2025年12月／回答209名中206名（自社アンケート）</div>
+  </div>
+  <div class="c rv">
+    <div class="n"><span class="stars">★★★★★</span> 5.0</div>
+    <div class="t">Googleクチコミ<br><b>25件すべてが★5</b></div>
+    <div class="sub">2026年10月時点／★4以下は1件もありません</div>
+  </div>
+  <div class="c rv">
+    <div class="n">0<i>円</i></div>
+    <div class="t">お見積りのあとの<br><b>追加請求</b></div>
+    <div class="sub">お出しした金額から増やしません</div>
+  </div>
+</div></div>
+<section class="cta"><div class="wrap">
+  <h2 class="mincho">洗濯物の臭いは、<br>洗剤では消えません。</h2>
+  <p>空いている日を見て、そのままご予約いただけます。入力はおよそ1分。</p>
+  <div class="acts">
+    <a class="btn primary" href="https://yoyaku.onehitter.jp/?src=feature_washer">空いている日を見る<span class="ar">→</span></a>
+    <a class="btn ghost" href="/constructed/">施工事例を見る</a>
+    <span class="tel">受付 8:00〜20:00<b>080-8043-8259</b></span>
+  </div>
+</div></section>

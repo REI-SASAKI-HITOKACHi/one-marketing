@@ -1,0 +1,124 @@
+<!-- ===================================================================
+  feature-bath … CMSの「テキスト」パーツにこのまま貼る
+  ・共通CSSは base.css（ファイル管理に置き、レイアウトの「外部CSS/JS」で読む）
+  ・ヘッダー／フッターはCMSのものを使うので、ここには入れていない
+  ・下のほうにある <style> はこのページだけのもの。消さないこと
+  =================================================================== -->
+<style>
+.bawrap{margin:0}
+.ba{position:relative;aspect-ratio:3/2;background:#e8e6e1;border-radius:3px;overflow:hidden}
+.ba img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .5s ease}
+.ba .aft{opacity:0}
+.bawrap:hover .ba .aft{opacity:1}
+.ba .tagx{position:absolute;left:12px;top:12px;background:rgba(45,45,42,.82);color:#fff;
+  font-size:10px;letter-spacing:.16em;padding:4px 11px;border-radius:999px;z-index:2;pointer-events:none}
+.ba .tagx::after{content:"BEFORE"}
+.bawrap:hover .ba .tagx{background:var(--red)}
+.bawrap:hover .ba .tagx::after{content:"AFTER"}
+.sw{position:absolute;opacity:0;width:0;height:0}
+.ba .swlab{position:absolute;right:12px;bottom:12px;z-index:2;cursor:pointer;
+  background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:999px;
+  font-size:10.5px;letter-spacing:.12em;padding:6px 14px;transition:background .3s,color .3s}
+.ba .swlab::after{content:"AFTERを見る"}
+.ba .swlab:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.sw:checked + .ba .aft{opacity:1}
+.sw:checked + .ba .tagx{background:var(--red)}
+.sw:checked + .ba .tagx::after{content:"AFTER"}
+.sw:checked + .ba .swlab::after{content:"BEFOREを見る"}
+.bawrap .cap{margin:12px 0 0;font-size:12px;color:var(--mute);letter-spacing:.04em}
+.price-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 20px;
+  margin:28px 0 0;padding:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.price-row .nm{font-size:13.5px}
+.price-row .yen{font-family:var(--mincho);font-size:28px;letter-spacing:.02em;white-space:nowrap}
+.price-row .yen i{font-style:normal;font-size:.5em;margin-left:2px}
+.price-row .mi{font-size:12px;color:var(--mute)}
+.price-row .go{margin-left:auto}
+@media(max-width:600px){.price-row .go{margin-left:0;width:100%}}
+</style>
+<div class="phead">
+  <div class="bg"><img alt="" src="yokushitsu.jpg"></div>
+  <div class="in">
+    <p class="crumb"><a href="/">ホーム</a>　›　<a href="/feature/">特徴</a>　›　浴室クリーニング</p>
+    <span class="en">BATHROOM</span>
+    <h1 class="mincho">臭いの出どころは、<br><em>普段開けない場所</em>です。</h1>
+    <p>毎日掃除をしていても臭いが戻るなら、原因は見えているところにありません。浴室で汚れが溜まるのは、決まった3か所です。</p>
+  </div>
+</div>
+
+<section class="band"><div class="wrap narrow">
+  <p class="lead rv">床も壁も洗ったのに、<br><em>翌日にはまた臭う。</em></p>
+  <div class="body">
+    <p class="rv">浴室の臭いの原因は、ひとつではありません。皮脂汚れや石けんカスが固まり、そこにカビが付きます。溜まる場所は、だいたい決まっています。</p>
+  </div>
+
+  <div class="cards" style="margin-top:34px">
+    <div class="rv"><div class="no">01</div>
+      <b>エプロンの内側</b>
+      <span>浴槽の側面を覆っているカバーです。外すと、内側は水と皮脂が回り続けた空間になっています。<strong>一度も外したことがない、というお宅が多い場所です。</strong></span></div>
+    <div class="rv"><div class="no">02</div>
+      <b>排水口の奥</b>
+      <span>ヘアキャッチャーの下には、封水のためのトラップがあります。その内側と、さらに奥の配管。髪と石けんカスが混ざったものが溜まります。</span></div>
+    <div class="rv"><div class="no">03</div>
+      <b>ドア下の通気口</b>
+      <span>浴室のドアの下にあるルーバー（羽根状の通気口）です。湿った空気が通り続け、裏側にほこりとカビが付きます。</span></div>
+  </div>
+
+  <div class="price-row rv">
+    <span class="nm">浴室クリーニング</span>
+    <span class="yen">18,480<i>円</i></span><span class="mi">約120分・税込</span>
+    <span class="nm">追い焚き配管クリーニング</span>
+    <span class="yen">19,910<i>円</i></span><span class="mi">税込</span>
+    <a class="btn ghost go" href="https://yoyaku.onehitter.jp/?src=feature_bath">空いている日を見る<span class="ar">→</span></a>
+  </div>
+  <p class="kome rv">※ 5月〜7月・12月は1箇所あたり3,300円が加算されます。<br>※ エプロンは、機種によって取り外せないものがあります。その場合は、お見積りのお電話で先にお伝えします。</p>
+</div></section>
+
+<section class="band tint"><div class="wrap narrow">
+  <div class="body">
+    <h3 class="rv">ご自身でできること、できないこと</h3>
+    <p class="rv"><strong>使ったあとの換気と、見えているところの洗浄。</strong>最後に冷水をかけて温度を下げ、水気を切ってから換気扇を回すと、カビの出方がはっきり変わります。</p>
+    <p class="rv"><strong>エプロンは、無理に外さないでください。</strong>外せる機種と外せない機種があり、固いまま力をかけると割れます。排水トラップも、構造を知らずに分解すると封水が戻らなくなることがあります。</p>
+
+    <h3 class="rv">頼む目安</h3>
+    <ul>
+      <li class="rv">掃除をしても、臭いが戻る</li>
+      <li class="rv">ピンクや黒の汚れが、すぐ出てくる</li>
+      <li class="rv">エプロンを一度も外したことがない</li>
+      <li class="rv">鏡が白くくもって、こすっても取れない</li>
+    </ul>
+
+    <h3 class="rv">追い焚き配管のこと</h3>
+    <p class="rv">追い焚き機能のある浴槽は、お湯が配管の中を往復しています。<strong>配管の内側は、どれだけ浴室を洗っても届きません。</strong>気になる場合は、浴室クリーニングと一緒にご相談ください。</p>
+
+    <h3 class="rv">当日の流れ</h3>
+    <p class="rv">養生 → エプロン・排水口・ドアルーバーの取り外し → 洗浄 → 鏡と蛇口の水垢落とし → 組み立て。約120分です。<strong>外したエプロンの内側は、洗う前にお見せします。</strong></p>
+  </div>
+  <p class="kome rv">※ 上の写真は実際にお伺いした浴室（洗浄後）です。<br>※ ビフォー／アフターの組は、素材整理の担当が決め次第ここに足します（在処は <code>docs/施工写真の在処-2026-10-20.md</code>）。</p>
+</div></section>
+
+<div class="numband"><div class="in">
+  <div class="c rv">
+    <div class="n">98<span class="dec">.6</span><i>%</i></div>
+    <div class="t">ご家族や友人に<br><b>勧めてもよい</b></div>
+    <div class="sub">2023年1月〜2025年12月／回答209名中206名（自社アンケート）</div>
+  </div>
+  <div class="c rv">
+    <div class="n"><span class="stars">★★★★★</span> 5.0</div>
+    <div class="t">Googleクチコミ<br><b>25件すべてが★5</b></div>
+    <div class="sub">2026年10月時点／★4以下は1件もありません</div>
+  </div>
+  <div class="c rv">
+    <div class="n">0<i>円</i></div>
+    <div class="t">お見積りのあとの<br><b>追加請求</b></div>
+    <div class="sub">お出しした金額から増やしません</div>
+  </div>
+</div></div>
+<section class="cta"><div class="wrap">
+  <h2 class="mincho">エプロンの内側を、<br>一度見てみませんか。</h2>
+  <p>空いている日を見て、そのままご予約いただけます。入力はおよそ1分。</p>
+  <div class="acts">
+    <a class="btn primary" href="https://yoyaku.onehitter.jp/?src=feature_bath">空いている日を見る<span class="ar">→</span></a>
+    <a class="btn ghost" href="/constructed/">施工事例を見る</a>
+    <span class="tel">受付 8:00〜20:00<b>080-8043-8259</b></span>
+  </div>
+</div></section>

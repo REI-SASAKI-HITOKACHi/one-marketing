@@ -1,0 +1,126 @@
+<!-- ===================================================================
+  feature-aircon … CMSの「テキスト」パーツにこのまま貼る
+  ・共通CSSは base.css（ファイル管理に置き、レイアウトの「外部CSS/JS」で読む）
+  ・ヘッダー／フッターはCMSのものを使うので、ここには入れていない
+  ・下のほうにある <style> はこのページだけのもの。消さないこと
+  =================================================================== -->
+<style>
+.bawrap{margin:0}
+.ba{position:relative;aspect-ratio:3/2;background:#e8e6e1;border-radius:3px;overflow:hidden}
+.ba img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .5s ease}
+.ba .aft{opacity:0}
+.bawrap:hover .ba .aft{opacity:1}
+.ba .tagx{position:absolute;left:12px;top:12px;background:rgba(45,45,42,.82);color:#fff;
+  font-size:10px;letter-spacing:.16em;padding:4px 11px;border-radius:999px;z-index:2;pointer-events:none}
+.ba .tagx::after{content:"BEFORE"}
+.bawrap:hover .ba .tagx{background:var(--red)}
+.bawrap:hover .ba .tagx::after{content:"AFTER"}
+.sw{position:absolute;opacity:0;width:0;height:0}
+.ba .swlab{position:absolute;right:12px;bottom:12px;z-index:2;cursor:pointer;
+  background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:999px;
+  font-size:10.5px;letter-spacing:.12em;padding:6px 14px;transition:background .3s,color .3s}
+.ba .swlab::after{content:"AFTERを見る"}
+.ba .swlab:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.sw:checked + .ba .aft{opacity:1}
+.sw:checked + .ba .tagx{background:var(--red)}
+.sw:checked + .ba .tagx::after{content:"AFTER"}
+.sw:checked + .ba .swlab::after{content:"BEFOREを見る"}
+.bawrap .cap{margin:12px 0 0;font-size:12px;color:var(--mute);letter-spacing:.04em}
+.price-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 20px;
+  margin:28px 0 0;padding:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.price-row .nm{font-size:13.5px}
+.price-row .yen{font-family:var(--mincho);font-size:28px;letter-spacing:.02em;white-space:nowrap}
+.price-row .yen i{font-style:normal;font-size:.5em;margin-left:2px}
+.price-row .mi{font-size:12px;color:var(--mute)}
+.price-row .go{margin-left:auto}
+@media(max-width:600px){.price-row .go{margin-left:0;width:100%}}
+</style>
+<div class="phead">
+  <div class="bg"><img alt="" src="https://one-hitter.jp/_img/ja/article/1338/before/800_533_2_ffffff//"></div>
+  <div class="in">
+    <p class="crumb"><a href="/">ホーム</a>　›　<a href="/feature/">特徴</a>　›　エアコンクリーニング</p>
+    <span class="en">AIR CONDITIONER</span>
+    <h1 class="mincho">カビは、フィルターの<br><em>奥</em>にあります。</h1>
+    <p>フィルターを洗っても臭いが消えないのは、汚れている場所が違うからです。エアコンの内部で何が起きているのかを、実際に開けた写真でご覧ください。</p>
+  </div>
+</div>
+
+<section class="band"><div class="wrap">
+  <div class="split">
+    <div class="rv">
+      <p class="lead">黒いのは、ほこりではなく<em>カビ</em>です。</p>
+      <div class="body">
+        <p>写真はカバーを外した<strong>熱交換器（アルミフィン）</strong>です。アルミの板が1mmほどの間隔で並んでいて、その溝が黒く埋まっています。</p>
+        <p>エアコンは、室内の空気を吸い込み、この熱交換器を通して冷やし（温め）、送風ファンで吹き出します。<strong>内部は結露で濡れ、吸い込んだほこりが栄養になります。</strong>カビにとって、これ以上ない条件が揃っています。</p>
+        <p>フィルターは、この手前にあります。洗っても臭いが消えないのは、汚れている場所がその奥だからです。</p>
+      </div>
+    </div>
+    <div class="bawrap rv">
+  <input type="checkbox" class="sw" id="sw1338">
+  <div class="ba">
+    <img src="https://one-hitter.jp/_img/ja/article/1338/before/800_533_2_ffffff//" alt="エアコンの熱交換器。黒い汚れが全面に付いた状態">
+    <img class="aft" src="https://one-hitter.jp/_img/ja/article/1338/after/800_533_2_ffffff//" alt="エアコンの熱交換器。洗浄後">
+    <span class="tagx"></span><label class="swlab" for="sw1338"></label>
+  </div>
+  <p class="cap">熱交換器（アルミフィン）／洗浄前と洗浄後</p>
+</div>
+  </div>
+
+  <div class="price-row rv">
+    <span class="nm">エアコンクリーニング（お掃除機能なし）</span>
+    <span class="yen">10,780<i>円</i></span><span class="mi">約60分・税込</span>
+    <span class="nm">お掃除機能付き</span>
+    <span class="yen">17,380<i>円</i></span><span class="mi">約120分・税込</span>
+    <a class="btn ghost go" href="https://yoyaku.onehitter.jp/?src=feature_aircon">空いている日を見る<span class="ar">→</span></a>
+  </div>
+  <p class="kome rv">※ 5月〜7月・12月は1台あたり3,300円が加算されます。<br>※ 室外機のクリーニングは別メニューです。お見積りのお電話でご相談ください。</p>
+</div></section>
+
+<section class="band tint"><div class="wrap narrow">
+  <div class="body">
+    <h3 class="rv">ご自身でできること、できないこと</h3>
+    <p class="rv"><strong>フィルターの洗浄と、使ったあとの送風運転。</strong>この2つは効きます。月に1〜2回フィルターを外して洗い、乾かしてから戻してください。冷房を止める前に送風を30分ほど回すと、内部が乾きます。</p>
+    <p class="rv"><strong>届くのは、ここまでです。</strong>熱交換器と送風ファンは、カバーと電装部を外さないと手が入りません。市販の洗浄スプレーは、溶けた汚れが内部に残ったり、電装部にかかって故障の原因になることがあります。</p>
+
+    <h3 class="rv">頼む目安</h3>
+    <ul>
+      <li class="rv">フィルターを洗っても、つけはじめに臭う</li>
+      <li class="rv">吹き出し口の奥に、黒い点が見える</li>
+      <li class="rv">1〜2年、内部を洗っていない</li>
+      <li class="rv">咳が出る、目がしょぼしょぼする、というご家族がいる</li>
+    </ul>
+
+    <h3 class="rv">電気代のこと</h3>
+    <p class="rv">汚れが溜まると風の通り道が狭くなり、同じ温度にするのに余計に電力を使います。<strong>フィン（熱交換器）とフィルターの清掃で、消費電力の5〜10%の削減が期待できる</strong>とされています（<a href="https://j-net21.smrj.go.jp/development/energyeff/Q1262.html" target="_blank" rel="noopener">中小企業基盤整備機構 J-Net21</a>）。汚れ方とお使いの環境によって変わります。</p>
+
+    <h3 class="rv">当日の流れ</h3>
+    <p class="rv">養生 → カバーと送風ファンの取り外し → 高圧洗浄 → すすぎ → 組み立て → 試運転。<strong>洗い出した汚水は、そのままお見せします。</strong>お掃除機能なしで約60分、お掃除機能付きで約120分です。</p>
+  </div>
+</div></section>
+
+<div class="numband"><div class="in">
+  <div class="c rv">
+    <div class="n">98<span class="dec">.6</span><i>%</i></div>
+    <div class="t">ご家族や友人に<br><b>勧めてもよい</b></div>
+    <div class="sub">2023年1月〜2025年12月／回答209名中206名（自社アンケート）</div>
+  </div>
+  <div class="c rv">
+    <div class="n"><span class="stars">★★★★★</span> 5.0</div>
+    <div class="t">Googleクチコミ<br><b>25件すべてが★5</b></div>
+    <div class="sub">2026年10月時点／★4以下は1件もありません</div>
+  </div>
+  <div class="c rv">
+    <div class="n">0<i>円</i></div>
+    <div class="t">お見積りのあとの<br><b>追加請求</b></div>
+    <div class="sub">お出しした金額から増やしません</div>
+  </div>
+</div></div>
+<section class="cta"><div class="wrap">
+  <h2 class="mincho">エアコンは、<br>1台からお受けしています。</h2>
+  <p>空いている日を見て、そのままご予約いただけます。入力はおよそ1分。</p>
+  <div class="acts">
+    <a class="btn primary" href="https://yoyaku.onehitter.jp/?src=feature_aircon">空いている日を見る<span class="ar">→</span></a>
+    <a class="btn ghost" href="/constructed/">施工事例を見る</a>
+    <span class="tel">受付 8:00〜20:00<b>080-8043-8259</b></span>
+  </div>
+</div></section>

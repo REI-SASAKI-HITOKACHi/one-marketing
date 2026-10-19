@@ -1,0 +1,143 @@
+<!-- ===================================================================
+  feature-kitchen … CMSの「テキスト」パーツにこのまま貼る
+  ・共通CSSは base.css（ファイル管理に置き、レイアウトの「外部CSS/JS」で読む）
+  ・ヘッダー／フッターはCMSのものを使うので、ここには入れていない
+  ・下のほうにある <style> はこのページだけのもの。消さないこと
+  =================================================================== -->
+<style>
+.bawrap{margin:0}
+.ba{position:relative;aspect-ratio:3/2;background:#e8e6e1;border-radius:3px;overflow:hidden}
+.ba img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .5s ease}
+.ba .aft{opacity:0}
+.bawrap:hover .ba .aft{opacity:1}
+.ba .tagx{position:absolute;left:12px;top:12px;background:rgba(45,45,42,.82);color:#fff;
+  font-size:10px;letter-spacing:.16em;padding:4px 11px;border-radius:999px;z-index:2;pointer-events:none}
+.ba .tagx::after{content:"BEFORE"}
+.bawrap:hover .ba .tagx{background:var(--red)}
+.bawrap:hover .ba .tagx::after{content:"AFTER"}
+.sw{position:absolute;opacity:0;width:0;height:0}
+.ba .swlab{position:absolute;right:12px;bottom:12px;z-index:2;cursor:pointer;
+  background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:999px;
+  font-size:10.5px;letter-spacing:.12em;padding:6px 14px;transition:background .3s,color .3s}
+.ba .swlab::after{content:"AFTERを見る"}
+.ba .swlab:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.sw:checked + .ba .aft{opacity:1}
+.sw:checked + .ba .tagx{background:var(--red)}
+.sw:checked + .ba .tagx::after{content:"AFTER"}
+.sw:checked + .ba .swlab::after{content:"BEFOREを見る"}
+.bawrap .cap{margin:12px 0 0;font-size:12px;color:var(--mute);letter-spacing:.04em}
+.price-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 20px;
+  margin:28px 0 0;padding:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.price-row .nm{font-size:13.5px}
+.price-row .yen{font-family:var(--mincho);font-size:28px;letter-spacing:.02em;white-space:nowrap}
+.price-row .yen i{font-style:normal;font-size:.5em;margin-left:2px}
+.price-row .mi{font-size:12px;color:var(--mute)}
+.price-row .go{margin-left:auto}
+@media(max-width:600px){.price-row .go{margin-left:0;width:100%}}
+</style>
+<div class="phead">
+  <div class="bg"><img alt="" src="https://one-hitter.jp/_img/ja/article/1331/before/800_533_2_ffffff//"></div>
+  <div class="in">
+    <p class="crumb"><a href="/">ホーム</a>　›　<a href="/feature/">特徴</a>　›　キッチンクリーニング</p>
+    <span class="en">KITCHEN</span>
+    <h1 class="mincho">吸わなくなった換気扇と、<br><em>白いまま</em>のシンク。</h1>
+    <p>キッチンの困りごとは、たいてい2つです。換気扇の奥のファンと、こすっても落ちない水垢。どちらも、落とし方が決まっています。</p>
+  </div>
+</div>
+
+<section class="band"><div class="wrap">
+  <div class="split">
+    <div class="rv">
+      <p class="lead">羽根の間が<em>ふさがる</em>と、<br>回っていても風は通りません。</p>
+      <div class="body">
+        <p>整流板の奥にあるのが<strong>シロッコファン</strong>です。細い羽根が何十枚も並んだ円筒で、その1枚ずつに油とほこりが固まります。</p>
+        <p>羽根の間が埋まると、モーターは同じように回っていても、空気が通る隙間がありません。<strong>「吸わなくなった」と感じるのは、だいたいこれです。</strong></p>
+        <p>油は時間が経つほど固くなり、最後は樹脂のようになります。熱と洗剤と時間をかけないと緩みません。</p>
+      </div>
+    </div>
+    <div class="bawrap rv">
+  <input type="checkbox" class="sw" id="sw1331">
+  <div class="ba">
+    <img src="https://one-hitter.jp/_img/ja/article/1331/before/800_533_2_ffffff//" alt="レンジフードのシロッコファン。油とほこりが固まった状態">
+    <img class="aft" src="https://one-hitter.jp/_img/ja/article/1331/after/800_533_2_ffffff//" alt="レンジフードのシロッコファン。洗浄後">
+    <span class="tagx"></span><label class="swlab" for="sw1331"></label>
+  </div>
+  <p class="cap">シロッコファン／洗浄前と洗浄後</p>
+</div>
+  </div>
+
+  <div class="split" style="margin-top:clamp(40px,5vw,72px)">
+    <div class="bawrap rv">
+  <input type="checkbox" class="sw" id="sw1296">
+  <div class="ba">
+    <img src="https://one-hitter.jp/_img/ja/article/1296/before/800_533_2_ffffff//" alt="キッチンのシンク。白くくもった状態">
+    <img class="aft" src="https://one-hitter.jp/_img/ja/article/1296/after/800_533_2_ffffff//" alt="キッチンのシンク。磨いたあと">
+    <span class="tagx"></span><label class="swlab" for="sw1296"></label>
+  </div>
+  <p class="cap">シンク／洗浄前と洗浄後</p>
+</div>
+    <div class="rv">
+      <p class="lead">白いくもりは、汚れではなく<br><em>水そのもの</em>です。</p>
+      <div class="body">
+        <p>水垢は、水道水に含まれるミネラルが乾いて固まったものです。<strong>油汚れとは性質が逆で、中性洗剤では落ちません。</strong></p>
+        <p>力まかせにこすると、ステンレスに細かい傷が入り、かえって曇って見えるようになります。</p>
+        <p>落とし方は決まっています。性質に合った洗剤で緩めてから、傷の入らない道具で削ぎます。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="price-row rv">
+    <span class="nm">レンジフードクリーニング</span>
+    <span class="yen">18,480<i>円</i></span><span class="mi">約90分・税込／プロペラ式は10,780円</span>
+    <span class="nm">キッチンクリーニング</span>
+    <span class="yen">18,480<i>円</i></span><span class="mi">約120分・税込</span>
+    <a class="btn ghost go" href="https://yoyaku.onehitter.jp/?src=feature_kitchen">空いている日を見る<span class="ar">→</span></a>
+  </div>
+  <p class="kome rv">※ 5月〜7月・12月は1台・1箇所あたり3,300円が加算されます。<br>※ コンロクリーニングは10,780円。<strong>キッチンクリーニングとご一緒なら5,500円</strong>です。</p>
+</div></section>
+
+<section class="band tint"><div class="wrap narrow">
+  <div class="body">
+    <h3 class="rv">ご自身でできること、できないこと</h3>
+    <p class="rv"><strong>整流板とフィルターの洗浄、シンクの水気の拭き取り。</strong>とくに後者は効きます。使ったあとに水気を拭くだけで、水垢はほとんど付きません。</p>
+    <p class="rv"><strong>ファンは、外さないと洗えません。</strong>機種によって留め方が違い、戻すときの向きも決まっています。無理に外すと羽根が変形し、回転のバランスが崩れて音が出ます。</p>
+
+    <h3 class="rv">頼む目安</h3>
+    <ul>
+      <li class="rv">換気扇の音が大きくなった／吸わなくなった</li>
+      <li class="rv">2年以上、ファンを外して洗っていない</li>
+      <li class="rv">シンクをこすっても白さが残る</li>
+      <li class="rv">水栓の根元や、排水口の奥に手が届かない</li>
+    </ul>
+
+    <h3 class="rv">当日の流れ</h3>
+    <p class="rv">養生 → 整流板・フィルター・ファンの取り外し → つけ置きと洗浄 → すすぎ → 組み立て → 試運転。レンジフードで約90分です。<strong>外したファンは、洗う前にお見せします。</strong></p>
+  </div>
+</div></section>
+
+<div class="numband"><div class="in">
+  <div class="c rv">
+    <div class="n">98<span class="dec">.6</span><i>%</i></div>
+    <div class="t">ご家族や友人に<br><b>勧めてもよい</b></div>
+    <div class="sub">2023年1月〜2025年12月／回答209名中206名（自社アンケート）</div>
+  </div>
+  <div class="c rv">
+    <div class="n"><span class="stars">★★★★★</span> 5.0</div>
+    <div class="t">Googleクチコミ<br><b>25件すべてが★5</b></div>
+    <div class="sub">2026年10月時点／★4以下は1件もありません</div>
+  </div>
+  <div class="c rv">
+    <div class="n">0<i>円</i></div>
+    <div class="t">お見積りのあとの<br><b>追加請求</b></div>
+    <div class="sub">お出しした金額から増やしません</div>
+  </div>
+</div></div>
+<section class="cta"><div class="wrap">
+  <h2 class="mincho">換気扇だけ、<br>シンクだけでも構いません。</h2>
+  <p>空いている日を見て、そのままご予約いただけます。入力はおよそ1分。</p>
+  <div class="acts">
+    <a class="btn primary" href="https://yoyaku.onehitter.jp/?src=feature_kitchen">空いている日を見る<span class="ar">→</span></a>
+    <a class="btn ghost" href="/constructed/">施工事例を見る</a>
+    <span class="tel">受付 8:00〜20:00<b>080-8043-8259</b></span>
+  </div>
+</div></section>
