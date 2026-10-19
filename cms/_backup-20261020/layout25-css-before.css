@@ -1,0 +1,358 @@
+table {
+    border-collapse: collapse;
+}
+/* table th, table td {
+    border: 1px solid transparent;
+} */
+
+/* フォーム用 */
+.form-table .table {
+  border-collapse: collapse;
+}
+
+.form-table table p {
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  margin: 60px auto 40px;
+}
+
+input[type="submit"],
+input[type="text"],
+select,
+textarea,
+button {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  outline: none;
+  border: none;
+}
+
+
+input[type="text"],
+textarea {
+  background: #fff;
+  border:1px solid #eee;
+  display: inline-block;
+  font-size: 16px;
+  padding: 12px 15px;
+  width: 480px;
+  transition: 0.8s;
+  border-radius: 0;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+  background: #e9f5fb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+textarea[name="content"] {
+  display: inline-block;
+  width: 100%;
+  height: 200px;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #ccc;
+}
+
+::-webkit-input-placeholder {
+  color: #ccc;
+  opacity: 1;
+}
+
+::-moz-placeholder {
+  color: #ccc;
+  opacity: 1;
+}
+
+:-ms-input-placeholder {
+  color: #ccc;
+  opacity: 1;
+}
+
+.form-table{
+    background: #f5f5f5;
+    {=css('background',rgba(resource('color','background'),1))=}
+    padding: 2%;
+    border-radius: 12px;
+}
+
+.form-table table {
+	width: 100%;
+	margin: 0 auto 20px;
+	border-collapse: collapse;
+	table-layout: fixed;
+}
+
+.form-table table tr {
+    box-sizing: border-box;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.form-table table tr th {
+    background: #cecece;
+    {=css('background',rgba(resource('color','accent'),1))=}
+    color: #313131;
+    {=css('color',rgba(resource('color','accent_text'),1))=}
+	width: 25%;
+	margin-right:5%;
+	padding: 15px 20px;
+	font-weight: bold;
+	vertical-align: middle;
+	text-align:left;
+	border-radius: 12px;
+	min-width: 250px;
+}
+.form-table table tr td {
+    border-top: 1px solid ;
+    border-color: #dddddd;
+    {=css('border-color',resource('color','accent'))=}
+    background: #ffffff;
+    color: #313131;
+	width: 70%;
+	padding: 15px 20px;
+	vertical-align: middle;
+	border-bottom-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+	min-width: 785px;
+}
+@media (max-width: 1169px) {
+    .form-table table tr th {
+        min-width: auto;
+    }
+    .form-table table tr td {
+        min-width: auto;
+    }
+}
+@media (max-width: 768px) {
+    .form-table {
+        background: none;
+    }
+    .form-table table tr th {
+        display: block;
+        width: 100%;
+        border-bottom: none;
+        text-align:left;
+        margin-bottom: 5px;
+        background: none;
+        color: #2d65af;
+        {=css('color',rgba(resource('color','accent'),1))=}
+        padding: 0;
+        min-width: auto;
+    }
+    .form-table table tr td {
+        display: block;
+        width: 100%;
+        padding: 10px 2%;
+        border-bottom: none;
+        text-align:left;
+    	border-bottom-right-radius: initial;
+        border-bottom-left-radius: initial;
+        min-width: auto;
+    }
+    .form-table table tr:last-child td {
+        border-bottom: 1px solid;
+        border-radius: none;
+    }
+}
+
+input.owlet-input-name-sei {
+    margin-right: 10px;
+}
+
+input.owlet-input-name-sei,input.owlet-input-name-mei {
+    width: 30%;
+}
+
+input.owlet-input-tel1, input.owlet-input-tel2, input.owlet-input-tel3 {
+    width: 30%;
+}
+
+input.owlet-input-tel1 {
+    margin-right: 5px;
+}
+
+input.owlet-input-tel2 {
+    margin: 0 5px;
+}
+
+input.owlet-input-tel3 {
+    margin-left: 5px;
+}
+
+.owlet-rules.owlet-rules-6 {
+    width: 800px;
+    margin: 0 auto;
+    max-width: 100%;
+    padding-top: 50px;
+}
+
+.owlet-rules-title {
+    text-align: center;
+    font-weight: bold;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.owlet-rules-body {
+    height: 300px;
+    overflow: auto;
+    border: 1px solid;
+    padding: 30px;
+    background: #fff;
+}
+
+.owlet-rules-agree {
+    margin-top: 10px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.form-table td label{
+    margin-right: 5px;
+}
+
+.form_button {
+    padding-top: 50px;
+    text-align: center;
+    display : -webkit-box;
+    display : -webkit-flex;
+    display : -ms-flexbox;
+    display : flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+}
+
+.form_button input {
+    display: inline-block;
+    padding: 5px 20px;
+    text-decoration: none;
+    color: #f2b043;
+    border: solid 2px;
+    border-color: #f2b043;
+    border-radius: 3px;
+    transition: .4s;
+    font-size: 20px;
+    background: #fff;
+}
+.form_button input:hover {
+    background: {=resource('color','accent')=};
+    color: #fff;
+    cursor: pointer;
+}
+
+.form_button a {
+    display: inline-block;
+    padding: 2px 10px;
+    text-decoration: none;
+    color: #f2b043;
+    border: solid 2px;
+    border-color: #f2b043;
+    border-radius: 3px;
+    transition: .4s;
+    font-size: 16px;
+    background: #fff;
+    margin-right: 10px;
+}
+.form_button a:hover {
+    background: {=resource('color','accent')=};
+    color: #fff;
+}
+
+@media screen and (max-width: 768px) {
+    .form-table{
+        padding-top: 100px;
+    }
+    .form-table table{
+        width: 96%;
+        margin: 0 auto;
+    }
+    .form-table th,.form-table td {
+        display: block;
+        width: 80%;
+        margin: 0 auto;
+        border-bottom: none;
+    }
+    input[type="text"], textarea{
+        width: 100%;
+    }
+    input.owlet-input-name-sei,input.owlet-input-name-mei {
+            width: 30%;
+        }
+
+        input.owlet-input-tel1, input.owlet-input-tel2, input.owlet-input-tel3 {
+            width: 30%;
+        }
+}
+
+table.input_calendar {
+	width: 100%;
+	margin: 0 auto 20px;
+	border-collapse: collapse;
+	table-layout: fixed;
+}
+table.input_calendar tr {
+    box-sizing: border-box;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+table.input_calendar tr th {
+    background: #cecece;
+    {=css('background',rgba(resource('color','accent'),1))=}
+    color: #313131;
+    {=css('color',rgba(resource('color','accent_text'),1))=}
+	width: 25%;
+	margin-right:5%;
+	padding: 15px 20px;
+	font-weight: bold;
+	vertical-align: middle;
+	text-align:left;
+	border-radius: 0;
+	min-width: 250px;
+}
+table.input_calendar tr td {
+    border-top: 1px solid ;
+    border-color: #dddddd;
+    {=css('border-color',resource('color','accent'))=}
+    background: #ffffff;
+    color: #313131;
+	width: 70%;
+	padding: 15px 20px;
+	vertical-align: middle;
+	border-bottom-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+	min-width: 785px;
+}
