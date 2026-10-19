@@ -487,6 +487,8 @@ def main() -> None:
         targets = [e for e in q if e["status"] != "posted"]
         for e in targets:
             e["_due"] = "予定時刻を過ぎている→本番なら出す" if (e["status"] == "approved" and due(e, now)) else "まだ出さない"
+            if e["status"] == "draft" and due(e, now):   # 承認の見落とし防止（2026-10-19 w06-1 が承認済みなのに draft のまま出なかった）
+                e["_due"] = "⚠ draft のまま予定を過ぎている。依頼を出した cmo の返信（承認）を掲示板で確認すること"
     else:
         targets = [e for e in q if e["status"] == "approved" and due(e, now)]
     print(f"今 {now.isoformat(timespec='minutes')}／対象 {len(targets)}件" + ("（dry-run）" if a.dry_run else ""))
