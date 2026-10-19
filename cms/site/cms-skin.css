@@ -125,6 +125,11 @@ html body main section:not([data-lib="29402"]) .-w-font_title2{
   letter-spacing:.02em;
 }
 
+/* 段落の間。CMSは本文を <p> で並べて出すので、間が無いと文字の塊に見える。 */
+main .-w-text p + p,
+main .-w-txt p + p,
+main .-w-textArea p + p{ margin-top:1.5em; }
+
 /* ---- 料金表 ---------------------------------------------------- */
 .-w-textArea table{
   width:100%;
