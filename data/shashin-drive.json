@@ -5,7 +5,24 @@
   "6abb7d2856b1032653b0f4d5",
   "6abb7f3c56995c02d51305f3",
   "6abb8abb22492b1510a4e0c0",
-  "6abb8ac237ce57100ac5f3b0"
+  "6abb8ac237ce57100ac5f3b0",
+  "6abb8ad426c95300ba30e547",
+  "6abdd007b2021e853e539a3d",
+  "6abdd0e38000728d13cbb06b",
+  "6abdd0e9ec7f248b2a0f2523",
+  "6ac1ecbbfcb72862fd36e863",
+  "6ac1ecbf179bf55b94bc2fca",
+  "6ac1ed4b9ce621715369446c",
+  "6ac1ed50179bf55cfcbc2fc2",
+  "6ac1edf3075778694691c9d9",
+  "6ac1edf9b7a4d467561183ef",
+  "6ac1edfdf27a90726c7bf193",
+  "6ac48c268f00c7490c822f0b",
+  "6ac48c2a4ffee74aa9900330",
+  "6ac73ce38595a31b9bd7d9e2",
+  "6ac8837e9c7e21c19047aa01",
+  "6ac8838359216c0f7993c9ca",
+  "6ac88389acf49d1dc59bdc09"
  ],
  "okyaku": {
   "魚橋和也": {
@@ -135,7 +152,7 @@
   },
   "善方洋美": {
    "url": "https://drive.google.com/drive/folders/1rR8_nFXBagBdH_F2_T_8RWWbTZ86hE5q",
-   "saigo": "2026-09-05",
+   "saigo": "2026-10-03",
    "id": "C0484"
   },
   "加藤娘さん": {
@@ -187,6 +204,41 @@
    "url": "https://drive.google.com/drive/folders/1s-vziR3gPaNzA11EUA2uSpsWFqqy2EyQ",
    "saigo": "2026-09-26",
    "id": "C0376"
+  },
+  "山来太一": {
+   "url": "https://drive.google.com/drive/folders/1RsaYJzMIjGDDbZm6tVQRKLZfpIqkAssc",
+   "saigo": "2026-10-01",
+   "id": "C0966"
+  },
+  "黒神奈美": {
+   "url": "https://drive.google.com/drive/folders/1urdh8mXHeGwp-Fy14qErulfziTiJ4M03",
+   "saigo": "2026-09-30",
+   "id": "C0475"
+  },
+  "小杉幸典": {
+   "url": "https://drive.google.com/drive/folders/1oGf1InMZiWcombqIWcRaZhmFVnbzzEIw",
+   "saigo": "2026-10-04",
+   "id": "C0299"
+  },
+  "長田夏那子": {
+   "url": "https://drive.google.com/drive/folders/1oz1e5brU_UnkUxO9VulisaDG6RVzCo39",
+   "saigo": "2026-10-04",
+   "id": "C0967"
+  },
+  "山本美佑紀": {
+   "url": "https://drive.google.com/drive/folders/1B9_yUD00nTawR9-p5hAHdWeo4XRLxVmP",
+   "saigo": "2026-10-06",
+   "id": "C0511"
+  },
+  "ニッセーデリカ": {
+   "url": "https://drive.google.com/drive/folders/1g2FTHT_4kmcKPO6u9W0J4knKB3NY9wKQ",
+   "saigo": "2026-10-08",
+   "id": "C0969"
+  },
+  "鈴木": {
+   "url": "https://drive.google.com/drive/folders/1Nij8ANzlVlCBZRdRNHDbEhekzrLKboWt",
+   "saigo": "2026-10-09",
+   "id": "C0968"
   }
  },
  "temochi": {
@@ -1004,124 +1056,152 @@
   "10xaK7ah6PSQWjpZDGYr50fci-uZPRD9t": "1REOW1sr3cY_yitGHkAq4_XbGVClHtyqC"
  },
  "machi": {
-  "6abb8ad426c95300ba30e547": {
-   "na": "株式会社レジェンド",
-   "hi": "2026-09-26",
-   "id": "C0376",
-   "f_ok": "1s-vziR3gPaNzA11EUA2uSpsWFqqy2EyQ",
-   "n": 20
+  "6acb44cb1eb751a702e24207": {
+   "na": "高畠美樹",
+   "hi": "2026-10-11",
+   "id": "C0002",
+   "f_ok": "1ndg5NSqjJGy4AIfRKXdAtksaHt8r8BJ0",
+   "n": 8
   },
-  "6abdd007b2021e853e539a3d": {
-   "na": "山来太一",
-   "hi": "2026-10-01",
-   "id": "C0966",
-   "f_ok": "1RsaYJzMIjGDDbZm6tVQRKLZfpIqkAssc",
-   "n": 18
+  "6acde520817691886885a83d": {
+   "na": "株式会社才木工業",
+   "hi": "2026-10-13",
+   "id": "C0193",
+   "f_ok": "1kMGvb8P5RsB4-O_KwC7N_UdekV7Q5ifH",
+   "n": 12
   },
-  "6abdd0e38000728d13cbb06b": {
-   "na": "黒神奈美",
-   "hi": "2026-09-30",
-   "id": "C0475",
-   "f_ok": "1urdh8mXHeGwp-Fy14qErulfziTiJ4M03",
-   "n": 19
+  "6acde528eacb984a3bc03596": {
+   "na": "株式会社才木工業",
+   "hi": "2026-10-13",
+   "id": "C0193",
+   "f_ok": "1kMGvb8P5RsB4-O_KwC7N_UdekV7Q5ifH",
+   "n": 9
   },
-  "6abdd0e9ec7f248b2a0f2523": {
-   "na": "黒神奈美",
-   "hi": "2026-09-30",
-   "id": "C0475",
-   "f_ok": "1urdh8mXHeGwp-Fy14qErulfziTiJ4M03",
-   "n": 7
-  },
-  "6ac1ecbbfcb72862fd36e863": {
-   "na": "小杉幸典",
-   "hi": "2026-10-04",
-   "id": "C0299",
-   "f_ok": "1oGf1InMZiWcombqIWcRaZhmFVnbzzEIw",
-   "n": 15
-  },
-  "6ac1ecbf179bf55b94bc2fca": {
-   "na": "小杉幸典",
-   "hi": "2026-10-04",
-   "id": "C0299",
-   "f_ok": "1oGf1InMZiWcombqIWcRaZhmFVnbzzEIw",
-   "n": 7
-  },
-  "6ac1ed4b9ce621715369446c": {
-   "na": "善方洋美",
-   "hi": "2026-10-03",
-   "id": "C0484",
-   "f_ok": "1rR8_nFXBagBdH_F2_T_8RWWbTZ86hE5q",
-   "n": 20
-  },
-  "6ac1ed50179bf55cfcbc2fc2": {
-   "na": "善方洋美",
-   "hi": "2026-10-03",
-   "id": "C0484",
-   "f_ok": "1rR8_nFXBagBdH_F2_T_8RWWbTZ86hE5q",
+  "6acde530dcff1d43273ec3e6": {
+   "na": "株式会社才木工業",
+   "hi": "2026-10-13",
+   "id": "C0193",
+   "f_ok": "1kMGvb8P5RsB4-O_KwC7N_UdekV7Q5ifH",
    "n": 10
   },
-  "6ac1edf3075778694691c9d9": {
-   "na": "長田夏那子",
-   "hi": "2026-10-04",
-   "id": "C0967",
-   "f_ok": "1oz1e5brU_UnkUxO9VulisaDG6RVzCo39",
-   "n": 18
-  },
-  "6ac1edf9b7a4d467561183ef": {
-   "na": "長田夏那子",
-   "hi": "2026-10-04",
-   "id": "C0967",
-   "f_ok": "1oz1e5brU_UnkUxO9VulisaDG6RVzCo39",
-   "n": 19
-  },
-  "6ac1edfdf27a90726c7bf193": {
-   "na": "長田夏那子",
-   "hi": "2026-10-04",
-   "id": "C0967",
-   "f_ok": "1oz1e5brU_UnkUxO9VulisaDG6RVzCo39",
-   "n": 8
-  },
-  "6ac48c268f00c7490c822f0b": {
-   "na": "山本美佑紀",
-   "hi": "2026-10-06",
-   "id": "C0511",
-   "f_ok": "1B9_yUD00nTawR9-p5hAHdWeo4XRLxVmP",
-   "n": 18
-  },
-  "6ac48c2a4ffee74aa9900330": {
-   "na": "山本美佑紀",
-   "hi": "2026-10-06",
-   "id": "C0511",
-   "f_ok": "1B9_yUD00nTawR9-p5hAHdWeo4XRLxVmP",
-   "n": 8
-  },
-  "6ac73ce38595a31b9bd7d9e2": {
-   "na": "ニッセーデリカ",
-   "hi": "2026-10-08",
-   "id": "C0969",
-   "f_ok": "1g2FTHT_4kmcKPO6u9W0J4knKB3NY9wKQ",
-   "n": 5
-  },
-  "6ac8837e9c7e21c19047aa01": {
-   "na": "鈴木",
-   "hi": "2026-10-09",
-   "id": "C0968",
-   "f_ok": "1Nij8ANzlVlCBZRdRNHDbEhekzrLKboWt",
-   "n": 17
-  },
-  "6ac8838359216c0f7993c9ca": {
-   "na": "鈴木",
-   "hi": "2026-10-09",
-   "id": "C0968",
-   "f_ok": "1Nij8ANzlVlCBZRdRNHDbEhekzrLKboWt",
+  "6acde538f15dd4da3895905a": {
+   "na": "株式会社才木工業",
+   "hi": "2026-10-13",
+   "id": "C0193",
+   "f_ok": "1kMGvb8P5RsB4-O_KwC7N_UdekV7Q5ifH",
    "n": 13
   },
-  "6ac88389acf49d1dc59bdc09": {
-   "na": "鈴木",
-   "hi": "2026-10-09",
-   "id": "C0968",
-   "f_ok": "1Nij8ANzlVlCBZRdRNHDbEhekzrLKboWt",
-   "n": 15
+  "6acef4025bb16105acf767b0": {
+   "na": "法龍寺",
+   "hi": "2026-10-14",
+   "id": "C0246",
+   "f_ok": "1pqip18mBJr-OgbsYVv20w5zKyzS8cdJ8",
+   "n": 17
+  },
+  "6acef40cb1ab8aab7fdcd945": {
+   "na": "法龍寺",
+   "hi": "2026-10-14",
+   "id": "C0246",
+   "f_ok": "1pqip18mBJr-OgbsYVv20w5zKyzS8cdJ8",
+   "n": 19
+  },
+  "6acf21ce530c5d2e23125a11": {
+   "na": "小黒",
+   "hi": "2026-10-14",
+   "id": "C0724",
+   "f_ok": "1VQg4Rr1oy_C_nDEIqfreR7d-I1YLZ6qU",
+   "n": 11
+  },
+  "6ad03f536e827cf0dc19407a": {
+   "na": "上田敦子",
+   "hi": "2026-10-15",
+   "id": "C0025",
+   "f_ok": "1uAGnAc3OHnLCTOuje7lNN_rC7dyvQaHs",
+   "n": 20
+  },
+  "6ad03f599d9a3dece4632da6": {
+   "na": "上田敦子",
+   "hi": "2026-10-15",
+   "id": "C0025",
+   "f_ok": "1uAGnAc3OHnLCTOuje7lNN_rC7dyvQaHs",
+   "n": 20
+  },
+  "6ad03f5dbc760ab518244c45": {
+   "na": "上田敦子",
+   "hi": "2026-10-15",
+   "id": "C0025",
+   "f_ok": "1uAGnAc3OHnLCTOuje7lNN_rC7dyvQaHs",
+   "n": 10
+  },
+  "6ad198e5c517566c06a89165": {
+   "na": "東美和子",
+   "hi": "2026-10-16",
+   "id": "C0512",
+   "f_ok": "1BVbBwSfsfAw5lR0x5jYFYfvtzGQpRTxl",
+   "n": 19
+  },
+  "6ad198ecc3b40c0fbb4e32a5": {
+   "na": "東美和子",
+   "hi": "2026-10-16",
+   "id": "C0512",
+   "f_ok": "1BVbBwSfsfAw5lR0x5jYFYfvtzGQpRTxl",
+   "n": 17
+  },
+  "6ad198ef66f08eb250f3bbbb": {
+   "na": "東美和子",
+   "hi": "2026-10-16",
+   "id": "C0512",
+   "f_ok": "1BVbBwSfsfAw5lR0x5jYFYfvtzGQpRTxl",
+   "n": 6
+  },
+  "6ad3355dff5703258c1e717b": {
+   "na": "小関裕子",
+   "hi": "2026-10-17",
+   "id": "C0964",
+   "f_ok": "1Or02tq90L05UwBDHWKi-Xiq3skj9WkGm",
+   "n": 19
+  },
+  "6ad33563bf31c2a3587b8eb1": {
+   "na": "小関裕子",
+   "hi": "2026-10-17",
+   "id": "C0964",
+   "f_ok": "1Or02tq90L05UwBDHWKi-Xiq3skj9WkGm",
+   "n": 18
+  },
+  "6ad335669c62517754d3d57d": {
+   "na": "小関裕子",
+   "hi": "2026-10-17",
+   "id": "C0964",
+   "f_ok": "1Or02tq90L05UwBDHWKi-Xiq3skj9WkGm",
+   "n": 9
+  },
+  "6ad43aa7e4e343af4f98f2a1": {
+   "na": "久木元喜恵",
+   "hi": "2026-10-18",
+   "id": "C0978",
+   "f_ok": "1JZIWO1GNqQMJltMGl_kjv8YMD0uHYf8G",
+   "n": 16
+  },
+  "6ad4579a354ab3311afc0d75": {
+   "na": "藤巻考敏",
+   "hi": "2026-10-18",
+   "id": "C0970",
+   "f_ok": "1hnmMYe1iklOsk2rnUvwuwHGpF9rKfgxg",
+   "n": 10
+  },
+  "6ad47d6c659288efd75a4dc6": {
+   "na": "折田昌吾",
+   "hi": "2026-10-18",
+   "id": "C0971",
+   "f_ok": "1h_L3drbMxRTU4w8kosxRUpQDDzK8Vouv",
+   "n": 20
+  },
+  "6ad47d6d80bf3951b698f2a3": {
+   "na": "折田昌吾",
+   "hi": "2026-10-18",
+   "id": "C0971",
+   "f_ok": "1h_L3drbMxRTU4w8kosxRUpQDDzK8Vouv",
+   "n": 1
   }
  }
 }
