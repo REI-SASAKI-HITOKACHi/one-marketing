@@ -1,0 +1,76 @@
+<!-- トップページ mv の先頭に入れている「テキスト」パーツ 43406。
+     打ち合わせで決めた「動きのあるヒーロー」。JavaScriptは使っていません。
+     時間（2026-10-19 オーナー指示）：文字3.5秒、背景まで込みで5秒
+       0.00s 小見出し／0.45s 1文字目 … 100ms刻み … 3.50s 20文字目
+       2.60s 幕が右へ引きはじめ → 4.20s 引き終わる
+       2.70s 背景がぼけから戻りはじめ → 5.00s 戻りきる
+       3.00s 本文／3.30s 下線・ボタン
+     旧MV（42923 TOP_MV_smart）は非表示にしてあります（98.8%の画像を含むため）。 -->
+<section class="oh-hero">
+  <style>
+    .oh-hero{ position:relative; min-height:min(92vh,760px); display:flex; align-items:center; overflow:hidden; background:#f8f7f4; }
+    .oh-hero .oh-hero__bg{ position:absolute; inset:0; z-index:0; }
+    .oh-hero .oh-hero__bg::after{ content:""; position:absolute; inset:0;
+      background:linear-gradient(100deg,rgba(248,247,244,.97) 0%,rgba(248,247,244,.88) 42%,rgba(248,247,244,.25) 72%,rgba(248,247,244,.1) 100%); }
+    .oh-hero .oh-hero__bg img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .oh-hero .oh-hero__veil{ position:absolute; inset:0; z-index:1; background:#f8f7f4; transform-origin:right; }
+    .oh-hero .oh-hero__in{ position:relative; z-index:2; width:100%; max-width:1120px; margin:0 auto; padding:172px 28px 110px; box-sizing:border-box; }
+    .oh-hero .oh-hero__eyebrow{ display:inline-flex; align-items:center; gap:10px; font-size:11.5px; letter-spacing:.2em; color:#d94739; font-weight:700; margin:0 0 26px; }
+    .oh-hero .oh-hero__eyebrow::before{ content:""; width:34px; height:1px; background:#d94739; }
+    .oh-hero h1{ margin:0 0 26px; font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif; font-weight:400;
+      font-size:clamp(30px,5.2vw,58px); line-height:1.5; letter-spacing:.08em; color:#2d2d2a; }
+    .oh-hero h1 .em{ position:relative; white-space:nowrap; }
+    .oh-hero h1 .em::after{ content:""; position:absolute; left:-.04em; right:-.04em; bottom:.1em; height:.36em; background:rgba(217,71,57,.15); z-index:-1; }
+    .oh-hero .oh-hero__lead{ margin:0 0 38px; max-width:30em; color:#6f6e68; font-size:15px; line-height:2; }
+    .oh-hero .oh-hero__acts{ display:flex; flex-wrap:wrap; gap:14px; align-items:center; }
+    .oh-hero .oh-btn{ display:inline-flex; align-items:center; gap:12px; text-decoration:none !important; font-weight:700;
+      border-radius:999px; padding:17px 34px; font-size:15px; transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s,background .3s,color .3s,border-color .3s; }
+    .oh-hero .oh-btn--primary{ background:#d94739; color:#fff !important; }
+    .oh-hero .oh-btn--primary:hover{ background:#b9362a; color:#fff !important; transform:translateY(-2px); box-shadow:0 16px 30px -14px rgba(217,71,57,.85); }
+    .oh-hero .oh-btn--ghost{ border:1px solid rgba(45,45,42,.18); color:#2d2d2a !important; background:transparent; }
+    .oh-hero .oh-btn--ghost:hover{ border-color:#d94739; color:#d94739 !important; }
+    .oh-hero .oh-btn .ar{ transition:transform .3s; }
+    .oh-hero .oh-btn:hover .ar{ transform:translateX(5px); }
+    .oh-hero .oh-hero__tel{ font-size:13px; color:#6f6e68; }
+    .oh-hero .oh-hero__tel b{ display:block; font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif; font-size:22px; color:#2d2d2a; letter-spacing:.04em; font-weight:400; }
+    @media (prefers-reduced-motion: no-preference){
+      .oh-hero h1 .ch{ display:inline-block; opacity:0; transform:translateY(.42em) rotateX(38deg); transform-origin:50% 100%;
+        animation:oh-chin 1.15s cubic-bezier(.2,.8,.2,1) forwards; animation-delay:calc(var(--i) * 100ms + .45s); }
+      @keyframes oh-chin{ to{ opacity:1; transform:none; } }
+      .oh-hero h1 .em::after{ transform:scaleX(0); transform-origin:left; animation:oh-emline 1s cubic-bezier(.2,.8,.2,1) forwards; animation-delay:3.3s; }
+      @keyframes oh-emline{ to{ transform:scaleX(1); } }
+      .oh-hero .oh-hero__veil{ animation:oh-veil 1.6s cubic-bezier(.76,0,.24,1) forwards; animation-delay:2.6s; }
+      @keyframes oh-veil{ to{ transform:scaleX(0); } }
+      .oh-hero .oh-hero__bg img{ opacity:0; transform:scale(1.13); filter:saturate(.55) blur(7px);
+        animation:oh-bgin 2.3s cubic-bezier(.2,.8,.2,1) forwards; animation-delay:2.7s; }
+      @keyframes oh-bgin{ to{ opacity:1; transform:none; filter:none; } }
+      .oh-hero .oh-hero__eyebrow{ animation:oh-rise2 .8s cubic-bezier(.2,.8,.2,1) both; }
+      .oh-hero .oh-hero__lead{ animation:oh-rise2 .9s cubic-bezier(.2,.8,.2,1) both; animation-delay:3s; }
+      .oh-hero .oh-hero__acts{ animation:oh-rise2 .9s cubic-bezier(.2,.8,.2,1) both; animation-delay:3.3s; }
+      @keyframes oh-rise2{ from{ opacity:0; transform:translateY(26px); } to{ opacity:1; transform:none; } }
+    }
+    @media(max-width:768px){
+      .oh-hero{ min-height:auto; }
+      .oh-hero .oh-hero__in{ padding:132px 18px 58px; }
+      .oh-hero .oh-hero__bg::after{ background:linear-gradient(180deg,rgba(248,247,244,.95) 0%,rgba(248,247,244,.9) 55%,rgba(248,247,244,.78) 100%); }
+      .oh-hero h1{ font-size:27px; letter-spacing:.04em; line-height:1.65; margin-bottom:20px; }
+      .oh-hero .oh-hero__lead{ font-size:13.5px; margin-bottom:28px; }
+      .oh-hero .oh-hero__acts{ flex-direction:column; align-items:stretch; gap:12px; }
+      .oh-hero .oh-btn{ justify-content:center; padding:15px 24px; font-size:14.5px; }
+      .oh-hero .oh-hero__tel{ text-align:center; margin-top:4px; }
+      .oh-hero .oh-hero__tel b{ font-size:20px; }
+    }
+  </style>
+  <div class="oh-hero__bg" aria-hidden="true"><img src="/_img/ja/cms/42938/image/_/" alt=""></div>
+  <div class="oh-hero__veil" aria-hidden="true"></div>
+  <div class="oh-hero__in">
+    <p class="oh-hero__eyebrow">EDOGAWA, TOKYO</p>
+    <h1 aria-label="掃除をやめた分だけ、暮らしは戻ってくる。"><span class="ch" style="--i:0">掃</span><span class="ch" style="--i:1">除</span><span class="ch" style="--i:2">を</span><span class="ch" style="--i:3">や</span><span class="ch" style="--i:4">め</span><span class="ch" style="--i:5">た</span><span class="ch" style="--i:6">分</span><span class="ch" style="--i:7">だ</span><span class="ch" style="--i:8">け</span><span class="ch" style="--i:9">、</span><br><span class="em"><span class="ch" style="--i:10">暮</span><span class="ch" style="--i:11">ら</span><span class="ch" style="--i:12">し</span><span class="ch" style="--i:13">は</span><span class="ch" style="--i:14">戻</span><span class="ch" style="--i:15">っ</span><span class="ch" style="--i:16">て</span><span class="ch" style="--i:17">く</span><span class="ch" style="--i:18">る</span><span class="ch" style="--i:19">。</span></span></h1>
+    <p class="oh-hero__lead">日本人がいちばん嫌いな家事は、掃除です。1日30分なら、1年で180時間。<br>その時間を、大切なことへ返すのが私たちの仕事です。</p>
+    <div class="oh-hero__acts">
+      <a class="oh-btn oh-btn--primary" href="https://yoyaku.onehitter.jp/?src=top">空いている日を見て予約する<span class="ar">→</span></a>
+      <a class="oh-btn oh-btn--ghost" href="/menu/">料金を見る</a>
+      <span class="oh-hero__tel">お電話でも承ります<b>080-8043-8259</b></span>
+    </div>
+  </div>
+</section>
