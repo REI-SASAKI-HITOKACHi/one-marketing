@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>公式サイトの毎週やること（10/24 MTG）</title>
+<style>
+:root{--ink:#1d2530;--sub:#5b6573;--rule:#d9dee5;--ground:#f6f7f9;--card:#fff;--accent:#b72c0a;--ok:#1f6f4a;--warn:#8a5a00;--warnbg:#fff4dc;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:"IPAGothic","IPAPGothic","Noto Sans CJK JP",sans-serif;}
+.page{width:1200px;padding:34px 40px 30px;}
+h1{font-size:27px;margin:0 0 4px;letter-spacing:.02em}
+.lead{margin:0 0 18px;color:var(--sub);font-size:14.5px;line-height:1.7}
+h2{font-size:17px;margin:0 0 8px;display:flex;gap:8px;align-items:baseline}
+h2 small{font-size:12.5px;color:var(--sub);font-weight:400}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:14px 16px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.grid .box{margin:0}
+.big{border-left:5px solid var(--accent)}
+.big p{margin:0 0 6px;font-size:15.5px;line-height:1.7}
+.big b.n{color:var(--accent)}
+code{font-family:inherit;background:#eef1f5;border-radius:4px;padding:0 4px;font-size:.95em}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border-bottom:1px solid var(--rule);padding:7px 6px;text-align:left;vertical-align:top;line-height:1.6}
+th{font-size:12.5px;color:var(--sub);font-weight:700}
+td.d{white-space:nowrap;font-weight:700;width:54px}
+td.q{white-space:nowrap;width:92px}
+td.w{white-space:nowrap;width:84px;color:var(--sub)}
+td.num{white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
+ol{margin:0;padding-left:1.3em;font-size:14.5px;line-height:1.75}
+.kari{background:var(--warnbg);color:var(--warn);font-size:12px;font-weight:700;border-radius:4px;padding:1px 6px;margin-left:4px;white-space:nowrap}
+.jitsu{background:#e4f2ea;color:var(--ok);font-size:12px;font-weight:700;border-radius:4px;padding:1px 6px;margin-left:4px;white-space:nowrap}
+.calc{font-size:14.5px;line-height:1.85;margin:0}
+.chuu{margin:8px 0 0;font-size:12.5px;color:var(--sub);line-height:1.7}
+</style></head><body><div class="page">
+<h1>公式サイト（HP）：毎週やることと、12月に届く理由</h1>
+<p class="lead">10/24 MTG・LP・サイト担当（依頼 20261021-02-lp）。オーナー指示「無料経路(hp.sns)を強化する必要があるね」。<b>お金を使う案は入っていません。</b>ブログ・GBP・SNS は web-inflow、数え方は measurement の1枚です。</p>
+
+<div class="box big">
+<h2>まず直すこと：HP から来た予約が、いまは数えられていない <small>10/21 の点検（公式サイト159ページを読み取り）</small></h2>
+<p>予約ページへのリンクは<b>全154ページにあります</b>。ただし、リンクに付いている印（<code>src</code>）が <code>top</code>・<code>site_footer</code>・<code>site_cta</code>・<code>menu</code> で、数え方の「HP（<code>hp</code> で始まる）」に当たりません。<b class="n">HP 経由の申込は「直接・その他」に入っていて、「無料経路の受注0件」の中に埋もれている可能性があります。</b></p>
+<p>→ measurement の集計に1行足すだけで直り、9/20 以降の分もさかのぼって数え直せます（依頼済み 20261021-03-measurement）。CMS は触りません。</p>
+</div>
+
+<div class="grid">
+<div class="box">
+<h2>毎週やること <small>担当は lp。登録・公開は browser</small></h2>
+<table>
+<tr><th>曜日</th><th>やること</th><th>量</th></tr>
+<tr><td class="d">月</td><td>measurement の週次（HP の申込・予約ページ到達・検索語句）を読み、その週に直す1か所を決める</td><td class="q">1回</td></tr>
+<tr><td class="d">火</td><td><b>地域×メニューの入口ページ</b>の原稿を cmo へ（料金は予約ページの計算と一致・LP原稿の書き方どおり）</td><td class="q"><b>週1本</b></td></tr>
+<tr><td class="d">水</td><td>browser が CMS に予約投稿で公開（ブログ記事として。予約ボタンは <code>?src=blog_…</code>）</td><td class="q">週1本</td></tr>
+<tr><td class="d">木</td><td><b>表示は多いのに押されていないページ</b>のタイトルと説明文の直し案を cmo へ</td><td class="q">週1ページ</td></tr>
+<tr><td class="d">金</td><td>公開した入口ページの点検（予約リンク・金額）。月末は全ページの予約リンクを点検し直す</td><td class="q">1回</td></tr>
+</table>
+<p class="chuu">12月末までに入口ページ9本（10/28〜12/23 の毎週水曜）、タイトルの直し9ページ。</p>
+</div>
+
+<div class="box">
+<h2>入口ページの順番 <small>仮の順位。Search Console 90日分で差し替え</small></h2>
+<table>
+<tr><th></th><th>ページ</th><th>根拠</th></tr>
+<tr><td class="w">10/28</td><td><b>江戸川区 × エアコン</b>（原稿あり）</td><td>「エアコンクリーニング 江戸川区」表示1,170・クリック9<span class="jitsu">実測</span>。事務所の区。暖房前・11月10%引き</td></tr>
+<tr><td class="w">11/4</td><td>江戸川区 × 年末の水まわり</td><td>「江戸川区 ハウスクリーニング」表示1,494・クリック12<span class="jitsu">実測</span>。年末の予約が始まる時期</td></tr>
+<tr><td class="w">11/11〜</td><td>江東区・葛飾区・市川市・浦安市 × エアコン／水まわり</td><td>事務所から近い地域（タグあり）。検索語句は未確認<span class="kari">仮</span></td></tr>
+</table>
+<p class="chuu">実測は Search Console（browser が 9/25 に読んだ16か月分）。90日・1000語の書き出しを measurement に依頼済み（20261021-04）。</p>
+</div>
+</div>
+
+<div class="box">
+<h2>12月に「無料経路で月1〜2件」へ、HP がどう効くか <small>数字の出どころを分けて書いています</small></h2>
+<p class="calc">
+① <b>土台がある</b>：HP 経由の受注は 1〜8月で4件（月0.5件）<span class="jitsu">実測・台帳</span>。28日の検索クリックは127・表示5,705<span class="jitsu">実測 10/21</span>。人は来ています。<br>
+② <b>数え方を直すと、今の実力が見える</b>：上の1行で、HP→予約ページ→申込が週ごとに数えられるようになります。11月の第1週に、今の到達数が出ます。<br>
+③ <b>入口ページで「仕事の語」から来る人を増やす</b>：仕事につながる3語は、月に約210回表示されて約2回しか押されていません<span class="jitsu">実測 16か月の平均</span>。専用の入口ページで押される割合を 1% → 4〜5% にできれば、月に8〜10人<span class="kari">仮定</span>。<br>
+④ <b>予約ページに着いた人の約4人に1人が申込</b>（広告の実績）<span class="jitsu">実測</span>。無料経路も同じ率なら、予約ページに月4〜8人で月1〜2件<span class="kari">仮定</span>。HP は ③ の8〜10人のうち予約ページへ進む人と、① の土台で、<b>月0.5件 → 1件</b>を受け持ちます。残りはブログ・GBP（web-inflow の1枚）。
+</p>
+<p class="chuu">届かなかったときの見分け方：11月末に「HP→予約ページ到達」が月4人未満なら入口の量の問題（入口ページとタイトルを増やす）、4人以上で申込0なら予約ページの側の問題。② の数え直しで、HP の申込が今すでに0でないと分かれば、12月の目標までの距離が縮まります。<br>
+HP の維持費は年¥58万（月約4.8万円）。HP 経由の受注4件は計¥63,100（1件あたり約1.6万円）<span class="jitsu">実測</span>なので、HP 単独で維持費を回収するには月3件ほど要ります。12月の月1件は通過点で、黒字かどうかは 2027年1〜3月の月3件の段階で見ることになります。</p>
+</div>
+</div></body></html>
