@@ -24,11 +24,11 @@ def chk(l, c, e=""):
     print(("PASS " if c else "FAIL ") + l + (("\n" + str(e)) if (e and not c) else ""))
     if not c: ok = False
 out = subprocess.run([sys.executable, str(TOOL), "--json", str(tmp / "g.json"), "--yoyaku", str(tmp / "y.csv")], capture_output=True, text=True).stdout
-chk("広告：LP100（gclid のみの行も広告）・予約ページ10・入力開始4・申込1", "| 広告 | 100 | 10（10%） | 4（40%） | 1（25%） | 1 |" in out, out)
-chk("SMS：LPを経ずに予約ページへ", "| SMS | 0 | 30（—） | 3（10%） | 0（0%） | 1 |" in out, out)
-chk("SNS（ig）", "| SNS | 5 |" in out)
+chk("広告：LP100（gclid のみの行も広告）・予約ページ10・入力開始4・申込1", "| 広告 | 100 | 10（10%） | 4（40%） | 1（25%） | 1 | 1 |" in out, out)
+chk("SMS：LPを経ずに予約ページへ", "| SMS | 0 | 30（—） | 3（10%） | 0（0%） | 1 | 0 |" in out, out)
+chk("Instagram（ig）は無料経路の行", "| Instagram | 5 |" in out)
 chk("src 無し・gclid 無しは直接・その他", "| 直接・その他 | 7 |" in out)
-chk("予約_Web：期間外と空送信は数えない", "| 直接・その他 | 7 | 0（0%） | 0（0%） | 0（—） | 0 |" in out, out)
+chk("予約_Web：期間外と空送信は数えない", "| 直接・その他 | 7 | 0（0%） | 0（0%） | 0（—） | 0 | 0 |" in out, out)
 chk("いちばん落ちている所＝広告の LP→予約ページ", "**広告 の「LP表示→予約ページ表示」**" in out, out)
 # SNS広告の日別（--src）
 rows2 = [
@@ -53,5 +53,14 @@ rows3 = [["page_view", "lp.onehitter.jp", "/kabi/?src=gads_kabi&ag=9&gclid=Z", 1
 (tmp / "g3.json").write_text(json.dumps({"start": "2026-10-20", "end": "2026-10-30", "rows": rows3}), encoding="utf-8")
 out = subprocess.run([sys.executable, str(TOOL), "--json", str(tmp / "g3.json")], capture_output=True, text=True).stdout
 chk("gads_kabi はカビLPとして別の行（広告の行に混ざらない）", "| 広告（カビLP） | 12 | 3（25%） |" in out and "| 広告 | 5 |" in out, out)
+
+rows4 = [["page_view", "yoyaku.onehitter.jp", "/?src=ig_ad", 4], ["page_view", "yoyaku.onehitter.jp", "/?src=hp_menu", 3],
+         ["page_view", "yoyaku.onehitter.jp", "/?src=gbp_book", 2]]
+(tmp / "g4.json").write_text(json.dumps({"start": "2026-10-01", "end": "2026-10-20", "rows": rows4}), encoding="utf-8")
+(tmp / "y4.csv").write_text("注文ID,src,受信日時,状態の区分\nA,hp_menu,2026-10-05 9:00,受注済\n", encoding="utf-8")
+out = subprocess.run([sys.executable, str(TOOL), "--json", str(tmp / "g4.json"), "--yoyaku", str(tmp / "y4.csv")], capture_output=True, text=True).stdout
+chk("ig_ad は SNS広告（無料経路に入れない）", "| SNS広告 | 0 | 4（—） |" in out and "| Instagram | 0 | 0" in out, out)
+chk("HP の申込・受注", "| HP | 0 | 3（—） | 0（0%） | 0（—） | 1 | 1 |" in out, out)
+chk("無料経路の計（HP 3＋GBP 2 の予約ページ到達・申込1・受注1）", "| **無料経路の計**（HP・Instagram・Facebook・ブログ・GBP） | 0 | 5 | 0 | 0 | 1 | 1 |" in out, out)
 
 print("\n" + ("すべて通りました" if ok else "失敗あり")); sys.exit(0 if ok else 1)

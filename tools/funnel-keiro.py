@@ -51,7 +51,8 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PROP = "381320625"
 
-KEIRO = ["広告", "広告（カビLP）", "SNS", "ブログ", "SMS", "GBP", "直接・その他"]
+KEIRO = ["広告", "広告（カビLP）", "SNS広告", "HP", "Instagram", "Facebook", "ブログ", "GBP", "SMS", "直接・その他"]
+MURYOU = ["HP", "Instagram", "Facebook", "ブログ", "GBP"]   # 無料経路（2026-10-21 オーナー指示）
 DAN = ["LP表示", "予約ページ表示", "入力開始", "申込"]
 
 
@@ -61,8 +62,14 @@ def keiro_of_src(src, url=""):
         return "広告（カビLP）"
     if s.startswith("gads") or (not s and re.search(r"[?&](gclid|gbraid|wbraid)=", url or "")):
         return "広告"
-    if s.startswith(("fb", "ig")):
-        return "SNS"
+    if s in ("ig_ad", "fb_ad") or s.startswith(("ig_ad", "fb_ad")):
+        return "SNS広告"
+    if s.startswith("hp"):
+        return "HP"
+    if s.startswith("ig"):
+        return "Instagram"
+    if s.startswith("fb"):
+        return "Facebook"
     if s.startswith("blog"):
         return "ブログ"
     if s.startswith("sms"):
@@ -103,7 +110,8 @@ def shuukei(ga4_rows):
 
 
 def yoyaku_web(path, start, end):
-    out = {k: 0 for k in KEIRO}
+    """経路ごとの (申込, 受注)。受注は「状態」「状態の区分」に「受注」を含む行"""
+    out = {k: [0, 0] for k in KEIRO}
     text = None
     for enc in ("utf-8-sig", "cp932", "utf-8"):
         try:
@@ -119,7 +127,11 @@ def yoyaku_web(path, start, end):
         kubun = (r.get("状態の区分") or "").strip()
         if kubun in ("空送信",):
             continue
-        out[keiro_of_src(src)] += 1
+        k = keiro_of_src(src)
+        out[k][0] += 1
+        joutai = (r.get("状態の区分") or r.get("状態") or "")
+        if "受注" in joutai:
+            out[k][1] += 1
     return out
 
 
@@ -176,8 +188,8 @@ def wari(a, b):
 
 
 def hyouji(hyou, yw=None):
-    lines = ["| 経路 | LP表示 | 予約ページ表示 | 入力開始 | 申込（GA4） |" + (" 申込（予約_Web） |" if yw else ""),
-             "|---|--:|--:|--:|--:|" + ("--:|" if yw else "")]
+    lines = ["| 経路 | LP表示 | 予約ページ表示 | 入力開始 | 申込（GA4） |" + (" 申込（予約_Web） | 受注 |" if yw else ""),
+             "|---|--:|--:|--:|--:|" + ("--:|--:|" if yw else "")]
     for k in KEIRO:
         h = hyou[k]
         mae = h["LP表示"]
@@ -185,9 +197,14 @@ def hyouji(hyou, yw=None):
         row = (f"| {k} | {h['LP表示']} | {yy}（{wari(yy, mae)}） | "
                f"{h['入力開始']}（{wari(h['入力開始'], yy or mae)}） | {h['申込']}（{wari(h['申込'], h['入力開始'])}） |")
         if yw:
-            row += f" {yw[k]} |"
+            row += f" {yw[k][0]} | {yw[k][1]} |"
         lines.append(row)
     lines.append("")
+    if yw:
+        m = [sum(yw[k][i] for k in MURYOU) for i in (0, 1)]
+        lines.append(f"| **無料経路の計**（HP・Instagram・Facebook・ブログ・GBP） | {sum(hyou[k]['LP表示'] for k in MURYOU)} | "
+                     f"{sum(hyou[k]['予約ページ表示'] for k in MURYOU)} | {sum(hyou[k]['入力開始'] for k in MURYOU)} | "
+                     f"{sum(hyou[k]['申込'] for k in MURYOU)} | {m[0]} | {m[1]} |")
     lines.append("（ ）内は、ひとつ前の段からの通過率。入力開始は予約ページ表示に対して（予約ページ表示が0なら LP表示に対して）")
     return "\n".join(lines)
 
