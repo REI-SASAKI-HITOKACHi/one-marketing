@@ -225,6 +225,16 @@ def main():
     ima = datetime.datetime.now(JST)
     yotei = yotei + hyou_kara(yotei, sumi, ima.date())
 
+    # 2026-10-21 直し：受注フォームの開始時刻のまま送っていて、カレンダーで時間を動かした日に
+    # 早く送ってしまった（10/18 折田様 15:00 への変更）。今日の分はカレンダーの控えを優先する。
+    kyou = ima.date().isoformat()
+    for y in yotei:
+        if y.get("施工日付") == kyou and y["id"] not in sumi:
+            t = cal_kaishi(y.get("氏名", ""), kyou)
+            if t and t != str(y.get("開始時刻", ""))[:5]:
+                print(f"  開始時刻をカレンダーに合わせます: {y.get('氏名')} {y.get('開始時刻')} → {t}")
+                y["開始時刻"] = t
+
     okuru = []
     for y in yotei:
         if y["id"] in sumi:
