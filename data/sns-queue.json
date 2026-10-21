@@ -1302,9 +1302,29 @@
     "fb_caption": "Googleクチコミより。\n\n洗濯機と換気扇のクリーニングをご依頼いただいた現場です。作業の前に、今の状態をその場でお見せしています。\n\nご予約はこちらから。\n\n※掲載内容はお客様個人の感想です。\n\n#洗濯機クリーニング #換気扇掃除 #お客様の声 #江戸川区 #西葛西 #ハウスクリーニング",
     "link": "https://lp.onehitter.jp/nenmatsu/?src=ig",
     "fb_link": "https://yoyaku.onehitter.jp/?src=fb",
-    "status": "approved",
+    "status": "posted",
     "note": "E型 M様（docs/クチコミ素材.md 短縮版4を原文どおり）。査読待ち",
-    "承認": "2026-10-15 cmo 査読OK（20261015-01-cmo の返信 12:46）。承認の反映が遅れた（10/19 に反映）"
+    "承認": "2026-10-15 cmo 査読OK（20261015-01-cmo の返信 12:46）。承認の反映が遅れた（10/19 に反映）",
+    "results": {
+      "instagram": {
+        "container_id": "18081181568709070",
+        "media_id": "18469455511188791",
+        "permalink": "https://www.instagram.com/p/DevFCvZl2tV/",
+        "published": true
+      },
+      "facebook": {
+        "post_id": "103698149101436_1137614195721597",
+        "permalink": "https://www.facebook.com/1100803886069295/posts/1137614195721597",
+        "media_ids": [
+          "1137614179054932"
+        ]
+      }
+    },
+    "posted_at": "2026-10-21T09:05:04+09:00",
+    "permalinks": {
+      "instagram": "https://www.instagram.com/p/DevFCvZl2tV/",
+      "facebook": "https://www.facebook.com/1100803886069295/posts/1137614195721597"
+    }
   },
   {
     "id": "w06-4",
