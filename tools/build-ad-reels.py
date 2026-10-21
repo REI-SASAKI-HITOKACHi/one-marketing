@@ -527,7 +527,7 @@ def build(reel, poster=False, bgm=True, proxy=False, post=False):
         sheet = Image.new("RGB", (cols * 360, 640), (12, 20, 28))
         for j, s in enumerate(shots):
             sheet.paste(s.resize((360, 640), Image.LANCZOS), (j * 360, 0))
-        ps = OUT / f"{reel['id']}-コマ.jpg"
+        ps = out.with_name(out.stem + "-コマ.jpg")   # 投稿版は <id>-投稿-コマ.jpg になる（広告版を上書きしない）
         sheet.save(ps, quality=90)
         print(f"できた {ps}")
 
