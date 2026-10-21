@@ -25,3 +25,7 @@ preview/
 assets/photos/
 # 描画用のフォント（OFL）。大きいので置かない。python3 tools/fetch-fonts.py で取る
 assets/fonts/
+
+# 現場で撮った動画の原本。大きいので置かない（READMEだけ追跡する）
+assets/videos-raw/*
+!assets/videos-raw/README.md

@@ -45,6 +45,8 @@ STYLES = {
           "stab": 0.13, "pluck": 1.0, "pad": 0.11, "arp": "8分"},
     "c": {"名": "きびきび（速め・刻み細かめ）", "bpm": 116, "kick": 0.50, "hat": 1.15,
           "stab": 0.20, "pluck": 0.9, "pad": 0.07, "arp": "16分混"},
+    "d": {"名": "調査版D・はっきり", "研究": True},
+    "e": {"名": "調査版E・やわらかめ", "研究": True, "soft": True},
 }
 
 # B♭メジャー。I - IV - V - I。マイナーコードを使わない（暗くしないため）
@@ -184,7 +186,9 @@ def reverb(x, mix, decay=0.55, seed=7):
     return (1 - mix) * x + mix * fftconv(x, ir)
 
 
-def build(dur, style="a"):
+def build(dur, style="d"):
+    if STYLES[style].get("研究"):
+        return build_research(dur, soft=STYLES[style].get("soft", False))
     st = STYLES[style]
     BEAT = 60.0 / st["bpm"]
     BAR = BEAT * 4
@@ -253,6 +257,135 @@ def build(dur, style="a"):
     return np.stack([left, right], axis=1)
 
 
+# ──────────────────────────────────────────────────────────────────────
+# 2026-10-21 調査版（オーナー指示「人間が気になる、離脱し辛くなるBGM」）
+#
+# 音楽心理学で根拠のあるものだけを設計に落とした。出典は
+# docs/BGM-離脱しにくい音楽の調査-2026-10-21.md に全部書いてある。
+#
+#   1. テンポは120BPM
+#      人が自然に刻む速さ（spontaneous motor tempo）は概ね100〜120BPM。
+#      Fraisse の古典では「いちばん心地よい」間隔が500〜700ms＝86〜120BPM。
+#      注意はこの周期に同期しやすい（dynamic attending theory）
+#   2. 拍をはっきりさせたうえで、適度にズラす
+#      Witek 2014 は「中くらいのシンコペーション」で快と動きたさが最大（逆U字）としたが、
+#      Senn・Witek 2024 はこれを再現できず、「単純な型は拍の明快さで、複雑な型は面白さで
+#      踊りたくさせる」と整理した。**どちらの説明でも、ズレも明快さも無い平坦な型がいちばん悪い。**
+#      → 2・4拍目に手拍子（拍を明快に）＋ 低音と一部のキックをウラに置く（適度なズレ）
+#   3. 低音を入れる
+#      Cameron 2022（Current Biology）：聞こえない超低音を足すと、客の動きが平均11.8%増えた。
+#      ただし**スマホの内蔵スピーカーは超低音を鳴らせない**ので、効くのはイヤホンの人だけ
+#   4. 耳に残る旋律の作り（Jakubowski 2017）
+#      耳に残る曲は「速め」「よくある山なりの輪郭（上がって下がる）」
+#      「ただし途中に普通でない跳躍がある」。→ 8音の動機を山なりにして、4音目で大きく跳ばせた
+#   5. 同じことを20秒続けると慣れる
+#      → 4小節ごとに作りを変える。ループの変わり目で1拍だけ全部止める（次が気になる）
+#   6. 終わりを解決させない
+#      最後をドミナント（F）で終える。閉じないほうが引っぱられる
+#   7. 頭の1秒から鳴らす（フェードインしない）
+
+# B♭メジャー。I - V - IV - V。マイナーコードを使わない。Vで終えて解決させない
+PROG_D = [
+    {"notes": [58, 62, 65, 70], "bass": 46},   # B♭
+    {"notes": [57, 60, 65, 69], "bass": 41},   # F
+    {"notes": [58, 63, 67, 70], "bass": 39},   # E♭
+    {"notes": [57, 60, 65, 69], "bass": 41},   # F
+]
+# 8分音符8個の動機。山なりに上がって下がる。4音目(86)で大きく跳ぶのが「普通でない跳躍」
+MOTIF = [70, 74, 77, 86, 82, 79, 75, 74]
+
+
+def clap(amp, seed=9):
+    """2拍目と4拍目。拍を明快にする。雑音を少しずらして重ねると手拍子に聞こえる"""
+    n = int(0.22 * SR)
+    t = np.arange(n) / SR
+    rng = np.random.default_rng(seed)
+    base = rng.standard_normal(n)
+    y = np.zeros(n)
+    for d, a in ((0, 1.0), (0.009, 0.7), (0.017, 0.5), (0.026, 0.35)):
+        i = int(d * SR)
+        y[i:] += base[: n - i] * a
+    y = highpass(lowpass(y, 5200), 1100)
+    return y * np.exp(-t / 0.055) * amp
+
+
+def sub(f, dur, amp):
+    """超低音。スマホのスピーカーでは鳴らないが、イヤホンでは効く（Cameron 2022）"""
+    n = int(dur * SR)
+    t = np.arange(n) / SR
+    y = np.sin(2 * np.pi * f * t)
+    env = np.minimum(1.0, t / 0.015) * np.exp(-t / (dur * 0.45))
+    return y * env * amp
+
+
+def build_research(dur, soft=False):
+    """調査版。上のコメントの7項目をそのまま形にしたもの。
+    soft=True は打楽器を控えめにした版（同じ設計で、耳あたりだけ変える）"""
+    pz = 0.55 if soft else 1.0
+    BEAT = 60.0 / 120.0
+    BAR = BEAT * 4
+    n = int(dur * SR) + SR
+    plk = np.zeros(n); stab = np.zeros(n); pd = np.zeros(n)
+    bs = np.zeros(n); sb = np.zeros(n); dr = np.zeros(n)
+
+    bar = 0
+    while bar * BAR < dur + BAR:
+        ch = PROG_D[bar % 4]
+        t0 = bar * BAR
+        ns = ch["notes"]
+        phase = (bar // 4) % 2          # 4小節ごとに作りを変える（慣れさせない）
+        last = (bar * BAR + BAR) > dur  # 最後の小節
+
+        place(pd, t0, pad([hz(m + 12) for m in ns], BAR + 0.3, 0.075 if phase else 0.055))
+
+        # 低音：1拍目（オモテ）＋ 2拍目のウラ・3拍目のウラ（ズラす）
+        for off, g in ((0.0, 1.0), (BEAT * 1.5, 0.72), (BEAT * 2.5, 0.66)):
+            place(bs, t0 + off, bass(hz(ch["bass"] + 12), BEAT * 0.85, 0.34 * g))
+            place(sb, t0 + off, sub(hz(ch["bass"] - 12), BEAT * 0.8, 0.30 * g))
+
+        # 手拍子：2拍目と4拍目。これで拍が分かる
+        if not last:
+            for b in (1, 3):
+                place(dr, t0 + b * BEAT, clap(0.30 * pz, seed=bar * 7 + b))
+            # キック：1拍目（オモテ）と3拍目のウラ（ズラす）
+            place(dr, t0, kick(0.50 * (0.85 if soft else 1.0)))
+            place(dr, t0 + BEAT * 2.5, kick(0.42 * (0.85 if soft else 1.0)))
+            for i in range(8):
+                g = 0.040 if i % 2 == 0 else 0.055     # ウラを少し強く（前に進む感じ）
+                place(dr, t0 + i * BEAT / 2, hat(g * (1.15 if phase else 1.0) * pz, bar * 31 + i))
+
+        # エレピの和音は2拍目のウラと4拍目のウラ
+        for off in (BEAT * 1.5, BEAT * 3.5):
+            place(stab, t0 + off, ep_stab([hz(m) for m in ns], BEAT * 0.8, 0.15))
+
+        # 動機（8分8個）。山なりで、4音目に大きな跳躍
+        for i, m in enumerate(MOTIF):
+            if bar % 4 == 3 and i >= 6:
+                continue                                # ループの変わり目で止める（次が気になる）
+            mm = m + (12 if phase and i in (3, 4) else 0)
+            amp = 0.36 if i in (0, 3) else 0.25         # 頭と跳躍の音を強く
+            place(plk, t0 + i * BEAT / 2, pluck(hz(mm), 1.4, amp, seed=bar * 17 + i))
+        bar += 1
+
+    mix = (reverb(plk, 0.15) + reverb(stab, 0.10, seed=11)
+           + reverb(pd, 0.18, seed=3) + bs + sb + dr)
+    mix = mix[: int(dur * SR)]
+    mix = highpass(mix, 26)
+    if soft:
+        mix = lowpass(mix, 7000)     # 高域を少し落として、耳あたりを柔らかくする
+
+    t = np.arange(len(mix)) / SR
+    mix[: int(0.01 * SR)] *= np.linspace(0, 1, int(0.01 * SR))   # 頭から鳴らす
+    mix *= np.clip((dur - t) / 1.1, 0.0, 1.0) ** 1.1             # 終わりは短く切る
+    mix = np.tanh(mix * 1.3) / 1.3
+    peak = np.abs(mix).max()
+    if peak > 0:
+        mix *= 0.80 / peak
+    d = int(SR * 0.007)
+    right = np.concatenate([np.zeros(d), mix[:-d]]) * 0.94 + mix * 0.06
+    return np.stack([mix, right], axis=1)
+
+
 def write_wav(path, st):
     path.parent.mkdir(parents=True, exist_ok=True)
     data = (np.clip(st, -1, 1) * 32767).astype("<i2")
@@ -268,14 +401,14 @@ def main():
     ap.add_argument("dur", nargs="?", type=float)
     ap.add_argument("out", nargs="?")
     ap.add_argument("--all", action="store_true")
-    ap.add_argument("--style", default="a", choices=list(STYLES))
+    ap.add_argument("--style", default="d", choices=list(STYLES))
     ap.add_argument("--candidates", action="store_true", help="3案の試聴用を dist/bgm-候補/ に出す")
     a = ap.parse_args()
     if a.candidates:
         out = ROOT / "dist" / "bgm-候補"
         for k, v in STYLES.items():
-            p = out / f"BGM案{k.upper()}-{v['名']}.wav"
-            write_wav(p, build(15.0, style=k))
+            p = out / f"BGM{v['名']}.wav" if v.get("研究") else out / f"BGM案{k.upper()}-{v['名']}.wav"
+            write_wav(p, build(16.0, style=k))
             print(f"できた {p}")
         return
     if a.all:
