@@ -1386,12 +1386,32 @@
     "fb_caption": "浴室の作業も、11月は10%引きです。\n1箇所（エアコン1台、または浴室などの1メニュー）のご依頼が対象です。\n\n12月は繁忙期のため、各料金に3,300円（税込）を加算します。\n\n写真は、当社が作業したお宅の浴室です。浴槽と水栓のまわり。\n\n予約のページで、メニューと空いている日を見て、そのままご予約いただけます。\nご予約はこちらから。\n\n#浴室クリーニング #お風呂掃除 #年末大掃除 #江戸川区 #西葛西 #ハウスクリーニング",
     "link": "https://lp.onehitter.jp/nenmatsu/?src=ig",
     "fb_link": "https://yoyaku.onehitter.jp/?src=fb",
-    "status": "approved",
+    "status": "posted",
     "note": "11月10%の追加告知（cmo 20261015-02 の2。週1→週2本）。書き方は cmo 決定A。他の割引・料金は書かない。査読待ち。",
     "ロゴ確認": "2026-10-15 web-inflow が目視（ph-238）。浴槽と水栓のみ。ロゴ・社名・電話・人物・お客様名なし",
     "ロゴ確認済": true,
     "確認者": "web-inflow（2026-10-15）",
-    "承認": "2026-10-15 cmo 査読OK（20261015-03）。1行目のみ写真に合わせて変更（cmo 任意の提案どおり） ／ 2026-10-20 cmo 12:46 指示で2か所を直して approved のまま（20261020-02）"
+    "承認": "2026-10-15 cmo 査読OK（20261015-03）。1行目のみ写真に合わせて変更（cmo 任意の提案どおり） ／ 2026-10-20 cmo 12:46 指示で2か所を直して approved のまま（20261020-02）",
+    "results": {
+      "instagram": {
+        "container_id": "18081198146709070",
+        "media_id": "17943833028360571",
+        "permalink": "https://www.instagram.com/p/DevaUnVnCaX/",
+        "published": true
+      },
+      "facebook": {
+        "post_id": "103698149101436_1137896582360025",
+        "permalink": "https://www.facebook.com/1100803886069295/posts/1137896582360025",
+        "media_ids": [
+          "1137896562360027"
+        ]
+      }
+    },
+    "posted_at": "2026-10-21T12:11:02+09:00",
+    "permalinks": {
+      "instagram": "https://www.instagram.com/p/DevaUnVnCaX/",
+      "facebook": "https://www.facebook.com/1100803886069295/posts/1137896582360025"
+    }
   },
   {
     "id": "w07-1",

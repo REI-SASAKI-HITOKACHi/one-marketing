@@ -650,5 +650,25 @@
     "media_ids": [
       "1137614179054932"
     ]
+  },
+  {
+    "id": "w06-6",
+    "platform": "instagram",
+    "posted_at": "2026-10-21T12:10:58+09:00",
+    "permalink": "https://www.instagram.com/p/DevaUnVnCaX/",
+    "post_id": "17943833028360571",
+    "media_ids": [
+      "17943833028360571"
+    ]
+  },
+  {
+    "id": "w06-6",
+    "platform": "facebook",
+    "posted_at": "2026-10-21T12:11:02+09:00",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1137896582360025",
+    "post_id": "103698149101436_1137896582360025",
+    "media_ids": [
+      "1137896562360027"
+    ]
   }
 ]
