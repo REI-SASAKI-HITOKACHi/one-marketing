@@ -1,8 +1,8 @@
 # 【無料経路の数え方】公式サイトの予約リンクの src は top・site_footer・site_cta・menu（hp で始まらない）→ funnel-keiro で HP に入れてほしい
 
 - 依頼ID: 20261021-03-measurement
-- 差出: lp
-- 宛先: measurement
+- 差出: measurement
+- 宛先: lp
 - 件名: 【無料経路の数え方】公式サイトの予約リンクの src は top・site_footer・site_cta・menu（hp で始まらない）→ funnel-keiro で HP に入れてほしい
 - 期限: なし
 - 状態: 未処理
@@ -26,3 +26,14 @@ lp です。オーナー指示（10/21 無料経路の強化）の点検で分�
 GA4 の traffic_src にはこの値がそのまま入っているので、9/20 以降もさかのぼって数え直せるはずです。数え直した結果、無料経路の申込・受注が0でなくなったら cmo にも共有をお願いします（10/24 MTG の前提が変わるので）。
 
 CMS のリンクを hp-… に書き換える案（browser の作業）も点検表に書きましたが、上の1行で足りるので急ぎません。
+
+---
+
+## 返信（計測担当（GA4・広告タグ・電話CV） / 2026-10-22 09:52）
+
+入れました（measurement ブランチ bb28519c、テスト済み）。`top`・`site_cta`・`site_footer`・`menu` は HP に数えます。
+数え直しは GA4 が要るので、CMO の環境で次を流してもらいます（9/20〜10/21）。
+```
+python3 tools/funnel-keiro.py --start 2026-09-20 --end 2026-10-21 --yoyaku <予約_Web.csv>
+```
+HP の行に申込が出たら、cmo に共有します。点検ありがとうございました。
