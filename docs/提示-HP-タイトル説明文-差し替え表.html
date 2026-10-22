@@ -1,0 +1,56 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><title>HPのタイトルと説明文の差し替え表</title>
+<style>
+:root{--ink:#1d2530;--sub:#5b6573;--rule:#d9dee5;--ground:#f6f7f9;--card:#fff;--accent:#b72c0a;--ok:#1f6f4a;--warnbg:#fff4dc;--warn:#8a5a00}
+*{box-sizing:border-box} body{margin:0;background:var(--ground);color:var(--ink);font-family:"IPAGothic","IPAPGothic","Noto Sans CJK JP",sans-serif}
+.page{width:1500px;padding:32px 36px} h1{font-size:26px;margin:0 0 4px} .lead{margin:0 0 16px;color:var(--sub);font-size:14px;line-height:1.7}
+.grid{display:grid;grid-template-columns:1.25fr 1fr;gap:12px;margin-bottom:14px}
+.box{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:12px 16px} .box h2{font-size:16px;margin:0 0 6px}
+.box ol,.box ul{margin:0;padding-left:1.3em;font-size:13.5px;line-height:1.75}
+.warn{background:var(--warnbg);border-color:#f0d9a6}
+table{border-collapse:collapse;width:100%;background:var(--card);font-size:13.5px;border:1px solid var(--rule)}
+th{background:#eef1f5;text-align:left;padding:8px;font-size:12.5px;color:var(--sub);border-bottom:1px solid var(--rule)}
+td{padding:9px 8px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.6}
+td.pg{width:200px} td.pg small,small.len{display:block;color:var(--sub);font-size:11.5px;font-weight:400}
+td.now{width:250px;color:var(--sub)} .nodesc{display:block;margin-top:4px;color:var(--accent);font-size:12px}
+td.aft b{color:var(--ink)}
+</style></head><body><div class="page">
+<h1>公式サイト：タイトルと説明文の差し替え表（8ページ）</h1>
+<p class="lead">依頼 20261022-01-lp・LP・サイト担当。<b>公式サイトへの反映は「外に出す」なので、オーナーの OK が出てから貼ります。</b>金額は price-master（パンフレットが正）と予約ページの計算に一致。いまは8ページとも、検索結果に出る説明文（meta description）がありません。</p>
+<div class="grid">
+<div class="box warn"><h2>貼る前に browser が確かめること（2点・5分）</h2>
+<ol><li><b>説明文の欄があるか</b>：管理画面（/_sys/）で各ページの設定に「ディスクリプション／説明文」の欄があるか。<b>無ければ説明文は見送り</b>（共通の &lt;head&gt; には入れない。全ページ同じ文になるため）</li>
+<li><b>タイトルの欄は「ページ名」か、別の欄か</b>：公式サイトは「ページ名 | 江戸川区のハウスクリーニングならワンヒッター株式会社」を自動で作っています。
+<br>・別の「タイトル」欄がある → 右の<b>タイトル</b>をそのまま入れる
+<br>・<b>ページ名しか無い → ページ名は替えない</b>（見出し・メニューの表示も変わるため）。この場合は説明文だけ入れる
+<br>・トップ（/）は<b>サイト名を替えない</b>（全ページの後ろに付く文字が変わるため）</li></ol></div>
+<div class="box"><h2>貼ったあと・戻し方</h2>
+<ul><li>貼ったら各ページを開き、ソース表示で &lt;title&gt; と &lt;meta name="description"&gt; を確かめる（lp が読み取りで点検し直せる）</li>
+<li>戻すとき：タイトルはこの表の「今」に、説明文は空に戻す。料金などの本文は触らない</li>
+<li>効果の見かた：4週ごとに Search Console のクリック率（今は「江戸川区 ハウスクリーニング」0.8%、「洗濯機」のページ 0.2%）</li></ul></div>
+</div>
+<table><thead><tr><th>ページ（貼る場所）</th><th>今のタイトル</th><th>差し替え後のタイトル</th><th>差し替え後の説明文（今は無し）</th></tr></thead><tbody><tr><td class="pg"><b>/</b><small>表示 10,911（16か月）</small></td>
+<td class="now">江戸川区のハウスクリーニングならワンヒッター株式会社<span class="nodesc">説明文：なし</span></td>
+<td class="aft"><b>江戸川区のハウスクリーニング｜エアコン10,780円〜・自社施工｜ワンヒッター</b><small class="len">39字</small></td>
+<td class="aft">江戸川区北葛西のハウスクリーニング。エアコン10,780円、浴室・キッチン18,480円（税込）。ご予約を受けた私たちが伺います。空いている日を見て、そのまま予約できます。東京・千葉・神奈川。<small class="len">96字</small></td></tr><tr><td class="pg"><b>/aircon/</b><small>表示 —（16か月）</small></td>
+<td class="now">エアコンクリーニング | 江戸川区のハウスクリーニングならワンヒッター株式会社<span class="nodesc">説明文：なし</span></td>
+<td class="aft"><b>江戸川区のエアコンクリーニング｜1台10,780円（税込）・60分｜ワンヒッター</b><small class="len">40字</small></td>
+<td class="aft">壁掛けエアコン1台10,780円、お掃除機能付き17,380円（税込）。カバーとルーバーを外して分解し、熱交換器とファンを高圧洗浄します。江戸川区北葛西から伺います。最短翌日。<small class="len">88字</small></td></tr><tr><td class="pg"><b>/feature/エアコンクリーニング/</b><small>表示 782（16か月）</small></td>
+<td class="now">エアコンクリーニング | 江戸川区のハウスクリーニングならワンヒッター株式会社<span class="nodesc">説明文：なし</span></td>
+<td class="aft"><b>エアコンクリーニングの作業の流れと料金｜江戸川区｜ワンヒッター</b><small class="len">31字</small></td>
+<td class="aft">養生から試運転まで、1台約60分の流れを写真で。ノーマル10,780円・お掃除機能付き17,380円（税込）。回収した汚水も一緒に確認していただきます。<small class="len">76字</small></td></tr><tr><td class="pg"><b>/feature/洗濯機/</b><small>表示 1,478（16か月）</small></td>
+<td class="now">洗濯機 | 江戸川区のハウスクリーニングならワンヒッター株式会社<span class="nodesc">説明文：なし</span></td>
+<td class="aft"><b>江戸川区の洗濯機クリーニング｜分解洗浄17,380円（税込）｜ワンヒッター</b><small class="len">37字</small></td>
+<td class="aft">洗濯槽を分解して洗います。17,380円（税込）・約120分。黒いカスやにおいが続くときに。江戸川区北葛西から伺います。<small class="len">60字</small></td></tr><tr><td class="pg"><b>/feature/水まわり/</b><small>表示 1,254（16か月）</small></td>
+<td class="now">水まわり | 江戸川区のハウスクリーニングならワンヒッター株式会社<span class="nodesc">説明文：なし</span></td>
+<td class="aft"><b>江戸川区の水まわりクリーニング｜2箇所目からセット価格（税込）｜ワンヒッター</b><small class="len">38字</small></td>
+<td class="aft">浴室・キッチン・レンジフード・トイレ・洗面台をまとめて。2箇所目からセット価格で、浴室とキッチンなら33,660円（税込）。同じ担当が続けて仕上げます。<small class="len">76字</small></td></tr><tr><td class="pg"><b>/feature/お風呂/</b><small>表示 1,227（16か月）</small></td>
+<td class="now">お風呂 | 江戸川区のハウスクリーニングならワンヒッター株式会社<span class="nodesc">説明文：なし</span></td>
+<td class="aft"><b>江戸川区の浴室クリーニング｜18,480円（税込）・鏡のウロコ取りも｜ワンヒッター</b><small class="len">41字</small></td>
+<td class="aft">浴室まるごと18,480円（税込）。鏡のウロコ取り3,300円、エプロン内部の高圧洗浄7,700円もご一緒に。作業前に汚れの状態を一緒に確認します。<small class="len">74字</small></td></tr><tr><td class="pg"><b>/menu/</b><small>表示 755（16か月）</small></td>
+<td class="now">メニュー | 江戸川区のハウスクリーニングならワンヒッター株式会社<span class="nodesc">説明文：なし</span></td>
+<td class="aft"><b>料金一覧（税込）｜エアコン・浴室・キッチン・水まわり｜江戸川区のワンヒッター</b><small class="len">38字</small></td>
+<td class="aft">すべて税込の料金一覧です。エアコン10,780円、浴室・キッチン・レンジフード18,480円、洗濯機17,380円。2箇所目からのセット価格と、繁忙期の加算も載せています。<small class="len">86字</small></td></tr><tr><td class="pg"><b>/access/</b><small>表示 623（16か月）</small></td>
+<td class="now">アクセス | 江戸川区のハウスクリーニングならワンヒッター株式会社<span class="nodesc">説明文：なし</span></td>
+<td class="aft"><b>対応エリアとアクセス｜江戸川区北葛西の事務所から｜ワンヒッター</b><small class="len">31字</small></td>
+<td class="aft">事務所は江戸川区北葛西。東京都・千葉県・神奈川県で作業しています。江戸川区・江東区・葛飾区・市川市・浦安市などは、日程を合わせやすい地域です。<small class="len">71字</small></td></tr></tbody></table>
+</div></body></html>
