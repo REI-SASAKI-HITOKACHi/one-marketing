@@ -63,4 +63,9 @@ chk("ig_ad は SNS広告（無料経路に入れない）", "| SNS広告 | 0 | 4
 chk("HP の申込・受注", "| HP | 0 | 3（—） | 0（0%） | 0（—） | 1 | 1 |" in out, out)
 chk("無料経路の計（HP 3＋GBP 2 の予約ページ到達・申込1・受注1）", "| **無料経路の計**（HP・Instagram・Facebook・ブログ・GBP） | 0 | 5 | 0 | 0 | 1 | 1 |" in out, out)
 
+rows5 = [["page_view", "yoyaku.onehitter.jp", "/?src=site_cta", 2], ["page_view", "yoyaku.onehitter.jp", "/?src=top", 1], ["page_view", "yoyaku.onehitter.jp", "/?src=menu", 1]]
+(tmp / "g5.json").write_text(json.dumps({"start": "2026-10-01", "end": "2026-10-20", "rows": rows5}), encoding="utf-8")
+out = subprocess.run([sys.executable, str(TOOL), "--json", str(tmp / "g5.json")], capture_output=True, text=True).stdout
+chk("公式サイトの src（top・site_cta・menu）は HP", "| HP | 0 | 4（—） |" in out, out)
+
 print("\n" + ("すべて通りました" if ok else "失敗あり")); sys.exit(0 if ok else 1)

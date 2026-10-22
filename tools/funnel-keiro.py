@@ -64,8 +64,8 @@ def keiro_of_src(src, url=""):
         return "広告"
     if s in ("ig_ad", "fb_ad") or s.startswith(("ig_ad", "fb_ad")):
         return "SNS広告"
-    if s.startswith("hp"):
-        return "HP"
+    if s.startswith("hp") or s in ("top", "site_footer", "site_cta", "menu"):
+        return "HP"   # 公式サイトの予約リンク（lp 点検 10/21：top・site_cta・site_footer・menu）
     if s.startswith("ig"):
         return "Instagram"
     if s.startswith("fb"):
