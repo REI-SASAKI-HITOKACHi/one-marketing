@@ -52,9 +52,16 @@ def inline(s):
 
 
 def photo(alt, name):
-    if not (PHOTO_DIR / name).exists():
+    # 公開中の LP の写真（https://lp.onehitter.jp/<パス>）も使える。配信物に実物があることを確かめる
+    if name.startswith("https://lp.onehitter.jp/"):
+        if not (ROOT / "deploy" / "netlify" / name[len("https://lp.onehitter.jp/"):]).exists():
+            sys.exit(f"写真 {name} が配信物（deploy/netlify）にありません。止めます")
+        url = name
+    elif (PHOTO_DIR / name).exists():
+        url = PHOTO_URL + name
+    else:
         sys.exit(f"写真 {name} が lp.onehitter.jp/blog-photos/ にありません（置くには配信が要る）。止めます")
-    return (f'<figure style="margin:20px 0;"><img src="{PHOTO_URL}{name}" alt="{html.escape(alt)}" '
+    return (f'<figure style="margin:20px 0;"><img src="{url}" alt="{html.escape(alt)}" '
             f'style="display:block;width:100%;height:auto;border-radius:8px;" loading="lazy">'
             f'<figcaption style="margin-top:6px;font-size:12.5px;color:{SUB};">{html.escape(alt)}</figcaption></figure>')
 
@@ -88,6 +95,15 @@ def md_to_html(body):
         if ln.startswith("## "):
             out.append(f'<h2 style="margin:32px 0 12px;padding-left:10px;border-left:4px solid {CTA};font-size:20px;line-height:1.5;color:{INK};">{inline(ln[3:])}</h2>')
             i += 1; continue
+        if ln.startswith("> "):
+            q = []
+            while i < len(lines) and lines[i].startswith("> "):
+                q.append(lines[i][2:].strip()); i += 1
+            cite = q.pop() if q and q[-1].startswith("― ") else ""
+            out.append(f'<blockquote style="margin:16px 0;padding:14px 16px;border-left:4px solid {RULE};background:{BG};border-radius:6px;">'
+                       f'<p style="margin:0;font-size:15.5px;line-height:1.85;color:{INK};">{inline("".join(q))}</p>'
+                       + (f'<p style="margin:6px 0 0;font-size:12.5px;color:{SUB};">{inline(cite)}</p>' if cite else "") + "</blockquote>")
+            continue
         if ln.startswith("|"):
             rows = []
             while i < len(lines) and lines[i].startswith("|"):
@@ -102,7 +118,7 @@ def md_to_html(body):
             out.append(f'<{tag} style="margin:0 0 14px;padding-left:1.4em;font-size:16px;line-height:1.85;color:{INK};">{lis}</{tag}>')
             continue
         para = []
-        while i < len(lines) and lines[i].strip() and not re.match(r"^(## |\||- |\d+\. |!\[|\[)", lines[i]):
+        while i < len(lines) and lines[i].strip() and not re.match(r"^(## |\||- |\d+\. |!\[|\[|> )", lines[i]):
             para.append(lines[i].strip()); i += 1
         out.append(f"<p {P}>{inline(''.join(para))}</p>")
     return "\n".join(out)
@@ -123,14 +139,16 @@ def allowed_yen():
     ok.add(2200)   # 予約ページのネット申込特典（S.netTokuten。prices.json には無い）
     n, o = 10780, 17380
     for v in [n * 2 - 2200, n * 3 - 2200, n + 3300, o + 3300, n - round(n * 0.1), n - round(n * 0.15),
-              o - round(o * 0.1), o - round(o * 0.15), n * 2 - 2200 + 6600, 18480 + 15180]:
+              o - round(o * 0.1), o - round(o * 0.15), n * 2 - 2200 + 6600, 18480 + 15180, 17380 + 15180]:
         ok.add(v)
     return ok
 
 
 def tenken_text(block):
     t = re.sub(r"<[^>]+>", " ", block)
-    ng = [f"使わない言い方「{w}」" for w in NG_WORDS if w in t]
+    # お客様の声（引用）は原文のままなので、言い回しの点検からは外す（金額の点検はする）
+    t_own = re.sub(r"<[^>]+>", " ", re.sub(r"<blockquote.*?</blockquote>", "", block, flags=re.S))
+    ng = [f"使わない言い方「{w}」" for w in NG_WORDS if w in t_own]
     ok = allowed_yen()
     for y in re.findall(r"([0-9]{1,3}(?:,[0-9]{3})+)円", t):
         if int(y.replace(",", "")) not in ok:
