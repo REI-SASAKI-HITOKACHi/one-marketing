@@ -7,6 +7,13 @@
 
   毎時のルーティンから呼ぶ。開始から30分を過ぎた受注だけを、1件1通で送る。
 
+  2026-10-24 オーナー決定（第8回MTG中・CMOスレッド）「アンケートについては朝まとめて送るルールへ変更しておいて」
+    → 毎朝7:35 に --asa で、今日の施工ぶんを開始時刻を待たずに1通にまとめて送る（作業中に届かない問題の直し）。
+      毎時の実行（引数なし）は、朝のあとに入った当日の予約だけを拾う取りこぼし防止として残す。
+
+    python3 tools/kanryo-okuru.py --asa --dry-run   # 今日の分をまとめて見るだけ
+    python3 tools/kanryo-okuru.py --asa             # 今日の分を1通にまとめて送る
+
     python3 tools/kanryo-okuru.py --dry-run   # 何を送るかを出すだけ
     python3 tools/kanryo-okuru.py             # 実際に送る
 
@@ -200,6 +207,7 @@ def main():
     ap.add_argument("--all", action="store_true", help="30分の縛りを外して全部送る")
     ap.add_argument("--saisoku", action="store_true", help="未入力のお客様をまとめて1通で知らせる")
     ap.add_argument("--ichiran", action="store_true", help="未入力のお客様の一覧を出すだけ")
+    ap.add_argument("--asa", action="store_true", help="今日の施工ぶんを、開始時刻を待たずに1通にまとめて送る（毎朝）")
     a = ap.parse_args()
 
     if a.ichiran or a.saisoku:
@@ -246,7 +254,10 @@ def main():
         except Exception:
             print(f"  ⚠ 日時が読めないので飛ばします: {y['id']}")
             continue
-        if not a.all and ima < kai + datetime.timedelta(minutes=SAKI_FUN):
+        if a.asa:
+            if y.get("施工日付") != kyou:
+                continue
+        elif not a.all and ima < kai + datetime.timedelta(minutes=SAKI_FUN):
             continue
         if ima > kai + datetime.timedelta(days=2):
             # 2日以上たっているものは送らない（取りこぼしを延々と送り続けないため）
@@ -259,6 +270,30 @@ def main():
     p = mishin_ichiran() if okuru else []
     for y in okuru:
         print(f"  {y.get('施工日付')} {y.get('開始時刻')} {y.get('氏名')} → {url(y, p)[:80]}…（未入力の一覧 {len(p)}名）")
+    if a.asa and okuru:
+        okuru.sort(key=lambda y: str(y.get("開始時刻", "")))
+        bunsho = [honbun(y, p) for y in okuru]
+        midashi = f"【今日の作業完了フォーム】{len(okuru)}件（朝にまとめてお送りします）"
+        kugiri = "\n\n――――――――\n\n"
+        txt = midashi + "\n\n" + kugiri.join(bunsho)
+        # LINE の1通は5,000字まで。超えるときだけ1件ずつに分ける
+        tsuu = [txt] if len(txt) <= 4800 else [midashi + "\n\n" + b for b in bunsho]
+        if a.dry_run:
+            print(f"\n--dry-run のため送っていません（{len(tsuu)}通・{sum(len(x) for x in tsuu)}字）。")
+            return
+        ok = True
+        for x in tsuu:
+            r = subprocess.run([sys.executable, str(ROOT / "tools" / "line_client.py"), "push", x],
+                               capture_output=True, text=True)
+            if r.returncode != 0:
+                print(f"  🔴 送れませんでした: {r.stderr.strip()[:200]}")
+                ok = False
+                break
+        if ok:
+            print(f"  送りました（{len(tsuu)}通）: " + "、".join(y.get("氏名", "") for y in okuru))
+            sumi.update(y["id"] for y in okuru)
+        SUMI.write_text(json.dumps(sorted(sumi), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        return
     if a.dry_run:
         print("\n--dry-run のため送っていません。")
         return
