@@ -3722,3 +3722,7 @@ SMSに載せる前にスマホで1回開いて確かめるのが安全。
 | バックアップ | `data/sheets/backup/MTGシート-A993-I1005-20261024-1050.json.gz` |
 | 書式・数値・リンク | format-mtg-sheet → format-mtg-numbers（4082セル・値の変化なし）→ link-mtg-sanshou（213セル・299本） |
 | 根拠 | 経営企画室 `docs/2026-12月ネット25件-週と経路の割り付け-1024.md`、lp 20261024-01（汚水の直しの下書き deploy/machi/osui/aircon-b/） |
+
+## 変更103（2026-10-24 11時台 CMO）MTGシート 8-4 No.2 の「決めること」に第2弾の入口ページを追記
+
+E996 に「第2弾『江戸川区の洗濯機（洗濯槽）クリーニング』（11/4 9:00）も同じ扱いで公開してよいか」を足した（CMO が書いた文のみ）。バックアップ `data/sheets/backup/MTGシート-A996-I996-20261024-1150.json.gz`。原稿は lp ブランチ `docs/HP-入口ページ/2026-11-04-edogawa-washer-cleaning.md`（CMO 査読 OK）。
