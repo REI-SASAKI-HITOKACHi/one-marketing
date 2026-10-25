@@ -12,14 +12,19 @@
    カードを積み上げない。持ち上げるのは価格と見積り欄だけ。
    =========================================================== */
 :root{
+  /* 広告の受け皿なので、OSのダークモードに追従させない。
+     清潔感がこのLPの訴求そのものなので、暗転すると意味が変わる */
+  color-scheme:light;
   --ink:#0D3B5C;          /* 深い青。ヘッダー・追従バー・帯に使う。
                              黒にしていたが、この業種のLPで黒を地に使う例が無い。
                              大手7社（本舗・革命・ベアーズ・ダスキン・カジタク・
                              ユアマイスター・くらしのマーケット）はいずれも
                              白か寒色寄りの白が地で、清潔感は青が担っている */
   --ink-2:#14506F;
-  --paper:#F3F7F9;        /* 冷たい白。温かいベージュから寄せ替えた */
-  --paper-2:#E6EDF1;
+  --paper:#FAF7F2;        /* 温白。冷たい白（#F3F7F9）から寄せ替えた。
+                             8/28調査 S-2：おそうじ革命 #F6F4EC／#F1F0E0 を実測。
+                             冷たい白は「清潔」だが「家」に見えない。 */
+  --paper-2:#F0EAE1;      /* --paper と同じ温度に揃える。ここだけ寒色だと浮く */
   --surface:#FFFFFF;
   --text:#13232E;
   --text-2:#3C5262;
@@ -41,23 +46,10 @@
   --on-ink:#EDF4F8;
   --on-ink-2:#A8C2D2;
   --ok:#1B6B4F;
-  --scrim:243,247,249;    /* = --paper。写真の上に敷く白 */
-  /* このLPはライト基調で固定。OSのダーク設定には追随しない（2026-09-06 オーナー判断） */
-  color-scheme: light;
-}
-:root[data-theme="dark"]{
-    --ink:#0C2D45; --ink-2:#123E5C;
-  --paper:#0B1720; --paper-2:#12232E;
-  --surface:#12232E;
-  --text:#E7EEF2; --text-2:#B3C4CE;
-  --steel:#8FA4B0;
-  --rule:#20323F; --rule-2:#37505F;
-  --cta:#FF7A4D; --cta-deep:#C0300C; --cta-soft:#2A1610;
-  --cta-fill:#B72C0A; --cta-fill-h:#8F2408; --cta-ink:#FFB894;
-  --aqua:#5AC8DC; --aqua-ink:#6FD0E4; --aqua-fill:#0C5F6B; --aqua-soft:#0A2A33;
-  --on-ink:#EDF4F8; --on-ink-2:#A8C2D2;
-  --ok:#4FBF95;
-  --scrim:11,23,32;
+  --scrim:250,247,242;    /* = --paper。写真の上に敷く白。paper を変えたら必ず合わせる */
+  --mark:#FFE566;         /* 見出しの黄マーカー。8/28調査 S-5。
+                             朱色の下線から変更。下線は「リンク」に見える */
+  --btn-shadow:var(--cta-deep);  /* ボタンのオフセット影。variant ごとに上書きする */
 }
 
 *{box-sizing:border-box;}
@@ -105,17 +97,23 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
   border:0;cursor:pointer;font-family:inherit;text-decoration:none;font-weight:700;
-  font-size:14px;padding:11px 20px;line-height:1.4;border-radius:2px;
-  background:var(--cta-fill);color:#fff;transition:background .15s,transform .1s;
+  font-size:14px;padding:11px 20px;line-height:1.4;border-radius:10px;
+  background:var(--cta-fill);color:#fff;
+  /* 押せることを影で示す。押下で2px沈めて影を縮める（8/28調査 S-3・CaSy の実測）。
+     色は面ごとに違うので --btn-shadow を variant で上書きする。 */
+  box-shadow:0 3px 0 var(--btn-shadow);
+  transition:background .15s,transform .08s,box-shadow .08s;
 }
 .btn:hover{background:var(--cta-fill-h);}
-.btn:active{transform:translateY(1px);}
-.btn.line{background:#06C755;color:#08140F;}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--btn-shadow);}
+.btn.line{background:#06C755;color:#08140F;--btn-shadow:#04913F;}
 .btn.line:hover{background:#05B84E;}
-.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--rule-2);}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--rule-2);
+  --btn-shadow:var(--rule-2);}
 .btn.ghost:hover{background:var(--paper-2);}
 .btn.lg{
-  width:100%;min-height:64px;font-size:17px;padding:18px 22px;border-radius:2px;
+  /* 主CTAだけピル。8/28調査 B-14：おそうじ本舗 9999px・カジタク 200px */
+  width:100%;min-height:64px;font-size:17px;padding:18px 22px;border-radius:9999px;
   letter-spacing:.04em;text-wrap:balance;
 }
 
@@ -127,7 +125,7 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
    文字は白抜きではなく墨。写真の明るさを落とさないため。 */
 .hero{position:relative;background:var(--paper);color:var(--text);isolation:isolate;}
 .hero-bg{
-  position:absolute;top:0;left:0;right:0;height:min(62vw,330px);margin:0;
+  position:absolute;top:0;left:0;right:0;height:min(36vw,190px);margin:0;
   z-index:0;overflow:hidden;background:var(--paper-2);
 }
 .hero-bg img{width:100%;height:100%;object-fit:cover;object-position:50% 46%;display:block;}
@@ -139,18 +137,30 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 }
 .hero-in{
   position:relative;z-index:1;max-width:760px;margin:0 auto;
-  padding:calc(min(62vw,330px) - 52px) 22px 44px;
-  display:flex;flex-direction:column;gap:20px;
+  /* 写真の下端より少し上から本文を始める。§5-2：375×667 で CTA の上端が1画面に入ること。
+     62vw→44vw に浅くして、行間（gap）も 20→14 に詰めた。 */
+  padding:calc(min(36vw,190px) - 44px) 22px 36px;
+  display:flex;flex-direction:column;gap:10px;
 }
+/* 区名の行（§5-2）。小さく細く。「読ませる」のではなく「見つけさせる」ので、
+   位置さえ合っていれば小さくてよい。大きくすると見出しが弱くなる。 */
 .hero .area{
-  align-self:flex-start;font-size:12px;font-weight:700;letter-spacing:.06em;
-  color:var(--aqua);border:1px solid var(--aqua);padding:5px 13px;
-  background:rgba(var(--scrim),.82);
+  align-self:flex-start;font-size:12px;font-weight:500;letter-spacing:.04em;
+  color:var(--aqua);padding:0;background:none;border:0;line-height:1.5;
 }
-.hero h1{font-size:clamp(26px,6.4vw,44px);color:var(--text);line-height:1.4;letter-spacing:.01em;text-wrap:balance;}
+/* 価格の3行目（繁忙期）。月で文面が変わるので JS が上書きする。
+   既定値は加算のない時期の文面にしてある（JSが動かなくても今日は正しい）。 */
+.price-tag .peak-line{
+  display:block;margin-top:6px;font-size:12px;color:var(--cta);font-weight:700;
+}
+/* 信頼の3つ。先頭を第三者評価にする（§5-2） */
+.trust .star{color:#F5A623;letter-spacing:-.04em;}
+.hero h1{font-size:clamp(26px,6.4vw,44px);color:var(--text);line-height:1.28;letter-spacing:.01em;text-wrap:balance;}
+/* 黄マーカー（8/28調査 S-5）。下線は「リンク」に見えるので変更した。
+   background で引くので、行が折り返しても各行に付く。 */
 .hero h1 .hl{
-  text-decoration:underline;text-decoration-color:var(--cta);
-  text-decoration-thickness:.11em;text-underline-offset:.2em;text-decoration-skip-ink:none;
+  background:linear-gradient(transparent 62%, var(--mark) 62%, var(--mark) 94%, transparent 94%);
+  padding:0 .06em;
 }
 .hero .sub{color:var(--text-2);font-size:15px;line-height:2.05;max-width:38em;}
 
@@ -163,7 +173,7 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 .price-tag .lab{font-size:12.5px;color:var(--steel);line-height:1.7;letter-spacing:.04em;}
 .price-tag .big{
   font-family:"Oswald",sans-serif;font-weight:500;
-  font-size:clamp(52px,15vw,86px);line-height:.86;color:var(--text);letter-spacing:-.01em;
+  font-size:clamp(42px,11.5vw,72px);line-height:.86;color:var(--text);letter-spacing:-.01em;
 }
 .price-tag .unit{font-family:"Noto Sans JP",sans-serif;font-size:.26em;font-weight:700;margin-left:.1em;letter-spacing:0;}
 .price-tag .tail{font-size:12.5px;color:var(--steel);padding-bottom:8px;line-height:1.8;}
@@ -174,11 +184,11 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 .perk b{color:var(--cta);}
 
 .trust{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule-2);}
-.trust div{padding:16px 8px 0;text-align:left;display:flex;flex-direction:column;gap:3px;
+.trust div{padding:8px 8px 0;text-align:left;display:flex;flex-direction:column;gap:3px;
   border-right:1px solid var(--rule);}
 .trust div:last-child{border-right:0;}
 .trust div:not(:first-child){padding-left:14px;}
-.trust .t{font-family:"Oswald",sans-serif;font-weight:500;font-size:26px;color:var(--text);line-height:1;}
+.trust .t{font-family:"Oswald",sans-serif;font-weight:500;font-size:23px;color:var(--text);line-height:1;}
 .trust .b{font-size:10.5px;color:var(--steel);line-height:1.6;}
 .hero-cta{display:flex;flex-direction:column;gap:9px;}
 .hero-note{font-size:11px;color:var(--steel);line-height:1.7;}
@@ -217,7 +227,9 @@ h3{margin:0;font-weight:700;line-height:1.5;text-wrap:balance;}
 
 
 /* ===== バンド ===== */
-section{padding:60px 0;background:var(--paper);}
+/* 縦を1画面ぶん短くする（§5-9）。スマホ48px／PC72px */
+section{padding:48px 0;background:var(--paper);}
+@media(min-width:900px){section{padding:72px 0;}}
 section.alt{background:var(--surface);}
 section.dark{background:var(--ink);color:var(--on-ink);}
 section.dark h2,section.dark h3{color:#fff;}
@@ -227,7 +239,7 @@ section.dark .eyebrow{color:var(--aqua-ink);}
 /* 見出しは左揃え、罫で切る */
 .sec-h{display:flex;flex-direction:column;gap:12px;margin-bottom:34px;
   border-bottom:1px solid var(--rule-2);padding-bottom:16px;}
-.sec-h h2{font-size:clamp(23px,5.4vw,34px);}
+.sec-h h2{font-size:clamp(23px,5.4vw,38px);line-height:1.28;}
 .sec-h p{font-size:14px;color:var(--steel);line-height:1.95;}
 section.dark .sec-h{border-bottom-color:rgba(255,255,255,.2);}
 section.dark .sec-h p{color:var(--on-ink-2);}
@@ -297,6 +309,12 @@ section.dark .own-row p{color:var(--on-ink-2);}
 .peak{margin-top:18px;padding:16px 18px;background:var(--paper-2);font-size:13.5px;color:var(--text-2);line-height:1.95;}
 .peak b{color:var(--text);}
 .paid-note{font-size:11.5px;color:var(--steel);line-height:1.8;margin-top:12px;}
+/* 支払方法。金額を見た直後に置く（「現金を用意しないといけないのか」に先に答える）
+   案Aと同じ文面・同じ位置。片方だけに入れるとA/Bの比較が濁るため */
+.pay{margin-top:18px;padding:15px 17px;background:var(--paper);border:1px solid var(--rule-2);
+  display:flex;flex-direction:column;gap:8px;}
+.pay p{margin:0;font-size:12.5px;color:var(--text-2);line-height:1.95;}
+.pay p b{font-size:13.5px;color:var(--text);}
 
 /* シミュレーター：ここは持ち上げる */
 .calc{background:var(--surface);border:1px solid var(--rule-2);box-shadow:0 12px 30px -22px rgba(13,59,92,.5);}
@@ -381,7 +399,7 @@ details p{padding:0 0 18px 26px;font-size:14px;color:var(--text-2);line-height:2
 .field .req{color:var(--cta);font-size:11px;margin-left:6px;}
 .field input,.field select,.field textarea{
   padding:13px 14px;border:1px solid var(--rule-2);font-family:inherit;font-size:16px;
-  background:var(--surface);color:var(--text);width:100%;border-radius:0;
+  background:var(--surface);color:var(--text);width:100%;border-radius:8px;
 }
 .consent{font-size:11.5px;color:var(--steel);line-height:1.85;margin:-2px 0 4px;}
 .consent a{color:var(--aqua);}
@@ -396,6 +414,8 @@ details p{padding:0 0 18px 26px;font-size:14px;color:var(--text-2);line-height:2
 .sticky .btn small{display:block;font-size:9px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
 .sticky-note{font-size:10.5px;color:var(--on-ink-2);text-align:center;line-height:1.4;}
 .sticky .btn.call{flex:0 0 auto;background:transparent;color:var(--on-ink);
+  /* 追従バーは濃紺の帯の上。影は出さない（帯の中で浮くため） */
+  box-shadow:none;
   border:1px solid rgba(255,255,255,.4);padding:9px 15px;font-size:15px;}
 .sticky .btn.call small{font-size:9px;color:var(--on-ink-2);}
 .sticky .btn.call:hover{background:rgba(255,255,255,.08);}
@@ -430,30 +450,37 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     <img src="img/hero-bg.jpg" alt="" width="1600" height="1067" fetchpriority="high" decoding="async">
   </div>
   <div class="hero-in">
-    <span class="area">✓ 東京・千葉・神奈川 対応／最短即日</span>
+    <span class="area">江戸川区・西葛西のエアコンクリーニング</span>
     <h1>エアコン分解洗浄、<br><span class="hl">1台 10,780円</span>／60分。<br>最短即日でうかがいます。</h1>
 
     <div class="price-tag">
       <span class="lab">ノーマルエアコン<br>1台あたり</span>
       <span class="big"><span class="num">10,780</span><span class="unit">円</span></span>
-      <span class="tail">／60分（税込）<br>お掃除機能付きは 17,380円／120分</span>
+      <span class="tail">／60分（税込）<br>お掃除機能付きは 17,380円／120分
+        <span class="peak-line" id="peak-line">5〜7月・12月は +3,300円（いまは加算なし）</span>
+      </span>
     </div>
 
-    <p class="sub">送風ファンを取り外し、熱交換器の奥まで専用機材で洗浄します。お見積り以上の追加請求は、一切ありません。</p>
 
-    <p class="perk">LINEご登録の方には、<b>防カビコート（通常 3,630円）を無料</b>でお付けしています。カビの再発を抑えるコーティングです。</p>
 
+    <!-- 第三者評価を先頭に置く（§5-2）。60分は価格ブロックに既に出ているので落とした -->
     <div class="trust">
-      <div><span class="t num">98.6%</span><span class="b">が「他の人に勧めたい」<br>と回答<sup>※1</sup></span></div>
+      <div><span class="t num"><span class="star">★</span>5.0</span><span class="b">Googleクチコミ 23件<br>（2026年9月時点）</span></div>
+      <div><span class="t num">{{MANZOKU_NUM}}{{MANZOKU_UNIT}}</span><span class="b">{{MANZOKU_LAB}}</span></div>
       <div><span class="t num">0円</span><span class="b">お見積り後の<br>追加請求</span></div>
-      <div><span class="t num">60<small>分</small></span><span class="b">1台あたりの<br>作業時間</span></div>
     </div>
 
+    <!-- 主＝見積り（#quote）、副＝電話。LINEはFVから外した（§5-2） -->
     <div class="hero-cta">
-      <a class="btn lg" href="#form">この内容でWEB予約する</a>
-      <a class="btn lg line" href="https://lin.ee/7kD9WGN">LINEで予約する｜防カビコート無料</a>
+      <a class="btn lg" href="#quote">この条件で見積りを出す</a>
+      <a class="btn lg tel-cta" href="tel:08080438259">電話で相談する<span class="tel-no">080-8043-8259</span><span class="tel-time">8:00〜20:00／担当 渡辺</span></a>
     </div>
-    <p class="hero-note">※1 「他の人に勧めたい」と回答した割合：集計期間 2023年1月〜2025年12月、回答209名中206名、自社調べ</p>
+
+    <!-- 説明文はCTAの下へ移した。§5-2 の縦の流れ
+         （区名→見出し→価格→信頼3つ→CTA2つ）に .sub は入っていない。
+         読む人は読む。1画面目を占める理由がない。 -->
+    <p class="sub">エアコンを分解し、熱交換器と送風ファンの奥まで専用機材で洗浄します。お見積り以上の追加請求は、一切ありません。</p>
+    <p class="hero-note">{{MANZOKU_NOTE}}</p>
   </div>
 </div>
 
@@ -525,11 +552,11 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     <p class="shot-note"><b>エアコン｜吹出口・ルーバー</b>　「送風口に黒い点が見える」の正体。ここが見えているときは、奥はもっと汚れています。</p>
     <div class="ba" style="margin-top:22px">
       <figure class="shot sq" style="margin:0">
-        <img src="img/water-1.jpg" alt="洗浄で流れ出た汚水がバケツ一杯にたまっている" loading="lazy" width="700" height="700">
+        <img src="img/water-1.jpg" alt="洗浄で流れ出た汚水" loading="lazy" width="700" height="700">
         <span class="cap">洗浄で出た汚水</span>
       </figure>
       <figure class="shot sq" style="margin:0">
-        <img src="img/water-2.jpg" alt="回収した汚水がバケツ3つ分たまっている" loading="lazy" width="700" height="700">
+        <img src="img/water-2.jpg" alt="回収した汚水" loading="lazy" width="700" height="700">
         <span class="cap">回収した汚水</span>
       </figure>
     </div>
@@ -540,9 +567,9 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
 
 <section class="bleed">
   <figure class="bleed-fig">
-    <img src="img/water-1.jpg" alt="1台のエアコンを洗浄して回収した、真っ黒な汚水がバケツ一杯にたまっている" loading="lazy" width="700" height="700">
+    <img src="img/water-1.jpg" alt="この日の作業で洗い出した、真っ黒な汚水" loading="lazy" width="700" height="700">
     <figcaption>
-      <b>この水は、エアコン1台から出たものです。</b>
+      <b>この水は、この日の作業で洗い出したものです。</b>
       <span>ここに出てきたぶんが、昨日まで、あなたの部屋に送られる空気の通り道に付いていました。</span>
     </figcaption>
   </figure>
@@ -585,7 +612,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
       </div>
       <div class="own-row">
         <span class="own-k">なぜ安くできるのか</span>
-        <p>間に会社が入らないぶん、紹介手数料が乗りません。その差をそのまま価格にしています。品質を落として下げているわけではありません。</p>
+        <p>間に会社が入らないぶん、紹介手数料が乗りません。その差をそのまま価格にしています。</p>
       </div>
       <div class="own-row">
         <span class="own-k">何かあったときは</span>
@@ -611,16 +638,20 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
         <span><span class="nm">エアコンクリーニング</span><br><span class="dur">お掃除機能付きエアコン／120分</span></span>
         <span class="pr">17,380円</span>
       </div>
-      <div class="prow opt"><span class="nm">オプション｜室外機セット</span><span class="pr">6,050円</span></div>
-      <div class="prow opt"><span class="nm">オプション｜防カビコート</span><span class="pr">3,630円</span></div>
-      <div class="prow opt"><span class="nm">オプション｜防虫キャップ</span><span class="pr">1,210円</span></div>
+      <div class="prow opt"><span class="nm">オプション｜室外機セット</span><span class="pr">5,500円</span></div>
+      <div class="prow opt"><span class="nm">オプション｜防カビコート</span><span class="pr">3,300円</span></div>
+      <div class="prow opt"><span class="nm">オプション｜防虫キャップ</span><span class="pr">1,100円</span></div>
     </div>
     <p class="paid-note">※駐車スペースがない場合は、コインパーキング代を実費でいただきます。金額は事前にお伝えします。</p>
     <p class="peak"><b>繁忙期加算について。</b> 5〜7月・12月は各料金に <b>3,300円</b> が加わります。この期間は予約が埋まりやすいため、お急ぎでなければ端境期（4月・8〜11月）のご予約が最もお得です。</p>
+    <div class="pay">
+      <p><b>ご予約の時点では、費用は発生しません。</b>お申し込みのページでお金をお預かりすることはありません。前払い・事前の振込もありません。</p>
+      <p><b>お支払いは、作業が終わってからその場で。</b>現金をご用意いただく必要はありません。クレジット／デビットカード（Visa・Mastercard・JCB・American Express・Diners Club・Discover）、交通系IC・iD・QUICPay、PayPay・d払い・楽天ペイ・au PAY・メルペイがご利用いただけます。</p>
+    </div>
   </div>
 </section>
 
-<section>
+<section id="quote">
   <div class="wrap">
     <div class="sec-h">
       <span class="eyebrow">Simulator</span>
@@ -656,9 +687,9 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
         <fieldset>
           <legend>オプション（任意）</legend>
           <div class="chips">
-            <label class="chip"><input type="checkbox" class="opt" value="6050" data-nm="室外機セット"><span>室外機セット<small>+6,050円</small></span></label>
-            <label class="chip"><input type="checkbox" class="opt" value="3630" data-nm="防カビコート"><span>防カビコート<small>+3,630円</small></span></label>
-            <label class="chip"><input type="checkbox" class="opt" value="1210" data-nm="防虫キャップ"><span>防虫キャップ<small>+1,210円</small></span></label>
+            <label class="chip"><input type="checkbox" class="opt" value="5500" data-nm="室外機セット"><span>室外機セット<small>+5,500円</small></span></label>
+            <label class="chip"><input type="checkbox" class="opt" value="3300" data-nm="防カビコート"><span>防カビコート<small>+3,300円</small></span></label>
+            <label class="chip"><input type="checkbox" class="opt" value="1100" data-nm="防虫キャップ"><span>防虫キャップ<small>+1,100円</small></span></label>
           </div>
         </fieldset>
         <div class="calc-out">
@@ -670,6 +701,8 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
           <p class="paid-note">※駐車スペースがない場合は、コインパーキング代を実費でいただきます。金額は事前にお伝えします。</p>
         </div>
         <a class="btn lg" href="#form">この内容で予約に進む</a>
+        <!-- 特典はFVから移した（§5-2）。金額を見たあとのほうが効く -->
+        <p class="perk">LINEご登録の方には、<b>防カビコート（通常 3,300円）を無料</b>でお付けしています。カビの再発を抑えるコーティングです。</p>
       </div>
     </div>
   </div>
@@ -708,7 +741,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     </div>
     <ol class="steps">
       <li><div><b>養生</b><p>床・壁・家財をシートで完全に覆います</p></div></li>
-      <li><div><b>分解</b><p>カバー・ルーバー・ファンを取り外し</p></div></li>
+      <li><div><b>分解</b><p>カバーとルーバーを外して分解</p></div></li>
       <li><div><b>薬剤塗布</b><p>汚れの質を見て洗剤を選定</p></div></li>
       <li><div><b>高圧洗浄</b><p>熱交換器とファンを専用機材で洗浄</p></div></li>
       <li><div><b>すすぎ・乾燥</b><p>洗剤成分が残らないよう十分に流す</p></div></li>
@@ -840,7 +873,7 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
         <label for="f-when">ご希望の時期</label>
         <input id="f-when" name="when" type="text" placeholder="例：来週の土日、今月中など">
       </div>
-      <p class="consent">ご入力いただいた情報は、ご予約・お見積りのご連絡にのみ使用します。送信をもって<a href="https://one-hitter.jp/privacy_policy/" target="_blank" rel="noopener">個人情報の取扱いについて</a>にご同意いただいたものとみなします。</p>
+      <p class="consent">ご入力いただいた情報は、ご予約・お見積りのご連絡にのみ使用します。送信をもって<a href="https://lp.onehitter.jp/privacy/" target="_blank" rel="noopener">個人情報の取扱いについて</a>にご同意いただいたものとみなします。</p>
       <button class="btn lg" type="submit">この内容で予約を申し込む</button>
       <p class="form-note">送信後、担当より日程のご連絡をいたします。<br>お電話でのご予約は <a href="tel:08080438259" style="color:var(--cta)">080-8043-8259</a>（受付：渡辺／8:00–20:00）<br>時間外でも対応しておりますので、お気軽にご相談ください。</p>
     </form>
@@ -859,11 +892,12 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
       <dt>設立</dt><dd>2022年8月15日</dd>
       <dt>WEB</dt><dd>https://one-hitter.jp/</dd>
     </dl>
-    <p class="foot-links"><a href="https://one-hitter.jp/privacy_policy/" target="_blank" rel="noopener">個人情報の取扱いについて</a>　<a href="https://one-hitter.jp/" target="_blank" rel="noopener">公式サイト</a></p>
+    <p class="foot-links"><a href="/tokushoho/">特定商取引法に基づく表記</a>　<a href="https://lp.onehitter.jp/privacy/" target="_blank" rel="noopener">個人情報の取扱いについて</a>　<a href="https://one-hitter.jp/" target="_blank" rel="noopener">公式サイト</a></p>
     <p class="fine">
       表示価格はすべて税込です。5〜7月・12月は各料金に3,300円が加算されます。<br>
+      2台以上のご注文には、ページからのお申し込み特典として2,200円（税込）を差し引きます（1台のみのご注文は対象外です）。<br>
       駐車スペースをご用意いただけない場合は、コインパーキング等の駐車場代を実費でご請求します。<br>
-      「98.6%が勧めたい」は自社実施のご利用者アンケートに基づく結果です（実施期間：2023年1月〜2025年12月／回答209名中206名）。<br>
+      {{MANZOKU_FINE}}<br>
       効果には個人差があります。設備の状態によっては施工をお受けできない場合があります。
     </p>
   </div>
@@ -875,7 +909,6 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     <a class="btn line" href="https://lin.ee/7kD9WGN">LINE<small>防カビ無料</small></a>
     <a class="btn" href="#form">WEB予約する<small>入力5項目</small></a>
   </div>
-  <p class="sticky-note">しつこい営業・訪問はいたしません</p>
 </div>
 
 
@@ -901,6 +934,13 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
       total += v * qty;
       lines.push(o.dataset.nm + ' ' + fmt(v) + ' × ' + qty + '台');
     });
+
+    // エアコンにはセット価格が無いので、2台以上のときだけ
+    // ページからのお申し込み特典を引く。1台のみは対象外（2026-09-08 オーナー決定）
+    if (qty >= 2){
+      total -= 2200;
+      lines.push('ネット申込特典 −' + fmt(2200));
+    }
 
     totalEl.textContent = fmt(total);
     bdEl.innerHTML = lines.join('<br>') + (qty >= 4 ? '<br><b>※4台以上は個別にお見積りします</b>' : '');
@@ -941,6 +981,20 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
   });
 })();
 
+  /* 価格の3行目。繁忙期（5〜7月・12月）かどうかで文面を変える。
+     HTMLの既定値は「加算なし」なので、JSが動かなくても端境期は正しい。
+     固定文にすると12月にLPが嘘をつくので、月で出し分ける。 */
+  (function(){
+    var el = document.getElementById('peak-line');
+    if (!el) { return; }
+    var m = new Date().getMonth() + 1;
+    var hanbouki = (m >= 5 && m <= 7) || m === 12;
+    el.textContent = hanbouki
+      ? '5〜7月・12月は +3,300円（いまは加算のある時期です）'
+      : '5〜7月・12月は +3,300円（いまは加算なし）';
+    el.style.color = hanbouki ? 'var(--text-2)' : 'var(--cta)';
+  })();
+
   /* 流入元の記録。?src= と ?cid= を hidden に写す。
      値は素性が不明なので、長さと文字種を制限してから入れる。 */
   (function(){
@@ -948,6 +1002,55 @@ footer .fine{font-size:11px;line-height:1.9;border-top:1px solid rgba(255,255,25
     var clean = function(v, n){ return (v || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, n); };
     var src = clean(q.get('src'), 20) || 'direct';
     var cid = clean(q.get('cid'), 20);
+
+    /* Google広告のクリックID。成果を広告に結びつけるのに要る。
+       申し込みは来訪と同じ日とは限らないので、URLから拾って localStorage に持たせ、
+       あとで申し込まれたときにフォームへ載せる（Googleの計測可能期間に合わせて90日）。
+       gclid が付かない経路（iOSアプリ内など）では wbraid / gbraid が来るので同じ扱いにする。 */
+    var GCLID_KAGI = 'oh_gclid';
+    var GCLID_HI = 90 * 24 * 60 * 60 * 1000;
+    var gclid = clean(q.get('gclid'), 120) || clean(q.get('wbraid'), 120) || clean(q.get('gbraid'), 120);
+    try {
+      if (gclid) {
+        localStorage.setItem(GCLID_KAGI, JSON.stringify({ v: gclid, t: Date.now() }));
+      } else {
+        var nokori = JSON.parse(localStorage.getItem(GCLID_KAGI) || 'null');
+        if (nokori && nokori.v && (Date.now() - nokori.t) < GCLID_HI) {
+          gclid = nokori.v;                       // 前回のクリックを引き継ぐ
+        } else if (nokori) {
+          localStorage.removeItem(GCLID_KAGI);    // 90日を過ぎたものは消す
+        }
+      }
+    } catch (e) { /* プライベートモード等で localStorage が使えないことがある */ }
+    /* 隠し欄そのものは build-site.py（計測担当の実装）が入れて、送信時に値を詰める。
+       ここで拾った gclid は、下の「別ホストへの引き継ぎ」で使う。 */
+
+    /* 別ホストへの導線に、流入の情報を引き継がせる。
+       予約フォームは yoyaku.onehitter.jp で、このLPとは別ホスト。
+       localStorage はホストをまたいで共有されないので、
+       リンクを踏んだ時点でURLに載せないと、向こうでは「流入元＝空」になる。
+       （2026-09-14 CMOの指摘。予約フォーム側は保存の実装済み）
+
+       いまのところLPから予約フォームへのリンクは1本も無い。
+       あとで足したときに黙って切れるのを防ぐために入れてある。
+
+       ★読み込み時に一括で書き換える作りにすると、このスクリプトより後ろに
+         置かれたリンクや、あとからJSで足したリンクに効かない（実際に効かなかった）。
+         押された瞬間に書き換えるので、どこにどう足されても効く。 */
+    var BESSITE = /(^|\.)onehitter-yoyaku\.netlify\.app$|(^|\.)yoyaku\.onehitter\.jp$|(^|\.)one-hitter-booking\.netlify\.app$/;
+    document.addEventListener('click', function (ev) {
+      var a = ev.target && ev.target.closest ? ev.target.closest('a[href]') : null;
+      if (!a) return;
+      var u;
+      try { u = new URL(a.href, location.href); } catch (e) { return; }
+      if (!BESSITE.test(u.hostname)) return;
+      var hikitsugu = { src: src, cid: cid, gclid: gclid };
+      Object.keys(hikitsugu).forEach(function (k) {
+        // すでにURLに書いてあるものは、書いた人の意図を優先して上書きしない
+        if (hikitsugu[k] && !u.searchParams.has(k)) u.searchParams.set(k, hikitsugu[k]);
+      });
+      a.href = u.toString();
+    }, true);
     var es = document.getElementById('h-src'); if (es) es.value = src;
     var ec = document.getElementById('h-cid'); if (ec) ec.value = cid;
   })();
