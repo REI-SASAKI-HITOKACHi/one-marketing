@@ -49,3 +49,18 @@ python3 tools/haishin-kakunin.py --honban
 
 本番の /aircon-b/ に「この水は、エアコン1台から出たものです。」と、写真の説明に「バケツ一杯」「バケツ3つ分」がある。
 作り方：今の配信物に `python3 tools/osui-1024.py` を当てただけ（差は4行）。CMO の OK のあと `cp deploy/machi/osui/aircon-b/index.html deploy/netlify/aircon-b/index.html` → 上と同じ手順で配信。
+
+## bokabi/（11月のネット予約に防カビコート無料・依頼 20261024-04-lp・20261025-01-lp）
+
+作り方：`python3 tools/bokabi-1024.py`（予約ページは本番と同じ cmo ブランチの lp/booking/index.html から。lp ブランチの lp/booking は古いので使わない）
+中身：予約ページ（金額の欄・日付の画面・ご希望の内容に防カビの行）と、エアコンLP（C・E・/aircon/）の帯の下の行。
+
+**嶺さんの OK が出たら：**
+```
+python3 tools/bokabi-1024.py --out deploy/netlify --src deploy/netlify   # C・E・/aircon/ と予約ページ（deploy/netlify/booking は使わないので下で上書き）
+cp deploy/netlify/booking/index.html lp/booking/index.html && rm -rf deploy/netlify/booking   # 予約ページは別サイト（onehitter-yoyaku）
+python3 tools/check-public-page.py deploy/netlify/{aircon,aircon-c,aircon-e}/index.html lp/booking/index.html
+python3 tools/haishin-kakunin.py && python3 tools/deploy-netlify.py && python3 tools/haishin-kakunin.py --honban
+python3 tools/deploy-booking.py --dry-run   # 送るのは index.html と slots.json だけか確かめてから
+python3 tools/deploy-booking.py
+```
