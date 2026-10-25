@@ -129,7 +129,7 @@ def hyouji(nichi, ce):
         out.append(f"- **E を採用する線**：E の予約ページへが **{sen} 人以上**（いまの人数のまま）" if sen is not None
                    else "- E を採用する線：この人数では、E が全員でも p<0.10 に届かない")
         if e["予約ページへ"] / e["LP"] < c["予約ページへ"] / c["LP"]:
-            out.append("- E が C を下回っている（10/24 の時点でもそうなら E を止める）")
+            out.append("- E が C を下回っている（判断はしない。オーナー決定 10/24：11/10 まで続ける）")
     else:
         out.append("- C か E の人数が0。振り分けが動いているか確かめる")
     return "\n".join(out)
