@@ -340,6 +340,7 @@ gtag('config','AW-18450975194');
         <h2>ご希望の日時をお選びください</h2>
         <p class="why">担当（渡辺）のいまの空き状況です。ここに出ている枠なら、そのままお伺いできます。作業時間は<b id="yotei-fun">—</b>を見込んでいます。</p>
         <p class="why" id="pre-note" hidden></p>
+        <p class="why" id="bokabi-note" hidden></p>
       </div>
       <div id="slots"><p class="loading">空き状況を確認しています…</p></div>
       <p class="slots-toki" id="slots-toki"></p>
@@ -459,6 +460,11 @@ gtag('config','AW-18450975194');
 (function(){
   'use strict';
   var S = {"menus": [{"n": "エアコンクリーニング（ノーマル）","t": 10780,"d": 10780,"m": 60},{"n": "エアコンクリーニング（お掃除機能付き）","t": 17380,"d": 17380,"m": 120},{"n": "洗濯機クリーニング","t": 17380,"d": 17380,"m": 120},{"n": "レンジフードクリーニング","t": 18480,"d": 15180,"m": 90},{"n": "レンジフード（プロペラ式）","t": 10780,"d": 10780,"m": 60},{"n": "キッチンクリーニング","t": 18480,"d": 15180,"m": 150},{"n": "浴室クリーニング","t": 18480,"d": 15180,"m": 180},{"n": "追い焚き配管クリーニング","t": 19910,"d": 16610,"m": 60},{"n": "コンロクリーニング","t": 10780,"d": 5500,"m": 30},{"n": "トイレクリーニング","t": 10780,"d": 10780,"m": 60},{"n": "洗面台クリーニング","t": 10780,"d": 7480,"m": 60},{"n": "お掃除時短コーティング","t": 19800,"d": 19800,"m": 60}],"hanbouki": {"tsuki": [5,6,7,12],"gaku": 3300},"souki": {"1": 0.15,"2": 0.15,"3": 0.1,"4": 0.1,"5": 0.0,"6": 0.0,"7": 0.0,"8": 0.1,"9": 0.1,"10": 0.1,"11": 0.1,"12": 0.0},"netTokuten": 2200,"api": "https://script.google.com/macros/s/AKfycbzuuMGVICQPoLlUrFBarb1zAgi_kVdc1vDrRJoyhAJ_tvOG-eHnmTHDGWhuvix3E3_odQ/exec","slots": "./slots.json","form": "yoyaku","tel": "080-8043-8259"};
+
+  /* 11月のネット予約は防カビコート無料（tools/bokabi-1024.py・オーナー 10/24）。合計は変えず、行を出すだけ */
+  S.bokabi = {tsuki: '2026-11', gaku: 3300, kazu: '1台分', taisho: ['エアコンクリーニング（ノーマル）', 'エアコンクリーニング（お掃除機能付き）']};
+  function bokabiAircon(){ return S.bokabi.taisho.some(function(n){ return (state.qty[n] || 0) > 0; }); }
+  function bokabiOf(){ return (state.date && state.date.slice(0, 7) === S.bokabi.tsuki && bokabiAircon()) ? S.bokabi.gaku : 0; }
   // SNS（Instagram／Facebook／Googleビジネスプロフィール）から来た初見の方向けに、
   // 「前回ご利用のお客様専用」の文言だけ差し替える。SMS経由の既存客の画面は変えない。
   // （2026-09-11 ネット流入担当の指摘 20260911-01-cmo）
@@ -596,6 +602,7 @@ gtag('config','AW-18450975194');
       kasho: n, tanpin: tanpin, shoukei: shoukei, setBiki: setBiki,
       ritsu: ritsu, waribiki: waribiki, netto: netto,
       kasan: kasan, gokei: shoukei - waribiki - netto + kasan,
+      bokabi: bokabiOf(),
     };
   }
   function yen(v){ return '¥' + v.toLocaleString('ja-JP'); }
@@ -665,10 +672,14 @@ gtag('config','AW-18450975194');
     if (k.kasan) {
       h.push(ln('繁忙期加算（' + k.kasho + '箇所）', '+' + yen(k.kasan), 'add'));
     }
+    if (k.bokabi) {
+      h.push(ln('防カビコート（エアコン' + S.bokabi.kazu + '）', '<s>' + yen(k.bokabi) + '</s> 無料', 'off'));
+    }
     h.push(ln('概算合計（税込）', yen(k.gokei), 'sum'));
     h.push('<p class="note">現地の状況により変わることがあります。確定金額は担当からのお電話でお伝えします。' +
            'お車を停められる場所が無い場合は、コインパーキング代が実費で加わります。遠方（目安：高速道路を使う地域）は、交通費をいただく場合があります。お見積りのお電話でご案内します。' +
-           (state.date ? '' : '日時をお選びいただくと、割引と加算を反映した金額になります。') + '</p>');
+           (state.date ? '' : '日時をお選びいただくと、割引と加算を反映した金額になります。') +
+           (!state.date && bokabiAircon() ? '11月の作業なら、防カビコート（エアコン' + S.bokabi.kazu + '・3,300円）が無料になります。' : '') + '</p>');
     return h.join('');
   }
   function ln(l, v, cls){
@@ -825,6 +836,8 @@ gtag('config','AW-18450975194');
           drawSlots();
           drawTotal();
           $('e2').textContent = '';
+          var bn = $('bokabi-note');
+          if (bn) { bn.hidden = !bokabiOf(); bn.textContent = '11月の作業なので、防カビコート（エアコン' + S.bokabi.kazu + '・3,300円）が無料になります。'; }
         });
         tl.appendChild(b);
       });
@@ -897,7 +910,7 @@ gtag('config','AW-18450975194');
       var q = state.qty[m.n] || 0;
       if (q > 0) { a.push(m.n + (q > 1 ? ' ×' + q : '')); }
     });
-    return a.join('／');
+    return a.join('／') + (bokabiOf() ? '＋防カビコート無料（11月ネット予約・エアコン' + S.bokabi.kazu + '）' : '');
   }
   function nichijiText(){
     var d = null;
