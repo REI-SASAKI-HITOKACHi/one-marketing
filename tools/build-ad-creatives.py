@@ -36,7 +36,8 @@ PAPER, CTA, MARK = (250, 247, 242), (192, 48, 12), (255, 214, 90)
 BANNED = ["最安", "No.1", "今だけ", "残りわずか", "98.8", "出張費が一切", "出張費無料", "追加料金なし",
           "本舗", "日本一", "完全無料", "必ず落ち", "1台ぶん", "バケツ1杯"]
 
-A_OFFER = ("11月の作業は1台10%引き", "お掃除機能なし  9,702円（税込）", "1箇所のご依頼が対象です")
+A_OFFER = ("11月の作業は1台10%引き", "お掃除機能なし  9,702円（税込）", "1箇所のご依頼が対象です",
+           "11月のネット予約は、\n防カビコート（3,630円・税込）を1台分無料")
 B_OFFER = ("11月の作業は10%引き", "レンジフード・浴室・キッチン  1箇所 16,632円（税込）", "1箇所のご依頼が対象です")
 CTA_LABEL = "空いている日を見る"
 SIGN = "ワンヒッター｜江戸川区北葛西　東京・千葉・神奈川"
@@ -95,11 +96,15 @@ def button(d, cx, y, label, w=760, h=118, size=44):
 
 
 def offer_block(d, W, y, offer):
-    a, b, c = offer
+    a, b, c = offer[:3]
     d.text((64, y), a, font=font(76), fill=PAPER)
     y += 104
     d.text((64, y), b, font=font(40 if len(b) > 22 else 52), fill=MARK)
     y += 70
+    if len(offer) > 3:
+        for ln in offer[3].split("\n"):
+            d.text((64, y), ln, font=font(40), fill=(255, 255, 255))
+            y += 52
     d.text((64, y), c, font=font(32, 500), fill=(205, 220, 232))
     return y + 52
 
@@ -111,10 +116,11 @@ def still(name, head, img, offer, crop_pos=(0.5, 0.5)):
     im = gradient(W, H)
     d = ImageDraw.Draw(im)
     text_lines(d, (64, 70), head, font(72), PAPER, 100)
-    ph = fit_cover(img, W, 620, *crop_pos)
+    ph_h, y0 = (500, 810) if len(offer) > 3 else (620, 950)
+    ph = fit_cover(img, W, ph_h, *crop_pos)
     im.paste(ph, (0, 300))
     d = ImageDraw.Draw(im)
-    y = offer_block(d, W, 950, offer)
+    y = offer_block(d, W, y0, offer)
     button(d, W // 2, y + 6, CTA_LABEL, w=640, h=104, size=42)
     d.text((W - 64 - d.textlength(SIGN, font=font(24, 500)), H - 46), SIGN, font=font(24, 500), fill=(160, 185, 205))
     p = OUT / f"{name}.png"
@@ -148,13 +154,17 @@ def end_card(path, offer):
     check(*offer)
     im = gradient(1080, 1920)
     d = ImageDraw.Draw(im)
-    a, b, c = offer
+    a, b, c = offer[:3]
     d.text((64, 640), a, font=font(84), fill=PAPER)
     parts = b.split("  ") if len(b) > 22 else [b]
     y = 770
     for ln in parts:
         d.text((64, y), ln, font=font(58), fill=MARK)
         y += 84
+    if len(offer) > 3:
+        for ln in offer[3].split("\n"):
+            d.text((64, y + 6), ln, font=font(44), fill=(255, 255, 255))
+            y += 60
     d.text((64, y + 6), c, font=font(36, 500), fill=(205, 220, 232))
     y += 100
     button(d, 540, y, CTA_LABEL, w=860, h=132, size=52)
@@ -264,7 +274,7 @@ def wrap(d, text, f, width):
 
 
 DIFF = {
-    "A1": "10/21に低いと言われた版に静止画は無かった。写真を画面の約半分に大きく置き、文字は見出し1つと価格の帯だけにした。",
+    "A1": "（11月のネット予約は防カビコート1台分無料の1行を追加）10/21に低いと言われた版に静止画は無かった。写真を画面の約半分に大きく置き、文字は見出し1つと価格の帯だけにした。",
     "A2": "静止画をゆっくり拡大した版から、10/19の現場で撮った動画に替えた。1秒目に洗い出した水の画、23秒→11.5秒、見出しは1場面1つ、価格は最後のカードに集約、元の音は使わず自作BGM。",
     "B1": "写真を画面の約半分に大きく置き、見出しは1つ。価格と対象（1箇所）を下の帯に固定し、押す場所を1つにした。",
     "B2": "21〜23秒→11.5秒、見出しは1場面1つ、1秒目をいちばん汚れの強い画（フィルターの油汚れ）に、価格は最後のカード。弱点：素材が静止画なので、動きは拡大だけ。和真さんの現場動画（水まわり）が撮れたら差し替える。",
@@ -298,7 +308,7 @@ def review_page(sa, sb, va, vb):
             y += 34
     d.text((50, 1370), "守った点：本舗のロゴ・社名・番号／お客様の名前／電話番号なし。出張費・「追加料金なし」の言い切りなし。汚水に台数・杯数なし。10%引きは「1箇所のご依頼が対象」。", font=f24, fill=(40, 50, 60))
     d.text((50, 1410), "確認できていない点：広告の審査（Meta）と、広告アカウント側の動画の表示は未確認。9,702円・16,632円は 税込の10%引き（10,780円・18,480円の90%）。", font=f24, fill=(40, 50, 60))
-    d.text((50, 1450), "調査（docs/動画広告-業種を問わない調査-1枚-2026-10-24.md）から反映：冒頭の1〜3秒に最も見せたい画／15秒以内（11.5秒）／見出しは短く1つ／最後に具体的な行動。防カビ無料は条件確認中のため入れていない。", font=f24, fill=(40, 50, 60))
+    d.text((50, 1450), "調査（docs/動画広告-業種を問わない調査-1枚-2026-10-24.md）から反映：冒頭の1〜3秒に最も見せたい画／15秒以内（11.5秒）／見出しは短く1つ／最後に具体的な行動。防カビ無料（11月のネット予約・エアコン・1回の予約につき1台分）はA1・A2に1行で入れた。防カビコートは price-master どおり 3,630円（税込）と表記。", font=f24, fill=(40, 50, 60))
     d.text((50, 1490), "ファイル：dist/ad-creatives/（A1・B1 PNG／A2・B2 MP4）。リポジトリには deliver/ad-creatives-2026-10/ に置く。", font=f24, fill=(40, 50, 60))
     p = OUT / "確認ページ.png"
     im.save(p)
