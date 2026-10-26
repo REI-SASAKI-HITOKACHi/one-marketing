@@ -30,7 +30,7 @@ SS = "1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64"
 KITEN = datetime.date(2026, 9, 26)          # オーナー指示の日＝「今日以降」の起点
 JST = datetime.timezone(datetime.timedelta(hours=9))
 YOTEI = ROOT / "data" / "kanryo-yotei.json"
-SAIDAI = 30                                 # リンクが長くなりすぎないよう、古い順に30件まで
+SAIDAI = 12                                 # リンクが長くなりすぎないよう、古い順に12件まで（2026-10-26：26件入れたURLがLINEの1通5000字を超えて切れ、和真さんが開けなかった。1件≒300字）
 
 
 def seiki(na):
