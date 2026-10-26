@@ -108,7 +108,8 @@ def main():
     tsuika = {"One Hitter": hyou(oh), "本舗": hyou(honpo)}
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(HTML
+    import tanshuku   # 短縮リンク #k= を元の # に戻す読み込み役（2026-10-26 オーナー指示）
+    OUT.write_text(HTML.replace("<script>", tanshuku.LOADER + "<script>", 1)
                    .replace("__QR__", qr_data_uri(SURVEY))
                    .replace("__SURVEY__", SURVEY)
                    .replace("__TSUIKA__", json.dumps(tsuika, ensure_ascii=False)),

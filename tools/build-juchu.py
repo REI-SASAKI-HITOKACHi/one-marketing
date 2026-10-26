@@ -127,7 +127,8 @@ def main():
     yotei, toku = yotei_dasu()
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(HTML
+    import tanshuku   # 短縮リンク #k= を元の # に戻す読み込み役（2026-10-26 オーナー指示）
+    OUT.write_text(HTML.replace("<script>", tanshuku.LOADER + "<script>", 1)
                    .replace("__OH__", json.dumps(oh, ensure_ascii=False))
                    .replace("__HONPO__", json.dumps(honpo, ensure_ascii=False))
                    .replace("__KEIRO__", json.dumps(keiro["選択肢"], ensure_ascii=False))

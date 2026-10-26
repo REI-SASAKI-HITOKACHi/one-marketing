@@ -221,6 +221,8 @@ def main():
             if a.dry_run:
                 print("\n--dry-run のため送っていません。\n" + txt)
                 return
+            import tanshuku   # LINE のリンクは短縮して送る（2026-10-26 オーナー指示）
+            txt = tanshuku.kakikae([txt])[0]
             r = subprocess.run([sys.executable, str(ROOT / "tools" / "line_client.py"), "push", txt],
                                capture_output=True, text=True)
             print("  送りました" if r.returncode == 0 else f"  🔴 送れませんでした: {r.stderr.strip()[:200]}")
@@ -274,6 +276,9 @@ def main():
     if a.asa and okuru:
         okuru.sort(key=lambda y: str(y.get("開始時刻", "")))
         bunsho = [honbun(y, p) for y in okuru]
+        if not a.dry_run:
+            import tanshuku   # LINE のリンクは短縮して送る（2026-10-26 オーナー指示。長いリンクは LINE で切れた）
+            bunsho = tanshuku.kakikae(bunsho)
         midashi = f"【今日の作業完了フォーム】{len(okuru)}件（朝にまとめてお送りします）"
         kugiri = "\n\n――――――――\n\n"
         txt = midashi + "\n\n" + kugiri.join(bunsho)
@@ -298,8 +303,10 @@ def main():
     if a.dry_run:
         print("\n--dry-run のため送っていません。")
         return
+    import tanshuku   # LINE のリンクは短縮して送る（2026-10-26 オーナー指示）
+    hon = dict(zip([y["id"] for y in okuru], tanshuku.kakikae([honbun(y, p) for y in okuru])))
     for y in okuru:
-        r = subprocess.run([sys.executable, str(ROOT / "tools" / "line_client.py"), "push", honbun(y, p)],
+        r = subprocess.run([sys.executable, str(ROOT / "tools" / "line_client.py"), "push", hon[y["id"]]],
                            capture_output=True, text=True)
         if r.returncode != 0:
             print(f"  🔴 送れませんでした: {y.get('氏名')} {r.stderr.strip()[:200]}")
