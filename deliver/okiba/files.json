@@ -1,0 +1,21 @@
+{
+ "updated": "2026-10-26 14:2x",
+ "folder": "1zBP7etIT0D0HcYqp1HFPGNO_X9uhTx86",
+ "dan": [
+  {"title": "エル・アップ様（メール）", "to": "r-kagawa@l-up.jp",
+   "note": "Gmailの下書き（宛名：代表取締役社長 賀川 様）にこの2本を添付して送信。",
+   "files": [
+    {"name": "エル・アップ様_添付1_これまでのお取引の記録.pdf", "asset": "6d6d7df37fbade5357b8e8d2fb89c39e", "size": 619227},
+    {"name": "エル・アップ様_添付2_ご紹介カード案.pdf", "asset": "019dde21cb7b6b638ddfbcb4f764a801", "size": 3220558}]},
+  {"title": "キノビト様（メール）", "to": "info@kinobito.co.jp",
+   "note": "Gmailの下書き（宛名：中村 様）にこの2本を添付して送信。",
+   "files": [
+    {"name": "キノビト様_添付1_これまでのお取引の記録.pdf", "asset": "3c972c28a6addcde1a09869088021edc", "size": 505749},
+    {"name": "キノビト様_添付2_ご紹介カード案.pdf", "asset": "c520442c76c164d4e50500b96c1de00c", "size": 1597552}]},
+  {"title": "インテリアエージェント様（LINE）", "to": "LINE",
+   "note": "LINEの文面は docs/休眠先3社-送付物-2026-10-16版.md §7。スマホで「端末に保存」してからLINEで送信。",
+   "files": [
+    {"name": "インテリアエージェント様_1_これまでのお取引の記録.pdf", "asset": "18d03252bfe84c951f8032cb81abb69f", "size": 536441},
+    {"name": "インテリアエージェント様_2_ご紹介カード案.pdf", "asset": "3dd7aabd64499ec15d165a6f0c6cbdcf", "size": 3216928}]}
+ ]
+}
