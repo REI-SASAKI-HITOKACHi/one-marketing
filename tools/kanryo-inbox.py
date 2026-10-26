@@ -46,6 +46,9 @@ SS = "1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64"
 SITE_ID = "f1b64c82-173e-4b1a-9e7f-bf24026fed0e"     # oh-naibu-sms-k7q3x（社内用）
 FORM = "kanryo"
 SUMI = ROOT / "data" / "kanryo-torikomi.json"
+# 2026-10-26：Netlify の提出を消すと「提出済み」の印も消え、asa-remind が入力済みを未入力と言った（10/25 に44件削除）。
+# 取り込んだ提出の 台帳・氏名・施工日付 をここに残し、kanryo_mishin.teishutsu_zumi() が Netlify と合わせて読む
+TEISHUTSU = ROOT / "data" / "kanryo-teishutsu.json"
 JIKAN = ROOT / "data" / "kanryo-jikan.json"          # 実所要の蓄積（施工時間の精度を上げる資産）
 SHASHIN = ROOT / "data" / "kanryo-shashin"
 JIDOU = "★受注フォームから自動で入りました"
@@ -331,6 +334,13 @@ def main():
         print("\n--dry-run のため書いていません。")
         return
     JIKAN.write_text(json.dumps(jikan, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    tei = json.loads(TEISHUTSU.read_text(encoding="utf-8")) if TEISHUTSU.exists() else []
+    for s in atarashii:
+        d = s.get("data") or {}
+        if s["id"] in ireta and "テスト" not in str(d.get("氏名", "")):
+            tei.append({"id": s["id"], "台帳": str(d.get("台帳", "")).strip(), "氏名": d.get("氏名", ""),
+                        "施工日付": str(d.get("施工日付", "")).replace("/", "-"), "送信": s.get("created_at", "")})
+    TEISHUTSU.write_text(json.dumps(tei, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     SUMI.write_text(json.dumps(sorted(sumi | set(ireta)), ensure_ascii=False, indent=2) + "\n",
                     encoding="utf-8")
     print(f"\n実所要の蓄積: {JIKAN}（{len(jikan)}件）")
