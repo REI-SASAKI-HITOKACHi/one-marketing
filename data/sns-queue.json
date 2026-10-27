@@ -1599,9 +1599,29 @@
     "fb_caption": "江戸川区のハウスクリーニング店から、自分でできる範囲のお話です。\n\nトイレの汚れは、出ている場所で原因が分かれます。\n・ふちの裏側は、水が流れる道筋に汚れが残る\n・水面のラインは、水が止まる高さに汚れが積もる\n・床と便器の境目は、飛沫が入り込んで拭き残される\n\nLIXILの案内では、便器のふちの裏側の汚れ落としは週1回の手入れとされています。上から見えない場所なので、手鏡を1枚置くと確かめられます。\n手が届かない汚れは、トイレクリーニングで洗います。\n\nご予約はこちらから。\n\n#トイレ掃除 #トイレの黄ばみ #自分でできる掃除 #江戸川区 #西葛西 #ハウスクリーニング",
     "link": "https://lp.onehitter.jp/nenmatsu/?src=ig",
     "fb_link": "https://yoyaku.onehitter.jp/?src=fb",
-    "status": "approved",
+    "status": "posted",
     "note": "D型。ブログ 10/27 と同じ内容の先出し（LIXIL・東京都）。カードは data/sns-cards/w07-2.json（check-cards OK）。",
-    "承認": "2026-10-26 cmo 査読OK（20261026-01-cmo）"
+    "承認": "2026-10-26 cmo 査読OK（20261026-01-cmo）",
+    "results": {
+      "instagram": {
+        "container_id": "18082135523709070",
+        "media_id": "18011594726774314",
+        "permalink": "https://www.instagram.com/p/De-h2pHFwqu/",
+        "published": true
+      },
+      "facebook": {
+        "post_id": "103698149101436_1143574745125542",
+        "permalink": "https://www.facebook.com/1100803886069295/posts/1143574745125542",
+        "media_ids": [
+          "1143574721792211"
+        ]
+      }
+    },
+    "posted_at": "2026-10-27T09:05:33+09:00",
+    "permalinks": {
+      "instagram": "https://www.instagram.com/p/De-h2pHFwqu/",
+      "facebook": "https://www.facebook.com/1100803886069295/posts/1143574745125542"
+    }
   },
   {
     "id": "w07-3",
