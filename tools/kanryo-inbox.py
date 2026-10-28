@@ -73,6 +73,27 @@ def daicho_wake(s):
     return (m.group(1), int(m.group(2))) if m else (None, None)
 
 
+def gyo_tashikame(call, han, tab, gyo, na):
+    """フォームの『◯行目』が本人の行かを E列（氏名）で確かめる。ずれていれば同じタブで氏名を探し直す。
+    2026-10-28：白川様の完了フォームが『38行目』（空行）を指し、入金経路を空行に書いた。行が後から詰まるとずれる。
+    見つからない・2人以上いるときは (None, None) を返して書かない。"""
+    def kiyo(v):
+        return re.sub(r"[\s　]", "", str(v or ""))
+    me = kiyo(na)
+    if not me:
+        return tab, gyo
+    e = call(han(f"'{tab}'!E{gyo}")).get("values", [[""]])
+    if e and e[0] and kiyo(e[0][0]) == me:
+        return tab, gyo
+    retsu = call(han(f"'{tab}'!E1:E400")).get("values", [])
+    atari = [i + 1 for i, r in enumerate(retsu) if r and kiyo(r[0]) == me]
+    if len(atari) == 1:
+        print(f"   ⚠ フォームの {gyo}行目は別の行でした。氏名で探して {atari[0]}行目に書きます")
+        return tab, atari[0]
+    print(f"   ⚠ {tab} {gyo}行目に {na} さまがいません（同じ氏名 {len(atari)}行）。シートは直しません（手で入れてください）")
+    return None, None
+
+
 def shashin_mei(d, bangou):
     na = d.get("氏名", "（名前なし）")
     return SHASHIN / f"{d.get('施工日付','日付なし')}_{re.sub(r'[^0-9A-Za-zぁ-んァ-ヶ一-龥]', '', na)}_{bangou}.jpg"
@@ -213,6 +234,8 @@ def main():
         na = d.get("氏名", "（名前なし）")
         tab, gyo = daicho_wake(d.get("台帳", ""))
         print(f"\n── {na} さま／{d.get('施工日付','')} {d.get('開始時刻','')}〜{d.get('作業終了時刻','')}")
+        if tab:
+            tab, gyo = gyo_tashikame(call, han, tab, gyo, na)
 
         # --- 写真を手元に落とす（SNSの素材にする） ---
         mai = 0
