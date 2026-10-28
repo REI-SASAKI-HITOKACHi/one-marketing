@@ -1,0 +1,27 @@
+RewriteEngine On
+RewriteRule ^ https://one-hitter.jp/ [R=301,L]
+# 2026-10-28 php2shell対策（CMO依頼 20261021-03）。旧WordPressへの到達を止める。戻すときはこの3行を消す（控え：.htaccess.bak-20261028）
+# Security audit 2026-10-25: deny direct public access to backup archives.
+<IfModule mod_rewrite.c>
+RewriteEngine On
+# Inactive plugin closed by WordPress.org for a security issue; preserve files, deny web access.
+RewriteRule ^wp-content/plugins/ab-testing-for-wp(?:/|$) - [F,L]
+RewriteRule ^wp-content/ai1wm-backups(?:/|$) - [F,L]
+# Preserve rollback files; deny direct web access to update staging directories.
+RewriteRule ^wp-content/(?:upgrade|upgrade-temp-backup)(?:/|$) - [F,L]
+</IfModule>
+
+# BEGIN WordPress
+# "BEGIN WordPress" から "END WordPress" までのディレクティブ (行) は
+# 動的に生成され、WordPress フィルターによってのみ修正が可能です。
+# これらのマーカー間にあるディレクティブへのいかなる変更も上書きされてしまいます。
+
+# END WordPress
+# BEGIN LiteSpeed
+# "BEGIN LiteSpeed" から "END LiteSpeed" までのディレクティブ (行) は
+# 動的に生成され、WordPress フィルターによってのみ修正が可能です。
+# これらのマーカー間にあるディレクティブへのいかなる変更も上書きされてしまいます。
+<IfModule Litespeed>
+	SetEnv noabort 1
+</IfModule>
+# END LiteSpeed
