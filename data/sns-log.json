@@ -750,5 +750,25 @@
     "media_ids": [
       "1143696471780036"
     ]
+  },
+  {
+    "id": "w07-3",
+    "platform": "instagram",
+    "posted_at": "2026-10-28T09:05:32+09:00",
+    "permalink": "https://www.instagram.com/p/DfBGql_jKIY/",
+    "post_id": "18097362335404813",
+    "media_ids": [
+      "18097362335404813"
+    ]
+  },
+  {
+    "id": "w07-3",
+    "platform": "facebook",
+    "posted_at": "2026-10-28T09:05:35+09:00",
+    "permalink": "https://www.facebook.com/1100803886069295/posts/1144586345024382",
+    "post_id": "103698149101436_1144586345024382",
+    "media_ids": [
+      "1144586321691051"
+    ]
   }
 ]

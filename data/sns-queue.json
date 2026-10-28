@@ -1659,9 +1659,29 @@
     "fb_caption": "江戸川区のハウスクリーニング店から、自分でできる範囲のお話です。\n\n便器の黄ばみは、強い洗剤から始めないほうが安全です。\n1. トイレ用の中性洗剤をかけて、しばらく放置してからこする\n2. 落ちなければ、力を上げずに放置する時間を延ばす\n3. 塩素系の洗浄剤は、他の洗剤と混ぜず単独で使う\n\n手順はLIXILの案内（便器の日常のお手入れ）に、塩素系の注意は国民生活センターの資料に書かれています。\n落ちない黄ばみは、トイレクリーニングで洗います。\n\nご予約はこちらから。\n\n#トイレ掃除 #トイレの黄ばみ #自分でできる掃除 #江戸川区 #西葛西 #ハウスクリーニング",
     "link": "https://lp.onehitter.jp/nenmatsu/?src=ig",
     "fb_link": "https://yoyaku.onehitter.jp/?src=fb",
-    "status": "approved",
+    "status": "posted",
     "note": "D型。ブログ 10/28 と同じ内容の先出し（LIXIL・国民生活センター）。カードは data/sns-cards/w07-3.json（check-cards OK）。",
-    "承認": "2026-10-26 cmo 査読OK（20261026-01-cmo）"
+    "承認": "2026-10-26 cmo 査読OK（20261026-01-cmo）",
+    "results": {
+      "instagram": {
+        "container_id": "18082302899709070",
+        "media_id": "18097362335404813",
+        "permalink": "https://www.instagram.com/p/DfBGql_jKIY/",
+        "published": true
+      },
+      "facebook": {
+        "post_id": "103698149101436_1144586345024382",
+        "permalink": "https://www.facebook.com/1100803886069295/posts/1144586345024382",
+        "media_ids": [
+          "1144586321691051"
+        ]
+      }
+    },
+    "posted_at": "2026-10-28T09:05:35+09:00",
+    "permalinks": {
+      "instagram": "https://www.instagram.com/p/DfBGql_jKIY/",
+      "facebook": "https://www.facebook.com/1100803886069295/posts/1144586345024382"
+    }
   },
   {
     "id": "w07-4",
