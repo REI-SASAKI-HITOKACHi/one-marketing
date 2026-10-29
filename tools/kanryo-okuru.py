@@ -73,10 +73,20 @@ def hyou_kara(yotei, sumi, kyou):
     except Exception as e:
         print(f"  ⚠ 売上表から今日の施工を読めませんでした（受注フォーム経由の分だけ送ります）: {e}")
         return []
-    aru = {str(y.get("台帳", "")).strip() for y in yotei}
+    aru = {}
+    for y in yotei:
+        aru.setdefault(str(y.get("台帳", "")).strip(), []).append(y)
     out = []
     for x in ls:
-        if x["d"] != kyou.isoformat() or x["r"] in aru:
+        if x["d"] != kyou.isoformat():
+            continue
+        if x["r"] in aru:
+            # 2026-10-30 直し：台帳で施工日を動かしても受注フォームの控えは古い日付のままで、
+            # 朝の送信から漏れた（加藤様 10/31→10/30）。施工日は台帳を正として控えの日付を合わせる。
+            for y in aru[x["r"]]:
+                if y.get("施工日付") != x["d"] and y["id"] not in sumi:
+                    print(f"  施工日を台帳に合わせます: {y.get('氏名')} {y.get('施工日付')} → {x['d']}")
+                    y["施工日付"] = x["d"]
             continue
         kid = "hyou:" + x["r"] + ":" + x["d"]
         if kid in sumi:
