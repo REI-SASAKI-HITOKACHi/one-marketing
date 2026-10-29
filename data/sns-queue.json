@@ -1699,9 +1699,29 @@
     "fb_caption": "江戸川区のハウスクリーニング店から、自分でできる範囲のお話です。\n\nトイレの黄ばみは、溜まってから落とすより、毎日30秒で溜めないほうが楽です。\n1. 便座の裏と便フタの付け根を、使い捨てシートでひと拭き\n2. 床と便器の境目を、同じシートでぐるりと拭く\n3. 水面のラインを、ブラシで軽く1周する\n\nLIXILの案内では、日常の手入れは毎日〜1週間、ふちの裏側は週1回が目安です。\n\nご予約はこちらから。\n\n#トイレ掃除 #トイレの黄ばみ #自分でできる掃除 #江戸川区 #西葛西 #ハウスクリーニング",
     "link": "https://lp.onehitter.jp/nenmatsu/?src=ig",
     "fb_link": "https://yoyaku.onehitter.jp/?src=fb",
-    "status": "approved",
+    "status": "posted",
     "note": "D型。ブログ 10/29 と同じ内容の先出し（LIXIL）。カードは data/sns-cards/w07-4.json（check-cards OK）。",
-    "承認": "2026-10-26 cmo 査読OK（20261026-01-cmo）"
+    "承認": "2026-10-26 cmo 査読OK（20261026-01-cmo）",
+    "results": {
+      "instagram": {
+        "container_id": "18082485860709070",
+        "media_id": "18117665921011804",
+        "permalink": "https://www.instagram.com/p/DfDrbdxl0MD/",
+        "published": true
+      },
+      "facebook": {
+        "post_id": "103698149101436_1145601958256154",
+        "permalink": "https://www.facebook.com/1100803886069295/posts/1145601958256154",
+        "media_ids": [
+          "1145601944922822"
+        ]
+      }
+    },
+    "posted_at": "2026-10-29T09:05:20+09:00",
+    "permalinks": {
+      "instagram": "https://www.instagram.com/p/DfDrbdxl0MD/",
+      "facebook": "https://www.facebook.com/1100803886069295/posts/1145601958256154"
+    }
   },
   {
     "id": "w07-5",
