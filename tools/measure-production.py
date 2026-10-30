@@ -46,7 +46,7 @@ try:
 except ImportError:
     sys.exit("playwright がありません。 pip install playwright を実行してください。")
 
-CHROME = os.environ.get("OH_CHROME", "/opt/pw-browsers/chromium-1194/chrome-linux/chrome")
+CHROME = os.environ.get("OH_CHROME", "/opt/pw-browsers/chromium")   # 版が変わっても同じ所を指すリンク（10/30：1194 が無くなって落ちた）
 
 LP_BASE = "https://lp.onehitter.jp"
 # /aircon/ は 2026-10-15 から C 対 E の振り分け（tools/furiwake-aircon.py）。開くとすぐ移るので、
