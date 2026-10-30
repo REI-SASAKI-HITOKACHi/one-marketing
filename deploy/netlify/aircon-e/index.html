@@ -1689,7 +1689,7 @@ var f=document.querySelector('form.form');if(!f)return;var id='';f.addEventListe
       if (total) top.push('見積総額 ' + Number(total).toLocaleString('ja-JP') + '円（税込）');
       if (KIND === 'aircon' && uchi.join('').indexOf('4台以上') !== -1) top.push('※4台以上は個別にお見積り');
       if (KIND !== 'aircon') top.push('※この見積に繁忙期加算は含みません（5〜7月・12月は1箇所につき+3,300円）');
-      if (NENMATSU) top.push('※11月30日までのご予約は通常価格（申込日で判断）');
+      if (NENMATSU) top.push('※11月30日までの作業は通常価格（作業日で判断。12月の作業は1箇所につき+3,300円）');
       top.push('ご希望の時期：' + (val('when') || '（記入なし）'));
       top.push('');
       top.push('【見積の内訳（画面の表示）】');
