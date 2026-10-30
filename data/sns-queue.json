@@ -1739,9 +1739,29 @@
     "fb_caption": "江戸川区のハウスクリーニング店から、自分でできる範囲のお話です。\n\n便器の中を洗ってもにおいが消えないときは、元が別の場所のことがあります。\n1. 床と便器の境目に顔を近づけて、そこだけ強く臭うか確かめる\n2. 換気扇の前にティッシュをかざして、吸い付くか見る\n3. 使っていないトイレは、排水の封水が減っていないか見る\n\n換気扇と封水の話は、東京都の健康・快適居住環境の指針に書かれています。\n\nご予約はこちらから。\n\n#トイレ掃除 #トイレのにおい #自分でできる掃除 #江戸川区 #西葛西 #ハウスクリーニング",
     "link": "https://lp.onehitter.jp/nenmatsu/?src=ig",
     "fb_link": "https://yoyaku.onehitter.jp/?src=fb",
-    "status": "approved",
+    "status": "posted",
     "note": "D型。ブログ 10/30 と同じ内容の先出し（東京都の指針）。カードは data/sns-cards/w07-5.json（check-cards OK）。",
-    "承認": "2026-10-26 cmo 査読OK（20261026-01-cmo）"
+    "承認": "2026-10-26 cmo 査読OK（20261026-01-cmo）",
+    "results": {
+      "instagram": {
+        "container_id": "18082674443709070",
+        "media_id": "18081439280442730",
+        "permalink": "https://www.instagram.com/p/DfGQN6BDMBV/",
+        "published": true
+      },
+      "facebook": {
+        "post_id": "103698149101436_1146628364820180",
+        "permalink": "https://www.facebook.com/1100803886069295/posts/1146628364820180",
+        "media_ids": [
+          "1146628348153515"
+        ]
+      }
+    },
+    "posted_at": "2026-10-30T09:05:16+09:00",
+    "permalinks": {
+      "instagram": "https://www.instagram.com/p/DfGQN6BDMBV/",
+      "facebook": "https://www.facebook.com/1100803886069295/posts/1146628364820180"
+    }
   },
   {
     "id": "w08-2",
