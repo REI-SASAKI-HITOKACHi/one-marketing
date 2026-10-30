@@ -30,7 +30,7 @@ SS = "1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64"
 KITEN = datetime.date(2026, 9, 26)          # オーナー指示の日＝「今日以降」の起点
 JST = datetime.timezone(datetime.timedelta(hours=9))
 YOTEI = ROOT / "data" / "kanryo-yotei.json"
-SAIDAI = 30                                 # リンクが長くなりすぎないよう、古い順に30件まで
+SAIDAI = 12                                 # リンクが長くなりすぎないよう、古い順に12件まで（2026-10-26：26件入れたURLがLINEの1通5000字を超えて切れ、和真さんが開けなかった。1件≒300字）
 
 
 def seiki(na):
@@ -56,6 +56,13 @@ def teishutsu_zumi():
                 # 一覧から選ばずに出すと施工日付が空になる（10/5 濵田様・10/6 山本様）。送った日（日本時間）を施工日とみなす
                 hi = (datetime.datetime.fromisoformat(s["created_at"].replace("Z", "+00:00")).astimezone(JST).date().isoformat())
             pairs.add((seiki(d.get("氏名")), hi))
+    # 取り込み済みの記録（Netlify から消したものも残る。kanryo-inbox が書く）
+    tp = ROOT / "data" / "kanryo-teishutsu.json"
+    for x in (json.loads(tp.read_text(encoding="utf-8")) if tp.exists() else []):
+        if x.get("台帳"):
+            rows.add(str(x["台帳"]).strip())
+        hi = x.get("施工日付") or (x.get("送信") or "")[:10]
+        pairs.add((seiki(x.get("氏名")), hi))
     return rows, pairs
 
 

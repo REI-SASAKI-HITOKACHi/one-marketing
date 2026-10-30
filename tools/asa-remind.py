@@ -326,6 +326,8 @@ def main():
     if a.dry_run:
         print("\n--dry-run のため送っていません。")
         return
+    import tanshuku   # LINE のリンクは短縮して送る（2026-10-26 オーナー指示）
+    txt = tanshuku.kakikae([txt])[0]
     f = ROOT / "data" / "tmp-asa-remind.txt"
     f.write_text(txt, encoding="utf-8")
     r = subprocess.run([sys.executable, str(ROOT / "tools" / "line_client.py"), "push", "--file", str(f), "--midoku-ok"],

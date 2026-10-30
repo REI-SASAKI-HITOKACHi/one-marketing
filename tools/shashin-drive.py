@@ -53,6 +53,16 @@
       ・「未特定」が出たら、和真さんのカレンダーと月タブで確かめ、台帳の電話番号か氏名を直してから流し直す
         （推測で別のお客様のフォルダに入れない）
    5. docs/sheet-changelog.md に枚数を1行。data/ の2ファイルをコミット
+
+【Netlify から写真の提出を消す】2026-10-24 第8回MTG（オーナー決定）
+  8-4 No.8「ドライブへ移す（推奨）」、和真さんにご迷惑 No.3 F983「１００枚に拡大できるなら１００枚へCMOが変更しておいて」。
+  社内用サイト（oh-naibu）のフォームの保存は無料枠 10MB で、写真が残ったままだと超えて自動課金になる。
+  ドライブへの取り込みが全部「済」になった提出（sumi）だけを Netlify から消す。
+    ・kanryo-shashin（写真だけの続きの便）… sumi なら消す
+    ・kanryo（本体）… sumi で、かつ kanryo-inbox がシートに取り込み済み（data/kanryo-torikomi.json）のときだけ消す
+  提出の中身は、Netlify の通知メール（formresponses@netlify.com）にも全部残っている。消した ID は data/netlify-kesu.json に残す。
+    python3 tools/shashin-drive.py --netlify-kesu            # 消す対象を見るだけ
+    python3 tools/shashin-drive.py --netlify-kesu --jikkou   # 消す
 """
 import argparse
 import importlib.util
@@ -259,12 +269,48 @@ def main() -> None:
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--midasu", action="store_true", help="一次格納の未仕分けを一覧")
     ap.add_argument("--shiwake", action="store_true", help="一次格納の写真を規則どおりショートカットで仕分け")
+    ap.add_argument("--netlify-kesu", action="store_true", help="ドライブに取り込み済みの写真の提出を Netlify から消す（既定は見るだけ）")
+    ap.add_argument("--jikkou", action="store_true", help="--netlify-kesu で実際に消す")
     a = ap.parse_args()
+    if a.netlify_kesu:
+        return netlify_kesu(a.jikkou)
     if a.midasu:
         return midasu()
     if a.shiwake:
         return shiwake(a.dry_run)
     kanryo(a.dry_run)
+
+
+def netlify_kesu(jikkou: bool) -> None:
+    kiroku = json.loads(KIROKU.read_text(encoding="utf-8")) if KIROKU.exists() else {"sumi": []}
+    sumi = set(kiroku.get("sumi", []))
+    torikomi = set(json.loads((ROOT / "data" / "kanryo-torikomi.json").read_text(encoding="utf-8")))
+    kesu_kiroku = ROOT / "data" / "netlify-kesu.json"
+    kesita = json.loads(kesu_kiroku.read_text(encoding="utf-8")) if kesu_kiroku.exists() else []
+    forms = {f["name"]: f for f in bi.netlify(f"/sites/{SITE_ID}/forms") if f["name"] in ("kanryo", "kanryo-shashin")}
+    taisho, nokosu = [], []
+    for nm, f in forms.items():
+        for s in bi.netlify(f"/forms/{f['id']}/submissions"):
+            n_sha = sum(1 for k, v in (s.get("data") or {}).items() if k.startswith("施工写真") and isinstance(v, dict) and v.get("url"))
+            if s["id"] in sumi and (nm == "kanryo-shashin" or s["id"] in torikomi):
+                taisho.append((nm, s, n_sha))
+            elif n_sha:
+                nokosu.append((nm, s, n_sha))
+    print(f"消す対象（ドライブに取り込み済み）: {len(taisho)}件・写真 {sum(x[2] for x in taisho)}枚")
+    for nm, s, n in taisho:
+        print(f"  {s['created_at'][:10]} {nm} {s['id']} 写真{n}枚")
+    print(f"残すもの（写真があって、まだドライブ取り込み・シート取り込みが済んでいない）: {len(nokosu)}件・写真 {sum(x[2] for x in nokosu)}枚")
+    if not jikkou:
+        print("\n--jikkou を付けていないので消していません。")
+        return
+    for nm, s, n in taisho:
+        req = urllib.request.Request(f"https://api.netlify.com/api/v1/submissions/{s['id']}", method="DELETE")
+        req.add_header("Authorization", "Bearer " + bi.netlify_token())
+        with urllib.request.urlopen(req, timeout=60):
+            pass
+        kesita.append({"id": s["id"], "form": nm, "created_at": s["created_at"], "shashin": n})
+        kesu_kiroku.write_text(json.dumps(kesita, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    print(f"消しました: {len(taisho)}件")
 
 
 def kanryo(dry: bool) -> None:

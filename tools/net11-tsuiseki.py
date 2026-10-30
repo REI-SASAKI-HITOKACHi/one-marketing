@@ -5,7 +5,7 @@
     python3 tools/net11-tsuiseki.py --md       # docs に貼る markdown の表
 
 数え方（docs/2026-11月ネット10件の経路別逆算.md）
-- 月次タブ：11月_売上/顧客 の流入経路が NET（広告・予約ページ・LP・地図検索・HP）または SMS・LINE の行
+- 月次タブ：11月_売上/顧客 の流入経路が 広告・予約ページ・LP・地図検索・HP、または LINE・SMS（予約ページ経由に限る。10/18 規則）の行
 - 予約_Web：ご希望日が11月で、状態がキャンセル・空送信でない申込（src で 広告／SMS／LINE／GBP／その他）。
   受注になって月次タブに入ると両方に出るので、**判定は月次タブの数で行い、予約_Web は「受注前の申込」の参考**
 - 線（11/1 に4件）は同じ文書の「11/1 の線」
@@ -63,7 +63,7 @@ def main():
     for p in sorted(glob.glob(os.path.join(KOKO, 'data', 'chakuchi', '2026Q4-*.json'))):
         hi, saku, net, kiz, yo = yomu(p)
         rows[hi] = (saku, net, kiz, yo)   # 同じ日は最後の集計で上書き
-    hdr = ['日付', '集計', '月次タブ 新規ネット', '月次タブ SMS・LINE', '**合計**', '線', '差',
+    hdr = ['日付', '集計', '月次タブ 広告・LP・HP・地図', '月次タブ LINE・SMS（予約ページ経由）', '**合計**', '線', '差',
            '予約_Web 受注前の申込（11月希望）']
     out = []
     for hi in sorted(rows):

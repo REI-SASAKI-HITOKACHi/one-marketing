@@ -50,6 +50,7 @@ MITA = {
     "kidsmoney-crm-2014997530.netlify.app",  # 「キッズマネースクール CRM」。当社の語が0件
     "inquirycounter.netlify.app",            # 当社の語が0件
     "inquisitive-duckanoo-36090d.netlify.app",  # 「Hitokachi Buddy」（ヒトカチ社。noindex の準備中ページ）。2026-09-23 に中身を確認
+    "hitokachi-audit-v1-20261019.netlify.app",  # 「Audit service」（ヒトカチ社）。当社の語が0件。2026-10-19 に中身を確認
 
     # 既定名のまま放置されている休眠サイト（2025〜2026/05 が最終配信、または未配信）
     "adorable-brioche-5ac83d.netlify.app",

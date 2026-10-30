@@ -46,6 +46,9 @@ SS = "1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64"
 SITE_ID = "f1b64c82-173e-4b1a-9e7f-bf24026fed0e"     # oh-naibu-sms-k7q3x（社内用）
 FORM = "kanryo"
 SUMI = ROOT / "data" / "kanryo-torikomi.json"
+# 2026-10-26：Netlify の提出を消すと「提出済み」の印も消え、asa-remind が入力済みを未入力と言った（10/25 に44件削除）。
+# 取り込んだ提出の 台帳・氏名・施工日付 をここに残し、kanryo_mishin.teishutsu_zumi() が Netlify と合わせて読む
+TEISHUTSU = ROOT / "data" / "kanryo-teishutsu.json"
 JIKAN = ROOT / "data" / "kanryo-jikan.json"          # 実所要の蓄積（施工時間の精度を上げる資産）
 SHASHIN = ROOT / "data" / "kanryo-shashin"
 JIDOU = "★受注フォームから自動で入りました"
@@ -68,6 +71,27 @@ def daicho_wake(s):
     """「9月_売上/顧客 12行目」を ('9月_売上/顧客', 12) にする。"""
     m = re.match(r"^(.+?)\s+(\d+)\s*行目$", str(s or "").strip())
     return (m.group(1), int(m.group(2))) if m else (None, None)
+
+
+def gyo_tashikame(call, han, tab, gyo, na):
+    """フォームの『◯行目』が本人の行かを E列（氏名）で確かめる。ずれていれば同じタブで氏名を探し直す。
+    2026-10-28：白川様の完了フォームが『38行目』（空行）を指し、入金経路を空行に書いた。行が後から詰まるとずれる。
+    見つからない・2人以上いるときは (None, None) を返して書かない。"""
+    def kiyo(v):
+        return re.sub(r"[\s　]", "", str(v or ""))
+    me = kiyo(na)
+    if not me:
+        return tab, gyo
+    e = call(han(f"'{tab}'!E{gyo}")).get("values", [[""]])
+    if e and e[0] and kiyo(e[0][0]) == me:
+        return tab, gyo
+    retsu = call(han(f"'{tab}'!E1:E400")).get("values", [])
+    atari = [i + 1 for i, r in enumerate(retsu) if r and kiyo(r[0]) == me]
+    if len(atari) == 1:
+        print(f"   ⚠ フォームの {gyo}行目は別の行でした。氏名で探して {atari[0]}行目に書きます")
+        return tab, atari[0]
+    print(f"   ⚠ {tab} {gyo}行目に {na} さまがいません（同じ氏名 {len(atari)}行）。シートは直しません（手で入れてください）")
+    return None, None
 
 
 def shashin_mei(d, bangou):
@@ -210,6 +234,8 @@ def main():
         na = d.get("氏名", "（名前なし）")
         tab, gyo = daicho_wake(d.get("台帳", ""))
         print(f"\n── {na} さま／{d.get('施工日付','')} {d.get('開始時刻','')}〜{d.get('作業終了時刻','')}")
+        if tab:
+            tab, gyo = gyo_tashikame(call, han, tab, gyo, na)
 
         # --- 写真を手元に落とす（SNSの素材にする） ---
         mai = 0
@@ -331,6 +357,13 @@ def main():
         print("\n--dry-run のため書いていません。")
         return
     JIKAN.write_text(json.dumps(jikan, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    tei = json.loads(TEISHUTSU.read_text(encoding="utf-8")) if TEISHUTSU.exists() else []
+    for s in atarashii:
+        d = s.get("data") or {}
+        if s["id"] in ireta and "テスト" not in str(d.get("氏名", "")):
+            tei.append({"id": s["id"], "台帳": str(d.get("台帳", "")).strip(), "氏名": d.get("氏名", ""),
+                        "施工日付": str(d.get("施工日付", "")).replace("/", "-"), "送信": s.get("created_at", "")})
+    TEISHUTSU.write_text(json.dumps(tei, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     SUMI.write_text(json.dumps(sorted(sumi | set(ireta)), ensure_ascii=False, indent=2) + "\n",
                     encoding="utf-8")
     print(f"\n実所要の蓄積: {JIKAN}（{len(jikan)}件）")

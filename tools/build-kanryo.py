@@ -108,7 +108,8 @@ def main():
     tsuika = {"One Hitter": hyou(oh), "本舗": hyou(honpo)}
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(HTML
+    import tanshuku   # 短縮リンク #k= を元の # に戻す読み込み役（2026-10-26 オーナー指示）
+    OUT.write_text(HTML.replace("<script>", tanshuku.LOADER + "<script>", 1)
                    .replace("__QR__", qr_data_uri(SURVEY))
                    .replace("__SURVEY__", SURVEY)
                    .replace("__TSUIKA__", json.dumps(tsuika, ensure_ascii=False)),
@@ -254,7 +255,7 @@ HTML = r"""<!doctype html>
   </label>
   <p class="sha-joutai" id="sha-joutai"></p>
   <div class="shashin" id="shashin"></div>
-  <p class="chu">あとからもう一度選ぶと、前の写真に足されます。50枚まで入ります。<br>
+  <p class="chu">あとからもう一度選ぶと、前の写真に足されます。100枚まで入ります。<br>
      送る前に小さくするので、枚数が多くても重くなりません。<br>
      SNSに使うので、お宅が分かるもの（表札・窓の外・郵便物）は写さないでください。</p>
   <p class="err" id="e-shashin">写真を1枚以上入れてください</p>
@@ -384,7 +385,7 @@ HTML = r"""<!doctype html>
 (function(){
   var TSUIKA = __TSUIKA__;
   var $ = function(id){ return document.getElementById(id); };
-  var MAI = 50, MAX = 1280, SHITSU = 0.72;   // 50枚まで（和真さん 9/29「50枚くらいだとすごい助かる」）。1回の送信は約4MBずつに分ける
+  var MAI = 100, MAX = 1280, SHITSU = 0.72;   // 100枚まで（2026-10-24 第8回MTG 嶺さん「１００枚に拡大できるなら１００枚へ」。ドライブ取り込み済みは shashin-drive.py --netlify-kesu で Netlify から消す）。1回の送信は約4MBずつに分ける
   var HITOHAKO = 4 * 1024 * 1024, HAKO_MAI = 20;
   var shashin = [];       // {blob, puri}
   var tsuikaHai = [];     // {na, kin, kazu}
