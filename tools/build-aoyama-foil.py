@@ -12,7 +12,7 @@
   仕上がり 91×55mm。塗り足しは手元の版と同じ各3mm（97×61mm）。
 
     python3 tools/build-aoyama-foil.py
-    → dist/partner-cards/aoyama-foil/omote-3page.pdf（完成イメージ・箔以外・箔の3ページ）
+    → print/partner-cards/入稿用-青山-箔押し/omote-3page.pdf（完成イメージ・箔以外・箔の3ページ）
       omote-kansei.pdf / omote-hakuigai.pdf / omote-haku.pdf / ura.pdf と、確かめ用の png
 
   元のデザインは print/partner-cards/cards.html の #aoyama-2-omote・#aoyama-2-ura（書き換えない）。
@@ -25,7 +25,7 @@ import tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / "print" / "partner-cards" / "cards.html"
-OUT = ROOT / "dist" / "partner-cards" / "aoyama-foil"
+OUT = ROOT / "print" / "partner-cards" / "入稿用-青山-箔押し"
 
 # 箔にする要素（表の金色 #CDB781 の3つ）
 HAKU = (".a2o .mono", ".a2o .line", ".a2o .en")
