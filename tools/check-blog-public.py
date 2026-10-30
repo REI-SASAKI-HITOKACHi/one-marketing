@@ -28,6 +28,7 @@ import urllib.request
 
 SITE = "https://one-hitter.jp"
 GENKOU_BRANCH = "origin/claude/web-inflow"
+NYUGUCHI = {"1805", "1809"}   # 入口ページの記事ID（江戸川区エアコン 10/28・洗濯機 11/4）。増えたら足す
 MIN_W = 800
 
 
@@ -100,7 +101,8 @@ def main():
         honbun = len(re.findall(r"<img[^>]+src=\"(?!/_img/ja/(?:resource|cms_parts))[^\"]+\"", h)) - len(imgs)
         if "事例" in t and honbun <= 0 and len(imgs) <= 1:
             mondai.append("事例記事なのに本文の写真が0枚")
-        if daimei and t not in daimei:
+        # 入口ページ（lp の持ち物。原稿は web-inflow のブログに無い）は題名を照合しない。2026-10-30 1805 で誤検知
+        if daimei and t not in daimei and slug.rsplit("-", 1)[-1] not in NYUGUCHI:
             mondai.append("題名が原稿と違う（古い版のまま？）")
         kiroku.append((slug, t, mondai))
     for d, ss in hashes.items():
