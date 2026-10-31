@@ -33,6 +33,7 @@ import base64
 import datetime
 import json
 import pathlib
+import re
 import subprocess
 import sys
 
@@ -62,6 +63,14 @@ def cal_kaishi(na, hi):
             continue
         if key in KMI.seiki(e.get("description", "")) or key in KMI.seiki(e.get("summary", "")):
             return st[11:16]
+    # 2026-11-01 直し：カレンダーは「大串さま」のように姓だけのことが多く、フルネームでは見つからず 09:00 扱いになった（実際は 13:00）。
+    # 姓（全角・半角の空白の前）で探し、その日に1件だけ当たるときに限って使う。
+    sei = KMI.seiki(re.split(r"[\s\u3000]+", str(na).strip())[0]) if str(na).strip() else ""
+    if sei and sei != key and len(sei) >= 2:
+        hit = [e for e in ev if (e.get("start") or {}).get("dateTime", "").startswith(hi)
+               and (sei in KMI.seiki(e.get("description", "")) or sei in KMI.seiki(e.get("summary", "")))]
+        if len(hit) == 1:
+            return hit[0]["start"]["dateTime"][11:16]
     return None
 
 
