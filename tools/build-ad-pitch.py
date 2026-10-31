@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""嶺さん向け「広告の増額プレゼン」（スマホで読む縦長PDF・7枚）。
+"""嶺さん向け「広告の増額プレゼン」（スマホで読む縦長PDF・6枚）。
 
   python3 tools/build-ad-pitch.py
 
-数字の正は docs/2026-広告の増額プレゼン-1031.md。そこから写している。
+数字の正は measurement の docs/広告-増額プレゼンの数字-20261030.md（measurement ブランチ）と
+着地集計 data/chakuchi/2026Q4-20261031-0939.json。段階表の仮置きはスライド3枚目に書いてある。
 PDF化は Chromium の --print-to-pdf（/opt/pw-browsers/chromium）。
 """
 import os
@@ -68,99 +69,105 @@ HTML = """<!doctype html><html lang="ja"><head><meta charset="utf-8">
   <h1>広告の増額<br>どこに、いくら入れるか</h1>
   <p class="kome">嶺さん（10/30）「ミッション完遂のために最大限効果が発揮できるなら増額も考える」へのプレゼン</p>
   <div class="box midori">
-    <div class="midashi">目標</div>ネット経由 <b>11月 10件・12月 25件</b>（11〜12月で35件）<br>いま：11月 0件・12月 0件（10/30 朝）
+    <div class="midashi">目標</div>ネット経由 <b>11月 10件・12月 25件</b>（11〜12月で35件）<br>いま：11月 0件・12月 0件（10/31 朝）
   </div>
   <div class="box aka">
     <div class="midashi">結論</div>
-    <div class="num"><div class="n">1</div><div class="t"><b>予算を上げるだけでは、ほとんど増えない。</b>表示は予算でなく<b>順位</b>で削られている。</div></div>
-    <div class="num"><div class="n">2</div><div class="t">日¥15,000 まで上げても、11〜12月で <b>約30件</b>。35件に届かない。<b>いちばん効くのは入口（LP→予約）の改善</b>（¥0）。</div></div>
-    <div class="num"><div class="n">3</div><div class="t"><b>推奨：日¥7,000（決定済み）のまま、お金の「入れ先」を変える。</b>12月の増額は 11/15 の結果で決める。</div></div>
+    <div class="num"><div class="n">1</div><div class="t"><b>予算は余っている。</b>費用は1日平均 ¥4,307 で、¥5,000 に届かない日が半分。表示は<b>順位</b>で削られている。<b>日予算だけ上げても、ほぼ増えない。</b></div></div>
+    <div class="num"><div class="n">2</div><div class="t">効くのは <b>入口（LP→予約）・上限CPC（順位）・出す語を増やす</b> の3つ。</div></div>
+    <div class="num"><div class="n">3</div><div class="t"><b>推奨：11/2〜8 に上限CPC ¥700 を日¥7,000 の中で試す。</b>予算が足りなくなり申込も出たら、<b>11/9 から日¥10,000</b>。¥15,000 は勧めない。</div></div>
   </div>
-  <div class="src">出どころ：着地集計 10/30 09:39／measurement「広告-11月1日判定の材料」10/30</div>
+  <div class="src">出どころ：【日次】広告_日次 9/20〜10/15／【画面】browser 10/13〜15／着地集計 10/31 09:39（11月・12月のネット経由）</div>
 </section>
 
 <section class="pg">
   <div class="no">1　いまの位置</div>
-  <h2>戻した入札は「量」は戻った。申込はまだ</h2>
+  <h2>入札は戻して量は戻った。申込はまだ</h2>
   <table>
-    <tr><th>時期</th><th>表示/日</th><th>クリック/日</th><th>CPC</th><th>申込1件</th></tr>
-    <tr><td>クリック数の最大化<br>10/1〜15</td><td>136</td><td>17.3</td><td>¥286</td><td>¥18,550</td></tr>
-    <tr><td>CV数の最大化<br>10/16〜27</td><td class="neg">44</td><td class="neg">6.6</td><td class="neg">¥773</td><td>¥20,356</td></tr>
-    <tr><td>戻した日 10/28</td><td>98</td><td>16</td><td>¥505</td><td>―</td></tr>
+    <tr><th>時期</th><th>表示<br>/日</th><th>クリック<br>/日</th><th>費用<br>/日</th><th>CPC</th><th>申込1件</th></tr>
+    <tr><td>クリック数の最大化<br>9/20〜10/15（26日）</td><td>130</td><td>15.3</td><td>¥4,307</td><td>¥282</td><td>¥18,663</td></tr>
+    <tr><td>CV数の最大化<br>10/16〜27（12日）</td><td class="neg">44</td><td class="neg">6.6</td><td>¥5,089</td><td class="neg">¥773</td><td>¥20,356</td></tr>
+    <tr><td>戻した後<br>10/29（1日）</td><td>139</td><td>19</td><td>¥6,353</td><td>¥334</td><td>―</td></tr>
   </table>
   <div class="kpi">
-    <div class="c warn"><div class="l">11月施工の広告客</div><div class="v">0件</div><div class="n">判定の線 3件</div></div>
+    <div class="c warn"><div class="l">11月施工の広告客</div><div class="v">0件</div><div class="n">10/31 朝・線は4件</div></div>
+    <div class="c"><div class="l">申込率</div><div class="v">1.5%</div><div class="n">6÷397クリック</div></div>
     <div class="c"><div class="l">申込→受注</div><div class="v">83%</div><div class="n">9/20〜</div></div>
-    <div class="c warn"><div class="l">LP→予約ページ</div><div class="v">5〜8%</div><div class="n">92〜95%が離脱</div></div>
   </div>
-  <p>10月の広告客は <b>1件 平均 ¥14,251</b>（エアコン1台が中心）。</p>
-  <div class="src">出どころ：measurement「広告-入札の時期別-比較表」（広告_日次・予約_Web）／GA4 経路別4段 10/1〜15／着地集計 10/21</div>
+  <div class="box kiiro">申込1件の広告費は、どちらの入札でも<b>許容 ¥16,200 を超えている</b>。広告の申込は 10/21 から0件。</div>
+  <p class="kome">10/29 は1日だけなので判定しない（中間判定 11/4・14日判定 11/11）。</p>
+  <div class="src">出どころ：【日次】広告_日次／【予約】予約_Web（measurement「広告-増額プレゼンの数字」「11月1日判定の材料」10/30）／着地集計 10/31 09:39</div>
 </section>
 
 <section class="pg">
   <div class="no">2　予算だけでは増えない理由</div>
   <h2>お金を「どこに」入れると効くか</h2>
-  <div class="box kiiro">クリック数の最大化の時期、予算はほぼ使い切っていた（日 ¥4,947）。ただし<b>表示の損失は 予算ほぼ0%・順位72〜78%</b>。<span class="mark">予算を足すより、順位と入口に入れる方が効く。</span></div>
+  <div class="box kiiro">表示の損失は <b>予算ほぼ0%・順位72〜78%</b>。いま出ている表示は、出せた表示の 22〜28%。<span class="mark">全部取れても1日 約55〜70クリックが天井（いまの約4倍）。近づくには順位。</span></div>
   <table>
-    <tr><th>入れ先</th><th>費用</th><th>効き</th></tr>
-    <tr class="b"><td>① 入口の改善（LP→予約 8%→15%）</td><td>¥0</td><td>同じクリックで申込 約2倍</td></tr>
-    <tr><td>② 上限CPC ¥500→¥600（買う気の強い語だけ）</td><td>CPC +¥100</td><td>順位が上がり表示が増える</td></tr>
-    <tr><td>③ 年末大掃除キャンペーン（日¥1,000・承認済み・未入稿）</td><td>月 約¥3万</td><td>12月の水まわり</td></tr>
-    <tr><td>④ カビ・洗濯槽・浴室の広告グループ</td><td>予算は共有</td><td>表示される語が増える</td></tr>
-    <tr><td>⑤ 地域を1つずつ広げて試す</td><td>予算は共有</td><td>表示が増える。遠い分、時間がかかる</td></tr>
-    <tr><td>⑥ 時間帯（申込の多い時間に寄せる）</td><td>¥0</td><td>小（データが少ない）</td></tr>
-    <tr><td>✕ P-MAX</td><td>―</td><td><b>見送り</b>。申込が月10件程度では学習できず、質の低い表示が増える</td></tr>
+    <tr><th>入れ先</th><th>費用</th><th>効く理由</th></tr>
+    <tr class="b"><td>① 入口の改善（LP→予約 いま5〜8%）</td><td>¥0</td><td>同じクリックで申込が増える。いちばん大きい</td></tr>
+    <tr class="b"><td>② 上限CPC ¥500→¥700 を7日</td><td>日¥7,000の中</td><td>順位の損失を減らす。戻せる</td></tr>
+    <tr><td>③ 年末大掃除・カビの別キャンペーン（日¥1,000・承認済み・未入稿）</td><td>月 約¥3万</td><td>いまの語で出ていない検索に出す（カビの広告グループは 10/18〜表示ほぼ0）</td></tr>
+    <tr><td>④ 18〜23時の入札 +20%</td><td>単価の上乗せ分</td><td>申込率 4.3%、他の時間 1.1%（申込5件の話。2週間で確かめる）</td></tr>
+    <tr><td>⑤ 江戸川・葛飾・江東・市川・浦安の別グループ</td><td>予算は共有</td><td>新宿・港・世田谷から78回来て申込0（GA4の地域は粗い）</td></tr>
+    <tr><td>⑥ 広告文の差し替え</td><td>¥0</td><td>品質が上がると順位が上がる</td></tr>
+    <tr><td>✕ 日予算だけ上げる</td><td>―</td><td>使われない分が出る</td></tr>
+    <tr><td>✕ P-MAX</td><td>―</td><td>当社の申込と結びつけにくく、測れない</td></tr>
   </table>
-  <div class="src">出どころ：browser 画面確認 10/13〜15（インプレッションシェア損失）／measurement 比較表／オーナー承認 年末大掃除 日¥1,000</div>
+  <div class="src">出どころ：【画面】browser 10/13〜15（インプレッションシェアの損失）／【日次】クリック率11.8%／【GA4】【予約】時間帯・地域 9/20〜10/29／GA4 経路別4段（LP→予約）／オーナー承認 年末大掃除 日¥1,000</div>
 </section>
 
 <section class="pg">
   <div class="no">3　いくら入れると何件増えるか</div>
   <h2>11/2〜12/31（60日）の段階表</h2>
   <table>
-    <tr><th>日予算</th><th>¥5,000</th><th>¥7,000</th><th>¥10,000</th><th>¥15,000</th></tr>
-    <tr><td>広告費（60日）</td><td>¥30万</td><td>¥42万</td><td>¥59万</td><td>¥89万</td></tr>
-    <tr><td>クリック/日</td><td>14</td><td>17</td><td>21</td><td>29</td></tr>
-    <tr class="b"><td>広告の受注</td><td>11</td><td>13</td><td>14</td><td>17</td></tr>
-    <tr><td>受注1件の広告費</td><td>¥2.7万</td><td>¥3.3万</td><td class="neg">¥4.3万</td><td class="neg">¥5.3万</td></tr>
-    <tr class="b"><td>ネット経由 合計</td><td>24</td><td>26</td><td>27</td><td>30</td></tr>
-    <tr><td>目標35件に対して</td><td class="neg">−11</td><td class="neg">−9</td><td class="neg">−8</td><td class="neg">−5</td></tr>
-    <tr><td>初回の粗利 − 広告費</td><td class="neg">−¥15万</td><td class="neg">−¥24万</td><td class="neg">−¥40万</td><td class="neg">−¥66万</td></tr>
-    <tr><td>リピート込み</td><td class="pos">+¥2万</td><td class="neg">−¥5万</td><td class="neg">−¥20万</td><td class="neg">−¥41万</td></tr>
+    <tr><th></th><th>いまの順位<br>¥5千〜7千</th><th>¥1万<br>＋上限¥700</th><th>¥1.5万<br>＋上限¥800</th></tr>
+    <tr><td>クリック/日（仮）</td><td>16</td><td>25</td><td>33</td></tr>
+    <tr><td>広告費（60日）</td><td>¥29万</td><td>¥60万</td><td>¥89万</td></tr>
+    <tr class="b"><td>広告の受注</td><td>12</td><td>16</td><td>20</td></tr>
+    <tr><td>受注1件の広告費</td><td>¥2.4万</td><td class="neg">¥3.7万</td><td class="neg">¥4.5万</td></tr>
+    <tr class="b"><td>ネット経由 合計</td><td>25</td><td>29</td><td>33</td></tr>
+    <tr><td>目標35件に対して</td><td class="neg">−10</td><td class="neg">−6</td><td class="neg">−2</td></tr>
+    <tr><td>初回粗利−広告費</td><td class="neg">−¥12万</td><td class="neg">−¥37万</td><td class="neg">−¥61万</td></tr>
+    <tr><td>リピート込み</td><td class="pos">+¥6万</td><td class="neg">−¥13万</td><td class="neg">−¥32万</td></tr>
+    <tr class="b"><td>入口1.5倍なら合計</td><td>31</td><td class="pos">37</td><td>43</td></tr>
+    <tr><td>　同 リピート込み</td><td class="pos">+¥23万</td><td class="pos">+¥10万</td><td class="neg">−¥3万</td></tr>
   </table>
   <div class="box">
-    <b>予算を3倍にしても受注は1.5倍。</b>上げるほど、遠い地域・弱い語に広がり1件が高くなる。<br>
-    <span class="mark">入口が 8%→15%（申込 約2倍）になれば、¥7,000 のままで合計 約34〜37件。</span>
+    <b>¥5,000 と ¥7,000 は同じ</b>（予算が余っているため）。
+    <span class="mark">35件に届くのは「¥10,000＋上限¥700＋入口1.5倍」（37件・リピート込みで黒字）。</span>¥15,000 は順位がそこまで上がる根拠がまだ無い。
   </div>
-  <p class="kome">仮置き：CPC ¥350／¥420／¥480／¥520（上げるほど高くなる）、申込はクリック65〜85回に1件、受注83%、粗利は1件 ¥14,000、リピートの上乗せ 1件 ¥15,000（自社直販のリピート率36%）、広告以外のネット経由は11〜12月で13件。予算は満額使えた場合。</p>
-  <div class="src">出どころ：measurement 比較表（10/1〜15 の CPC・申込率）／`docs/2026-ネット流入の検証と見込み-1021.md`／`docs/2027-数値目標.md` §12（リピート率36%）</div>
+  <p class="kome">仮置き：上限CPC を上げた実績が無いので、クリック/日と CPC（¥300／¥400／¥450）は仮。browser が入札単価シミュレーションを読めば差し替え。申込率 1.5%（広げるほど下がると置き 1.3%・1.2%）、受注83%、粗利1件 ¥14,000、リピートの上乗せ1件 ¥15,000、広告以外のネット経由 13件。入口1.5倍＝LP→予約 8%→12%。</p>
+  <div class="src">出どころ：【日次】【予約】measurement 10/30（CPC・申込率・天井）／`docs/2026-ネット流入の検証と見込み-1021.md`／`docs/2027-数値目標.md` §12（リピート率36%）</div>
 </section>
 
 <section class="pg">
   <div class="no">4　推奨</div>
-  <h2>日¥7,000 のまま「入れ先」を変える</h2>
-  <div class="num"><div class="n">1</div><div class="t"><b>いま（11/2〜）</b>：日¥7,000（決定済み）。上限CPC を買う気の強い語だけ ¥600 に。年末大掃除キャンペーン（日¥1,000）を入稿。カビ・洗濯槽・浴室のグループを動かす。入口の改善を最優先（lp）</div></div>
-  <div class="num"><div class="n">2</div><div class="t"><b>11/15 に判定</b>：上げた分の申込1件 ¥16,200 以下なら、<b>12/1〜12/20 を日¥10,000</b> にする案をもう一度出す</div></div>
-  <div class="num"><div class="n">3</div><div class="t"><b>¥15,000 は勧めない</b>：件数は+3〜4件だが、1件 ¥5万を超え、リピート込みでも赤字</div></div>
+  <h2>試してから上げる（7日ずつ）</h2>
+  <div class="num"><div class="n">1</div><div class="t"><b>11/2〜11/8</b>：日¥7,000（決定済み）のまま、<b>上限CPC ¥500→¥700</b>。年末大掃除・カビ（日¥1,000）を入稿。18〜23時 +20%。入口の改善を最優先（lp）。browser が入札単価シミュレーション・オークション分析を読む（読むだけ）</div></div>
+  <div class="num"><div class="n">2</div><div class="t"><b>11/9 に判定</b>：費用が日¥7,000 に張り付き（＝予算が足りなくなった）、かつ7日の申込 1.8件以上 → <b>11/9〜12/20 を日¥10,000</b></div></div>
+  <div class="num"><div class="n">3</div><div class="t"><b>¥15,000 は勧めない</b>：1件 ¥4.5万、リピート込みでも赤字。¥10,000 が線の内側に収まったときだけ、もう一度出す</div></div>
 
   <h3>やめる線（戻す条件）</h3>
   <table>
-    <tr><th></th><th>¥7,000（いま）</th><th>¥10,000（12月案）</th></tr>
-    <tr><td>7日目</td><td>増えた費用 ¥14,000 超で増えた申込0 → ¥5,000に</td><td>増えた費用 ¥21,000 超で増えた申込0 → ¥7,000に</td></tr>
-    <tr><td>14日目</td><td colspan="2">上げた分の申込1件 ¥16,200 超 → 1段戻す</td></tr>
-    <tr><td>上限CPC ¥600</td><td colspan="2">7日で申込0なら ¥500 に戻す</td></tr>
+    <tr><th>いつ</th><th>この数字なら</th><th>戻す先</th></tr>
+    <tr><td>上限¥700 の7日目（11/8）</td><td>表示/日が増えない、または申込0</td><td>上限¥500</td></tr>
+    <tr><td>日¥7,000 の7日目</td><td>増えた費用 ¥14,000 超で、増えた申込0</td><td>日¥5,000</td></tr>
+    <tr><td>日¥10,000 の7日目</td><td>増えた費用 ¥21,000 超で、増えた申込0</td><td>日¥7,000</td></tr>
+    <tr><td>どれも14日目</td><td>上げた分の申込1件 ¥16,200 超</td><td>1段戻す</td></tr>
   </table>
-  <p class="kome">上げた分は「上げる前の14日」と比べて測る（オーナー決定 10/16「上げてもいいが効果を確認できる前提」）。</p>
-  <div class="src">出どころ：`docs/2026-11月1日-広告増額の判定シート.md` §5（measurement「広告-増額の測り方」）</div>
+  <p class="kome">上げた分は「上げる前の14日」と比べて測る（オーナー決定 10/16「上げてもいいが効果を確認できる前提」）。比べる基準は7日あたり申込 1.8件。</p>
+  <div class="src">出どころ：measurement「広告-増額プレゼンの数字」⑤・「広告-増額の測り方」／`docs/2026-11月1日-広告増額の判定シート.md` §5</div>
 </section>
 
 <section class="pg">
   <div class="no">5　選んでください</div>
   <h2>1行で選ぶ</h2>
-  <div class="sentaku"><div class="k">① 推奨</div>日¥7,000 のまま＋入れ先を変える（上限CPC ¥600・年末大掃除 日¥1,000）。12月の ¥10,000 は 11/15 の結果で決める<br><span class="kome">追加の費用：年末大掃除 月 約¥3万＋CPC の上乗せ分</span></div>
-  <div class="sentaku"><div class="k">② 12月の増額を今決める</div>①に加えて、12/1〜12/20 を日¥10,000 にすることを今決める<br><span class="kome">追加：約¥6万（20日×¥3,000）</span></div>
-  <div class="sentaku"><div class="k">③ 今すぐ ¥15,000</div>11/2 から日¥15,000<br><span class="kome">追加：60日で 約¥47万（¥7,000 比）。合計 約30件でも目標に届かない</span></div>
-  <p>返事は「①」のように番号だけで大丈夫です。</p>
+  <div class="sentaku"><div class="k">① 推奨：試してから上げる</div>11/2〜8 上限CPC ¥700（日¥7,000の中）→ 11/9 に線を越えたら 12/20 まで日¥10,000<br><span class="kome">追加：最大 約¥13万（42日×¥3,000）。見込み 29〜37件</span></div>
+  <div class="sentaku"><div class="k">② 今から ¥10,000</div>11/2〜12/31 を日¥10,000＋上限¥700<br><span class="kome">追加：最大 約¥18万（60日×¥3,000）。測る前に上げるので、効かないときの損が大きい</span></div>
+  <div class="sentaku"><div class="k">③ 今すぐ ¥15,000</div>11/2〜12/31 を日¥15,000<br><span class="kome">追加：最大 約¥48万（60日×¥8,000）。見込み 33件</span></div>
+  <div class="sentaku"><div class="k">④ 上げない</div>日¥7,000・上限¥500 のまま<br><span class="kome">追加 ¥0。見込み 25件（入口1.5倍で31件）</span></div>
+  <p>返事は「①」のように番号だけで大丈夫です。<br><span class="kome">追加は ¥7,000 比の上限。年末大掃除 日¥1,000 は承認済みで、どれでも入稿する。</span></p>
   <div class="src">出どころ：このプレゼンの3・4枚目</div>
 </section>
 
