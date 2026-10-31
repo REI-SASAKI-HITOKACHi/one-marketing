@@ -76,6 +76,8 @@ https://www.hokeniryo.metro.tokyo.lg.jp/documents/d/hokeniryo/web_bunya16
 - 結露を減らす方法　窓・部屋・換気の6つ
 - 冬のあいだ結露をためない毎日　朝1分と夜5分（この記事）
 
+11月のネット予約は、防カビコート（3,300円・税込）をエアコン1台分無料です（作業日 11/1〜11/30）。
+
 ご予約はこちらから。https://lp.onehitter.jp/aircon/?src=blog
 
 LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN

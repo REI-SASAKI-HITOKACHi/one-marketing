@@ -65,6 +65,8 @@ status: approved
 
 続けるための毎日のやり方は次の記事に書きました。
 
+11月のネット予約は、防カビコート（3,300円・税込）をエアコン1台分無料です（作業日 11/1〜11/30）。
+
 ご予約はこちらから。https://lp.onehitter.jp/aircon/?src=blog
 
 LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN

@@ -37,7 +37,7 @@ SCENES = [
     (369, 1, 4, 4.0, "洗ったあとの内部です", DATE),
     (373, 1, 3.5, 3.5, "洗ったあとの内部です", DATE),
 ]
-END_SEC = 3.0
+END_SEC = 4.0
 
 
 def font(size, w=900):
@@ -71,15 +71,20 @@ def end_card():
     for y in range(H):
         k = y / H
         d.line([(0, y), (W, y)], fill=tuple(int(INK[i] * (1 - k) + INK_DEEP[i] * k) for i in range(3)))
-    f = font(60)
-    for i, ln in enumerate(["江戸川区のハウスクリーニング", "ワンヒッター"]):
-        tw = d.textlength(ln, font=f)
-        d.text(((W - tw) / 2, 700 + i * 96), ln, font=f, fill=PAPER)
-    bw, bh, by = 900, 130, 1000
+    y = 560
+    d.text((64, y), "11月の作業は10%引き", font=font(80), fill=PAPER)
+    d.text((64, y + 110), "1箇所のご依頼が対象です", font=font(40, 500), fill=(205, 220, 232))
+    d.text((64, y + 200), "11月のネット予約は、", font=font(42), fill=(255, 255, 255))
+    d.text((64, y + 256), "防カビコート（3,300円・税込）を", font=font(42), fill=(255, 214, 90))
+    d.text((64, y + 312), "エアコン1台分無料（作業日 11/1〜11/30）", font=font(42), fill=(255, 214, 90))
+    bw, bh, by = 900, 130, y + 450
     d.rounded_rectangle(((W - bw) / 2, by, (W + bw) / 2, by + bh), radius=bh // 2, fill=CTA)
     fb = font(46)
     lab = "ご予約はプロフィールのリンクから"
     d.text(((W - d.textlength(lab, font=fb)) / 2, by + 36), lab, font=fb, fill=(255, 255, 255))
+    f2 = font(30, 500)
+    sign = "江戸川区のハウスクリーニング　ワンヒッター"
+    d.text(((W - d.textlength(sign, font=f2)) / 2, by + 200), sign, font=f2, fill=(160, 185, 205))
     return im
 
 
