@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>デザイン案C 写真が主役（モック）</title>
+<!-- モック（未配信）。docs/LP-デザイン調査-2026-11-01.md の C-3。
+     1画面＝写真1枚。文字は写真の上に最小限。スクロールは画面ごとに止まる（scroll-snap・近接）。
+     書体：Noto Sans JP 500・900（Google Fonts）。色：写真＋白＋夜の紺（写真の上の影だけ）＋黄色1色（押せるもの）。 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;900&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --yoru:#0E1A22;      /* 写真の上の影・文字の地 */
+  --shiro:#FFFFFF;
+  --kumo:#F4F5F6;
+  --sumi:#111111;
+  --nezumi:#5B6B75;
+  --ki:#FFC83D;        /* 黄：押せるものだけ（黒文字で 12:1） */
+  --ki-deep:#D9A21C;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-snap-type:y proximity}
+body{margin:0;background:var(--shiro);color:var(--sumi);font-family:"Noto Sans JP","Hiragino Sans",sans-serif;font-weight:500;font-size:17px;line-height:1.75;padding-bottom:80px}
+img{display:block}
+a{color:inherit}
+
+.hd{position:absolute;top:0;left:0;right:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:14px 18px;color:#fff}
+.hd b{font-weight:900;letter-spacing:.16em;font-size:15px}
+.hd a{font-size:14px;text-decoration:none;border:1px solid rgba(255,255,255,.7);border-radius:99px;padding:3px 12px}
+
+/* 1画面＝写真1枚 */
+.mai{position:relative;height:100svh;min-height:600px;max-height:900px;overflow:hidden;scroll-snap-align:start;color:#fff;background:var(--yoru)}
+.mai>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.mai::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,26,34,.55) 0%,rgba(14,26,34,0) 26%,rgba(14,26,34,0) 42%,rgba(14,26,34,.88) 78%,rgba(14,26,34,.96) 100%)}
+.mai .in{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:0 20px var(--pb,96px)}
+.mai .no{font-size:13px;letter-spacing:.2em;opacity:1;color:#E5ECF0;margin:0 0 8px}
+.mai h1,.mai h2{margin:0 0 10px;font-weight:900;font-size:34px;line-height:1.35;letter-spacing:.01em}
+.mai h2{font-size:29px}
+.mai p{margin:0;font-size:16px;color:#E5ECF0}
+.mai .lbl{position:absolute;z-index:2;top:64px;left:18px;font-size:13px;font-weight:900;letter-spacing:.14em;background:var(--shiro);color:var(--sumi);padding:3px 10px;border-radius:2px}
+
+.fuda{display:inline-flex;align-items:baseline;gap:8px;margin:14px 0 0;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);border-radius:8px;padding:8px 12px}
+.fuda span{font-size:14px}
+.fuda b{font-size:30px;font-weight:900;line-height:1}
+.fuda small{font-size:14px}
+
+.shita{display:flex;align-items:center;gap:8px;margin:18px 0 0;font-size:14px;color:#E5ECF0}
+.shita i{display:block;width:22px;height:22px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg) scale(.6)}
+@media (prefers-reduced-motion:no-preference){ .shita i{animation:yureru 1.6s ease-in-out infinite} @keyframes yureru{50%{transform:translateY(5px) rotate(45deg) scale(.6)}} }
+
+/* 前後：同じ枠で並べて、指で切り替える（タブ） */
+.mae-ato{position:absolute;inset:0}
+.mae-ato img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .35s}
+.mae-ato img.ato{opacity:0}
+.mai.ato-mieru .mae-ato img.ato{opacity:1}
+.kiri{position:absolute;z-index:3;top:60px;left:50%;transform:translateX(-50%);display:flex;background:rgba(14,26,34,.72);border-radius:99px;padding:4px}
+.kiri button{appearance:none;border:0;font:inherit;font-weight:900;font-size:15px;color:#fff;background:transparent;border-radius:99px;min-width:96px;min-height:44px;cursor:pointer}
+.kiri button[aria-pressed="true"]{background:#fff;color:var(--sumi)}
+
+/* 3画面目：白地で決める */
+.kimeru{scroll-snap-align:start;padding:34px 20px 20px;background:var(--shiro)}
+.kimeru h2{margin:0 0 4px;font-weight:900;font-size:25px;line-height:1.45}
+.kimeru .sub{margin:0 0 18px;color:var(--nezumi);font-size:15px}
+.kakaku{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 10px}
+.kakaku div{background:var(--kumo);border-radius:10px;padding:14px 12px}
+.kakaku span{display:block;font-size:14px;color:var(--nezumi)}
+.kakaku b{display:block;font-weight:900;font-size:28px;line-height:1.2}
+.kakaku b small{font-size:14px}
+.kakaku em{display:block;font-style:normal;font-size:13px;color:var(--nezumi)}
+.nov{margin:0 0 18px;font-size:15px}
+.nov b{font-weight:900}
+.btn{display:flex;align-items:center;justify-content:center;flex-direction:column;min-height:62px;background:var(--ki);color:var(--sumi);font-weight:900;font-size:18px;text-decoration:none;border-radius:10px;box-shadow:0 4px 0 var(--ki-deep)}
+.btn small{font-weight:500;font-size:13px}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ki-deep)}
+.tel{display:block;text-align:center;margin:14px 0 0;font-size:15px;color:var(--nezumi);text-decoration:none}
+.tel b{color:var(--sumi);font-size:18px;font-weight:900}
+
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:9;display:grid;grid-template-columns:1fr 1.7fr;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(14,26,34,.94)}
+.bar a{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:54px;border-radius:10px;text-decoration:none;font-weight:900;font-size:16px}
+.bar .t{color:#fff;border:1.5px solid rgba(255,255,255,.6)}
+.bar .t small{font-weight:500;font-size:12px}
+.bar .y{background:var(--ki);color:var(--sumi)}
+.bar .y small{font-weight:500;font-size:12px}
+.mock{font-size:12px;color:var(--nezumi);text-align:center;padding:24px 20px}
+</style>
+</head>
+<body>
+
+<header class="hd"><b>ONE HITTER</b><a href="tel:08080438259">電話</a></header>
+
+<!-- 1画面目 -->
+<section class="mai" id="m1">
+  <img src="../img/outlet-before.jpg" alt="施工前の吹出口・ルーバー" width="800" height="600" fetchpriority="high">
+  <span class="lbl">施工前・実際の写真</span>
+  <div class="in">
+    <p class="no">東京・千葉・神奈川／自社の職人が伺います</p>
+    <h1>フィルターを<br>掃除しても<br>カビ臭い。</h1>
+    <p>「送風口に黒い点が見える」の正体。ここが見えているときは、奥はもっと汚れています。</p>
+    <div class="fuda"><span>ノーマル1台</span><b>10,780</b><small>円（税込）／60分</small></div>
+    <div class="shita"><i></i>洗ったあとを見る</div>
+  </div>
+</section>
+
+<!-- 2画面目：同じ場所の前後を切り替える -->
+<section class="mai" id="m2">
+  <div class="mae-ato">
+    <img src="../img/fan-before.jpg" alt="施工前の送風ファン" width="800" height="600" loading="lazy">
+    <img class="ato" src="../img/fan-after.jpg" alt="施工後の送風ファン" width="800" height="600" loading="lazy">
+  </div>
+  <div class="kiri" role="group" aria-label="施工前と施工後">
+    <button type="button" data-b="mae" aria-pressed="true">施工前</button>
+    <button type="button" data-b="ato" aria-pressed="false">施工後</button>
+  </div>
+  <div class="in">
+    <p class="no">送風ファン｜実際の施工前と施工後（同じ箇所）</p>
+    <h2>熱交換器の奥まで、<br>分解して洗います。</h2>
+    <p>汚れの質を見て洗剤を選び、熱交換器とファンを専用機材で洗浄します。</p>
+  </div>
+</section>
+
+<!-- 3画面目：汚水 → 白地で金額と予約 -->
+<section class="mai" id="m3" style="height:56svh;min-height:420px;--pb:28px">
+  <img src="../img/water-2.jpg" alt="洗浄で出た汚水" width="700" height="700" loading="lazy" style="object-position:50% 40%">
+  <div class="in">
+    <h2>洗浄で出た汚水</h2>
+    <p>作業後は、この水をお客様にもご覧いただいています。</p>
+  </div>
+</section>
+<section class="kimeru">
+  <h2>お金のことを、<br>先に全部書きます</h2>
+  <p class="sub">表示はすべて税込です。お見積り以上の追加請求はありません。</p>
+  <div class="kakaku">
+    <div><span>ノーマル</span><b>10,780<small>円</small></b><em>作業は60分</em></div>
+    <div><span>お掃除機能付き</span><b>17,380<small>円</small></b><em>作業は120分</em></div>
+  </div>
+  <p class="nov">11月の作業なら <b>9,702円</b>（1台のご依頼は10%引き）</p>
+  <a class="btn" href="https://yoyaku.onehitter.jp/">空いている日を見て予約する<small>入力は1分・予約時のお支払いはありません</small></a>
+  <a class="tel" href="tel:08080438259">お電話でも <b>080-8043-8259</b>（8:00〜20:00）</a>
+</section>
+
+<p class="mock">デザイン案C「写真が主役」のモック（未配信）</p>
+
+<nav class="bar" aria-label="ご予約">
+  <a class="t" href="tel:08080438259">電話<small>8-20時 渡辺</small></a>
+  <a class="y" href="https://yoyaku.onehitter.jp/">空いている日を見る<small>そのまま予約</small></a>
+</nav>
+
+<script>
+(function(){
+  var m2=document.getElementById('m2');
+  m2.querySelector('.kiri').addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b) return;
+    this.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});
+    m2.classList.toggle('ato-mieru', b.dataset.b==='ato');
+  });
+  /* 2画面目が半分見えたら、1回だけ自動で「施工後」に切り替える（動きを減らす設定の人には動かさない） */
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){ es.forEach(function(en){ if(en.isIntersecting){
+      setTimeout(function(){ m2.querySelector('[data-b=ato]').click(); }, 900); io.disconnect(); } }); },{threshold:.55});
+    io.observe(m2);
+  }
+})();
+</script>
+</body>
+</html>

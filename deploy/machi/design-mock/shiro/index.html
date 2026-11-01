@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>デザイン案B 白い検査室（モック）</title>
+<!-- モック（未配信）。docs/LP-デザイン調査-2026-11-01.md の C-2。
+     書体：BIZ UDPGothic 400・700 だけ（モリサワのUD書体。Google Fonts）。1書体2太さに絞る。
+     色：無彩色（白・灰）＋青1色。青は「押せるもの」と「金額」にだけ使う。 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --shiro:#FFFFFF;
+  --kiri:#F3F6F8;      /* 霧：面の区切り */
+  --sumi:#0B1F2A;      /* 文字 */
+  --nezumi:#5B6B75;    /* 補足の文字（白地で 5.5:1） */
+  --sen:#E1E7EB;       /* 罫 */
+  --ao:#0A5BA8;        /* 青：押せるもの・金額だけ */
+  --ao-deep:#08467F;
+  --ao-usui:#EAF4FB;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--shiro);color:var(--sumi);
+  font-family:"BIZ UDPGothic","Hiragino Sans","Yu Gothic",sans-serif;font-size:17px;line-height:1.8;padding-bottom:84px;
+  font-feature-settings:"palt" 0}
+img{display:block;max-width:100%}
+a{color:inherit}
+.num{font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+
+.hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px}
+.hd b{font-size:16px;letter-spacing:.14em;color:var(--sumi)}
+.hd a{font-size:15px;font-weight:700;color:var(--ao);text-decoration:none}
+
+/* 1画面目：余白と、金額と、触れる選択 */
+.fv{padding:18px 20px 4px}
+.tag{font-size:14px;color:var(--nezumi);margin:0 0 14px}
+.fv h1{margin:0 0 12px;font-size:28px;line-height:1.5;font-weight:700;letter-spacing:.01em}
+.fv .lead{margin:0 0 26px;font-size:16px;color:var(--nezumi)}
+
+.sel{margin:0 0 6px}
+.sel p{margin:0 0 8px;font-size:14px;color:var(--nezumi)}
+.seg{display:grid;gap:6px;margin:0 0 14px}
+.seg.k2{grid-template-columns:1fr 1fr}
+.seg.k3{grid-template-columns:repeat(3,1fr)}
+.seg button{appearance:none;font:inherit;font-size:16px;min-height:48px;border-radius:10px;border:1.5px solid var(--sen);
+  background:var(--shiro);color:var(--sumi);cursor:pointer;transition:border-color .1s,background .1s}
+.seg button[aria-pressed="true"]{border-color:var(--ao);background:var(--ao-usui);color:var(--ao);font-weight:700}
+
+.kekka{border-top:1px solid var(--sen);padding:16px 0 6px;margin:6px 0 0}
+.kekka .r{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.kekka .l{font-size:15px;color:var(--nezumi)}
+.kekka .n{font-size:46px;font-weight:700;color:var(--ao);line-height:1}
+.kekka .n small{font-size:20px;margin-left:2px}
+.kekka .s{font-size:14px;color:var(--nezumi);margin:6px 0 0;text-align:right}
+.kekka .nov{font-size:15px;margin:10px 0 0;padding:8px 12px;background:var(--kiri);border-radius:8px}
+.kekka .nov b{color:var(--ao)}
+@media (prefers-reduced-motion:no-preference){ .kekka .n{transition:opacity .15s} .kekka .n.kawaru{opacity:.35} }
+
+.btn{display:flex;align-items:center;justify-content:center;flex-direction:column;width:100%;min-height:60px;margin:18px 0 0;
+  background:var(--ao);color:#fff;text-decoration:none;font-weight:700;font-size:18px;border-radius:999px}
+.btn small{font-weight:400;font-size:13px;color:#D6E7F6}
+.btn:active{background:var(--ao-deep)}
+.tel{display:block;text-align:center;margin:12px 0 0;font-size:15px;color:var(--nezumi);text-decoration:none}
+.tel b{color:var(--sumi);font-size:18px}
+
+/* 2画面目：数字3つ と 前後を指でずらす */
+.sec{padding:46px 20px 6px}
+.sec h2{margin:0 0 6px;font-size:23px;line-height:1.5;font-weight:700}
+.sec .sub{margin:0 0 20px;font-size:15px;color:var(--nezumi)}
+.san{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--sen);border-bottom:1px solid var(--sen);margin:0 0 30px}
+.san div{padding:16px 4px;text-align:center}
+.san div+div{border-left:1px solid var(--sen)}
+.san b{display:block;font-size:30px;line-height:1.1}
+.san b small{font-size:15px}
+.san span{display:block;font-size:13px;color:var(--nezumi);line-height:1.5;margin-top:6px}
+.chu{font-size:12.5px;color:var(--nezumi);line-height:1.7;margin:-20px 0 30px}
+
+.ba{position:relative;border-radius:12px;overflow:hidden;aspect-ratio:4/3;background:var(--kiri);touch-action:pan-y;user-select:none}
+.ba img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ba .ue{clip-path:inset(0 0 0 var(--x,50%))}
+.ba .hari{position:absolute;top:0;bottom:0;left:var(--x,50%);width:2px;background:#fff;transform:translateX(-1px)}
+.ba .tsumami{position:absolute;top:50%;left:var(--x,50%);width:44px;height:44px;border-radius:50%;background:#fff;transform:translate(-50%,-50%);
+  box-shadow:0 1px 6px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--sumi)}
+.ba .lb{position:absolute;top:10px;font-size:13px;font-weight:700;background:rgba(255,255,255,.92);padding:2px 10px;border-radius:99px}
+.ba .lb.m{left:10px}.ba .lb.a{right:10px}
+.ba input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:ew-resize}
+.cap{font-size:14px;color:var(--nezumi);margin:10px 0 0}
+.cap b{color:var(--sumi)}
+
+/* 3画面目：お金のことを先に */
+.list{margin:0;padding:0;list-style:none;border-top:1px solid var(--sen)}
+.list li{display:grid;grid-template-columns:84px 1fr;gap:12px;padding:16px 0;border-bottom:1px solid var(--sen)}
+.list li b{font-size:15px}
+.list li span{font-size:15.5px;color:var(--sumi);line-height:1.75}
+
+.bar{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:1fr 1.7fr;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+  background:rgba(255,255,255,.97);border-top:1px solid var(--sen);z-index:9}
+.bar a{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:54px;border-radius:999px;text-decoration:none;font-weight:700;font-size:16px}
+.bar .t{border:1.5px solid var(--sen);color:var(--sumi)}
+.bar .t small{font-weight:400;font-size:12px;color:var(--nezumi)}
+.bar .y{background:var(--ao);color:#fff}
+.bar .y small{font-weight:400;font-size:12px;color:#D6E7F6}
+.mock{font-size:12px;color:var(--nezumi);text-align:center;padding:30px 20px}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <b>ONE HITTER</b>
+  <a href="tel:08080438259">電話する</a>
+</header>
+
+<section class="fv">
+  <p class="tag">エアコンクリーニング｜東京・千葉・神奈川／自社の職人が伺います</p>
+  <h1>フィルターを掃除しても<br>カビ臭い。<br>原因は、内部のカビです。</h1>
+  <p class="lead">熱交換器の奥まで、分解して洗います。</p>
+
+  <div class="sel" id="sel">
+    <p>種類と台数を押すと、金額（税込）が出ます</p>
+    <div class="seg k2" data-k="unit">
+      <button type="button" data-v="10780" aria-pressed="true">ノーマル</button>
+      <button type="button" data-v="17380" aria-pressed="false">お掃除機能付き</button>
+    </div>
+    <div class="seg k3" data-k="qty">
+      <button type="button" data-v="1" aria-pressed="true">1台</button>
+      <button type="button" data-v="2" aria-pressed="false">2台</button>
+      <button type="button" data-v="3" aria-pressed="false">3台</button>
+    </div>
+  </div>
+  <div class="kekka" aria-live="polite">
+    <div class="r"><span class="l" id="kl">ノーマル 1台</span><span class="n num" id="kn">10,780<small>円</small></span></div>
+    <p class="s" id="ks">作業は60分</p>
+    <p class="nov" id="kv">11月の作業なら <b class="num">9,702円</b>（1台のご依頼は10%引き）</p>
+  </div>
+
+  <a class="btn" href="https://yoyaku.onehitter.jp/">空いている日を見て予約する<small>入力は1分・予約時のお支払いはありません</small></a>
+  <a class="tel" href="tel:08080438259">お電話でも <b class="num">080-8043-8259</b>（8:00〜20:00）</a>
+</section>
+
+<section class="sec">
+  <div class="san">
+    <div><b class="num">60<small>分</small></b><span>ノーマル1台の<br>作業時間</span></div>
+    <div><b class="num">0<small>円</small></b><span>お見積り後の<br>追加請求</span></div>
+    <div><b class="num">98.6<small>%</small></b><span>ご家族や友人に<br>勧めてもよい</span></div>
+  </div>
+  <p class="chu">98.6%：ご利用後アンケートで、ご家族や知人友人に「すぐにオススメしたい」「機会があればススメてもよい」と答えた方の割合（2023年1月〜2025年12月、回答209名中206名、自社調べ）</p>
+
+  <h2>フィルターの奥を、<br>分解して洗います</h2>
+  <p class="sub">指で左右にずらすと、施工前と施工後が切り替わります。</p>
+  <div class="ba" id="ba" style="--x:50%">
+    <img src="../img/fin-before.jpg" alt="施工前の熱交換器" width="800" height="600">
+    <img class="ue" src="../img/fin-after.jpg" alt="施工後の熱交換器" width="800" height="600">
+    <div class="hari"></div><div class="tsumami" aria-hidden="true">⇆</div>
+    <span class="lb m">施工前</span><span class="lb a">施工後</span>
+    <input type="range" min="0" max="100" value="50" aria-label="施工前と施工後を切り替える">
+  </div>
+  <p class="cap"><b>熱交換器（アルミフィン）</b>　冷房中に結露する場所。年中湿っているため、カビの温床になります。実際の施工写真（同じ箇所）。</p>
+</section>
+
+<section class="sec">
+  <h2>お金のことを、先に全部書きます</h2>
+  <p class="sub">表示の金額は、すべて税込です。</p>
+  <ul class="list">
+    <li><b>追加請求</b><span>お見積り以上の追加請求はありません。</span></li>
+    <li><b>お支払い</b><span>作業が終わってから、その場で。カード・交通系IC・PayPay などが使えます。</span></li>
+    <li><b>2台以上</b><span>ページからのお申し込み特典として 2,200円 を差し引きます。</span></li>
+    <li><b>時期</b><span>5〜7月・12月は1台あたり 3,300円 が加算されます。</span></li>
+    <li><b>別途</b><span>駐車スペースが無い場合のコインパーキング代（実費・事前にお伝えします）、遠方（目安：高速道路を使う地域）の交通費（お見積りのお電話でご案内します）。</span></li>
+  </ul>
+</section>
+
+<p class="mock">デザイン案B「白い検査室」のモック（未配信）</p>
+
+<nav class="bar" aria-label="ご予約">
+  <a class="t" href="tel:08080438259">電話<small>8-20時 渡辺</small></a>
+  <a class="y" href="https://yoyaku.onehitter.jp/">空いている日を見る<small>そのまま予約</small></a>
+</nav>
+
+<script>
+/* 金額：aircon-c の keisan() と同じ規則（2台以上は −2,200円）。11月の10%引きは1台のときだけ表示 */
+(function(){
+  var st = {unit:10780, qty:1};
+  var fmt = function(n){ return n.toLocaleString('ja-JP'); };
+  var kn=document.getElementById('kn'), kl=document.getElementById('kl'), ks=document.getElementById('ks'), kv=document.getElementById('kv');
+  function egaku(){
+    var t = st.unit*st.qty - (st.qty>=2 ? 2200 : 0);
+    kn.classList.add('kawaru');
+    setTimeout(function(){ kn.innerHTML = fmt(t)+'<small>円</small>'; kn.classList.remove('kawaru'); }, 90);
+    kl.textContent = (st.unit===10780?'ノーマル ':'お掃除機能付き ')+st.qty+'台';
+    ks.textContent = st.qty>=2 ? '2台以上はネット申込特典 −2,200円' : (st.unit===10780?'作業は60分':'作業は120分');
+    if (st.qty===1){ kv.hidden=false; kv.innerHTML='11月の作業なら <b class="num">'+(st.unit===10780?'9,702':'15,642')+'円</b>（1台のご依頼は10%引き）'; }
+    else kv.hidden=true;
+  }
+  document.querySelectorAll('.seg').forEach(function(g){
+    g.addEventListener('click', function(e){
+      var b=e.target.closest('button'); if(!b) return;
+      g.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', x===b?'true':'false'); });
+      st[g.dataset.k] = parseInt(b.dataset.v,10); egaku();
+    });
+  });
+  var ba=document.getElementById('ba');
+  ba.querySelector('input').addEventListener('input', function(){ ba.style.setProperty('--x', this.value+'%'); });
+})();
+</script>
+</body>
+</html>

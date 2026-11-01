@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>デザイン案A 顔の見える職人（モック）</title>
+<!-- モック（未配信）。docs/LP-デザイン調査-2026-11-01.md の C-1。
+     書体：見出し Zen Old Mincho 700／本文 Zen Kaku Gothic New 400・700（Google Fonts）。
+     本番にするときは、使う字だけに絞って自前で置く（pyftsubset）。 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700&family=Zen+Old+Mincho:wght@700&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --kami:#F6F1E7;      /* 生成りの紙 */
+  --kami-2:#EDE5D6;
+  --sumi:#22201C;      /* 墨 */
+  --sumi-2:#4A453D;
+  --hai:#6B6458;       /* 灰（注記） */
+  --sen:#D9D0BF;       /* 罫 */
+  --ai:#23466E;        /* 藍：主ボタンだけに使う */
+  --ai-deep:#172F4B;
+  --shu:#B8432F;       /* 朱：判子だけに使う */
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;overflow-x:hidden}
+body{margin:0;background:var(--kami);color:var(--sumi);
+  font-family:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;font-size:17px;line-height:1.85;
+  padding-bottom:84px}
+.min{font-family:"Zen Old Mincho","Yu Mincho","Hiragino Mincho ProN",serif;font-weight:700}
+img{display:block;max-width:100%}
+a{color:inherit}
+
+/* ヘッダー：細い1行だけ。色の帯は置かない */
+.hd{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--sen);background:var(--kami)}
+.hd b{font-family:"Zen Old Mincho",serif;font-size:17px;letter-spacing:.12em}
+.hd a{font-size:15px;font-weight:700;text-decoration:none;color:var(--sumi)}
+
+/* 1画面目：顔の写真が主役 */
+.kao{position:relative;margin:0 20px;padding-top:18px}
+.waku{aspect-ratio:3/2;width:100%;border-radius:4px;background:
+   repeating-linear-gradient(135deg,#E6DDCB 0 14px,#EDE5D6 14px 28px);
+   border:1.5px dashed #B9AD97;display:flex;flex-direction:column;align-items:center;justify-content:center;
+   text-align:center;color:var(--sumi-2);font-size:14px;line-height:1.7;padding:16px}
+.waku strong{display:block;font-size:16px;margin-bottom:6px}
+.hanko{position:absolute;right:10px;bottom:-26px;width:86px;height:86px;border-radius:50%;
+  border:3px solid var(--shu);color:var(--shu);background:rgba(246,241,231,.92);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;
+  transform:rotate(-8deg);font-family:"Zen Old Mincho",serif}
+.hanko small{font-size:12px;letter-spacing:.2em}
+.hanko span{font-size:24px;letter-spacing:.05em}
+@media (prefers-reduced-motion:no-preference){
+  .hanko{animation:osu .5s cubic-bezier(.2,1.6,.4,1) .4s both}
+  @keyframes osu{from{transform:rotate(-8deg) scale(1.6);opacity:0}to{transform:rotate(-8deg) scale(1);opacity:1}}
+}
+.fv{padding:24px 20px 8px}
+.fv .ey{margin:0 0 6px;font-size:14px;color:var(--hai)}
+.fv h1{margin:0 0 10px;font-size:28px;line-height:1.45;letter-spacing:.02em}
+.fv .lead{margin:0 0 12px;color:var(--sumi-2);font-size:16px}
+.nedan{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;border-top:1px solid var(--sen);border-bottom:1px solid var(--sen);padding:12px 0;margin:0 0 6px}
+.nedan .k{font-size:15px}
+.nedan .n{font-family:"Zen Old Mincho",serif;font-size:38px;line-height:1;letter-spacing:.01em}
+.nedan .n small{font-size:18px;margin-left:2px}
+.nedan .t{font-size:14px;color:var(--hai)}
+.nov{margin:6px 0 14px;font-size:15px}
+.nov b{font-size:18px}
+
+.btn{display:flex;align-items:center;justify-content:center;flex-direction:column;width:100%;min-height:60px;
+  background:var(--ai);color:#fff;text-decoration:none;font-weight:700;font-size:18px;border-radius:6px;
+  box-shadow:0 3px 0 var(--ai-deep);letter-spacing:.04em}
+.btn small{font-weight:400;font-size:13px;opacity:1;color:#DCE6F2;letter-spacing:0}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ai-deep)}
+.tel{display:block;text-align:center;margin:14px 0 0;font-size:15px;color:var(--sumi-2)}
+.tel b{font-size:19px;color:var(--sumi);letter-spacing:.03em}
+
+/* 2画面目：手紙のような「伺うのは」 */
+.sec{padding:44px 20px 8px}
+.sec .ey{font-size:13px;letter-spacing:.24em;color:var(--hai);margin:0 0 6px}
+.sec h2{margin:0 0 20px;font-size:25px;line-height:1.5}
+.tegami{background:#FBF8F2;border:1px solid var(--sen);border-radius:4px;padding:22px 20px 6px;position:relative}
+.tegami dl{margin:0}
+.tegami dt{font-weight:700;font-size:16px;display:flex;gap:10px;align-items:center}
+.tegami dt::before{content:"";width:18px;height:1.5px;background:var(--sumi)}
+.tegami dd{margin:2px 0 18px 28px;color:var(--sumi-2);font-size:16px}
+.koe{margin:22px 0 0;padding:0 0 0 18px;border-left:3px solid var(--sumi)}
+.koe p{margin:0;font-family:"Zen Old Mincho",serif;font-size:18px;line-height:1.9}
+.koe cite{display:block;font-style:normal;margin-top:8px;font-size:14px;color:var(--hai)}
+
+/* 3画面目：作業の記録 */
+.kiroku{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0 0 8px}
+.kiroku figure{margin:0;position:relative}
+.kiroku img{width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;border-radius:3px}
+.kiroku figcaption{position:absolute;left:6px;top:6px;background:var(--kami);color:var(--sumi);font-size:12px;font-weight:700;padding:1px 8px;border-radius:2px;letter-spacing:.1em}
+.cap{font-size:14px;color:var(--hai);margin:0 0 22px}
+.osui{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center;border-top:1px solid var(--sen);padding-top:18px}
+.osui img{width:120px;height:120px;aspect-ratio:1/1;object-fit:cover;border-radius:3px}
+.osui p{margin:0;font-size:16px}
+.osui b{display:block;font-size:17px}
+
+/* 固定バー：2つだけ */
+.bar{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:1fr 1.6fr;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+  background:rgba(246,241,231,.97);border-top:1px solid var(--sen);z-index:9}
+.bar a{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:54px;border-radius:6px;text-decoration:none;font-weight:700;font-size:16px}
+.bar .t{border:1.5px solid var(--sumi);color:var(--sumi);background:transparent}
+.bar .t small{font-weight:400;font-size:12px}
+.bar .y{background:var(--ai);color:#fff}
+.bar .y small{font-weight:400;font-size:12px;color:#DCE6F2}
+.mock{font-size:12px;color:var(--hai);text-align:center;padding:30px 20px}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <b>ONE HITTER</b>
+  <a href="tel:08080438259">080-8043-8259</a>
+</header>
+
+<section class="kao" aria-label="担当の写真">
+  <div class="waku">
+    <strong>ここに渡辺さんの写真</strong>
+    作業着・腰から上・明るい窓ぎわ<br>
+    視線は下の見出しの方へ（やや右下）<br>
+    現場のスマホ写真で十分（横 3:2）
+  </div>
+  <div class="hanko" aria-hidden="true"><small>担当</small><span>渡辺</span></div>
+</section>
+
+<section class="fv">
+  <p class="ey">フィルターを掃除してもカビ臭い。原因は、内部のカビです。</p>
+  <h1 class="min">ご予約を受けた<br>私たち自身が伺います。</h1>
+  <p class="lead">熱交換器の奥まで、分解して洗います。</p>
+  <div class="nedan">
+    <span class="k">ノーマル1台</span>
+    <span class="n">10,780<small>円</small></span>
+    <span class="t">税込／60分</span>
+  </div>
+  <p class="nov">11月の作業なら <b>9,702円</b>（1台のご依頼は10%引き）</p>
+  <a class="btn" href="https://yoyaku.onehitter.jp/">空いている日を見て予約する<small>入力は1分・予約時のお支払いはありません</small></a>
+  <a class="tel" href="tel:08080438259">お電話でも <b>080-8043-8259</b>（8:00〜20:00）</a>
+</section>
+
+<section class="sec">
+  <p class="ey">WHO COMES</p>
+  <h2 class="min">伺うのは、ご予約を<br>受けた私たちです</h2>
+  <div class="tegami">
+    <dl>
+      <dt>担当</dt><dd>ご連絡から作業まで、担当は変わりません。</dd>
+      <dt>1台から</dt><dd>今日いちばん困っている1台だけのご依頼で構いません。</dd>
+      <dt>万一のとき</dt><dd>作業した本人が責任を負います。損害賠償保険にも加入しています。</dd>
+    </dl>
+  </div>
+  <blockquote class="koe">
+    <p>エアコン掃除を頼むのが初めてだったので不安が大きかったですが、思ってた以上に丁寧な感じで、掃除する前に段階を踏んでから取り掛かっていたのでよかった。担当してくれた方も気さくな人だったので不安はなくなりました。また利用したいです。</p>
+    <cite>62歳 女性／エアコンクリーニング（公式サイト「お客様の声」より・原文のまま）</cite>
+  </blockquote>
+</section>
+
+<section class="sec">
+  <p class="ey">BEFORE / AFTER</p>
+  <h2 class="min">フィルターの奥を、<br>分解して洗います</h2>
+  <div class="kiroku">
+    <figure><img src="../img/fan-before.jpg" alt="施工前の送風ファン" width="800" height="600"><figcaption>施工前</figcaption></figure>
+    <figure><img src="../img/fan-after.jpg" alt="施工後の送風ファン" width="800" height="600"><figcaption>施工後</figcaption></figure>
+  </div>
+  <p class="cap">エアコンの送風ファン｜実際の施工前と施工後（同じ箇所）</p>
+  <div class="osui">
+    <img src="../img/water-2.jpg" alt="洗浄で出た汚水" width="700" height="700">
+    <p><b>洗浄で出た汚水</b>作業後は、この水をお客様にもご覧いただいています。</p>
+  </div>
+</section>
+
+<p class="mock">デザイン案A「顔の見える職人」のモック（未配信）</p>
+
+<nav class="bar" aria-label="ご予約">
+  <a class="t" href="tel:08080438259">電話<small>8-20時 渡辺</small></a>
+  <a class="y" href="https://yoyaku.onehitter.jp/">空いている日を見る<small>そのまま予約</small></a>
+</nav>
+</body>
+</html>
