@@ -64,3 +64,12 @@ python3 tools/haishin-kakunin.py && python3 tools/deploy-netlify.py && python3 t
 python3 tools/deploy-booking.py --dry-run   # 送るのは index.html と slots.json だけか確かめてから
 python3 tools/deploy-booking.py
 ```
+
+## kyouka/（LP強化の下書き・docs/LP-強化調査-2026-11-01.md の 2. と 4. を全部・オーナー指示 11/1）
+
+作り方：`python3 tools/kyouka-1101.py`（今の配信物 deploy/netlify から作る。C・E・kabi・mizumawari・-b・nenmatsu・-b と、直した C から /aircon/）
+浴室の広告グループの `?ag=` の値は `--yokushitsu-ag bath,B_浴室,<adgroupid の数字>`、江戸川区のキャンペーンは `--edogawa-cid <campaignid>` で足す。
+確認用：`?ag=bath`（浴室版）、`?area=edogawa`（江戸川区の1行）、`#form`（相談フォームが開く）。
+画像は下書きの img/ にだけ置いた（元は上書きしていない）。E と /aircon/ は /aircon-c/img/ を使うので、配信するときは aircon-c/img も一緒に。
+**担当の写真の枠（点線・【下書き】）が残っているので、このままでは配信しない。** 写真と掲載の同意が出たら差し替える。
+前後の画像：docs/img/kyouka-<名前>-before.png・-after.png（11月）、-after-01/-06/-12.png（月の切り替え）、-bath.png（浴室版）。
