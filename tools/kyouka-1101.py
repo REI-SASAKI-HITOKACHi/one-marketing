@@ -29,7 +29,7 @@ C と E には同じ変更を入れる。/aircon/ は直した C から tools/fu
   「よくある頼み方」を1画面目の直後へ。同じ文の二重掲載を消す。
 - 2-4（速さ）：1画面目の画像に fetchpriority・decoding、背景画像は 1200px に縮める。JPEG は画質を保って詰め直す（下書きの img/ に）。
 - 2-5（AI Max）：title・description を季節によらない、はっきりした文に。古い季節・古い特典の文を残さない。
-- 2-6（法規）：「最短即日」は予約ページの最短が翌日なので、事実確認が取れるまで下書きから外す。
+- 2-6（法規）：「最短即日」は残し、「当日のご依頼はお電話で」を添える（オーナー 11/1：電話で依頼されたときは即日対応している。予約ページの最短は翌日）。
   レンジフードの組写真（hood-before／after）は別物と確認済み（docs/photo-inventory.md 2026-09-06）なので、
   「同じ箇所の施工前後」としての掲載をやめる。「一切」を外す（決まりの「一切かからない」と同じ扱い）。
 """
@@ -210,7 +210,7 @@ TSUKI_4 = {"1": "haru", "2": "haru", "3": "haru", "4": "haru", "5": "natsu", "6"
            "8": "aki", "9": "aki", "10": "aki", "11": "fuyu", "12": "fuyu"}
 
 ZIP_OLD = "'｜対応エリアです。最短即日でお伺いできます。'"
-ZIP_NEW = "'｜対応エリアです。空いている日は、予約のカレンダーでご確認いただけます。'"
+ZIP_NEW = "'｜対応エリアです。最短即日でお伺いできます（当日のご依頼はお電話で）。'"
 
 
 def meta(h, title_old, title_new, desc_old=None, desc_new=None, name=""):
@@ -457,7 +457,7 @@ def mizumawari(h, name):
     h = meta(h, "水まわりクリーニング まとめて依頼で1箇所3,300円おトク｜ONE HITTER",
              "水まわりクリーニング 浴室・キッチン・洗濯機 まとめて依頼で1箇所3,300円おトク｜ONE HITTER",
              "キッチン・浴室・レンジフード・洗濯機・追い焚き配管。2箇所目からは同時施工価格。浴室＋キッチンで33,660円（税込）、半日で完了。東京・千葉・神奈川、最短即日。",
-             "浴室・キッチン・レンジフード・洗濯機・追い焚き配管。2箇所目からは同時施工価格。浴室＋キッチンで33,660円（税込）、半日で完了。お見積り以上の追加請求はありません。自社の職人が伺います。東京・千葉・神奈川。", name)
+             "浴室・キッチン・レンジフード・洗濯機・追い焚き配管。2箇所目からは同時施工価格。浴室＋キッチンで33,660円（税込）、半日で完了。お見積り以上の追加請求はありません。自社の職人が伺います。東京・千葉・神奈川、最短即日（当日のご依頼はお電話で）。", name)
     h = kyoutsuu(h, name, "料金もその場で")
     h = kaeru(h, '<p class="nov-in"><b>11月のお掃除は、今のご予約で10%お得</b><span class="nov-sub">1箇所のご依頼・12月は繁忙期（1箇所+3,300円）</span>',
               '<p class="nov-in"><b>11月の作業は、1箇所だけのご依頼なら10%引き</b><span class="nov-sub">2箇所目からはセット価格</span>', name=name)
@@ -465,7 +465,7 @@ def mizumawari(h, name):
     h = kaeru(h, '<img src="img/hero-bg.jpg" alt="" width="1600" height="1067" fetchpriority="high" decoding="async">',
               '<img src="img/hero-bg.jpg" id="hero-bg-img" alt="" width="1200" height="800" fetchpriority="high" decoding="async">', name=name)
     h = kaeru(h, '<span class="area" id="hero-area">✓ 東京・千葉・神奈川 対応／最短即日</span>',
-              '<span class="area" id="hero-area">✓ 東京・千葉・神奈川 対応／自社の職人が伺います</span>\n'
+              '<span class="area" id="hero-area">✓ 東京・千葉・神奈川 対応／最短即日（当日のご依頼はお電話で）</span>\n'
               '    <p class="kisetsu-ue" id="kisetsu-ue" hidden></p>', name=name)
     h = kaeru(h, '<h1>水まわりは、<br><span class="hl">まとめて頼むほど安い。</span></h1>',
               '<h1 id="hero-h1">水まわりは、<br><span class="hl">まとめて頼むほど安い。</span></h1>', name=name)
@@ -723,7 +723,7 @@ def tenken(name, before, after):
         if before.count(k) != after.count(k):
             ng.append(f"{k} の数が変わった")
     txt = re.sub(r"<(script|style)[^>]*>.*?</\1>", "", after, flags=re.S)
-    for w in ["98.8", "最短即日", "出張費無料", "一切かからない", "完全分解", "背抜き", "ファンを外", "今だけ", "先着", "No.1", "9月の長雨"]:
+    for w in ["98.8", "出張費無料", "一切かからない", "完全分解", "背抜き", "ファンを外", "今だけ", "先着", "No.1", "9月の長雨"]:
         if w in txt:
             ng.append(f"使わない言い方「{w}」が本文にある")
     for tel in re.findall(r"0\d{1,3}-\d{2,4}-\d{4}", txt):
