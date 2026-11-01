@@ -11,6 +11,7 @@
   1. アイキャッチ画像の実寸（JPEG/PNG の大きさ）… 横 800px 未満は NG（ピンボケの元）
   2. 同じ画像が他の記事と重複していないか（中身のハッシュで比べる）
   3. 題名が原稿（web-inflow ブランチ docs/blog/*.md の title）のどれかと一致するか
+  5. 本文の予約ページ・LP の URL が <a> になっていない（押せない文字のまま）は NG（2026-11-02）
   4. 本文に画像が1枚もない記事（事例記事＝題名に「事例」を含むのに0枚）は NG
 
     python3 tools/check-blog-public.py          # NG があれば最後に「NG: N件」
@@ -104,6 +105,12 @@ def main():
         # 入口ページ（lp の持ち物。原稿は web-inflow のブログに無い）は題名を照合しない。2026-10-30 1805 で誤検知
         if daimei and t not in daimei and slug.rsplit("-", 1)[-1] not in NYUGUCHI:
             mondai.append("題名が原稿と違う（古い版のまま？）")
+        # 2026-11-02 追加：原稿が URL を地の文に書くと、変換でも CMS でもリンクにならず押せない（lp 20261101-02・23本）。
+        # 予約ページ・LP の URL が <a> の外に文字で出ていたら NG。
+        soto = re.sub(r"<a\b[^>]*>.*?</a>", " ", re.sub(r"<script.*?</script>|<style.*?</style>", " ", h, flags=re.S), flags=re.S)
+        moji = re.findall(r"https://(?:yoyaku\.onehitter\.jp|lp\.onehitter\.jp)[^\s<\"]*", re.sub(r"<[^>]+>", " ", soto))
+        if moji:
+            mondai.append(f"予約・LPのURLが押せない文字のまま（{len(moji)}か所）")
         kiroku.append((slug, t, mondai))
     for d, ss in hashes.items():
         if len(ss) > 1:
