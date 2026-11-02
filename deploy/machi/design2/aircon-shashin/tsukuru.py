@@ -30,10 +30,10 @@ LABEL = "デザイン②写真"       # 通知メールの件名・申込内容�
 
 # 写真の枠：枠の名前 → (書き出すファイル名, 今入れている元のファイル)。並べてよい前後の組は (mae, ato) が同じ物と確かめたものだけ
 WAKU = {
-    "hero":    [("hero.jpg", "deploy/machi/kyouka/aircon-c/img/fan-before.jpg")],
+    "hero":    [("hero.jpg", "assets/photos-design2/hero-ph445.jpg")],   # 仕分け表 ph-445（IMG_7716・2026-08-24・吹出口の黒カビ・施工前・縦）
     "vent-ba": [("vent-mae.jpg", "lp/nenmatsu/img/ac-vent-before.jpg"), ("vent-ato.jpg", "lp/nenmatsu/img/ac-vent-after.jpg")],
     "fin-ba":  [("fin-mae.jpg", "deploy/machi/kyouka/aircon-c/img/fin-before.jpg"), ("fin-ato.jpg", "deploy/machi/kyouka/aircon-c/img/fin-after.jpg")],
-    "osui":    [("osui.jpg", "deploy/machi/kyouka/aircon-c/img/water-1.jpg")],
+    "osui":    [("osui.jpg", "assets/photos-design2/osui-8023.jpg")],   # IMG_8023（2026-09-08・汚水・縦）
     "sagyou":  [("sagyou.jpg", "deploy/machi/kyouka/aircon-c/img/sagyou.jpg")],
     "og":      [("og.jpg", "deploy/machi/kyouka/aircon-c/img/og.jpg")],
 }
