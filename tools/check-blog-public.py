@@ -26,6 +26,7 @@ import struct
 import subprocess
 import sys
 import urllib.request
+import urllib.error
 
 SITE = "https://one-hitter.jp"
 GENKOU_BRANCH = "origin/claude/web-inflow"
@@ -34,9 +35,17 @@ MIN_W = 800
 
 
 def get(url):
-    req = urllib.request.Request(url, headers={"User-Agent": "one-hitter-blog-check"})
-    with urllib.request.urlopen(req, timeout=40) as r:
-        return r.read()
+    # 2026-11-02：公式サイトが連続取得の途中で接続を切ることがある（Connection reset）。2秒あけて2回までやり直す。
+    import time
+    for i in range(3):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "one-hitter-blog-check"})
+            with urllib.request.urlopen(req, timeout=40) as r:
+                return r.read()
+        except (urllib.error.URLError, ConnectionError, OSError):
+            if i == 2:
+                raise
+            time.sleep(2)
 
 
 def gazou_sunpou(b):
