@@ -206,6 +206,14 @@ def check(path: pathlib.Path, prices: set) -> tuple:
     if PRICE_RE.search(body) and not any(w in body for w in ("繁忙期", "3,300円", "3300円")):
         ng.append("金額を書いているのに繁忙期加算（5〜7月・12月／+3,300円）に触れていない")
 
+    # 予約導線のURLは、押せるリンクの形 [文言](URL) で書く（cmo 20261102-01。地の文のURLは公開ページで押せない）
+    # 2026-11-22 以降の記事に適用する（それ以前の原稿は lp の差し替え表で直す）
+    if str(fm.get("date", "")) >= "2026-11-22":
+        for m in CTA_RE.finditer(body):
+            if body[max(0, m.start() - 2):m.start()] != "](":
+                ng.append("予約導線の URL が地の文のまま（公開ページで押せない）。[空いている日を見て予約する](URL) の形で書く")
+                break
+
     # 予約導線
     m_cta = CTA_RE.search(body)
     if not m_cta:

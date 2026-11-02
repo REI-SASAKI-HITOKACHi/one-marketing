@@ -36,6 +36,7 @@
 | **`gads_mizumawari`** | **検索広告・水回り**（新規） | 同上 |
 | **`gads_brand`** | **検索広告・社名の指名**（新規） | 同上 |
 | **`gads_kabi`** | **検索広告・カビ特化LP**（2026-10-16 追加。cmo 20261016-07、MTGシート F799・LP T069）。広告グループ `A2_エアコン臭い`。着地URLは `?src=gads_kabi&cid={campaignid}&ag={adgroupid}`（`cid`・`ag` は広告の値の受け取り用） | 広告の最終ページURL（カビ特化LP。`lp=kabi`） |
+| **`gads_nenmatsu`** | **検索広告・年末×カビ**（2026-11-02 追加。cmo 20261101-02。キャンペーン『検索_江戸川_年末カビ』ID 24413335383・日1,000円）。着地 `/nenmatsu-b/?src=gads_nenmatsu&cid={campaignid}&ag={adgroupid}`。15字 | 広告の最終ページURL |
 | **`gads_sl_ryokin`** | **検索広告のサイトリンク・料金**（2026-10-18 追加。cmo 20261018-03。着地 `/aircon/`）。15字 | サイトリンクの最終ページURL |
 | **`gads_sl_mizu`** | **検索広告のサイトリンク・水まわり**（着地 `/mizumawari/`）。13字 | 同上 |
 | **`gads_sl_nenmatsu`** | **検索広告のサイトリンク・年末**（着地 `/nenmatsu-b/`）。16字 | 同上 |
@@ -98,6 +99,7 @@ var src = clean(q.get('src'), 20) || 'direct';
 https://lp.onehitter.jp/aircon/?src=gads_aircon
 https://lp.onehitter.jp/mizumawari/?src=gads_mizumawari
 https://lp.onehitter.jp/kabi/?src=gads_kabi&cid={campaignid}&ag={adgroupid}   （カビ特化LP。LPの置き場のパスは lp 担当の決定に合わせる）
+https://lp.onehitter.jp/nenmatsu-b/?src=gads_nenmatsu&cid={campaignid}&ag={adgroupid}   （年末×カビの検索広告。着地は年末LPの別版）
 ```
 
 - **自動タグ設定（auto-tagging）はオンのままでよい。** Google が `&gclid=…` を足すが、`?src=` とはぶつからない
