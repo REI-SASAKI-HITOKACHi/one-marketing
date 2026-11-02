@@ -1779,9 +1779,29 @@
     "fb_caption": "江戸川区のハウスクリーニング店から、自分でできる範囲のお話です。\n\n暖房を入れる季節は、朝の窓の結露が増えます。原因は1つではありません。\n1. 暖めすぎ。暖房時の室温は、通常17〜22℃ぐらいが身体によいとされる\n2. 湿度の上げすぎ。60%を超えるとカビやダニが育ちやすい\n3. 窓際で冷えた空気が落ちてくる（コールドドラフト）\n\n東京都の健康・快適居住環境の指針（暖房・湿度管理）に書かれています。窓を閉めていても窓際が寒いのは、すきま風とは限りません。\n\nご予約はこちらから。\n\n#結露 #窓の結露 #カビ対策 #自分でできる掃除 #江戸川区 #西葛西 #ハウスクリーニング",
     "link": "https://lp.onehitter.jp/nenmatsu/?src=ig",
     "fb_link": "https://yoyaku.onehitter.jp/?src=fb",
-    "status": "approved",
+    "status": "posted",
     "note": "D型。ブログ 11/3 の先出し（東京都の指針）。カードは data/sns-cards/w08-2.json（check-cards OK）。 2026-10-26 cmo 査読で出典・内容を直した版（原文照合済み）。",
-    "承認": "2026-10-26 cmo 査読OK（20261026-02-cmo）。出典の章・数字は docs/sns-投稿原稿/week-08.md に記載・照合済み"
+    "承認": "2026-10-26 cmo 査読OK（20261026-02-cmo）。出典の章・数字は docs/sns-投稿原稿/week-08.md に記載・照合済み",
+    "results": {
+      "instagram": {
+        "container_id": "18083143424709070",
+        "media_id": "18500684959101827",
+        "permalink": "https://www.instagram.com/p/DfN-olsFOZX/",
+        "published": true
+      },
+      "facebook": {
+        "post_id": "103698149101436_1149701684512848",
+        "permalink": "https://www.facebook.com/1100803886069295/posts/1149701684512848",
+        "media_ids": [
+          "1149701671179516"
+        ]
+      }
+    },
+    "posted_at": "2026-11-02T09:05:32+09:00",
+    "permalinks": {
+      "instagram": "https://www.instagram.com/p/DfN-olsFOZX/",
+      "facebook": "https://www.facebook.com/1100803886069295/posts/1149701684512848"
+    }
   },
   {
     "id": "w08-3",
