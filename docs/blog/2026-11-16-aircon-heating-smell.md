@@ -104,6 +104,6 @@ NITE（製品評価技術基盤機構）も、同じ案内です。
 - エアコンを臭わせない毎日の使い方　4つの習慣
 - エアコンの暖房を使い始める前に確認する4つのこと
 
-ご予約はこちらから。https://yoyaku.onehitter.jp/?src=blog
+ご予約はこちらから。[空いている日を見て予約する](https://yoyaku.onehitter.jp/?src=blog)
 
-LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN
+LINEの友だち追加はこちら。クーポンをお配りしています。[LINEで友だち追加する](https://lin.ee/7kD9WGN)

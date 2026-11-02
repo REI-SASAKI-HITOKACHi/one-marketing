@@ -92,6 +92,6 @@ LIXILのよくあるご質問には、洗い場の床に汚れが出る場合に
 - 排水口をにおわせない毎日　週1回の3分でできること
 - 浴室にカビを生やさない毎日の習慣　最後に入る人がやる4つ
 
-ご予約はこちらから。https://yoyaku.onehitter.jp/?src=blog
+ご予約はこちらから。[空いている日を見て予約する](https://yoyaku.onehitter.jp/?src=blog)
 
-LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN
+LINEの友だち追加はこちら。クーポンをお配りしています。[LINEで友だち追加する](https://lin.ee/7kD9WGN)

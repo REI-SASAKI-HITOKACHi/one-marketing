@@ -108,6 +108,6 @@ https://www.tfd.metro.tokyo.lg.jp/lfe/kasai/10_kokoroe/chapter06.html
 - 冬のあいだ結露をためない毎日　朝1分と夜5分
 - レンジフードに油をためない毎日　調理のあとと週1回の手入れ
 
-ご予約はこちらから。https://yoyaku.onehitter.jp/?src=blog
+ご予約はこちらから。[空いている日を見て予約する](https://yoyaku.onehitter.jp/?src=blog)
 
-LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN
+LINEの友だち追加はこちら。クーポンをお配りしています。[LINEで友だち追加する](https://lin.ee/7kD9WGN)

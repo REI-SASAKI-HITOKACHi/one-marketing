@@ -55,6 +55,6 @@ status: approved
 
 11月のネット予約は、防カビコート（3,300円・税込）をエアコン1台分無料です（作業日 11/1〜11/30）。
 
-ご予約はこちらから。https://yoyaku.onehitter.jp/?src=blog
+ご予約はこちらから。[空いている日を見て予約する](https://yoyaku.onehitter.jp/?src=blog)
 
-LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN
+LINEの友だち追加はこちら。クーポンをお配りしています。[LINEで友だち追加する](https://lin.ee/7kD9WGN)

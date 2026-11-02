@@ -132,6 +132,6 @@ LIXILの案内にある手順は、外側を水拭き、内側に中性洗剤を
 - 便器の黄ばみを落とす方法　中性洗剤から始めて、順番に上げる
 - 排水口の臭いを直す方法　コップ1杯の水から始める
 
-ご予約はこちらから。https://yoyaku.onehitter.jp/?src=blog
+ご予約はこちらから。[空いている日を見て予約する](https://yoyaku.onehitter.jp/?src=blog)
 
-LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN
+LINEの友だち追加はこちら。クーポンをお配りしています。[LINEで友だち追加する](https://lin.ee/7kD9WGN)

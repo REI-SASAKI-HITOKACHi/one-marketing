@@ -93,6 +93,6 @@ status: approved
 
 落としたあと、ためないための毎日は次の記事に書きました。
 
-ご予約はこちらから。https://lp.onehitter.jp/mizumawari/?src=blog
+ご予約はこちらから。[水まわりクリーニングのページを見る](https://lp.onehitter.jp/mizumawari/?src=blog)
 
-LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN
+LINEの友だち追加はこちら。クーポンをお配りしています。[LINEで友だち追加する](https://lin.ee/7kD9WGN)

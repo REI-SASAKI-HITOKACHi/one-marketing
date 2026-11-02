@@ -66,7 +66,7 @@ status: approved
 
 洗い出した水は、作業のあとにお客様にお見せしています。
 
-エアコンクリーニングの内容と料金は、こちらのページにまとめています。https://lp.onehitter.jp/aircon/?src=blog
+エアコンクリーニングの内容と料金は、こちらのページにまとめています。[エアコンクリーニングのページを見る](https://lp.onehitter.jp/aircon/?src=blog)
 
 ## 料金
 
@@ -82,6 +82,6 @@ status: approved
 
 11月のネット予約は、防カビコート（3,300円・税込）をエアコン1台分無料です（作業日 11/1〜11/30）。
 
-エアコンクリーニングのご予約はこちらから。https://yoyaku.onehitter.jp/?src=blog
+エアコンクリーニングのご予約はこちらから。[空いている日を見て予約する](https://yoyaku.onehitter.jp/?src=blog)
 
-エアコンクリーニングの内容は、こちらのページにまとめています。https://lp.onehitter.jp/aircon/?src=blog
+エアコンクリーニングの内容は、こちらのページにまとめています。[エアコンクリーニングのページを見る](https://lp.onehitter.jp/aircon/?src=blog)

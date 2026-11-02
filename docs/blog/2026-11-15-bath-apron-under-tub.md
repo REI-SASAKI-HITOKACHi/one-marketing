@@ -110,6 +110,6 @@ TOTOは、浴室の手入れとして、最後に入浴した人がシャワー�
 - 浴室の黒カビを落とす方法　順番と、混ぜてはいけない洗剤
 - 浴室にカビを生やさない毎日の習慣　最後に入る人がやる4つ
 
-ご予約はこちらから。https://yoyaku.onehitter.jp/?src=blog
+ご予約はこちらから。[空いている日を見て予約する](https://yoyaku.onehitter.jp/?src=blog)
 
-LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN
+LINEの友だち追加はこちら。クーポンをお配りしています。[LINEで友だち追加する](https://lin.ee/7kD9WGN)

@@ -75,13 +75,13 @@ status: approved
 
 始まったら、お知らせをお送りします。登録は、年末のページから。
 
-https://lp.onehitter.jp/nenmatsu/?src=blog#gift
+[お知らせを受け取る（メールアドレスの登録だけ）](https://lp.onehitter.jp/nenmatsu/?src=blog#gift)
 
 ## 関連する記事
 
 - 実家のエアコン、最後に掃除したのはいつですか　帰省した日に確かめる3つのこと
 - 年末の大掃除は11月から　混む時期と、料金が変わる月
 
-お知らせの登録はこちらから。https://lp.onehitter.jp/nenmatsu/?src=blog#gift
+お知らせの登録はこちらから。[お知らせを受け取る（メールアドレスの登録だけ）](https://lp.onehitter.jp/nenmatsu/?src=blog#gift)
 
-LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN
+LINEの友だち追加はこちら。クーポンをお配りしています。[LINEで友だち追加する](https://lin.ee/7kD9WGN)

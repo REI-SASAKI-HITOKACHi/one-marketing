@@ -115,6 +115,6 @@ LIXIL以外のメーカーの場合は、各社の取扱説明書か、お手入
 - 便器に黄ばみを作らない毎日　1日1回の30秒と、週1回のふちの裏
 - トイレが臭う4か所　便器の中だけを洗っても消えません
 
-ご予約はこちらから。https://yoyaku.onehitter.jp/?src=blog
+ご予約はこちらから。[空いている日を見て予約する](https://yoyaku.onehitter.jp/?src=blog)
 
-LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN
+LINEの友だち追加はこちら。クーポンをお配りしています。[LINEで友だち追加する](https://lin.ee/7kD9WGN)

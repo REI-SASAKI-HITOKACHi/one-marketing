@@ -64,6 +64,6 @@ status: approved
 - 排水口の臭いを直す方法　コップ1杯の水から始める
 - 排水口をにおわせない毎日　週1回の3分でできること（この記事）
 
-ご予約はこちらから。https://lp.onehitter.jp/mizumawari/?src=blog
+ご予約はこちらから。[水まわりクリーニングのページを見る](https://lp.onehitter.jp/mizumawari/?src=blog)
 
-LINEの友だち追加はこちら。クーポンをお配りしています。https://lin.ee/7kD9WGN
+LINEの友だち追加はこちら。クーポンをお配りしています。[LINEで友だち追加する](https://lin.ee/7kD9WGN)
