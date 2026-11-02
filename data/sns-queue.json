@@ -1598,10 +1598,31 @@
     "fb_caption": "エアコンを洗っている間に、バケツの水が変わっていく様子です。\n5分間を約38倍に早送りしています。\n洗い出した水と、洗ったあとの内部を撮りました（2026年10月19日の現場）。\n\n11月の作業は10%引きです（1箇所のご依頼が対象）。\n11月のネット予約は、防カビコート（3,300円・税込）をエアコン1台分無料（作業日 11/1〜11/30）。\n\nご予約はこちらから。\n\n#エアコンクリーニング #エアコン掃除 #ハウスクリーニング #江戸川区 #市川市",
     "link": "https://yoyaku.onehitter.jp/?src=ig",
     "fb_link": "https://yoyaku.onehitter.jp/?src=fb",
-    "status": "approved",
+    "status": "posted",
     "note": "20261019-02 和真さん10/19撮影の現場動画（LINE_ログ367〜386）から tools/build-genba-reel.py で作成。元動画の音は使わず自作BGM。 2026-10-31 cmo 10/29 決定：最後のカードと本文に11月10%・防カビ無料を追加（動画を作り直し）。",
     "ロゴ確認済": false,
-    "承認": "2026-10-19 cmo 査読OK（20261019-02）。#西葛西→#市川市（現場が市川市）"
+    "承認": "2026-10-19 cmo 査読OK（20261019-02）。#西葛西→#市川市（現場が市川市）",
+    "results": {
+      "instagram": {
+        "container_id": "18083160338709070",
+        "media_id": "18414507451085121",
+        "permalink": "https://www.instagram.com/reel/DfOT3cUjNT5/",
+        "published": true
+      },
+      "facebook": {
+        "video_id": "2167373887483955",
+        "post_id": "2167373887483955",
+        "permalink": "https://www.facebook.com/103698149101436/videos/2167373887483955",
+        "media_ids": [
+          "2167373887483955"
+        ]
+      }
+    },
+    "posted_at": "2026-11-02T12:11:31+09:00",
+    "permalinks": {
+      "instagram": "https://www.instagram.com/reel/DfOT3cUjNT5/",
+      "facebook": "https://www.facebook.com/103698149101436/videos/2167373887483955"
+    }
   },
   {
     "id": "w07-2",
