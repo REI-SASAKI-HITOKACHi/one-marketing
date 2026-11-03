@@ -1,7 +1,114 @@
 {
- "updated": "2026-11-02 20:5x",
+ "updated": "2026-11-03 10:5x",
  "folder": "1zBP7etIT0D0HcYqp1HFPGNO_X9uhTx86",
  "dan": [
+  {
+   "title": "LP担当：C案LPの写真（lp が選んだ20枚・位置情報なし）",
+   "to": "LP担当（写真が主役のLP）",
+   "note": "lp 11/3 09:49 の番号どおり（hero・吹出口の前後・熱交換器の前後・汚水・作業中、予備を含む）。元の写真が長辺1280pxのため、1600pxには届かない（拡大はしていない）。EXIF（位置情報）は削除済み。",
+   "files": [
+    {
+     "name": "lpC-J22-44.jpg",
+     "asset": "d9940712ebd320999c3b2de1403f2dac",
+     "size": 202812
+    },
+    {
+     "name": "lpC-J19-29.jpg",
+     "asset": "71f78297636a3ccff2047485476f9952",
+     "size": 159412
+    },
+    {
+     "name": "lpC-J04-31.jpg",
+     "asset": "8f4d0c37cf28ac9ac6c2908d26de1350",
+     "size": 224217
+    },
+    {
+     "name": "lpC-J19-37.jpg",
+     "asset": "304ca088a3824fb64772c6a5cbb73dca",
+     "size": 134558
+    },
+    {
+     "name": "lpC-J19-30.jpg",
+     "asset": "604a73eafde3d5cd25a9f38f2b6671aa",
+     "size": 159948
+    },
+    {
+     "name": "lpC-J19-38.jpg",
+     "asset": "49db0ccbe347e0b3b34903a333bd9b09",
+     "size": 150017
+    },
+    {
+     "name": "lpC-J22-13.jpg",
+     "asset": "70d5f2644e26a5ff82cbc19db7bfd041",
+     "size": 184836
+    },
+    {
+     "name": "lpC-J22-08.jpg",
+     "asset": "0480ae479a4bc89c6525fe75dfd43a85",
+     "size": 168433
+    },
+    {
+     "name": "lpC-J22-12.jpg",
+     "asset": "38208badd418d36026d1cb0cbda88ca7",
+     "size": 196435
+    },
+    {
+     "name": "lpC-J22-07.jpg",
+     "asset": "5ff7c192e55e891f795f9f79788cf57e",
+     "size": 172629
+    },
+    {
+     "name": "lpC-J22-24.jpg",
+     "asset": "c04f62c3cfbf6b05c5fb858596867074",
+     "size": 236466
+    },
+    {
+     "name": "lpC-J22-50.jpg",
+     "asset": "54e26a1b587cf093569e94fd89b26411",
+     "size": 373381
+    },
+    {
+     "name": "lpC-J22-25.jpg",
+     "asset": "ea741633a25fc75e141205694fe8c083",
+     "size": 335970
+    },
+    {
+     "name": "lpC-J22-51.jpg",
+     "asset": "b46ea407eb5235142619f601a32b54d0",
+     "size": 375597
+    },
+    {
+     "name": "lpC-J03-03.jpg",
+     "asset": "4251452f996b4cc25193e9ef6223b376",
+     "size": 424642
+    },
+    {
+     "name": "lpC-J03-04.jpg",
+     "asset": "0ff19a6e11ee7b7eca5c2673ef34da6d",
+     "size": 305383
+    },
+    {
+     "name": "lpC-J22-01.jpg",
+     "asset": "ec46708218239bc8ac46b24d008130c4",
+     "size": 154823
+    },
+    {
+     "name": "lpC-J19-27.jpg",
+     "asset": "25bc28c8c21a88b7fcff8e04bed94a59",
+     "size": 167266
+    },
+    {
+     "name": "lpC-J19-35.jpg",
+     "asset": "f2def2cca9b5a7b75560a661af5649b7",
+     "size": 197165
+    },
+    {
+     "name": "lpC-J23-38.jpg",
+     "asset": "931309c5742bd03418f1365eb8545f72",
+     "size": 196026
+    }
+   ]
+  },
   {
    "title": "ブラウザ担当・嶺さん：和真さんのイラストの元写真（6枚）",
    "to": "ブラウザ担当（Canva）／嶺さん（GPT）",
