@@ -23,13 +23,15 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 SHEET = "1TK70pwQ8lYmjxUVCfFp1E2T5qDjHOnD4XSviZzUpB64"
 
 
-def nichiji(rows, start, end):
-    """広告_日次の行 → {日付: [表示, クリック, 費用]}"""
+def nichiji(rows, start, end, campaign=None):
+    """広告_日次の行 → {日付: [表示, クリック, 費用]}。campaign を渡すとキャンペーン名に含む行だけ"""
     d, seen = {}, set()
     for r in rows[1:]:
-        if len(r) < 7 or not (start <= r[1] <= end) or (r[1], r[3]) in seen:
+        if len(r) < 7 or not (start <= r[1] <= end) or (r[1], r[2], r[3]) in seen:
             continue
-        seen.add((r[1], r[3]))
+        if campaign and campaign not in str(r[2]):
+            continue
+        seen.add((r[1], r[2], r[3]))
         x = d.setdefault(r[1], [0, 0, 0.0])
         x[0] += int(r[5])
         x[1] += int(r[6])
@@ -37,11 +39,13 @@ def nichiji(rows, start, end):
     return d
 
 
-def moushikomi(rows, start, end, tsuika):
-    """予約_Web の行 → {日付: 件数}。src は15列目（O列）"""
+def moushikomi(rows, start, end, tsuika, cid=None):
+    """予約_Web の行 → {日付: 件数}。src は15列目（O列）、cid は16列目（P列）。cid を渡すとそのキャンペーンだけ"""
     m = {}
     for r in rows[1:]:
         if len(r) < 15 or not str(r[14]).startswith("gads_"):
+            continue
+        if cid and (len(r) < 16 or str(r[15]).strip() != cid):
             continue
         hi = str(r[0])[:10]
         if start <= hi <= end:
@@ -99,6 +103,8 @@ def main():
     ap.add_argument("--jiki", action="append", required=True, metavar="YYYY-MM-DD=名前")
     ap.add_argument("--tsuika", action="append", default=[], metavar="YYYY-MM-DD",
                     help="src に出ない広告申込（LINE 経由など）の受付日")
+    ap.add_argument("--campaign", help="広告_日次のキャンペーン名に含む文字（例：段0_v2・年末）")
+    ap.add_argument("--cid", help="予約_Web の cid（キャンペーンID）。--campaign と一緒に使う")
     ap.add_argument("--json")
     ap.add_argument("--save")
     a = ap.parse_args()
@@ -115,13 +121,14 @@ def main():
         q = {"valueRenderOption": "UNFORMATTED_VALUE", "dateTimeRenderOption": "FORMATTED_STRING"}
         yomu = lambda rng: sc.call(token, f"/{SHEET}/values/{urllib.parse.quote(rng, safe='')}", query=q).get("values", [])
         nichi_rows = yomu("広告_日次!A1:K3000")
-        web_rows = yomu("予約_Web!A1:O1000")
+        web_rows = yomu("予約_Web!A1:P1000")
         if a.save:
             pathlib.Path(a.save).write_text(json.dumps({"nichiji": nichi_rows, "yoyaku": web_rows},
                                                        ensure_ascii=False), encoding="utf-8")
-    d = nichiji(nichi_rows, a.start, a.end)
-    m = moushikomi(web_rows, a.start, a.end, a.tsuika)
-    print(f"# 入札の時期別（{a.start}〜{a.end}）\n")
+    d = nichiji(nichi_rows, a.start, a.end, a.campaign)
+    m = moushikomi(web_rows, a.start, a.end, a.tsuika, a.cid)
+    kanmei = "・" + a.campaign if a.campaign else ""
+    print(f"# 入札の時期別（{a.start}〜{a.end}{kanmei}）\n")
     print(hyou(d, m, jiki, a.start, a.end))
 
 
