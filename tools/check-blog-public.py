@@ -30,7 +30,7 @@ import urllib.error
 
 SITE = "https://one-hitter.jp"
 GENKOU_BRANCH = "origin/claude/web-inflow"
-NYUGUCHI = {"1805", "1809"}   # 入口ページの記事ID（江戸川区エアコン 10/28・洗濯機 11/4）。増えたら足す
+NYUGUCHI = {"1805", "1808", "1809"}   # 入口ページの記事ID（江戸川区エアコン 10/28＝1805・洗濯機＝公開URLは 1808／記事ID 1809）。増えたら足す
 MIN_W = 800
 
 
@@ -42,6 +42,13 @@ def get(url):
             req = urllib.request.Request(url, headers={"User-Agent": "one-hitter-blog-check"})
             with urllib.request.urlopen(req, timeout=40) as r:
                 return r.read()
+        except urllib.error.HTTPError as e:
+            # 2026-11-04：非公開に戻した記事（1760）がサイトマップに残ると 404 になる。やり直さず呼び出し側で飛ばす
+            if e.code == 404:
+                return None
+            if i == 2:
+                raise
+            time.sleep(2)
         except (urllib.error.URLError, ConnectionError, OSError):
             if i == 2:
                 raise
@@ -95,7 +102,11 @@ def main():
     ng, kiroku, hashes = [], [], {}
     for slug in urls:
         url = f"{SITE}/blog/{slug}/"
-        h = get(url).decode("utf-8", "ignore")
+        raw = get(url)
+        if raw is None:
+            print(f"  （404・非公開のため飛ばす）{url}")
+            continue
+        h = raw.decode("utf-8", "ignore")
         t = re.sub(r"\s*\|.*", "", re.search(r"<title>(.*?)</title>", h, re.S).group(1)).strip()
         imgs = [x for x in re.findall(r'<img[^>]+src="(/_img/ja/article/\d+/image/[^"]*)"', h) if "300_300" not in x]
         mondai = []
@@ -103,6 +114,9 @@ def main():
             mondai.append("アイキャッチ無し")
         for x in imgs[:1]:
             b = get(SITE + re.sub(r"/image/.*", "/image/", x))
+            if b is None:
+                mondai.append("アイキャッチの画像が404")
+                continue
             w, hh = gazou_sunpou(b)
             d = hashlib.sha1(b).hexdigest()[:10]
             hashes.setdefault(d, []).append(slug)
