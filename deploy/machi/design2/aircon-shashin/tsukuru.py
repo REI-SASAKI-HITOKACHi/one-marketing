@@ -33,8 +33,8 @@ WAKU = {
     "hero":    [("hero.jpg", "assets/photos-design2/hero-ph445.jpg")],   # 仕分け表 ph-445（IMG_7716・2026-08-24・吹出口の黒カビ・施工前・縦）
     "vent-ba": [("vent-mae.jpg", "lp/nenmatsu/img/ac-vent-before.jpg"), ("vent-ato.jpg", "lp/nenmatsu/img/ac-vent-after.jpg")],
     "fin-ba":  [("fin-mae.jpg", "deploy/machi/kyouka/aircon-c/img/fin-before.jpg"), ("fin-ato.jpg", "deploy/machi/kyouka/aircon-c/img/fin-after.jpg")],
-    "osui":    [("osui.jpg", "assets/photos-design2/osui-8023.jpg")],   # IMG_8023（2026-09-08・汚水・縦）
-    "sagyou":  [("sagyou.jpg", "deploy/machi/kyouka/aircon-c/img/sagyou.jpg")],
+    "osui":    [("osui.jpg", "assets/photos-design2/osui-J22-01.jpg")],   # 棚 J22-01（2026-10-30・汚水）
+    "sagyou":  [("sagyou.jpg", "assets/photos-design2/sagyou-J23-38.jpg")],   # 棚 J23-38（2026-10-31・洗い流した直後のルーバー）
     "og":      [("og.jpg", "deploy/machi/kyouka/aircon-c/img/og.jpg")],
 }
 
