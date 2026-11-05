@@ -1,0 +1,493 @@
+<title>2027年計画の進捗報告</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
+<style>
+/* レイアウト：細い1本の読み物。章ごとに「計画では → いま → 読み」。数字は等幅の別書体で立てる */
+:root{
+  --bg:#f2f5f4; --paper:#ffffff; --ink:#15302b; --sub:#566b66; --line:#d6e0dd;
+  --accent:#0b6b5c; --accent-soft:#dcefea; --plan:#b7791f; --plan-soft:#f6ead2;
+  --good:#1f8a4c; --good-soft:#dff1e6; --warn:#b7791f; --warn-soft:#f8ecd3; --bad:#c2412d; --bad-soft:#f8e1dc; --mute:#8a9a96; --mute-soft:#e9eeec;
+  --c1:#0b6b5c; --c2:#4f9d8f; --c3:#9cc8bd; --c4:#d9a441; --c5:#7d8fa6;
+  --f-disp:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",sans-serif;
+  --f-body:"BIZ UDPGothic","Hiragino Sans","Noto Sans JP",sans-serif;
+  --f-num:"Barlow Semi Condensed","BIZ UDPGothic",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1917; --paper:#16231f; --ink:#e3ece9; --sub:#9fb3ad; --line:#2a3b37;
+  --accent:#4fc1a8; --accent-soft:#173a33; --plan:#e0b25a; --plan-soft:#3a2f18;
+  --good:#5cc98a; --good-soft:#173826; --warn:#e0b25a; --warn-soft:#3a2f18; --bad:#ef8a75; --bad-soft:#3d2019; --mute:#7f918c; --mute-soft:#22302d;
+  --c1:#4fc1a8; --c2:#3a8f80; --c3:#2a5f56; --c4:#e0b25a; --c5:#8fa3bd; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1917; --paper:#16231f; --ink:#e3ece9; --sub:#9fb3ad; --line:#2a3b37;
+  --accent:#4fc1a8; --accent-soft:#173a33; --plan:#e0b25a; --plan-soft:#3a2f18;
+  --good:#5cc98a; --good-soft:#173826; --warn:#e0b25a; --warn-soft:#3a2f18; --bad:#ef8a75; --bad-soft:#3d2019; --mute:#7f918c; --mute-soft:#22302d;
+  --c1:#4fc1a8; --c2:#3a8f80; --c3:#2a5f56; --c4:#e0b25a; --c5:#8fa3bd; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15.5px;line-height:1.8;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.wrap{max-width:780px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+h1,h2,h3{font-family:var(--f-disp);text-wrap:balance;line-height:1.35;margin:0}
+p{margin:0}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums;letter-spacing:.01em}
+
+/* 表紙 */
+header.cover{padding-block:40px 28px;display:grid;gap:14px}
+.eyebrow{font-size:12px;letter-spacing:.14em;color:var(--sub);font-weight:700}
+header.cover h1{font-size:clamp(26px,6vw,38px);font-weight:900}
+header.cover h1 span{color:var(--accent)}
+.meta{display:flex;flex-wrap:wrap;gap:6px 16px;color:var(--sub);font-size:13px}
+
+/* 目次 */
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:8px max(16px,env(safe-area-inset-left,0px));overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+nav.toc::-webkit-scrollbar{display:none}
+nav.toc a{display:inline-block;font-size:13px;color:var(--sub);text-decoration:none;padding:4px 10px;border-radius:99px;margin-right:4px}
+nav.toc a:hover,nav.toc a:focus-visible{background:var(--accent-soft);color:var(--accent);outline:none}
+nav.toc a.on{background:var(--accent);color:var(--paper)}
+
+/* 結論 */
+.lead{display:grid;gap:12px;margin-top:22px}
+.lead .item{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.lead .k{font-family:var(--f-disp);font-weight:900;font-size:13px;color:var(--paper);background:var(--accent);border-radius:6px;padding:2px 8px;height:fit-content;margin-top:3px;white-space:nowrap}
+.lead .k.warn{background:var(--warn)}
+.lead h3{font-size:17px}
+.lead p{color:var(--sub);font-size:14.5px;grid-column:2}
+
+/* 章 */
+section.ch{margin-top:56px;display:grid;gap:16px;scroll-margin-top:60px}
+.ch-head{display:grid;gap:6px;border-top:3px solid var(--ink);padding-top:12px}
+.ch-no{font-family:var(--f-num);font-weight:700;font-size:14px;color:var(--accent);letter-spacing:.06em}
+.ch-head h2{font-size:clamp(21px,4.6vw,26px);font-weight:900}
+.plan-ref{font-size:13px;color:var(--plan);font-weight:700}
+.plan{background:var(--plan-soft);border-radius:8px;padding:10px 14px;font-size:14px}
+.plan b{color:var(--plan)}
+.read{border-left:4px solid var(--accent);padding:2px 0 2px 14px;font-size:15px}
+.read b{color:var(--accent)}
+.src{font-size:12px;color:var(--mute);line-height:1.6}
+
+/* KPI タイル */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tile{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:2px;align-content:start}
+.tile .l{font-size:12.5px;color:var(--sub)}
+.tile .v{font-family:var(--f-num);font-weight:700;font-size:30px;line-height:1.1}
+.tile .v small{font-family:var(--f-body);font-size:14px;font-weight:700;margin-left:2px}
+.tile .n{font-size:12px;color:var(--sub)}
+.tile.good .v{color:var(--good)} .tile.warn .v{color:var(--warn)} .tile.bad .v{color:var(--bad)}
+
+/* 図 */
+figure{margin:0;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 14px 10px}
+figcaption{font-family:var(--f-disp);font-weight:700;font-size:15px;margin-bottom:6px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;align-items:center}
+.chart{position:relative;width:100%}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart text{font-family:var(--f-num);fill:var(--sub);font-size:13px}
+.chart text.jp{font-family:var(--f-body);font-size:12px}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--paper);font-size:12.5px;line-height:1.55;padding:7px 10px;border-radius:6px;white-space:nowrap;transform:translate(-50%,-100%);opacity:0;transition:opacity .12s}
+.tip.on{opacity:1}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--sub);margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;font-family:var(--f-body)}
+.seg button{all:unset;cursor:pointer;font-size:12.5px;padding:3px 12px;color:var(--sub)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--paper)}
+.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+
+/* 着地のバー */
+.bar100{display:flex;height:34px;border-radius:6px;overflow:hidden;background:var(--mute-soft)}
+.bar100 div{height:100%;position:relative}
+.bar100-lab{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px 12px;font-size:13px;margin-top:10px}
+.bar100-lab span b{font-family:var(--f-num);font-size:16px}
+
+/* パターン */
+.pattern{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pt{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--paper);display:grid;gap:4px;align-content:start}
+.pt .t{font-family:var(--f-disp);font-weight:900;font-size:15px}
+.pt .r{font-family:var(--f-num);font-weight:700;font-size:20px}
+.pt p{font-size:12.5px;color:var(--sub)}
+.pt.now{border:2px solid var(--accent);background:var(--accent-soft)}
+.pt.now .t::after{content:"いまここ";font-size:11px;font-family:var(--f-body);background:var(--accent);color:var(--paper);border-radius:99px;padding:1px 8px;margin-left:8px;vertical-align:2px}
+
+/* 状態の一覧 */
+.list{display:grid;gap:0;background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:11px 14px;border-top:1px solid var(--line);align-items:start}
+.row:first-child{border-top:0}
+.row .name{font-weight:700}
+.row .note{grid-column:1/-1;font-size:13px;color:var(--sub)}
+.chip{font-size:12px;font-weight:700;border-radius:99px;padding:2px 10px;white-space:nowrap}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.run{background:var(--accent-soft);color:var(--accent)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.mute{background:var(--mute-soft);color:var(--sub)}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+
+/* 表 */
+.tbl{overflow-x:auto;background:var(--paper);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:520px}
+th,td{padding:8px 12px;border-top:1px solid var(--line);text-align:right;white-space:nowrap}
+th{font-size:12.5px;color:var(--sub);font-weight:700;border-top:0;background:var(--mute-soft)}
+td:first-child,th:first-child{text-align:left}
+td.num{font-family:var(--f-num);font-size:15px}
+tr.sum td{font-weight:700}
+
+/* お願い */
+.ask{display:grid;gap:10px;counter-reset:a}
+.ask li{list-style:none;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 14px 12px 52px;position:relative;counter-increment:a}
+.ask li::before{content:counter(a);position:absolute;left:14px;top:12px;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--paper);font-family:var(--f-num);font-weight:700;display:grid;place-items:center}
+.ask b{display:block}
+.ask span{font-size:13.5px;color:var(--sub)}
+ol.ask{padding:0;margin:0}
+
+details{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+summary{cursor:pointer;font-weight:700;font-size:14px}
+summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+details ul{margin:8px 0 0;padding-left:20px;font-size:13px;color:var(--sub);line-height:1.7}
+footer{margin-top:48px;font-size:12px;color:var(--mute)}
+@media (max-width:520px){
+  .pattern{grid-template-columns:1fr}
+  .tile .v{font-size:26px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="cover">
+  <div class="eyebrow">ONE HITTER　社内用　和真さんと共有</div>
+  <h1>2027年の計画、<br><span>いまどこまで来たか</span></h1>
+  <p>9月14日に共有した「2027年の計画（社内用）」の章立てに沿って、11月5日時点の数字を並べました。計画の数字はそのまま、変えていません。</p>
+  <div class="meta"><span>2026年11月5日時点</span><span>作成：経営企画室</span><span>数字は売上表（2026年）の集計 11/5 12:27</span></div>
+</header>
+
+<nav class="toc" aria-label="目次">
+  <a href="#summary">結論</a><a href="#landing">1 2026年の着地</a><a href="#net">2 自社ネット新規</a><a href="#measures">3 回している手</a><a href="#ads">4 広告のテスト</a><a href="#blocks">5 リピート・提携</a><a href="#prep">6 2027年の準備</a><a href="#next">7 これから</a>
+</nav>
+
+<section id="summary" style="scroll-margin-top:60px">
+  <div class="lead">
+    <div class="item"><span class="k">着地</span><h3>2026年は10月末で <span class="num">1,342</span>万円。1,700万まで、11〜12月で残り <span class="num">358</span>万円</h3>
+      <p>いま入っている11〜12月の予約は <span class="num">90</span>万円。12月の予約がまだ薄く、ここからの1か月で決まる。</p></div>
+    <div class="item"><span class="k">入口</span><h3>自社ネット新規は、計画のパターンB（月5〜8件）の入口に来た</h3>
+      <p>9月 1件 → 10月 8件。11月は5日時点で 5件（予約を含む）。広告・地図検索・公式LINE・HP、別々の入口から来始めている。</p></div>
+    <div class="item"><span class="k warn">課題</span><h3>広告は1件取るのにまだ高い。12月末までにテストを終える</h3>
+      <p>10月は広告費 約<span class="num">15.7</span>万円で申込1件あたり 約<span class="num">3.9</span>万円。計画の上限 <span class="num">9,500</span>円 には遠い。入札を戻して様子を見ている。</p></div>
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="ch" id="landing">
+  <div class="ch-head"><span class="ch-no">1</span><h2>2026年の着地（2027年の土台）</h2><span class="plan-ref">計画 §1「2026年（見込み）17,000,000円」</span></div>
+  <p class="plan"><b>計画では</b>　2026年は 1,700万円で終える見込み。2027年の 2,600万円（+53%）はここを土台にしている。</p>
+
+  <figure>
+    <figcaption>1,700万円に対して、いまどこか</figcaption>
+    <div class="bar100" id="bar100" role="img" aria-label="1〜10月の実績1,342万円、11月の予約76万円、12月の予約14万円、残り267万円"></div>
+    <div class="bar100-lab" id="bar100lab"></div>
+  </figure>
+
+  <figure>
+    <figcaption><span>9〜12月：計画と、実績・予約</span><span class="seg" role="group" aria-label="表示の切り替え"><button type="button" id="mAmt" aria-pressed="true">金額</button><button type="button" id="mCnt" aria-pressed="false">件数</button></span></figcaption>
+    <div class="chart" id="chMonths"></div>
+    <div class="legend"><span><i style="background:var(--plan)"></i>計画（10/10 の1,700万計画。9月は実績を置いたもの）</span><span><i style="background:var(--c1)"></i>実績</span><span><i style="background:var(--c3)"></i>予約（11/5 時点・まだ施工前）</span></div>
+  </figure>
+
+  <div class="tiles">
+    <div class="tile"><span class="l">1〜10月の実績</span><span class="v num">1,342<small>万円</small></span><span class="n">337件</span></div>
+    <div class="tile warn"><span class="l">10月：計画との差</span><span class="v num">−12<small>万円</small></span><span class="n">計画116万 → 実績104万（35件）</span></div>
+    <div class="tile"><span class="l">11月の予約・施工済み</span><span class="v num">76<small>万円</small></span><span class="n">32件。計画は163万</span></div>
+    <div class="tile bad"><span class="l">12月の予約</span><span class="v num">14<small>万円</small></span><span class="n">3件。計画は184万</span></div>
+  </div>
+  <p class="read"><b>読み</b>　12月は例年、11月後半から予約が入る月で、今の薄さはまだ異常ではない。ただ1,700万に届くには、11〜12月で<b>例年以上</b>を積む必要がある。件数の上限（12月は約50件）が先に来るので、<b>1現場あたりの金額</b>で積む計画にしてある（§7）。</p>
+  <p class="src">出どころ：1〜8月 283件・11,652,061円（2026年シートの実績）／9〜12月は売上表の集計 11/5 12:27／計画は「2026年 通期1,700万への上方修正計画」（10/10・第7回MTG）</p>
+</section>
+
+<!-- 2 -->
+<section class="ch" id="net">
+  <div class="ch-head"><span class="ch-no">2</span><h2>自社ネット新規 ── 2027年の勝負どころ</h2><span class="plan-ref">計画 §5 ④「13万 → 500万」・§6「3つのパターン」</span></div>
+  <p class="plan"><b>計画では</b>　9〜12月の4か月で入口を回して、12月の件数で3つのパターンを見る。<b>A 外れる（月2〜3件）／B 想定どおり（月5〜8件）／C 当たる（月10件以上）</b>。2,600万は B を前提にしている。2027年の目標は月12件・年143件。</p>
+
+  <div class="pattern" aria-label="3つのパターン">
+    <div class="pt"><span class="t">A 外れる</span><span class="r num">月2〜3件</span><p>広告で買いにいく。SNSは本数を減らして質に振る</p></div>
+    <div class="pt now"><span class="t">B 想定どおり</span><span class="r num">月5〜8件</span><p>効いた入口だけに広告を足す。効かないものは止める</p></div>
+    <div class="pt"><span class="t">C 当たる</span><span class="r num">月10件以上</span><p>1月から広告を一気に上げ、協力業者も前倒し</p></div>
+  </div>
+
+  <figure>
+    <figcaption>ネット経由の件数（月別・入口別）</figcaption>
+    <div class="chart" id="chNet"></div>
+    <div class="legend" id="lgNet"></div>
+  </figure>
+
+  <figure>
+    <figcaption>11月：10件に向かう線と、いまの件数</figcaption>
+    <div class="chart" id="chNov"></div>
+    <div class="legend"><span><i style="background:var(--plan)"></i>線（11/25 に10件）</span><span><i style="background:var(--c1)"></i>実績（受注＋受注前の予約）</span></div>
+  </figure>
+
+  <div class="tiles">
+    <div class="tile good"><span class="l">10月のネット経由</span><span class="v num">8<small>件</small></span><span class="n">11.9万円。2026年1〜8月は合計4件</span></div>
+    <div class="tile good"><span class="l">11月（5日時点）</span><span class="v num">5<small>件</small></span><span class="n">線は2件。+3件</span></div>
+    <div class="tile"><span class="l">12月の目標</span><span class="v num">25<small>件</small></span><span class="n">いま0件。11/15 に4件が線</span></div>
+  </div>
+  <p class="read"><b>読み</b>　「来ていない」状態から「来始めた」状態に変わった。10月はパターンBの上限、11月はそれを超える勢い。ただし1件の金額が小さい（10月は平均 約1.5万円）。<b>来たお客様に、現場で次の1箇所と次回予約を出せるか</b>が、2027年の500万に効く（§7 のお願い1）。</p>
+  <p class="src">出どころ：売上表の集計（月次タブの流入経路）。ネット経由＝予約ページ・LP・公式サイトのフォームから申し込んだもの（10/18 の数え方）。11月は受注前の予約1件を含む。線は経営企画室の追跡表（net11-tsuiseki）</p>
+</section>
+
+<!-- 3 -->
+<section class="ch" id="measures">
+  <div class="ch-head"><span class="ch-no">3</span><h2>いま回している手と、その状態</h2><span class="plan-ref">計画 §6「いま動かしているもの」</span></div>
+  <p class="plan"><b>計画では</b>　年末までこのまま回して、<b>どの入口から何件来たかを1件ずつ記録</b>に残す。効かなかったものも知見として残す。</p>
+  <div class="filters" role="group" aria-label="状態で絞る">
+    <span class="seg"><button type="button" data-f="all" aria-pressed="true">すべて</button><button type="button" data-f="good" aria-pressed="false">申込あり</button><button type="button" data-f="warn" aria-pressed="false">申込まだ</button><button type="button" data-f="bad" aria-pressed="false">止まっている</button></span>
+  </div>
+  <div class="list" id="measureList"></div>
+  <p class="src">出どころ：CMO の記録（cmo-savedata）・各担当の報告。「確認中」は、この資料を作った時点で数字を確かめられなかったもの（ゼロという意味ではない）</p>
+</section>
+
+<!-- 4 -->
+<section class="ch" id="ads">
+  <div class="ch-head"><span class="ch-no">4</span><h2>広告のテスト（段0）</h2><span class="plan-ref">計画 §4 広告費「テストは2026年12月末までに済ませる」</span></div>
+  <p class="plan"><b>計画では</b>　2026年内に月5万円でテストし、結果を持って2027年に入る。1件取るのにかける上限は <b>9,500円</b>（マッチングサイトに払っている手数料と同じ額）。</p>
+  <div class="tiles">
+    <div class="tile"><span class="l">10月の広告費</span><span class="v num">15.7<small>万円</small></span><span class="n">10/1〜30。月5万の約3倍まで上げて試した</span></div>
+    <div class="tile"><span class="l">10月の広告の申込</span><span class="v num">6<small>件</small></span><span class="n">うちキャンセル2・受注4</span></div>
+    <div class="tile bad"><span class="l">申込1件あたり</span><span class="v num">3.9<small>万円</small></span><span class="n">計画の上限 0.95万円の約4倍</span></div>
+    <div class="tile"><span class="l">11月の広告からの受注</span><span class="v num">2<small>件</small></span><span class="n">5日時点</span></div>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>時期</th><th>入札の方式</th><th>1日のクリック</th><th>1クリック</th><th>結果</th></tr></thead>
+    <tbody>
+      <tr><td>9/20〜10/15</td><td>クリックを最大化</td><td class="num">15.3</td><td class="num">¥282</td><td>申込6件（クリックの1.5%）</td></tr>
+      <tr><td>10/16〜10/27</td><td>申込を最大化（自動）</td><td class="num">6.6</td><td class="num">¥773</td><td>表示が3分の1に減った</td></tr>
+      <tr><td>10/28〜</td><td>クリックを最大化に戻した</td><td class="num">16〜22</td><td class="num">¥324〜334</td><td>量は戻った。11/1以降に申込2件</td></tr>
+    </tbody>
+  </table></div>
+  <p class="read"><b>読み</b>　広告は「量」は出せるようになったが、<b>1件あたりがまだ高い</b>。広告の客は1件が小さい（エアコン1台が中心）ので、初回だけでは赤字。<b>2回目の予約まで取れれば元が取れる</b>計算にしてある。だから広告で来たお客様ほど、次回予約とクチコミが大事になる。日予算を上げるかは 11/9 に数字で決める。</p>
+  <p class="src">出どころ：計測担当の広告の日次（Google広告）と予約の記録。申込1件あたり＝10月の広告費 ÷ キャンセルを除いた申込4件</p>
+</section>
+
+<!-- 5 -->
+<section class="ch" id="blocks">
+  <div class="ch-head"><span class="ch-no">5</span><h2>① リピート資産 と ② 法人・提携</h2><span class="plan-ref">計画 §5 ①「617万 → 850万」・②「法人・提携 → 750万（提携）」</span></div>
+  <p class="plan"><b>計画では</b>　① は台帳の957人。獲得コストほぼゼロで、いちばん確実な伸びしろ。② は提携先をアクティブ10社 → 15社、年100万円以上の先を1社 → 4社。</p>
+  <figure>
+    <figcaption><span>9〜11月の受注（自社分・入口別）</span><span class="seg" role="group" aria-label="表示の切り替え"><button type="button" id="bAmt" aria-pressed="true">金額</button><button type="button" id="bCnt" aria-pressed="false">件数</button></span></figcaption>
+    <div class="chart" id="chBlocks"></div>
+    <div class="legend" id="lgBlocks"></div>
+  </figure>
+  <p class="read"><b>読み</b>　① の<b>早期予約が強い</b>（10月16件・11月17件）。11月の自社の受注金額の半分以上がここ。現場で取ってもらっている次回予約が、そのまま数字になっている。② の提携は9月6件・10月3件と来ていたが、<b>11月はまだ0件</b>。休眠先への声かけは送付物を作り直して進めている。</p>
+  <p class="src">出どころ：売上表の集計 11/5 12:27（One Hitter 名義の行。11月は予約を含む。9月の「その他」1件 7.7万円は除いた）。①＝早期予約・リピート・紹介・定期便、②＝業務提携・営業</p>
+</section>
+
+<!-- 6 -->
+<section class="ch" id="prep">
+  <div class="ch-head"><span class="ch-no">6</span><h2>2027年に向けた準備</h2><span class="plan-ref">計画 §6 ギフト・§7「人を増やす」・§8「和真に約束する数値」</span></div>
+  <div class="list" id="prepList"></div>
+  <div class="tbl"><table>
+    <thead><tr><th>計画の約束（2027年）</th><th>3月末</th><th>6月末</th><th>9月末</th><th>12月末</th></tr></thead>
+    <tbody>
+      <tr><td>累計 売上</td><td class="num">457万</td><td class="num">1,312万</td><td class="num">1,926万</td><td class="num">2,600万</td></tr>
+      <tr><td>累計 件数</td><td class="num">115件</td><td class="num">324件</td><td class="num">480件</td><td class="num">649件</td></tr>
+      <tr><td>累計 経常利益</td><td class="num">53万</td><td class="num">322万</td><td class="num">438万</td><td class="num">566万</td></tr>
+    </tbody>
+  </table></div>
+  <p class="src">出どころ：2027年の計画（社内用）§8。2027年はまだ始まっていないので、ここは「次に見る線」</p>
+</section>
+
+<!-- 7 -->
+<section class="ch" id="next">
+  <div class="ch-head"><span class="ch-no">7</span><h2>これからの2か月と、和真さんにお願いしたいこと</h2><span class="plan-ref">計画 §8 各四半期「10〜12月 年末商戦」</span></div>
+  <p class="plan"><b>計画では</b>　12月の繁忙期加算（+3,300円）を「11月までに予約する理由」に使う。既存のお客様への案内を3回。</p>
+  <ol class="ask">
+    <li><b>現場で「次の1箇所」を出す</b><span>12月は件数の上限（約50件）が先に来る。件数ではなく1現場の金額で積む。エアコンで来たお客様に、防カビ・室外機・水まわりの話を1つ。1件 +5,000円で、11〜12月だけで約50万円になる。</span></li>
+    <li><b>ネットと広告で来たお客様ほど、次回予約とクチコミを</b><span>広告の客は初回だけだと赤字。2回目の予約が取れて、はじめて元が取れる。クチコミは今 ★5.0・25件。</span></li>
+    <li><b>12月の時間を守る</b><span>12月にネットで25件を受けるには、200時間のうち残りが少ない。大きいご依頼は、できれば11月中に入れたい（9箇所のご依頼は 11/30 が12月の枠を削らない）。</span></li>
+    <li><b>協力業者のレビュー（1〜2月に決めるため）</b><span>付き合いのある先ごとに、腕・段取り・得意なメニュー・任せられる範囲。支払条件3案（歩合・固定単価・日当）のどれが合うか、和真さんの感覚がいちばん正確。</span></li>
+  </ol>
+  <details>
+    <summary>この資料の数字の出どころ（全部）</summary>
+    <ul>
+      <li>元の計画：「2027年の計画（社内用）」2026年9月14日（docs/presentations/2027年の計画_社内用）</li>
+      <li>2026年1〜8月の実績：2026年シートの集計 283件・11,652,061円（docs/2027-数値目標.md）</li>
+      <li>9〜12月の実績・予約：売上表（2026年）の月次タブの集計 11/5 12:27（data/chakuchi/2026Q4-20261105-1227.json）</li>
+      <li>1,700万の月別計画：docs/2026-通期1700万への上方修正計画.md（10/10）</li>
+      <li>ネット経由の数え方：予約ページ・LP・公式サイトのフォームから申し込んだ受注（10/18 決定）。11月の線は tools/net11-tsuiseki.py</li>
+      <li>広告：計測担当の「広告-増額プレゼンの数字」（Google広告の日次と予約の記録）・10月の広告費 ¥156,825（10/1〜30）</li>
+      <li>SMS 11月便：送信91・予約0（CMO 11/4）／クチコミ ★5.0・25件（10/20）／公式LINE 約435名（10月）</li>
+      <li>公式サイト：11/5 朝から表示できない状態（制作会社に問い合わせ中）</li>
+    </ul>
+  </details>
+</section>
+
+<footer>ONE HITTER　経営企画室　2026年11月5日　／　社内用。外に出さないでください。</footer>
+</div>
+
+<script>
+(function(){
+  var css=getComputedStyle(document.documentElement);
+  function v(n){return css.getPropertyValue(n).trim();}
+  function el(t,a,txt){var e=document.createElementNS('http://www.w3.org/2000/svg',t);for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;}
+  function fmtM(x){return (Math.round(x/1e3)/10).toLocaleString('ja-JP',{maximumFractionDigits:1})+'万円';}
+  function cw(box){return Math.max(340,Math.min(760,box.clientWidth||640));}
+  function tipFor(box){var t=document.createElement('div');t.className='tip';box.appendChild(t);return t;}
+  function showTip(t,box,evt,html){var r=box.getBoundingClientRect();var x=(evt.touches?evt.touches[0].clientX:evt.clientX)-r.left;var y=(evt.touches?evt.touches[0].clientY:evt.clientY)-r.top;t.innerHTML=html;t.style.left=Math.max(70,Math.min(r.width-70,x))+'px';t.style.top=(y-8)+'px';t.classList.add('on');}
+  function hideTip(t){t.classList.remove('on');}
+
+  /* 1. 1,700万のバー */
+  var goal=17000000, segs=[
+    {k:'1〜10月 実績',v:13424952,c:'var(--c1)'},
+    {k:'11月 予約・施工済み',v:763078,c:'var(--c2)'},
+    {k:'12月 予約',v:140868,c:'var(--c3)'},
+    {k:'1,700万まで 残り',v:goal-13424952-763078-140868,c:'transparent'}];
+  var bar=document.getElementById('bar100'), lab=document.getElementById('bar100lab');
+  segs.forEach(function(s){var d=document.createElement('div');d.style.width=(s.v/goal*100)+'%';d.style.background=s.c;d.title=s.k+' '+fmtM(s.v);bar.appendChild(d);
+    var l=document.createElement('span');l.innerHTML='<i style="display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;background:'+(s.c==='transparent'?'var(--mute-soft)':s.c)+';border:1px solid var(--line)"></i>'+s.k+'　<b>'+fmtM(s.v)+'</b>';lab.appendChild(l);});
+
+  /* 1. 月別 計画 vs 実績・予約 */
+  var months=[
+    {m:'9月',plan:730000,planN:19,act:732398,actN:19,res:0,resN:0},
+    {m:'10月',plan:1160000,planN:35,act:1040493,actN:35,res:0,resN:0},
+    {m:'11月',plan:1630000,planN:49,act:199616,actN:7,res:563462,resN:25},
+    {m:'12月',plan:1840000,planN:48,act:0,actN:0,res:140868,resN:3}];
+  var mode='amt';
+  function drawMonths(){
+    var box=document.getElementById('chMonths');box.innerHTML='';var tip=tipFor(box);
+    var W=cw(box),H=250,L=44,R=8,T=14,B=30;var max=mode==='amt'?2000000:55;
+    var s=el('svg',{viewBox:'0 0 '+W+' '+H,role:'img','aria-label':'9月から12月の計画と実績・予約'});
+    var steps=mode==='amt'?[0,500000,1000000,1500000,2000000]:[0,10,20,30,40,50];
+    steps.forEach(function(t){var y=T+(H-T-B)*(1-t/max);s.appendChild(el('line',{x1:L,x2:W-R,y1:y,y2:y,stroke:v('--line'),'stroke-width':1}));s.appendChild(el('text',{x:L-6,y:y+4,'text-anchor':'end'},mode==='amt'?(t/10000)+'万':t));});
+    var gw=(W-L-R)/months.length,bw=Math.min(46,gw*0.3);
+    months.forEach(function(d,i){var cx=L+gw*i+gw/2;var p=mode==='amt'?d.plan:d.planN,a=mode==='amt'?d.act:d.actN,r=mode==='amt'?d.res:d.resN;
+      function y(x){return T+(H-T-B)*(1-x/max);}
+      var g=el('g',{tabindex:0});
+      g.appendChild(el('rect',{x:cx-bw-3,y:y(p),width:bw,height:y(0)-y(p),fill:v('--plan'),rx:2,opacity:.85}));
+      g.appendChild(el('rect',{x:cx+3,y:y(a),width:bw,height:y(0)-y(a),fill:v('--c1'),rx:2}));
+      if(r>0)g.appendChild(el('rect',{x:cx+3,y:y(a+r),width:bw,height:y(a)-y(a+r),fill:v('--c3'),rx:2}));
+      s.appendChild(el('text',{x:cx,y:H-10,'text-anchor':'middle',class:'jp'},d.m));
+      var h=el('rect',{x:L+gw*i,y:T,width:gw,height:H-T-B,fill:'transparent'});g.appendChild(h);
+      var html='<b>'+d.m+'</b><br>計画 '+(mode==='amt'?fmtM(d.plan):d.planN+'件')+'<br>実績 '+(mode==='amt'?fmtM(d.act):d.actN+'件')+(r>0?'<br>予約 '+(mode==='amt'?fmtM(d.res):d.resN+'件'):'')+'<br>計画比 '+Math.round((a+r)/p*100)+'%';
+      ['mousemove','touchstart'].forEach(function(e){g.addEventListener(e,function(ev){showTip(tip,box,ev,html);},{passive:true});});
+      g.addEventListener('mouseleave',function(){hideTip(tip);});
+      g.addEventListener('focus',function(){var r2=box.getBoundingClientRect();tip.innerHTML=html;tip.style.left=(cx/W*r2.width)+'px';tip.style.top='40px';tip.classList.add('on');});
+      g.addEventListener('blur',function(){hideTip(tip);});
+      s.appendChild(g);});
+    box.appendChild(s);
+  }
+  function setMode(m){mode=m;document.getElementById('mAmt').setAttribute('aria-pressed',m==='amt');document.getElementById('mCnt').setAttribute('aria-pressed',m==='cnt');drawMonths();}
+  document.getElementById('mAmt').onclick=function(){setMode('amt');};document.getElementById('mCnt').onclick=function(){setMode('cnt');};
+  drawMonths();
+
+  /* 2. ネット経由（入口別の積み上げ） */
+  var chans=[{k:'広告',c:'--c1'},{k:'公式サイト（HP）',c:'--c2'},{k:'公式LINE→予約ページ',c:'--c3'},{k:'地図検索',c:'--c4'},{k:'予約ページに直接',c:'--c5'}];
+  var net=[{m:'9月',v:[1,0,0,0,0]},{m:'10月',v:[6,1,1,0,0]},{m:'11月\n(5日時点)',v:[2,0,1,1,1]},{m:'12月\n(予約)',v:[0,0,0,0,0]}];
+  (function(){var box=document.getElementById('chNet');var tip=tipFor(box);
+    var W=cw(box),H=260,L=34,R=8,T=14,B=40,max=12;var s=el('svg',{viewBox:'0 0 '+W+' '+H,role:'img','aria-label':'月別・入口別のネット経由の件数'});
+    function y(x){return T+(H-T-B)*(1-x/max);}
+    s.appendChild(el('rect',{x:L,y:y(3),width:W-L-R,height:y(2)-y(3),fill:v('--bad-soft')}));
+    s.appendChild(el('rect',{x:L,y:y(8),width:W-L-R,height:y(5)-y(8),fill:v('--accent-soft')}));
+    s.appendChild(el('rect',{x:L,y:y(12),width:W-L-R,height:y(10)-y(12),fill:v('--good-soft')}));
+    [[2.5,'A'],[6.5,'B'],[11,'C']].forEach(function(p){s.appendChild(el('text',{x:W-R-4,y:y(p[0])+4,'text-anchor':'end',class:'jp',style:'font-weight:700'},'パターン'+p[1]));});
+    [0,2,4,6,8,10,12].forEach(function(t){s.appendChild(el('line',{x1:L,x2:W-R,y1:y(t),y2:y(t),stroke:v('--line'),'stroke-width':1,opacity:.6}));s.appendChild(el('text',{x:L-6,y:y(t)+4,'text-anchor':'end'},t));});
+    var gw=(W-L-R-70)/net.length,bw=Math.min(54,gw*.5);
+    net.forEach(function(d,i){var cx=L+gw*i+gw/2,acc=0,g=el('g',{tabindex:0});
+      d.v.forEach(function(n,j){if(!n)return;g.appendChild(el('rect',{x:cx-bw/2,y:y(acc+n),width:bw,height:y(acc)-y(acc+n),fill:v(chans[j].c),stroke:v('--paper'),'stroke-width':1}));acc+=n;});
+      var tot=acc;s.appendChild(el('text',{x:cx,y:y(tot)-6,'text-anchor':'middle',style:'font-weight:700;font-size:15px;fill:'+v('--ink')},tot+'件'));
+      d.m.split('\n').forEach(function(t,k){s.appendChild(el('text',{x:cx,y:H-24+k*14,'text-anchor':'middle',class:'jp'},t));});
+      g.appendChild(el('rect',{x:L+gw*i,y:T,width:gw,height:H-T-B,fill:'transparent'}));
+      var html='<b>'+d.m.replace('\n',' ')+'　'+tot+'件</b>'+d.v.map(function(n,j){return n?'<br>'+chans[j].k+' '+n+'件':'';}).join('');
+      ['mousemove','touchstart'].forEach(function(e){g.addEventListener(e,function(ev){showTip(tip,box,ev,html);},{passive:true});});
+      g.addEventListener('mouseleave',function(){hideTip(tip);});
+      s.appendChild(g);});
+    box.appendChild(s);
+    var lg=document.getElementById('lgNet');chans.forEach(function(c){lg.insertAdjacentHTML('beforeend','<span><i style="background:var('+c.c+')"></i>'+c.k+'</span>');});
+    lg.insertAdjacentHTML('beforeend','<span><i style="background:var(--accent-soft);border:1px solid var(--line)"></i>帯＝計画のパターン</span>');
+  })();
+
+  /* 2. 11月の線 */
+  (function(){var box=document.getElementById('chNov');var tip=tipFor(box);
+    var W=cw(box),H=230,L=34,R=14,T=14,B=28,d0=1,d1=30,max=10;
+    function x(d){return L+(W-L-R)*(d-d0)/(d1-d0);} function y(n){return T+(H-T-B)*(1-n/max);}
+    var s=el('svg',{viewBox:'0 0 '+W+' '+H,role:'img','aria-label':'11月のネット経由の線と実績'});
+    [0,2,4,6,8,10].forEach(function(t){s.appendChild(el('line',{x1:L,x2:W-R,y1:y(t),y2:y(t),stroke:v('--line'),'stroke-width':1}));s.appendChild(el('text',{x:L-6,y:y(t)+4,'text-anchor':'end'},t));});
+    [1,5,10,15,20,25,30].forEach(function(dd){s.appendChild(el('text',{x:x(dd),y:H-8,'text-anchor':'middle'},'11/'+dd));});
+    var sen=[[1,1],[2,1],[4,2],[8,4],[11,5],[15,6],[18,7],[22,9],[25,10],[30,10]];
+    var p='';sen.forEach(function(q,i){p+=(i?'L':'M')+x(q[0])+' '+y(q[1]);});
+    s.appendChild(el('path',{d:p,fill:'none',stroke:v('--plan'),'stroke-width':2.5,'stroke-dasharray':'6 5'}));
+    var act=[[1,1],[2,2],[3,3],[4,3],[5,5]];var pa='';act.forEach(function(q,i){pa+=(i?'L':'M')+x(q[0])+' '+y(q[1]);});
+    var area=pa+'L'+x(5)+' '+y(0)+'L'+x(1)+' '+y(0)+'Z';
+    s.appendChild(el('path',{d:area,fill:v('--accent-soft'),opacity:.8}));
+    s.appendChild(el('path',{d:pa,fill:'none',stroke:v('--c1'),'stroke-width':3}));
+    act.forEach(function(q,i){var last=i===act.length-1;var c=el('circle',{cx:x(q[0]),cy:y(q[1]),r:last?6:4,fill:v('--c1'),stroke:v('--paper'),'stroke-width':2,tabindex:0});
+      var html='<b>11/'+q[0]+'</b>　'+q[1]+'件（線 '+(function(){var lv=1;sen.forEach(function(z){if(q[0]>=z[0])lv=z[1];});return lv;})()+'件）';
+      ['mousemove','touchstart'].forEach(function(e){c.addEventListener(e,function(ev){showTip(tip,box,ev,html);},{passive:true});});c.addEventListener('mouseleave',function(){hideTip(tip);});
+      s.appendChild(c);});
+    s.appendChild(el('text',{x:x(5)+10,y:y(5)+4,style:'font-weight:700;font-size:14px;fill:'+v('--c1')},'いま 5件'));
+    s.appendChild(el('text',{x:x(25),y:y(10)-8,'text-anchor':'middle',class:'jp',style:'fill:'+v('--plan')+';font-weight:700'},'11/25 に10件'));
+    box.appendChild(s);
+  })();
+
+  /* 3. 回している手 */
+  var measures=[
+    {n:'Web予約ページ（yoyaku.onehitter.jp）',s:'good',t:'申込あり',note:'ネット経由の申込はほぼ全部ここを通る。11月施工のネット経由5件のうち、ここに直接来た予約が1件'},
+    {n:'Google広告（検索・江戸川区ほか）',s:'good',t:'申込あり',note:'10月の広告客6件・11月2件。1件あたりがまだ高い（§4）'},
+    {n:'Googleビジネスプロフィール（地図検索）',s:'good',t:'申込あり',note:'クチコミ ★5.0・25件（10/20）。11月に地図検索から1件'},
+    {n:'公式LINE',s:'good',t:'申込あり',note:'友だち 約435名。公式LINE→予約ページの受注が10月1件・11月1件'},
+    {n:'公式サイトのブログ',s:'bad',t:'止まっている',note:'週1本で再開済み。10/24・11/1 に公式サイトからの申込があった。ただし11/5 朝から公式サイトが表示できない（制作会社に問い合わせ中）'},
+    {n:'年末大掃除LP',s:'run',t:'公開中',note:'10月1日公開。どれだけ申込につながったかは入口別に集計中'},
+    {n:'既存客へのSMS（11月10%の案内）',s:'warn',t:'申込まだ',note:'11月便 91通を送って予約0件'},
+    {n:'Instagram・Facebook',s:'warn',t:'申込まだ',note:'投稿は継続。SNSから予約まで来た人は 9/1〜10/4 で0件'},
+    {n:'アフィリエイト（レントラックス）',s:'mute',t:'確認中',note:'掲載中。成果の件数は計測担当で確認中'},
+    {n:'読本サイト（赤ちゃん版・ペット版）',s:'mute',t:'確認中',note:'公開済み。申込への効きは数字を確かめられていない'},
+    {n:'無料点検（内視鏡カメラ）',s:'mute',t:'確認中',note:'ページは用意。申込の件数は確かめられていない'}];
+  var ml=document.getElementById('measureList');
+  function drawMeasures(f){ml.innerHTML='';measures.filter(function(m){return f==='all'||m.s===f||(f==='good'&&false);}).forEach(function(m){ml.insertAdjacentHTML('beforeend','<div class="row"><span class="name">'+m.n+'</span><span class="chip '+m.s+'">'+m.t+'</span><span class="note">'+m.note+'</span></div>');});
+    if(!ml.children.length)ml.insertAdjacentHTML('beforeend','<div class="row"><span class="note">この状態のものはありません</span></div>');}
+  document.querySelectorAll('[data-f]').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('[data-f]').forEach(function(x){x.setAttribute('aria-pressed',x===b);});drawMeasures(b.dataset.f);});});
+  drawMeasures('all');
+
+  /* 5. ①② 入口別 */
+  var bk=[{k:'早期予約',c:'--c1',g:'①'},{k:'リピート',c:'--c2',g:'①'},{k:'紹介・定期便',c:'--c3',g:'①'},{k:'業務提携・営業',c:'--c4',g:'②'},{k:'ネット経由',c:'--c5',g:'④'}];
+  var bd=[{m:'9月',a:[202730,68948,9800,316940,18480],n:[4,4,1,6,1]},
+          {m:'10月',a:[310039,185834,87740,287980,119950],n:[16,4,4,2,8]},
+          {m:'11月\n(予約含む)',a:[373470,108548,97580,31284,66396],n:[17,3,3,2,4]}];
+  var bmode='amt';
+  function drawBlocks(){var box=document.getElementById('chBlocks');box.innerHTML='';var tip=tipFor(box);
+    var W=cw(box),H=250,L=44,R=8,T=14,B=40;var max=bmode==='amt'?1000000:35;
+    var s=el('svg',{viewBox:'0 0 '+W+' '+H,role:'img','aria-label':'9月から11月の入口別の受注'});
+    function y(x){return T+(H-T-B)*(1-x/max);}
+    (bmode==='amt'?[0,250000,500000,750000,1000000]:[0,10,20,30]).forEach(function(t){s.appendChild(el('line',{x1:L,x2:W-R,y1:y(t),y2:y(t),stroke:v('--line'),'stroke-width':1}));s.appendChild(el('text',{x:L-6,y:y(t)+4,'text-anchor':'end'},bmode==='amt'?(t/10000)+'万':t));});
+    var gw=(W-L-R)/bd.length,bw=Math.min(64,gw*.45);
+    bd.forEach(function(d,i){var cx=L+gw*i+gw/2,acc=0,arr=bmode==='amt'?d.a:d.n,g=el('g',{tabindex:0});
+      arr.forEach(function(n,j){if(!n)return;g.appendChild(el('rect',{x:cx-bw/2,y:y(acc+n),width:bw,height:y(acc)-y(acc+n),fill:v(bk[j].c),stroke:v('--paper'),'stroke-width':1}));acc+=n;});
+      s.appendChild(el('text',{x:cx,y:y(acc)-6,'text-anchor':'middle',style:'font-weight:700;font-size:14px;fill:'+v('--ink')},bmode==='amt'?fmtM(acc):acc+'件'));
+      d.m.split('\n').forEach(function(t,k){s.appendChild(el('text',{x:cx,y:H-24+k*14,'text-anchor':'middle',class:'jp'},t));});
+      g.appendChild(el('rect',{x:L+gw*i,y:T,width:gw,height:H-T-B,fill:'transparent'}));
+      var html='<b>'+d.m.replace('\n',' ')+'</b>'+arr.map(function(n,j){return '<br>'+bk[j].g+' '+bk[j].k+' '+(bmode==='amt'?fmtM(n):n+'件');}).join('');
+      ['mousemove','touchstart'].forEach(function(e){g.addEventListener(e,function(ev){showTip(tip,box,ev,html);},{passive:true});});g.addEventListener('mouseleave',function(){hideTip(tip);});
+      s.appendChild(g);});
+    box.appendChild(s);}
+  function setB(m){bmode=m;document.getElementById('bAmt').setAttribute('aria-pressed',m==='amt');document.getElementById('bCnt').setAttribute('aria-pressed',m==='cnt');drawBlocks();}
+  document.getElementById('bAmt').onclick=function(){setB('amt');};document.getElementById('bCnt').onclick=function(){setB('cnt');};
+  drawBlocks();
+  var lgb=document.getElementById('lgBlocks');bk.forEach(function(c){lgb.insertAdjacentHTML('beforeend','<span><i style="background:var('+c.c+')"></i>'+c.g+' '+c.k+'</span>');});
+
+  /* 6. 準備 */
+  var prep=[
+    {n:'正社員1名を3月までに入れる',s:'mute',t:'MTGで確認',note:'計画：3月入社・試用6か月は月30万。採用の進み具合は、この資料の時点で記録を確かめられていない'},
+    {n:'協力業者を1〜2月に決めて、3月から動かす',s:'warn',t:'これから',note:'支払条件3案（歩合65%・固定単価・日当）は未決定。和真さんのレビュー待ち（§7 のお願い4）'},
+    {n:'広告のテスト（段0）を12月末までに終える',s:'run',t:'テスト中',note:'9/20 から実施中。結論は12月末（§4）'},
+    {n:'ハウスクリーニングをギフトとして売る',s:'warn',t:'企画中',note:'2027年の2,600万には入れていない。年末の事前登録は0件。母の日2027で一度試す計画のまま'},
+    {n:'2027年の売上表（スプレッドシート）',s:'run',t:'できている',note:'受注日・接触記録・自社/本舗の列まで作ってある。1月から使えるよう年内にDriveへ'},
+    {n:'自社ネット新規の記録（どこから何件）',s:'good',t:'取れている',note:'予約ページ・LPに入口の印（?src=）。月別・入口別に数えられている（§2）'}];
+  var pl=document.getElementById('prepList');prep.forEach(function(m){pl.insertAdjacentHTML('beforeend','<div class="row"><span class="name">'+m.n+'</span><span class="chip '+m.s+'">'+m.t+'</span><span class="note">'+m.note+'</span></div>');});
+
+  /* 目次の現在地 */
+  var links=[].slice.call(document.querySelectorAll('nav.toc a'));
+  if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){links.forEach(function(a){a.classList.toggle('on',a.getAttribute('href')==='#'+e.target.id);});}});},{rootMargin:'-40% 0px -55% 0px'});
+    ['summary','landing','net','measures','ads','blocks','prep','next'].forEach(function(id){var e=document.getElementById(id);if(e)io.observe(e);});}
+
+  /* テーマが変わったら描き直す */
+  var mq=window.matchMedia('(prefers-color-scheme: dark)');
+  if(mq.addEventListener)mq.addEventListener('change',function(){location.reload();});
+  var w0=window.innerWidth,rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){if(Math.abs(window.innerWidth-w0)>60)location.reload();},300);});
+})();
+</script>
