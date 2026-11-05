@@ -82,7 +82,8 @@ def torikomi():
                    ('kanryo-okuru', r'送る対象: (\d+)件'),
                    ('survey-inbox', r'未通知: (\d+)件'),
                    ('baito-inbox', r'未通知: (\d+)件'),     # 2026-10-03 アルバイトの業務報告を2人に知らせる（T062）。アンケート回答は T061
-                   ('partner-inbox', r'未通知: (\d+)件')):  # 2026-10-10 提携先の専用ページ（タカラ様）からの依頼
+                   ('partner-inbox', r'未通知: (\d+)件'),   # 2026-10-10 提携先の専用ページ（タカラ様）からの依頼
+                   ('suitou-remind', r'リマインド対象: (\d+)件')):  # 2026-11-05 和真さん LINE 654「出納帳5万超えたら振り込むようにリマインド」
         rc, out = jikkou(f'tools/{t}.py', '--dry-run')
         m = re.search(pat, out)
         if not m:
