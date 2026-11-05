@@ -431,7 +431,10 @@ TEMPLATE = r"""<!doctype html>
        区切り（- _）の前だけを小文字で見るのは LP 側（KOUKOKU）と同じ考え方。SMS・QR 等の既存客の画面は変えない。 */
     var qSns = new URLSearchParams(location.search);
     var srcSns = String(qSns.get('src') || '').toLowerCase().split(/[-_]/)[0];
-    var hajimete = ['gads', 'ig', 'fb', 'gbp'].indexOf(srcSns) !== -1 || !!qSns.get('lp');
+    /* 2026-11-05 オーナー指示で直し：『前回ご利用いただいたお客様専用』は、既存のお客様に渡す入口（SMS・作業完了・QR・朝の案内）だけに出す。
+       それ以外（src なし・公式サイト・GBP・広告・LP・SNS・LINE など）は、はじめての方にも合う文言にする */
+    var kizon = ['sms', 'kanryo', 'qr', 'asa', 'repeat'].indexOf(srcSns) !== -1 && !qSns.get('lp');
+    var hajimete = !kizon;
     if (hajimete) {
       document.getElementById('lead').innerHTML = 'はじめての方もこのページからご予約いただけます。所要 <b>約2分</b>。ご予約前に、まず料金の目安が出ます。お電話でも承ります。';
       document.getElementById('bar-sub').textContent = 'ワンヒッター株式会社｜ハウスクリーニング（東京・千葉・神奈川）';
@@ -997,6 +1000,8 @@ TEMPLATE = r"""<!doctype html>
       STEPS.forEach(function(id){ $(id).hidden = true; });
       $('progress').hidden = true;
       $('done').hidden = false;
+      /* 2026-11-05 オーナー指示：完了画面の上に、入力前の案内（はじめに・電話で予約・または下から選ぶ）を残さない */
+      Array.prototype.forEach.call(document.querySelectorAll('.intro, .denwa, .matawa'), function(el){ el.style.display = 'none'; });
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }).catch(function(err){
       okuttechuu = false;
