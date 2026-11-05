@@ -386,6 +386,13 @@
        ワンヒッターの料金表のときだけ（本舗の料金は本舗の決まり）。チラシ特典とは流入経路が別なので重ならない */
     var tokuNa = toku ? 'チラシ特典（自動）' : '';
     if (sho && h.kata === 'oh' && jotai.keiro === 'リピート') { toku = 1000; tokuNa = 'リピート割引（自動）'; }
+    /* 早期予約割引：流入経路「早期予約」（作業完了時の次回予約など）は、予約ページと同じ月別の率で自動で引く
+       （2026-11-05 第9回MTG『次回予約の際に早期割引の割引が適応されない → CMOが修正』）。
+       予約ページと同じく1種類のときだけ（2種類以上は同時施工価格がすでに効いている）・他の割引と併用しない */
+    var SOUKI = {1: 0.15, 2: 0.15, 3: 0.1, 4: 0.1, 5: 0, 6: 0, 7: 0, 8: 0.1, 9: 0.1, 10: 0.1, 11: 0.1, 12: 0};
+    if (sho && h.kata === 'oh' && jotai.keiro === '早期予約' && shurui === 1 && SOUKI[tsuki]) {
+      toku = Math.round(sho * SOUKI[tsuki]); tokuNa = '早期予約割引 ' + Math.round(SOUKI[tsuki] * 100) + '%（自動）';
+    }
     jotai.tokuNa = tokuNa;
     if ($('g-toku-na')) { $('g-toku-na').textContent = tokuNa || 'チラシ特典（自動）'; }
     $('g-toku-gyo').hidden = !toku;
@@ -563,7 +570,7 @@
       '法人名': houjinMoji(),
       '紹介者': $('shokai-box').hidden ? '' : $('shokaisha').value.trim(),
       'ヒアリング': kikuMoji(),
-      '備考': [jotai.toku ? (jotai.tokuNa === 'リピート割引（自動）' ? 'リピート割引 −1,000円（自動）' : 'チラシ特典 −500円（自動・他の割引と併用不可）') : '', $('memo').value.trim()].filter(Boolean).join('　'),
+      '備考': [jotai.toku ? (jotai.tokuNa === 'リピート割引（自動）' ? 'リピート割引 −1,000円（自動）' : (jotai.tokuNa.indexOf('早期予約割引') === 0 ? jotai.tokuNa.replace('（自動）', '') + ' −' + jotai.toku.toLocaleString() + '円（自動）' : 'チラシ特典 −500円（自動・他の割引と併用不可）')) : '', $('memo').value.trim()].filter(Boolean).join('　'),
       '入力日時': new Date().toISOString()
     };
     var body = Object.keys(atai).map(function(k){
