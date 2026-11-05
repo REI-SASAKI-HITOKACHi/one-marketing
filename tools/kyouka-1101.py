@@ -232,6 +232,9 @@ def kyoutsuu(h, name, sticky_small):
                  f'data-place="sticky">空き日を見て予約<small>{sticky_small}</small></a>', name=name)
     h = kaeru(h, 'id="nov-link">空いている日を見る</a>', 'id="nov-link">空いている日を見て予約</a>', name=name)
     h = kaeru(h, ZIP_OLD, ZIP_NEW, name=name)
+    # CMO 決定（2026-11-04）：聞かれていない比較・但し書きを①②とも外す
+    h = re.sub(r"\n\s*<p>この業界はフランチャイズと下請けが主流です。ONE HITTER は違います。</p>", "", h)
+    h = h.replace("効果には個人差があります。", "")
     h = kaeru(h, "</body>", END_SCRIPT + "</body>", name=name)
     return h
 
