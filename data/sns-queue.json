@@ -1980,9 +1980,29 @@
     "fb_caption": "江戸川区のハウスクリーニング店から、自分でできる範囲のお話です。\n\nレンジフードは、3か月に1度、温めて洗うのが目安です。\n1. 手入れの目安は、3か月に1度\n2. 35〜40℃のお湯に、20〜30分つけ置く\n3. 市販のフィルターカバーは、機種によって使えない\n\nパナソニックの案内（住まいの設備と建材・キッチンの手入れ）に書かれています。カバーは、取扱説明書で確認してください。\n\nご予約はこちらから。\n\n#レンジフード #換気扇掃除 #油汚れ #自分でできる掃除 #江戸川区 #西葛西 #ハウスクリーニング",
     "link": "https://lp.onehitter.jp/nenmatsu/?src=ig",
     "fb_link": "https://yoyaku.onehitter.jp/?src=fb",
-    "status": "approved",
+    "status": "posted",
     "note": "D型。ブログ 11/7 の先出し（パナソニックの案内）。カードは data/sns-cards/w08-6.json（check-cards OK）。 2026-10-26 cmo 査読で出典・内容を直した版（原文照合済み）。",
-    "承認": "2026-10-26 cmo 査読OK（20261026-02-cmo）。出典の章・数字は docs/sns-投稿原稿/week-08.md に記載・照合済み"
+    "承認": "2026-10-26 cmo 査読OK（20261026-02-cmo）。出典の章・数字は docs/sns-投稿原稿/week-08.md に記載・照合済み",
+    "results": {
+      "instagram": {
+        "container_id": "18083693675709070",
+        "media_id": "17915862048520862",
+        "permalink": "https://www.instagram.com/p/DfYRy2EEX2n/",
+        "published": true
+      },
+      "facebook": {
+        "post_id": "103698149101436_1153786590771024",
+        "permalink": "https://www.facebook.com/1100803886069295/posts/1153786590771024",
+        "media_ids": [
+          "1153786574104359"
+        ]
+      }
+    },
+    "posted_at": "2026-11-06T09:05:22+09:00",
+    "permalinks": {
+      "instagram": "https://www.instagram.com/p/DfYRy2EEX2n/",
+      "facebook": "https://www.facebook.com/1100803886069295/posts/1153786590771024"
+    }
   },
   {
     "id": "w09-1",
