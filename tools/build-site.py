@@ -630,7 +630,9 @@ GIFT_PAGES = {"nenmatsu", "nenmatsu-b"}  # 2026-10-10 掲出承認（第6回MTG 
 
 # 担当者のイラスト（和真さん本人の確認が済んだものだけをここに置く）。
 # 作り方は tools/make-staff-illust.py の冒頭を参照。写真そのものは置かない。
-STAFF_IL = ROOT / "lp" / "_staff" / "staff.svg"
+STAFF_IL = ROOT / "lp" / "_staff" / "staff.jpg"   # 嶺さん GPT 版・第一候補（11/7）。差し替えはこのファイルだけ
+# 和真さん本人の OK と嶺さんの配信 OK がそろうまで False（cmo の合図で True に）。False のあいだは枠ごと外す
+STAFF_KOUKAI = False
 
 
 def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict) -> None:
@@ -739,7 +741,7 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict)
 
     # 担当者のイラスト。lp/_staff/staff.svg が置かれるまでは枠ごと外す
     # （空の枠や壊れた画像を本番に出さないため。置けば次の配信から4本に出る）
-    if not STAFF_IL.exists():
+    if not (STAFF_KOUKAI and STAFF_IL.exists()):
         doc = re.sub(r'\s*<figure class="staff-il".*?</figure>', "", doc, flags=re.S)
 
     (dst / "index.html").write_text(doc, encoding="utf-8")
@@ -750,8 +752,8 @@ def build_page(name: str, meta: dict, target: str, out: pathlib.Path, cfg: dict)
     if img_dst.exists():
         shutil.rmtree(img_dst)
     shutil.copytree(img_src, img_dst)
-    if STAFF_IL.exists() and 'class="staff-il"' in doc:
-        shutil.copy(STAFF_IL, img_dst / "staff.svg")
+    if STAFF_KOUKAI and STAFF_IL.exists() and 'class="staff-il"' in doc:
+        shutil.copy(STAFF_IL, img_dst / "staff.jpg")
 
     make_og(img_dst / "hero-bg.jpg", img_dst / "og.jpg", meta["og_line1"], meta["og_line2"])
 

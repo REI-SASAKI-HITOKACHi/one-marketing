@@ -90,7 +90,7 @@ CSS = """<style data-oh="kyouka">
 .line-soudan{display:block;text-align:center;font-size:13.5px;font-weight:700;color:#05813A;text-decoration:underline;text-underline-offset:3px;}
 .tantou{padding:24px 0;background:var(--surface,#fff);border-bottom:1px solid var(--rule,#D7E1E7);}
 .tantou-in{display:flex;gap:14px;align-items:center;}
-.tantou-kao{flex:0 0 96px;width:96px;height:96px;margin:0;border-radius:12px;overflow:hidden;}
+.tantou-kao{flex:0 0 132px;width:132px;height:132px;margin:0;border-radius:50%;overflow:hidden;background:#F2EFE9;}.tantou-kao img{display:block;width:100%;height:100%;object-fit:cover;}
 .kyouka-waku{border:2px dashed #C0300C;background:#FFF6F2;color:#8F2408;font-size:10px;font-weight:700;line-height:1.4;
   display:flex;align-items:center;justify-content:center;text-align:center;padding:6px;}
 .tantou-h{font-family:"Shippori Mincho B1","Yu Mincho",serif;font-weight:800;font-size:18px;line-height:1.5;color:var(--ink,#0D3B5C);margin:0 0 4px;}
@@ -133,7 +133,7 @@ def tantou(img_src):
     return f"""<section class="tantou" id="tantou">
   <div class="wrap">
     <div class="tantou-in">
-      <figure class="tantou-kao kyouka-waku" aria-label="下書き：担当の写真が入る枠">【下書き】担当（渡辺）の写真が入る枠<br>顔の掲載はオーナー確認のあと</figure>
+      <figure class="tantou-kao"><img src="{img_src.replace('sagyou.jpg', 'staff.jpg')}" alt="当日伺う担当（渡辺）のイラスト" width="132" height="132" loading="lazy" decoding="async"></figure>
       <div class="tantou-txt">
         <p class="tantou-h">伺うのは、自社の職人です</p>
         <p class="tantou-p">ご予約の受付から当日の作業まで、担当の渡辺が行います。下請けには出しません。</p>
@@ -677,6 +677,8 @@ def gazou(name, out_img):
     for f in src_img.iterdir():
         if f.is_file():
             shutil.copy2(f, out_img / f.name)
+    # 担当のイラスト（置き場所は lp/_staff/staff.jpg の1か所。差し替えはそのファイルを替えて作り直すだけ）
+    shutil.copy2(ROOT / "lp" / "_staff" / "staff.jpg", out_img / "staff.jpg")
     log = []
 
     def tsumeru(fname, size=None, quality=80, src=None, crop=None):

@@ -36,6 +36,7 @@ WAKU = {
     "osui":    [("osui.jpg", "assets/photos-design2/osui-J22-01.jpg")],   # 棚 J22-01（2026-10-30・汚水）
     "sagyou":  [("sagyou.jpg", "assets/photos-design2/sagyou-J23-38.jpg")],   # 棚 J23-38（2026-10-31・洗い流した直後のルーバー）
     "og":      [("og.jpg", "deploy/machi/kyouka/aircon-c/img/og.jpg")],
+    "tantou-e": [("staff.jpg", "lp/_staff/staff.jpg")],   # 担当のイラスト（置き場所は1か所）
 }
 
 KIERU = "Date.UTC(2026, 10, 30, 15, 0, 0)"

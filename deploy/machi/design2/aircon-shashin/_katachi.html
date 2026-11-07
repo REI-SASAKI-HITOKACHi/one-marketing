@@ -161,8 +161,8 @@ p{margin:0}
 
 /* 担当（イラストが入る枠） */
 .tantou-in{display:grid;grid-template-columns:120px 1fr;gap:var(--sp-2);align-items:center}
-.tantou-e{margin:0;aspect-ratio:1/1;border:2px dashed var(--nezumi);border-radius:16px;background:var(--kumo);display:flex;align-items:center;justify-content:center;
-  text-align:center;padding:8px;font-size:var(--fs-1);line-height:1.5;color:var(--nezumi)}
+.tantou-e{margin:0;aspect-ratio:1/1;border-radius:50%;overflow:hidden;background:var(--kumo)}
+.tantou-e img{display:block;width:100%;height:100%;object-fit:cover}
 .tantou-in h2{font-size:var(--fs-4);line-height:1.5;margin:0 0 4px}
 
 /* よくある頼み方 */
@@ -452,7 +452,7 @@ footer dd{margin:0}
 <section class="kami k tantou" id="tantou">
   <div class="w">
     <div class="tantou-in">
-      <figure class="tantou-e" data-waku="tantou-e" aria-label="下書き：担当のイラストが入る枠">【下書き】担当（渡辺）のイラストが入る枠</figure>
+      <figure class="tantou-e" data-waku="tantou-e"><img src="img/staff.jpg" alt="当日伺う担当（渡辺）のイラスト" width="132" height="132" loading="lazy" decoding="async"></figure>
       <div class="tantou-txt">
         <h2 class="tantou-h">伺うのは、自社の職人です</h2>
         <p class="tantou-p">ご予約の受付から当日の作業まで、担当の渡辺が行います。下請けには出しません。</p>
