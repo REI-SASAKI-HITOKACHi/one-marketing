@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""担当（渡辺 和真さん）のイラストを本番の全LPに差し込む（依頼 20261107-01-lp・嶺さん 11/7 配信OK）。
+"""担当（渡辺さん）のイラストを本番の全LPに差し込む（依頼 20261107-01-lp・嶺さん 11/7 配信OK）。
 
     python3 tools/staff-honban-1107.py          # deploy/netlify/ の LP 10本に差し込む（2回流しても重ならない）
 
 - 画像は lp/_staff/staff.jpg の1か所（嶺さん GPT 版・第一候補 600×600）。各ページの img/staff.jpg に写す
 - 置き場所：「Who comes（伺うのは…／下請けに出しません）」の見出しの直下。年末LP（nenmatsu）はその欄が無いので、
   「WEB予約・お見積り」の見出しの直下（申込の直前＝迷うところに人の顔）
-- 形は学習版（lp/aircon-c の staff-il）と同じ：132px の丸＋名前＋一言。CSS が無いページには足す
+- 形は学習版（lp/aircon-c の staff-il）と同じ：132px の丸＋「業務管理責任者：渡辺」＋一言（フルネームは出さない＝嶺さん 11/7）。CSS が無いページには足す
 - 元は本番と同じ deploy/netlify（11/7 に本番を取得して、違いは Netlify のフォーム書き換えだけと確認）
 """
 import pathlib
@@ -20,8 +20,8 @@ STAFF = ROOT / "lp" / "_staff" / "staff.jpg"
 PAGES = ["aircon", "aircon-b", "aircon-c", "aircon-d", "aircon-e", "kabi", "mizumawari", "mizumawari-b", "nenmatsu", "nenmatsu-b"]
 
 FIG = ('    <figure class="staff-il"><img src="img/staff.jpg" width="132" height="132" '
-       'alt="当日伺う担当、渡辺 和真のイラスト" loading="lazy" decoding="async">'
-       '<figcaption><b>渡辺 和真</b>当日伺う担当です。ご連絡から作業当日まで、担当は変わりません。</figcaption></figure>\n')
+       'alt="当日伺う担当、渡辺のイラスト" loading="lazy" decoding="async">'
+       '<figcaption><b>業務管理責任者：渡辺</b>当日伺う担当です。ご連絡から作業当日まで、担当は変わりません。</figcaption></figure>\n')
 CSS = ('<style>/* 担当のイラスト（tools/staff-honban-1107.py） */'
        '.staff-il{margin:0 0 22px;display:flex;gap:16px;align-items:center;}'
        '.staff-il img{width:132px;height:132px;aspect-ratio:1/1;border-radius:50%;object-fit:cover;background:#F2EFE9;flex:none;}'
