@@ -9,10 +9,11 @@
 - エアコンを選んだときだけ、メニューの下に2つのチェック欄を出す。金額は data/prices.json（室外機セット 5,500円・防カビコート 3,300円）
 - チェック1つで「エアコンの台数分」を足す（LP C・E の見積りと同じ。1台だけ付けたいときはご要望欄かお電話で）
 - 足した分は概算合計に入れる。箇所には数えない（早期予約割引・繁忙期加算・ネット申込特典の判定は今のまま）
-- 早期予約割引（11月10%）はエアコン本体の金額だけに掛かる＝今の kingaku() のまま。オプションは割り引かない
+- 早期予約割引（11月10%など）はオプションにも掛ける（CMO 決定 11/2。1台・1箇所のときだけ＝今の決まりのまま）
 - 11月の作業は防カビコート1台分が無料（今の仕組み）。防カビにチェックしたら、無料の1台分を引いた残りの台数分だけ足す
 - 「ご希望の内容」（スタッフに届く本文）に「＋室外機セット」等を足す。概算金額もこの合計で送る。Netlify の項目は増やさない
-- 所要時間（空き枠の長さ）は変えない（オプションの作業時間の決まりが無いため。cmo に確認）
+- 室外機セットは1台につき空き枠を20分足す（CMO 決定 11/2）。チェックを変えたら選んだ日時は選び直し（所要が変わるため）
+- 型番シールの写真の欄（tools/kataban-1029.py）と1本にまとめて deploy/machi/yoyaku-1107/ に書き出す（CMO 11/7）
 元にするのは本番と同じ予約ページ（cmo ブランチの lp/booking/index.html）。
 """
 import json
@@ -22,7 +23,7 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 REF = "origin/claude/one-hitter-cmo-strategy-5qk4ux"
-OUT = ROOT / "deploy" / "machi" / "option" / "booking" / "index.html"
+OUT = ROOT / "deploy" / "machi" / "yoyaku-1107" / "booking" / "index.html"   # オプション欄＋型番写真の欄
 MARK = 'id="opt-box"'
 
 
@@ -57,7 +58,7 @@ def edits(shitsu, bokabi):
         '      </div>\n')
     js = """
   /* エアコンのオプション（tools/option-1101.py）。チェック1つでエアコンの台数分。箇所には数えない */
-  S.opt = {shitsugaiki: {n: '室外機セット', gaku: %d}, bokabi: {n: '防カビコート', gaku: %d}};
+  S.opt = {shitsugaiki: {n: '室外機セット', gaku: %d, fun: 20}, bokabi: {n: '防カビコート', gaku: %d}};
   function acDaisu(){ return S.bokabi.taisho.reduce(function(a, n){ return a + (state.qty[n] || 0); }, 0); }
   function optOn(id){ var e = $('opt-' + id); return !!(e && e.checked && acDaisu() > 0); }
   /* 足す台数。防カビは11月の無料1台分を引いた残り */
@@ -77,6 +78,15 @@ def edits(shitsu, bokabi):
   }
 """ % (shitsu, bokabi)
     return [
+        # 0a. 早期予約割引をオプションにも掛ける（CMO 11/2）
+        ("    var waribiki = Math.round(shoukei * ritsu);\n",
+         "    var waribiki = Math.round((shoukei + optGaku()) * ritsu);   /* 早期予約割引はオプションにも掛ける（CMO 11/2） */\n"),
+        # 0b. 室外機セットは1台につき20分（CMO 11/2）
+        ("    return f;\n  }\n  function kingaku(){\n",
+         "    f += optDai('shitsugaiki') * S.opt.shitsugaiki.fun;   /* 室外機セットは1台につき20分（CMO 11/2） */\n    return f;\n  }\n  function kingaku(){\n"),
+        # 0c. 割引の行に「オプション分を含む」を添える（10,780円の10%と数字が合わなく見えるため）
+        ("      h.push(ln('早期予約割引 ' + Math.round(k.ritsu * 100) + '%OFF', '−' + yen(k.waribiki), 'off'));\n",
+         "      h.push(ln('早期予約割引 ' + Math.round(k.ritsu * 100) + '%OFF' + (k.shitsugaiki || k.bokabiYuryo ? '（オプション分を含む）' : ''), '−' + yen(k.waribiki), 'off'));\n"),
         # 1. 冒頭の説明
         ('オプション（防カビコート・室外機など）は、担当からの確認のお電話で承ります。',
          'エアコンの室外機セット・防カビコートは、メニューの下で選べます。そのほかのオプションは、担当からの確認のお電話で承ります。'),
@@ -111,7 +121,9 @@ def edits(shitsu, bokabi):
 
 
 LISTEN = ("  Array.prototype.forEach.call(document.querySelectorAll('[data-back]'), function(b){\n",
-          "  ['opt-shitsugaiki', 'opt-bokabi'].forEach(function(id){ $(id).addEventListener('change', drawTotal); });\n"
+          "  /* 室外機セットは所要が変わるので、選んだ日時は選び直してもらう（箇所を増減したときと同じ） */\n"
+          "  $('opt-shitsugaiki').addEventListener('change', function(){ state.date = ''; state.time = ''; state.slots = null; drawTotal(); });\n"
+          "  $('opt-bokabi').addEventListener('change', drawTotal);\n"
           "  Array.prototype.forEach.call(document.querySelectorAll('[data-back]'), function(b){\n")
 
 
@@ -133,7 +145,13 @@ def make(h, shitsu, bokabi):
 def main():
     shitsu, bokabi = kakaku()
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(make(git_show("lp/booking/index.html"), shitsu, bokabi), encoding="utf-8")
+    h = make(git_show("lp/booking/index.html"), shitsu, bokabi)
+    # 型番シールの写真の欄（tools/kataban-1029.py）を重ねる
+    import importlib.util
+    sp = importlib.util.spec_from_file_location("kataban", ROOT / "tools" / "kataban-1029.py")
+    kb = importlib.util.module_from_spec(sp); sp.loader.exec_module(kb)
+    h = kb.make(h)
+    OUT.write_text(h, encoding="utf-8")
     print(f"書き出しました: {OUT.relative_to(ROOT)}（室外機セット {shitsu:,}円・防カビコート {bokabi:,}円）")
 
 
