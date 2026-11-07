@@ -125,11 +125,11 @@ def text_block_height(lines: list, f: ImageFont.FreeTypeFont, lh: float) -> int:
     return round(f.size * lh) * len(lines)
 
 
-def frame(d: ImageDraw.ImageDraw, kind: str) -> tuple:
+def frame(d: ImageDraw.ImageDraw, kind: str, kicker_override: str = "") -> tuple:
     """上：小さな見出し語と細い罫。下：奥付。戻り値は (本文の開始y, 本文の終わりy)"""
     fk = font(GOTHIC, 26)
     y = M
-    kicker = KICKER[kind]
+    kicker = kicker_override or KICKER[kind]
     # 字間を少し空ける（雑誌の柱）
     x = M
     for ch in kicker:
@@ -150,7 +150,7 @@ def frame(d: ImageDraw.ImageDraw, kind: str) -> tuple:
 def render_D(spec: dict) -> Image.Image:
     im = Image.new("RGB", (W, H), PAPER)
     d = ImageDraw.Draw(im)
-    top, bottom = frame(d, "D")
+    top, bottom = frame(d, "D", spec.get("kicker", ""))
 
     fh, hl, overflow = fit_headline(spec["headline"], CW, 3, 92, 60)
     if overflow:
